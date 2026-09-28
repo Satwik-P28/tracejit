@@ -1,0 +1,24 @@
+[package]
+name = "tracejit-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "tracejit"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+serde_json.workspace = true
+tracing-subscriber.workspace = true
+tracejit-cache = { path = "../tracejit-cache" }
+tracejit-core = { path = "../tracejit-core" }
+tracejit-effects = { path = "../tracejit-effects" }
+tracejit-guards = { path = "../tracejit-guards" }
+
+[dev-dependencies]
+tempfile.workspace = true
+tracejit-sandbox = { path = "../tracejit-sandbox" }

@@ -1,0 +1,5 @@
+/target/
+/work/
+*.swp
+.DS_Store
+

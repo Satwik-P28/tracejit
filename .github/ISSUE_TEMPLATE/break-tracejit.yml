@@ -1,0 +1,32 @@
+name: Break TraceJIT
+description: Report a program that TraceJIT classifies or reuses unsafely.
+title: "[adversarial] "
+labels: ["safety", "adversarial-fixture"]
+body:
+  - type: textarea
+    id: program
+    attributes:
+      label: Minimal program
+      description: Include a self-contained reproducer and invocation.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected effect
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual TraceJIT behavior
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Kernel and environment
+      description: Include kernel version, architecture, filesystem, and TraceJIT commit.
+    validations:
+      required: true
+

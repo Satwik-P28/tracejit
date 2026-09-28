@@ -1,0 +1,31 @@
+[workspace]
+members = [
+    "crates/tracejit-cache",
+    "crates/tracejit-cli",
+    "crates/tracejit-core",
+    "crates/tracejit-effects",
+    "crates/tracejit-guards",
+    "crates/tracejit-sandbox",
+    "crates/tracejit-trace",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0 OR MIT"
+rust-version = "1.85"
+
+[workspace.dependencies]
+anyhow = "1.0"
+blake3 = "1.5"
+clap = { version = "4.5", features = ["derive"] }
+libc = "0.2"
+nix = { version = "0.29", features = ["fs", "process", "ptrace", "signal"] }
+rusqlite = { version = "0.32", features = ["bundled"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tempfile = "3.13"
+thiserror = "2.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }

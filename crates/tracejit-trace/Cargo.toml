@@ -1,0 +1,15 @@
+[package]
+name = "tracejit-trace"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+libc.workspace = true
+nix.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+tracejit-effects = { path = "../tracejit-effects" }
+tracejit-guards = { path = "../tracejit-guards" }
+tracejit-sandbox = { path = "../tracejit-sandbox" }

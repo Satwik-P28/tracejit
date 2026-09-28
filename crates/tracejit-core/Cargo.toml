@@ -1,0 +1,20 @@
+[package]
+name = "tracejit-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+blake3.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tracejit-cache = { path = "../tracejit-cache" }
+tracejit-effects = { path = "../tracejit-effects" }
+tracejit-guards = { path = "../tracejit-guards" }
+tracejit-sandbox = { path = "../tracejit-sandbox" }
+tracejit-trace = { path = "../tracejit-trace" }
+
+[dev-dependencies]
+tempfile.workspace = true

@@ -1,0 +1,17 @@
+[package]
+name = "tracejit-guards"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+blake3.workspace = true
+libc.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tracejit-effects = { path = "../tracejit-effects" }
+
+[dev-dependencies]
+tempfile.workspace = true
