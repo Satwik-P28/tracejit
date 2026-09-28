@@ -38,12 +38,7 @@ fn workspace(directory: &Path) {
 
 fn invoke(cache: &Path, args: &[&str], extra_env: Option<(&str, &str)>) -> Output {
     let mut command = Command::new(tracejit());
-    command
-        .args(args)
-        .env("TRACEJIT_CACHE_DIR", cache)
-        // glibc seeds tcache with getrandom on first allocation. Disable tcache for these
-        // syscall-classification fixtures so only fixture-requested randomness is observed.
-        .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0");
+    command.args(args).env("TRACEJIT_CACHE_DIR", cache);
     if let Some((key, value)) = extra_env {
         command.env(key, value);
     }

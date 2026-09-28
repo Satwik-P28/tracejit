@@ -1303,6 +1303,7 @@ fn is_known_internal_syscall(number: i64) -> bool {
     matches!(
         number,
         libc::SYS_lseek
+            | libc::SYS_fadvise64
             | libc::SYS_getdents64
             | libc::SYS_mmap
             | libc::SYS_mprotect
