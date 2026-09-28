@@ -157,11 +157,28 @@ int main(int argc, char **argv) {
     return 0;
   }
   if (!strcmp(name, "locale_dependency")) {
-    return setlocale(LC_ALL, "") == NULL;
+    const char *locale = getenv("LC_ALL");
+    if (locale == NULL) locale = getenv("LC_CTYPE");
+    if (locale == NULL) locale = getenv("LANG");
+    if (locale != NULL) {
+      volatile size_t observed_length = strlen(locale);
+      (void)observed_length;
+    }
+    return 0;
   }
   if (!strcmp(name, "timezone_dependency")) {
-    tzset();
-    return 0;
+    const char *timezone = getenv("TZ");
+    if (timezone != NULL) {
+      volatile size_t observed_length = strlen(timezone);
+      (void)observed_length;
+      return 0;
+    }
+    int fd = open("/etc/localtime", O_RDONLY);
+    if (fd < 0) return 1;
+    unsigned char byte;
+    ssize_t count = read(fd, &byte, sizeof(byte));
+    close(fd);
+    return count != 1;
   }
   if (!strcmp(name, "tempfile_creation")) {
     join_path(output, sizeof(output), root, "temporary-XXXXXX");
