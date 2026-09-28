@@ -30,19 +30,29 @@ static void join_path(char *destination, size_t capacity, const char *root,
 
 static void copy_file(const char *input, const char *output) {
   char buffer[4096];
-  FILE *source = fopen(input, "rb");
-  FILE *destination = fopen(output, "wb");
-  if (!source || !destination) {
+  int source = open(input, O_RDONLY);
+  if (source < 0) exit(91);
+  int destination = open(output, O_WRONLY | O_CREAT | O_TRUNC, 0600);
+  if (destination < 0) {
+    close(source);
     exit(91);
   }
-  size_t count;
-  while ((count = fread(buffer, 1, sizeof(buffer), source)) > 0) {
-    if (fwrite(buffer, 1, count, destination) != count) {
-      exit(92);
+  ssize_t count;
+  while ((count = read(source, buffer, sizeof(buffer))) > 0) {
+    ssize_t offset = 0;
+    while (offset < count) {
+      ssize_t written = write(destination, buffer + offset, count - offset);
+      if (written <= 0) {
+        close(source);
+        close(destination);
+        exit(92);
+      }
+      offset += written;
     }
   }
-  fclose(source);
-  fclose(destination);
+  close(source);
+  close(destination);
+  if (count < 0) exit(92);
 }
 
 static void network_write(void) {
