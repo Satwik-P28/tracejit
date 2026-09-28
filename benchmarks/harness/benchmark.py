@@ -273,7 +273,18 @@ def main() -> None:
             with tempfile.TemporaryDirectory(prefix="tracejit-cold-") as cache:
                 cold_env = env | {"TRACEJIT_CACHE_DIR": cache}
                 elapsed, completed = timed(trace_command(tracejit), cold_env)
-                assert_cold(completed)
+                try:
+                    assert_cold(completed)
+                except RuntimeError as error:
+                    diagnostic = checked(
+                        [str(tracejit), "analyze", "--verbose", "--", *COMMAND],
+                        cold_env,
+                    )
+                    raise RuntimeError(
+                        f"{error}\nclassification diagnostic:\n"
+                        f"{diagnostic.stdout.decode(errors='replace')}\n"
+                        f"{diagnostic.stderr.decode(errors='replace')}"
+                    ) from error
                 return elapsed
 
         traced_cold = measure(cold_probe, args.warmups, args.runs)
