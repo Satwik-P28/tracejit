@@ -1,6 +1,5 @@
 #!/bin/sh
 set -eu
 
-cargo build --release --workspace
+cargo build --workspace --release
 exec python3 benchmarks/harness/benchmark.py "$@"
-
