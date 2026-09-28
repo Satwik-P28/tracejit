@@ -178,6 +178,14 @@ pub fn current_runtime_identity() -> Result<RuntimeIdentity, GuardError> {
         let domain_name = field(&info.domainname);
         #[cfg(not(target_os = "linux"))]
         let domain_name = String::new();
+        let mut stack_limit = std::mem::MaybeUninit::<libc::rlimit>::uninit();
+        // SAFETY: getrlimit initializes stack_limit on success. The inherited stack limits are
+        // part of the runtime behavior and must match before a cached result can be reused.
+        if unsafe { libc::getrlimit(libc::RLIMIT_STACK, stack_limit.as_mut_ptr()) } != 0 {
+            return Err(GuardError::Runtime(io::Error::last_os_error().to_string()));
+        }
+        // SAFETY: the successful getrlimit call above initialized both fields.
+        let stack_limit = unsafe { stack_limit.assume_init() };
         Ok(RuntimeIdentity {
             os: field(&info.sysname),
             architecture: field(&info.machine),
@@ -193,6 +201,8 @@ pub fn current_runtime_identity() -> Result<RuntimeIdentity, GuardError> {
             gid: unsafe { libc::getgid() },
             // SAFETY: these calls have no preconditions and do not dereference memory.
             egid: unsafe { libc::getegid() },
+            stack_limit_soft: stack_limit.rlim_cur,
+            stack_limit_hard: stack_limit.rlim_max,
         })
     }
     #[cfg(not(unix))]

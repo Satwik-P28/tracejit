@@ -408,6 +408,8 @@ pub struct RuntimeIdentity {
     pub euid: u32,
     pub gid: u32,
     pub egid: u32,
+    pub stack_limit_soft: u64,
+    pub stack_limit_hard: u64,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -653,6 +655,8 @@ mod tests {
                 euid: 1000,
                 gid: 1000,
                 egid: 1000,
+                stack_limit_soft: 8 * 1024 * 1024,
+                stack_limit_hard: u64::MAX,
             },
         };
         let encoded = serde_json::to_vec(&identity).unwrap();

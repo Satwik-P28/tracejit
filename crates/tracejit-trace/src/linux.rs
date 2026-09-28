@@ -637,6 +637,16 @@ fn decode_entry(
         libc::SYS_uname => PendingSyscall::KernelState {
             kind: KernelStateRead::Hostname,
         },
+        libc::SYS_prlimit64
+            if args[0] == 0
+                && args[1] == libc::RLIMIT_STACK as u64
+                && args[2] == 0
+                && args[3] != 0 =>
+        {
+            // glibc queries the inherited stack limit during startup. RuntimeIdentity guards the
+            // same values before reuse. Limit changes and all other prlimit calls remain effects.
+            PendingSyscall::None
+        }
         libc::SYS_sysinfo | libc::SYS_sched_getaffinity | libc::SYS_prlimit64 => {
             PendingSyscall::KernelState {
                 kind: KernelStateRead::SystemInfo,
