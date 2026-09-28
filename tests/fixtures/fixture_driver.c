@@ -181,6 +181,9 @@ int main(int argc, char **argv) {
     return count != 1;
   }
   if (!strcmp(name, "tempfile_creation")) {
+    unsigned char random_byte;
+    if (syscall(SYS_getrandom, &random_byte, sizeof(random_byte), 0) != 1)
+      return 1;
     join_path(output, sizeof(output), root, "temporary-XXXXXX");
     int fd = mkstemp(output);
     if (fd >= 0) {
@@ -194,9 +197,9 @@ int main(int argc, char **argv) {
   if (!strcmp(name, "fork_child") || !strcmp(name, "child_file_dependency")) {
     pid_t child = fork();
     if (child == 0) {
-      FILE *file = fopen(input, "rb");
-      if (file) fclose(file);
-      _exit(file ? 0 : 1);
+      int fd = open(input, O_RDONLY);
+      if (fd >= 0) close(fd);
+      _exit(fd >= 0 ? 0 : 1);
     }
     int status;
     waitpid(child, &status, 0);
@@ -208,7 +211,8 @@ int main(int argc, char **argv) {
     return pthread_join(thread, NULL) != 0;
   }
   if (!strcmp(name, "exec_child")) {
-    execl("/bin/cat", "cat", input, (char *)NULL);
+    execl("/proc/self/exe", "fixture-driver", "plain_file_read", root,
+          (char *)NULL);
     return 93;
   }
   if (!strcmp(name, "interpreter_dependency")) {
@@ -223,36 +227,41 @@ int main(int argc, char **argv) {
     return 95;
   }
   if (!strcmp(name, "shared_file_write")) {
-    FILE *file = fopen(output, "ab");
-    if (!file) return 1;
-    fwrite("x", 1, 1, file);
-    fclose(file);
-    return 0;
+    int fd = open(output, O_WRONLY | O_CREAT | O_APPEND, 0600);
+    if (fd < 0) return 1;
+    ssize_t written = write(fd, "x", 1);
+    close(fd);
+    return written != 1;
   }
   if (!strcmp(name, "write_then_read")) {
-    FILE *file = fopen(output, "wb+");
-    if (!file) return 1;
-    fwrite("x", 1, 1, file);
-    rewind(file);
-    (void)fgetc(file);
-    fclose(file);
-    return 0;
+    int fd = open(output, O_RDWR | O_CREAT | O_TRUNC, 0600);
+    if (fd < 0) return 1;
+    if (write(fd, "x", 1) != 1 || lseek(fd, 0, SEEK_SET) != 0) {
+      close(fd);
+      return 1;
+    }
+    unsigned char byte;
+    ssize_t count = read(fd, &byte, sizeof(byte));
+    close(fd);
+    return count != 1;
   }
   if (!strcmp(name, "rename_output")) {
-    FILE *file = fopen(output, "wb");
-    if (!file) return 1;
-    fclose(file);
+    int fd = open(output, O_WRONLY | O_CREAT | O_TRUNC, 0600);
+    if (fd < 0) return 1;
+    close(fd);
     return rename(output, second);
   }
   if (!strcmp(name, "delete_output")) {
-    FILE *file = fopen(output, "wb");
-    if (!file) return 1;
-    fclose(file);
+    int fd = open(output, O_WRONLY | O_CREAT | O_TRUNC, 0600);
+    if (fd < 0) return 1;
+    close(fd);
     return unlink(output);
   }
   if (!strcmp(name, "nonzero_exit")) return 7;
-  if (!strcmp(name, "stdout_only")) return fputs("stdout fixture\n", stdout) < 0;
-  if (!strcmp(name, "stderr_only")) return fputs("stderr fixture\n", stderr) < 0;
+  if (!strcmp(name, "stdout_only"))
+    return write(STDOUT_FILENO, "stdout fixture\n", 15) != 15;
+  if (!strcmp(name, "stderr_only"))
+    return write(STDERR_FILENO, "stderr fixture\n", 15) != 15;
   if (!strcmp(name, "file_mtime_changed")) {
     struct stat metadata;
     return stat(input, &metadata);
