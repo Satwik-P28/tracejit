@@ -73,11 +73,17 @@ static void *thread_noop(void *unused) {
 }
 
 int main(int argc, char **argv) {
-  if (argc != 3) {
+  const char *name;
+  const char *root;
+  if (argc == 4 && !strcmp(argv[1], "script_interpreter")) {
+    name = "plain_file_read";
+    root = argv[3];
+  } else if (argc == 3) {
+    name = argv[1];
+    root = argv[2];
+  } else {
     return 89;
   }
-  const char *name = argv[1];
-  const char *root = argv[2];
   char input[4096], output[4096], second[4096];
   join_path(input, sizeof(input), root, "input.txt");
   join_path(output, sizeof(output), root, "output.txt");
@@ -216,14 +222,15 @@ int main(int argc, char **argv) {
     return 93;
   }
   if (!strcmp(name, "interpreter_dependency")) {
-    execl("/bin/sh", "sh", "-c", "cat \"$1\"", "tracejit", input,
-          (char *)NULL);
+    char interpreter[4096];
+    join_path(interpreter, sizeof(interpreter), root, "fixture-interpreter");
+    execl(interpreter, interpreter, "plain_file_read", root, (char *)NULL);
     return 94;
   }
   if (!strcmp(name, "script_dependency")) {
     char script[4096];
-    join_path(script, sizeof(script), root, "fixture-script.sh");
-    execl("/bin/sh", "sh", script, root, (char *)NULL);
+    join_path(script, sizeof(script), root, "fixture-script");
+    execl(script, script, root, (char *)NULL);
     return 95;
   }
   if (!strcmp(name, "shared_file_write")) {

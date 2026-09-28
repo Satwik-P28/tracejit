@@ -22,16 +22,25 @@ fn compile_fixture(directory: &Path) -> PathBuf {
         .status()
         .expect("C compiler must be available");
     assert!(status.success(), "fixture compilation failed");
+    let interpreter = directory.join("fixture-interpreter");
+    fs::copy(&binary, &interpreter).unwrap();
+    let script = directory.join("fixture-script");
+    fs::write(
+        &script,
+        format!(
+            "#!{} script_interpreter\nfixture body\n",
+            interpreter.display()
+        ),
+    )
+    .unwrap();
+    let mut permissions = fs::metadata(&script).unwrap().permissions();
+    std::os::unix::fs::PermissionsExt::set_mode(&mut permissions, 0o700);
+    fs::set_permissions(&script, permissions).unwrap();
     binary
 }
 
 fn workspace(directory: &Path) {
     fs::write(directory.join("input.txt"), b"input one\n").unwrap();
-    fs::write(
-        directory.join("fixture-script.sh"),
-        b"#!/bin/sh\ncat \"$1/input.txt\"\n",
-    )
-    .unwrap();
     #[cfg(unix)]
     std::os::unix::fs::symlink("input.txt", directory.join("input-link")).unwrap();
 }
