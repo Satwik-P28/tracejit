@@ -78,6 +78,8 @@ mod linux {
         | LANDLOCK_ACCESS_FS_MAKE_FIFO
         | LANDLOCK_ACCESS_FS_MAKE_BLOCK
         | LANDLOCK_ACCESS_FS_MAKE_SYM;
+    const FILE_ACCESS_V1: u64 =
+        LANDLOCK_ACCESS_FS_EXECUTE | LANDLOCK_ACCESS_FS_WRITE_FILE | LANDLOCK_ACCESS_FS_READ_FILE;
 
     #[repr(C)]
     struct LandlockRulesetAttr {
@@ -142,7 +144,8 @@ mod linux {
     }
 
     fn apply_landlock(policy: &SandboxPolicy, abi: i32) -> Result<(), SandboxError> {
-        let write_access = WRITE_ACCESS_V1
+        let supported_access = READ_ACCESS
+            | WRITE_ACCESS_V1
             | if abi >= 2 {
                 LANDLOCK_ACCESS_FS_REFER
             } else {
@@ -154,7 +157,7 @@ mod linux {
                 0
             };
         let attr = LandlockRulesetAttr {
-            handled_access_fs: READ_ACCESS | write_access,
+            handled_access_fs: supported_access,
         };
         // SAFETY: attr points to a correctly sized C-compatible structure.
         let ruleset_fd = unsafe {
@@ -170,10 +173,10 @@ mod linux {
         }
         let result = (|| {
             for path in &policy.readable_paths {
-                add_path_rule(ruleset_fd, path, READ_ACCESS)?;
+                add_path_rule(ruleset_fd, path, READ_ACCESS, supported_access, abi)?;
             }
             for path in &policy.writable_paths {
-                add_path_rule(ruleset_fd, path, READ_ACCESS | write_access)?;
+                add_path_rule(ruleset_fd, path, supported_access, supported_access, abi)?;
             }
             // SAFETY: prctl is called with the documented scalar arguments.
             if unsafe { libc::prctl(libc::PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) } != 0 {
@@ -190,7 +193,13 @@ mod linux {
         result
     }
 
-    fn add_path_rule(ruleset_fd: i32, path: &Path, access: u64) -> Result<(), SandboxError> {
+    fn add_path_rule(
+        ruleset_fd: i32,
+        path: &Path,
+        requested_access: u64,
+        supported_access: u64,
+        abi: i32,
+    ) -> Result<(), SandboxError> {
         let path = CString::new(path.as_os_str().as_bytes())
             .map_err(|_| SandboxError::Setup(format!("path contains NUL: {}", path.display())))?;
         // SAFETY: path is NUL terminated and flags contain no mode argument.
@@ -198,8 +207,38 @@ mod linux {
         if path_fd < 0 {
             return Err(last_error("open Landlock path"));
         }
+        let mut stat = std::mem::MaybeUninit::<libc::stat>::uninit();
+        // SAFETY: path_fd is valid and stat points to writable storage for fstat.
+        if unsafe { libc::fstat(path_fd, stat.as_mut_ptr()) } != 0 {
+            // SAFETY: path_fd was opened above and has not been closed.
+            unsafe { libc::close(path_fd) };
+            return Err(last_error("inspect Landlock path"));
+        }
+        // SAFETY: fstat initialized stat after returning success.
+        let stat = unsafe { stat.assume_init() };
+        let is_directory = (stat.st_mode & libc::S_IFMT) == libc::S_IFDIR;
+        let file_access = FILE_ACCESS_V1
+            | if abi >= 3 {
+                LANDLOCK_ACCESS_FS_TRUNCATE
+            } else {
+                0
+            };
+        let applicable_access = if is_directory {
+            supported_access
+        } else {
+            file_access
+        };
+        let allowed_access = requested_access & supported_access & applicable_access;
+        if allowed_access == 0 {
+            // SAFETY: path_fd was opened above and has not been closed.
+            unsafe { libc::close(path_fd) };
+            return Err(SandboxError::Setup(format!(
+                "no supported Landlock access rights for {}",
+                path.to_string_lossy()
+            )));
+        }
         let attr = LandlockPathBeneathAttr {
-            allowed_access: access,
+            allowed_access,
             parent_fd: path_fd,
         };
         // SAFETY: both file descriptors are valid and attr has the kernel ABI layout.

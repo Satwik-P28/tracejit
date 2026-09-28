@@ -105,11 +105,11 @@ int main(int argc, char **argv) {
   }
   if (!strcmp(name, "unknown_ioctl")) {
     int pair[2], available = 0;
-    pipe(pair);
-    ioctl(pair[0], FIONREAD, &available);
+    if (pipe(pair) != 0) return 1;
+    int result = ioctl(pair[0], FIONREAD, &available);
     close(pair[0]);
     close(pair[1]);
-    return 0;
+    return result < 0;
   }
   if (!strcmp(name, "proc_self")) {
     copy_file("/proc/self/status", output);
@@ -139,7 +139,12 @@ int main(int argc, char **argv) {
   }
   if (!strcmp(name, "environment_dependency") ||
       !strcmp(name, "unset_environment_dependency")) {
-    return getenv("TRACEJIT_FIXTURE_VALUE") ? 0 : 0;
+    const char *value = getenv("TRACEJIT_FIXTURE_VALUE");
+    if (value != NULL) {
+      volatile size_t observed_length = strlen(value);
+      (void)observed_length;
+    }
+    return 0;
   }
   if (!strcmp(name, "locale_dependency")) {
     return setlocale(LC_ALL, "") == NULL;
@@ -152,9 +157,10 @@ int main(int argc, char **argv) {
     join_path(output, sizeof(output), root, "temporary-XXXXXX");
     int fd = mkstemp(output);
     if (fd >= 0) {
-      write(fd, "x", 1);
+      ssize_t written = write(fd, "x", 1);
       close(fd);
       unlink(output);
+      if (written != 1) return 1;
     }
     return fd < 0;
   }
