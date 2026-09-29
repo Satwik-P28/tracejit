@@ -74,6 +74,8 @@ No release or curl-pipe installer exists.
 ## CLI
 
 ~~~text
+tracejit --version
+tracejit doctor
 tracejit run [--enforce] [--guard-mode strict|fast] [--verbose] [--json] -- <command> [args...]
 tracejit analyze [--verbose] [--json] -- <command> [args...]
 tracejit explain [execution-id] [--json]
@@ -81,13 +83,22 @@ tracejit cache stats
 tracejit cache clear
 ~~~
 
+`tracejit doctor` reports whether this machine can trace, whether seccomp and Landlock can support PROVEN, and where the cache will be written.
+
 run uses strict content hashing by default. analyze always executes and never
 reuses. explain shows the most recent or requested execution, including the last
 cache decision and guard failure. JSON mode keeps command output inside JSON fields.
 
+Reuse that TraceJIT refuses names the observation:
+
+~~~text
+reuse disabled: process read randomness via getrandom
+~~~
+
 An unseeded Python interpreter may call getrandom; TraceJIT then correctly marks
-the whole command NONDETERMINISTIC. The benchmark harness fixes PYTHONHASHSEED=0
-and disables `.pyc` writes explicitly rather than hiding either effect.
+the whole command NONDETERMINISTIC. The benchmark harness sets PYTHONHASHSEED=0,
+disables `.pyc` writes, and configures glibc not to draw allocator entropy.
+Those are workload settings. They are not exceptions in the classifier.
 
 ## Benchmarks
 
@@ -134,6 +145,15 @@ It does not claim those individual mechanisms are unprecedented.
 
 V1 deliberately excludes partial-subgraph reuse and non-Linux platforms. See
 [ROADMAP.md](ROADMAP.md) for deferred work.
+
+## License
+
+TraceJIT is licensed under either of
+
+- Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE))
+- MIT license ([LICENSE-MIT](LICENSE-MIT))
+
+at your option.
 
 ## Contributing
 

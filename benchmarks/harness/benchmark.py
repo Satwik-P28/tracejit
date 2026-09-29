@@ -179,7 +179,7 @@ def markdown(result: dict[str, object]) -> str:
         "",
         f"The committed Python ETL workload was measured with {result['runs']['warmups']} warmups and {result['runs']['measured']} recorded runs per stable condition. Baseline runs execute Python directly. Every traced-cold sample uses a fresh TraceJIT cache. Cached samples use an unchanged guarded entry and must report a cache hit. All timings are wall-clock process times except guard-check timings, which are TraceJIT's internal guard validation, output restoration, and cached-stream loading duration.",
         "",
-        "The workload ran with `PYTHONHASHSEED=0` and `PYTHONDONTWRITEBYTECODE=1`. CPU frequency, neighboring runner activity, and warm operating-system filesystem caches were not controlled.",
+        "The workload ran with `PYTHONHASHSEED=0`, `PYTHONDONTWRITEBYTECODE=1`, `GLIBC_TUNABLES=glibc.malloc.tcache_count=0`, and `MALLOC_ARENA_MAX=1`. It does not import hashlib. CPU frequency, neighboring runner activity, and warm operating-system filesystem caches were not controlled.",
         "",
         "## Commands",
         "",
@@ -261,8 +261,13 @@ def main() -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     env = os.environ.copy()
+    # These are workload settings, not classifier exceptions. They stop CPython and glibc
+    # from drawing entropy or querying CPU count during startup. OpenSSL is avoided by
+    # keeping hashlib out of the workload.
     env["PYTHONHASHSEED"] = "0"
     env["PYTHONDONTWRITEBYTECODE"] = "1"
+    env["GLIBC_TUNABLES"] = "glibc.malloc.tcache_count=0"
+    env["MALLOC_ARENA_MAX"] = "1"
     input_original = INPUT.read_bytes()
     output_original = OUTPUT.read_bytes() if OUTPUT.exists() else None
 

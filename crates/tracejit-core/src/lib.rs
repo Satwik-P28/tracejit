@@ -18,7 +18,7 @@ use tracejit_guards::{
     GuardMode, GuardReport,
 };
 use tracejit_sandbox::{capabilities, SandboxPolicy};
-use tracejit_trace::{trace_command, TraceError, TraceOutcome, TraceRequest};
+use tracejit_trace::{probe_ptrace, trace_command, TraceError, TraceOutcome, TraceRequest};
 
 #[derive(Debug, thiserror::Error)]
 pub enum CoreError {
@@ -219,6 +219,86 @@ pub fn analyze(command: Vec<OsString>) -> Result<RunReport, CoreError> {
         stderr: outcome.stderr,
         exit_code: trace.execution.exit_code,
     })
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct DoctorReport {
+    pub os: String,
+    pub arch: String,
+    pub supported: bool,
+    pub ptrace: bool,
+    pub seccomp: bool,
+    pub landlock_abi: Option<i32>,
+    pub proven: bool,
+    pub cache_path: PathBuf,
+    pub cache_writable: bool,
+    pub problems: Vec<String>,
+}
+
+pub fn doctor() -> DoctorReport {
+    let os = std::env::consts::OS.to_string();
+    let arch = std::env::consts::ARCH.to_string();
+    let supported = cfg!(all(target_os = "linux", target_arch = "x86_64"));
+    let ptrace_result = probe_ptrace();
+    let sandbox = capabilities();
+    let cache_path = Cache::default_root();
+    let cache_writable = cache_path_writable(&cache_path);
+    let mut problems = Vec::new();
+    if !supported {
+        problems.push("TraceJIT V1 requires Linux x86_64".into());
+    } else {
+        if let Err(detail) = &ptrace_result {
+            problems.push(detail.clone());
+        }
+        if !sandbox.can_prove() {
+            if let Some(reason) = sandbox.reason.clone() {
+                problems.push(reason);
+            }
+        }
+    }
+    if !cache_writable {
+        problems.push(format!(
+            "cache path is not writable: {}",
+            cache_path.display()
+        ));
+    }
+    DoctorReport {
+        os,
+        arch,
+        supported,
+        ptrace: ptrace_result.is_ok(),
+        seccomp: sandbox.seccomp,
+        landlock_abi: sandbox.landlock_abi,
+        proven: supported && ptrace_result.is_ok() && sandbox.can_prove(),
+        cache_path,
+        cache_writable,
+        problems,
+    }
+}
+
+fn cache_path_writable(path: &Path) -> bool {
+    let directory = if path.is_dir() {
+        path.to_path_buf()
+    } else if path.exists() {
+        return false;
+    } else {
+        path.parent().unwrap_or(path).to_path_buf()
+    };
+    if !directory.is_dir() {
+        return false;
+    }
+    let probe = directory.join(".tracejit-doctor-probe");
+    match std::fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&probe)
+    {
+        Ok(_) => {
+            let _ = std::fs::remove_file(probe);
+            true
+        }
+        Err(_) => false,
+    }
 }
 
 pub fn explain(

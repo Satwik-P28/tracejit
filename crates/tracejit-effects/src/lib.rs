@@ -108,8 +108,8 @@ impl Effect {
             Self::Read(ReadEffect::Clock(_))
             | Self::Read(ReadEffect::Random(_))
             | Self::Read(ReadEffect::Network(_))
-            | Self::Read(ReadEffect::KernelState(KernelStateRead::SystemInfo))
-            | Self::Read(ReadEffect::KernelState(KernelStateRead::ProcessIdentity)) => {
+            | Self::Read(ReadEffect::KernelState(KernelStateRead::SystemInfo { .. }))
+            | Self::Read(ReadEffect::KernelState(KernelStateRead::ProcessIdentity { .. })) => {
                 EffectProperties {
                     observable: true,
                     reversible: false,
@@ -288,8 +288,8 @@ pub enum KernelStateRead {
     Proc(PathBuf),
     Hostname,
     Identity,
-    SystemInfo,
-    ProcessIdentity,
+    SystemInfo { syscall: String },
+    ProcessIdentity { syscall: String },
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -588,6 +588,27 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
     dependencies
 }
 
+fn push_unique(reasons: &mut Vec<String>, reason: String) {
+    if !reasons.contains(&reason) {
+        reasons.push(reason);
+    }
+}
+
+fn clock_name(kind: ClockKind) -> String {
+    match kind {
+        ClockKind::Realtime => "realtime".into(),
+        ClockKind::Monotonic => "monotonic".into(),
+        ClockKind::Other(id) => format!("clock {id}"),
+    }
+}
+
+fn random_name(source: &RandomSource) -> String {
+    match source {
+        RandomSource::GetRandom => "getrandom".into(),
+        RandomSource::Device(path) => path.display().to_string(),
+    }
+}
+
 fn precedes_first_write(
     first_writes: &BTreeMap<PathBuf, u64>,
     path: &std::path::Path,
@@ -606,27 +627,52 @@ pub fn classify(effects: &[EffectRecord]) -> Classification {
         match &record.effect {
             Effect::Unknown(effect) => unknown.push(effect.detail.clone()),
             Effect::Read(ReadEffect::Clock(kind)) => {
-                nondeterministic.push(format!("clock dependency: {kind:?}"));
+                push_unique(
+                    &mut nondeterministic,
+                    format!("process read system clock: {}", clock_name(*kind)),
+                );
             }
             Effect::Read(ReadEffect::Random(source)) => {
-                nondeterministic.push(format!("randomness dependency: {source:?}"));
+                push_unique(
+                    &mut nondeterministic,
+                    format!("process read randomness via {}", random_name(source)),
+                );
             }
             Effect::Read(ReadEffect::Network(effect)) => {
-                nondeterministic.push(format!("network read: {}", effect.operation));
+                push_unique(
+                    &mut nondeterministic,
+                    format!("process read network: {}", effect.operation),
+                );
             }
-            Effect::Read(ReadEffect::KernelState(
-                KernelStateRead::SystemInfo | KernelStateRead::ProcessIdentity,
-            )) => {
-                nondeterministic.push("unguarded kernel state dependency".into());
+            Effect::Read(ReadEffect::KernelState(KernelStateRead::SystemInfo { syscall })) => {
+                push_unique(
+                    &mut nondeterministic,
+                    format!("process read system information via {syscall}"),
+                );
+            }
+            Effect::Read(ReadEffect::KernelState(KernelStateRead::ProcessIdentity { syscall })) => {
+                push_unique(
+                    &mut nondeterministic,
+                    format!("process read process identity via {syscall}"),
+                );
             }
             Effect::Write(WriteEffect::Network(effect)) => {
-                nondeterministic.push(format!("network write: {}", effect.operation));
+                push_unique(
+                    &mut nondeterministic,
+                    format!("process wrote network: {}", effect.operation),
+                );
             }
             Effect::Write(WriteEffect::Ipc(effect)) => {
-                nondeterministic.push(format!("IPC write: {}", effect.operation));
+                push_unique(
+                    &mut nondeterministic,
+                    format!("process wrote IPC: {}", effect.operation),
+                );
             }
             Effect::Control(ControlEffect::Signal(effect)) => {
-                nondeterministic.push(format!("signal {} sent", effect.signal));
+                push_unique(
+                    &mut nondeterministic,
+                    format!("process sent signal {}", effect.signal),
+                );
             }
             _ => {}
         }
@@ -657,6 +703,40 @@ mod tests {
     fn hash_round_trip() {
         let hash = Hash::from(blake3::hash(b"tracejit"));
         assert_eq!(hash.to_string().parse::<Hash>().unwrap(), hash);
+    }
+
+    #[test]
+    fn refusal_reasons_name_the_observed_syscall() {
+        let effects = vec![
+            EffectRecord {
+                sequence: 0,
+                pid: 1,
+                effect: Effect::Read(ReadEffect::KernelState(KernelStateRead::ProcessIdentity {
+                    syscall: "getpid".into(),
+                })),
+            },
+            EffectRecord {
+                sequence: 1,
+                pid: 1,
+                effect: Effect::Read(ReadEffect::KernelState(KernelStateRead::ProcessIdentity {
+                    syscall: "getpid".into(),
+                })),
+            },
+            EffectRecord {
+                sequence: 2,
+                pid: 1,
+                effect: Effect::Read(ReadEffect::Random(RandomSource::GetRandom)),
+            },
+        ];
+        let classification = classify(&effects);
+        assert_eq!(classification.class, DeterminismClass::Nondeterministic);
+        assert_eq!(
+            classification.reasons,
+            vec![
+                "process read process identity via getpid".to_string(),
+                "process read randomness via getrandom".to_string(),
+            ]
+        );
     }
 
     #[test]

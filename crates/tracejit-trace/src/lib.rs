@@ -37,6 +37,17 @@ pub struct TraceOutcome {
     pub sandbox_enforced: bool,
 }
 
+pub fn probe_ptrace() -> Result<(), String> {
+    #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+    {
+        linux::probe_ptrace()
+    }
+    #[cfg(not(all(target_os = "linux", target_arch = "x86_64")))]
+    {
+        Err("TraceJIT V1 requires Linux x86_64".into())
+    }
+}
+
 pub fn trace_command(request: TraceRequest) -> Result<TraceOutcome, TraceError> {
     #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
     {

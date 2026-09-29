@@ -2,7 +2,6 @@
 """Deterministic local ETL workload used by the TraceJIT benchmark harness."""
 
 import csv
-import hashlib
 import json
 import os
 from pathlib import Path
@@ -20,7 +19,7 @@ def load_customers() -> dict[str, str]:
 def build_report() -> dict[str, object]:
     customers = load_customers()
     totals: dict[str, int] = {}
-    digest = hashlib.blake2b(digest_size=32)
+    digest = 0
     with (ROOT / "inputs" / "sales.csv").open(newline="", encoding="utf-8") as handle:
         for row in csv.DictReader(handle):
             region = customers[row["customer_id"]]
@@ -29,13 +28,19 @@ def build_report() -> dict[str, object]:
             value = int(row["amount_cents"])
             totals[region] = totals.get(region, 0) + value
             for iteration in range(2_000):
-                digest.update(f"{row['sale_id']}:{value}:{iteration}".encode())
+                digest = mix(digest, f"{row['sale_id']}:{value}:{iteration}")
     return {
         "cwd": str(Path.cwd()),
         "region": REGION,
         "totals_cents": dict(sorted(totals.items())),
-        "work_digest": digest.hexdigest(),
+        "work_digest": f"{digest:016x}",
     }
+
+
+def mix(digest: int, text: str) -> int:
+    for byte in text.encode():
+        digest = (digest * 1315423911 + byte) & 0xFFFFFFFFFFFFFFFF
+    return digest
 
 
 def main() -> None:

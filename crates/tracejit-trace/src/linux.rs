@@ -717,19 +717,15 @@ fn decode_entry(
             // same values before reuse. Limit changes and all other prlimit calls remain effects.
             PendingSyscall::None
         }
-        libc::SYS_sysinfo | libc::SYS_sched_getaffinity | libc::SYS_prlimit64 => {
-            PendingSyscall::KernelState {
-                kind: KernelStateRead::SystemInfo,
-            }
-        }
-        libc::SYS_getpid
-        | libc::SYS_getppid
-        | libc::SYS_gettid
-        | libc::SYS_getpgrp
-        | libc::SYS_getpgid
-        | libc::SYS_getsid => PendingSyscall::KernelState {
-            kind: KernelStateRead::ProcessIdentity,
-        },
+        libc::SYS_sysinfo => system_information("sysinfo"),
+        libc::SYS_sched_getaffinity => system_information("sched_getaffinity"),
+        libc::SYS_prlimit64 => system_information("prlimit64"),
+        libc::SYS_getpid => process_identity("getpid"),
+        libc::SYS_getppid => process_identity("getppid"),
+        libc::SYS_gettid => process_identity("gettid"),
+        libc::SYS_getpgrp => process_identity("getpgrp"),
+        libc::SYS_getpgid => process_identity("getpgid"),
+        libc::SYS_getsid => process_identity("getsid"),
         libc::SYS_getuid | libc::SYS_geteuid | libc::SYS_getgid | libc::SYS_getegid => {
             PendingSyscall::KernelState {
                 kind: KernelStateRead::Identity,
@@ -777,6 +773,22 @@ fn decode_entry(
         },
     };
     Ok(pending)
+}
+
+fn system_information(syscall: &str) -> PendingSyscall {
+    PendingSyscall::KernelState {
+        kind: KernelStateRead::SystemInfo {
+            syscall: syscall.into(),
+        },
+    }
+}
+
+fn process_identity(syscall: &str) -> PendingSyscall {
+    PendingSyscall::KernelState {
+        kind: KernelStateRead::ProcessIdentity {
+            syscall: syscall.into(),
+        },
+    }
 }
 
 fn rename_pending(from: PathBuf, to: PathBuf) -> PendingSyscall {
@@ -1615,6 +1627,42 @@ fn effect_target(effect: &Effect) -> String {
         Effect::Control(ControlEffect::Chdir(value)) => value.display().to_string(),
         Effect::Unknown(value) => value.detail.clone(),
         other => format!("{other:?}"),
+    }
+}
+
+pub(super) fn probe_ptrace() -> Result<(), String> {
+    use nix::unistd::{fork, ForkResult};
+    // SAFETY: doctor calls this before TraceJIT creates other threads. The child only performs
+    // async-signal-safe calls and exits with _exit.
+    match unsafe { fork() }.map_err(|error| format!("could not fork ptrace probe: {error}"))? {
+        ForkResult::Child => {
+            if ptrace::traceme().is_err() {
+                unsafe { libc::_exit(2) };
+            }
+            unsafe { libc::raise(libc::SIGSTOP) };
+            unsafe { libc::_exit(0) };
+        }
+        ForkResult::Parent { child } => match waitpid(child, None) {
+            Ok(WaitStatus::Stopped(_, _)) => ptrace::detach(child, None)
+                .map_err(|error| format!("ptrace detach failed: {error}"))
+                .and_then(|()| {
+                    let _ = waitpid(child, None);
+                    Ok(())
+                }),
+            Ok(WaitStatus::Exited(_, 2)) => Err(ptrace_denied_message()),
+            Ok(status) => Err(format!("ptrace probe failed: {status:?}")),
+            Err(error) => Err(format!("ptrace probe wait failed: {error}")),
+        },
+    }
+}
+
+fn ptrace_denied_message() -> String {
+    match fs::read_to_string("/proc/sys/kernel/yama/ptrace_scope") {
+        Ok(scope) => format!(
+            "ptrace attach was denied (yama ptrace_scope={})",
+            scope.trim()
+        ),
+        Err(_) => "ptrace attach was denied".into(),
     }
 }
 

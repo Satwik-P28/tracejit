@@ -6,7 +6,7 @@ use std::io::{self, Write};
 use std::process::ExitCode;
 use tracejit_cache::Cache;
 use tracejit_cache::CacheDecision;
-use tracejit_core::{analyze, explain, run, RunKind, RunOptions, RunReport};
+use tracejit_core::{analyze, doctor, explain, run, RunKind, RunOptions, RunReport};
 use tracejit_guards::GuardMode;
 
 #[derive(Parser)]
@@ -25,6 +25,7 @@ enum Command {
     Run(RunArgs),
     Analyze(AnalyzeArgs),
     Explain(ExplainArgs),
+    Doctor(DoctorArgs),
     Cache(CacheArgs),
 }
 
@@ -55,6 +56,12 @@ struct AnalyzeArgs {
 #[derive(Args)]
 struct ExplainArgs {
     execution_id: Option<String>,
+    #[arg(long)]
+    json: bool,
+}
+
+#[derive(Args)]
+struct DoctorArgs {
     #[arg(long)]
     json: bool,
 }
@@ -170,6 +177,37 @@ fn run_cli() -> Result<i32> {
             }
             Ok(0)
         }
+        Command::Doctor(args) => {
+            let report = doctor();
+            if args.json {
+                println!("{}", serde_json::to_string_pretty(&report)?);
+            } else {
+                println!("os             {}", report.os);
+                println!("arch           {}", report.arch);
+                println!("supported      {}", yes_no(report.supported));
+                println!("ptrace         {}", yes_no(report.ptrace));
+                println!("seccomp        {}", yes_no(report.seccomp));
+                println!("landlock       {}", landlock_status(report.landlock_abi));
+                println!("proven         {}", yes_no(report.proven));
+                println!(
+                    "cache          {} ({})",
+                    report.cache_path.display(),
+                    if report.cache_writable {
+                        "writable"
+                    } else {
+                        "not writable"
+                    }
+                );
+                for problem in &report.problems {
+                    println!("problem        {problem}");
+                }
+            }
+            Ok(if report.supported && report.ptrace {
+                0
+            } else {
+                1
+            })
+        }
         Command::Cache(args) => match args.command {
             CacheCommand::Stats => {
                 let cache = Cache::open(Cache::default_root())?;
@@ -247,8 +285,13 @@ fn present_report(report: &RunReport, json_output: bool, verbose: bool) -> Resul
             eprintln!("runtime        {}", format_duration(report.runtime_ns));
             if report.eligible_for_reuse {
                 eprintln!("\nnext run is eligible for guarded reuse");
-            } else {
+            } else if report.reasons.is_empty() {
                 eprintln!("\nreuse disabled");
+            } else {
+                eprintln!();
+                for reason in &report.reasons {
+                    eprintln!("reuse disabled: {reason}");
+                }
             }
         }
         RunKind::Reused => {
@@ -275,8 +318,10 @@ fn present_report(report: &RunReport, json_output: bool, verbose: bool) -> Resul
             report.effect_counts.controls,
             report.effect_counts.unknown
         );
-        for reason in &report.reasons {
-            eprintln!("reason         {reason}");
+        if report.eligible_for_reuse {
+            for reason in &report.reasons {
+                eprintln!("reason         {reason}");
+            }
         }
     }
     Ok(())
@@ -288,6 +333,21 @@ fn display_command(command: &[OsString]) -> String {
         .map(|value| value.to_string_lossy())
         .collect::<Vec<_>>()
         .join(" ")
+}
+
+fn yes_no(value: bool) -> &'static str {
+    if value {
+        "yes"
+    } else {
+        "no"
+    }
+}
+
+fn landlock_status(abi: Option<i32>) -> String {
+    match abi {
+        Some(version) => format!("abi {version}"),
+        None => "no".into(),
+    }
 }
 
 fn format_duration(ns: u128) -> String {
@@ -315,5 +375,19 @@ mod tests {
     fn command_requires_separator_and_program() {
         assert!(Cli::try_parse_from(["tracejit", "run", "--", "echo"]).is_ok());
         assert!(Cli::try_parse_from(["tracejit", "run"]).is_err());
+    }
+
+    #[test]
+    fn version_flag_is_available() {
+        match Cli::try_parse_from(["tracejit", "--version"]) {
+            Err(error) => assert_eq!(error.kind(), clap::error::ErrorKind::DisplayVersion),
+            Ok(_) => panic!("--version should display the version"),
+        }
+    }
+
+    #[test]
+    fn doctor_command_parses() {
+        assert!(Cli::try_parse_from(["tracejit", "doctor"]).is_ok());
+        assert!(Cli::try_parse_from(["tracejit", "doctor", "--json"]).is_ok());
     }
 }

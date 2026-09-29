@@ -14,6 +14,11 @@ separately:
 The harness fixes `PYTHONHASHSEED=0` because an otherwise unseeded Python runtime
 is allowed to call `getrandom`, which TraceJIT correctly classifies as
 `NONDETERMINISTIC`. It sets `PYTHONDONTWRITEBYTECODE=1` so interpreter cache files
-do not become workload outputs. Results must not be copied into README without
-retaining the generated JSON and exact commit. The harness aborts if any sample in
-the cached group is not reported as `Reused`.
+do not become workload outputs. It also sets
+`GLIBC_TUNABLES=glibc.malloc.tcache_count=0` and `MALLOC_ARENA_MAX=1` so glibc does
+not draw allocator entropy or query the CPU count while sizing arenas. The
+workload does not import hashlib, because OpenSSL initialization calls
+`getrandom`. These are explicit workload settings. The classifier still refuses
+any observed `getrandom`, clock, or unguarded kernel-state syscall. Results must
+not be copied into README without retaining the generated JSON and exact commit.
+The harness aborts if any sample in the cached group is not reported as `Reused`.

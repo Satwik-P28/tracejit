@@ -909,7 +909,8 @@ Use a Rust workspace.
 tracejit/
 ├── Cargo.toml
 ├── Cargo.lock
-├── LICENSE
+├── LICENSE-APACHE
+├── LICENSE-MIT
 ├── README.md
 ├── ARCHITECTURE.md
 ├── SAFETY.md
@@ -1506,7 +1507,8 @@ Repository should be releasable.
 
 Include:
 
-- LICENSE
+- LICENSE-APACHE
+- LICENSE-MIT
 - changelog optional
 - clean Cargo metadata
 - binary named exactly `tracejit`
