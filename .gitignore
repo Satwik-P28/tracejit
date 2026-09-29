@@ -4,6 +4,8 @@
 .DS_Store
 __pycache__/
 *.py[cod]
+benchmarks/workloads/c-etl/etl
+benchmarks/workloads/**/output/report.json
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/

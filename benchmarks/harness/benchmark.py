@@ -16,11 +16,13 @@ from typing import Callable
 
 
 ROOT = Path(__file__).resolve().parents[2]
-WORKLOAD_DIR = ROOT / "benchmarks" / "workloads" / "python-etl"
-WORKLOAD = WORKLOAD_DIR / "main.py"
-INPUT = WORKLOAD_DIR / "inputs" / "sales.csv"
+WORKLOAD_DIR = ROOT / "benchmarks" / "workloads" / "c-etl"
+WORKLOAD = WORKLOAD_DIR / "main.c"
+INPUT = ROOT / "benchmarks" / "workloads" / "python-etl" / "inputs" / "sales.csv"
 OUTPUT = WORKLOAD_DIR / "output" / "report.json"
-COMMAND = ["python3", "benchmarks/workloads/python-etl/main.py"]
+BINARY = WORKLOAD_DIR / "etl"
+COMMAND = [str(BINARY)]
+PYTHON_COMMAND = ["python3", "benchmarks/workloads/python-etl/main.py"]
 
 
 def run_command(command: list[str], env: dict[str, str]) -> subprocess.CompletedProcess[bytes]:
@@ -72,10 +74,10 @@ def sha256(path: Path) -> str:
 
 def workload_hash() -> str:
     digest = hashlib.sha256()
-    for path in sorted(WORKLOAD_DIR.glob("**/*")):
-        if path.is_file() and "output" not in path.parts:
-            digest.update(path.relative_to(WORKLOAD_DIR).as_posix().encode())
-            digest.update(path.read_bytes())
+    paths = [WORKLOAD, INPUT, INPUT.with_name("customers.csv"), ROOT / "benchmarks/workloads/python-etl/main.py"]
+    for path in paths:
+        digest.update(path.relative_to(ROOT).as_posix().encode())
+        digest.update(path.read_bytes())
     return digest.hexdigest()
 
 
@@ -156,6 +158,20 @@ def bytes_from_report(report: dict[str, object], key: str) -> bytes:
     return bytes(value)
 
 
+def python_probe(tracejit: Path, env: dict[str, str]) -> dict[str, object]:
+    completed = checked([str(tracejit), "analyze", "--json", "--", *PYTHON_COMMAND], env)
+    report = report_json(completed)
+    reasons = report.get("reasons")
+    if not isinstance(reasons, list):
+        reasons = []
+    return {
+        "command": PYTHON_COMMAND,
+        "classification": report.get("classification"),
+        "eligible_for_reuse": bool(report.get("eligible_for_reuse")),
+        "reasons": reasons,
+    }
+
+
 def explain(tracejit: Path, env: dict[str, str]) -> str:
     return checked([str(tracejit), "explain"], env).stdout.decode()
 
@@ -177,9 +193,9 @@ def markdown(result: dict[str, object]) -> str:
         "",
         "## Methodology",
         "",
-        f"The committed Python ETL workload was measured with {result['runs']['warmups']} warmups and {result['runs']['measured']} recorded runs per stable condition. Baseline runs execute Python directly. Every traced-cold sample uses a fresh TraceJIT cache. Cached samples use an unchanged guarded entry and must report a cache hit. All timings are wall-clock process times except guard-check timings, which are TraceJIT's internal guard validation, output restoration, and cached-stream loading duration.",
+        f"The committed C ETL workload was measured with {result['runs']['warmups']} warmups and {result['runs']['measured']} recorded runs per stable condition. Baseline runs execute that binary directly. Every traced-cold sample uses a fresh TraceJIT cache. Cached samples use an unchanged guarded entry and must report a cache hit. All timings are wall-clock process times except guard-check timings, which are TraceJIT's internal guard validation, output restoration, and cached-stream loading duration.",
         "",
-        "The workload ran with `PYTHONHASHSEED=0`, `PYTHONDONTWRITEBYTECODE=1`, `GLIBC_TUNABLES=glibc.malloc.tcache_count=0`, and `MALLOC_ARENA_MAX=1`. It does not import hashlib. CPU frequency, neighboring runner activity, and warm operating-system filesystem caches were not controlled.",
+        "The process ran with `GLIBC_TUNABLES=glibc.malloc.tcache_count=0` and `MALLOC_ARENA_MAX=1` so glibc does not draw allocator entropy or query CPU count. The Python ETL is analyzed separately with `PYTHONHASHSEED=0` and `PYTHONDONTWRITEBYTECODE=1`. CPU frequency, neighboring runner activity, and warm operating-system filesystem caches were not controlled.",
         "",
         "## Commands",
         "",
@@ -224,6 +240,25 @@ def markdown(result: dict[str, object]) -> str:
             "",
             f"Explanation identified dependency: `{'yes' if result['deopt']['explanation_correct'] else 'no'}`",
             "",
+            "## Python ETL",
+            "",
+            "This command is not part of the timed reuse result. CPython binds its main thread with `gettid`, which TraceJIT classifies as process identity and refuses.",
+            "",
+            f"Command: `{' '.join(result['python_etl']['command'])}`",
+            "",
+            f"Classification: `{result['python_etl']['classification']}`",
+            "",
+            f"Eligible for reuse: `{'yes' if result['python_etl']['eligible_for_reuse'] else 'no'}`",
+            "",
+            "Reasons:",
+            "",
+        ]
+    )
+    for reason in result["python_etl"]["reasons"]:
+        lines.append(f"- {reason}")
+    lines.extend(
+        [
+            "",
             "The equivalence check compares workload exit status, captured stdout, captured stderr, output bytes, and output SHA-256 across baseline, traced, and cache-hit execution.",
             "",
             "## Environment",
@@ -236,7 +271,7 @@ def markdown(result: dict[str, object]) -> str:
         [
             "## Limitations",
             "",
-            "These measurements cover one small deterministic Python ETL workload on one ephemeral GitHub-hosted runner. They are not evidence of universal speedups, production readiness, or performance on other workloads or machines.",
+            "These measurements cover one small deterministic C ETL workload on one ephemeral GitHub-hosted runner. CPython is reported as a refusal, not as a speedup. They are not evidence of universal speedups, production readiness, or performance on other workloads or machines.",
             "",
         ]
     )
@@ -254,6 +289,7 @@ def main() -> None:
         parser.error("--runs must be at least 2")
     if args.warmups < 0:
         parser.error("--warmups must be nonnegative")
+    checked(["cc", "-O2", "-Wall", "-Wextra", "-Werror", str(WORKLOAD), "-o", str(BINARY)], os.environ.copy())
     tracejit = Path(args.tracejit).resolve()
     if not tracejit.is_file():
         parser.error(f"TraceJIT binary not found: {tracejit}")
@@ -401,6 +437,7 @@ def main() -> None:
             if not deopt_passed:
                 raise RuntimeError(f"mutation/deopt verification failed: {deopt}")
 
+        python_etl = python_probe(tracejit, env)
         commit = text_command(["git", "rev-parse", "HEAD"])
         tracing_overhead = (
             (traced_cold["median_ns"] - baseline["median_ns"])
@@ -411,7 +448,8 @@ def main() -> None:
         result = {
             "commit": commit,
             "environment": environment(),
-            "workload": "benchmarks/workloads/python-etl",
+            "workload": "benchmarks/workloads/c-etl",
+            "python_etl": python_etl,
             "workload_sha256": workload_hash(),
             "command": COMMAND,
             "methodology": "warm OS caches; fresh TraceJIT cache per cold sample; isolated stable cache for hits",

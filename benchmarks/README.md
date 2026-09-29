@@ -15,6 +15,8 @@ exit status, captured streams, output hashes, reversible input invalidation, and
 the corresponding `tracejit explain` records. Results are written to
 `benchmarks/results/latest.json` and `benchmarks/results/latest.md`.
 
-The Python ETL workload reads committed CSV inputs, observes its current working
-directory and `TRACEJIT_REPORT_REGION`, performs deterministic CPU work, and writes
-`output/report.json`. It uses no external service.
+Timed runs use `benchmarks/workloads/c-etl`. It reads the committed CSV inputs,
+observes its current working directory and `TRACEJIT_REPORT_REGION`, performs a
+fixed integer mix, and writes `output/report.json`. It uses no external service.
+The Python ETL is analyzed in the same invocation and kept as a refusal record
+when CPython calls `gettid` or `getrandom`.

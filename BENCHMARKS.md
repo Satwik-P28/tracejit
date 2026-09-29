@@ -4,8 +4,11 @@ TraceJIT does not publish benchmark results in this repository yet.
 
 `./scripts/benchmark.sh` builds the release binary and generates JSON containing
 the commit, kernel, CPU model, total memory, filesystem type and capacity, workload
-hash, command, cache state, run count, median, and p95. It reports these groups
-separately:
+hash, command, cache state, run count, median, and p95. Timed groups use
+`benchmarks/workloads/c-etl`, a small C program that reads the committed CSV files
+and does not call the clock, `getrandom`, or process-id syscalls. CPython is
+analyzed in the same run and recorded as a refusal when it calls `gettid` or
+`getrandom`; those samples are not cache-hit timings. The timed groups are:
 
 1. untraced baseline
 2. traced execution
