@@ -86,32 +86,32 @@ pub struct RunReport {
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct PhaseTimings {
-    pub process_startup_ns: u128,
-    pub cli_parse_ns: u128,
-    pub identity_prepare_ns: u128,
-    pub cache_prepare_ns: u128,
-    pub sqlite_open_ns: u128,
-    pub sqlite_schema_ns: u128,
-    pub lookup_key_ns: u128,
-    pub sqlite_query_ns: u128,
-    pub record_decode_ns: u128,
-    pub guard_validation_ns: u128,
-    pub cas_restore_ns: u128,
-    pub stdio_replay_ns: u128,
-    pub decision_persist_ns: u128,
-    pub present_ns: u128,
+    pub process_startup_ns: u64,
+    pub cli_parse_ns: u64,
+    pub identity_prepare_ns: u64,
+    pub cache_prepare_ns: u64,
+    pub sqlite_open_ns: u64,
+    pub sqlite_schema_ns: u64,
+    pub lookup_key_ns: u64,
+    pub sqlite_query_ns: u64,
+    pub record_decode_ns: u64,
+    pub guard_validation_ns: u64,
+    pub cas_restore_ns: u64,
+    pub stdio_replay_ns: u64,
+    pub decision_persist_ns: u64,
+    pub present_ns: u64,
 }
 
 pub fn phase_timing_enabled() -> bool {
     std::env::var_os("TRACEJIT_PHASE_TIMING").is_some_and(|value| value == "1")
 }
 
-pub fn start_ticks_from_stat(stat: &str) -> Option<u128> {
+pub fn start_ticks_from_stat(stat: &str) -> Option<u64> {
     let (_, rest) = stat.rsplit_once(')')?;
     rest.split_whitespace().nth(19)?.parse().ok()
 }
 
-pub fn process_startup_ns() -> u128 {
+pub fn process_startup_ns() -> u64 {
     #[cfg(target_os = "linux")]
     {
         let Ok(stat) = fs::read_to_string("/proc/self/stat") else {
@@ -131,8 +131,10 @@ pub fn process_startup_ns() -> u128 {
         if unsafe { libc::clock_gettime(libc::CLOCK_BOOTTIME, &mut now) } != 0 {
             return 0;
         }
-        let now_ns = now.tv_sec as u128 * 1_000_000_000 + now.tv_nsec as u128;
-        let start_ns = start_ticks * 1_000_000_000 / ticks as u128;
+        let now_ns = (now.tv_sec as u64)
+            .saturating_mul(1_000_000_000)
+            .saturating_add(now.tv_nsec as u64);
+        let start_ns = start_ticks.saturating_mul(1_000_000_000) / ticks as u64;
         now_ns.saturating_sub(start_ns)
     }
     #[cfg(not(target_os = "linux"))]
@@ -765,9 +767,9 @@ fn report_from_record(
     }
 }
 
-fn phase_elapsed(enabled: bool, started: Instant) -> u128 {
+fn phase_elapsed(enabled: bool, started: Instant) -> u64 {
     if enabled {
-        started.elapsed().as_nanos()
+        u64::try_from(started.elapsed().as_nanos()).unwrap_or(u64::MAX)
     } else {
         0
     }

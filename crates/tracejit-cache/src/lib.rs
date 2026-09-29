@@ -91,15 +91,15 @@ pub struct CacheStats {
 
 #[derive(Clone, Copy, Debug, Default)]
 pub struct OpenTimings {
-    pub prepare_ns: u128,
-    pub sqlite_open_ns: u128,
-    pub schema_ns: u128,
+    pub prepare_ns: u64,
+    pub sqlite_open_ns: u64,
+    pub schema_ns: u64,
 }
 
 #[derive(Clone, Copy, Debug, Default)]
 pub struct QueryTimings {
-    pub query_ns: u128,
-    pub decode_ns: u128,
+    pub query_ns: u64,
+    pub decode_ns: u64,
 }
 
 pub struct Cache {
@@ -120,11 +120,11 @@ impl Cache {
         let executions = root.join("executions");
         create_dir_all(&objects)?;
         create_dir_all(&executions)?;
-        let prepare_ns = started.elapsed().as_nanos();
+        let prepare_ns = u64_nanos(started);
         let database = root.join("db.sqlite3");
         let started = Instant::now();
         let connection = Connection::open(&database)?;
-        let sqlite_open_ns = started.elapsed().as_nanos();
+        let sqlite_open_ns = u64_nanos(started);
         let started = Instant::now();
         connection.execute_batch(
             "PRAGMA journal_mode=WAL;
@@ -136,7 +136,7 @@ impl Cache {
                  updated_unix_ms TEXT NOT NULL
              );",
         )?;
-        let schema_ns = started.elapsed().as_nanos();
+        let schema_ns = u64_nanos(started);
         Ok(Self {
             root,
             objects,
@@ -234,14 +234,14 @@ impl Cache {
                 |row| row.get(0),
             )
             .optional()?;
-        let query_ns = started.elapsed().as_nanos();
+        let query_ns = u64_nanos(started);
         let started = Instant::now();
         let record = json
             .map(|bytes| serde_json::from_slice(&bytes).map_err(CacheError::from))
             .transpose()?;
         self.last_query.set(QueryTimings {
             query_ns,
-            decode_ns: started.elapsed().as_nanos(),
+            decode_ns: u64_nanos(started),
         });
         Ok(record)
     }
@@ -589,6 +589,10 @@ fn io_error(path: impl AsRef<Path>, source: io::Error) -> CacheError {
         path: path.as_ref().to_path_buf(),
         source,
     }
+}
+
+fn u64_nanos(started: Instant) -> u64 {
+    u64::try_from(started.elapsed().as_nanos()).unwrap_or(u64::MAX)
 }
 
 pub fn now_unix_ms() -> u128 {

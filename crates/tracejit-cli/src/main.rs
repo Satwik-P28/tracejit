@@ -106,7 +106,7 @@ fn main() -> ExitCode {
     let process_startup_ns = process_startup_ns();
     let parse_started = Instant::now();
     let cli = Cli::parse();
-    let cli_parse_ns = parse_started.elapsed().as_nanos();
+    let cli_parse_ns = u64::try_from(parse_started.elapsed().as_nanos()).unwrap_or(u64::MAX);
     match run_cli(cli, process_startup_ns, cli_parse_ns) {
         Ok(code) => ExitCode::from(code.clamp(0, 255) as u8),
         Err(error) => {
@@ -116,7 +116,7 @@ fn main() -> ExitCode {
     }
 }
 
-fn run_cli(cli: Cli, process_startup_ns: u128, cli_parse_ns: u128) -> Result<i32> {
+fn run_cli(cli: Cli, process_startup_ns: u64, cli_parse_ns: u64) -> Result<i32> {
     match cli.command {
         Command::Run(args) => {
             let mut report = run(RunOptions {
@@ -130,7 +130,8 @@ fn run_cli(cli: Cli, process_startup_ns: u128, cli_parse_ns: u128) -> Result<i32
             if let Some(phases) = report.phases.as_mut() {
                 phases.process_startup_ns = process_startup_ns;
                 phases.cli_parse_ns = cli_parse_ns;
-                phases.present_ns = present_started.elapsed().as_nanos();
+                phases.present_ns =
+                    u64::try_from(present_started.elapsed().as_nanos()).unwrap_or(u64::MAX);
                 write_phase_file(phases)?;
             }
             Ok(report.exit_code)
