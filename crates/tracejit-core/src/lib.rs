@@ -133,7 +133,7 @@ pub fn process_startup_ns() -> u128 {
         }
         let now_ns = now.tv_sec as u128 * 1_000_000_000 + now.tv_nsec as u128;
         let start_ns = start_ticks * 1_000_000_000 / ticks as u128;
-        return now_ns.saturating_sub(start_ns);
+        now_ns.saturating_sub(start_ns)
     }
     #[cfg(not(target_os = "linux"))]
     {
