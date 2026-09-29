@@ -20,7 +20,7 @@ use tracejit_effects::{
     KernelStateRead, NetworkRead, NetworkWrite, ProcessExec, ProcessNode, ProcessSpawn,
     RandomSource, ReadEffect, SignalEffect, SymlinkRead, Trace, UnknownEffect, WriteEffect,
 };
-use tracejit_guards::{fingerprint, hash_file};
+use tracejit_guards::{fingerprint, hash_file, symlink_fingerprint};
 
 const OPTIONS: ptrace::Options = ptrace::Options::PTRACE_O_TRACESYSGOOD
     .union(ptrace::Options::PTRACE_O_TRACEFORK)
@@ -58,12 +58,16 @@ enum PendingSyscall {
     Metadata {
         path: PathBuf,
     },
+    SymlinkMetadata {
+        path: PathBuf,
+    },
     ReadLink {
         path: PathBuf,
     },
     TerminalProbe {
         path: PathBuf,
     },
+    InheritedTerminalProbe,
     Access {
         path: PathBuf,
     },
@@ -550,16 +554,15 @@ fn decode_entry(
                 FdState::File(path) | FdState::InheritedFile(path) => {
                     Some(PendingSyscall::Metadata { path: path.clone() })
                 }
-                FdState::Other if args[0] == 1 || args[0] == 2 => Some(PendingSyscall::None),
+                FdState::Other if args[0] <= 2 => Some(PendingSyscall::None),
                 _ => None,
             })
             .unwrap_or_else(|| PendingSyscall::Unknown {
                 number,
                 detail: format!("fstat on unclassified fd {}", args[0]),
             }),
-        libc::SYS_lstat => PendingSyscall::Unknown {
-            number,
-            detail: "lstat result is not modeled".into(),
+        libc::SYS_lstat => PendingSyscall::SymlinkMetadata {
+            path: resolve_path(pid, state, libc::AT_FDCWD, args[0])?,
         },
         libc::SYS_readlink => readlink_pending(pid, state, libc::AT_FDCWD, args[0], number)?,
         libc::SYS_readlinkat => readlink_pending(pid, state, args[0] as i32, args[1], number)?,
@@ -574,6 +577,7 @@ fn decode_entry(
                     FdState::File(path) | FdState::InheritedFile(path) => {
                         Some(PendingSyscall::Metadata { path: path.clone() })
                     }
+                    FdState::Other if args[0] <= 2 => Some(PendingSyscall::None),
                     _ => None,
                 })
                 .unwrap_or_else(|| PendingSyscall::Unknown {
@@ -582,9 +586,8 @@ fn decode_entry(
                 })
         }
         libc::SYS_newfstatat if args[3] as i32 & libc::AT_SYMLINK_NOFOLLOW != 0 => {
-            PendingSyscall::Unknown {
-                number,
-                detail: "newfstatat AT_SYMLINK_NOFOLLOW result is not modeled".into(),
+            PendingSyscall::SymlinkMetadata {
+                path: resolve_path(pid, state, args[0] as i32, args[1])?,
             }
         }
         libc::SYS_statx if args[2] as i32 & libc::AT_SYMLINK_NOFOLLOW != 0 => {
@@ -756,6 +759,7 @@ fn decode_entry(
                     Some(PendingSyscall::TerminalProbe { path: path.clone() })
                 }
                 FdState::Other if args[0] == 1 || args[0] == 2 => Some(PendingSyscall::None),
+                FdState::Other if args[0] == 0 => Some(PendingSyscall::InheritedTerminalProbe),
                 _ => None,
             })
             .unwrap_or_else(|| PendingSyscall::Unknown {
@@ -866,6 +870,28 @@ fn record_metadata(pid: Pid, path: PathBuf, collector: &mut Collector) {
                 syscall: None,
                 detail: format!(
                     "metadata dependency cannot be guarded: {} ({error})",
+                    path.display()
+                ),
+            }),
+        ),
+    }
+}
+
+fn record_symlink_metadata(pid: Pid, path: PathBuf, collector: &mut Collector) {
+    match symlink_fingerprint(&path) {
+        Ok(value) => collector.push(
+            pid,
+            Effect::Read(ReadEffect::SymlinkMetadata(FileMetadataRead {
+                fingerprint: Some(value),
+                path,
+            })),
+        ),
+        Err(error) => collector.push(
+            pid,
+            Effect::Unknown(UnknownEffect {
+                syscall: None,
+                detail: format!(
+                    "symlink metadata dependency cannot be guarded: {} ({error})",
                     path.display()
                 ),
             }),
@@ -1012,6 +1038,9 @@ fn complete_syscall(
         PendingSyscall::Metadata { path } => {
             record_metadata(pid, path, collector);
         }
+        PendingSyscall::SymlinkMetadata { path } => {
+            record_symlink_metadata(pid, path, collector);
+        }
         PendingSyscall::TerminalProbe { path } => collector.push(
             pid,
             Effect::Unknown(UnknownEffect {
@@ -1020,6 +1049,14 @@ fn complete_syscall(
                     "successful terminal-state query cannot be guarded: {}",
                     path.display()
                 ),
+            }),
+        ),
+        PendingSyscall::InheritedTerminalProbe => collector.push(
+            pid,
+            Effect::Unknown(UnknownEffect {
+                syscall: Some(libc::SYS_ioctl),
+                detail: "successful terminal-state query on inherited stdin cannot be guarded"
+                    .into(),
             }),
         ),
         PendingSyscall::ReadLink { path } => match fs::read_link(&path) {
@@ -1269,9 +1306,22 @@ fn complete_failed_syscall(
                 })),
             );
         }
+        PendingSyscall::SymlinkMetadata { path }
+            if errno == libc::ENOENT as i64 || errno == libc::ENOTDIR as i64 =>
+        {
+            collector.push(
+                pid,
+                Effect::Read(ReadEffect::SymlinkMetadata(FileMetadataRead {
+                    path,
+                    fingerprint: Some(tracejit_effects::FileFingerprint::absent()),
+                })),
+            );
+        }
         PendingSyscall::TerminalProbe { path } => record_metadata(pid, path, collector),
+        PendingSyscall::InheritedTerminalProbe => {}
         PendingSyscall::Open { path, .. }
         | PendingSyscall::Metadata { path }
+        | PendingSyscall::SymlinkMetadata { path }
         | PendingSyscall::Access { path }
         | PendingSyscall::Chdir { path }
         | PendingSyscall::ExecAttempt { path }
@@ -1525,6 +1575,7 @@ fn pending_description(pending: &PendingSyscall) -> String {
     match pending {
         PendingSyscall::Open { path, .. }
         | PendingSyscall::Metadata { path }
+        | PendingSyscall::SymlinkMetadata { path }
         | PendingSyscall::ReadLink { path }
         | PendingSyscall::TerminalProbe { path }
         | PendingSyscall::Access { path }
@@ -1548,6 +1599,7 @@ fn pending_description(pending: &PendingSyscall) -> String {
         PendingSyscall::Dup { .. }
         | PendingSyscall::Close { .. }
         | PendingSyscall::SetCloseOnExec { .. }
+        | PendingSyscall::InheritedTerminalProbe
         | PendingSyscall::None => "process-internal operation".into(),
     }
 }
@@ -1556,6 +1608,7 @@ fn effect_target(effect: &Effect) -> String {
     match effect {
         Effect::Read(ReadEffect::File(value)) => value.path.display().to_string(),
         Effect::Read(ReadEffect::FileMetadata(value)) => value.path.display().to_string(),
+        Effect::Read(ReadEffect::SymlinkMetadata(value)) => value.path.display().to_string(),
         Effect::Read(ReadEffect::Symlink(value)) => value.path.display().to_string(),
         Effect::Write(WriteEffect::File(value)) => value.path.display().to_string(),
         Effect::Control(ControlEffect::Exec(value)) => value.path.display().to_string(),

@@ -94,6 +94,7 @@ impl Effect {
         match self {
             Self::Read(ReadEffect::File(_))
             | Self::Read(ReadEffect::FileMetadata(_))
+            | Self::Read(ReadEffect::SymlinkMetadata(_))
             | Self::Read(ReadEffect::Symlink(_))
             | Self::Read(ReadEffect::Environment(_))
             | Self::Read(ReadEffect::WorkingDirectory)
@@ -161,6 +162,7 @@ pub struct EffectProperties {
 pub enum ReadEffect {
     File(FileRead),
     FileMetadata(FileMetadataRead),
+    SymlinkMetadata(FileMetadataRead),
     Symlink(SymlinkRead),
     Environment(EnvironmentRead),
     WorkingDirectory,
@@ -402,6 +404,10 @@ pub enum InputDependency {
         path: PathBuf,
         fingerprint: FileFingerprint,
     },
+    SymlinkMetadata {
+        path: PathBuf,
+        fingerprint: FileFingerprint,
+    },
     Symlink {
         path: PathBuf,
         target: Option<PathBuf>,
@@ -492,6 +498,7 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
     let mut files = BTreeMap::new();
     let mut executables = BTreeMap::new();
     let mut metadata = BTreeMap::new();
+    let mut symlink_metadata = BTreeMap::new();
     let mut symlinks = BTreeMap::new();
     for record in effects {
         match &record.effect {
@@ -509,6 +516,15 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
             {
                 if let Some(fingerprint) = &read.fingerprint {
                     metadata
+                        .entry(read.path.clone())
+                        .or_insert(fingerprint.clone());
+                }
+            }
+            Effect::Read(ReadEffect::SymlinkMetadata(read))
+                if precedes_first_write(&first_writes, &read.path, record.sequence) =>
+            {
+                if let Some(fingerprint) = &read.fingerprint {
+                    symlink_metadata
                         .entry(read.path.clone())
                         .or_insert(fingerprint.clone());
                 }
@@ -558,6 +574,11 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
         metadata
             .into_iter()
             .map(|(path, fingerprint)| InputDependency::Metadata { path, fingerprint }),
+    );
+    dependencies.extend(
+        symlink_metadata
+            .into_iter()
+            .map(|(path, fingerprint)| InputDependency::SymlinkMetadata { path, fingerprint }),
     );
     dependencies.extend(
         symlinks

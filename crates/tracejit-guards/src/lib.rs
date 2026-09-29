@@ -47,6 +47,10 @@ pub enum Guard {
         path: PathBuf,
         expected: Option<PathBuf>,
     },
+    SymlinkMetadata {
+        path: PathBuf,
+        expected: FileFingerprint,
+    },
     EnvironmentValue {
         key: OsString,
         expected: Option<OsString>,
@@ -106,12 +110,26 @@ pub fn canonical_hash<T: Serialize>(value: &T) -> Result<Hash, GuardError> {
 
 #[cfg(unix)]
 pub fn fingerprint(path: &Path) -> Result<FileFingerprint, GuardError> {
-    use std::os::unix::fs::MetadataExt;
-
     let metadata = fs::metadata(path).map_err(|source| GuardError::Io {
         path: path.to_path_buf(),
         source,
     })?;
+    fingerprint_from_metadata(metadata)
+}
+
+#[cfg(unix)]
+pub fn symlink_fingerprint(path: &Path) -> Result<FileFingerprint, GuardError> {
+    let metadata = fs::symlink_metadata(path).map_err(|source| GuardError::Io {
+        path: path.to_path_buf(),
+        source,
+    })?;
+    fingerprint_from_metadata(metadata)
+}
+
+#[cfg(unix)]
+fn fingerprint_from_metadata(metadata: fs::Metadata) -> Result<FileFingerprint, GuardError> {
+    use std::os::unix::fs::MetadataExt;
+
     let modified_ns =
         i128::from(metadata.mtime()) * 1_000_000_000_i128 + i128::from(metadata.mtime_nsec());
     let accessed_ns =
@@ -161,6 +179,11 @@ pub fn fingerprint(path: &Path) -> Result<FileFingerprint, GuardError> {
         gid: 0,
         device_id: 0,
     })
+}
+
+#[cfg(not(unix))]
+pub fn symlink_fingerprint(path: &Path) -> Result<FileFingerprint, GuardError> {
+    fingerprint(path)
 }
 
 pub fn current_runtime_identity() -> Result<RuntimeIdentity, GuardError> {
@@ -328,6 +351,34 @@ impl Guard {
                     Err(GuardFailure {
                         guard: Box::new(self.clone()),
                         reason: "symlink target changed".into(),
+                        expected: format!("{expected:?}"),
+                        actual: format!("{actual:?}"),
+                    })
+                }
+            }
+            Self::SymlinkMetadata { path, expected } => {
+                let actual = match symlink_fingerprint(path) {
+                    Ok(actual) => actual,
+                    Err(GuardError::Io { source, .. })
+                        if expected.is_absent() && source.kind() == io::ErrorKind::NotFound =>
+                    {
+                        return Ok(());
+                    }
+                    Err(error) => {
+                        return Err(GuardFailure {
+                            guard: Box::new(self.clone()),
+                            reason: "symlink metadata unavailable".into(),
+                            expected: format!("{expected:?}"),
+                            actual: error.to_string(),
+                        });
+                    }
+                };
+                if &actual == expected {
+                    Ok(())
+                } else {
+                    Err(GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "symlink metadata changed".into(),
                         expected: format!("{expected:?}"),
                         actual: format!("{actual:?}"),
                     })
@@ -558,6 +609,12 @@ pub fn compile_guards(executable: PathBuf, identity: &ExecutionIdentity) -> Vec<
                 path: path.clone(),
                 expected: fingerprint.clone(),
             }),
+            InputDependency::SymlinkMetadata { path, fingerprint } => {
+                guards.push(Guard::SymlinkMetadata {
+                    path: path.clone(),
+                    expected: fingerprint.clone(),
+                });
+            }
             InputDependency::Symlink { path, target } => guards.push(Guard::SymlinkTarget {
                 path: path.clone(),
                 expected: target.clone(),
@@ -623,6 +680,26 @@ mod tests {
         };
         assert!(guard.validate(GuardMode::Strict).is_ok());
         fs::write(&path, b"now present").unwrap();
+        assert!(guard.validate(GuardMode::Strict).is_err());
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn symlink_metadata_guard_detects_target_replacement() {
+        let directory = tempfile::tempdir().unwrap();
+        let first = directory.path().join("first");
+        let second = directory.path().join("second");
+        let link = directory.path().join("link");
+        fs::write(&first, b"same").unwrap();
+        fs::write(&second, b"same").unwrap();
+        std::os::unix::fs::symlink(&first, &link).unwrap();
+        let guard = Guard::SymlinkMetadata {
+            path: link.clone(),
+            expected: symlink_fingerprint(&link).unwrap(),
+        };
+        assert!(guard.validate(GuardMode::Strict).is_ok());
+        fs::remove_file(&link).unwrap();
+        std::os::unix::fs::symlink(&second, &link).unwrap();
         assert!(guard.validate(GuardMode::Strict).is_err());
     }
 
