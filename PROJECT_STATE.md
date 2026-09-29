@@ -37,13 +37,13 @@ After, commit `e9684c1c01a7bbbab4cae50e2389105596d613f1`: hit floor about 4 ms. 
 
 - Shell and compiler invocations are refused because of unmodeled syscalls and access checks. That is fail-closed.
 - CPython `gettid` is observable via `threading.get_native_id()`, and `PYTHONHASHSEED=0` does not remove the remaining `getrandom`. No whitelist.
-- No GitHub Release binaries.
+- v0.1.0 notes and the Linux packaging workflow are prepared. The tag and GitHub Release are not created.
 
 ## Next tasks
 
-1. Ask before a release or published binaries.
-2. Model the shell and `cc` refusals only with a fail-closed argument and regression tests.
-3. Capture a real `tracejit run` transcript on Linux before putting terminal output in the README.
+1. Wait for explicit approval before tagging v0.1.0 or creating the GitHub Release.
+2. Upload `dist/tracejit-v0.1.0-x86_64-unknown-linux-gnu.tar.gz` and `dist/SHA256SUMS` only after that approval.
+3. Model the shell and `cc` refusals only with a fail-closed argument and regression tests.
 4. Keep `main` green.
 
 ## Known-good commit

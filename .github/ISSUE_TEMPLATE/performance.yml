@@ -1,12 +1,13 @@
-name: Break TraceJIT
-description: Report a program that TraceJIT classifies or reuses unsafely.
-title: "[adversarial] "
-labels: ["break-tracejit", "safety"]
+name: Performance
+description: A measured hot path, with before and after evidence when you have it.
+title: "[performance] "
+labels: ["performance"]
 body:
   - type: textarea
     id: reproduction
     attributes:
       label: Reproduction
+      description: Command, warmup count, and run count.
     validations:
       required: true
   - type: textarea
@@ -19,13 +20,13 @@ body:
     id: actual
     attributes:
       label: Actual behavior
+      description: Medians from a real run. Do not estimate.
     validations:
       required: true
   - type: textarea
     id: environment
     attributes:
       label: Environment
-      description: Kernel, architecture, and filesystem.
     validations:
       required: true
   - type: input
@@ -40,4 +41,3 @@ body:
       label: Minimal testcase
     validations:
       required: true
-

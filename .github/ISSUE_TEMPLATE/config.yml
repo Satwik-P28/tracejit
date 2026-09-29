@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Benchmarks
+    url: https://github.com/Satwik-P28/tracejit/blob/main/benchmarks/results/break-even.md
+    about: Measured wins, losses, and the machine that produced them.

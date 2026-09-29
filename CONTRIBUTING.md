@@ -18,12 +18,15 @@ cargo test -p tracejit-cli --test linux_integration -- --nocapture
 
 ## Break TraceJIT
 
-Use the Break TraceJIT issue template for a safety discrepancy. Include:
+This is the main contribution. Use the Break TraceJIT issue template. A report needs a reproduction, the expected behavior, the actual behavior, the environment, the TraceJIT commit, and a minimal testcase.
 
-- a minimal program
-- the expected effect
-- actual TraceJIT behavior
-- kernel, architecture, filesystem, and TraceJIT commit
+Accepted safety bugs become named fixtures in `tests/fixtures/cases.json`. Other useful work, one change at a time:
+
+- workload compatibility: shell, compilers, Python, Node, Make, pytest, and other build tools
+- syscall and effect coverage, each with an adversarial test
+- performance, with a measured before and after on a hot path
+
+Issue labels: `good first issue`, `break-tracejit`, `compatibility`, `performance`, `syscall-coverage`, `safety`, `docs`, `benchmark`.
 
 A valid report is handled in this order:
 

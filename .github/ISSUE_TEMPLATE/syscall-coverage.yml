@@ -1,7 +1,7 @@
-name: Break TraceJIT
-description: Report a program that TraceJIT classifies or reuses unsafely.
-title: "[adversarial] "
-labels: ["break-tracejit", "safety"]
+name: Syscall coverage
+description: One unmodeled or misclassified syscall, with a focused test.
+title: "[syscall] "
+labels: ["syscall-coverage", "safety"]
 body:
   - type: textarea
     id: reproduction
@@ -12,20 +12,19 @@ body:
   - type: textarea
     id: expected
     attributes:
-      label: Expected behavior
+      label: Expected classification
     validations:
       required: true
   - type: textarea
     id: actual
     attributes:
-      label: Actual behavior
+      label: Actual classification
     validations:
       required: true
   - type: textarea
     id: environment
     attributes:
       label: Environment
-      description: Kernel, architecture, and filesystem.
     validations:
       required: true
   - type: input
@@ -38,6 +37,6 @@ body:
     id: testcase
     attributes:
       label: Minimal testcase
+      description: One syscall or one program, small enough to become a fixture.
     validations:
       required: true
-

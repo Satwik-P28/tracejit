@@ -1,12 +1,13 @@
-name: Break TraceJIT
-description: Report a program that TraceJIT classifies or reuses unsafely.
-title: "[adversarial] "
-labels: ["break-tracejit", "safety"]
+name: Workload compatibility
+description: A real command TraceJIT should accept or should keep refusing.
+title: "[compatibility] "
+labels: ["compatibility"]
 body:
   - type: textarea
     id: reproduction
     attributes:
       label: Reproduction
+      description: The exact command and how to run it.
     validations:
       required: true
   - type: textarea
@@ -19,13 +20,14 @@ body:
     id: actual
     attributes:
       label: Actual behavior
+      description: Classification, refusal text, or incorrect reuse.
     validations:
       required: true
   - type: textarea
     id: environment
     attributes:
       label: Environment
-      description: Kernel, architecture, and filesystem.
+      description: OS, kernel, architecture, filesystem, and relevant toolchain versions.
     validations:
       required: true
   - type: input
@@ -40,4 +42,3 @@ body:
       label: Minimal testcase
     validations:
       required: true
-

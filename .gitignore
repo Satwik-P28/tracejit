@@ -1,4 +1,5 @@
 /target/
+/dist/
 /work/
 *.swp
 .DS_Store

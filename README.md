@@ -1,30 +1,69 @@
 # TraceJIT
 
+[![CI](https://github.com/Satwik-P28/tracejit/actions/workflows/ci.yml/badge.svg)](https://github.com/Satwik-P28/tracejit/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-Apache--2.0%20OR%20MIT-blue)](LICENSE-APACHE)
+[![Platform](https://img.shields.io/badge/platform-Linux%20x86__64-lightgrey)](README.md)
+
 **Make repeated computation disappear, safely.**
 
-TraceJIT can eliminate repeated deterministic work when the saved computation exceeds its guard and cache overhead. It observes an unmodified Linux process, infers dependencies, and reuses a result only after those guards pass.
+TraceJIT traces the observable dependencies of an unmodified Linux command, checks those guards before reuse, and skips the work only when they still hold.
 
-~~~bash
+```bash
 tracejit run -- ./benchmarks/workloads/c-transform/transform
-~~~
+```
 
-TraceJIT V1 is Linux x86_64 only. It caches whole commands, not subgraphs. Any
-unknown effect disables reuse. PROVEN requires successful seccomp and Landlock
-enforcement; observation alone never qualifies.
+**312.913 ms → 3.972 ms**, 78.780x, on that deterministic C transform. Zero source changes. Linux x86_64 only.
 
-## Measured result
+Short commands can be slower. The published 7.396 ms C ETL came back in 7.957 ms on a cache hit (0.929468x, 0.561246 ms slower). Cache hits on the later runner sat near 4 ms, so a command has to outlast that floor.
 
-TraceJIT has a fixed-cost floor and is not beneficial for extremely short commands.
+## Try it
 
-On commit `63e33638709aacfaed896ab587435e64c0ecea62`, the C ETL baseline median was **7.396 ms** and the guarded cache hit was **7.957 ms** (0.93x, 0.561 ms slower). That result stays in [benchmarks/results/latest.md](benchmarks/results/latest.md).
+v0.1.0 is prepared and not published. After the GitHub Release exists:
 
-After the hit path stopped rewriting an unchanged cache record, commit `e9684c1c01a7bbbab4cae50e2389105596d613f1` measured a floor near 4 ms. A **1.796 ms** command still lost (hit 4.165 ms). The fastest measured win was a **5.274 ms** command (hit 4.100 ms, 1.286x). No curve was fit between those points.
+```bash
+curl -fsSL -o tracejit-v0.1.0-x86_64-unknown-linux-gnu.tar.gz \
+  https://github.com/Satwik-P28/tracejit/releases/download/v0.1.0/tracejit-v0.1.0-x86_64-unknown-linux-gnu.tar.gz
+curl -fsSL -o SHA256SUMS \
+  https://github.com/Satwik-P28/tracejit/releases/download/v0.1.0/SHA256SUMS
+sha256sum -c SHA256SUMS
+tar -xzf tracejit-v0.1.0-x86_64-unknown-linux-gnu.tar.gz
+install -m 755 tracejit-v0.1.0-x86_64-unknown-linux-gnu/tracejit ~/.local/bin/tracejit
+tracejit --version
+tracejit doctor
+```
 
-The deterministic C transform is the strongest real win from that run: baseline **312.913 ms**, cache hit **3.972 ms**, **78.780x**, **308.941 ms** saved. A shell pipeline and `cc -c` were refused as `UNKNOWN`. Python stayed `NONDETERMINISTIC` because of `getrandom` and `gettid`.
+`scripts/install-release.sh` runs those steps and stops if the release asset is missing. From a checkout: `./scripts/install-dev.sh`, or `cargo install --path crates/tracejit-cli` when Rust is already installed.
 
-The sweep, phase timings, refusals, and machine details are in [benchmarks/results/break-even.md](benchmarks/results/break-even.md).
+## Is the benchmark real?
+
+Yes. Both results were produced by the harness on GitHub-hosted Ubuntu 24.04 x86_64, with 5 warmups and 30 runs. They are not smoothed.
+
+| Result | Baseline median | Cache-hit median | Speedup |
+| --- | ---: | ---: | ---: |
+| C transform, commit `e9684c1` | 312.913 ms | 3.972 ms | 78.780x |
+| Short C ETL, commit `63e3363` | 7.396 ms | 7.957 ms | 0.929468x |
+
+The sweep's slowest loss was a 1.796 ms command. The fastest win was a 5.274 ms command (hit 4.100 ms, 1.286x). Full tables: [benchmarks/results/break-even.md](benchmarks/results/break-even.md) and [benchmarks/results/latest.md](benchmarks/results/latest.md).
+
+## Is it safe?
+
+Reuse happens only for `GUARDED` or `PROVEN` work. `PROVEN` requires seccomp and Landlock to actually be installed. `UNKNOWN` and `NONDETERMINISTIC` never reuse. Every guard finishes before cached stdout, stderr, exit status, or files are exposed. See [SAFETY.md](SAFETY.md).
+
+## Workloads
+
+| Workload | v0.1.0 |
+| --- | --- |
+| Deterministic C transform in this repo | Reused. Measured above. |
+| Python | Refused. CPython calls `getrandom` and `gettid`. |
+| Shell pipeline, `cc -c` | Refused as `UNKNOWN`. Compatibility is incomplete. |
+
+A single real run, including explain and input-change deoptimization, is `./scripts/demo.sh` on Linux x86_64. That script's timings are one execution, not the medians above.
 
 ## How it works
+
+trace → effects → guards → reuse → deoptimize if an assumption changes.
+
+Whole-command reuse. ptrace tracing. BLAKE3 content addresses. SQLite metadata. Strict hashing by default.
 
 1. Compute a pre-execution identity from the executable, arguments, working
    directory, inherited environment, and runtime identity.
@@ -54,22 +93,6 @@ See [SAFETY.md](SAFETY.md) for the threat model and current limitations.
 | NONDETERMINISTIC | Known nondeterminism or irreversible external behavior | no |
 
 TraceJIT does not automatically promote empirical stability.
-
-## Installation
-
-Install stable Rust on Ubuntu, then:
-
-~~~bash
-cargo install --path crates/tracejit-cli
-~~~
-
-For a repository checkout:
-
-~~~bash
-./scripts/install-dev.sh
-~~~
-
-No release or curl-pipe installer exists.
 
 ## CLI
 
@@ -156,6 +179,4 @@ at your option.
 
 ## Contributing
 
-Run formatting, clippy, and the full workspace test suite before submitting a
-change. Safety bugs require a permanent fixture. See
-[CONTRIBUTING.md](CONTRIBUTING.md).
+The main loop is Break TraceJIT: a workload that is classified or reused incorrectly becomes a permanent fixture. Compatibility, syscall coverage, and measured performance work are the other useful contributions. See [CONTRIBUTING.md](CONTRIBUTING.md).

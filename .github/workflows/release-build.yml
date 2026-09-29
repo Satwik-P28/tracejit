@@ -1,0 +1,35 @@
+name: Release binary
+
+on:
+  workflow_dispatch:
+
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo fmt --all -- --check
+      - run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+      - run: cargo test --workspace
+      - run: cargo test -p tracejit-cli --test linux_integration -- --nocapture
+      - run: cargo build --workspace --release
+      - run: ./target/release/tracejit --version
+      - run: ./target/release/tracejit doctor
+      - name: Package Linux x86_64 archive
+        run: |
+          set -eu
+          version=$(./target/release/tracejit --version | awk '{print $2}')
+          test "$version" = "0.1.0"
+          name="tracejit-v${version}-x86_64-unknown-linux-gnu"
+          mkdir -p "dist/${name}"
+          cp target/release/tracejit "dist/${name}/tracejit"
+          cp LICENSE-APACHE LICENSE-MIT README.md "dist/${name}/"
+          tar -C dist -czf "dist/${name}.tar.gz" "$name"
+          (cd dist && sha256sum "${name}.tar.gz" > SHA256SUMS)
+          rustc --version > dist/rustc-version.txt
+          uname -a > dist/build-host.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tracejit-v0.1.0-linux-x86_64
+          path: dist/
