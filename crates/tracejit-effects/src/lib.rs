@@ -94,6 +94,7 @@ impl Effect {
         match self {
             Self::Read(ReadEffect::File(_))
             | Self::Read(ReadEffect::FileMetadata(_))
+            | Self::Read(ReadEffect::Symlink(_))
             | Self::Read(ReadEffect::Environment(_))
             | Self::Read(ReadEffect::WorkingDirectory)
             | Self::Read(ReadEffect::KernelState(KernelStateRead::Hostname))
@@ -160,6 +161,7 @@ pub struct EffectProperties {
 pub enum ReadEffect {
     File(FileRead),
     FileMetadata(FileMetadataRead),
+    Symlink(SymlinkRead),
     Environment(EnvironmentRead),
     WorkingDirectory,
     Clock(ClockKind),
@@ -247,6 +249,12 @@ pub struct FileRead {
 pub struct FileMetadataRead {
     pub path: PathBuf,
     pub fingerprint: Option<FileFingerprint>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct SymlinkRead {
+    pub path: PathBuf,
+    pub target: Option<PathBuf>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -394,6 +402,10 @@ pub enum InputDependency {
         path: PathBuf,
         fingerprint: FileFingerprint,
     },
+    Symlink {
+        path: PathBuf,
+        target: Option<PathBuf>,
+    },
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -473,6 +485,7 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
     let mut files = BTreeMap::new();
     let mut executables = BTreeMap::new();
     let mut metadata = BTreeMap::new();
+    let mut symlinks = BTreeMap::new();
     for record in effects {
         match &record.effect {
             Effect::Read(ReadEffect::File(read))
@@ -492,6 +505,13 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
                         .entry(read.path.clone())
                         .or_insert(fingerprint.clone());
                 }
+            }
+            Effect::Read(ReadEffect::Symlink(read))
+                if precedes_first_write(&first_writes, &read.path, record.sequence) =>
+            {
+                symlinks
+                    .entry(read.path.clone())
+                    .or_insert(read.target.clone());
             }
             Effect::Control(ControlEffect::Exec(exec)) => {
                 if let Some(hash) = exec.hash {
@@ -531,6 +551,11 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
         metadata
             .into_iter()
             .map(|(path, fingerprint)| InputDependency::Metadata { path, fingerprint }),
+    );
+    dependencies.extend(
+        symlinks
+            .into_iter()
+            .map(|(path, target)| InputDependency::Symlink { path, target }),
     );
     dependencies
 }

@@ -18,6 +18,7 @@
 #include <sys/types.h>
 #include <sys/utsname.h>
 #include <sys/wait.h>
+#include <termios.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -126,6 +127,41 @@ int main(int argc, char **argv) {
     close(pair[0]);
     close(pair[1]);
     return result < 0;
+  }
+  if (!strcmp(name, "readlink_non_symlink")) {
+    char target[4096];
+    errno = 0;
+    ssize_t result = readlink(input, target, sizeof(target));
+    return result != -1 || errno != EINVAL;
+  }
+  if (!strcmp(name, "tracked_file_terminal_probe")) {
+    int fd = open(input, O_RDONLY);
+    if (fd < 0) return 1;
+    struct termios terminal;
+    errno = 0;
+    int result = ioctl(fd, TCGETS, &terminal);
+    int saved_errno = errno;
+    close(fd);
+    return result != -1 || saved_errno != ENOTTY;
+  }
+  if (!strcmp(name, "fd_cloexec")) {
+    int fd = open(input, O_RDONLY);
+    if (fd < 0) return 1;
+    int result = ioctl(fd, FIOCLEX);
+    close(fd);
+    return result != 0;
+  }
+  if (!strcmp(name, "at_empty_path")) {
+    int fd = open(input, O_RDONLY);
+    if (fd < 0) return 1;
+    struct stat metadata;
+    int result = syscall(SYS_newfstatat, fd, "", &metadata, AT_EMPTY_PATH);
+    close(fd);
+    return result != 0;
+  }
+  if (!strcmp(name, "stdin_metadata")) {
+    struct stat metadata;
+    return fstat(STDIN_FILENO, &metadata);
   }
   if (!strcmp(name, "proc_self")) {
     copy_file("/proc/self/status", output);

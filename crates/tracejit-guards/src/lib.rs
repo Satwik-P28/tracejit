@@ -42,6 +42,10 @@ pub enum Guard {
         path: PathBuf,
         expected: FileFingerprint,
     },
+    SymlinkTarget {
+        path: PathBuf,
+        expected: Option<PathBuf>,
+    },
     EnvironmentValue {
         key: OsString,
         expected: Option<OsString>,
@@ -293,6 +297,30 @@ impl Guard {
                     })
                 }
             }
+            Self::SymlinkTarget { path, expected } => {
+                let actual = match fs::read_link(path) {
+                    Ok(target) => Some(target),
+                    Err(error) if error.kind() == io::ErrorKind::InvalidInput => None,
+                    Err(error) => {
+                        return Err(GuardFailure {
+                            guard: Box::new(self.clone()),
+                            reason: "symlink state unavailable".into(),
+                            expected: format!("{expected:?}"),
+                            actual: error.to_string(),
+                        });
+                    }
+                };
+                if &actual == expected {
+                    Ok(())
+                } else {
+                    Err(GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "symlink target changed".into(),
+                        expected: format!("{expected:?}"),
+                        actual: format!("{actual:?}"),
+                    })
+                }
+            }
             Self::EnvironmentValue { key, expected } => {
                 let actual = std::env::var_os(key);
                 if &actual == expected {
@@ -517,6 +545,10 @@ pub fn compile_guards(executable: PathBuf, identity: &ExecutionIdentity) -> Vec<
             InputDependency::Metadata { path, fingerprint } => guards.push(Guard::FileMetadata {
                 path: path.clone(),
                 expected: fingerprint.clone(),
+            }),
+            InputDependency::Symlink { path, target } => guards.push(Guard::SymlinkTarget {
+                path: path.clone(),
+                expected: target.clone(),
             }),
         }
     }

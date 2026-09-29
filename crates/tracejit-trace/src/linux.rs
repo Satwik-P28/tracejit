@@ -4,7 +4,7 @@ use nix::sys::ptrace;
 use nix::sys::signal::{kill, Signal};
 use nix::sys::wait::{waitpid, WaitPidFlag, WaitStatus};
 use nix::unistd::Pid;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::ffi::OsString;
 use std::fs;
 use std::io::Read;
@@ -18,7 +18,7 @@ use tracejit_effects::{
     ClockKind, ControlEffect, DependencyEdge, DependencyKind, Effect, EffectRecord,
     ExecutionMetadata, FileMetadataRead, FileRead, FileWrite, FileWriteKind, IpcWrite,
     KernelStateRead, NetworkRead, NetworkWrite, ProcessExec, ProcessNode, ProcessSpawn,
-    RandomSource, ReadEffect, SignalEffect, Trace, UnknownEffect, WriteEffect,
+    RandomSource, ReadEffect, SignalEffect, SymlinkRead, Trace, UnknownEffect, WriteEffect,
 };
 use tracejit_guards::{fingerprint, hash_file};
 
@@ -33,6 +33,7 @@ const OPTIONS: ptrace::Options = ptrace::Options::PTRACE_O_TRACESYSGOOD
 struct ProcessState {
     cwd: PathBuf,
     fds: HashMap<i32, FdState>,
+    close_on_exec: HashSet<i32>,
     entering: bool,
     synchronize_on_next_syscall: bool,
     pending: Option<PendingSyscall>,
@@ -56,6 +57,12 @@ enum PendingSyscall {
     Metadata {
         path: PathBuf,
     },
+    ReadLink {
+        path: PathBuf,
+    },
+    TerminalProbe {
+        path: PathBuf,
+    },
     Access {
         path: PathBuf,
     },
@@ -71,9 +78,14 @@ enum PendingSyscall {
     Dup {
         source: i32,
         destination: Option<i32>,
+        close_on_exec: bool,
     },
     Close {
         fd: i32,
+    },
+    SetCloseOnExec {
+        fd: i32,
+        enabled: bool,
     },
     Rename {
         from: PathBuf,
@@ -250,11 +262,10 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
         root_pid,
         ProcessState {
             cwd: request.cwd.clone(),
-            fds: HashMap::from([
-                (0, FdState::Other),
-                (1, FdState::Other),
-                (2, FdState::Other),
-            ]),
+            fds: (0..=2)
+                .map(|fd| (fd, inherited_fd_state(root_pid, fd)))
+                .collect(),
+            close_on_exec: HashSet::new(),
             entering: true,
             synchronize_on_next_syscall: false,
             pending: None,
@@ -361,6 +372,10 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
                     process.executable = Some(path);
                 }
                 if let Some(state) = states.get_mut(&pid) {
+                    let closed = state.close_on_exec.drain().collect::<Vec<_>>();
+                    for fd in closed {
+                        state.fds.remove(&fd);
+                    }
                     state.entering = false;
                     state.synchronize_on_next_syscall = true;
                     state.pending = None;
@@ -538,6 +553,14 @@ fn decode_entry(
         libc::SYS_lstat => PendingSyscall::Unknown { number },
         libc::SYS_readlink => readlink_pending(pid, state, libc::AT_FDCWD, args[0], number)?,
         libc::SYS_readlinkat => readlink_pending(pid, state, args[0] as i32, args[1], number)?,
+        libc::SYS_newfstatat if args[3] as i32 & libc::AT_EMPTY_PATH != 0 => state
+            .fds
+            .get(&(args[0] as i32))
+            .and_then(|fd| match fd {
+                FdState::File(path) => Some(PendingSyscall::Metadata { path: path.clone() }),
+                _ => None,
+            })
+            .unwrap_or(PendingSyscall::Unknown { number }),
         libc::SYS_newfstatat if args[3] as i32 & libc::AT_SYMLINK_NOFOLLOW != 0 => {
             PendingSyscall::Unknown { number }
         }
@@ -574,10 +597,17 @@ fn decode_entry(
         libc::SYS_dup => PendingSyscall::Dup {
             source: args[0] as i32,
             destination: None,
+            close_on_exec: false,
         },
-        libc::SYS_dup2 | libc::SYS_dup3 => PendingSyscall::Dup {
+        libc::SYS_dup2 => PendingSyscall::Dup {
             source: args[0] as i32,
             destination: Some(args[1] as i32),
+            close_on_exec: false,
+        },
+        libc::SYS_dup3 => PendingSyscall::Dup {
+            source: args[0] as i32,
+            destination: Some(args[1] as i32),
+            close_on_exec: args[2] as i32 & libc::O_CLOEXEC != 0,
         },
         libc::SYS_fcntl
             if args[1] as i32 == libc::F_DUPFD || args[1] as i32 == libc::F_DUPFD_CLOEXEC =>
@@ -585,8 +615,13 @@ fn decode_entry(
             PendingSyscall::Dup {
                 source: args[0] as i32,
                 destination: None,
+                close_on_exec: args[1] as i32 == libc::F_DUPFD_CLOEXEC,
             }
         }
+        libc::SYS_fcntl if args[1] as i32 == libc::F_SETFD => PendingSyscall::SetCloseOnExec {
+            fd: args[0] as i32,
+            enabled: args[2] as i32 & libc::FD_CLOEXEC != 0,
+        },
         libc::SYS_fcntl => PendingSyscall::None,
         libc::SYS_close => PendingSyscall::Close { fd: args[0] as i32 },
         libc::SYS_read | libc::SYS_readv | libc::SYS_pread64 => {
@@ -673,6 +708,23 @@ fn decode_entry(
                 args[1] as i32
             },
         },
+        libc::SYS_ioctl if args[1] == libc::FIOCLEX => PendingSyscall::SetCloseOnExec {
+            fd: args[0] as i32,
+            enabled: true,
+        },
+        libc::SYS_ioctl if args[1] == libc::FIONCLEX => PendingSyscall::SetCloseOnExec {
+            fd: args[0] as i32,
+            enabled: false,
+        },
+        libc::SYS_ioctl if args[1] == libc::TCGETS => state
+            .fds
+            .get(&(args[0] as i32))
+            .and_then(|fd| match fd {
+                FdState::File(path) => Some(PendingSyscall::TerminalProbe { path: path.clone() }),
+                FdState::Other if args[0] == 1 || args[0] == 2 => Some(PendingSyscall::None),
+                _ => None,
+            })
+            .unwrap_or(PendingSyscall::Unknown { number }),
         libc::SYS_ioctl if args[0] == 1 || args[0] == 2 => PendingSyscall::None,
         _ if is_known_internal_syscall(number) => PendingSyscall::None,
         _ => PendingSyscall::Unknown { number },
@@ -756,6 +808,28 @@ fn record_snapshot(pid: Pid, path: PathBuf, snapshot: PathSnapshot, collector: &
     }
 }
 
+fn record_metadata(pid: Pid, path: PathBuf, collector: &mut Collector) {
+    match fingerprint(&path) {
+        Ok(value) => collector.push(
+            pid,
+            Effect::Read(ReadEffect::FileMetadata(FileMetadataRead {
+                fingerprint: Some(value),
+                path,
+            })),
+        ),
+        Err(error) => collector.push(
+            pid,
+            Effect::Unknown(UnknownEffect {
+                syscall: None,
+                detail: format!(
+                    "metadata dependency cannot be guarded: {} ({error})",
+                    path.display()
+                ),
+            }),
+        ),
+    }
+}
+
 fn open_pending(
     pid: Pid,
     state: &ProcessState,
@@ -777,7 +851,7 @@ fn readlink_pending(
     state: &ProcessState,
     dirfd: i32,
     address: u64,
-    number: i64,
+    _number: i64,
 ) -> Result<PendingSyscall, TraceError> {
     let path = resolve_path(pid, state, dirfd, address)?;
     let process_executable = format!("/proc/{}/exe", pid.as_raw());
@@ -787,7 +861,7 @@ fn readlink_pending(
     Ok(if own_executable {
         PendingSyscall::None
     } else {
-        PendingSyscall::Unknown { number }
+        PendingSyscall::ReadLink { path }
     })
 }
 
@@ -892,28 +966,28 @@ fn complete_syscall(
                 );
             }
         }
-        PendingSyscall::Metadata { path } => {
-            if let Ok(value) = fingerprint(&path) {
-                collector.push(
-                    pid,
-                    Effect::Read(ReadEffect::FileMetadata(FileMetadataRead {
-                        fingerprint: Some(value),
-                        path,
-                    })),
-                );
-            } else {
-                collector.push(
-                    pid,
-                    Effect::Unknown(UnknownEffect {
-                        syscall: None,
-                        detail: format!(
-                            "successful metadata lookup cannot be guarded: {}",
-                            path.display()
-                        ),
-                    }),
-                );
-            }
+        PendingSyscall::Metadata { path } | PendingSyscall::TerminalProbe { path } => {
+            record_metadata(pid, path, collector);
         }
+        PendingSyscall::ReadLink { path } => match fs::read_link(&path) {
+            Ok(target) => collector.push(
+                pid,
+                Effect::Read(ReadEffect::Symlink(SymlinkRead {
+                    path,
+                    target: Some(target),
+                })),
+            ),
+            Err(error) => collector.push(
+                pid,
+                Effect::Unknown(UnknownEffect {
+                    syscall: Some(libc::SYS_readlink),
+                    detail: format!(
+                        "successful readlink result cannot be inspected: {} ({error})",
+                        path.display()
+                    ),
+                }),
+            ),
+        },
         PendingSyscall::Access { path } => collector.push(
             pid,
             Effect::Unknown(UnknownEffect {
@@ -940,13 +1014,28 @@ fn complete_syscall(
         PendingSyscall::Dup {
             source,
             destination,
+            close_on_exec,
         } => {
+            let destination = destination.unwrap_or(result as i32);
             if let Some(fd) = state.fds.get(&source).cloned() {
-                state.fds.insert(destination.unwrap_or(result as i32), fd);
+                state.fds.insert(destination, fd);
+            }
+            if close_on_exec {
+                state.close_on_exec.insert(destination);
+            } else {
+                state.close_on_exec.remove(&destination);
             }
         }
         PendingSyscall::Close { fd } => {
             state.fds.remove(&fd);
+            state.close_on_exec.remove(&fd);
+        }
+        PendingSyscall::SetCloseOnExec { fd, enabled } => {
+            if enabled {
+                state.close_on_exec.insert(fd);
+            } else {
+                state.close_on_exec.remove(&fd);
+            }
         }
         PendingSyscall::Rename {
             from,
@@ -1101,6 +1190,22 @@ fn complete_failed_syscall(
     collector: &mut Collector,
 ) {
     match pending {
+        PendingSyscall::ReadLink { path } if errno == libc::EINVAL as i64 => collector.push(
+            pid,
+            Effect::Read(ReadEffect::Symlink(SymlinkRead { path, target: None })),
+        ),
+        PendingSyscall::ReadLink { path }
+            if errno == libc::ENOENT as i64 || errno == libc::ENOTDIR as i64 =>
+        {
+            collector.push(
+                pid,
+                Effect::Read(ReadEffect::FileMetadata(FileMetadataRead {
+                    path,
+                    fingerprint: Some(tracejit_effects::FileFingerprint::absent()),
+                })),
+            );
+        }
+        PendingSyscall::TerminalProbe { path } => record_metadata(pid, path, collector),
         PendingSyscall::Open { path, .. }
         | PendingSyscall::Metadata { path }
         | PendingSyscall::Access { path }
@@ -1209,16 +1314,25 @@ fn complete_failed_syscall(
                 detail: format!("failed I/O on fd {fd} is not modeled (errno {errno})"),
             }),
         ),
-        PendingSyscall::Dup { source, .. } | PendingSyscall::Close { fd: source } => collector
-            .push(
-                pid,
-                Effect::Unknown(UnknownEffect {
-                    syscall: None,
-                    detail: format!(
-                        "failed fd operation on {source} is not modeled (errno {errno})"
-                    ),
-                }),
-            ),
+        PendingSyscall::Dup { source, .. }
+        | PendingSyscall::Close { fd: source }
+        | PendingSyscall::SetCloseOnExec { fd: source, .. } => collector.push(
+            pid,
+            Effect::Unknown(UnknownEffect {
+                syscall: None,
+                detail: format!("failed fd operation on {source} is not modeled (errno {errno})"),
+            }),
+        ),
+        PendingSyscall::ReadLink { path } => collector.push(
+            pid,
+            Effect::Unknown(UnknownEffect {
+                syscall: Some(libc::SYS_readlink),
+                detail: format!(
+                    "failed readlink is not guardable: {} (errno {errno})",
+                    path.display()
+                ),
+            }),
+        ),
         PendingSyscall::Unknown { number } => collector.push(
             pid,
             Effect::Unknown(UnknownEffect {
@@ -1299,6 +1413,15 @@ fn is_random_device(path: &Path) -> bool {
     path == Path::new("/dev/random") || path == Path::new("/dev/urandom")
 }
 
+fn inherited_fd_state(pid: Pid, fd: i32) -> FdState {
+    let target = fs::read_link(format!("/proc/{}/fd/{fd}", pid.as_raw()));
+    match target {
+        Ok(path) if path.is_absolute() => FdState::File(path),
+        Ok(path) if path.to_string_lossy().starts_with("socket:") => FdState::Network,
+        _ => FdState::Other,
+    }
+}
+
 fn is_known_internal_syscall(number: i64) -> bool {
     matches!(
         number,
@@ -1338,6 +1461,8 @@ fn pending_description(pending: &PendingSyscall) -> String {
     match pending {
         PendingSyscall::Open { path, .. }
         | PendingSyscall::Metadata { path }
+        | PendingSyscall::ReadLink { path }
+        | PendingSyscall::TerminalProbe { path }
         | PendingSyscall::Access { path }
         | PendingSyscall::Chdir { path }
         | PendingSyscall::ExecAttempt { path }
@@ -1356,9 +1481,10 @@ fn pending_description(pending: &PendingSyscall) -> String {
         PendingSyscall::Clock { .. } => "clock read".into(),
         PendingSyscall::Random => "randomness read".into(),
         PendingSyscall::KernelState { kind } => format!("kernel state read: {kind:?}"),
-        PendingSyscall::Dup { .. } | PendingSyscall::Close { .. } | PendingSyscall::None => {
-            "process-internal operation".into()
-        }
+        PendingSyscall::Dup { .. }
+        | PendingSyscall::Close { .. }
+        | PendingSyscall::SetCloseOnExec { .. }
+        | PendingSyscall::None => "process-internal operation".into(),
     }
 }
 
@@ -1366,6 +1492,7 @@ fn effect_target(effect: &Effect) -> String {
     match effect {
         Effect::Read(ReadEffect::File(value)) => value.path.display().to_string(),
         Effect::Read(ReadEffect::FileMetadata(value)) => value.path.display().to_string(),
+        Effect::Read(ReadEffect::Symlink(value)) => value.path.display().to_string(),
         Effect::Write(WriteEffect::File(value)) => value.path.display().to_string(),
         Effect::Control(ControlEffect::Exec(value)) => value.path.display().to_string(),
         Effect::Control(ControlEffect::Chdir(value)) => value.display().to_string(),
