@@ -8,6 +8,13 @@ version=0.1.0
 name="tracejit-v${version}-x86_64-unknown-linux-gnu.tar.gz"
 base="${TRACEJIT_RELEASE_BASE:-https://github.com/Satwik-P28/tracejit/releases/download/v${version}}"
 dest="${TRACEJIT_INSTALL_PREFIX:-${HOME}/.local/bin}"
+if [ -n "${TRACEJIT_RELEASE_DIR:-}" ]; then
+  TRACEJIT_RELEASE_DIR=$(CDPATH= cd -- "$TRACEJIT_RELEASE_DIR" && pwd)
+fi
+case "$dest" in
+  /*) ;;
+  *) dest=$(pwd)/$dest ;;
+esac
 
 if [ "$(uname -s)" != "Linux" ] || [ "$(uname -m)" != "x86_64" ]; then
   echo "TraceJIT v${version} requires Linux x86_64." >&2

@@ -8,7 +8,7 @@ if [ "$(uname -s)" != "Linux" ] || [ "$(uname -m)" != "x86_64" ]; then
 fi
 
 root=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
-release_dir=${1:?usage: scripts/test-install-release.sh DIST_DIR}
+release_dir=$(CDPATH= cd -- "${1:?usage: scripts/test-install-release.sh DIST_DIR}" && pwd)
 name=tracejit-v0.1.0-x86_64-unknown-linux-gnu.tar.gz
 archive="${release_dir}/${name}"
 sums="${release_dir}/SHA256SUMS"
