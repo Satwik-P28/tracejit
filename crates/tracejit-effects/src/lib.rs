@@ -409,6 +409,12 @@ pub enum InputDependency {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct FileDescriptorIdentity {
+    pub target: PathBuf,
+    pub fingerprint: Option<FileFingerprint>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct RuntimeIdentity {
     pub os: String,
     pub architecture: String,
@@ -422,6 +428,7 @@ pub struct RuntimeIdentity {
     pub egid: u32,
     pub stack_limit_soft: u64,
     pub stack_limit_hard: u64,
+    pub stdin: FileDescriptorIdentity,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -682,6 +689,10 @@ mod tests {
                 egid: 1000,
                 stack_limit_soft: 8 * 1024 * 1024,
                 stack_limit_hard: u64::MAX,
+                stdin: FileDescriptorIdentity {
+                    target: PathBuf::from("/dev/null"),
+                    fingerprint: None,
+                },
             },
         };
         let encoded = serde_json::to_vec(&identity).unwrap();

@@ -4,7 +4,8 @@ use std::fs::{self, File};
 use std::io::{self, Read};
 use std::path::{Path, PathBuf};
 use tracejit_effects::{
-    ExecutionIdentity, FileFingerprint, Hash, InputDependency, RuntimeIdentity,
+    ExecutionIdentity, FileDescriptorIdentity, FileFingerprint, Hash, InputDependency,
+    RuntimeIdentity,
 };
 
 #[derive(Debug, thiserror::Error)]
@@ -190,6 +191,13 @@ pub fn current_runtime_identity() -> Result<RuntimeIdentity, GuardError> {
         }
         // SAFETY: the successful getrlimit call above initialized both fields.
         let stack_limit = unsafe { stack_limit.assume_init() };
+        #[cfg(target_os = "linux")]
+        let stdin_link = Path::new("/proc/self/fd/0");
+        #[cfg(not(target_os = "linux"))]
+        let stdin_link = Path::new("/dev/fd/0");
+        let stdin_target = fs::read_link(stdin_link)
+            .map_err(|error| GuardError::Runtime(format!("could not inspect stdin: {error}")))?;
+        let stdin_fingerprint = fingerprint(stdin_link).ok();
         Ok(RuntimeIdentity {
             os: field(&info.sysname),
             architecture: field(&info.machine),
@@ -207,6 +215,10 @@ pub fn current_runtime_identity() -> Result<RuntimeIdentity, GuardError> {
             egid: unsafe { libc::getegid() },
             stack_limit_soft: stack_limit.rlim_cur,
             stack_limit_hard: stack_limit.rlim_max,
+            stdin: FileDescriptorIdentity {
+                target: stdin_target,
+                fingerprint: stdin_fingerprint,
+            },
         })
     }
     #[cfg(not(unix))]

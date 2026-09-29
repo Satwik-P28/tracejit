@@ -42,6 +42,7 @@ struct ProcessState {
 #[derive(Clone)]
 enum FdState {
     File(PathBuf),
+    InheritedFile(PathBuf),
     Network,
     Other,
 }
@@ -119,6 +120,7 @@ enum PendingSyscall {
     },
     Unknown {
         number: i64,
+        detail: String,
     },
     None,
 }
@@ -545,32 +547,59 @@ fn decode_entry(
             .fds
             .get(&(args[0] as i32))
             .and_then(|fd| match fd {
-                FdState::File(path) => Some(PendingSyscall::Metadata { path: path.clone() }),
+                FdState::File(path) | FdState::InheritedFile(path) => {
+                    Some(PendingSyscall::Metadata { path: path.clone() })
+                }
                 FdState::Other if args[0] == 1 || args[0] == 2 => Some(PendingSyscall::None),
                 _ => None,
             })
-            .unwrap_or(PendingSyscall::Unknown { number }),
-        libc::SYS_lstat => PendingSyscall::Unknown { number },
+            .unwrap_or_else(|| PendingSyscall::Unknown {
+                number,
+                detail: format!("fstat on unclassified fd {}", args[0]),
+            }),
+        libc::SYS_lstat => PendingSyscall::Unknown {
+            number,
+            detail: "lstat result is not modeled".into(),
+        },
         libc::SYS_readlink => readlink_pending(pid, state, libc::AT_FDCWD, args[0], number)?,
         libc::SYS_readlinkat => readlink_pending(pid, state, args[0] as i32, args[1], number)?,
-        libc::SYS_newfstatat if args[3] as i32 & libc::AT_EMPTY_PATH != 0 => state
-            .fds
-            .get(&(args[0] as i32))
-            .and_then(|fd| match fd {
-                FdState::File(path) => Some(PendingSyscall::Metadata { path: path.clone() }),
-                _ => None,
-            })
-            .unwrap_or(PendingSyscall::Unknown { number }),
+        libc::SYS_newfstatat
+            if args[3] as i32 & libc::AT_EMPTY_PATH != 0
+                && read_c_string(pid, args[1])?.is_empty() =>
+        {
+            state
+                .fds
+                .get(&(args[0] as i32))
+                .and_then(|fd| match fd {
+                    FdState::File(path) | FdState::InheritedFile(path) => {
+                        Some(PendingSyscall::Metadata { path: path.clone() })
+                    }
+                    _ => None,
+                })
+                .unwrap_or_else(|| PendingSyscall::Unknown {
+                    number,
+                    detail: format!("newfstatat AT_EMPTY_PATH on unclassified fd {}", args[0]),
+                })
+        }
         libc::SYS_newfstatat if args[3] as i32 & libc::AT_SYMLINK_NOFOLLOW != 0 => {
-            PendingSyscall::Unknown { number }
+            PendingSyscall::Unknown {
+                number,
+                detail: "newfstatat AT_SYMLINK_NOFOLLOW result is not modeled".into(),
+            }
         }
         libc::SYS_statx if args[2] as i32 & libc::AT_SYMLINK_NOFOLLOW != 0 => {
-            PendingSyscall::Unknown { number }
+            PendingSyscall::Unknown {
+                number,
+                detail: "statx AT_SYMLINK_NOFOLLOW result is not modeled".into(),
+            }
         }
         libc::SYS_newfstatat => PendingSyscall::Metadata {
             path: resolve_path(pid, state, args[0] as i32, args[1])?,
         },
-        libc::SYS_statx => PendingSyscall::Unknown { number },
+        libc::SYS_statx => PendingSyscall::Unknown {
+            number,
+            detail: "statx result is not modeled".into(),
+        },
         libc::SYS_chdir => PendingSyscall::Chdir {
             path: resolve_path(pid, state, libc::AT_FDCWD, args[0])?,
         },
@@ -593,7 +622,10 @@ fn decode_entry(
                 FdState::File(path) => Some(PendingSyscall::Chdir { path: path.clone() }),
                 _ => None,
             })
-            .unwrap_or(PendingSyscall::Unknown { number }),
+            .unwrap_or_else(|| PendingSyscall::Unknown {
+                number,
+                detail: format!("fchdir on unclassified fd {}", args[0]),
+            }),
         libc::SYS_dup => PendingSyscall::Dup {
             source: args[0] as i32,
             destination: None,
@@ -720,14 +752,25 @@ fn decode_entry(
             .fds
             .get(&(args[0] as i32))
             .and_then(|fd| match fd {
-                FdState::File(path) => Some(PendingSyscall::TerminalProbe { path: path.clone() }),
+                FdState::File(path) | FdState::InheritedFile(path) => {
+                    Some(PendingSyscall::TerminalProbe { path: path.clone() })
+                }
                 FdState::Other if args[0] == 1 || args[0] == 2 => Some(PendingSyscall::None),
                 _ => None,
             })
-            .unwrap_or(PendingSyscall::Unknown { number }),
+            .unwrap_or_else(|| PendingSyscall::Unknown {
+                number,
+                detail: format!("TCGETS on unclassified fd {}", args[0]),
+            }),
         libc::SYS_ioctl if args[0] == 1 || args[0] == 2 => PendingSyscall::None,
         _ if is_known_internal_syscall(number) => PendingSyscall::None,
-        _ => PendingSyscall::Unknown { number },
+        _ => PendingSyscall::Unknown {
+            number,
+            detail: format!(
+                "unmodeled syscall {number} args [{:#x}, {:#x}, {:#x}, {:#x}, {:#x}, {:#x}]",
+                args[0], args[1], args[2], args[3], args[4], args[5]
+            ),
+        },
     };
     Ok(pending)
 }
@@ -966,9 +1009,19 @@ fn complete_syscall(
                 );
             }
         }
-        PendingSyscall::Metadata { path } | PendingSyscall::TerminalProbe { path } => {
+        PendingSyscall::Metadata { path } => {
             record_metadata(pid, path, collector);
         }
+        PendingSyscall::TerminalProbe { path } => collector.push(
+            pid,
+            Effect::Unknown(UnknownEffect {
+                syscall: Some(libc::SYS_ioctl),
+                detail: format!(
+                    "successful terminal-state query cannot be guarded: {}",
+                    path.display()
+                ),
+            }),
+        ),
         PendingSyscall::ReadLink { path } => match fs::read_link(&path) {
             Ok(target) => collector.push(
                 pid,
@@ -1081,6 +1134,17 @@ fn complete_syscall(
                 })),
             ),
             Some(FdState::File(_)) => {}
+            Some(FdState::InheritedFile(path)) if path == Path::new("/dev/null") => {}
+            Some(FdState::InheritedFile(path)) => collector.push(
+                pid,
+                Effect::Unknown(UnknownEffect {
+                    syscall: Some(libc::SYS_read),
+                    detail: format!(
+                        "read from inherited descriptor {fd} is not replayable: {}",
+                        path.display()
+                    ),
+                }),
+            ),
             _ => {
                 let resolved = fs::read_link(format!("/proc/{}/fd/{fd}", pid.as_raw())).ok();
                 if let Some(path) = resolved.filter(|path| path.is_absolute() && path.is_file()) {
@@ -1172,11 +1236,11 @@ fn complete_syscall(
                 target_pid: target,
             })),
         ),
-        PendingSyscall::Unknown { number } => collector.push(
+        PendingSyscall::Unknown { number, detail } => collector.push(
             pid,
             Effect::Unknown(UnknownEffect {
                 syscall: Some(number),
-                detail: format!("unmodeled successful syscall {number}"),
+                detail: format!("unmodeled successful syscall {number}: {detail}"),
             }),
         ),
         PendingSyscall::None => {}
@@ -1333,11 +1397,11 @@ fn complete_failed_syscall(
                 ),
             }),
         ),
-        PendingSyscall::Unknown { number } => collector.push(
+        PendingSyscall::Unknown { number, detail } => collector.push(
             pid,
             Effect::Unknown(UnknownEffect {
                 syscall: Some(number),
-                detail: format!("unmodeled failed syscall {number} (errno {errno})"),
+                detail: format!("unmodeled failed syscall {number} (errno {errno}): {detail}"),
             }),
         ),
         _ => {}
@@ -1416,7 +1480,7 @@ fn is_random_device(path: &Path) -> bool {
 fn inherited_fd_state(pid: Pid, fd: i32) -> FdState {
     let target = fs::read_link(format!("/proc/{}/fd/{fd}", pid.as_raw()));
     match target {
-        Ok(path) if path.is_absolute() => FdState::File(path),
+        Ok(path) if path.is_absolute() => FdState::InheritedFile(path),
         Ok(path) if path.to_string_lossy().starts_with("socket:") => FdState::Network,
         _ => FdState::Other,
     }
@@ -1472,7 +1536,7 @@ fn pending_description(pending: &PendingSyscall) -> String {
             format!("rename {} to {}", from.display(), to.display())
         }
         PendingSyscall::Network { .. } => "network operation".into(),
-        PendingSyscall::Unknown { number } => format!("syscall {number}"),
+        PendingSyscall::Unknown { number, detail } => format!("syscall {number}: {detail}"),
         PendingSyscall::Read { fd } => format!("read from fd {fd}"),
         PendingSyscall::Write { fd } => format!("write to fd {fd}"),
         PendingSyscall::Signal { signal, target } => {
