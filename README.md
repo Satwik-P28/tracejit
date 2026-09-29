@@ -18,17 +18,7 @@ Short commands can be slower. The published 7.396 ms C ETL came back in 7.957 ms
 
 ## Try it
 
-Linux x86_64. From a checkout today:
-
-```bash
-./scripts/install-dev.sh
-tracejit --version
-tracejit doctor
-```
-
-`cargo install --path crates/tracejit-cli` is the same source install when Rust is already installed.
-
-After v0.1.0 is published, this release install does not need Rust:
+Linux x86_64. This release install does not need Rust:
 
 ```bash
 curl -fsSL -o tracejit-v0.1.0-x86_64-unknown-linux-gnu.tar.gz \
@@ -37,12 +27,16 @@ curl -fsSL -o SHA256SUMS \
   https://github.com/Satwik-P28/tracejit/releases/download/v0.1.0/SHA256SUMS
 sha256sum -c SHA256SUMS
 tar -xzf tracejit-v0.1.0-x86_64-unknown-linux-gnu.tar.gz
+mkdir -p ~/.local/bin
 install -m 755 tracejit-v0.1.0-x86_64-unknown-linux-gnu/tracejit ~/.local/bin/tracejit
+export PATH="$HOME/.local/bin:$PATH"
 tracejit --version
 tracejit doctor
 ```
 
 `scripts/install-release.sh` runs that sequence. It refuses a missing archive, a missing checksum, or a checksum mismatch.
+
+From a checkout, `./scripts/install-dev.sh` installs from source. `cargo install --path crates/tracejit-cli` is the same path when Rust is already installed.
 
 ## Is the benchmark real?
 

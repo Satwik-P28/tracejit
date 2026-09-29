@@ -13,26 +13,22 @@ jobs:
           set -eu
           unset TRACEJIT_RELEASE_DIR || true
           unset TRACEJIT_INSTALL_PREFIX || true
-          readme_status=0
           work=$(mktemp -d)
-          (
-            set -eu
-            cd "$work"
-            curl -fsSL -o tracejit-v0.1.0-x86_64-unknown-linux-gnu.tar.gz \
-              https://github.com/Satwik-P28/tracejit/releases/download/v0.1.0/tracejit-v0.1.0-x86_64-unknown-linux-gnu.tar.gz
-            curl -fsSL -o SHA256SUMS \
-              https://github.com/Satwik-P28/tracejit/releases/download/v0.1.0/SHA256SUMS
-            sha256sum -c SHA256SUMS
-            tar -xzf tracejit-v0.1.0-x86_64-unknown-linux-gnu.tar.gz
-            install -m 755 tracejit-v0.1.0-x86_64-unknown-linux-gnu/tracejit ~/.local/bin/tracejit
-            tracejit --version
-            tracejit doctor
-          ) || readme_status=$?
-          echo "README_INSTALL_STATUS=$readme_status"
-
+          cd "$work"
+          curl -fsSL -o tracejit-v0.1.0-x86_64-unknown-linux-gnu.tar.gz \
+            https://github.com/Satwik-P28/tracejit/releases/download/v0.1.0/tracejit-v0.1.0-x86_64-unknown-linux-gnu.tar.gz
+          curl -fsSL -o SHA256SUMS \
+            https://github.com/Satwik-P28/tracejit/releases/download/v0.1.0/SHA256SUMS
+          sha256sum -c SHA256SUMS
+          tar -xzf tracejit-v0.1.0-x86_64-unknown-linux-gnu.tar.gz
+          mkdir -p ~/.local/bin
+          install -m 755 tracejit-v0.1.0-x86_64-unknown-linux-gnu/tracejit ~/.local/bin/tracejit
+          export PATH="$HOME/.local/bin:$PATH"
+          tracejit --version
+          tracejit doctor
+          cd "$GITHUB_WORKSPACE"
+          rm -f "${HOME}/.local/bin/tracejit"
           env -u TRACEJIT_RELEASE_DIR -u TRACEJIT_INSTALL_PREFIX ./scripts/install-release.sh
-          export PATH="${HOME}/.local/bin:${PATH}"
           tracejit --version
           tracejit doctor
           TRACEJIT="${HOME}/.local/bin/tracejit" ./scripts/demo.sh
-          exit "$readme_status"

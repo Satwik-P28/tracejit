@@ -10,7 +10,7 @@ These are measurements of specific workloads, not a claim that every command get
 
 ## Install
 
-The release archive is `tracejit-v0.1.0-x86_64-unknown-linux-gnu.tar.gz`, checked with `SHA256SUMS`. `scripts/install-release.sh` downloads that archive after it is published. Until then, install from source with `./scripts/install-dev.sh`.
+The release archive is `tracejit-v0.1.0-x86_64-unknown-linux-gnu.tar.gz`, checked with `SHA256SUMS`. `scripts/install-release.sh` downloads that archive. From a checkout, `./scripts/install-dev.sh` installs from source.
 
 ```bash
 tracejit --version
