@@ -251,9 +251,7 @@ pub fn doctor() -> DoctorReport {
             problems.push(detail.clone());
         }
         if !sandbox.can_prove() {
-            if let Some(reason) = sandbox.reason.clone() {
-                problems.push(reason);
-            }
+            problems.extend(sandbox.reason.clone());
         }
     }
     if !cache_writable {

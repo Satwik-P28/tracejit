@@ -1643,12 +1643,12 @@ pub(super) fn probe_ptrace() -> Result<(), String> {
             unsafe { libc::_exit(0) };
         }
         ForkResult::Parent { child } => match waitpid(child, None) {
-            Ok(WaitStatus::Stopped(_, _)) => ptrace::detach(child, None)
-                .map_err(|error| format!("ptrace detach failed: {error}"))
-                .and_then(|()| {
-                    let _ = waitpid(child, None);
-                    Ok(())
-                }),
+            Ok(WaitStatus::Stopped(_, _)) => {
+                ptrace::detach(child, None)
+                    .map_err(|error| format!("ptrace detach failed: {error}"))?;
+                let _ = waitpid(child, None);
+                Ok(())
+            }
             Ok(WaitStatus::Exited(_, 2)) => Err(ptrace_denied_message()),
             Ok(status) => Err(format!("ptrace probe failed: {status:?}")),
             Err(error) => Err(format!("ptrace probe wait failed: {error}")),
