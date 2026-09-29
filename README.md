@@ -2,11 +2,10 @@
 
 **Make repeated computation disappear, safely.**
 
-TraceJIT observes an unmodified Linux process, infers its observable dependencies,
-compiles runtime guards, and reuses previous execution only when those guards pass.
+TraceJIT can eliminate repeated deterministic work when the saved computation exceeds its guard and cache overhead. It observes an unmodified Linux process, infers dependencies, and reuses a result only after those guards pass.
 
 ~~~bash
-tracejit run -- python report.py
+tracejit run -- ./benchmarks/workloads/c-transform/transform
 ~~~
 
 TraceJIT V1 is Linux x86_64 only. It caches whole commands, not subgraphs. Any
@@ -15,26 +14,15 @@ enforcement; observation alone never qualifies.
 
 ## Measured result
 
-Commit `63e33638709aacfaed896ab587435e64c0ecea62`, GitHub-hosted Ubuntu 24.04.5,
-kernel `6.17.0-1022-azure`, x86_64. Five warmups and 30 runs. The workload is
-`benchmarks/workloads/c-etl`. Direct baseline median was **7.396 ms**. A cold
-traced run was **21.024 ms** (184% overhead). An end-to-end guarded cache hit was
-**7.957 ms**, which is 0.93x the baseline and 0.561 ms slower. Output bytes,
-streams, and exit status matched, and changing `sales.csv` forced a retrace.
+TraceJIT has a fixed-cost floor and is not beneficial for extremely short commands.
 
-This command is too short for reuse to win. Starting TraceJIT and checking guards
-costs more than the computation. The internal guard, restore, and replay path was
-1.113 ms; most of the hit time is process startup around that path.
+On commit `63e33638709aacfaed896ab587435e64c0ecea62`, the C ETL baseline median was **7.396 ms** and the guarded cache hit was **7.957 ms** (0.93x, 0.561 ms slower). That result stays in [benchmarks/results/latest.md](benchmarks/results/latest.md).
 
-`python3 benchmarks/workloads/python-etl/main.py` was not reused:
+After the hit path stopped rewriting an unchanged cache record, commit `e9684c1c01a7bbbab4cae50e2389105596d613f1` measured a floor near 4 ms. A **1.796 ms** command still lost (hit 4.165 ms). The fastest measured win was a **5.274 ms** command (hit 4.100 ms, 1.286x). No curve was fit between those points.
 
-~~~text
-reuse disabled: process read randomness via getrandom
-reuse disabled: process read process identity via gettid
-~~~
+The deterministic C transform is the strongest real win from that run: baseline **312.913 ms**, cache hit **3.972 ms**, **78.780x**, **308.941 ms** saved. A shell pipeline and `cc -c` were refused as `UNKNOWN`. Python stayed `NONDETERMINISTIC` because of `getrandom` and `gettid`.
 
-The full record, including CPU, memory, filesystem, and commands, is
-[benchmarks/results/latest.md](benchmarks/results/latest.md).
+The sweep, phase timings, refusals, and machine details are in [benchmarks/results/break-even.md](benchmarks/results/break-even.md).
 
 ## How it works
 
@@ -114,10 +102,8 @@ syscall.
 
 ## Benchmarks
 
-Published numbers come only from `./scripts/benchmark.sh` and are stored in
-[benchmarks/results/latest.json](benchmarks/results/latest.json). See
-[BENCHMARKS.md](BENCHMARKS.md). On the measured 7 ms C workload, guarded reuse is
-correct and slower than running the command directly.
+Published numbers come from the harnesses and are stored under `benchmarks/results/`.
+See [BENCHMARKS.md](BENCHMARKS.md). The 7 ms loss and the later break-even table are both kept.
 
 ## Adversarial safety suite
 
