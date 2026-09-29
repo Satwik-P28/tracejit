@@ -326,6 +326,8 @@ pub struct DoctorReport {
     pub proven: bool,
     pub cache_path: PathBuf,
     pub cache_writable: bool,
+    /// The cache directory is absent, and an existing parent can accept new files.
+    pub cache_creatable: bool,
     pub problems: Vec<String>,
 }
 
@@ -336,7 +338,7 @@ pub fn doctor() -> DoctorReport {
     let ptrace_result = probe_ptrace();
     let sandbox = capabilities();
     let cache_path = Cache::default_root();
-    let cache_writable = cache_path_writable(&cache_path);
+    let cache_state = cache_path_state(&cache_path);
     let mut problems = Vec::new();
     if !supported {
         problems.push("TraceJIT V1 requires Linux x86_64".into());
@@ -348,7 +350,7 @@ pub fn doctor() -> DoctorReport {
             problems.extend(sandbox.reason.clone());
         }
     }
-    if !cache_writable {
+    if cache_state == CachePathState::Unwritable {
         problems.push(format!(
             "cache path is not writable: {}",
             cache_path.display()
@@ -363,23 +365,49 @@ pub fn doctor() -> DoctorReport {
         landlock_abi: sandbox.landlock_abi,
         proven: supported && ptrace_result.is_ok() && sandbox.can_prove(),
         cache_path,
-        cache_writable,
+        cache_writable: cache_state == CachePathState::Writable,
+        cache_creatable: cache_state == CachePathState::Creatable,
         problems,
     }
 }
 
-fn cache_path_writable(path: &Path) -> bool {
-    let directory = if path.is_dir() {
-        path.to_path_buf()
-    } else if path.exists() {
-        return false;
-    } else {
-        path.parent().unwrap_or(path).to_path_buf()
-    };
-    if !directory.is_dir() {
-        return false;
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum CachePathState {
+    Writable,
+    Creatable,
+    Unwritable,
+}
+
+fn cache_path_state(path: &Path) -> CachePathState {
+    if path.is_dir() {
+        return if directory_accepts_files(path) {
+            CachePathState::Writable
+        } else {
+            CachePathState::Unwritable
+        };
     }
-    let probe = directory.join(".tracejit-doctor-probe");
+    if path.exists() {
+        return CachePathState::Unwritable;
+    }
+    let mut cursor = path;
+    while let Some(parent) = cursor.parent() {
+        if parent.as_os_str().is_empty() || parent == cursor {
+            break;
+        }
+        if parent.exists() {
+            return if parent.is_dir() && directory_accepts_files(parent) {
+                CachePathState::Creatable
+            } else {
+                CachePathState::Unwritable
+            };
+        }
+        cursor = parent;
+    }
+    CachePathState::Unwritable
+}
+
+fn directory_accepts_files(directory: &Path) -> bool {
+    let probe = directory.join(format!(".tracejit-doctor-probe-{}", std::process::id()));
     match std::fs::OpenOptions::new()
         .write(true)
         .create_new(true)
@@ -813,6 +841,7 @@ fn count_irreversible_effects(effects: &[EffectRecord]) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::os::unix::fs::PermissionsExt;
     use tracejit_effects::{FileRead, FileWrite};
 
     #[test]
@@ -875,5 +904,59 @@ mod tests {
     fn stat_start_ticks_skip_spaces_inside_comm() {
         let stat = "12 (trace jit) S 1 1 1 0 -1 0 0 0 0 0 0 0 0 0 20 0 1 0 424242 0";
         assert_eq!(start_ticks_from_stat(stat), Some(424242));
+    }
+
+    fn cache_status_scratch() -> PathBuf {
+        let path = std::env::temp_dir().join(format!(
+            "tracejit-cache-status-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .expect("clock")
+                .as_nanos()
+        ));
+        std::fs::create_dir(&path).expect("scratch directory");
+        path
+    }
+
+    #[test]
+    fn missing_cache_directory_is_creatable_when_an_ancestor_is_writable() {
+        let root = cache_status_scratch();
+        let cache = root.join("missing").join("tracejit");
+        assert_eq!(cache_path_state(&cache), CachePathState::Creatable);
+        let _ = std::fs::remove_dir_all(root);
+    }
+
+    #[test]
+    fn existing_cache_directory_is_writable_without_being_created() {
+        let root = cache_status_scratch();
+        let cache = root.join("tracejit");
+        std::fs::create_dir(&cache).unwrap();
+        assert_eq!(cache_path_state(&cache), CachePathState::Writable);
+        let _ = std::fs::remove_dir_all(root);
+    }
+
+    #[test]
+    fn cache_path_fails_closed_when_it_cannot_be_created() {
+        let root = cache_status_scratch();
+        let blocked = root.join("blocked");
+        std::fs::write(&blocked, b"not a directory").unwrap();
+        assert_eq!(
+            cache_path_state(&blocked.join("tracejit")),
+            CachePathState::Unwritable
+        );
+
+        let sealed = root.join("sealed");
+        std::fs::create_dir(&sealed).unwrap();
+        let original_mode = std::fs::metadata(&sealed).unwrap().permissions().mode();
+        let mut sealed_permissions = std::fs::metadata(&sealed).unwrap().permissions();
+        sealed_permissions.set_mode(0o555);
+        std::fs::set_permissions(&sealed, sealed_permissions).unwrap();
+        let sealed_state = cache_path_state(&sealed.join("tracejit"));
+        let mut restore = std::fs::metadata(&sealed).unwrap().permissions();
+        restore.set_mode(original_mode);
+        std::fs::set_permissions(&sealed, restore).unwrap();
+        assert_eq!(sealed_state, CachePathState::Unwritable);
+        let _ = std::fs::remove_dir_all(root);
     }
 }

@@ -27,7 +27,7 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 
 ## Benchmark status
 
-Kept loss, commit `63e33638709aacfaed896ab587435e64c0ecea62`: C ETL baseline 7.396 ms, cache hit 7.957 ms (0.93x). See `benchmarks/results/latest.md`.
+Kept loss, commit `63e33638709aacfaed896ab587435e64c0ecea62`: C ETL baseline 7.396 ms, cache hit 7.957 ms (0.929468x). See `benchmarks/results/latest.md`.
 
 Before the rewrite skip, commit `25d7c24e25b64382050d6d0ce126560e461855a4`: decision persist 3.136 ms, record decode 0.750 ms. Slowest measured loss 4.952 ms, fastest measured win 9.226 ms. See `benchmarks/results/overhead-before.md`.
 
@@ -38,6 +38,7 @@ After, commit `e9684c1c01a7bbbab4cae50e2389105596d613f1`: hit floor about 4 ms. 
 - Shell and compiler invocations are refused because of unmodeled syscalls and access checks. That is fail-closed.
 - CPython `gettid` is observable via `threading.get_native_id()`, and `PYTHONHASHSEED=0` does not remove the remaining `getrandom`. No whitelist.
 - v0.1.0 notes and the Linux packaging workflow are prepared. The tag and GitHub Release are not created.
+- `doctor` reports a missing cache directory as creatable when a parent is writable. A path that cannot be created stays a problem.
 
 ## Next tasks
 

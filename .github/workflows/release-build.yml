@@ -15,7 +15,22 @@ jobs:
       - run: cargo test -p tracejit-cli --test linux_integration -- --nocapture
       - run: cargo build --workspace --release
       - run: ./target/release/tracejit --version
-      - run: ./target/release/tracejit doctor
+      - name: Doctor reports a creatable cache instead of a false failure
+        run: |
+          set -eu
+          doctor_out=$(./target/release/tracejit doctor)
+          printf '%s\n' "$doctor_out"
+          printf '%s\n' "$doctor_out" | grep -q 'supported      yes'
+          if printf '%s\n' "$doctor_out" | grep -q 'not writable'; then
+            echo "doctor treated a missing cache directory as unwritable" >&2
+            exit 1
+          fi
+      - name: Canonical demo
+        run: |
+          set -eu
+          ./scripts/demo.sh
+          git diff --exit-code -- benchmarks/workloads/c-transform/numbers.txt
+          test -z "$(git status --porcelain)"
       - name: Package Linux x86_64 archive
         run: |
           set -eu
@@ -29,6 +44,8 @@ jobs:
           (cd dist && sha256sum "${name}.tar.gz" > SHA256SUMS)
           rustc --version > dist/rustc-version.txt
           uname -a > dist/build-host.txt
+      - name: Test release install against the local archive
+        run: ./scripts/test-install-release.sh dist
       - uses: actions/upload-artifact@v4
         with:
           name: tracejit-v0.1.0-linux-x86_64

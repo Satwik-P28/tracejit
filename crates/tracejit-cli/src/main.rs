@@ -205,14 +205,16 @@ fn run_cli(cli: Cli, process_startup_ns: u64, cli_parse_ns: u64) -> Result<i32> 
                 println!("seccomp        {}", yes_no(report.seccomp));
                 println!("landlock       {}", landlock_status(report.landlock_abi));
                 println!("proven         {}", yes_no(report.proven));
+                let cache_state = if report.cache_writable {
+                    "writable"
+                } else if report.cache_creatable {
+                    "not created yet; TraceJIT can create it"
+                } else {
+                    "not writable"
+                };
                 println!(
-                    "cache          {} ({})",
-                    report.cache_path.display(),
-                    if report.cache_writable {
-                        "writable"
-                    } else {
-                        "not writable"
-                    }
+                    "cache          {} ({cache_state})",
+                    report.cache_path.display()
                 );
                 for problem in &report.problems {
                     println!("problem        {problem}");

@@ -18,7 +18,17 @@ Short commands can be slower. The published 7.396 ms C ETL came back in 7.957 ms
 
 ## Try it
 
-v0.1.0 is prepared and not published. After the GitHub Release exists:
+Linux x86_64. From a checkout today:
+
+```bash
+./scripts/install-dev.sh
+tracejit --version
+tracejit doctor
+```
+
+`cargo install --path crates/tracejit-cli` is the same source install when Rust is already installed.
+
+After v0.1.0 is published, this release install does not need Rust:
 
 ```bash
 curl -fsSL -o tracejit-v0.1.0-x86_64-unknown-linux-gnu.tar.gz \
@@ -32,7 +42,7 @@ tracejit --version
 tracejit doctor
 ```
 
-`scripts/install-release.sh` runs those steps and stops if the release asset is missing. From a checkout: `./scripts/install-dev.sh`, or `cargo install --path crates/tracejit-cli` when Rust is already installed.
+`scripts/install-release.sh` runs that sequence. It refuses a missing archive, a missing checksum, or a checksum mismatch.
 
 ## Is the benchmark real?
 
