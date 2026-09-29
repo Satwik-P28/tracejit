@@ -1,7 +1,7 @@
 /* Deterministic ETL used for guarded-reuse timings.
-   Reads the committed CSV inputs, performs a fixed integer mix, and writes one
-   JSON file. It does not call the clock, getrandom, or process-id syscalls.
-   CPython calls gettid while binding its main thread, so it is not this workload. */
+   Stack buffers only: glibc malloc can call getrandom while seeding tcache, and
+   TraceJIT correctly refuses that. This program uses open/read/write, like the
+   adversarial fixtures that are classified GUARDED. */
 #define _POSIX_C_SOURCE 200809L
 
 #include <fcntl.h>
@@ -14,36 +14,19 @@
 #define CUSTOMERS "benchmarks/workloads/python-etl/inputs/customers.csv"
 #define SALES "benchmarks/workloads/python-etl/inputs/sales.csv"
 #define OUTPUT_PATH "benchmarks/workloads/c-etl/output/report.json"
-enum { WORK_PER_SALE = 1000000 };
+enum { WORK_PER_SALE = 1000000, FILE_CAP = 8192 };
 
-static char *read_file(const char *path) {
+static int read_file(const char *path, char *buffer, size_t capacity) {
     int fd = open(path, O_RDONLY);
     if (fd < 0) {
-        return NULL;
+        return -1;
     }
-    size_t capacity = 4096;
     size_t used = 0;
-    char *buffer = malloc(capacity);
-    if (buffer == NULL) {
-        close(fd);
-        return NULL;
-    }
-    while (1) {
-        if (used + 1 >= capacity) {
-            capacity *= 2;
-            char *grown = realloc(buffer, capacity);
-            if (grown == NULL) {
-                free(buffer);
-                close(fd);
-                return NULL;
-            }
-            buffer = grown;
-        }
+    while (used + 1 < capacity) {
         ssize_t count = read(fd, buffer + used, capacity - used - 1);
         if (count < 0) {
-            free(buffer);
             close(fd);
-            return NULL;
+            return -1;
         }
         if (count == 0) {
             break;
@@ -52,7 +35,7 @@ static char *read_file(const char *path) {
     }
     close(fd);
     buffer[used] = '\0';
-    return buffer;
+    return 0;
 }
 
 static const char *region_for(const char *customers, const char *customer_id) {
@@ -63,7 +46,6 @@ static const char *region_for(const char *customers, const char *customer_id) {
     for (line += 1; *line != '\0';) {
         const char *end = strchr(line, '\n');
         const char *comma = strchr(line, ',');
-        size_t length = end == NULL ? strlen(line) : (size_t)(end - line);
         if (comma != NULL && (end == NULL || comma < end)) {
             size_t id_length = (size_t)(comma - line);
             if (strlen(customer_id) == id_length && memcmp(line, customer_id, id_length) == 0) {
@@ -74,7 +56,6 @@ static const char *region_for(const char *customers, const char *customer_id) {
             break;
         }
         line = end + 1;
-        (void)length;
     }
     return NULL;
 }
@@ -91,6 +72,18 @@ static void add_total(long *north, long *south, long *east, long *west, const ch
     }
 }
 
+static int write_all(int fd, const char *bytes, size_t length) {
+    while (length > 0) {
+        ssize_t wrote = write(fd, bytes, length);
+        if (wrote < 0) {
+            return -1;
+        }
+        bytes += wrote;
+        length -= (size_t)wrote;
+    }
+    return 0;
+}
+
 int main(void) {
     const char *wanted = getenv("TRACEJIT_REPORT_REGION");
     if (wanted == NULL || wanted[0] == '\0') {
@@ -100,11 +93,9 @@ int main(void) {
     if (getcwd(cwd, sizeof(cwd)) == NULL) {
         return 1;
     }
-    char *customers = read_file(CUSTOMERS);
-    char *sales = read_file(SALES);
-    if (customers == NULL || sales == NULL) {
-        free(customers);
-        free(sales);
+    char customers[FILE_CAP];
+    char sales[FILE_CAP];
+    if (read_file(CUSTOMERS, customers, sizeof(customers)) != 0 || read_file(SALES, sales, sizeof(sales)) != 0) {
         return 1;
     }
 
@@ -155,35 +146,19 @@ int main(void) {
         west,
         (unsigned long long)digest);
     if (body_length < 0 || (size_t)body_length >= sizeof(body)) {
-        free(customers);
-        free(sales);
         return 1;
     }
     int output = open(OUTPUT_PATH, O_WRONLY | O_CREAT | O_TRUNC, 0644);
     if (output < 0) {
-        free(customers);
-        free(sales);
         return 1;
     }
-    size_t pending = (size_t)body_length;
-    const char *cursor = body;
-    int write_failed = 0;
-    while (pending > 0) {
-        ssize_t wrote = write(output, cursor, pending);
-        if (wrote < 0) {
-            write_failed = 1;
-            break;
-        }
-        cursor += wrote;
-        pending -= (size_t)wrote;
-    }
+    int failed = write_all(output, body, (size_t)body_length);
     close(output);
-    free(customers);
-    free(sales);
-    if (write_failed) {
+    if (failed != 0) {
         return 1;
     }
-    fputs(OUTPUT_PATH, stdout);
-    fputc('\n', stdout);
+    if (write_all(STDOUT_FILENO, OUTPUT_PATH, strlen(OUTPUT_PATH)) != 0 || write_all(STDOUT_FILENO, "\n", 1) != 0) {
+        return 1;
+    }
     return 0;
 }
