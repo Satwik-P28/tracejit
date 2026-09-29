@@ -1,0 +1,10 @@
+# Safety-critical core
+/crates/tracejit-trace/ @Satwik-P28
+/crates/tracejit-guards/ @Satwik-P28
+/crates/tracejit-cache/ @Satwik-P28
+/crates/tracejit-sandbox/ @Satwik-P28
+/crates/tracejit-core/ @Satwik-P28
+
+# Release / CI
+/.github/workflows/ @Satwik-P28
+/scripts/install-release.sh @Satwik-P28
