@@ -13,16 +13,28 @@ TraceJIT V1 is Linux x86_64 only. It caches whole commands, not subgraphs. Any
 unknown effect disables reuse. PROVEN requires successful seccomp and Landlock
 enforcement; observation alone never qualifies.
 
-## Demo
+## Measured result
 
-On the first eligible execution, TraceJIT reports the observed classification and
-records the baseline. A second invocation validates every guard synchronously,
-restores captured files, and replays stdout, stderr, and the exit status. The CLI
-prints only timings measured by those invocations.
+Commit `63e33638709aacfaed896ab587435e64c0ecea62`, GitHub-hosted Ubuntu 24.04.5,
+kernel `6.17.0-1022-azure`, x86_64. Five warmups and 30 runs. The workload is
+`benchmarks/workloads/c-etl`. Direct baseline median was **7.396 ms**. A cold
+traced run was **21.024 ms** (184% overhead). An end-to-end guarded cache hit was
+**7.957 ms**, which is 0.93x the baseline and 0.561 ms slower. Output bytes,
+streams, and exit status matched, and changing `sales.csv` forced a retrace.
 
-This repository does not include a fabricated terminal capture. Generate a real
-capture on a supported Linux x86_64 host after running the validation sequence in
-[BENCHMARKS.md](BENCHMARKS.md).
+This command is too short for reuse to win. Starting TraceJIT and checking guards
+costs more than the computation. The internal guard, restore, and replay path was
+1.113 ms; most of the hit time is process startup around that path.
+
+`python3 benchmarks/workloads/python-etl/main.py` was not reused:
+
+~~~text
+reuse disabled: process read randomness via getrandom
+reuse disabled: process read process identity via gettid
+~~~
+
+The full record, including CPU, memory, filesystem, and commands, is
+[benchmarks/results/latest.md](benchmarks/results/latest.md).
 
 ## How it works
 
@@ -95,16 +107,17 @@ Reuse that TraceJIT refuses names the observation:
 reuse disabled: process read randomness via getrandom
 ~~~
 
-An unseeded Python interpreter may call getrandom; TraceJIT then correctly marks
-the whole command NONDETERMINISTIC. The benchmark harness sets PYTHONHASHSEED=0,
-disables `.pyc` writes, and configures glibc not to draw allocator entropy.
-Those are workload settings. They are not exceptions in the classifier.
+An unseeded Python interpreter may call getrandom. CPython also calls gettid
+while binding its main thread. TraceJIT then marks the whole command
+NONDETERMINISTIC. The benchmark records that refusal. It does not hide either
+syscall.
 
 ## Benchmarks
 
-There are no published performance claims. Run ./scripts/benchmark.sh on Linux to
-generate reproducible JSON. The harness reports untraced, traced, and cached
-end-to-end timings separately. See [BENCHMARKS.md](BENCHMARKS.md).
+Published numbers come only from `./scripts/benchmark.sh` and are stored in
+[benchmarks/results/latest.json](benchmarks/results/latest.json). See
+[BENCHMARKS.md](BENCHMARKS.md). On the measured 7 ms C workload, guarded reuse is
+correct and slower than running the command directly.
 
 ## Adversarial safety suite
 

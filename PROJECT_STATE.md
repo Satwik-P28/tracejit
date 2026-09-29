@@ -28,25 +28,26 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 
 ## Benchmark status
 
-No published numbers yet. The last native run on `93f92e2` classified the Python ETL workload `NONDETERMINISTIC` because of `getrandom` and two unguarded kernel-state reads. The harness now avoids hashlib and sets `PYTHONHASHSEED=0`, `PYTHONDONTWRITEBYTECODE=1`, `GLIBC_TUNABLES=glibc.malloc.tcache_count=0`, and `MALLOC_ARENA_MAX=1`. Results still have to be produced by `./scripts/benchmark.sh` on Linux x86_64.
+Harness result for `63e33638709aacfaed896ab587435e64c0ecea62` is in `benchmarks/results/latest.json`. Ubuntu 24.04.5, kernel `6.17.0-1022-azure`, 5 warmups, 30 runs. C ETL medians: baseline 7.396 ms, traced cold 21.024 ms (184% overhead), guard check 1.113 ms, cached end-to-end 7.957 ms (0.93x, 0.561 ms slower). Equivalence and deopt passed. Python ETL stayed `NONDETERMINISTIC` because of `getrandom` and `gettid`.
 
 ## Blockers
 
-- Native benchmark has not yet produced `benchmarks/results/latest.json` for the current commit.
-- No GitHub Release binaries, so installation is still `cargo install --path crates/tracejit-cli`.
-- Root `LICENSE` was removed so the repository matches the Rust dual-license layout (`LICENSE-APACHE` and `LICENSE-MIT`). `Cargo.toml` remains `Apache-2.0 OR MIT`. GitHub may still display one of the two licenses.
+- Guarded reuse loses on this short workload. The next performance question is TraceJIT startup plus guard cost, measured separately from tracer overhead.
+- CPython cannot be reused while `gettid` and `getrandom` are observed. That refusal is intentional.
+- No GitHub Release binaries. Installation is `cargo install --path crates/tracejit-cli`.
+- GitHub detects the license as Apache-2.0. `LICENSE-MIT` is present and `Cargo.toml` says `Apache-2.0 OR MIT`.
 
 ## Next tasks
 
-1. Produce and commit a real native benchmark for baseline, traced cold, guarded hit, and deopt.
-2. Put the measured demo and numbers in the README only after that artifact exists.
-3. Prepare a checksummed Linux x86_64 release for approval. Do not publish it unprompted.
-4. Build a compatibility matrix from real Python, pytest, shell, Make, small Rust, and Node runs.
-5. Profile tracer overhead only after a measured baseline exists.
+1. Ask before cutting a v0.1.0 release or publishing binaries.
+2. Profile startup and guard cost on the measured C workload before changing hot paths.
+3. Record a compatibility matrix for pytest, shell, Make, a small Rust build, and Node. Expect Python refusals until thread-id and RNG startup are modeled without weakening safety.
+4. Capture a real `tracejit run` transcript on Linux before putting terminal output in the README.
+5. Keep `main` green.
 
 ## Known-good commit
 
-`93f92e2` passed CI. This file is updated again after the next green push.
+`63e33638709aacfaed896ab587435e64c0ecea62` passed CI and the native benchmark.
 
 ## Validation
 
