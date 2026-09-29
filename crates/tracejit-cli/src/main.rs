@@ -4,9 +4,13 @@ use serde_json::json;
 use std::ffi::OsString;
 use std::io::{self, Write};
 use std::process::ExitCode;
+use std::time::Instant;
 use tracejit_cache::Cache;
 use tracejit_cache::CacheDecision;
-use tracejit_core::{analyze, doctor, explain, run, RunKind, RunOptions, RunReport};
+use tracejit_core::{
+    analyze, doctor, explain, phase_timing_enabled, process_startup_ns, run, PhaseTimings, RunKind,
+    RunOptions, RunReport,
+};
 use tracejit_guards::GuardMode;
 
 #[derive(Parser)]
@@ -94,7 +98,16 @@ impl From<GuardModeArg> for GuardMode {
 }
 
 fn main() -> ExitCode {
-    match run_cli() {
+    tracing_subscriber::fmt()
+        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+        .with_writer(io::stderr)
+        .try_init()
+        .ok();
+    let process_startup_ns = process_startup_ns();
+    let parse_started = Instant::now();
+    let cli = Cli::parse();
+    let cli_parse_ns = parse_started.elapsed().as_nanos();
+    match run_cli(cli, process_startup_ns, cli_parse_ns) {
         Ok(code) => ExitCode::from(code.clamp(0, 255) as u8),
         Err(error) => {
             eprintln!("tracejit: {error:#}");
@@ -103,21 +116,23 @@ fn main() -> ExitCode {
     }
 }
 
-fn run_cli() -> Result<i32> {
-    tracing_subscriber::fmt()
-        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
-        .with_writer(io::stderr)
-        .try_init()
-        .ok();
-    match Cli::parse().command {
+fn run_cli(cli: Cli, process_startup_ns: u128, cli_parse_ns: u128) -> Result<i32> {
+    match cli.command {
         Command::Run(args) => {
-            let report = run(RunOptions {
+            let mut report = run(RunOptions {
                 command: args.command,
                 guard_mode: args.guard_mode.into(),
                 enforce: args.enforce,
                 cache_root: Cache::default_root(),
             })?;
+            let present_started = Instant::now();
             present_report(&report, args.json, args.verbose)?;
+            if let Some(phases) = report.phases.as_mut() {
+                phases.process_startup_ns = process_startup_ns;
+                phases.cli_parse_ns = cli_parse_ns;
+                phases.present_ns = present_started.elapsed().as_nanos();
+                write_phase_file(phases)?;
+            }
             Ok(report.exit_code)
         }
         Command::Analyze(args) => {
@@ -225,6 +240,23 @@ fn run_cli() -> Result<i32> {
             }
         },
     }
+}
+
+fn write_phase_file(phases: &PhaseTimings) -> Result<()> {
+    if !phase_timing_enabled() {
+        return Ok(());
+    }
+    let Some(path) = std::env::var_os("TRACEJIT_PHASE_TIMING_PATH") else {
+        return Ok(());
+    };
+    let bytes = serde_json::to_vec(phases).context("could not encode phase timings")?;
+    std::fs::write(&path, bytes).with_context(|| {
+        format!(
+            "could not write phase timings to {}",
+            path.to_string_lossy()
+        )
+    })?;
+    Ok(())
 }
 
 fn present_report(report: &RunReport, json_output: bool, verbose: bool) -> Result<()> {

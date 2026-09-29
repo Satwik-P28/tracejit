@@ -1,9 +1,10 @@
 use rusqlite::{params, Connection, OptionalExtension};
 use serde::{Deserialize, Serialize};
+use std::cell::Cell;
 use std::fs::{self, File};
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::{Instant, SystemTime, UNIX_EPOCH};
 use tempfile::NamedTempFile;
 use tracejit_effects::{DeterminismClass, EffectRecord, ExecutionIdentity, Hash, Trace};
 use tracejit_guards::{hash_reader, Guard, GuardFailure};
@@ -88,23 +89,43 @@ pub struct CacheStats {
     pub object_bytes: u64,
 }
 
+#[derive(Clone, Copy, Debug, Default)]
+pub struct OpenTimings {
+    pub prepare_ns: u128,
+    pub sqlite_open_ns: u128,
+    pub schema_ns: u128,
+}
+
+#[derive(Clone, Copy, Debug, Default)]
+pub struct QueryTimings {
+    pub query_ns: u128,
+    pub decode_ns: u128,
+}
+
 pub struct Cache {
     root: PathBuf,
     objects: PathBuf,
     executions: PathBuf,
     connection: Connection,
+    pub open_timings: OpenTimings,
+    last_query: Cell<QueryTimings>,
 }
 
 impl Cache {
     pub fn open(root: impl Into<PathBuf>) -> Result<Self, CacheError> {
         let root = root.into();
+        let started = Instant::now();
         prepare_root(&root)?;
         let objects = root.join("objects");
         let executions = root.join("executions");
         create_dir_all(&objects)?;
         create_dir_all(&executions)?;
+        let prepare_ns = started.elapsed().as_nanos();
         let database = root.join("db.sqlite3");
+        let started = Instant::now();
         let connection = Connection::open(&database)?;
+        let sqlite_open_ns = started.elapsed().as_nanos();
+        let started = Instant::now();
         connection.execute_batch(
             "PRAGMA journal_mode=WAL;
              PRAGMA synchronous=FULL;
@@ -115,12 +136,23 @@ impl Cache {
                  updated_unix_ms TEXT NOT NULL
              );",
         )?;
+        let schema_ns = started.elapsed().as_nanos();
         Ok(Self {
             root,
             objects,
             executions,
             connection,
+            open_timings: OpenTimings {
+                prepare_ns,
+                sqlite_open_ns,
+                schema_ns,
+            },
+            last_query: Cell::new(QueryTimings::default()),
         })
+    }
+
+    pub fn last_query(&self) -> QueryTimings {
+        self.last_query.get()
     }
 
     pub fn default_root() -> PathBuf {
@@ -193,6 +225,7 @@ impl Cache {
     }
 
     pub fn find(&self, lookup_key: Hash) -> Result<Option<StoredExecution>, CacheError> {
+        let started = Instant::now();
         let json: Option<Vec<u8>> = self
             .connection
             .query_row(
@@ -201,8 +234,16 @@ impl Cache {
                 |row| row.get(0),
             )
             .optional()?;
-        json.map(|bytes| serde_json::from_slice(&bytes).map_err(CacheError::from))
-            .transpose()
+        let query_ns = started.elapsed().as_nanos();
+        let started = Instant::now();
+        let record = json
+            .map(|bytes| serde_json::from_slice(&bytes).map_err(CacheError::from))
+            .transpose()?;
+        self.last_query.set(QueryTimings {
+            query_ns,
+            decode_ns: started.elapsed().as_nanos(),
+        });
+        Ok(record)
     }
 
     pub fn find_by_id(&self, id: &str) -> Result<Option<StoredExecution>, CacheError> {

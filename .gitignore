@@ -5,7 +5,13 @@
 __pycache__/
 *.py[cod]
 benchmarks/workloads/c-etl/etl
+benchmarks/workloads/sweep/sweep
+benchmarks/workloads/c-transform/transform
+benchmarks/workloads/build-sample/sample.o
 benchmarks/workloads/**/output/report.json
+benchmarks/workloads/**/output/report.txt
+benchmarks/workloads/sweep/output/*.txt
+benchmarks/results/phase-sample.json
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/

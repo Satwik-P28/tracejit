@@ -80,24 +80,106 @@ pub struct RunReport {
     #[serde(skip)]
     pub stderr: Vec<u8>,
     pub exit_code: i32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub phases: Option<PhaseTimings>,
+}
+
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+pub struct PhaseTimings {
+    pub process_startup_ns: u128,
+    pub cli_parse_ns: u128,
+    pub identity_prepare_ns: u128,
+    pub cache_prepare_ns: u128,
+    pub sqlite_open_ns: u128,
+    pub sqlite_schema_ns: u128,
+    pub lookup_key_ns: u128,
+    pub sqlite_query_ns: u128,
+    pub record_decode_ns: u128,
+    pub guard_validation_ns: u128,
+    pub cas_restore_ns: u128,
+    pub stdio_replay_ns: u128,
+    pub decision_persist_ns: u128,
+    pub present_ns: u128,
+}
+
+pub fn phase_timing_enabled() -> bool {
+    std::env::var_os("TRACEJIT_PHASE_TIMING").is_some_and(|value| value == "1")
+}
+
+pub fn start_ticks_from_stat(stat: &str) -> Option<u128> {
+    let (_, rest) = stat.rsplit_once(')')?;
+    rest.split_whitespace().nth(19)?.parse().ok()
+}
+
+pub fn process_startup_ns() -> u128 {
+    #[cfg(target_os = "linux")]
+    {
+        let Ok(stat) = fs::read_to_string("/proc/self/stat") else {
+            return 0;
+        };
+        let Some(start_ticks) = start_ticks_from_stat(&stat) else {
+            return 0;
+        };
+        let ticks = unsafe { libc::sysconf(libc::_SC_CLK_TCK) };
+        if ticks <= 0 {
+            return 0;
+        }
+        let mut now = libc::timespec {
+            tv_sec: 0,
+            tv_nsec: 0,
+        };
+        if unsafe { libc::clock_gettime(libc::CLOCK_BOOTTIME, &mut now) } != 0 {
+            return 0;
+        }
+        let now_ns = now.tv_sec as u128 * 1_000_000_000 + now.tv_nsec as u128;
+        let start_ns = start_ticks * 1_000_000_000 / ticks as u128;
+        return now_ns.saturating_sub(start_ns);
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        0
+    }
 }
 
 pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
+    let timing = phase_timing_enabled();
+    let mark = Instant::now();
     let prepared = PreparedExecution::new(&options.command)?;
+    let identity_prepare_ns = phase_elapsed(timing, mark);
     let mut cache = Cache::open(&options.cache_root)?;
+    let open = cache.open_timings;
+    let mark = Instant::now();
     let lookup_key = prepared.lookup_key()?;
+    let lookup_key_ns = phase_elapsed(timing, mark);
     let candidate = cache.find(lookup_key)?;
+    let query = cache.last_query();
     let started = Instant::now();
+    let mut phases = PhaseTimings {
+        identity_prepare_ns,
+        cache_prepare_ns: open.prepare_ns,
+        sqlite_open_ns: open.sqlite_open_ns,
+        sqlite_schema_ns: open.schema_ns,
+        lookup_key_ns,
+        sqlite_query_ns: query.query_ns,
+        record_decode_ns: query.decode_ns,
+        ..PhaseTimings::default()
+    };
 
     if let Some(mut candidate) = candidate {
         if candidate.classification.cache_eligible()
             && !(options.enforce && candidate.classification != DeterminismClass::Proven)
         {
+            let mark = Instant::now();
             let guards = validate_all(&candidate.guards, options.guard_mode);
+            phases.guard_validation_ns = phase_elapsed(timing, mark);
             if guards.failure.is_none() {
+                let mark = Instant::now();
                 cache.restore_outputs(&candidate.outputs)?;
+                phases.cas_restore_ns = phase_elapsed(timing, mark);
+                let mark = Instant::now();
                 let stdout = cache.get_bytes(candidate.stdout)?;
                 let stderr = cache.get_bytes(candidate.stderr)?;
+                phases.stdio_replay_ns = phase_elapsed(timing, mark);
                 let runtime_ns = started.elapsed().as_nanos();
                 candidate.last_decision = DecisionRecord {
                     decision: CacheDecision::Reused,
@@ -105,15 +187,21 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
                     guard_failure: None,
                     decided_unix_ms: now_unix_ms(),
                 };
+                let mark = Instant::now();
                 cache.put_execution(&candidate)?;
-                return Ok(report_from_record(
+                phases.decision_persist_ns = phase_elapsed(timing, mark);
+                let mut report = report_from_record(
                     &candidate,
                     RunKind::Reused,
                     runtime_ns,
                     Some(guards),
                     stdout,
                     stderr,
-                ));
+                );
+                if timing {
+                    report.phases = Some(phases);
+                }
+                return Ok(report);
             }
             let failure = guards.failure.clone();
             candidate.last_decision = DecisionRecord {
@@ -218,6 +306,7 @@ pub fn analyze(command: Vec<OsString>) -> Result<RunReport, CoreError> {
         stdout: outcome.stdout,
         stderr: outcome.stderr,
         exit_code: trace.execution.exit_code,
+        phases: None,
     })
 }
 
@@ -672,6 +761,15 @@ fn report_from_record(
         stdout,
         stderr,
         exit_code: record.exit_code,
+        phases: None,
+    }
+}
+
+fn phase_elapsed(enabled: bool, started: Instant) -> u128 {
+    if enabled {
+        started.elapsed().as_nanos()
+    } else {
+        0
     }
 }
 
@@ -761,5 +859,11 @@ mod tests {
             },
         ];
         assert!(reconstruct_dependencies(&effects).is_empty());
+    }
+
+    #[test]
+    fn stat_start_ticks_skip_spaces_inside_comm() {
+        let stat = "12 (trace jit) S 1 1 1 0 -1 0 0 0 0 0 0 0 0 0 20 0 1 0 424242 0";
+        assert_eq!(start_ticks_from_stat(stat), Some(424242));
     }
 }
