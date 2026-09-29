@@ -230,16 +230,17 @@ def phase_medians(samples: list[dict[str, int]], wall_median: int) -> dict[str, 
         field: int(statistics.median(sample[field] for sample in samples if field in sample))
         for field in PHASE_FIELDS
     }
-    accounted = sum(medians.values())
+    precise = sum(value for field, value in medians.items() if field != "process_startup_ns")
     return {
         "samples": len(samples),
         "phases_ns": medians,
-        "accounted_ns": accounted,
-        "unaccounted_including_exit_ns": wall_median - accounted,
+        "accounted_ns": precise,
+        "unaccounted_including_exit_ns": wall_median - precise,
         "sqlite_open_and_query_ns": medians["sqlite_open_ns"]
         + medians["sqlite_schema_ns"]
         + medians["sqlite_query_ns"],
         "candidate_lookup_ns": medians["lookup_key_ns"] + medians["record_decode_ns"],
+        "note": "/proc starttime has clock-tick resolution, so process_startup_ns is reported separately and is not added into accounted_ns.",
     }
 
 
@@ -320,7 +321,7 @@ def markdown(result: dict[str, object]) -> str:
             "",
             "## Fixed overhead",
             "",
-            "Phase medians are from cache-hit samples of the short C ETL. Unaccounted time includes process exit and any gap between timed regions. These medians are not summed into a smoothed curve.",
+            "Phase medians are from cache-hit samples of the short C ETL. `process_startup_ns` uses `/proc` starttime and is not added into the accounted total. Unaccounted time includes process startup, process exit, and gaps between the other timed regions.",
             "",
         ]
     )
@@ -365,6 +366,10 @@ def markdown(result: dict[str, object]) -> str:
     lines.extend(
         [
             "",
+            "## Before optimization",
+            "",
+            before_lines(result.get("before_optimization")),
+            "",
             "## Daemon",
             "",
             result["daemon"]["reason"],
@@ -393,6 +398,36 @@ def markdown(result: dict[str, object]) -> str:
         ]
     )
     return "\n".join(lines) + "\n"
+
+
+def before_lines(before: object) -> str:
+    if not isinstance(before, dict):
+        return "No pre-optimization artifact was available in the repository."
+    return (
+        f"Commit `{before['commit']}` short C ETL baseline "
+        f"{before['short_c_etl_baseline_median_ns'] / 1_000_000:.3f} ms, cache hit "
+        f"{before['short_c_etl_cached_median_ns'] / 1_000_000:.3f} ms. "
+        f"Decision persist median {before['decision_persist_ns'] / 1_000_000:.3f} ms. "
+        f"Record decode median {before['record_decode_ns'] / 1_000_000:.3f} ms. "
+        f"{before['break_even']}"
+    )
+
+
+def before_summary() -> dict[str, object] | None:
+    path = ROOT / "benchmarks" / "results" / "overhead-before.json"
+    if not path.is_file():
+        return None
+    before = json.loads(path.read_text())
+    phases = before["short_c_etl"]["phase_medians_ns"]["phases_ns"]
+    return {
+        "commit": before["commit"],
+        "source": "benchmarks/results/overhead-before.json",
+        "short_c_etl_baseline_median_ns": before["short_c_etl"]["baseline"]["median_ns"],
+        "short_c_etl_cached_median_ns": before["short_c_etl"]["cached"]["median_ns"],
+        "decision_persist_ns": phases["decision_persist_ns"],
+        "record_decode_ns": phases["record_decode_ns"],
+        "break_even": before["break_even"]["statement"],
+    }
 
 
 def break_even_statement(rows: list[dict[str, object]]) -> dict[str, object]:
@@ -507,8 +542,14 @@ def main() -> None:
         "calibration": calibration,
         "daemon": {
             "implemented": False,
-            "reason": "A persistent daemon was not added. The cache-hit phase profile is the input to that decision.",
+            "reason": (
+                "A persistent daemon was not added. The pre-optimization profile showed the hit-path "
+                "record rewrite near 3.1 ms and record decode near 0.75 ms. Guard checks and CAS restore "
+                "stay on the hit path because they are the safety check. A warm process would not remove "
+                "those costs, so the daemon is not worth its protocol and lifecycle."
+            ),
         },
+        "before_optimization": before_summary(),
         "short_c_etl": short,
         "sweep": sweep,
         "break_even": break_even_statement(sweep),

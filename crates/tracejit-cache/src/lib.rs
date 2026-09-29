@@ -78,6 +78,10 @@ pub struct StoredExecution {
     pub stderr: Hash,
     pub exit_code: i32,
     pub baseline_runtime_ns: u128,
+    #[serde(default)]
+    pub process_count: usize,
+    /// Kept for in-memory reports. The cache stores `process_count` instead of this duplicate.
+    #[serde(default, skip_serializing)]
     pub trace: Trace,
     pub last_decision: DecisionRecord,
 }
@@ -202,7 +206,7 @@ impl Cache {
     }
 
     pub fn put_execution(&mut self, record: &StoredExecution) -> Result<(), CacheError> {
-        let json = serde_json::to_vec_pretty(record)?;
+        let json = serde_json::to_vec(record)?;
         let record_path = self.executions.join(format!("{}.json", record.id));
         atomic_write(&record_path, &json)?;
         let transaction = self.connection.transaction()?;

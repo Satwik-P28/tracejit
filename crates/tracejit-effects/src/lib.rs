@@ -388,6 +388,22 @@ pub struct Trace {
     pub dependencies: Vec<DependencyEdge>,
 }
 
+impl Default for Trace {
+    fn default() -> Self {
+        Self {
+            execution: ExecutionMetadata {
+                command: Vec::new(),
+                started_unix_ms: 0,
+                runtime_ns: 0,
+                exit_code: 0,
+            },
+            processes: Vec::new(),
+            effects: Vec::new(),
+            dependencies: Vec::new(),
+        }
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum InputDependency {
     Executable {

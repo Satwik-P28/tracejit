@@ -183,15 +183,18 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
                 let stderr = cache.get_bytes(candidate.stderr)?;
                 phases.stdio_replay_ns = phase_elapsed(timing, mark);
                 let runtime_ns = started.elapsed().as_nanos();
+                let persist_decision = candidate.last_decision.decision != CacheDecision::Reused;
                 candidate.last_decision = DecisionRecord {
                     decision: CacheDecision::Reused,
                     reason: "all guards passed and cached outputs were restored".into(),
                     guard_failure: None,
                     decided_unix_ms: now_unix_ms(),
                 };
-                let mark = Instant::now();
-                cache.put_execution(&candidate)?;
-                phases.decision_persist_ns = phase_elapsed(timing, mark);
+                if persist_decision {
+                    let mark = Instant::now();
+                    cache.put_execution(&candidate)?;
+                    phases.decision_persist_ns = phase_elapsed(timing, mark);
+                }
                 let mut report = report_from_record(
                     &candidate,
                     RunKind::Reused,
@@ -507,6 +510,7 @@ fn store_outcome(
         stderr: stderr_hash,
         exit_code: outcome.trace.execution.exit_code,
         baseline_runtime_ns: outcome.trace.execution.runtime_ns,
+        process_count: outcome.trace.processes.len(),
         trace: outcome.trace,
         last_decision: DecisionRecord {
             decision,
@@ -753,7 +757,11 @@ fn report_from_record(
         eligible_for_reuse: record.classification.cache_eligible(),
         runtime_ns,
         baseline_runtime_ns: record.baseline_runtime_ns,
-        process_count: record.trace.processes.len(),
+        process_count: if record.process_count > 0 {
+            record.process_count
+        } else {
+            record.trace.processes.len()
+        },
         effect_counts: count_effects(&record.effects),
         irreversible_effect_count: count_irreversible_effects(&record.effects),
         dependency_count: record.identity.input_dependencies.len(),
