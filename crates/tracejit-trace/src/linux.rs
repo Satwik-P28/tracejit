@@ -1928,7 +1928,8 @@ fn vdso_symbol_offsets(image: &[u8]) -> Result<Vec<(String, u64)>, String> {
     let mut sections = Vec::new();
     for index in 0..shnum {
         let off = shoff + index * shentsize;
-        let kind = read_elf_u32(image, off)?;
+        // sh_type is the second word. The first word is sh_name.
+        let kind = read_elf_u32(image, off + 4)?;
         let offset = read_elf_u64(image, off + 24)? as usize;
         let size = read_elf_u64(image, off + 32)? as usize;
         let link = read_elf_u32(image, off + 40)? as usize;
