@@ -1734,7 +1734,8 @@ fn disarm_vdso_time(pid: Pid) -> Result<(), String> {
     match vdso_mapping(pid)? {
         Some(mapping) => {
             let patched: Result<(), String> = (|| {
-                let image = read_remote(pid, mapping.start, mapping.len())?;
+                let mut image = vec![0u8; mapping.len()];
+                read_remote(pid, mapping.start, &mut image)?;
                 let patches = vdso_time_patches(&image, mapping.start)?;
                 for patch in patches {
                     write_remote(pid, patch.address, &patch.bytes)?;
