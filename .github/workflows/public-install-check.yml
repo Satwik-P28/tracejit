@@ -1,11 +1,27 @@
 name: Public install check
 
-# Checks the already published v0.1.0 archive. It does not install the 0.1.1 candidate.
-
 on:
   workflow_dispatch:
 
 jobs:
+  published-v0-1-1:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download the published v0.1.1 archive and run it
+        run: |
+          set -eu
+          unset TRACEJIT_RELEASE_DIR || true
+          prefix=$(mktemp -d)
+          TRACEJIT_INSTALL_PREFIX="$prefix" ./scripts/install-release.sh
+          "$prefix/tracejit" --version
+          test "$("$prefix/tracejit" --version)" = "tracejit 0.1.1"
+          doctor=$("$prefix/tracejit" doctor)
+          printf '%s\n' "$doctor"
+          printf '%s\n' "$doctor" | grep -q 'supported      yes'
+          printf '%s\n' "$doctor" | grep -q 'ptrace         yes'
+          TRACEJIT="$prefix/tracejit" ./scripts/demo.sh
+          echo "RESULT published-binary demo PASS"
   install:
     runs-on: ubuntu-24.04
     steps:
@@ -29,5 +45,3 @@ jobs:
           tracejit --version
           tracejit doctor
           test "$(tracejit --version)" = "tracejit 0.1.0"
-          # 0.1.1 is not published. install-release.sh and demo.sh in this tree
-          # target that candidate, so they are not part of the v0.1.0 check.

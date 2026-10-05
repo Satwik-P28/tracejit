@@ -1,6 +1,8 @@
-# GitHub settings to change by hand
+# GitHub settings
 
-Do not apply these from a script during review. The repository is already public at https://github.com/Satwik-P28/tracejit. v0.1.0 is already published.
+Applied on the published repository: description, blank website, the topic list below, Discussions off, private vulnerability reporting on. v0.1.0 was not moved. v0.1.1 is the current release.
+
+The social preview image is `docs/assets/social-preview.png` (1280×640). GitHub does not expose that upload through the repository API used here, so it still has to be set in the repository settings UI.
 
 ## Description
 

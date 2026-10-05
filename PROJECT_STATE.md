@@ -22,9 +22,9 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 
 ## Validated capabilities
 
-- CI on `main` has formatted, clippy-checked, and tested the workspace. Re-run it after the documentation and explain/doctor changes in this working tree. They have not been through GitHub Actions yet.
-- Adversarial fixtures and `linux_integration` cover guarded hit, restore, replay, and deopt. Those tests are Linux-only and were not re-run on the macOS machine that edited the docs.
-- This tree is 0.1.1. `explain` prints a dependency summary. `doctor` names an unsupported OS. Writable shared file mappings are `UNKNOWN`. The published v0.1.0 binary has none of those changes.
+- Linux x86_64 CI on `31c36d1` formatted, clippy-checked, and tested the workspace, including `linux_integration` and `./scripts/demo.sh`.
+- `vdso_clock` calls libc `clock_gettime`, `gettimeofday`, and `time` and is `NONDETERMINISTIC`. Shared writable mmap fixtures are `UNKNOWN`.
+- v0.1.1 is the published release at that commit. v0.1.0 remains the older release and does not contain this `explain` summary, these `doctor` sentences, the shared-mmap refusal, or the vDSO redirect.
 
 ## Benchmark status
 
@@ -36,12 +36,11 @@ After the hit-path change, commit `e9684c1c01a7bbbab4cae50e2389105596d613f1`: `c
 
 ## Release
 
-v0.1.0 is already a public GitHub Release. Do not move that tag. 0.1.1 is prepared and not published. Do not publish it without explicit approval and a green Linux CI run on this commit.
+v0.1.0 stays at its existing tag. v0.1.1 is published from `31c36d1`. Do not move either tag.
 
 ## Blockers before a public announcement of this tree
 
-- Commit and push this tree, then wait until Linux CI is green, including `./scripts/demo.sh`.
-- Native Linux CI has not yet run on this commit. Do not announce until it has.
+- Social preview upload is a GitHub settings action. The 1280×640 PNG is `docs/assets/social-preview.png`.
 - Shell, `cc`, and CPython remain refused. That is correct until a fixture says otherwise.
 
 ## Known-good benchmark commits

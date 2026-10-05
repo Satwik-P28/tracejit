@@ -4,15 +4,11 @@ Nothing in this file posts, emails, or publishes a release. Do these in order.
 
 ## Before any public post
 
-- [ ] Review this working tree. The live GitHub README does not include it until it is committed and pushed.
-- [ ] Push to the default branch.
-- [ ] Wait for GitHub Actions CI on that commit: fmt, clippy, `cargo test --workspace`.
-- [ ] On Linux x86_64, run `cargo test -p tracejit-cli --test linux_integration -- --nocapture` and `./scripts/demo.sh`. The release workflow runs both. A macOS checkout cannot.
-- [ ] Read the README once as a stranger. Confirm the 78.780x row and the 0.929468x row are both visible, and that the transform is called synthetic.
-- [ ] Export `docs/assets/social-preview.svg` to a 1280×640 PNG and upload it. Settings are in `GITHUB_SETUP.md`.
-- [ ] Apply the description and topic changes in `GITHUB_SETUP.md`. Remove `build-systems`.
-- [ ] Enable private vulnerability reporting so `SECURITY.md` is true.
-- [ ] Announce 0.1.1 only after that GitHub Release exists. The v0.1.0 binary does not have this `explain` summary, these `doctor` sentences, or the shared-mmap refusal. Do not move the `v0.1.0` tag.
+- [x] Push to the default branch. v0.1.1 is commit `31c36d1`.
+- [x] Linux x86_64 CI on that commit: fmt, clippy, workspace tests, `linux_integration`, and `./scripts/demo.sh`.
+- [x] Description, topics, and private vulnerability reporting are set. Discussions are off. v0.1.0 was not moved.
+- [x] v0.1.1 is published. The v0.1.0 binary does not have this `explain` summary, these `doctor` sentences, the shared-mmap refusal, or the vDSO time redirect.
+- [ ] Upload `docs/assets/social-preview.png` (1280×640) in the repository settings. The API used for the rest of the metadata does not accept that image.
 
 ## Release commands, if a new version is approved
 
