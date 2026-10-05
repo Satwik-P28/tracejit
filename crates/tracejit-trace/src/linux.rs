@@ -47,6 +47,10 @@ struct FileMapping {
     start: u64,
     end: u64,
     shared: bool,
+    /// Kept so a split mapping still records whether the range is writable.
+    /// The reuse decision uses the protection being applied, so this bit is
+    /// not read again on the non-test path.
+    #[allow(dead_code)]
     writable: bool,
 }
 
@@ -134,7 +138,6 @@ enum PendingSyscall {
         target: i64,
     },
     Mmap {
-        fd: i32,
         length: u64,
         prot: u64,
         flags: u64,
@@ -151,7 +154,6 @@ enum PendingSyscall {
     Mremap {
         address: u64,
         old_length: u64,
-        new_length: u64,
     },
     Unknown {
         number: i64,
@@ -763,7 +765,6 @@ fn decode_entry(
                 PendingSyscall::None
             } else {
                 PendingSyscall::Mmap {
-                    fd: fd as i32,
                     length,
                     prot,
                     flags,
@@ -782,7 +783,6 @@ fn decode_entry(
         libc::SYS_mremap => PendingSyscall::Mremap {
             address: args[0],
             old_length: args[1],
-            new_length: args[2],
         },
         libc::SYS_uname => PendingSyscall::KernelState {
             kind: KernelStateRead::Hostname,
@@ -1425,7 +1425,6 @@ fn complete_syscall(
         PendingSyscall::Mremap {
             address,
             old_length,
-            new_length: _,
         } => {
             if overlaps_file_mapping(&state.file_mappings, address, old_length) {
                 collector.push(
