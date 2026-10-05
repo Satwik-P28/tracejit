@@ -35,7 +35,7 @@ jobs:
         run: |
           set -eu
           version=$(./target/release/tracejit --version | awk '{print $2}')
-          test "$version" = "0.1.0"
+          test "$version" = "0.1.1"
           name="tracejit-v${version}-x86_64-unknown-linux-gnu"
           mkdir -p "dist/${name}"
           cp target/release/tracejit "dist/${name}/tracejit"
@@ -48,5 +48,5 @@ jobs:
         run: ./scripts/test-install-release.sh dist
       - uses: actions/upload-artifact@v4
         with:
-          name: tracejit-v0.1.0-linux-x86_64
+          name: tracejit-v0.1.1-linux-x86_64
           path: dist/

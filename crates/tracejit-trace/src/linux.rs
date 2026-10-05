@@ -37,6 +37,15 @@ struct ProcessState {
     entering: bool,
     synchronize_on_next_syscall: bool,
     pending: Option<PendingSyscall>,
+    file_mappings: Vec<FileMapping>,
+}
+
+#[derive(Clone)]
+struct FileMapping {
+    start: u64,
+    end: u64,
+    shared: bool,
+    writable: bool,
 }
 
 #[derive(Clone)]
@@ -121,6 +130,26 @@ enum PendingSyscall {
     Signal {
         signal: i32,
         target: i64,
+    },
+    Mmap {
+        fd: i32,
+        length: u64,
+        prot: u64,
+        flags: u64,
+    },
+    Mprotect {
+        address: u64,
+        length: u64,
+        prot: u64,
+    },
+    Munmap {
+        address: u64,
+        length: u64,
+    },
+    Mremap {
+        address: u64,
+        old_length: u64,
+        new_length: u64,
     },
     Unknown {
         number: i64,
@@ -275,6 +304,7 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
             entering: true,
             synchronize_on_next_syscall: false,
             pending: None,
+            file_mappings: Vec::new(),
         },
     )]);
     let mut processes = vec![ProcessNode {
@@ -385,6 +415,7 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
                     state.entering = false;
                     state.synchronize_on_next_syscall = true;
                     state.pending = None;
+                    state.file_mappings.clear();
                 }
                 ptrace::syscall(pid, None).map_err(ptrace_error)?;
             }
@@ -704,6 +735,37 @@ fn decode_entry(
             PendingSyscall::Clock { kind }
         }
         libc::SYS_getrandom => PendingSyscall::Random,
+        libc::SYS_mmap => {
+            let length = args[1];
+            let prot = args[2];
+            let flags = args[3];
+            let fd = args[4] as i64;
+            let anonymous = flags & libc::MAP_ANONYMOUS as u64 != 0 || fd < 0;
+            if anonymous {
+                PendingSyscall::None
+            } else {
+                PendingSyscall::Mmap {
+                    fd: fd as i32,
+                    length,
+                    prot,
+                    flags,
+                }
+            }
+        }
+        libc::SYS_mprotect => PendingSyscall::Mprotect {
+            address: args[0],
+            length: args[1],
+            prot: args[2],
+        },
+        libc::SYS_munmap => PendingSyscall::Munmap {
+            address: args[0],
+            length: args[1],
+        },
+        libc::SYS_mremap => PendingSyscall::Mremap {
+            address: args[0],
+            old_length: args[1],
+            new_length: args[2],
+        },
         libc::SYS_uname => PendingSyscall::KernelState {
             kind: KernelStateRead::Hostname,
         },
@@ -1292,6 +1354,72 @@ fn complete_syscall(
                 detail: format!("unmodeled successful syscall {number}: {detail}"),
             }),
         ),
+        PendingSyscall::Mmap {
+            length,
+            prot,
+            flags,
+            ..
+        } => {
+            let address = result as u64;
+            if length > 0 {
+                let shared = flags & libc::MAP_SHARED as u64 != 0;
+                let writable = prot & libc::PROT_WRITE as u64 != 0;
+                state.file_mappings.push(FileMapping {
+                    start: address,
+                    end: address.saturating_add(length),
+                    shared,
+                    writable,
+                });
+                if shared && writable {
+                    collector.push(
+                        pid,
+                        Effect::Unknown(UnknownEffect {
+                            syscall: Some(libc::SYS_mmap),
+                            detail: "file-backed MAP_SHARED mapping is writable; stores through it are not captured outputs".into(),
+                        }),
+                    );
+                }
+            }
+        }
+        PendingSyscall::Mprotect {
+            address,
+            length,
+            prot,
+        } => {
+            if mapping_prot_makes_shared_file_writable(
+                &mut state.file_mappings,
+                address,
+                length,
+                prot,
+            ) {
+                collector.push(
+                    pid,
+                    Effect::Unknown(UnknownEffect {
+                        syscall: Some(libc::SYS_mprotect),
+                        detail: "mprotect made a shared file mapping writable; stores through it are not captured outputs".into(),
+                    }),
+                );
+            }
+        }
+        PendingSyscall::Munmap { address, length } => {
+            remove_mapping_range(&mut state.file_mappings, address, length);
+        }
+        PendingSyscall::Mremap {
+            address,
+            old_length,
+            new_length: _,
+        } => {
+            if overlaps_file_mapping(&state.file_mappings, address, old_length) {
+                collector.push(
+                    pid,
+                    Effect::Unknown(UnknownEffect {
+                        syscall: Some(libc::SYS_mremap),
+                        detail: "mremap of a file-backed mapping is not a guarded effect".into(),
+                    }),
+                );
+            }
+            remove_mapping_range(&mut state.file_mappings, address, old_length);
+        }
         PendingSyscall::None => {}
     }
 }
@@ -1466,6 +1594,11 @@ fn complete_failed_syscall(
                 detail: format!("unmodeled failed syscall {number} (errno {errno}): {detail}"),
             }),
         ),
+        PendingSyscall::Mmap { .. }
+        | PendingSyscall::Mprotect { .. }
+        | PendingSyscall::Munmap { .. }
+        | PendingSyscall::Mremap { .. }
+        | PendingSyscall::None => {}
         _ => {}
     }
 }
@@ -1548,17 +1681,89 @@ fn inherited_fd_state(pid: Pid, fd: i32) -> FdState {
     }
 }
 
+fn overlaps_file_mapping(mappings: &[FileMapping], address: u64, length: u64) -> bool {
+    let end = address.saturating_add(length);
+    mappings
+        .iter()
+        .any(|mapping| mapping.start < end && address < mapping.end)
+}
+
+fn remove_mapping_range(mappings: &mut Vec<FileMapping>, address: u64, length: u64) {
+    let end = address.saturating_add(length);
+    let mut next = Vec::new();
+    for mapping in mappings.drain(..) {
+        if mapping.end <= address || mapping.start >= end {
+            next.push(mapping);
+            continue;
+        }
+        if mapping.start < address {
+            next.push(FileMapping {
+                end: address,
+                ..mapping.clone()
+            });
+        }
+        if mapping.end > end {
+            next.push(FileMapping {
+                start: end,
+                ..mapping
+            });
+        }
+    }
+    *mappings = next;
+}
+
+fn mapping_prot_makes_shared_file_writable(
+    mappings: &mut Vec<FileMapping>,
+    address: u64,
+    length: u64,
+    prot: u64,
+) -> bool {
+    let end = address.saturating_add(length);
+    let writable = prot & libc::PROT_WRITE as u64 != 0;
+    let mut shared_write = false;
+    let mut next = Vec::new();
+    for mapping in mappings.drain(..) {
+        if mapping.end <= address || mapping.start >= end {
+            next.push(mapping);
+            continue;
+        }
+        if mapping.shared && writable {
+            shared_write = true;
+        }
+        if mapping.start < address {
+            next.push(FileMapping {
+                end: address,
+                ..mapping.clone()
+            });
+        }
+        let mid_start = mapping.start.max(address);
+        let mid_end = mapping.end.min(end);
+        if mid_start < mid_end {
+            next.push(FileMapping {
+                start: mid_start,
+                end: mid_end,
+                writable,
+                shared: mapping.shared,
+            });
+        }
+        if mapping.end > end {
+            next.push(FileMapping {
+                start: end,
+                ..mapping
+            });
+        }
+    }
+    *mappings = next;
+    shared_write
+}
+
 fn is_known_internal_syscall(number: i64) -> bool {
     matches!(
         number,
         libc::SYS_lseek
             | libc::SYS_fadvise64
             | libc::SYS_getdents64
-            | libc::SYS_mmap
-            | libc::SYS_mprotect
-            | libc::SYS_munmap
             | libc::SYS_brk
-            | libc::SYS_mremap
             | libc::SYS_madvise
             | libc::SYS_futex
             | libc::SYS_arch_prctl
@@ -1608,6 +1813,10 @@ fn pending_description(pending: &PendingSyscall) -> String {
         PendingSyscall::Clock { .. } => "clock read".into(),
         PendingSyscall::Random => "randomness read".into(),
         PendingSyscall::KernelState { kind } => format!("kernel state read: {kind:?}"),
+        PendingSyscall::Mmap { .. } => "file-backed mmap".into(),
+        PendingSyscall::Mprotect { .. } => "mprotect".into(),
+        PendingSyscall::Munmap { .. } => "munmap".into(),
+        PendingSyscall::Mremap { .. } => "mremap".into(),
         PendingSyscall::Dup { .. }
         | PendingSyscall::Close { .. }
         | PendingSyscall::SetCloseOnExec { .. }
@@ -1672,4 +1881,55 @@ fn ptrace_error(error: Errno) -> TraceError {
 
 fn ptrace_operation(operation: &str, pid: Pid, error: Errno) -> TraceError {
     TraceError::Ptrace(format!("{operation} for pid {pid}: {error}"))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn shared_read_only() -> FileMapping {
+        FileMapping {
+            start: 0x1000,
+            end: 0x2000,
+            shared: true,
+            writable: false,
+        }
+    }
+
+    #[test]
+    fn shared_mprotect_write_is_visible_to_the_guard() {
+        let mut mappings = vec![shared_read_only()];
+        assert!(mapping_prot_makes_shared_file_writable(
+            &mut mappings,
+            0x1000,
+            0x1000,
+            libc::PROT_WRITE as u64
+        ));
+        assert!(mappings.iter().any(|mapping| mapping.writable));
+    }
+
+    #[test]
+    fn private_mprotect_write_is_not_a_shared_store() {
+        let mut mappings = vec![FileMapping {
+            start: 0x1000,
+            end: 0x2000,
+            shared: false,
+            writable: false,
+        }];
+        assert!(!mapping_prot_makes_shared_file_writable(
+            &mut mappings,
+            0x1000,
+            0x1000,
+            libc::PROT_WRITE as u64
+        ));
+    }
+
+    #[test]
+    fn munmap_drops_only_the_covered_range() {
+        let mut mappings = vec![shared_read_only()];
+        remove_mapping_range(&mut mappings, 0x1000, 0x800);
+        assert_eq!(mappings.len(), 1);
+        assert_eq!(mappings[0].start, 0x1800);
+        assert_eq!(mappings[0].end, 0x2000);
+    }
 }

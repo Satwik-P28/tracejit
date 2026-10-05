@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <sys/mman.h>
 #include <sys/random.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
@@ -118,6 +119,26 @@ int main(int argc, char **argv) {
       close(pair[0]);
       close(pair[1]);
     }
+    return 0;
+  }
+  if (!strcmp(name, "mmap_shared_write") || !strcmp(name, "mmap_shared_mprotect")) {
+    int fd = open(input, O_RDWR);
+    if (fd < 0) return 1;
+    int prot = !strcmp(name, "mmap_shared_write") ? PROT_READ | PROT_WRITE : PROT_READ;
+    void *mapping = mmap(NULL, 4096, prot, MAP_SHARED, fd, 0);
+    if (mapping == MAP_FAILED) {
+      close(fd);
+      return 1;
+    }
+    if (!strcmp(name, "mmap_shared_mprotect") &&
+        mprotect(mapping, 4096, PROT_READ | PROT_WRITE) != 0) {
+      munmap(mapping, 4096);
+      close(fd);
+      return 1;
+    }
+    ((unsigned char *)mapping)[0] = 'Z';
+    munmap(mapping, 4096);
+    close(fd);
     return 0;
   }
   if (!strcmp(name, "unknown_ioctl")) {

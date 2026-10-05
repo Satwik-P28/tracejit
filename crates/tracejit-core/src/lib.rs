@@ -341,13 +341,21 @@ pub fn doctor() -> DoctorReport {
     let cache_state = cache_path_state(&cache_path);
     let mut problems = Vec::new();
     if !supported {
-        problems.push("TraceJIT V1 requires Linux x86_64".into());
+        problems.push(format!(
+            "This machine is {os} {arch}. TraceJIT V1 observes processes with ptrace and only runs on Linux x86_64, so tracing and reuse are unavailable here."
+        ));
     } else {
         if let Err(detail) = &ptrace_result {
             problems.push(detail.clone());
+            problems.push(
+                "Without ptrace, TraceJIT cannot observe dependencies or reuse a command. A restrictive yama ptrace_scope, a container without SYS_PTRACE, or another sandbox can cause this. TraceJIT will not guess past it.".into(),
+            );
         }
         if !sandbox.can_prove() {
             problems.extend(sandbox.reason.clone());
+            problems.push(
+                "GUARDED reuse does not require seccomp or Landlock. PROVEN does: both must actually be installed. An unenforced run stays GUARDED.".into(),
+            );
         }
     }
     if cache_state == CachePathState::Unwritable {
@@ -843,6 +851,21 @@ mod tests {
     use super::*;
     use std::os::unix::fs::PermissionsExt;
     use tracejit_effects::{FileRead, FileWrite};
+
+    #[test]
+    fn unsupported_platform_explains_why_reuse_is_unavailable() {
+        let report = doctor();
+        if cfg!(all(target_os = "linux", target_arch = "x86_64")) {
+            assert!(report.supported);
+        } else {
+            assert!(!report.supported);
+            assert!(!report.ptrace);
+            let text = report.problems.join("\n");
+            assert!(text.contains("Linux x86_64"));
+            assert!(text.contains(&report.os));
+            assert!(text.contains(&report.arch));
+        }
+    }
 
     #[test]
     fn read_before_write_remains_a_dependency() {

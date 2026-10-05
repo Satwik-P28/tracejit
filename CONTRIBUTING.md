@@ -4,17 +4,21 @@ TraceJIT accepts changes that preserve conservative classification and auditabil
 
 Before submitting:
 
-~~~bash
+```bash
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo test --workspace
-~~~
+```
 
-Linux tracing changes must also run the generated adversarial table:
+Linux tracing changes must also run:
 
-~~~bash
+```bash
 cargo test -p tracejit-cli --test linux_integration -- --nocapture
-~~~
+```
+
+Development setup is Rust stable, as pinned by `rust-toolchain.toml` when that file is present, plus a C compiler on Linux for the fixtures and the demo. `./scripts/install-dev.sh` installs the CLI from this checkout. `tracejit doctor` is the first command to run. On macOS it is expected to fail.
+
+Read [ARCHITECTURE.md](ARCHITECTURE.md) and [SAFETY.md](SAFETY.md) before changing classification, guards, or the sandbox. [docs/ADVERSARIAL.md](docs/ADVERSARIAL.md) describes the fixtures. [SECURITY.md](SECURITY.md) says where a suspected unsafe reuse should go. [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) is the discussion policy.
 
 ## Break TraceJIT
 
@@ -22,11 +26,13 @@ This is the main contribution. Use the Break TraceJIT issue template. A report n
 
 Accepted safety bugs become named fixtures in `tests/fixtures/cases.json`. Other useful work, one change at a time:
 
-- workload compatibility: shell, compilers, Python, Node, Make, pytest, and other build tools
 - syscall and effect coverage, each with an adversarial test
-- performance, with a measured before and after on a hot path
+- the shell and `cc` refusals, only with a fail-closed model
+- guard cost, with a measured before and after on a hot path
+- a workload that shows a loss as well as a win
+- documentation that makes a claim match the code
 
-Issue labels: `good first issue`, `break-tracejit`, `compatibility`, `performance`, `syscall-coverage`, `safety`, `docs`, `benchmark`.
+Suggested labels, once the maintainer creates them: `good first issue`, `help wanted`, `break-tracejit`, `compatibility`, `performance`, `syscall-coverage`, `safety`, `docs`, `benchmark`.
 
 A valid report is handled in this order:
 
@@ -39,10 +45,6 @@ Do not weaken an expected classification merely to make the table green.
 
 ## Design constraints
 
-Keep the seven existing crate boundaries unless a concrete dependency cycle
-requires another. Expected runtime failures return typed errors. Unavoidable unsafe
-code belongs next to raw syscall interfaces with its invariant documented.
+Keep the seven existing crate boundaries unless a concrete dependency cycle requires another. Expected runtime failures return typed errors. Unavoidable unsafe code belongs next to raw syscall interfaces with its invariant documented.
 
-No benchmark number belongs in documentation unless scripts/benchmark.sh generated
-it for the stated commit and environment.
-
+No benchmark number belongs in documentation unless `scripts/benchmark.sh` or `benchmarks/harness/break_even.py` generated it for the stated commit and environment.

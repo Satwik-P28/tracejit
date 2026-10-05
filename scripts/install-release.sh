@@ -1,10 +1,10 @@
 #!/bin/sh
-# Install the published Linux x86_64 release. Exits if v0.1.0 has not been published.
+# Install the published Linux x86_64 release. Exits if v0.1.1 has not been published.
 # TRACEJIT_RELEASE_DIR skips the download and reads the archive plus SHA256SUMS from that directory.
 # TRACEJIT_INSTALL_PREFIX selects the install directory. The default is ~/.local/bin.
 set -eu
 
-version=0.1.0
+version=0.1.1
 name="tracejit-v${version}-x86_64-unknown-linux-gnu.tar.gz"
 base="${TRACEJIT_RELEASE_BASE:-https://github.com/Satwik-P28/tracejit/releases/download/v${version}}"
 dest="${TRACEJIT_INSTALL_PREFIX:-${HOME}/.local/bin}"

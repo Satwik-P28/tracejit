@@ -31,6 +31,8 @@
   {"case":"network_send","expected":"Nondeterministic","eligible":false},
   {"case":"dns_lookup","expected":"Nondeterministic","eligible":false},
   {"case":"unix_socket","expected":"Nondeterministic","eligible":false},
+  {"case":"mmap_shared_write","expected":"Unknown","eligible":false},
+  {"case":"mmap_shared_mprotect","expected":"Unknown","eligible":false},
   {"case":"unknown_ioctl","expected":"Unknown","eligible":false},
   {"case":"readlink_non_symlink","expected":"Guarded","eligible":true},
   {"case":"tracked_file_terminal_probe","expected":"Guarded","eligible":true},

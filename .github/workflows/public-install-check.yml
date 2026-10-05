@@ -1,5 +1,7 @@
 name: Public install check
 
+# Checks the already published v0.1.0 archive. It does not install the 0.1.1 candidate.
+
 on:
   workflow_dispatch:
 
@@ -26,9 +28,6 @@ jobs:
           export PATH="$HOME/.local/bin:$PATH"
           tracejit --version
           tracejit doctor
-          cd "$GITHUB_WORKSPACE"
-          rm -f "${HOME}/.local/bin/tracejit"
-          env -u TRACEJIT_RELEASE_DIR -u TRACEJIT_INSTALL_PREFIX ./scripts/install-release.sh
-          tracejit --version
-          tracejit doctor
-          TRACEJIT="${HOME}/.local/bin/tracejit" ./scripts/demo.sh
+          test "$(tracejit --version)" = "tracejit 0.1.0"
+          # 0.1.1 is not published. install-release.sh and demo.sh in this tree
+          # target that candidate, so they are not part of the v0.1.0 check.

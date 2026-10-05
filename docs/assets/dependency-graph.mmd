@@ -1,0 +1,11 @@
+flowchart LR
+  proc[process] --> readInput[READ numbers.txt]
+  proc --> readExe[EXEC transform]
+  proc --> env[inherited environment in the cache key]
+  proc --> writeOut[WRITE report.txt]
+  proc --> stdout[captured stdout]
+  readInput --> guardFile[file content and metadata guards]
+  readExe --> guardExe[executable guard]
+  env --> guardEnv[environment guards]
+  writeOut --> restore[restore only after every guard passes]
+  stdout --> restore

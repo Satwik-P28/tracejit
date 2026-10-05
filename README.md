@@ -1,106 +1,166 @@
 # TraceJIT
 
-[![CI](https://github.com/Satwik-P28/tracejit/actions/workflows/ci.yml/badge.svg)](https://github.com/Satwik-P28/tracejit/actions/workflows/ci.yml)
-[![License](https://img.shields.io/badge/license-Apache--2.0%20OR%20MIT-blue)](LICENSE-APACHE)
-[![Platform](https://img.shields.io/badge/platform-Linux%20x86__64-lightgrey)](README.md)
+**Skip an unmodified Linux command when the dependencies it actually used still hold.**
 
-**Make repeated computation disappear, safely.**
+TraceJIT watches a process, records the effects it can see, and reruns that command from cache only after every guard passes. If an effect is unknown, or the command reads the clock, randomness, or the network, TraceJIT runs it again.
 
-TraceJIT traces the observable dependencies of an unmodified Linux command, checks those guards before reuse, and skips the work only when they still hold.
+Linux x86_64 only. It does not see a clock read that stays in the vDSO. A writable shared mapping of a file is refused, not replayed.
 
 ```bash
 tracejit run -- ./benchmarks/workloads/c-transform/transform
 ```
 
-**312.913 ms → 3.972 ms**, 78.780x, on that deterministic C transform. Zero source changes. Linux x86_64 only.
-
-Short commands can be slower. The published 7.396 ms C ETL came back in 7.957 ms on a cache hit (0.929468x, 0.561246 ms slower). Cache hits on the later runner sat near 4 ms, so a command has to outlast that floor.
+On a GitHub-hosted Ubuntu 24.04 x86_64 runner, that synthetic workload went from **312.913 ms to 3.972 ms** (78.780x) at commit `e9684c1`. A shorter command on an earlier commit got **slower**: 7.396 ms became 7.957 ms. Both results are below.
 
 ## Try it
 
-Linux x86_64. This release install does not need Rust:
+Linux x86_64. This tree is 0.1.1. The already published v0.1.0 binary does not contain this `explain` summary or these `doctor` sentences.
 
 ```bash
-curl -fsSL -o tracejit-v0.1.0-x86_64-unknown-linux-gnu.tar.gz \
-  https://github.com/Satwik-P28/tracejit/releases/download/v0.1.0/tracejit-v0.1.0-x86_64-unknown-linux-gnu.tar.gz
-curl -fsSL -o SHA256SUMS \
-  https://github.com/Satwik-P28/tracejit/releases/download/v0.1.0/SHA256SUMS
-sha256sum -c SHA256SUMS
-tar -xzf tracejit-v0.1.0-x86_64-unknown-linux-gnu.tar.gz
-mkdir -p ~/.local/bin
-install -m 755 tracejit-v0.1.0-x86_64-unknown-linux-gnu/tracejit ~/.local/bin/tracejit
-export PATH="$HOME/.local/bin:$PATH"
-tracejit --version
-tracejit doctor
+cargo build --workspace --release
+./scripts/demo.sh
+./target/release/tracejit doctor
 ```
 
-`scripts/install-release.sh` runs that sequence. It refuses a missing archive, a missing checksum, or a checksum mismatch.
+`./scripts/install-dev.sh` installs from source. After v0.1.1 is published, `./scripts/install-release.sh` downloads that archive and checks `SHA256SUMS`. It exits if the release is missing. Do not point it at v0.1.0.
 
-From a checkout, `./scripts/install-dev.sh` installs from source. `cargo install --path crates/tracejit-cli` is the same path when Rust is already installed.
+`tracejit doctor` says whether this machine can trace, whether seccomp and Landlock can support `PROVEN`, and where the cache will be written. On any other OS or architecture it exits non-zero and explains that reuse is unavailable.
 
-## Is the benchmark real?
+## See it work
 
-Yes. Both results were produced by the harness on GitHub-hosted Ubuntu 24.04 x86_64, with 5 warmups and 30 runs. They are not smoothed.
+On Linux x86_64, from a checkout:
 
-| Result | Baseline median | Cache-hit median | Speedup |
-| --- | ---: | ---: | ---: |
-| C transform, commit `e9684c1` | 312.913 ms | 3.972 ms | 78.780x |
-| Short C ETL, commit `63e3363` | 7.396 ms | 7.957 ms | 0.929468x |
+```bash
+cargo build --workspace --release
+./scripts/demo.sh
+```
 
-The sweep's slowest loss was a 1.796 ms command. The fastest win was a 5.274 ms command (hit 4.100 ms, 1.286x). Full tables: [benchmarks/results/break-even.md](benchmarks/results/break-even.md) and [benchmarks/results/latest.md](benchmarks/results/latest.md).
+The script compiles the synthetic transform, runs it directly, traces it, reuses it, prints `tracejit explain`, appends one line to the input, and checks that the next run is `DEOPT` rather than a stale hit. It restores the input before exiting. Those timings are one execution each. The medians are in the table below.
 
-## Is it safe?
+`./scripts/demo.sh` talks to whatever `tracejit` is on `PATH` when `TRACEJIT` is set, and otherwise to `./target/release/tracejit`.
 
-Reuse happens only for `GUARDED` or `PROVEN` work. `PROVEN` requires seccomp and Landlock to actually be installed. `UNKNOWN` and `NONDETERMINISTIC` never reuse. Every guard finishes before cached stdout, stderr, exit status, or files are exposed. See [SAFETY.md](SAFETY.md).
+## Measured result
 
-## Workloads
+Both numbers came from the harness on GitHub-hosted Ubuntu 24.04 x86_64, with 5 warmups and 30 runs. They are not smoothed, and they are not production workloads.
 
-| Workload | v0.1.0 |
-| --- | --- |
-| Deterministic C transform in this repo | Reused. Measured above. |
-| Python | Refused. CPython calls `getrandom` and `gettid`. |
-| Shell pipeline, `cc -c` | Refused as `UNKNOWN`. Compatibility is incomplete. |
+| Workload | What it is | Baseline median | Cache-hit median | Speedup | Commit |
+| --- | --- | ---: | ---: | ---: | --- |
+| C transform | Fold `numbers.txt`, then 250,000,000 extra mix rounds | 312.913 ms | 3.972 ms | 78.780x | `e9684c1` |
+| Short C ETL | Small CSV reduction with a fixed inner loop | 7.396 ms | 7.957 ms | 0.929468x | `63e3363` |
 
-A single real run, including explain and input-change deoptimization, is `./scripts/demo.sh` on Linux x86_64. That script's timings are one execution, not the medians above.
+The later duration sweep, on the same class of runner after a hit-path change, lost at a 1.796 ms command and won at a 5.274 ms command (hit 4.100 ms, 1.286x). Cache hits in that run sat near 4 ms. A command that finishes sooner than the guard and cache work does not get faster.
+
+Full tables, machine details, and the phase breakdown: [benchmarks/results/break-even.md](benchmarks/results/break-even.md) and [benchmarks/results/latest.md](benchmarks/results/latest.md). Reproduce with `./scripts/benchmark.sh` and `python3 benchmarks/harness/break_even.py --runs 30 --warmups 5` on Linux x86_64. Do not paste a new number into this file unless that harness wrote it for the stated commit.
+
+## Why TraceJIT?
+
+Make, Ninja, Bazel, Nix, and ccache reuse work when a person or a rule file listed the inputs. TraceJIT is for a command that is already built: it infers the dependencies it can observe and refuses reuse when it cannot. It does not replace those systems. A comparison is in [docs/COMPARISONS.md](docs/COMPARISONS.md).
+
+## 30-second path after install
+
+```text
+tracejit doctor
+tracejit run -- <command> [args...]
+tracejit run -- <command> [args...]
+tracejit explain
+```
+
+The first `run` traces. The second reuses only when the recorded class is `GUARDED` or `PROVEN` and every guard passes. `explain` prints the cache key, observed inputs, outputs, and guards. Environment values stay out of that summary; the cache itself can still hold them.
 
 ## How it works
 
-trace → effects → guards → reuse → deoptimize if an assumption changes.
+```mermaid
+flowchart TD
+  run[Command] --> lookup[Lookup by executable, argv, cwd, environment, runtime identity]
+  lookup --> hit{Prior record and every guard passes?}
+  hit -->|yes| reuse[Restore outputs and replay stdout, stderr, exit status]
+  hit -->|no| trace[ptrace the process tree]
+  trace --> effects[Classify Read, Write, Control, and Unknown effects]
+  effects --> det{Determinism class}
+  det -->|UNKNOWN or NONDETERMINISTIC| closed[Fail closed: do not reuse]
+  det -->|observed effects are guardable| guarded[GUARDED]
+  guarded --> sandbox{--enforce and seccomp plus Landlock ABI 3+ installed?}
+  sandbox -->|yes| proven[Promote to PROVEN]
+  sandbox -->|no| stay[Stay GUARDED]
+  proven --> store[Compile guards and store the result]
+  stay --> store
+  store --> next[Next run validates guards before exposing any cached byte]
+  next --> reuse
+  next --> deopt[Guard failure: deoptimize and retrace]
+  deopt --> trace
+```
 
-Whole-command reuse. ptrace tracing. BLAKE3 content addresses. SQLite metadata. Strict hashing by default.
+Whole-command reuse. ptrace. BLAKE3 content addresses. SQLite metadata. Strict content hashing by default. No daemon.
 
-1. Compute a pre-execution identity from the executable, arguments, working
-   directory, inherited environment, and runtime identity.
+1. Build a pre-execution identity from the executable, arguments, working directory, the entire inherited environment, and runtime identity. Input files are not guessed into that key.
 2. Look up a prior execution and validate all of its guards.
-3. On a hit, restore content-addressed outputs and replay process results.
-4. On a miss, ptrace the process tree, normalize effects, classify the execution,
-   compile guards, and persist the result.
-5. If a guard fails, record the deoptimization reason and retrace.
+3. On a hit, restore content-addressed outputs and replay the process result.
+4. On a miss, trace the process tree, classify it, compile guards, and persist the result.
+5. If a guard fails, record the reason and retrace.
 
 ## Safety model
 
-False negatives cause recomputation and are acceptable. False positives can return
-stale or incorrect results and are not. Unmodeled syscall attempts become UNKNOWN;
-clock, randomness, network, signals, and unresolved IPC prevent reuse.
-Cache corruption and output restoration failure stop reuse.
+False negatives recompute. That is acceptable. False positives return a stale result. That is not.
 
-See [SAFETY.md](SAFETY.md) for the threat model and current limitations.
-
-## Determinism classes
+`UNKNOWN` and `NONDETERMINISTIC` never reuse. `EMPIRICALLY_STABLE` is not promoted automatically and does not reuse in V1. `PROVEN` means seccomp and Landlock were installed for that run. Observation alone never produces `PROVEN`.
 
 | Class | Meaning | V1 reuse |
 | --- | --- | --- |
-| PROVEN | Declared effects are constrained by seccomp and Landlock | yes |
-| GUARDED | Observed dependencies have synchronous runtime guards | yes |
-| EMPIRICALLY_STABLE | Repetition suggests stability without structural proof | no |
-| UNKNOWN | At least one attempted effect is not modeled safely | no |
-| NONDETERMINISTIC | Known nondeterminism or irreversible external behavior | no |
+| `PROVEN` | The run was `GUARDED`, then seccomp and Landlock ABI 3+ were both applied | yes |
+| `GUARDED` | Observed dependencies have synchronous guards | yes |
+| `EMPIRICALLY_STABLE` | Repetition without a structural argument | no |
+| `UNKNOWN` | At least one attempted effect has no safe model | no |
+| `NONDETERMINISTIC` | Clock, randomness, network, signals, unresolved IPC, or similar | no |
 
-TraceJIT does not automatically promote empirical stability.
+What that does and does not prove is written in [SAFETY.md](SAFETY.md). The short version: guards finish before cached stdout, stderr, exit status, or files are exposed. Another process can still change an input in the gap between the check and the restore. `PROVEN` narrows the traced process. It does not freeze the rest of the machine.
+
+## Where it helps
+
+- A deterministic Linux command you rerun unchanged, long enough that a few milliseconds of checking is smaller than the work.
+- A command whose inputs are files, the executable, the working directory, and the inherited environment.
+- A case you want to refuse rather than cache: clock, `getrandom`, network, threads that share address space, unmodeled syscalls.
+
+## Where it does not help
+
+- Commands shorter than the cache-hit floor. The published 7.396 ms ETL got slower.
+- Python. CPython calls `getrandom` and `gettid`. TraceJIT refuses. There is no whitelist.
+- Shell pipelines and `cc -c`. The published runs were `UNKNOWN` because of unmodeled syscalls and access checks.
+- macOS, Windows, and non-x86_64 Linux.
+- Partial reuse inside one process, remote caches, or anything TraceJIT cannot restore as a regular file.
+
+## Performance
+
+Cold tracing is slower than running the command directly. The published transform's value shows up on the later guarded hit, not on the first trace. The hit path still hashes inputs in the default strict mode, checks metadata, reads SQLite, and restores outputs. Phase medians for a short hit are in [benchmarks/results/break-even.md](benchmarks/results/break-even.md). A persistent daemon was not added: the safety checks stay on the hit path either way.
+
+`--guard-mode fast` can skip a content hash when the fingerprint matches. It is experimental. Strict is the default because metadata is not content.
+
+## Adversarial cases
+
+`tests/fixtures/cases.json` is the expected classification list. The Linux integration test runs each case and compares eligibility. It covers changed file bytes and metadata, symlinks, environment, cwd, descendants, output mutation, clock, randomness, procfs, network, Unix sockets, ioctl, and process-result replay.
+
+```bash
+cargo test -p tracejit-cli --test linux_integration -- --nocapture
+```
+
+That test compiles only on Linux x86_64. The narrative for a naive cache versus TraceJIT is [docs/ADVERSARIAL.md](docs/ADVERSARIAL.md).
+
+## Architecture
+
+Effect types, guards, tracing, storage, sandboxing, orchestration, and the CLI are separate crates. Details, including the `mmap` limitation: [ARCHITECTURE.md](ARCHITECTURE.md). A schematic dependency picture: [docs/DEPENDENCY_GRAPH.md](docs/DEPENDENCY_GRAPH.md).
+
+## Current limitations
+
+- V1 reuses a whole command, not a subgraph.
+- ptrace sees syscalls, not arbitrary userspace memory reads. vDSO can serve a clock with no syscall.
+- Anonymous `mmap`, `brk`, and `futex` are process-internal. A writable shared file mapping is `UNKNOWN`. A clock read that stays in the vDSO is not seen.
+- `clone` that shares file-descriptor or cwd state forces `UNKNOWN`.
+- The guard named `NoUnexpectedEffects` always passes. Unmodeled effects are rejected during classification, before a reusable record exists. The guard does not rescan the process at reuse time.
+- The cache stores stdout, stderr, environment, and output copies. It can hold secrets. It is not encrypted.
+- These benchmarks are one synthetic CPU-bound transform and one small C ETL on ephemeral GitHub runners. They are not evidence about compilers, CI, or production jobs.
 
 ## CLI
 
-~~~text
+```text
 tracejit --version
 tracejit doctor
 tracejit run [--enforce] [--guard-mode strict|fast] [--verbose] [--json] -- <command> [args...]
@@ -108,69 +168,29 @@ tracejit analyze [--verbose] [--json] -- <command> [args...]
 tracejit explain [execution-id] [--json]
 tracejit cache stats
 tracejit cache clear
-~~~
+```
 
-`tracejit doctor` reports whether this machine can trace, whether seccomp and Landlock can support PROVEN, and where the cache will be written.
-
-run uses strict content hashing by default. analyze always executes and never
-reuses. explain shows the most recent or requested execution, including the last
-cache decision and guard failure. JSON mode keeps command output inside JSON fields.
-
-Reuse that TraceJIT refuses names the observation:
-
-~~~text
-reuse disabled: process read randomness via getrandom
-~~~
-
-An unseeded Python interpreter may call getrandom. CPython also calls gettid
-while binding its main thread. TraceJIT then marks the whole command
-NONDETERMINISTIC. The benchmark records that refusal. It does not hide either
-syscall.
-
-## Benchmarks
-
-Published numbers come from the harnesses and are stored under `benchmarks/results/`.
-See [BENCHMARKS.md](BENCHMARKS.md). The 7 ms loss and the later break-even table are both kept.
-
-## Adversarial safety suite
-
-tests/fixtures/cases.json defines the required safety cases and expected
-classification. The Linux integration test runs each case, compares expected and
-actual eligibility, and prints the table from test results. It covers file and
-metadata changes, symlinks, environment and cwd, descendants, output mutation,
-clock, randomness, procfs, network, Unix sockets, ioctl, runtimes, and process
-result replay.
-
-~~~bash
-cargo test -p tracejit-cli --test linux_integration -- --nocapture
-~~~
-
-## Architecture
-
-The workspace keeps effect types, guards, tracing, storage, sandboxing,
-orchestration, and presentation in separate crates with one-way dependencies. See
-[ARCHITECTURE.md](ARCHITECTURE.md).
-
-## Prior art
-
-TraceJIT combines ideas explored by several categories of systems:
-
-- Nix and Bazel model content-addressed builds explicitly.
-- sccache and ccache cache compiler results.
-- Firebuild traces build dependencies for caching.
-- Rattle traces dependencies and explores speculative build execution.
-- rr records and replays execution deterministically.
-- strace and ptrace observe process behavior.
-- seccomp filters syscalls; Landlock confines filesystem paths.
-
-Its V1 combination is automatic effect discovery, explicit determinism
-classification, compiled guards, enforcement-backed PROVEN, and deoptimization.
-It does not claim those individual mechanisms are unprecedented.
+`analyze` always executes and never reuses. `run` defaults to strict hashing. A refusal names the observation, for example `reuse disabled: process read randomness via getrandom`.
 
 ## Roadmap
 
-V1 deliberately excludes partial-subgraph reuse and non-Linux platforms. See
-[ROADMAP.md](ROADMAP.md) for deferred work.
+Near-term work is more syscall coverage, especially the refusals already recorded for shell and `cc`, plus more workloads that are allowed to lose. Speculative execution, partial-graph reuse, and other operating systems are out of scope. See [ROADMAP.md](ROADMAP.md).
+
+## Contributing
+
+The useful bug is a command TraceJIT reuses when it should have rerun, or reruns when a guard was possible. Accepted safety bugs become fixtures. See [CONTRIBUTING.md](CONTRIBUTING.md). Security reports go to [SECURITY.md](SECURITY.md).
+
+## FAQ
+
+**Is the 78x number typical?** No. It is the median for one synthetic transform that burns about 313 ms of CPU and then hits a cache path near 4 ms. The same machinery lost on a 7 ms command.
+
+**Why not strace plus a cache?** strace shows syscalls. It does not decide which effects are inputs, which writes are safe to replay, or when a later change must invalidate the result. TraceJIT's job is that decision, and the refusal when the decision is unsafe.
+
+**What does `PROVEN` mean?** This run's observed effects were guardable, and both seccomp and Landlock ABI 3 or newer were applied to the process. It does not mean the result is formally verified, or that other processes cannot change a file underneath the check.
+
+**What happens on an unsupported syscall?** The command is `UNKNOWN` and is not reused.
+
+**Can I use this on macOS?** You can compile some of the workspace. `tracejit doctor` will fail, and `tracejit run` cannot trace. The product is Linux x86_64.
 
 ## License
 
@@ -180,7 +200,3 @@ TraceJIT is licensed under either of
 - MIT license ([LICENSE-MIT](LICENSE-MIT))
 
 at your option.
-
-## Contributing
-
-The main loop is Break TraceJIT: a workload that is classified or reused incorrectly becomes a permanent fixture. Compatibility, syscall coverage, and measured performance work are the other useful contributions. See [CONTRIBUTING.md](CONTRIBUTING.md).

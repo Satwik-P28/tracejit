@@ -84,3 +84,44 @@ continuing with a partially trusted result.
 - No cached stdout, stderr, exit code, or output file is exposed before every guard
   succeeds.
 - Unsupported enforcement never produces PROVEN.
+
+## What is proved, what is observed, and what is assumed
+
+Observed: syscall entries and exits that the ptrace loop models, plus metadata
+TraceJIT reads itself for paths those syscalls name. That includes file content
+hashes taken when an input is acquired, and the process tree events the tracer
+follows for fork, vfork, and exec.
+
+Proved, and only for a run labeled `PROVEN`: seccomp-BPF was installed and
+Landlock ABI 3 or newer was installed for that process, after the recorded
+effects were already `GUARDED`. seccomp is what blocks the syscall classes the
+policy denies. Landlock is what confines the declared paths, including truncate.
+Both have to succeed. If policy installation fails, the run is not `PROVEN`.
+A failed sandbox spawn can fall back to an unenforced discovery trace; that
+result is not promoted.
+
+Not proved:
+
+- That every influence on the process was a syscall. vDSO and ordinary memory
+  reads are outside the trace.
+- That a clock read answered by the vDSO was observed. `clock_gettime` is
+  classified only when the syscall instruction is entered. A libc call that
+  stays in the vDSO does not. A program whose result depends on that clock can
+  still be `GUARDED`. The fixtures call the syscall directly, so they do not
+  prove the libc path.
+- That no other process changes an input after guards pass and before restore
+  finishes.
+- That `Guard::NoUnexpectedEffects` checked anything. The variant always
+  succeeds. The check that matters already happened at classification.
+- That every kernel or libc behavior change is visible. Runtime identity
+  guards the kernel release string, hostname, uid, gid, and related fields.
+  It does not notice a behavior change that keeps those strings the same.
+  Dynamic linker files are guarded only when the trace recorded them as inputs.
+- That the cache is confidential. It is a directory of command outputs and
+  environment values under the user's permissions.
+
+Assumed: the kernel's ptrace, seccomp, and Landlock behavior matches the
+interfaces this code calls; the BLAKE3 implementation and SQLite store do not
+silently corrupt a record that later rehashes successfully; and the operator
+does not point TraceJIT at a command whose correctness depends on an unmodeled
+channel. Those are engineering assumptions, not a verified computing base.

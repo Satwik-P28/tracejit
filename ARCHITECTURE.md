@@ -105,3 +105,42 @@ Whole-command reuse has a small correctness surface: one identity, one guard set
 one captured result, and one atomic decision. Partial graph reuse requires stable
 subprocess boundaries, intermediate effect ownership, and composition rules for
 mutations. Those mechanisms are deferred until the V1 safety model is established.
+
+## Pipeline
+
+```mermaid
+flowchart TD
+  run[Command] --> lookup[Lookup by executable, argv, cwd, environment, runtime identity]
+  lookup --> hit{Prior record and every guard passes?}
+  hit -->|yes| reuse[Restore outputs and replay stdout, stderr, exit status]
+  hit -->|no| trace[ptrace the process tree]
+  trace --> effects[Classify Read, Write, Control, and Unknown effects]
+  effects --> det{Determinism class}
+  det -->|UNKNOWN or NONDETERMINISTIC| closed[Fail closed: do not reuse]
+  det -->|observed effects are guardable| guarded[GUARDED]
+  guarded --> sandbox{--enforce and seccomp plus Landlock ABI 3+ installed?}
+  sandbox -->|yes| proven[Promote to PROVEN]
+  sandbox -->|no| stay[Stay GUARDED]
+  proven --> store[Compile guards and store the result]
+  stay --> store
+  store --> next[Next run validates guards before exposing any cached byte]
+  next --> reuse
+  next --> deopt[Guard failure: deoptimize and retrace]
+  deopt --> trace
+```
+
+Input files are discovered during tracing. They are not part of the lookup key.
+The inherited environment is part of that key even when the process never calls
+`getenv`, because ptrace does not see userspace reads of the environment block.
+
+## Effects the tracer does not record
+
+Anonymous `mmap`, `brk`, `madvise`, and `futex` are process-internal. A file-backed
+`MAP_SHARED` mapping that is writable, or that `mprotect` later makes writable,
+is `UNKNOWN` and is not reused. `mremap` of a recorded file mapping is `UNKNOWN`.
+Private and read-only file mappings stay internal; the earlier `open` is the
+content dependency. A private store does not modify the file.
+
+`Guard::NoUnexpectedEffects` is appended to compiled guard lists and always
+validates. It does not rescan the process. Unmodeled effects are rejected by
+classification before a reusable record is stored.

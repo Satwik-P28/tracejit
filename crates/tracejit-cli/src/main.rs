@@ -5,13 +5,13 @@ use std::ffi::OsString;
 use std::io::{self, Write};
 use std::process::ExitCode;
 use std::time::Instant;
-use tracejit_cache::Cache;
-use tracejit_cache::CacheDecision;
+use tracejit_cache::{Cache, CacheDecision, OutputArtifact, OutputKind};
 use tracejit_core::{
     analyze, doctor, explain, phase_timing_enabled, process_startup_ns, run, PhaseTimings, RunKind,
     RunOptions, RunReport,
 };
-use tracejit_guards::GuardMode;
+use tracejit_effects::{Effect, InputDependency};
+use tracejit_guards::{Guard, GuardMode};
 
 #[derive(Parser)]
 #[command(
@@ -171,6 +171,7 @@ fn run_cli(cli: Cli, process_startup_ns: u64, cli_parse_ns: u64) -> Result<i32> 
                         println!("  - {reason}");
                     }
                 }
+                print_dependency_summary(&record);
                 println!("effect detail");
                 for effect in &record.effects {
                     println!(
@@ -362,6 +363,91 @@ fn present_report(report: &RunReport, json_output: bool, verbose: bool) -> Resul
     Ok(())
 }
 
+fn print_dependency_summary(record: &tracejit_cache::StoredExecution) {
+    println!(
+        "cache key      argv, cwd, executable hash, runtime identity, and all {} inherited environment entries",
+        record.identity.environment.len()
+    );
+    println!("observed inputs");
+    if record.identity.input_dependencies.is_empty() {
+        println!("  (none recorded)");
+    }
+    for dependency in &record.identity.input_dependencies {
+        println!("  {}", input_dependency_line(dependency));
+    }
+    println!("outputs");
+    if record.outputs.is_empty() {
+        println!("  (none recorded)");
+    }
+    for output in &record.outputs {
+        println!("  {}", output_line(output));
+    }
+    let unknown = record
+        .effects
+        .iter()
+        .filter(|effect| matches!(effect.effect, Effect::Unknown(_)))
+        .count();
+    if unknown > 0 {
+        println!("unknown        {unknown} unmodeled effects; reuse stays disabled");
+    }
+    println!("guards");
+    let mut printed = 0;
+    for guard in &record.guards {
+        if matches!(guard, Guard::NoUnexpectedEffects) {
+            continue;
+        }
+        println!("  {}", guard_line(guard));
+        printed += 1;
+    }
+    if printed == 0 {
+        println!("  (none recorded)");
+    }
+}
+
+fn input_dependency_line(dependency: &InputDependency) -> String {
+    match dependency {
+        InputDependency::File { path, .. } => format!("READ  {}", path.display()),
+        InputDependency::Executable { path, .. } => format!("EXEC  {}", path.display()),
+        InputDependency::Metadata { path, .. } => format!("META  {}", path.display()),
+        InputDependency::SymlinkMetadata { path, .. } => format!("LSTAT {}", path.display()),
+        InputDependency::Symlink { path, target } => {
+            let shown = target
+                .as_ref()
+                .map(|value| value.display().to_string())
+                .unwrap_or_else(|| "(absent)".into());
+            format!("LINK  {} -> {shown}", path.display())
+        }
+    }
+}
+
+fn output_line(output: &OutputArtifact) -> String {
+    let kind = match output.kind {
+        OutputKind::File => "WRITE",
+        OutputKind::Deleted => "DELETE",
+    };
+    format!("{kind} {}", output.path.display())
+}
+
+fn guard_line(guard: &Guard) -> String {
+    match guard {
+        Guard::ExecutableHash { path, .. } => format!("executable content {}", path.display()),
+        Guard::FileHash { path, .. } => format!("file content {}", path.display()),
+        Guard::FileMetadata { path, .. } => format!("file metadata {}", path.display()),
+        Guard::SymlinkTarget { path, .. } => format!("symlink target {}", path.display()),
+        Guard::SymlinkMetadata { path, .. } => format!("symlink metadata {}", path.display()),
+        Guard::EnvironmentValue { key, .. } => {
+            format!("environment key {}", key.to_string_lossy())
+        }
+        Guard::WorkingDirectory { expected } => {
+            format!("working directory {}", expected.display())
+        }
+        Guard::RuntimeIdentity { .. } => "runtime identity".into(),
+        Guard::NoUnexpectedEffects => {
+            "marker only; classification rejects unmodeled effects before reuse".into()
+        }
+    }
+}
+
 fn display_command(command: &[OsString]) -> String {
     command
         .iter()
@@ -424,5 +510,37 @@ mod tests {
     fn doctor_command_parses() {
         assert!(Cli::try_parse_from(["tracejit", "doctor"]).is_ok());
         assert!(Cli::try_parse_from(["tracejit", "doctor", "--json"]).is_ok());
+    }
+
+    #[test]
+    fn dependency_summary_names_effects_without_environment_values() {
+        use std::path::PathBuf;
+        use tracejit_effects::Hash;
+
+        assert_eq!(
+            input_dependency_line(&InputDependency::File {
+                path: PathBuf::from("input.dat"),
+                expected_hash: Hash::new([0; 32]),
+                fingerprint: None,
+            }),
+            "READ  input.dat"
+        );
+        assert_eq!(
+            guard_line(&Guard::EnvironmentValue {
+                key: OsString::from("MODE"),
+                expected: Some(OsString::from("secret-value")),
+            }),
+            "environment key MODE"
+        );
+        assert_eq!(
+            output_line(&OutputArtifact {
+                path: PathBuf::from("output.bin"),
+                kind: OutputKind::File,
+                content: None,
+                unix_mode: None,
+                allows_create: true,
+            }),
+            "WRITE output.bin"
+        );
     }
 }

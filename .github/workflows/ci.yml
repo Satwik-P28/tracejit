@@ -6,13 +6,69 @@ on:
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    env:
+      TRACEJIT_REQUIRE_PROVEN: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
-      - run: cargo fmt --all -- --check
-      - run: cargo clippy --workspace --all-targets --all-features -- -D warnings
-      - run: cargo test --workspace
-
+      - name: Record the runner
+        run: |
+          set -eu
+          echo "RESULT runner $(uname -s) $(uname -m)"
+          uname -a
+          test "$(uname -s)" = "Linux"
+          test "$(uname -m)" = "x86_64"
+      - name: Formatting
+        run: cargo fmt --all -- --check
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+      - name: Tests
+        run: cargo test --workspace
+      - name: Release build
+        run: cargo build --workspace --release
+      - name: Doctor and kernel capabilities
+        run: |
+          set -eu
+          doctor=$(./target/release/tracejit doctor)
+          printf '%s\n' "$doctor"
+          printf '%s\n' "$doctor" | grep -q 'supported      yes'
+          printf '%s\n' "$doctor" | grep -q 'ptrace         yes'
+          printf '%s\n' "$doctor" | grep -q 'seccomp        yes'
+          printf '%s\n' "$doctor" | grep -q 'proven         yes'
+          echo "RESULT doctor PASS"
+          echo "RESULT ptrace PASS"
+          echo "RESULT seccomp PASS"
+          echo "RESULT proven PASS"
+      - name: Linux integration
+        run: |
+          set -eu
+          log=$(mktemp)
+          set +e
+          cargo test -p tracejit-cli --test linux_integration -- --nocapture --test-threads=1 >"$log" 2>&1
+          status=$?
+          set -e
+          cat "$log"
+          if [ "$status" -ne 0 ]; then
+            echo "RESULT integration FAIL" >&2
+            exit "$status"
+          fi
+          grep -E 'running [1-9][0-9]* tests' "$log"
+          grep -q 'RESULT classification PASS' "$log"
+          grep -q 'RESULT guarded_hit PASS' "$log"
+          grep -q 'RESULT mutation DEOPT' "$log"
+          grep -q 'RESULT sandbox PASS' "$log"
+          if grep -q 'RESULT sandbox SKIP' "$log"; then
+            echo "RESULT integration FAIL: sandbox test skipped" >&2
+            exit 1
+          fi
+          echo "RESULT integration PASS"
+      - name: Demo
+        run: |
+          set -eu
+          ./scripts/demo.sh
+          git diff --exit-code -- benchmarks/workloads/c-transform/numbers.txt
+          test -z "$(git status --porcelain)"
+          echo "RESULT demo PASS"

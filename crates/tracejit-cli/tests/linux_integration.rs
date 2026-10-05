@@ -105,6 +105,7 @@ fn adversarial_classification_table() {
         );
         assert!(safe, "classification mismatch for {case}: {report}");
     }
+    eprintln!("RESULT classification PASS");
 }
 
 #[test]
@@ -169,6 +170,8 @@ fn guarded_hit_deopt_restore_and_replay() {
     assert_eq!(baseline_nonzero.status.code(), Some(7));
     assert_eq!(replayed_nonzero.status.code(), Some(7));
     assert!(String::from_utf8_lossy(&replayed_nonzero.stderr).contains("cache          HIT"));
+    eprintln!("RESULT guarded_hit PASS");
+    eprintln!("RESULT mutation DEOPT");
 }
 
 #[test]
@@ -249,9 +252,14 @@ fn nondeterministic_and_unknown_cases_never_reuse() {
 #[test]
 fn sandbox_declared_path_succeeds_and_other_effects_are_denied() {
     if !tracejit_sandbox::capabilities().can_prove() {
-        eprintln!("skipped: seccomp or Landlock ABI 3+ is unavailable");
+        let reason = "seccomp or Landlock ABI 3+ is unavailable";
+        if std::env::var_os("TRACEJIT_REQUIRE_PROVEN").is_some() {
+            panic!("RESULT sandbox FAIL: {reason}");
+        }
+        eprintln!("RESULT sandbox SKIP: {reason}");
         return;
     }
+    eprintln!("RESULT sandbox PASS: seccomp and Landlock ABI 3+ available");
     let temporary = tempfile::tempdir().unwrap();
     let declared = temporary.path().join("declared");
     let undeclared = temporary.path().join("undeclared");

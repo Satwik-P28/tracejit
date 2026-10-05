@@ -9,7 +9,7 @@ fi
 
 root=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
 release_dir=$(CDPATH= cd -- "${1:?usage: scripts/test-install-release.sh DIST_DIR}" && pwd)
-name=tracejit-v0.1.0-x86_64-unknown-linux-gnu.tar.gz
+name=tracejit-v0.1.1-x86_64-unknown-linux-gnu.tar.gz
 archive="${release_dir}/${name}"
 sums="${release_dir}/SHA256SUMS"
 install_script="${root}/scripts/install-release.sh"
@@ -20,19 +20,19 @@ test -f "$sums"
 
 members=$(tar -tzf "$archive" | sort)
 expected=$(printf '%s\n' \
-  "tracejit-v0.1.0-x86_64-unknown-linux-gnu/" \
-  "tracejit-v0.1.0-x86_64-unknown-linux-gnu/LICENSE-APACHE" \
-  "tracejit-v0.1.0-x86_64-unknown-linux-gnu/LICENSE-MIT" \
-  "tracejit-v0.1.0-x86_64-unknown-linux-gnu/README.md" \
-  "tracejit-v0.1.0-x86_64-unknown-linux-gnu/tracejit" | sort)
+  "tracejit-v0.1.1-x86_64-unknown-linux-gnu/" \
+  "tracejit-v0.1.1-x86_64-unknown-linux-gnu/LICENSE-APACHE" \
+  "tracejit-v0.1.1-x86_64-unknown-linux-gnu/LICENSE-MIT" \
+  "tracejit-v0.1.1-x86_64-unknown-linux-gnu/README.md" \
+  "tracejit-v0.1.1-x86_64-unknown-linux-gnu/tracejit" | sort)
 test "$members" = "$expected"
 tar -tvzf "$archive" | grep '/tracejit$' | grep -q '^-r.x'
-file "${release_dir}/tracejit-v0.1.0-x86_64-unknown-linux-gnu/tracejit" | grep -q 'ELF 64-bit'
-file "${release_dir}/tracejit-v0.1.0-x86_64-unknown-linux-gnu/tracejit" | grep -q 'x86-64'
-file "${release_dir}/tracejit-v0.1.0-x86_64-unknown-linux-gnu/tracejit" | grep -q 'dynamically linked'
-if ldd "${release_dir}/tracejit-v0.1.0-x86_64-unknown-linux-gnu/tracejit" | grep -q 'not found'; then
+file "${release_dir}/tracejit-v0.1.1-x86_64-unknown-linux-gnu/tracejit" | grep -q 'ELF 64-bit'
+file "${release_dir}/tracejit-v0.1.1-x86_64-unknown-linux-gnu/tracejit" | grep -q 'x86-64'
+file "${release_dir}/tracejit-v0.1.1-x86_64-unknown-linux-gnu/tracejit" | grep -q 'dynamically linked'
+if ldd "${release_dir}/tracejit-v0.1.1-x86_64-unknown-linux-gnu/tracejit" | grep -q 'not found'; then
   echo "release binary has an unresolved dynamic dependency" >&2
-  ldd "${release_dir}/tracejit-v0.1.0-x86_64-unknown-linux-gnu/tracejit" >&2
+  ldd "${release_dir}/tracejit-v0.1.1-x86_64-unknown-linux-gnu/tracejit" >&2
   exit 1
 fi
 
@@ -40,7 +40,7 @@ prefix=$(mktemp -d)
 trap 'rm -rf "$prefix"' EXIT
 TRACEJIT_RELEASE_DIR="$release_dir" TRACEJIT_INSTALL_PREFIX="$prefix" "$install_script"
 test -x "${prefix}/tracejit"
-"${prefix}/tracejit" --version | grep -q 'tracejit 0.1.0'
+"${prefix}/tracejit" --version | grep -q 'tracejit 0.1.1'
 doctor_out=$("${prefix}/tracejit" doctor)
 printf '%s\n' "$doctor_out"
 printf '%s\n' "$doctor_out" | grep -q 'supported      yes'

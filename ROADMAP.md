@@ -1,20 +1,22 @@
 # Roadmap
 
-The following work is deliberately outside V1:
+V1 is whole-command reuse on Linux x86_64. The items below are not implemented. None of them is implied by the current CLI.
 
-- automatic parallelization and speculative execution
-- partial-subgraph caching
-- GPU and CUDA tracing
-- distributed caching and remote execution
-- Kubernetes integration
-- model routing and semantic LLM caching
-- GitHub pull-request automation
-- graphical web interfaces
-- macOS and Windows support
-- source-code rewriting
-- automatic network replay
+## Next, and small enough to review
 
-Potential tracing backends such as eBPF require an explicit correctness and event
-loss design before they can supplement ptrace. None of these items is implemented
-or implied by the current CLI.
+These are the concrete gaps already visible in this repository. Labels a maintainer can apply later are noted in [docs/launch/PROPOSED_ISSUES.md](docs/launch/PROPOSED_ISSUES.md). They are not open GitHub issues until someone creates them.
 
+- Model the syscalls that made `shell-pipeline` and `cc -c` `UNKNOWN` in `benchmarks/results/break-even.md`, each with a fixture that still fails closed if the model is incomplete. The recorded numbers include 115, 293, and 439. Confirm those numbers against the benchmark host's `unistd_64.h` before naming them in a patch.
+- Add one workload that is allowed to be slower than baseline, and keep publishing the loss.
+- A libc `clock_gettime` that stays in the vDSO is still invisible. Closing that without refusing every process is open.
+
+## Deliberately later
+
+- Partial-subgraph reuse.
+- eBPF as a second tracer. It needs its own story for lost events before it can be compared with ptrace.
+- A warm process that skips startup. The published hit-path notes say the safety checks would remain. Do not add a daemon to hide them.
+- macOS, Windows, remote caches, GPU tracing, network replay, speculative execution, and a web UI.
+
+## Not goals
+
+TraceJIT is not trying to become Bazel, Nix, or ccache. If a command already has a correct declared graph, use that system.

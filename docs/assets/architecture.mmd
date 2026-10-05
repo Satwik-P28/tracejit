@@ -1,0 +1,18 @@
+flowchart TD
+  run[Command] --> lookup[Lookup by executable, argv, cwd, environment, runtime identity]
+  lookup --> hit{Prior record and every guard passes?}
+  hit -->|yes| reuse[Restore outputs and replay stdout, stderr, exit status]
+  hit -->|no| trace[ptrace the process tree]
+  trace --> effects[Classify Read, Write, Control, and Unknown effects]
+  effects --> det{Determinism class}
+  det -->|UNKNOWN or NONDETERMINISTIC| closed[Fail closed: do not reuse]
+  det -->|observed effects are guardable| guarded[GUARDED]
+  guarded --> sandbox{--enforce and seccomp plus Landlock ABI 3+ installed?}
+  sandbox -->|yes| proven[Promote to PROVEN]
+  sandbox -->|no| stay[Stay GUARDED]
+  proven --> store[Compile guards and store the result]
+  stay --> store
+  store --> next[Next run validates guards before exposing any cached byte]
+  next --> reuse
+  next --> deopt[Guard failure: deoptimize and retrace]
+  deopt --> trace

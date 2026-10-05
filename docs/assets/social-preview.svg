@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+  <rect width="1280" height="640" fill="#111418"/>
+  <text x="80" y="180" fill="#f4f1ea" font-family="Georgia, 'Iowan Old Style', serif" font-size="84">TraceJIT</text>
+  <text x="80" y="260" fill="#d7d2c8" font-family="ui-sans-serif, Helvetica, sans-serif" font-size="32">Skip a Linux command when its observed dependencies still hold.</text>
+  <text x="80" y="380" fill="#f4f1ea" font-family="ui-monospace, 'SF Mono', Menlo, monospace" font-size="36">312.913 ms -&gt; 3.972 ms on one synthetic workload</text>
+  <text x="80" y="430" fill="#a8a29a" font-family="ui-sans-serif, Helvetica, sans-serif" font-size="24">A 7.396 ms command got slower. Not a typical speedup.</text>
+  <text x="80" y="540" fill="#d7d2c8" font-family="ui-sans-serif, Helvetica, sans-serif" font-size="28">Linux x86_64 · Rust · fails closed</text>
+</svg>
