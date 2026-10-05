@@ -8,7 +8,7 @@ These are the concrete gaps already visible in this repository. Labels a maintai
 
 - Model the syscalls that made `shell-pipeline` and `cc -c` `UNKNOWN` in `benchmarks/results/break-even.md`, each with a fixture that still fails closed if the model is incomplete. The recorded numbers include 115, 293, and 439. Confirm those numbers against the benchmark host's `unistd_64.h` before naming them in a patch.
 - Add one workload that is allowed to be slower than baseline, and keep publishing the loss.
-- A libc `clock_gettime` that stays in the vDSO is still invisible. Closing that without refusing every process is open.
+- vDSO `clock_gettime`, `gettimeofday`, and `time` are redirected to syscalls before the program runs. Other vDSO helpers, including the signal trampoline, are left in place.
 
 ## Deliberately later
 

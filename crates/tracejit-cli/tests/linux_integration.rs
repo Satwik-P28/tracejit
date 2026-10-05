@@ -224,7 +224,7 @@ fn nondeterministic_and_unknown_cases_never_reuse() {
     workspace(temporary.path());
     let binary = compile_fixture(temporary.path());
     let cache = temporary.path().join("cache");
-    for case in ["getrandom", "unknown_ioctl", "network_send"] {
+    for case in ["getrandom", "unknown_ioctl", "network_send", "vdso_clock"] {
         let args = [
             "run",
             "--",

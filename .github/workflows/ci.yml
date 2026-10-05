@@ -60,6 +60,11 @@ jobs:
           grep -q 'RESULT guarded_hit PASS' "$log"
           grep -q 'RESULT mutation DEOPT' "$log"
           grep -q 'RESULT sandbox PASS' "$log"
+          grep -q 'vdso_clock' "$log"
+          grep -q 'mmap_shared_write' "$log"
+          grep -q 'mmap_shared_mprotect' "$log"
+          echo "RESULT vdso_time PASS"
+          echo "RESULT mmap_shared PASS"
           if grep -q 'RESULT sandbox SKIP' "$log"; then
             echo "RESULT integration FAIL: sandbox test skipped" >&2
             exit 1

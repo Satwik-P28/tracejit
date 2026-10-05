@@ -28,7 +28,7 @@ Separate Linux tests check the reuse decision. `guarded_hit_deopt_restore_and_re
 These are real gaps. They are not covered by a passing fixture in this repository:
 
 - Another process changes an input after guards pass and before outputs are restored. `SAFETY.md` calls this interval out. `GUARDED` does not close it.
-- A libc `clock_gettime` that never enters the kernel. The fixture uses `syscall(SYS_clock_gettime)`, which the tracer sees. The vDSO path is not that fixture.
+- A libc `clock_gettime` that would have stayed in the vDSO. `vdso_clock` calls `clock_gettime`, `gettimeofday`, and `time` through libc. The tracer redirects those vDSO entry points to syscalls first, and the case is `NONDETERMINISTIC`. The raw `syscall(SYS_clock_gettime)` fixtures remain separate.
 - A `MAP_SHARED` write is expected `UNKNOWN` (`mmap_shared_write`, `mmap_shared_mprotect`). That is a refusal, not a replay of the store.
 - Concurrent writers to a guarded file during the traced run.
 - The shell and `cc -c` refusals in `benchmarks/results/break-even.md`. Those commands were `UNKNOWN`. Making them reusable requires a modeled syscall and a new fixture, not a looser class.

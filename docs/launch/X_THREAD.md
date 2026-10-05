@@ -8,7 +8,7 @@ Post only after the checklist. Attach a terminal recording that matches `docs/as
 
 3. Append one line to the input. The next run is a deoptimization, not a stale hit. That is the part that matters. An argv cache would have returned the old result.
 
-4. PROVEN means seccomp and Landlock were installed for that run. It does not mean other processes cannot change a file in the gap. A writable shared file mapping is refused. A vDSO clock read is not seen. Python, shell, and cc are refused today.
+4. PROVEN means seccomp and Landlock were installed for that run. It does not mean other processes cannot change a file in the gap. A writable shared file mapping is refused. A libc clock read is forced through a syscall, or the command is not reused. Python, shell, and cc are refused today.
 
 5. Code, both benchmark tables, and the demo script: https://github.com/Satwik-P28/tracejit
 

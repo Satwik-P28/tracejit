@@ -60,7 +60,7 @@ When a guard fails, the cached result is not exposed. TraceJIT records the failu
 
 The fixture list is aimed at caches that would get these wrong: file bytes, mtime, symlink targets, environment, cwd, child processes, clocks, `getrandom`, `/proc/self`, threads, ioctl, sockets. The expected classes live in `tests/fixtures/cases.json`. A Linux test checks them. A second test checks that a changed input does not hit, and that `getrandom`, an unknown ioctl, and a network send never hit.
 
-Some cases are still open. A writable shared file mapping is classified unknown and is not replayed. A clock answered by the vDSO may never appear as a syscall, and that program can still be labeled guarded. Another process can still win the race between the guard and the restore.
+Some cases are still open. A writable shared file mapping is classified unknown and is not replayed. A clock answered by the vDSO is redirected to a real syscall before the program runs; if that redirect fails, the command is not reused. Another process can still win the race between the guard and the restore.
 
 ## Benchmarks
 
@@ -86,6 +86,6 @@ The trusted computing base is the kernel's ptrace, seccomp, and Landlock behavio
 
 ## What this could become
 
-More modeled syscalls would make more ordinary commands eligible, if each one comes with a test that still fails closed. The vDSO clock path is the remaining way a time-dependent program can be reused. Partial reuse inside a process is a different system and should wait until the whole-command argument is boring.
+More modeled syscalls would make more ordinary commands eligible, if each one comes with a test that still fails closed. Partial reuse inside a process is a different system and should wait until the whole-command argument is boring.
 
 It should not become a quieter ccache or a worse Bazel. Declared graphs are better where they exist. The interesting remainder is the command nobody declared, and the decision to run it anyway.

@@ -141,6 +141,12 @@ is `UNKNOWN` and is not reused. `mremap` of a recorded file mapping is `UNKNOWN`
 Private and read-only file mappings stay internal; the earlier `open` is the
 content dependency. A private store does not modify the file.
 
+Before the first instruction of each exec, the tracer rewrites vDSO
+`clock_gettime`, `gettimeofday`, and `time` to `syscall` stubs and clears
+`AT_SYSINFO_EHDR`. The signal trampoline stays. If the rewrite cannot be
+completed, the trace is `UNKNOWN`. An observed clock syscall is
+`NONDETERMINISTIC`.
+
 `Guard::NoUnexpectedEffects` is appended to compiled guard lists and always
 validates. It does not rescan the process. Unmodeled effects are rejected by
 classification before a reusable record is stored.

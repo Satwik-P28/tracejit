@@ -14,6 +14,7 @@
 #include <sys/random.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <sys/syscall.h>
 #include <sys/sysinfo.h>
 #include <sys/types.h>
@@ -91,6 +92,15 @@ int main(int argc, char **argv) {
   join_path(output, sizeof(output), root, "output.txt");
   join_path(second, sizeof(second), root, "second.txt");
 
+  if (!strcmp(name, "vdso_clock")) {
+    struct timespec spec;
+    struct timeval wall;
+    if (clock_gettime(CLOCK_REALTIME, &spec) != 0) return 1;
+    if (clock_gettime(CLOCK_MONOTONIC, &spec) != 0) return 1;
+    if (gettimeofday(&wall, NULL) != 0) return 1;
+    if (time(NULL) == (time_t)-1) return 1;
+    return 0;
+  }
   if (!strcmp(name, "clock_realtime") || !strcmp(name, "clock_monotonic")) {
     struct timespec value;
     int clock = !strcmp(name, "clock_realtime") ? CLOCK_REALTIME : CLOCK_MONOTONIC;

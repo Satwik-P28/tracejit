@@ -8,6 +8,7 @@
   {"case":"unset_environment_dependency","expected":"Guarded","eligible":true},
   {"case":"locale_dependency","expected":"Guarded","eligible":true},
   {"case":"timezone_dependency","expected":"Guarded","eligible":true},
+  {"case":"vdso_clock","expected":"Nondeterministic","eligible":false},
   {"case":"clock_realtime","expected":"Nondeterministic","eligible":false},
   {"case":"clock_monotonic","expected":"Nondeterministic","eligible":false},
   {"case":"getrandom","expected":"Nondeterministic","eligible":false},

@@ -34,7 +34,7 @@ Rules change. Many weeks this belongs in a daily thread rather than as its own p
 
 Title: Can you tell from the outside when a Linux process is safe to skip?
 
-Write-up of the problem, not a feature tour: observable effects are not the same thing as the process's actual dependencies, determinism is not a boolean, and a cache that misses an input is worse than a slow command. The project is TraceJIT. The interesting measured case is synthetic and published with the machine and the commit. A shorter command got slower. A writable shared file mapping is refused. A vDSO clock read is not seen.
+Write-up of the problem, not a feature tour: observable effects are not the same thing as the process's actual dependencies, determinism is not a boolean, and a cache that misses an input is worse than a slow command. The project is TraceJIT. The interesting measured case is synthetic and published with the machine and the commit. A shorter command got slower. A writable shared file mapping is refused. A libc clock read is forced through a syscall, or the command is not reused.
 
 https://github.com/Satwik-P28/tracejit
 

@@ -21,5 +21,5 @@ This table is for the 0.1.1 candidate. Quantitative rows are historical. They we
 | Shell and `cc -c` refused | break-even.md | `e9684c1` | classification `Unknown` | Historical. |
 | UNKNOWN and NONDETERMINISTIC do not reuse | effects `cache_eligible` | 0.1.1 | unit tests and integration | Integration not run here. |
 | Writable MAP_SHARED is UNKNOWN | ARCHITECTURE, fixtures | 0.1.1 | `mmap_shared_write`, `mmap_shared_mprotect` | Fixture added. Linux CI must run it. v0.1.0 did not do this. |
-| vDSO clock can be invisible | SAFETY.md | 0.1.1 | no tracer hook for userspace vDSO | Open limitation. Not fixed. |
+| vDSO time is not reused invisibly | SAFETY.md, `vdso_clock` | 0.1.1 | libc `clock_gettime` / `gettimeofday` / `time` redirected to syscalls, or `UNKNOWN` | Fail closed. Not a claim that every userspace read is seen. |
 | TOCTOU between guard and restore | SAFETY.md, core `run` | 0.1.1 | validate, then restore, no filesystem freeze | Open limitation. Not claimed atomic. |

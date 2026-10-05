@@ -18,7 +18,7 @@ The effects classified as `GUARDED`, and `trace_command` was started with a sand
 A modeled network read or write becomes `NONDETERMINISTIC`. The command is not reused. seccomp in the enforced policy is written to deny network. DNS is in the fixture list as nondeterministic. An unmodeled network path becomes `UNKNOWN`, which also does not reuse.
 
 **What about time and randomness?**
-A `clock_gettime`, `gettimeofday`, or `time` syscall is `NONDETERMINISTIC`. `getrandom` and `/dev/urandom` are too. A libc `clock_gettime` that the vDSO answers without entering the kernel is not seen, and that program can still be `GUARDED`. The fixtures use the raw syscall, so they do not cover the libc path. That remains a hole.
+A `clock_gettime`, `gettimeofday`, or `time` syscall is `NONDETERMINISTIC`. `getrandom` and `/dev/urandom` are too. Before the first userspace instruction, TraceJIT rewrites the vDSO copies of those three entry points into `syscall` stubs and clears `AT_SYSINFO_EHDR`. `vdso_clock` calls the libc functions, not `syscall(SYS_clock_gettime)`, and must come back `NONDETERMINISTIC`. If the rewrite cannot be finished, the trace is `UNKNOWN`. Either result refuses reuse. A trace with no clock syscall is not evidence that time was unused.
 
 **What about mmap?**
 Anonymous mappings stay internal. A file-backed `MAP_SHARED` mapping that is writable, or that `mprotect` makes writable, is `UNKNOWN` (`mmap_shared_write`, `mmap_shared_mprotect`). `mremap` of a recorded file mapping is `UNKNOWN`. Private and read-only file mappings are not themselves effects; the earlier open is the content guard. This is not a replay of the store.

@@ -12,7 +12,7 @@ Labels: `syscall-coverage`, `help wanted`, `correctness`
 
 Labels: `safety`, `correctness`
 
-`mmap_shared_write` is already an expected `UNKNOWN`. The open hole is `clock_gettime` through the vDSO: the fixture uses the raw syscall, and a libc call may not enter the kernel. A patch has to show the libc call on Linux x86_64 and either observe it or stop reuse. Do not whitelist it.
+`vdso_clock` calls libc `clock_gettime`, `gettimeofday`, and `time` and is expected `NONDETERMINISTIC`. Do not replace that with a raw `syscall` fixture, and do not treat a missing clock syscall as proof that time was unused.
 
 ## Good first issue: explain a fixture in the adversarial doc
 

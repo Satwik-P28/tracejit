@@ -7,7 +7,7 @@ use nix::unistd::Pid;
 use std::collections::{HashMap, HashSet};
 use std::ffi::OsString;
 use std::fs;
-use std::io::Read;
+use std::io::{Read, Seek, SeekFrom, Write};
 use std::os::unix::ffi::OsStringExt;
 use std::os::unix::process::CommandExt;
 use std::path::{Component, Path, PathBuf};
@@ -38,6 +38,8 @@ struct ProcessState {
     synchronize_on_next_syscall: bool,
     pending: Option<PendingSyscall>,
     file_mappings: Vec<FileMapping>,
+    /// False after exec until vDSO time entry points are redirected to syscalls.
+    vdso_disarmed: bool,
 }
 
 #[derive(Clone)]
@@ -288,6 +290,9 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
             )))
         }
     }
+    // The legacy exec stop is the new program's entry point. No userspace
+    // instruction has run, so libc has not yet cached a vDSO time pointer.
+    let initial_vdso = disarm_vdso_time(root_pid);
     ptrace::setoptions(root_pid, OPTIONS)
         .map_err(|error| ptrace_operation("set initial options", root_pid, error))?;
     ptrace::syscall(root_pid, None)
@@ -305,6 +310,7 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
             synchronize_on_next_syscall: false,
             pending: None,
             file_mappings: Vec::new(),
+            vdso_disarmed: true,
         },
     )]);
     let mut processes = vec![ProcessNode {
@@ -326,6 +332,15 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
             fingerprint: fingerprint(&request.executable).ok(),
         })),
     );
+    if let Err(detail) = initial_vdso {
+        collector.push(
+            root_pid,
+            Effect::Unknown(UnknownEffect {
+                syscall: None,
+                detail,
+            }),
+        );
+    }
     let mut root_exit = None;
 
     while !states.is_empty() {
@@ -336,6 +351,7 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
         };
         match status {
             WaitStatus::PtraceSyscall(pid) => {
+                ensure_vdso_disarmed(pid, &mut states, &mut collector);
                 handle_syscall(pid, &mut states, &mut collector, request.sandbox.is_some())?;
                 ptrace::syscall(pid, None)
                     .map_err(|error| ptrace_operation("resume after syscall", pid, error))?;
@@ -416,10 +432,12 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
                     state.synchronize_on_next_syscall = true;
                     state.pending = None;
                     state.file_mappings.clear();
+                    state.vdso_disarmed = false;
                 }
                 ptrace::syscall(pid, None).map_err(ptrace_error)?;
             }
             WaitStatus::Stopped(pid, signal) => {
+                ensure_vdso_disarmed(pid, &mut states, &mut collector);
                 ptrace::setoptions(pid, OPTIONS)
                     .map_err(|error| ptrace_operation("set process options", pid, error))?;
                 let deliver = if signal == Signal::SIGSTOP {
@@ -1681,6 +1699,329 @@ fn inherited_fd_state(pid: Pid, fd: i32) -> FdState {
     }
 }
 
+fn ensure_vdso_disarmed(
+    pid: Pid,
+    states: &mut HashMap<Pid, ProcessState>,
+    collector: &mut Collector,
+) {
+    let Some(state) = states.get(&pid) else {
+        return;
+    };
+    if state.vdso_disarmed {
+        return;
+    }
+    let result = disarm_vdso_time(pid);
+    if let Some(state) = states.get_mut(&pid) {
+        state.vdso_disarmed = true;
+    }
+    if let Err(detail) = result {
+        collector.push(
+            pid,
+            Effect::Unknown(UnknownEffect {
+                syscall: None,
+                detail,
+            }),
+        );
+    }
+}
+
+const AT_NULL: u64 = 0;
+const AT_SYSINFO_EHDR: u64 = 33;
+
+fn disarm_vdso_time(pid: Pid) -> Result<(), String> {
+    let auxv = clear_auxv_sysinfo(pid);
+    let aux_cleared = matches!(auxv, Ok(AuxvSysinfo::Cleared));
+    match vdso_mapping(pid)? {
+        Some(mapping) => {
+            let patched: Result<(), String> = (|| {
+                let image = read_remote(pid, mapping.start, mapping.len())?;
+                let patches = vdso_time_patches(&image, mapping.start)?;
+                for patch in patches {
+                    write_remote(pid, patch.address, &patch.bytes)?;
+                }
+                Ok(())
+            })();
+            match patched {
+                Ok(()) => Ok(()),
+                Err(_) if aux_cleared => Ok(()),
+                Err(detail) => Err(detail),
+            }
+        }
+        None => match auxv {
+            Ok(AuxvSysinfo::Cleared | AuxvSysinfo::Absent) => Ok(()),
+            Ok(AuxvSysinfo::Unreadable) | Err(_) => Err(
+                "could not inspect the auxiliary vector, so an invisible vDSO clock read cannot be ruled out"
+                    .into(),
+            ),
+        },
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum AuxvSysinfo {
+    Cleared,
+    Absent,
+    Unreadable,
+}
+
+struct VdsoMapping {
+    start: u64,
+    end: u64,
+}
+
+impl VdsoMapping {
+    fn len(&self) -> usize {
+        self.end.saturating_sub(self.start) as usize
+    }
+}
+
+struct VdsoPatch {
+    address: u64,
+    bytes: [u8; 8],
+}
+
+fn vdso_mapping(pid: Pid) -> Result<Option<VdsoMapping>, String> {
+    let maps = fs::read_to_string(format!("/proc/{}/maps", pid.as_raw()))
+        .map_err(|error| format!("could not read process map to disarm vDSO time: {error}"))?;
+    for line in maps.lines() {
+        if !line.contains("[vdso]") {
+            continue;
+        }
+        let range = line.split_whitespace().next().unwrap_or("");
+        let (start, end) = range
+            .split_once('-')
+            .ok_or_else(|| format!("unreadable vDSO map entry: {line}"))?;
+        let start = u64::from_str_radix(start, 16)
+            .map_err(|_| format!("unreadable vDSO start: {start}"))?;
+        let end =
+            u64::from_str_radix(end, 16).map_err(|_| format!("unreadable vDSO end: {end}"))?;
+        if end <= start || end - start > 1024 * 1024 {
+            return Err(format!("implausible vDSO mapping {start:#x}-{end:#x}"));
+        }
+        return Ok(Some(VdsoMapping { start, end }));
+    }
+    Ok(None)
+}
+
+fn clear_auxv_sysinfo(pid: Pid) -> Result<AuxvSysinfo, String> {
+    let regs =
+        ptrace::getregs(pid).map_err(|error| format!("could not read entry registers: {error}"))?;
+    let argc = read_u64(pid, regs.rsp)
+        .map_err(|error| format!("could not read argc while disarming vDSO time: {error}"))?;
+    if argc > 4096 {
+        return Ok(AuxvSysinfo::Unreadable);
+    }
+    let mut addr = regs.rsp.saturating_add(8 * (argc + 2));
+    let mut environment_terminated = false;
+    for _ in 0..8192 {
+        let word = read_u64(pid, addr).map_err(|error| {
+            format!("could not walk environment while disarming vDSO time: {error}")
+        })?;
+        addr = addr.saturating_add(8);
+        if word == AT_NULL {
+            environment_terminated = true;
+            break;
+        }
+    }
+    if !environment_terminated {
+        return Ok(AuxvSysinfo::Unreadable);
+    }
+    for _ in 0..256 {
+        let key = read_u64(pid, addr).map_err(|error| {
+            format!("could not read auxiliary vector while disarming vDSO time: {error}")
+        })?;
+        if key == AT_NULL {
+            return Ok(AuxvSysinfo::Absent);
+        }
+        if key > 1024 {
+            return Ok(AuxvSysinfo::Unreadable);
+        }
+        if key == AT_SYSINFO_EHDR {
+            write_remote(pid, addr.saturating_add(8), &0u64.to_le_bytes())?;
+            return Ok(AuxvSysinfo::Cleared);
+        }
+        addr = addr.saturating_add(16);
+    }
+    Ok(AuxvSysinfo::Unreadable)
+}
+
+fn vdso_time_patches(image: &[u8], map_start: u64) -> Result<Vec<VdsoPatch>, String> {
+    let symbols = vdso_symbol_offsets(image)?;
+    let mut patches = Vec::new();
+    let mut saw_clock = false;
+    let mut saw_gettimeofday = false;
+    for (name, offset) in symbols {
+        let Some(number) = vdso_time_syscall(&name) else {
+            continue;
+        };
+        if name.contains("clock_gettime") {
+            saw_clock = true;
+        }
+        if name.contains("gettimeofday") {
+            saw_gettimeofday = true;
+        }
+        let address = map_start.saturating_add(offset);
+        if address < map_start
+            || address.saturating_add(8) > map_start.saturating_add(image.len() as u64)
+        {
+            return Err(format!("vDSO symbol {name} is outside the mapped image"));
+        }
+        patches.push(VdsoPatch {
+            address,
+            bytes: vdso_syscall_stub(number),
+        });
+    }
+    if !saw_clock || !saw_gettimeofday {
+        return Err(
+            "vDSO image has no clock_gettime and gettimeofday entry points to redirect; refusing reuse"
+                .into(),
+        );
+    }
+    Ok(patches)
+}
+
+fn vdso_time_syscall(name: &str) -> Option<u32> {
+    if name == "__vdso_clock_gettime" || name == "__kernel_clock_gettime" {
+        Some(libc::SYS_clock_gettime as u32)
+    } else if name == "__vdso_gettimeofday" || name == "__kernel_gettimeofday" {
+        Some(libc::SYS_gettimeofday as u32)
+    } else if name == "__vdso_time" || name == "__kernel_time" {
+        Some(libc::SYS_time as u32)
+    } else {
+        None
+    }
+}
+
+fn vdso_syscall_stub(number: u32) -> [u8; 8] {
+    let mut bytes = [0u8; 8];
+    bytes[0] = 0xb8;
+    bytes[1..5].copy_from_slice(&number.to_le_bytes());
+    bytes[5] = 0x0f;
+    bytes[6] = 0x05;
+    bytes[7] = 0xc3;
+    bytes
+}
+
+fn vdso_symbol_offsets(image: &[u8]) -> Result<Vec<(String, u64)>, String> {
+    if image.len() < 64 || &image[0..4] != b"\x7fELF" || image[4] != 2 {
+        return Err("vDSO image is not a 64-bit ELF".into());
+    }
+    let phoff = read_elf_u64(image, 32)?;
+    let phentsize = read_elf_u16(image, 54)? as usize;
+    let phnum = read_elf_u16(image, 56)? as usize;
+    let mut load_vaddr = 0u64;
+    for index in 0..phnum {
+        let off = phoff as usize + index * phentsize;
+        if read_elf_u32(image, off)? != 1 {
+            continue;
+        }
+        load_vaddr = read_elf_u64(image, off + 16)?;
+        break;
+    }
+    let shoff = read_elf_u64(image, 40)? as usize;
+    let shentsize = read_elf_u16(image, 58)? as usize;
+    let shnum = read_elf_u16(image, 60)? as usize;
+    if shentsize < 64 || shnum > 128 {
+        return Err("vDSO section headers are not usable".into());
+    }
+    let mut dynsym = None;
+    let mut sections = Vec::new();
+    for index in 0..shnum {
+        let off = shoff + index * shentsize;
+        let kind = read_elf_u32(image, off)?;
+        let offset = read_elf_u64(image, off + 24)? as usize;
+        let size = read_elf_u64(image, off + 32)? as usize;
+        let link = read_elf_u32(image, off + 40)? as usize;
+        let entsize = read_elf_u64(image, off + 56)? as usize;
+        sections.push((offset, size));
+        if kind == 11 {
+            dynsym = Some((offset, size, link, entsize));
+        }
+    }
+    let (sym_off, sym_size, link, entsize) =
+        dynsym.ok_or_else(|| "vDSO has no dynamic symbol table".to_string())?;
+    if entsize < 24 || link >= sections.len() {
+        return Err("vDSO symbol table is truncated".into());
+    }
+    let (str_off, str_size) = sections[link];
+    let mut symbols = Vec::new();
+    let mut cursor = sym_off;
+    let end = sym_off.saturating_add(sym_size);
+    while cursor + entsize <= end {
+        let name_off = read_elf_u32(image, cursor)? as usize;
+        let value = read_elf_u64(image, cursor + 8)?;
+        let size = read_elf_u64(image, cursor + 16)?;
+        if name_off < str_size {
+            let start = str_off + name_off;
+            if let Some(relative) = image.get(start..str_off + str_size) {
+                let name_len = relative.iter().position(|byte| *byte == 0).unwrap_or(0);
+                if let Ok(name) = std::str::from_utf8(&relative[..name_len]) {
+                    if vdso_time_syscall(name).is_some() && (size == 0 || size >= 8) {
+                        let offset = value.wrapping_sub(load_vaddr);
+                        symbols.push((name.to_string(), offset));
+                    }
+                }
+            }
+        }
+        cursor += entsize;
+    }
+    Ok(symbols)
+}
+
+fn read_elf_u16(image: &[u8], offset: usize) -> Result<u16, String> {
+    let bytes = image
+        .get(offset..offset + 2)
+        .ok_or_else(|| "truncated vDSO ELF".to_string())?;
+    Ok(u16::from_le_bytes(bytes.try_into().unwrap()))
+}
+
+fn read_elf_u32(image: &[u8], offset: usize) -> Result<u32, String> {
+    let bytes = image
+        .get(offset..offset + 4)
+        .ok_or_else(|| "truncated vDSO ELF".to_string())?;
+    Ok(u32::from_le_bytes(bytes.try_into().unwrap()))
+}
+
+fn read_elf_u64(image: &[u8], offset: usize) -> Result<u64, String> {
+    let bytes = image
+        .get(offset..offset + 8)
+        .ok_or_else(|| "truncated vDSO ELF".to_string())?;
+    Ok(u64::from_le_bytes(bytes.try_into().unwrap()))
+}
+
+fn read_u64(pid: Pid, address: u64) -> Result<u64, String> {
+    let mut bytes = [0u8; 8];
+    read_remote(pid, address, &mut bytes)?;
+    Ok(u64::from_le_bytes(bytes))
+}
+
+fn read_remote(pid: Pid, address: u64, buffer: &mut [u8]) -> Result<(), String> {
+    let mut memory = fs::File::open(format!("/proc/{}/mem", pid.as_raw()))
+        .map_err(|error| format!("could not open process memory: {error}"))?;
+    memory
+        .seek(SeekFrom::Start(address))
+        .map_err(|error| format!("could not seek process memory: {error}"))?;
+    memory
+        .read_exact(buffer)
+        .map_err(|error| format!("could not read process memory: {error}"))?;
+    Ok(())
+}
+
+fn write_remote(pid: Pid, address: u64, bytes: &[u8]) -> Result<(), String> {
+    let mut memory = fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .open(format!("/proc/{}/mem", pid.as_raw()))
+        .map_err(|error| format!("could not write process memory: {error}"))?;
+    memory
+        .seek(SeekFrom::Start(address))
+        .map_err(|error| format!("could not seek process memory for write: {error}"))?;
+    memory
+        .write_all(bytes)
+        .map_err(|error| format!("could not patch process memory: {error}"))?;
+    Ok(())
+}
+
 fn overlaps_file_mapping(mappings: &[FileMapping], address: u64, length: u64) -> bool {
     let end = address.saturating_add(length);
     mappings
@@ -1931,5 +2272,90 @@ mod tests {
         assert_eq!(mappings.len(), 1);
         assert_eq!(mappings[0].start, 0x1800);
         assert_eq!(mappings[0].end, 0x2000);
+    }
+
+    #[test]
+    fn vdso_stub_is_mov_syscall_ret() {
+        let stub = vdso_syscall_stub(228);
+        assert_eq!(stub, [0xb8, 228, 0, 0, 0, 0x0f, 0x05, 0xc3]);
+        assert_eq!(vdso_time_syscall("__vdso_clock_gettime"), Some(228));
+        assert_eq!(vdso_time_syscall("__vdso_gettimeofday"), Some(96));
+        assert_eq!(vdso_time_syscall("__vdso_time"), Some(201));
+        assert_eq!(vdso_time_syscall("__vdso_getcpu"), None);
+    }
+
+    #[test]
+    fn synthetic_vdso_time_symbols_are_patched_in_place() {
+        let image = synthetic_vdso();
+        let patches = vdso_time_patches(&image, 0x1000).unwrap();
+        let addresses: Vec<_> = patches.iter().map(|patch| patch.address).collect();
+        assert!(addresses.contains(&0x1200));
+        assert!(addresses.contains(&0x1300));
+        assert!(patches
+            .iter()
+            .all(|patch| patch.bytes[0] == 0xb8 && patch.bytes[7] == 0xc3));
+    }
+
+    fn synthetic_vdso() -> Vec<u8> {
+        let mut image = vec![0u8; 0x400];
+        image[0..4].copy_from_slice(b"\x7fELF");
+        image[4] = 2;
+        image[5] = 1;
+        write_u16(&mut image, 16, 3);
+        write_u16(&mut image, 18, 62);
+        write_u32(&mut image, 20, 1);
+        write_u64(&mut image, 32, 64);
+        write_u64(&mut image, 40, 0x100);
+        write_u16(&mut image, 52, 64);
+        write_u16(&mut image, 54, 56);
+        write_u16(&mut image, 56, 1);
+        write_u16(&mut image, 58, 64);
+        write_u16(&mut image, 60, 3);
+        write_u32(&mut image, 64, 1);
+        write_u32(&mut image, 68, 5);
+        write_u64(&mut image, 64 + 32, 0x400);
+        write_u64(&mut image, 64 + 40, 0x400);
+        write_u64(&mut image, 64 + 48, 0x1000);
+        let names = b"\0__vdso_clock_gettime\0__vdso_gettimeofday\0";
+        image[0xc0..0xc0 + names.len()].copy_from_slice(names);
+        write_symbol(&mut image, 0x78 + 24, 1, 0x200, 16);
+        write_symbol(&mut image, 0x78 + 48, 22, 0x300, 16);
+        write_shdr(&mut image, 0x100 + 64, 11, 0x78, 72, 2, 24);
+        write_shdr(&mut image, 0x100 + 128, 3, 0xc0, names.len() as u64, 0, 0);
+        image
+    }
+
+    fn write_symbol(image: &mut [u8], offset: usize, name: u32, value: u64, size: u64) {
+        write_u32(image, offset, name);
+        write_u64(image, offset + 8, value);
+        write_u64(image, offset + 16, size);
+    }
+
+    fn write_shdr(
+        image: &mut [u8],
+        offset: usize,
+        kind: u32,
+        section_offset: u64,
+        size: u64,
+        link: u32,
+        entsize: u64,
+    ) {
+        write_u32(image, offset + 4, kind);
+        write_u64(image, offset + 24, section_offset);
+        write_u64(image, offset + 32, size);
+        write_u32(image, offset + 40, link);
+        write_u64(image, offset + 56, entsize);
+    }
+
+    fn write_u16(image: &mut [u8], offset: usize, value: u16) {
+        image[offset..offset + 2].copy_from_slice(&value.to_le_bytes());
+    }
+
+    fn write_u32(image: &mut [u8], offset: usize, value: u32) {
+        image[offset..offset + 4].copy_from_slice(&value.to_le_bytes());
+    }
+
+    fn write_u64(image: &mut [u8], offset: usize, value: u64) {
+        image[offset..offset + 8].copy_from_slice(&value.to_le_bytes());
     }
 }

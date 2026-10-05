@@ -10,7 +10,7 @@ Automatically infer enough observable dependencies of an unmodified Linux proces
 - `EMPIRICALLY_STABLE` does not reuse in V1.
 - `PROVEN` requires seccomp plus Landlock ABI 3+ actually installed. Observation alone is not `PROVEN`.
 - Guards finish before cached output is exposed.
-- Writable file-backed `MAP_SHARED` mappings are `UNKNOWN`. vDSO clock reads are not observed.
+- Writable file-backed `MAP_SHARED` mappings are `UNKNOWN`. vDSO `clock_gettime`, `gettimeofday`, and `time` are redirected to syscalls, or the trace is `UNKNOWN`.
 - `Guard::NoUnexpectedEffects` always passes. Classification is the real rejection.
 - Uncertainty fails closed.
 

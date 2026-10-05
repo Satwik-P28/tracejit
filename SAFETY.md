@@ -10,10 +10,12 @@ therefore preserves the entire inherited environment in the pre-execution identi
 instead of pretending to know which getenv calls occurred. It adds executable,
 runtime, cwd, file-content, and file-metadata guards from observed behavior.
 
-Userspace mechanisms such as vDSO can serve clock data without a syscall. Programs
-that can observe hidden state outside the modeled surface must not be assumed safe.
-The adversarial suite targets known effect paths, but it is not a proof over every
-Linux program.
+Before the first userspace instruction of each exec, TraceJIT redirects the vDSO
+`clock_gettime`, `gettimeofday`, and `time` entry points to real syscalls and
+clears `AT_SYSINFO_EHDR`. If that cannot be completed, the trace is `UNKNOWN`
+and is not reused. A missing clock syscall is not treated as proof that time
+was unused. Other hidden userspace state can still exist. The adversarial suite
+targets known effect paths, but it is not a proof over every Linux program.
 
 ## Nondeterminism and irreversible effects
 
@@ -102,13 +104,15 @@ result is not promoted.
 
 Not proved:
 
-- That every influence on the process was a syscall. vDSO and ordinary memory
-  reads are outside the trace.
-- That a clock read answered by the vDSO was observed. `clock_gettime` is
-  classified only when the syscall instruction is entered. A libc call that
-  stays in the vDSO does not. A program whose result depends on that clock can
-  still be `GUARDED`. The fixtures call the syscall directly, so they do not
-  prove the libc path.
+- That every influence on the process was a syscall. Ordinary memory reads are
+  outside the trace.
+- That a libc clock read was observed unless the vDSO time entry points were
+  redirected. On success, `clock_gettime`, `gettimeofday`, and `time` in the
+  vDSO become real syscalls before the program runs, and an observed clock is
+  `NONDETERMINISTIC`. If the redirect cannot be completed, the trace is
+  `UNKNOWN`. The `vdso_clock` fixture calls those libc functions, not
+  `syscall(SYS_clock_gettime)`. A missing clock syscall is not evidence that
+  time was unused.
 - That no other process changes an input after guards pass and before restore
   finishes.
 - That `Guard::NoUnexpectedEffects` checked anything. The variant always

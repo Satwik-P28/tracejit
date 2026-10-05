@@ -4,7 +4,7 @@
 
 TraceJIT watches a process, records the effects it can see, and reruns that command from cache only after every guard passes. If an effect is unknown, or the command reads the clock, randomness, or the network, TraceJIT runs it again.
 
-Linux x86_64 only. It does not see a clock read that stays in the vDSO. A writable shared mapping of a file is refused, not replayed.
+Linux x86_64 only. vDSO clock reads are forced through real syscalls, or the command is not reused. A writable shared mapping of a file is refused, not replayed.
 
 ```bash
 tracejit run -- ./benchmarks/workloads/c-transform/transform
@@ -151,8 +151,8 @@ Effect types, guards, tracing, storage, sandboxing, orchestration, and the CLI a
 ## Current limitations
 
 - V1 reuses a whole command, not a subgraph.
-- ptrace sees syscalls, not arbitrary userspace memory reads. vDSO can serve a clock with no syscall.
-- Anonymous `mmap`, `brk`, and `futex` are process-internal. A writable shared file mapping is `UNKNOWN`. A clock read that stays in the vDSO is not seen.
+- ptrace sees syscalls, not arbitrary userspace memory reads. vDSO `clock_gettime`, `gettimeofday`, and `time` are redirected to syscalls before the process runs. If that redirect fails, the command is `UNKNOWN` and is not reused.
+- Anonymous `mmap`, `brk`, and `futex` are process-internal. A writable shared file mapping is `UNKNOWN`. An observed clock is `NONDETERMINISTIC`.
 - `clone` that shares file-descriptor or cwd state forces `UNKNOWN`.
 - The guard named `NoUnexpectedEffects` always passes. Unmodeled effects are rejected during classification, before a reusable record exists. The guard does not rescan the process at reuse time.
 - The cache stores stdout, stderr, environment, and output copies. It can hold secrets. It is not encrypted.
