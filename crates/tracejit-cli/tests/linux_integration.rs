@@ -295,3 +295,348 @@ fn sandbox_child() {
     );
     assert!(std::net::TcpStream::connect("127.0.0.1:9").is_err());
 }
+
+fn stderr_of(output: &Output) -> String {
+    String::from_utf8_lossy(&output.stderr).into_owned()
+}
+
+fn hit(output: &Output) -> bool {
+    stderr_of(output).contains("cache          HIT")
+}
+
+fn deoptimized(output: &Output) -> bool {
+    stderr_of(output).contains("cache          DEOPT")
+}
+
+fn missed(output: &Output) -> bool {
+    stderr_of(output).contains("cache          MISS")
+}
+
+/// Copies the modification timestamp of `reference` onto `target` so a content change
+/// can be tested with the original mtime restored.
+fn restore_mtime(reference: &Path, target: &Path) {
+    let status = Command::new("touch")
+        .arg("-r")
+        .arg(reference)
+        .arg(target)
+        .status()
+        .expect("touch must be available");
+    assert!(status.success(), "touch -r failed");
+}
+
+/// One compiled fixture workspace plus its own private cache.
+struct Fixture {
+    directory: tempfile::TempDir,
+    binary: PathBuf,
+    cache: PathBuf,
+}
+
+impl Fixture {
+    fn new() -> Self {
+        let directory = tempfile::tempdir().unwrap();
+        workspace(directory.path());
+        let binary = compile_fixture(directory.path());
+        let cache = directory.path().join("cache");
+        Self {
+            directory,
+            binary,
+            cache,
+        }
+    }
+
+    fn root(&self) -> &str {
+        self.directory.path().to_str().unwrap()
+    }
+
+    fn binary_arg(&self) -> &str {
+        self.binary.to_str().unwrap()
+    }
+
+    fn input(&self, name: &str) -> PathBuf {
+        self.directory.path().join(name)
+    }
+
+    fn run(&self, case: &str) -> Output {
+        invoke(
+            &self.cache,
+            &["run", "--", self.binary_arg(), case, self.root()],
+            None,
+        )
+    }
+
+    fn run_with_guard_mode(&self, mode: &str, case: &str) -> Output {
+        invoke(
+            &self.cache,
+            &[
+                "run",
+                "--guard-mode",
+                mode,
+                "--",
+                self.binary_arg(),
+                case,
+                self.root(),
+            ],
+            None,
+        )
+    }
+
+    /// Runs once to record, then asserts the second run reused the first result.
+    fn acquire(&self, case: &str) -> Output {
+        let first = self.run(case);
+        assert!(first.status.success(), "{}", stderr_of(&first));
+        let second = self.run(case);
+        assert!(
+            hit(&second),
+            "the primed run did not reuse:\n{}",
+            stderr_of(&second)
+        );
+        second
+    }
+}
+
+fn spawn_same_command(fixture: &Fixture, case: &'static str) -> Vec<Output> {
+    let mut handles = Vec::new();
+    for _ in 0..8 {
+        let binary = fixture.binary.clone();
+        let cache = fixture.cache.clone();
+        let root = fixture.directory.path().to_path_buf();
+        handles.push(std::thread::spawn(move || {
+            let binary = binary.to_str().unwrap();
+            let root = root.to_str().unwrap();
+            invoke(&cache, &["run", "--", binary, case, root], None)
+        }));
+    }
+    handles
+        .into_iter()
+        .map(|handle| handle.join().expect("worker thread panicked"))
+        .collect()
+}
+
+#[test]
+fn same_size_content_change_with_original_mtime_deoptimizes() {
+    let fixture = Fixture::new();
+    fixture.acquire("plain_file_read");
+    let input = fixture.input("input.txt");
+    let reference = fixture.input("reference.txt");
+    fs::copy(&input, &reference).unwrap();
+    let original_size = fs::metadata(&input).unwrap().len();
+    fs::write(&input, b"input twO\n").unwrap();
+    assert_eq!(fs::metadata(&input).unwrap().len(), original_size);
+    restore_mtime(&reference, &input);
+    let changed = fixture.run("plain_file_read");
+    assert!(deoptimized(&changed), "{}", stderr_of(&changed));
+}
+
+#[test]
+fn fast_guard_mode_still_deoptimizes_on_a_content_change() {
+    let fixture = Fixture::new();
+    let first = fixture.run_with_guard_mode("fast", "plain_file_read");
+    assert!(first.status.success(), "{}", stderr_of(&first));
+    let second = fixture.run_with_guard_mode("fast", "plain_file_read");
+    assert!(hit(&second), "{}", stderr_of(&second));
+    let input = fixture.input("input.txt");
+    let reference = fixture.input("reference.txt");
+    fs::copy(&input, &reference).unwrap();
+    fs::write(&input, b"input twO\n").unwrap();
+    restore_mtime(&reference, &input);
+    let changed = fixture.run_with_guard_mode("fast", "plain_file_read");
+    assert!(deoptimized(&changed), "{}", stderr_of(&changed));
+}
+
+#[test]
+fn permission_change_deoptimizes() {
+    let fixture = Fixture::new();
+    fixture.acquire("plain_file_read");
+    let input = fixture.input("input.txt");
+    let mut permissions = fs::metadata(&input).unwrap().permissions();
+    std::os::unix::fs::PermissionsExt::set_mode(&mut permissions, 0o600);
+    fs::set_permissions(&input, permissions).unwrap();
+    let changed = fixture.run("plain_file_read");
+    assert!(deoptimized(&changed), "{}", stderr_of(&changed));
+}
+
+#[test]
+fn removing_a_dependency_deoptimizes() {
+    let fixture = Fixture::new();
+    fixture.acquire("plain_file_read");
+    fs::remove_file(fixture.input("input.txt")).unwrap();
+    let changed = fixture.run("plain_file_read");
+    assert!(deoptimized(&changed), "{}", stderr_of(&changed));
+}
+
+#[test]
+fn an_absence_guard_reports_a_file_that_appeared() {
+    let fixture = Fixture::new();
+    fs::remove_file(fixture.input("input.txt")).unwrap();
+    let args = [
+        "run",
+        "--",
+        fixture.binary_arg(),
+        "plain_file_read",
+        fixture.root(),
+    ];
+    let first = invoke(&fixture.cache, &args, None);
+    // The fixture exits 91 because its input is missing; the trace records the absence.
+    assert_eq!(first.status.code(), Some(91), "{}", stderr_of(&first));
+    assert!(
+        String::from_utf8_lossy(&first.stderr).contains("classified     GUARDED"),
+        "{}",
+        stderr_of(&first)
+    );
+    let second = invoke(&fixture.cache, &args, None);
+    assert!(hit(&second), "{}", stderr_of(&second));
+    fs::write(fixture.input("input.txt"), b"input one\n").unwrap();
+    let third = invoke(&fixture.cache, &args, None);
+    assert!(deoptimized(&third), "{}", stderr_of(&third));
+}
+
+#[test]
+fn child_process_dependency_change_deoptimizes() {
+    let fixture = Fixture::new();
+    fixture.acquire("child_file_dependency");
+    fs::write(fixture.input("input.txt"), b"mutated\n").unwrap();
+    let changed = fixture.run("child_file_dependency");
+    assert!(deoptimized(&changed), "{}", stderr_of(&changed));
+}
+
+#[test]
+fn executed_interpreter_change_deoptimizes() {
+    let fixture = Fixture::new();
+    fixture.acquire("script_dependency");
+    let interpreter = fixture.input("fixture-interpreter");
+    let mut bytes = fs::read(&interpreter).unwrap();
+    bytes.extend_from_slice(&[0_u8; 64]);
+    fs::write(&interpreter, bytes).unwrap();
+    let changed = fixture.run("script_dependency");
+    assert!(deoptimized(&changed), "{}", stderr_of(&changed));
+}
+
+#[test]
+fn working_directory_change_is_a_miss() {
+    let fixture = Fixture::new();
+    fixture.acquire("plain_file_read");
+    let other = tempfile::tempdir().unwrap();
+    let output = Command::new(tracejit())
+        .args([
+            "run",
+            "--",
+            fixture.binary_arg(),
+            "plain_file_read",
+            fixture.root(),
+        ])
+        .env("TRACEJIT_CACHE_DIR", &fixture.cache)
+        .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0")
+        .current_dir(other.path())
+        .output()
+        .unwrap();
+    assert!(missed(&output) && !hit(&output), "{}", stderr_of(&output));
+}
+
+#[test]
+fn concurrent_identical_runs_neither_fail_nor_reuse_unsafely() {
+    let fixture = Fixture::new();
+    for output in spawn_same_command(&fixture, "plain_file_read") {
+        assert!(
+            output.status.success(),
+            "a concurrent run failed:\n{}",
+            stderr_of(&output)
+        );
+    }
+    let final_run = fixture.run("plain_file_read");
+    assert!(hit(&final_run), "{}", stderr_of(&final_run));
+}
+
+#[test]
+fn concurrent_cache_reads_all_reuse_the_same_result() {
+    let fixture = Fixture::new();
+    fixture.acquire("stdout_only");
+    for output in spawn_same_command(&fixture, "stdout_only") {
+        assert!(output.status.success(), "{}", stderr_of(&output));
+        assert!(hit(&output), "{}", stderr_of(&output));
+        assert_eq!(output.stdout, b"stdout fixture\n");
+    }
+}
+
+#[test]
+fn a_symlinked_cache_root_is_refused() {
+    let fixture = Fixture::new();
+    let real = fixture.input("real-cache");
+    fs::create_dir(&real).unwrap();
+    let link = fixture.input("linked-cache");
+    std::os::unix::fs::symlink(&real, &link).unwrap();
+    let output = invoke(
+        &link,
+        &[
+            "run",
+            "--",
+            fixture.binary_arg(),
+            "plain_file_read",
+            fixture.root(),
+        ],
+        None,
+    );
+    assert!(!output.status.success());
+    assert!(
+        stderr_of(&output).contains("unsafe cache root"),
+        "{}",
+        stderr_of(&output)
+    );
+}
+
+#[test]
+fn a_corrupted_cached_output_fails_closed() {
+    let fixture = Fixture::new();
+    fixture.acquire("plain_file_read");
+    let output_file = fixture.input("output.txt");
+    let objects = fixture.cache.join("objects");
+    let captured = fs::read_dir(&objects)
+        .unwrap()
+        .filter_map(|entry| entry.ok())
+        .map(|entry| entry.path())
+        .find(|path| fs::read(path).unwrap_or_default() == b"input one\n")
+        .expect("the captured output object");
+    fs::write(&captured, b"tampered").unwrap();
+    fs::write(&output_file, b"user content\n").unwrap();
+    let run = fixture.run("plain_file_read");
+    assert!(
+        run.status.success(),
+        "a corrupt object should be retraced rather than making the command fatal:\n{}",
+        stderr_of(&run)
+    );
+    assert!(
+        !hit(&run),
+        "an object that failed verification must never be served:\n{}",
+        stderr_of(&run)
+    );
+    assert!(
+        !String::from_utf8_lossy(&run.stdout).contains("input one"),
+        "cached bytes must not be exposed when an object is corrupt"
+    );
+    let explanation = invoke(&fixture.cache, &["explain", "--json"], None);
+    let record: Value = serde_json::from_slice(&explanation.stdout).unwrap();
+    let reason = record["last_decision"]["reason"]
+        .as_str()
+        .unwrap_or_default();
+    assert!(
+        reason.contains("corrupt"),
+        "the recovery reason should name the corruption: {reason}"
+    );
+    // The corrupt object was replaced with content that matches its own hash, so the
+    // same command reuses the repaired record on the next run.
+    let repaired = fixture.run("plain_file_read");
+    assert!(
+        hit(&repaired),
+        "the repaired object should be reusable:\n{}",
+        stderr_of(&repaired)
+    );
+}
+
+#[test]
+fn a_self_killed_child_is_reported_and_never_reused() {
+    let fixture = Fixture::new();
+    let args = ["run", "--", "sh", "-c", "kill -9 $$"];
+    let first = invoke(&fixture.cache, &args, None);
+    assert_eq!(first.status.code(), Some(137), "{}", stderr_of(&first));
+    let second = invoke(&fixture.cache, &args, None);
+    assert!(!hit(&second), "{}", stderr_of(&second));
+}
