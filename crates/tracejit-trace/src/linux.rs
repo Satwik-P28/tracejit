@@ -235,6 +235,14 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
         .as_millis();
     let started = Instant::now();
     let mut command = Command::new(&request.executable);
+    // Exec the resolved path but keep the caller's argv[0] byte-for-byte. `resolve_executable`
+    // canonicalizes symlinks, and the kernel-visible argv[0] is observable: CPython derives its
+    // installation prefix, and therefore its module search path, from argv[0], so rewriting it to
+    // the canonical target makes a traced execution resolve a different installation than a direct
+    // execution of the same command line.
+    if let Some(program) = request.argv.first() {
+        command.arg0(program);
+    }
     if request.argv.len() > 1 {
         command.args(&request.argv[1..]);
     }

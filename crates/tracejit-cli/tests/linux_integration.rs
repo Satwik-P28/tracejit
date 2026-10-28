@@ -512,6 +512,53 @@ fn executed_interpreter_change_deoptimizes() {
 }
 
 #[test]
+fn traced_execution_preserves_the_caller_supplied_argv0() {
+    // argv[0] is observable. CPython picks its installation prefix, and therefore its module
+    // search path, from argv[0], so a traced run that rewrites it to the canonicalized target can
+    // import different packages than the same command run directly. Compare a symlinked shell's
+    // own view of $0 (which is argv[0]) between direct and traced execution.
+    let scratch = tempfile::tempdir().unwrap();
+    let link = scratch.path().join("sh-link");
+    std::os::unix::fs::symlink("/bin/sh", &link).unwrap();
+    let script = "printf '%s' \"$0\"";
+
+    let direct = Command::new(&link).args(["-c", script]).output().unwrap();
+    assert!(
+        direct.status.success(),
+        "direct execution of the link failed"
+    );
+    assert_eq!(direct.stdout, link.to_str().unwrap().as_bytes());
+
+    let cache = scratch.path().join("cache");
+    let traced = invoke(
+        &cache,
+        &["run", "--json", "--", link.to_str().unwrap(), "-c", script],
+        None,
+    );
+    assert!(traced.status.success(), "{}", stderr_of(&traced));
+    let report: Value = serde_json::from_slice(&traced.stdout).unwrap();
+    let child_stdout: Vec<u8> = report["stdout_bytes"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|byte| byte.as_u64().unwrap() as u8)
+        .collect();
+    assert_eq!(
+        report["exit_code"].as_i64(),
+        Some(0),
+        "traced child failed: {}",
+        String::from_utf8_lossy(&child_stdout)
+    );
+    assert_eq!(
+        child_stdout,
+        direct.stdout,
+        "traced execution changed argv[0]: direct {:?} versus traced {:?}",
+        String::from_utf8_lossy(&direct.stdout),
+        String::from_utf8_lossy(&child_stdout)
+    );
+}
+
+#[test]
 fn working_directory_change_is_a_miss() {
     let fixture = Fixture::new();
     fixture.acquire("plain_file_read");
