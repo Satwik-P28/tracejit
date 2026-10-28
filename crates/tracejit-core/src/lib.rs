@@ -253,6 +253,49 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
                             None,
                         );
                     }
+                    // A destination precondition can fail even though no dependency changed: a
+                    // hard link to an output, for example, is neither a recorded input nor an
+                    // input mutation, so no guard observes it. Refusing the cache entry is
+                    // correct, but aborting the command is not, because the identical command
+                    // line succeeds when it is simply executed again. `restore_outputs`
+                    // validates and stages before it mutates, so a precondition failure leaves
+                    // the workspace untouched and a retrace is safe.
+                    Err(error @ CacheError::OutputPrecondition { .. }) => {
+                        // D4 refuses to reconcile a *deletion* whose path changed shape, and that
+                        // refusal stays fatal: re-running such a command would act on the
+                        // substituted path instead of restoring a recorded absence. A refused
+                        // *replacement* is different, because re-executing rewrites the output
+                        // itself, which is exactly what the cache would have restored.
+                        let deletion = matches!(
+                            &error,
+                            CacheError::OutputPrecondition { path, .. }
+                                if candidate
+                                    .outputs
+                                    .iter()
+                                    .any(|output| output.path == *path && output.content.is_none())
+                        );
+                        if deletion {
+                            return Err(error.into());
+                        }
+                        candidate.last_decision = DecisionRecord {
+                            decision: CacheDecision::Deoptimized,
+                            reason: format!("{error}; retracing"),
+                            guard_failure: None,
+                            decided_unix_ms: now_unix_ms(),
+                        };
+                        cache.put_execution(&candidate)?;
+                        return execute_and_store(
+                            prepared,
+                            cache,
+                            lookup_key,
+                            Some(guards),
+                            Some(
+                                "a cached output precondition failed; the execution was retraced"
+                                    .into(),
+                            ),
+                            None,
+                        );
+                    }
                     Err(error) => return Err(error.into()),
                 }
             }

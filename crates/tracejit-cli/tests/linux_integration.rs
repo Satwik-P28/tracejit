@@ -687,3 +687,107 @@ fn a_self_killed_child_is_reported_and_never_reused() {
     let second = invoke(&fixture.cache, &args, None);
     assert!(!hit(&second), "{}", stderr_of(&second));
 }
+
+#[test]
+fn a_hard_linked_output_retraces_instead_of_aborting() {
+    // A hard link is neither a recorded dependency nor an input mutation, so no guard sees it.
+    // The stricter deletion/replacement preconditions added in Phase 1 therefore refuse the
+    // entry at restore time, and refusing must not turn into failing a command that succeeds
+    // when it is simply run again.
+    let fixture = Fixture::new();
+    // The first run records the workspace, the second re-records against the state the first one
+    // left behind, so no guard is failing by the time the link is added.
+    let recorded = fixture.run("rename_output");
+    assert!(recorded.status.success(), "{}", stderr_of(&recorded));
+    let settled = fixture.run("rename_output");
+    assert!(settled.status.success(), "{}", stderr_of(&settled));
+    let output = Path::new(fixture.root()).join("second.txt");
+    assert!(
+        output.is_file(),
+        "the traced run produced no output to link"
+    );
+    fs::hard_link(&output, Path::new(fixture.root()).join("second-link.txt")).unwrap();
+    let retraced = fixture.run("rename_output");
+    assert!(
+        retraced.status.success(),
+        "a hard-linked output aborted the command instead of retracing: {}",
+        stderr_of(&retraced)
+    );
+    assert!(
+        missed(&retraced) && !hit(&retraced),
+        "the refused entry was not reported as a miss: {}",
+        stderr_of(&retraced)
+    );
+    assert_eq!(
+        retraced.stdout, settled.stdout,
+        "retracing after a refused restoration changed stdout"
+    );
+}
+
+#[test]
+fn a_traced_script_sees_the_callers_script_path() {
+    // The kernel passes the execve path to a script's interpreter, so exec'ing the canonical
+    // target handed `$0` an absolute path where a direct `./script` invocation handed it the
+    // relative one. Scripts that derive a path from `$0` observe the difference.
+    let temporary = tempfile::tempdir().unwrap();
+    let script = temporary.path().join("echo-zero.sh");
+    fs::write(&script, "#!/bin/sh\necho \"zero=$0\"\n").unwrap();
+    let mut permissions = fs::metadata(&script).unwrap().permissions();
+    std::os::unix::fs::PermissionsExt::set_mode(&mut permissions, 0o700);
+    fs::set_permissions(&script, permissions).unwrap();
+    let direct = Command::new("./echo-zero.sh")
+        .current_dir(temporary.path())
+        .output()
+        .unwrap();
+    assert!(direct.status.success(), "the direct run itself failed");
+    let traced = Command::new(tracejit())
+        .args(["run", "--", "./echo-zero.sh"])
+        .current_dir(temporary.path())
+        .env("TRACEJIT_CACHE_DIR", temporary.path().join("cache"))
+        .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0")
+        .output()
+        .unwrap();
+    assert!(
+        traced.status.success(),
+        "traced script run failed: {}",
+        String::from_utf8_lossy(&traced.stderr)
+    );
+    assert!(
+        String::from_utf8_lossy(&traced.stdout).contains("zero=./echo-zero.sh"),
+        "a traced script saw a different $0 than a direct run; direct {:?} traced {:?}",
+        String::from_utf8_lossy(&direct.stdout),
+        String::from_utf8_lossy(&traced.stdout)
+    );
+}
+
+#[test]
+fn corrupted_objects_are_repaired_and_reuse_resumes() {
+    let fixture = Fixture::new();
+    fixture.acquire("stdout_only");
+    let reused = fixture.run("stdout_only");
+    assert!(hit(&reused), "{}", stderr_of(&reused));
+    let objects = fixture.cache.join("objects");
+    let mut corrupted = 0;
+    for entry in fs::read_dir(&objects).unwrap() {
+        let path = entry.unwrap().path();
+        fs::write(&path, b"tampered").unwrap();
+        corrupted += 1;
+    }
+    assert!(corrupted > 0, "no content-addressed object to corrupt");
+    let recovered = fixture.run("stdout_only");
+    assert!(
+        recovered.status.success(),
+        "corruption aborted the command: {}",
+        stderr_of(&recovered)
+    );
+    assert_eq!(
+        recovered.stdout, b"stdout fixture\n",
+        "the retrace produced different stdout than the cached record"
+    );
+    let again = fixture.run("stdout_only");
+    assert!(
+        hit(&again),
+        "reuse did not resume after the objects were repaired: {}",
+        stderr_of(&again)
+    );
+}
