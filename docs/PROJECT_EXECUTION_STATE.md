@@ -36,13 +36,17 @@ Compatibility census at `b57bc7f` (nine fixed workloads, same denominator as Pha
 `clock` (4 workloads), `randomness` (4), `process_identity` (3), pipe short-read-then-more (3),
 `fstat` on a pipe (2), `getrusage` (2), `epoll_create1` (1), `/dev/null` as output (1).
 
-Benchmarks: **NOT RE-RUN for this commit.** The Phase 1.5 numbers (baseline 8.34 ms, cold 19.0 ms,
-hit 3.97 ms, 2.10x) describe an earlier tree and must not be quoted here. Command:
+Benchmarks at `9571772` (code identical to `b57bc7f`), one session, 50 runs / 10 warmups, clean tree:
+baseline median 8.366 ms (p95 8.491), traced cold 21.089 ms (p95 33.461), guard validation
+1.671 ms, cached end-to-end 4.043 ms (p95 4.512), **2.069x**, 4.3 ms saved per hit, ~4.0 hits to
+repay a cold trace, output equivalence PASS, mutation/deopt PASS. Raw:
+`benchmarks/results/phase2b/native/`. Phase 1.5 measured 8.34/19.02/3.97 ms and 2.10x; the hit path
+for this workload is unchanged in code and the cold sample's own standard deviation is 4.25 ms, so
+no regression is claimed — **a second session is required** before any performance statement about
+this commit. See `docs/audits/PHASE2B_FINAL_BENCHMARKS.md`.
 
-```bash
-python3 benchmarks/harness/benchmark.py --runs 50 --warmups 10 \
-  --output-dir benchmarks/results/phase2b/native
-```
+Remaining missing data: no second benchmark session, no break-even sweep at this commit (`benchmark.py`
+only), and no competitive comparison (Firebuild, ccache, Incr are not installed here).
 
 ## Known safety limitations
 
