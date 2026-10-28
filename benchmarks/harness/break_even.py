@@ -68,13 +68,17 @@ def percentile_95(values: list[int]) -> int:
 
 
 def summarize(values: list[int]) -> dict[str, object]:
+    median = statistics.median(values)
+    deviation = statistics.pstdev(values)
     return {
         "runs": len(values),
-        "median_ns": int(statistics.median(values)),
+        "median_ns": int(median),
         "p95_ns": percentile_95(values),
         "minimum_ns": min(values),
         "maximum_ns": max(values),
-        "standard_deviation_ns": statistics.pstdev(values),
+        "standard_deviation_ns": deviation,
+        # Explicit noise measure, so a sampling artifact cannot be read as a speedup.
+        "relative_standard_deviation": (deviation / median) if median else None,
         "samples_ns": values,
     }
 
@@ -82,6 +86,37 @@ def summarize(values: list[int]) -> dict[str, object]:
 def text_command(command: list[str]) -> str:
     completed = subprocess.run(command, cwd=ROOT, text=True, capture_output=True, check=True)
     return (completed.stdout + completed.stderr).strip()
+
+
+def repository_snapshot() -> dict[str, str]:
+    """Tracked and untracked repository state, so the harness can report any mutation."""
+    completed = subprocess.run(
+        ["git", "status", "--porcelain", "--untracked-files=all"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    return {
+        line[3:]: line[:2] for line in completed.stdout.splitlines() if len(line) > 3
+    }
+
+
+def write_results(output_dir: Path, result: dict[str, object]) -> None:
+    """Writes the rolling report plus an immutable commit-stamped copy.
+
+    A rerun at another commit writes a new `commit-<sha>` directory instead of
+    replacing the numbers a previous commit produced.
+    """
+    report = markdown(result)
+    encoded = json.dumps(result, indent=2) + "\n"
+    (output_dir / "break-even.json").write_text(encoded)
+    (output_dir / "break-even.md").write_text(report)
+    stamp = str(result["commit"]) + ("-dirty" if result.get("working_tree_dirty") else "")
+    stamped = output_dir / f"commit-{stamp}"
+    stamped.mkdir(parents=True, exist_ok=True)
+    (stamped / "break-even.json").write_text(encoded)
+    (stamped / "break-even.md").write_text(report)
 
 
 def environment() -> dict[str, object]:
@@ -260,8 +295,7 @@ def compile_binary(source: Path, binary: Path) -> None:
     checked(["cc", "-O2", "-Wall", "-Wextra", "-Werror", str(source), "-o", str(binary)], os.environ.copy())
 
 
-def calibrate(binary: Path, env: dict[str, str]) -> dict[str, object]:
-    output = ROOT / "benchmarks" / "workloads" / "sweep" / "output" / "calibration.txt"
+def calibrate(binary: Path, env: dict[str, str], output: Path) -> dict[str, object]:
     command = [str(binary), "5000000", str(output)]
     samples = [timed(command, env)[0] for _ in range(5)]
     median = int(statistics.median(samples))
@@ -459,12 +493,26 @@ def main() -> None:
     parser.add_argument("--warmups", type=int, default=5)
     parser.add_argument("--tracejit", default=str(ROOT / "target" / "release" / "tracejit"))
     parser.add_argument("--output-dir", default=str(ROOT / "benchmarks" / "results"))
+    parser.add_argument(
+        "--scratch-dir",
+        default=None,
+        help="Directory for workload outputs. Defaults to a fresh temporary directory so the "
+        "repository is never used as workload scratch space.",
+    )
     args = parser.parse_args()
     tracejit = Path(args.tracejit).resolve()
     if not tracejit.is_file():
         parser.error(f"TraceJIT binary not found: {tracejit}")
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+    initial_repository_state = repository_snapshot()
+    if args.scratch_dir:
+        scratch = Path(args.scratch_dir).resolve()
+        scratch.mkdir(parents=True, exist_ok=True)
+        scratch_temporary = None
+    else:
+        scratch_temporary = tempfile.TemporaryDirectory(prefix="tracejit-sweep-")
+        scratch = Path(scratch_temporary.name)
     env = base_env()
     sweep_binary = ROOT / "benchmarks" / "workloads" / "sweep" / "sweep"
     transform_binary = ROOT / "benchmarks" / "workloads" / "c-transform" / "transform"
@@ -472,11 +520,11 @@ def main() -> None:
     compile_binary(ROOT / "benchmarks" / "workloads" / "sweep" / "main.c", sweep_binary)
     compile_binary(ROOT / "benchmarks" / "workloads" / "c-transform" / "main.c", transform_binary)
     compile_binary(ROOT / "benchmarks" / "workloads" / "c-etl" / "main.c", etl_binary)
-    calibration = calibrate(sweep_binary, env)
+    calibration = calibrate(sweep_binary, env, scratch / "calibration.txt")
     sweep = []
     for target in TARGETS_NS:
         rounds = rounds_for(float(calibration["ns_per_round"]), target)
-        output = ROOT / "benchmarks" / "workloads" / "sweep" / "output" / f"{target}.txt"
+        output = scratch / f"sweep-{target}.txt"
         row = measure_guarded(
             tracejit,
             [str(sweep_binary), str(rounds), str(output)],
@@ -536,8 +584,14 @@ def main() -> None:
         else:
             real.append(probed)
     python = classify(tracejit, ["python3", "benchmarks/workloads/python-etl/main.py"], env)
+    if scratch_temporary is not None:
+        scratch_temporary.cleanup()
     result = {
         "commit": text_command(["git", "rev-parse", "HEAD"]),
+        "working_tree_dirty": bool(text_command(["git", "status", "--porcelain"])),
+        "repository_changes_during_run": sorted(
+            path for path in repository_snapshot() if path not in initial_repository_state
+        ),
         "environment": environment(),
         "calibration": calibration,
         "daemon": {
@@ -557,8 +611,7 @@ def main() -> None:
         "python": python,
         "kept_negative_result": "benchmarks/results/latest.md",
     }
-    (output_dir / "break-even.json").write_text(json.dumps(result, indent=2) + "\n")
-    (output_dir / "break-even.md").write_text(markdown(result))
+    write_results(output_dir, result)
     print(result["break_even"]["statement"])
 
 

@@ -51,13 +51,17 @@ def percentile_95(values: list[int]) -> int:
 
 
 def summarize(values: list[int]) -> dict[str, object]:
+    median = statistics.median(values)
+    deviation = statistics.pstdev(values)
     return {
         "runs": len(values),
-        "median_ns": int(statistics.median(values)),
+        "median_ns": int(median),
         "p95_ns": percentile_95(values),
         "minimum_ns": min(values),
         "maximum_ns": max(values),
-        "standard_deviation_ns": statistics.pstdev(values),
+        "standard_deviation_ns": deviation,
+        # Explicit noise measure: runoff between repeated samples of one condition.
+        "relative_standard_deviation": (deviation / median) if median else None,
         "samples_ns": values,
     }
 
@@ -86,6 +90,37 @@ def text_command(command: list[str]) -> str:
         command, cwd=ROOT, text=True, capture_output=True, check=True
     )
     return (completed.stdout + completed.stderr).strip()
+
+
+def repository_snapshot() -> dict[str, str]:
+    """Tracked and untracked repository state, so the harness can report any mutation."""
+    completed = subprocess.run(
+        ["git", "status", "--porcelain", "--untracked-files=all"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    return {
+        line[3:]: line[:2] for line in completed.stdout.splitlines() if len(line) > 3
+    }
+
+
+def write_results(output_dir: Path, result: dict[str, object]) -> None:
+    """Writes the rolling report plus an immutable commit-stamped copy.
+
+    A rerun at another commit writes a new `commit-<sha>` directory instead of
+    replacing the numbers a previous commit produced.
+    """
+    report = markdown(result)
+    encoded = json.dumps(result, indent=2, sort_keys=True) + "\n"
+    (output_dir / "latest.json").write_text(encoded, encoding="utf-8")
+    (output_dir / "latest.md").write_text(report, encoding="utf-8")
+    stamp = str(result["commit"]) + ("-dirty" if result.get("working_tree_dirty") else "")
+    stamped = output_dir / f"commit-{stamp}"
+    stamped.mkdir(parents=True, exist_ok=True)
+    (stamped / "benchmark.json").write_text(encoded, encoding="utf-8")
+    (stamped / "benchmark.md").write_text(report, encoding="utf-8")
 
 
 def environment() -> dict[str, object]:
@@ -269,9 +304,16 @@ def markdown(result: dict[str, object]) -> str:
         lines.extend([f"### `{command}`", "", "```text", output, "```", ""])
     lines.extend(
         [
+            "",
+            "Every condition reports `relative_standard_deviation`, so run-to-run noise is visible next to each median rather than hidden behind it.",
+            "",
+            "## Repository mutation",
+            "",
+            f"Tracked or untracked paths that appeared during the run: `{result.get('repository_changes_during_run')}`. The workload writes only into its own `output/` directory and the compiled binary, both of which are ignored by Git, and the harness restores the input and output files it touched.",
+            "",
             "## Limitations",
             "",
-            "These measurements cover one small deterministic C ETL workload on one ephemeral GitHub-hosted runner. CPython is reported as a refusal, not as a speedup. They are not evidence of universal speedups, production readiness, or performance on other workloads or machines.",
+            "These measurements cover one small deterministic C ETL workload on one Linux x86_64 host. CPython is reported as a refusal, not as a speedup. They are not evidence of universal speedups, production readiness, or performance on other workloads or machines.",
             "",
         ]
     )
@@ -295,6 +337,7 @@ def main() -> None:
         parser.error(f"TraceJIT binary not found: {tracejit}")
     output_dir = Path(args.output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
+    initial_repository_state = repository_snapshot()
 
     env = os.environ.copy()
     # These are workload settings, not classifier exceptions. They stop CPython and glibc
@@ -439,6 +482,7 @@ def main() -> None:
 
         python_etl = python_probe(tracejit, env)
         commit = text_command(["git", "rev-parse", "HEAD"])
+        working_tree_dirty = bool(text_command(["git", "status", "--porcelain"]))
         tracing_overhead = (
             (traced_cold["median_ns"] - baseline["median_ns"])
             / baseline["median_ns"]
@@ -447,6 +491,7 @@ def main() -> None:
         speedup = baseline["median_ns"] / cached["median_ns"]
         result = {
             "commit": commit,
+            "working_tree_dirty": working_tree_dirty,
             "environment": environment(),
             "workload": "benchmarks/workloads/c-etl",
             "python_etl": python_etl,
@@ -465,10 +510,10 @@ def main() -> None:
             "output_equivalence": equivalence,
             "runs": {"warmups": args.warmups, "measured": args.runs},
         }
-        (output_dir / "latest.json").write_text(
-            json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        result["repository_changes_during_run"] = sorted(
+            path for path in repository_snapshot() if path not in initial_repository_state
         )
-        (output_dir / "latest.md").write_text(markdown(result), encoding="utf-8")
+        write_results(output_dir, result)
         print(json.dumps(result, indent=2, sort_keys=True))
     finally:
         INPUT.write_bytes(input_original)
