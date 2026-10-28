@@ -20,7 +20,14 @@ python3 benchmarks/realworld/census.py --runs 5 --warmups 1 \
   census does not mutate tracked files or workload outputs.
 - Tool-missing and workload-failed entries are recorded separately from a
   TraceJIT refusal. They are excluded from the eligibility rate, and the
-  denominator is stated explicitly in the output.
+  denominator is stated explicitly in the output. A tool that is *present but
+  lacking a required capability* — this host ships `groff` without its `html`
+  output device — is recorded the same way, with the reason, because it says
+  nothing about TraceJIT's compatibility.
+- When TraceJIT reports a workload as eligible but the harness cannot obtain a
+  hit, or an observation does not match the direct run, the record says so and
+  the process exits non-zero. An equivalence mismatch is never silently recorded
+  as a pass.
 - When TraceJIT reports a workload as eligible, the harness must obtain a real
   cache hit and compare exit status, stdout, stderr, and the hashes of every
   declared output file against a direct run. A mismatch fails the census.
@@ -37,7 +44,7 @@ python3 benchmarks/realworld/census.py --runs 5 --warmups 1 \
 | `python-csv-json` | python | CPython CSV to JSON aggregation with interpreter defaults. |
 | `python-csv-json-seeded` | python | The same with `PYTHONHASHSEED=0`. |
 | `awk-codegen` | codegen | `awk` generating a C header from a TSV schema. |
-| `groff-manpage-html` | documentation | `groff -Thtml -man` on a troff man page. |
+| `groff-manpage-html` | documentation | `groff -T<device> -man` on a troff man page, using the first installed output device (`html`, else `utf8`, else `ascii`). |
 | `pil-image-transform` | image | Grayscale, posterize, and downsample a PNG with Pillow. |
 | `cc-syntax-only-lint` | lint | `cc -fsyntax-only -Wall -Wextra -Werror` over the C fixture. |
 
@@ -45,7 +52,9 @@ Tools that were probed and were not present on the census host are listed in
 `census.json` under `blocked_missing_tool` with the tool names. Where a common
 tool for a category was absent (`pandoc`, ImageMagick, `m4`, `bison`, `flex`,
 `clang`, `shellcheck`, `cppcheck`), the workload uses an available equivalent and
-says so, instead of silently dropping the category.
+says so, instead of silently dropping the category. Where the available tool
+itself lacks a capability (`groff` without `-Thtml`), the missing capability is
+recorded instead of the workload failing.
 
 ## Output
 

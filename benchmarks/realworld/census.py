@@ -42,20 +42,48 @@ WORKLOAD_DIR = Path(__file__).resolve().parent / "workloads"
 UNMODELED_SYSCALL = re.compile(r"unmodeled (?:successful |failed )?syscall (\d+)")
 
 # Categories are derived only from text TraceJIT itself emitted. They are a
-# reporting convenience, not a classifier.
+# reporting convenience, not a classifier. Order matters: the first matching
+# needle wins, so the more specific phrases come first.
 REASON_CATEGORIES = [
-    ("access_check", "successful access() check cannot be guarded exactly"),
-    ("procfs_process_relative", "process-relative procfs path dependency"),
-    ("unclassified_fd", "I/O on a descriptor the tracer could not classify"),
-    ("unhashable_open", "opened dependency cannot be hashed or guarded"),
-    ("directory_output", "output is not a restorable regular file"),
-    ("randomness", "observed randomness"),
-    ("process_identity", "observed process identity"),
-    ("clock", "observed clock read"),
-    ("network", "observed network effect"),
-    ("signal", "observed signal"),
-    ("system_information", "observed mutable system information"),
+    ("access_check_not_guardable", "access check cannot be guarded"),
+    ("procfs_process_relative", "process-relative procfs"),
+    ("unclassified_descriptor", "unclassified fd"),
+    ("unhashable_open", "opened dependency cannot be guarded"),
+    ("unrestorable_output", "cannot be restored"),
+    ("failed_descriptor_operation", "failed fd operation"),
+    ("randomness", "randomness"),
+    ("process_identity", "process identity"),
+    ("clock", "clock"),
+    ("network", "network"),
+    ("signal", "signal"),
+    ("system_information", "system information"),
+    ("unguardable_metadata", "cannot be guarded"),
 ]
+
+
+class WorkloadUnavailable(Exception):
+    """Raised when a workload's tool exists but lacks a required capability.
+
+    This is reported separately from a TraceJIT refusal, exactly like a wholly
+    missing tool, because it says nothing about TraceJIT's compatibility.
+    """
+
+
+def groff_document_device(scratch: Path) -> str:
+    """Returns an installed groff output device, or raises WorkloadUnavailable."""
+    probe = scratch / "device-probe.1"
+    probe.write_text(".TH P 1\n.SH NAME\np \\- probe\n", encoding="utf-8")
+    for device in ("html", "utf8", "ascii"):
+        completed = subprocess.run(
+            ["groff", f"-T{device}", "-man", str(probe)],
+            capture_output=True,
+            check=False,
+        )
+        if completed.returncode == 0 and completed.stdout:
+            return device
+    raise WorkloadUnavailable(
+        "groff is installed but no html/utf8/ascii output device is available"
+    )
 
 
 def now_ns() -> int:
@@ -247,7 +275,12 @@ def workloads(fixture_source: Path) -> list[Workload]:
         return ["cc", "-O2", "-Wall", "-Wextra", "-c", str(data["source"]), "-o", str(scratch / "source.o")]
 
     def docs(scratch: Path, data: dict[str, Path]) -> list[str]:
-        return ["sh", "-c", f"groff -Thtml -man {data['manpage']} > {scratch / 'census.html'}"]
+        device = groff_document_device(scratch)
+        return [
+            "sh",
+            "-c",
+            f"groff -T{device} -man {data['manpage']} > {scratch / 'census.out'}",
+        ]
 
     def image(scratch: Path, data: dict[str, Path]) -> list[str]:
         return [sys.executable, str(WORKLOAD_DIR / "image_transform.py"), str(data["png"]), str(scratch / "transformed.png")]
@@ -309,9 +342,9 @@ def workloads(fixture_source: Path) -> list[Workload]:
             "groff-manpage-html",
             "documentation",
             ["groff", "sh"],
-            "Converts a troff man page to HTML with groff, the documentation converter available here.",
+            "Converts a troff man page with the first installed groff output device (html, then utf8, then ascii).",
             docs,
-            outputs=["census.html"],
+            outputs=["census.out"],
         ),
         Workload(
             "pil-image-transform",
@@ -409,7 +442,12 @@ def census_workload(
     scratch = scratch_root / workload.name
     scratch.mkdir(parents=True, exist_ok=True)
     data = setup_scratch(scratch)
-    command = workload.command_factory(scratch, data)
+    try:
+        command = workload.command_factory(scratch, data)
+    except WorkloadUnavailable as error:
+        record["status"] = "blocked_missing_tool"
+        record["missing_tools"] = [f"{workload.category} converter capability: {error}"]
+        return record
     cwd = ROOT if workload.cwd_kind == "repo" else scratch
     outputs = [scratch / name for name in workload.output_names]
     for path in outputs:
@@ -468,7 +506,12 @@ def census_workload(
     if not report.get("eligible_for_reuse"):
         record["status"] = "refused"
         record["hit_obtained"] = False
-        record["blockers"] = sorted({categorize(reason) for reason in (report.get("reasons") or [])})
+        categorized: dict[str, int] = {}
+        for reason in report.get("reasons") or []:
+            category = categorize(reason)
+            categorized[category] = categorized.get(category, 0) + 1
+        record["reason_counts"] = dict(sorted(categorized.items()))
+        record["blockers"] = sorted(categorized)
         record["unsupported_syscalls"] = sorted(
             {
                 int(match.group(1))
@@ -522,6 +565,7 @@ def census_workload(
     record["speedup"] = int(record["direct"]["median_ns"]) / int(record["cache_hit"]["median_ns"])  # type: ignore[index]
     record["time_saved_ns"] = int(record["direct"]["median_ns"]) - int(record["cache_hit"]["median_ns"])  # type: ignore[index]
     record["status"] = "reused"
+    record["reason_counts"] = {}
     record["blockers"] = []
     record["unsupported_syscalls"] = []
     record["unsupported_syscall_names"] = []
@@ -555,26 +599,31 @@ def aggregate(records: list[dict[str, object]]) -> dict[str, object]:
     blocked = [record for record in attempted if record["status"] in ("refused", "workload_failed")]
 
     syscall_histogram: dict[str, dict[str, object]] = {}
-    category_histogram: dict[str, list[str]] = {}
+    category_histogram: dict[str, dict[str, object]] = {}
     for record in blocked:
         for number, name in zip(record.get("unsupported_syscalls") or [], record.get("unsupported_syscall_names") or []):
             entry = syscall_histogram.setdefault(str(number), {"number": number, "name": name, "workloads": []})
             entry["workloads"].append(record["name"])
-        for blocker in record.get("blockers") or []:
-            if blocker.startswith("unmodeled_syscall"):
+        for category, occurrences in (record.get("reason_counts") or {}).items():
+            if category.startswith("unmodeled_syscall"):
                 continue
-            category_histogram.setdefault(blocker, []).append(record["name"])
+            entry = category_histogram.setdefault(
+                category, {"workloads": set(), "occurrences": 0}
+            )
+            entry["workloads"].add(record["name"])
+            entry["occurrences"] += occurrences
 
     ranking = sorted(
         (
             {
                 "blocker": blocker,
-                "workloads": sorted(set(names)),
-                "count": len(set(names)),
+                "workloads": sorted(entry["workloads"]),
+                "count": len(entry["workloads"]),
+                "occurrences": entry["occurrences"],
             }
-            for blocker, names in category_histogram.items()
+            for blocker, entry in category_histogram.items()
         ),
-        key=lambda entry: (-entry["count"], entry["blocker"]),
+        key=lambda entry: (-entry["count"], -entry["occurrences"], entry["blocker"]),
     )
     syscall_ranking = sorted(
         (
@@ -665,9 +714,17 @@ def markdown(result: dict[str, object]) -> str:
                 ]
             ).strip()
         )
-    lines.extend(["", "## Blocker ranking", "", "| Blocker | Workloads blocked |", "| --- | ---: |"])
+    lines.extend(
+        [
+            "",
+            "## Blocker ranking",
+            "",
+            "| Blocker | Workloads blocked | Total occurrences |",
+            "| --- | ---: | ---: |",
+        ]
+    )
     for entry in result["aggregate"]["blocker_ranking"]:
-        lines.append(f"| {entry['blocker']} | {entry['count']} |")
+        lines.append(f"| {entry['blocker']} | {entry['count']} | {entry['occurrences']} |")
     lines.extend(["", "### Unmodeled syscalls", "", "| Syscall | Name | Workloads blocked |", "| ---: | --- | ---: |"])
     for entry in result["aggregate"]["unmodeled_syscall_ranking"]:
         lines.append(f"| {entry['syscall']} | {entry['name']} | {entry['count']} |")
