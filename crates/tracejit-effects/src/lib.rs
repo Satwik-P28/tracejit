@@ -96,6 +96,7 @@ impl Effect {
             | Self::Read(ReadEffect::FileMetadata(_))
             | Self::Read(ReadEffect::SymlinkMetadata(_))
             | Self::Read(ReadEffect::Symlink(_))
+            | Self::Read(ReadEffect::Access(_))
             | Self::Read(ReadEffect::Environment(_))
             | Self::Read(ReadEffect::WorkingDirectory)
             | Self::Read(ReadEffect::KernelState(KernelStateRead::Hostname))
@@ -164,6 +165,7 @@ pub enum ReadEffect {
     FileMetadata(FileMetadataRead),
     SymlinkMetadata(FileMetadataRead),
     Symlink(SymlinkRead),
+    Access(AccessCheck),
     Environment(EnvironmentRead),
     WorkingDirectory,
     Clock(ClockKind),
@@ -257,6 +259,25 @@ pub struct FileMetadataRead {
 pub struct SymlinkRead {
     pub path: PathBuf,
     pub target: Option<PathBuf>,
+}
+
+/// A recorded permission check, stored verbatim so it can be re-evaluated instead of
+/// approximated.
+///
+/// `access(2)` reports only success or an `errno`, and that answer depends on the caller's real
+/// or effective credentials, every directory traversed on the way, POSIX ACLs, and mount
+/// options. No content or metadata fingerprint reproduces it exactly, so the call itself is
+/// kept and replayed as a predicate: reuse is allowed only when the kernel gives the same
+/// answer now. The call has no side effects (it does not update `atime`), which is what makes
+/// re-evaluation a valid guard rather than a second execution.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct AccessCheck {
+    pub path: PathBuf,
+    pub mode: i32,
+    /// `AT_EACCESS` and `AT_SYMLINK_NOFOLLOW` are semantically significant and are preserved.
+    pub flags: i32,
+    /// `None` when the check succeeded, otherwise the exact `errno` the program observed.
+    pub errno: Option<i32>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -428,6 +449,12 @@ pub enum InputDependency {
         path: PathBuf,
         target: Option<PathBuf>,
     },
+    Access {
+        path: PathBuf,
+        mode: i32,
+        flags: i32,
+        errno: Option<i32>,
+    },
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -516,6 +543,7 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
     let mut metadata = BTreeMap::new();
     let mut symlink_metadata = BTreeMap::new();
     let mut symlinks = BTreeMap::new();
+    let mut access = BTreeMap::<(PathBuf, i32, i32), Option<i32>>::new();
     for record in effects {
         match &record.effect {
             Effect::Read(ReadEffect::File(read))
@@ -551,6 +579,13 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
                 symlinks
                     .entry(read.path.clone())
                     .or_insert(read.target.clone());
+            }
+            Effect::Read(ReadEffect::Access(check))
+                if precedes_first_write(&first_writes, &check.path, record.sequence) =>
+            {
+                access
+                    .entry((check.path.clone(), check.mode, check.flags))
+                    .or_insert(check.errno);
             }
             Effect::Control(ControlEffect::Exec(exec)) => {
                 if let Some(hash) = exec.hash {
@@ -601,6 +636,14 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
             .into_iter()
             .map(|(path, target)| InputDependency::Symlink { path, target }),
     );
+    dependencies.extend(access.into_iter().map(|((path, mode, flags), errno)| {
+        InputDependency::Access {
+            path,
+            mode,
+            flags,
+            errno,
+        }
+    }));
     dependencies
 }
 

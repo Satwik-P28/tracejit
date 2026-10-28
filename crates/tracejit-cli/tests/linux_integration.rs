@@ -791,3 +791,47 @@ fn corrupted_objects_are_repaired_and_reuse_resumes() {
         stderr_of(&again)
     );
 }
+
+/// A recorded permission check must be replayed, not approximated: the second run reuses, and
+/// creating the probed file must deoptimize to exactly the answer a direct run gives.
+#[test]
+fn access_check_is_replayed_as_a_predicate() {
+    let temporary = tempfile::tempdir().unwrap();
+    workspace(temporary.path());
+    let binary = compile_fixture(temporary.path());
+    let cache = temporary.path().join("cache");
+    let args = [
+        "run",
+        "--",
+        binary.to_str().unwrap(),
+        "access_check",
+        temporary.path().to_str().unwrap(),
+    ];
+
+    let first = invoke(&cache, &args, None);
+    assert!(
+        first.status.success(),
+        "{}",
+        String::from_utf8_lossy(&first.stderr)
+    );
+
+    let second = invoke(&cache, &args, None);
+    let stderr = String::from_utf8_lossy(&second.stderr);
+    assert!(stderr.contains("cache          HIT"), "{stderr}");
+    assert_eq!(second.status.code(), Some(0));
+
+    fs::write(temporary.path().join("probe-absent.txt"), b"now present").unwrap();
+    let third = invoke(&cache, &args, None);
+    let stderr = String::from_utf8_lossy(&third.stderr);
+    // A failed guard deoptimizes and retraces; it must never report a hit.
+    assert!(
+        stderr.contains("cache          DEOPT"),
+        "stale reuse after the probed file appeared: {stderr}"
+    );
+    assert_eq!(
+        third.status.code(),
+        Some(2),
+        "replayed answer must match a direct run"
+    );
+    eprintln!("RESULT access_predicate PASS");
+}

@@ -417,6 +417,9 @@ fn input_dependency_line(dependency: &InputDependency) -> String {
                 .unwrap_or_else(|| "(absent)".into());
             format!("LINK  {} -> {shown}", path.display())
         }
+        InputDependency::Access { path, mode, .. } => {
+            format!("ACCESS {} (mode {mode:#x})", path.display())
+        }
     }
 }
 
@@ -435,6 +438,9 @@ fn guard_line(guard: &Guard) -> String {
         Guard::FileMetadata { path, .. } => format!("file metadata {}", path.display()),
         Guard::SymlinkTarget { path, .. } => format!("symlink target {}", path.display()),
         Guard::SymlinkMetadata { path, .. } => format!("symlink metadata {}", path.display()),
+        Guard::AccessCheck { path, mode, .. } => {
+            format!("access check {} (mode {mode:#x})", path.display())
+        }
         Guard::EnvironmentValue { key, .. } => {
             format!("environment key {}", key.to_string_lossy())
         }

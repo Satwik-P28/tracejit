@@ -85,6 +85,8 @@ enum PendingSyscall {
     InheritedTerminalProbe,
     Access {
         path: PathBuf,
+        mode: i32,
+        flags: i32,
     },
     Chdir {
         path: PathBuf,
@@ -254,6 +256,26 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
             (fs::canonicalize(&absolute).ok()? == request.executable).then(|| named.to_path_buf())
         })
         .unwrap_or_else(|| request.executable.clone());
+    // The lookup key was built from a hash taken before tracing started. If the path now resolves
+    // to a different file, this run's profile would be filed under the identity of an executable
+    // that did not produce it, which is the one way this design could record a result under the
+    // wrong identity. Re-check immediately before exec and fail closed instead. This narrows the
+    // window to the gap between this check and `execve`; it does not close it, because the kernel
+    // resolves the path again when it execs.
+    if let Some(expected) = request.expected_executable_hash {
+        let actual = hash_file(&executable_path).map_err(|error| {
+            TraceError::ExecutableChanged(format!(
+                "could not re-verify {} before execution: {error}",
+                executable_path.display()
+            ))
+        })?;
+        if actual != expected {
+            return Err(TraceError::ExecutableChanged(format!(
+                "{} changed between identity construction and execution",
+                executable_path.display()
+            )));
+        }
+    }
     let mut command = Command::new(&executable_path);
     // Keep the caller's argv[0] byte-for-byte. `resolve_executable` canonicalizes symlinks, and
     // the kernel-visible argv[0] is observable: CPython derives its installation prefix, and
@@ -622,9 +644,18 @@ fn decode_entry(
         },
         libc::SYS_access => PendingSyscall::Access {
             path: resolve_path(pid, state, libc::AT_FDCWD, args[0])?,
+            mode: args[1] as i32,
+            flags: 0,
         },
         libc::SYS_faccessat => PendingSyscall::Access {
             path: resolve_path(pid, state, args[0] as i32, args[1])?,
+            mode: args[2] as i32,
+            flags: 0,
+        },
+        libc::SYS_faccessat2 => PendingSyscall::Access {
+            path: resolve_path(pid, state, args[0] as i32, args[1])?,
+            mode: args[2] as i32,
+            flags: args[3] as i32,
         },
         libc::SYS_fstat => state
             .fds
@@ -1198,15 +1229,14 @@ fn complete_syscall(
                 }),
             ),
         },
-        PendingSyscall::Access { path } => collector.push(
+        PendingSyscall::Access { path, mode, flags } => collector.push(
             pid,
-            Effect::Unknown(UnknownEffect {
-                syscall: Some(libc::SYS_access),
-                detail: format!(
-                    "successful access check cannot be guarded exactly: {}",
-                    path.display()
-                ),
-            }),
+            Effect::Read(ReadEffect::Access(tracejit_effects::AccessCheck {
+                path,
+                mode,
+                flags,
+                errno: None,
+            })),
         ),
         PendingSyscall::Chdir { path } => {
             state.cwd = path.clone();
@@ -1507,7 +1537,7 @@ fn complete_failed_syscall(
         PendingSyscall::Open { path, .. }
         | PendingSyscall::Metadata { path }
         | PendingSyscall::SymlinkMetadata { path }
-        | PendingSyscall::Access { path }
+        | PendingSyscall::Access { path, .. }
         | PendingSyscall::Chdir { path }
         | PendingSyscall::ExecAttempt { path }
             if errno == libc::ENOENT as i64 || errno == libc::ENOTDIR as i64 =>
@@ -1544,7 +1574,6 @@ fn complete_failed_syscall(
         }
         PendingSyscall::Open { path, .. }
         | PendingSyscall::Metadata { path }
-        | PendingSyscall::Access { path }
         | PendingSyscall::Chdir { path }
         | PendingSyscall::ExecAttempt { path }
         | PendingSyscall::Delete { path, .. }
@@ -1557,6 +1586,15 @@ fn complete_failed_syscall(
                     path.display()
                 ),
             }),
+        ),
+        PendingSyscall::Access { path, mode, flags } => collector.push(
+            pid,
+            Effect::Read(ReadEffect::Access(tracejit_effects::AccessCheck {
+                path,
+                mode,
+                flags,
+                errno: Some(errno as i32),
+            })),
         ),
         PendingSyscall::Rename { from, to, .. } => collector.push(
             pid,
@@ -2165,7 +2203,7 @@ fn pending_description(pending: &PendingSyscall) -> String {
         | PendingSyscall::SymlinkMetadata { path }
         | PendingSyscall::ReadLink { path }
         | PendingSyscall::TerminalProbe { path }
-        | PendingSyscall::Access { path }
+        | PendingSyscall::Access { path, .. }
         | PendingSyscall::Chdir { path }
         | PendingSyscall::ExecAttempt { path }
         | PendingSyscall::CreateDirectory { path }

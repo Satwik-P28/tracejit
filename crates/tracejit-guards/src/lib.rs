@@ -51,6 +51,17 @@ pub enum Guard {
         path: PathBuf,
         expected: FileFingerprint,
     },
+    /// A recorded permission check, replayed rather than approximated.
+    ///
+    /// The answer depends on credentials, path traversal, ACLs and mount options, none of which a
+    /// content or metadata fingerprint reproduces, so validation asks the kernel again and
+    /// requires the same success/`errno` answer.
+    AccessCheck {
+        path: PathBuf,
+        mode: i32,
+        flags: i32,
+        expected: Option<i32>,
+    },
     EnvironmentValue {
         key: OsString,
         expected: Option<OsString>,
@@ -433,6 +444,30 @@ impl Guard {
                     })
                 }
             }
+            Self::AccessCheck {
+                path,
+                mode,
+                flags,
+                expected,
+            } => {
+                let actual =
+                    evaluate_access(path, *mode, *flags).map_err(|reason| GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "access check could not be re-evaluated".into(),
+                        expected: describe_access(*expected),
+                        actual: reason,
+                    })?;
+                if &actual == expected {
+                    Ok(())
+                } else {
+                    Err(GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "access check result changed".into(),
+                        expected: describe_access(*expected),
+                        actual: describe_access(actual),
+                    })
+                }
+            }
             Self::NoUnexpectedEffects => Ok(()),
         }
     }
@@ -457,6 +492,57 @@ fn validate_executable(path: &Path) -> Result<(), String> {
     path.is_file()
         .then_some(())
         .ok_or_else(|| "executable is not a file".into())
+}
+
+#[cfg(unix)]
+fn evaluate_access(path: &Path, mode: i32, flags: i32) -> Result<Option<i32>, String> {
+    use std::os::unix::ffi::OsStrExt;
+
+    let path_bytes = std::ffi::CString::new(path.as_os_str().as_bytes())
+        .map_err(|_| "path contains a NUL byte".to_owned())?;
+    #[cfg(target_os = "linux")]
+    {
+        // SAFETY: path_bytes is a valid NUL-terminated string; faccessat2 does not retain it.
+        let answer = unsafe {
+            libc::syscall(
+                libc::SYS_faccessat2,
+                libc::AT_FDCWD,
+                path_bytes.as_ptr(),
+                mode,
+                flags,
+            )
+        };
+        if answer != -1 {
+            return Ok(None);
+        }
+        let error = io::Error::last_os_error();
+        if error.raw_os_error() == Some(libc::ENOSYS) && flags == 0 {
+            // Kernels before 5.8 lack faccessat2. Plain access(2) has exactly the real-credential
+            // semantics the tracer recorded for flags == 0, so the fallback is equivalent.
+            // SAFETY: path_bytes is a valid NUL-terminated string.
+            if unsafe { libc::access(path_bytes.as_ptr(), mode) } != -1 {
+                return Ok(None);
+            }
+            return Ok(Some(
+                io::Error::last_os_error()
+                    .raw_os_error()
+                    .unwrap_or(libc::EACCES),
+            ));
+        }
+        Ok(Some(error.raw_os_error().unwrap_or(libc::EACCES)))
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        let _ = (mode, flags);
+        Err("access checks are only replayed on Linux".into())
+    }
+}
+
+fn describe_access(result: Option<i32>) -> String {
+    match result {
+        None => "permitted".into(),
+        Some(errno) => format!("denied with errno {errno}"),
+    }
 }
 
 pub fn validate_all(guards: &[Guard], mode: GuardMode) -> GuardReport {
@@ -619,6 +705,17 @@ pub fn compile_guards(executable: PathBuf, identity: &ExecutionIdentity) -> Vec<
                 path: path.clone(),
                 expected: target.clone(),
             }),
+            InputDependency::Access {
+                path,
+                mode,
+                flags,
+                errno,
+            } => guards.push(Guard::AccessCheck {
+                path: path.clone(),
+                mode: *mode,
+                flags: *flags,
+                expected: *errno,
+            }),
         }
     }
     guards.push(Guard::NoUnexpectedEffects);
@@ -746,6 +843,39 @@ mod tests {
         let report = validate_all(&guards, GuardMode::Strict);
         assert_eq!(report.passed, 2);
         assert!(report.failure.is_none());
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn access_guard_replays_the_kernel_answer() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("probe");
+        fs::write(&path, b"x").unwrap();
+        let guard = Guard::AccessCheck {
+            path: path.clone(),
+            mode: libc::F_OK,
+            flags: 0,
+            expected: None,
+        };
+        assert!(guard.validate(GuardMode::Strict).is_ok());
+        fs::remove_file(&path).unwrap();
+        let failure = guard.validate(GuardMode::Strict).unwrap_err();
+        assert_eq!(failure.reason, "access check result changed");
+        assert!(failure.actual.contains(&libc::ENOENT.to_string()));
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn access_guard_keeps_a_recorded_denial_that_still_holds() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("absent");
+        let guard = Guard::AccessCheck {
+            path,
+            mode: libc::F_OK,
+            flags: 0,
+            expected: Some(libc::ENOENT),
+        };
+        assert!(guard.validate(GuardMode::Strict).is_ok());
     }
 
     #[cfg(unix)]

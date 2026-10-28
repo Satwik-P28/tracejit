@@ -44,6 +44,7 @@
   {"case":"interpreter_dependency","expected":"Guarded","eligible":true},
   {"case":"script_dependency","expected":"Guarded","eligible":true},
   {"case":"nonzero_exit","expected":"Guarded","eligible":true},
-  {"case":"stdout_only","expected":"Guarded","eligible":true},
-  {"case":"stderr_only","expected":"Guarded","eligible":true}
+  {"case":"stdout_only","expected":"Guarded","eligible":true},  {"case":"stderr_only","expected":"Guarded","eligible":true},
+  {"case":"access_check","expected":"Guarded","eligible":true},
+  {"case":"faccessat_check","expected":"Guarded","eligible":true}
 ]

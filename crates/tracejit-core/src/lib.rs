@@ -721,6 +721,7 @@ impl PreparedExecution {
             argv: self.command.clone(),
             cwd: self.cwd.clone(),
             environment: self.environment.clone(),
+            expected_executable_hash: Some(self.executable_hash),
             sandbox,
         }
     }
@@ -853,6 +854,14 @@ fn policy_from_record(record: &StoredExecution) -> Option<SandboxPolicy> {
                     return None;
                 }
                 readable.insert(path.clone());
+            }
+            // An access check may legitimately refer to a path that is absent: the recorded
+            // answer is then "denied", and the guard re-checks exactly that answer. The path is
+            // only made readable when it exists, so an absent probe adds nothing to the policy.
+            InputDependency::Access { path, .. } => {
+                if path.exists() {
+                    readable.insert(path.clone());
+                }
             }
         }
     }

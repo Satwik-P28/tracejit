@@ -10,6 +10,8 @@ pub enum TraceError {
     Unsupported(String),
     #[error("target binary not found: {0}")]
     TargetNotFound(PathBuf),
+    #[error("the executable changed between identity construction and execution: {0}")]
+    ExecutableChanged(String),
     #[error("could not start target: {0}")]
     Spawn(String),
     #[error("ptrace failed: {0}")]
@@ -26,6 +28,10 @@ pub struct TraceRequest {
     pub argv: Vec<OsString>,
     pub cwd: PathBuf,
     pub environment: BTreeMap<OsString, OsString>,
+    /// Hash of the executable sampled when the cache identity was built, re-verified
+    /// immediately before `exec` so a replaced path cannot file a result under an identity
+    /// that did not produce it.
+    pub expected_executable_hash: Option<tracejit_effects::Hash>,
     pub sandbox: Option<tracejit_sandbox::SandboxPolicy>,
 }
 

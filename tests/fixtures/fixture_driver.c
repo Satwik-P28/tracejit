@@ -331,6 +331,23 @@ int main(int argc, char **argv) {
     close(fd);
     return unlink(output);
   }
+  if (!strcmp(name, "access_check")) {
+    /* Both probes steer control flow: one reports a file that must be absent, the other a file
+       that must be readable. Neither writes, so only the recorded answers can invalidate it. */
+    char probe[4096];
+    join_path(probe, sizeof(probe), root, "probe-absent.txt");
+    if (access(probe, F_OK) == 0) return 2;
+    if (access(input, R_OK) != 0) return 3;
+    copy_file(input, output);
+    return 0;
+  }
+  if (!strcmp(name, "faccessat_check")) {
+    char probe[4096];
+    join_path(probe, sizeof(probe), root, "probe-absent.txt");
+    if (faccessat(AT_FDCWD, probe, F_OK, 0) == 0) return 2;
+    copy_file(input, output);
+    return 0;
+  }
   if (!strcmp(name, "nonzero_exit")) return 7;
   if (!strcmp(name, "stdout_only"))
     return write(STDOUT_FILENO, "stdout fixture\n", 15) != 15;
