@@ -153,7 +153,19 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
     let mark = Instant::now();
     let lookup_key = prepared.lookup_key()?;
     let lookup_key_ns = phase_elapsed(timing, mark);
-    let candidate = cache.find(lookup_key)?;
+    let (candidate, metadata_recovery) = match cache.find(lookup_key) {
+        Ok(candidate) => (candidate, None),
+        // A malformed metadata record is a cache-integrity failure, not a reason to refuse
+        // to run the command. It is treated as a miss so the execution is retraced and the
+        // record is rewritten, and no cached byte is exposed either way.
+        Err(CacheError::Serialization(error)) => (
+            None,
+            Some(format!(
+                "stored metadata record could not be decoded ({error}); the execution was retraced"
+            )),
+        ),
+        Err(error) => return Err(error.into()),
+    };
     let query = cache.last_query();
     let started = Instant::now();
     let mut phases = PhaseTimings {
@@ -175,38 +187,74 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
             let guards = validate_all(&candidate.guards, options.guard_mode);
             phases.guard_validation_ns = phase_elapsed(timing, mark);
             if guards.failure.is_none() {
+                // Outputs are staged and every object is verified before any destination is
+                // mutated, so a corrupt object stops here without changing the workspace.
                 let mark = Instant::now();
-                cache.restore_outputs(&candidate.outputs)?;
+                let restore = cache.restore_outputs(&candidate.outputs);
                 phases.cas_restore_ns = phase_elapsed(timing, mark);
                 let mark = Instant::now();
-                let stdout = cache.get_bytes(candidate.stdout)?;
-                let stderr = cache.get_bytes(candidate.stderr)?;
-                phases.stdio_replay_ns = phase_elapsed(timing, mark);
-                let runtime_ns = started.elapsed().as_nanos();
-                let persist_decision = candidate.last_decision.decision != CacheDecision::Reused;
-                candidate.last_decision = DecisionRecord {
-                    decision: CacheDecision::Reused,
-                    reason: "all guards passed and cached outputs were restored".into(),
-                    guard_failure: None,
-                    decided_unix_ms: now_unix_ms(),
+                let loaded: Result<(Vec<u8>, Vec<u8>), CacheError> = match restore {
+                    Ok(()) => cache.get_bytes(candidate.stdout).and_then(|stdout| {
+                        cache
+                            .get_bytes(candidate.stderr)
+                            .map(|stderr| (stdout, stderr))
+                    }),
+                    Err(error) => Err(error),
                 };
-                if persist_decision {
-                    let mark = Instant::now();
-                    cache.put_execution(&candidate)?;
-                    phases.decision_persist_ns = phase_elapsed(timing, mark);
+                phases.stdio_replay_ns = phase_elapsed(timing, mark);
+                match loaded {
+                    Ok((stdout, stderr)) => {
+                        let runtime_ns = started.elapsed().as_nanos();
+                        let persist_decision =
+                            candidate.last_decision.decision != CacheDecision::Reused;
+                        candidate.last_decision = DecisionRecord {
+                            decision: CacheDecision::Reused,
+                            reason: "all guards passed and cached outputs were restored".into(),
+                            guard_failure: None,
+                            decided_unix_ms: now_unix_ms(),
+                        };
+                        if persist_decision {
+                            let mark = Instant::now();
+                            cache.put_execution(&candidate)?;
+                            phases.decision_persist_ns = phase_elapsed(timing, mark);
+                        }
+                        let mut report = report_from_record(
+                            &candidate,
+                            RunKind::Reused,
+                            runtime_ns,
+                            Some(guards),
+                            stdout,
+                            stderr,
+                        );
+                        if timing {
+                            report.phases = Some(phases);
+                        }
+                        return Ok(report);
+                    }
+                    // The record is readable but a content-addressed object failed
+                    // verification. Nothing has been exposed, so retrace instead of failing
+                    // the command until the cache is cleared by hand.
+                    Err(CacheError::CorruptObject { hash }) => {
+                        candidate.last_decision = DecisionRecord {
+                            decision: CacheDecision::Deoptimized,
+                            reason: format!(
+                                "cached object {hash} failed hash verification; retracing"
+                            ),
+                            guard_failure: None,
+                            decided_unix_ms: now_unix_ms(),
+                        };
+                        cache.put_execution(&candidate)?;
+                        return execute_and_store(
+                            prepared,
+                            cache,
+                            lookup_key,
+                            Some(guards),
+                            Some("cached content was corrupt; the execution was retraced".into()),
+                            None,
+                        );
+                    }
+                    Err(error) => return Err(error.into()),
                 }
-                let mut report = report_from_record(
-                    &candidate,
-                    RunKind::Reused,
-                    runtime_ns,
-                    Some(guards),
-                    stdout,
-                    stderr,
-                );
-                if timing {
-                    report.phases = Some(phases);
-                }
-                return Ok(report);
             }
             let failure = guards.failure.clone();
             candidate.last_decision = DecisionRecord {
@@ -269,7 +317,7 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
         }
     }
 
-    let reason = if options.enforce {
+    let mut reason = if options.enforce {
         let capability = capabilities();
         if capability.can_prove() {
             "no declared dependency profile exists; discovery run is not PROVEN".into()
@@ -281,6 +329,9 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
     } else {
         "no eligible cached execution matched the pre-execution identity".into()
     };
+    if let Some(note) = metadata_recovery {
+        reason = format!("{note}; {reason}");
+    }
     execute_and_store(prepared, cache, lookup_key, None, Some(reason), None)
 }
 
