@@ -124,6 +124,15 @@ impl Effect {
                 guardable: true,
                 cache_key_relevant: true,
             },
+            // Internal pipe traffic is a function of inputs that are already guarded, so it is
+            // not a cache-key input of its own. The tracer refuses the execution when the
+            // observed transfer was packetisation dependent.
+            Self::Read(ReadEffect::Ipc(_)) => EffectProperties {
+                observable: false,
+                reversible: true,
+                guardable: true,
+                cache_key_relevant: false,
+            },
             Self::Write(WriteEffect::File(_)) => EffectProperties {
                 observable: true,
                 reversible: true,
@@ -166,6 +175,7 @@ pub enum ReadEffect {
     SymlinkMetadata(FileMetadataRead),
     Symlink(SymlinkRead),
     Access(AccessCheck),
+    Ipc(IpcRead),
     Environment(EnvironmentRead),
     WorkingDirectory,
     Clock(ClockKind),
@@ -278,6 +288,28 @@ pub struct AccessCheck {
     pub flags: i32,
     /// `None` when the check succeeded, otherwise the exact `errno` the program observed.
     pub errno: Option<i32>,
+    /// Digest of the caller's security identity when the check ran.
+    ///
+    /// Re-evaluating the call answers a question about *those* credentials. Asking it as a
+    /// different user, group set or capability set can return the recorded answer for the wrong
+    /// reason: root bypasses discretionary checks, so a revoked ACL looks unchanged to a replayed
+    /// check running as root while a fresh run of the dropped-privilege program would now be
+    /// denied. The guard therefore requires the replaying process to hold the same identity, and
+    /// refuses otherwise instead of trusting the coincidence.
+    #[serde(default)]
+    pub credential: Option<Hash>,
+}
+
+/// Bytes read from a pipe whose producer is part of the same traced execution.
+///
+/// Such a read is not a dependency on external state: the bytes are a function of inputs that are
+/// already guarded. It is recorded for diagnostics, and the pipe's packetisation assumptions are
+/// checked separately by the tracer, which refuses the execution when the observed transfer
+/// pattern was schedule dependent.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct IpcRead {
+    pub pipe: u64,
+    pub description: String,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -454,6 +486,8 @@ pub enum InputDependency {
         mode: i32,
         flags: i32,
         errno: Option<i32>,
+        #[serde(default)]
+        credential: Option<Hash>,
     },
 }
 
@@ -543,7 +577,7 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
     let mut metadata = BTreeMap::new();
     let mut symlink_metadata = BTreeMap::new();
     let mut symlinks = BTreeMap::new();
-    let mut access = BTreeMap::<(PathBuf, i32, i32), Option<i32>>::new();
+    let mut access = BTreeMap::<(PathBuf, i32, i32), (Option<i32>, Option<Hash>)>::new();
     for record in effects {
         match &record.effect {
             Effect::Read(ReadEffect::File(read))
@@ -585,7 +619,7 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
             {
                 access
                     .entry((check.path.clone(), check.mode, check.flags))
-                    .or_insert(check.errno);
+                    .or_insert((check.errno, check.credential));
             }
             Effect::Control(ControlEffect::Exec(exec)) => {
                 if let Some(hash) = exec.hash {
@@ -636,14 +670,19 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
             .into_iter()
             .map(|(path, target)| InputDependency::Symlink { path, target }),
     );
-    dependencies.extend(access.into_iter().map(|((path, mode, flags), errno)| {
-        InputDependency::Access {
-            path,
-            mode,
-            flags,
-            errno,
-        }
-    }));
+    dependencies.extend(
+        access
+            .into_iter()
+            .map(
+                |((path, mode, flags), (errno, credential))| InputDependency::Access {
+                    path,
+                    mode,
+                    flags,
+                    errno,
+                    credential,
+                },
+            ),
+    );
     dependencies
 }
 

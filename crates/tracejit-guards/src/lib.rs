@@ -61,6 +61,10 @@ pub enum Guard {
         mode: i32,
         flags: i32,
         expected: Option<i32>,
+        /// Identity the recorded answer belongs to; a replay under different credentials is
+        /// refused rather than trusted.
+        #[serde(default)]
+        credential: Option<Hash>,
     },
     EnvironmentValue {
         key: OsString,
@@ -449,7 +453,17 @@ impl Guard {
                 mode,
                 flags,
                 expected,
+                credential,
             } => {
+                let current = credential_identity(0);
+                if credential.is_none() || credential.as_ref() != current.as_ref() {
+                    return Err(GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "access check credentials changed".into(),
+                        expected: describe_credential(credential.as_ref()),
+                        actual: describe_credential(current.as_ref()),
+                    });
+                }
                 let actual =
                     evaluate_access(path, *mode, *flags).map_err(|reason| GuardFailure {
                         guard: Box::new(self.clone()),
@@ -535,6 +549,41 @@ fn evaluate_access(path: &Path, mode: i32, flags: i32) -> Result<Option<i32>, St
     {
         let _ = (mode, flags);
         Err("access checks are only replayed on Linux".into())
+    }
+}
+
+/// Digest of a process's security-relevant identity: real, effective and saved ids, the
+/// supplementary group set, and the capability sets that override discretionary access checks.
+///
+/// `pid == 0` means the calling process. `None` means the identity could not be read, which the
+/// guard treats as a refusal.
+pub fn credential_identity(pid: u32) -> Option<Hash> {
+    let directory = if pid == 0 {
+        "self".to_owned()
+    } else {
+        pid.to_string()
+    };
+    let status = std::fs::read_to_string(format!("/proc/{directory}/status")).ok()?;
+    let mut hasher = blake3::Hasher::new();
+    let mut found = 0_usize;
+    for key in [
+        "Uid:", "Gid:", "Groups:", "CapInh:", "CapPrm:", "CapEff:", "CapAmb:",
+    ] {
+        let line = status.lines().find(|line| line.starts_with(key))?;
+        hasher.update(line.trim_end().as_bytes());
+        hasher.update(b"\n");
+        found += 1;
+    }
+    (found == 7).then(|| Hash::from(hasher.finalize()))
+}
+
+fn describe_credential(credential: Option<&Hash>) -> String {
+    match credential {
+        Some(value) => {
+            let rendered = value.to_string();
+            format!("identity {}", rendered.chars().take(16).collect::<String>())
+        }
+        None => "identity unavailable".to_owned(),
     }
 }
 
@@ -710,11 +759,13 @@ pub fn compile_guards(executable: PathBuf, identity: &ExecutionIdentity) -> Vec<
                 mode,
                 flags,
                 errno,
+                credential,
             } => guards.push(Guard::AccessCheck {
                 path: path.clone(),
                 mode: *mode,
                 flags: *flags,
                 expected: *errno,
+                credential: *credential,
             }),
         }
     }
@@ -726,6 +777,47 @@ pub fn compile_guards(executable: PathBuf, identity: &ExecutionIdentity) -> Vec<
 mod tests {
     use super::*;
     use std::io::Write;
+
+    #[cfg(unix)]
+    #[test]
+    fn an_access_check_without_a_recorded_identity_is_refused() {
+        // A record written before identities were captured cannot be replayed soundly, so it must
+        // deoptimize rather than be trusted.
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("probe");
+        fs::write(&path, b"present").unwrap();
+        let guard = Guard::AccessCheck {
+            path,
+            mode: libc::F_OK,
+            flags: 0,
+            expected: None,
+            credential: None,
+        };
+        let failure = guard.validate(GuardMode::Strict).unwrap_err();
+        assert!(failure.reason.contains("credentials"), "{failure:?}");
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn an_access_check_replays_only_for_the_recorded_identity() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("probe");
+        fs::write(&path, b"present").unwrap();
+        let guard = Guard::AccessCheck {
+            path: path.clone(),
+            mode: libc::F_OK,
+            flags: 0,
+            expected: None,
+            credential: credential_identity(0),
+        };
+        assert!(guard.validate(GuardMode::Strict).is_ok());
+        fs::remove_file(&path).unwrap();
+        let failure = guard.validate(GuardMode::Strict).unwrap_err();
+        assert!(
+            failure.reason.contains("access check result changed"),
+            "{failure:?}"
+        );
+    }
 
     #[test]
     fn canonical_hash_is_stable_for_sorted_maps() {
@@ -856,6 +948,7 @@ mod tests {
             mode: libc::F_OK,
             flags: 0,
             expected: None,
+            credential: credential_identity(0),
         };
         assert!(guard.validate(GuardMode::Strict).is_ok());
         fs::remove_file(&path).unwrap();
@@ -874,6 +967,7 @@ mod tests {
             mode: libc::F_OK,
             flags: 0,
             expected: Some(libc::ENOENT),
+            credential: credential_identity(0),
         };
         assert!(guard.validate(GuardMode::Strict).is_ok());
     }

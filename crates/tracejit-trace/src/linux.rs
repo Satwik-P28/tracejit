@@ -20,7 +20,7 @@ use tracejit_effects::{
     KernelStateRead, NetworkRead, NetworkWrite, ProcessExec, ProcessNode, ProcessSpawn,
     RandomSource, ReadEffect, SignalEffect, SymlinkRead, Trace, UnknownEffect, WriteEffect,
 };
-use tracejit_guards::{fingerprint, hash_file, symlink_fingerprint};
+use tracejit_guards::{credential_identity, fingerprint, hash_file, symlink_fingerprint};
 
 const OPTIONS: ptrace::Options = ptrace::Options::PTRACE_O_TRACESYSGOOD
     .union(ptrace::Options::PTRACE_O_TRACEFORK)
@@ -59,6 +59,13 @@ enum FdState {
     File(PathBuf),
     InheritedFile(PathBuf),
     Network,
+    /// An end of a pipe created inside the traced process tree, identified by the pipe rather
+    /// than by the descriptor number so that `dup`, fork and exec preserve provenance.
+    InternalPipe {
+        pipe: u64,
+        readable: bool,
+        writable: bool,
+    },
     Other,
 }
 
@@ -121,9 +128,16 @@ enum PendingSyscall {
     },
     Read {
         fd: i32,
+        /// Requested byte count, or `None` for a vectored call whose iovec was not inspected.
+        count: Option<u64>,
     },
     Write {
         fd: i32,
+        count: Option<u64>,
+    },
+    Pipe {
+        address: u64,
+        close_on_exec: bool,
     },
     Network {
         kind: NetworkOperation,
@@ -186,6 +200,29 @@ struct Collector {
     sequence: u64,
     effects: Vec<EffectRecord>,
     dependencies: Vec<DependencyEdge>,
+    pipes: HashMap<u64, PipeRecord>,
+    next_pipe: u64,
+}
+
+/// What the tracer observed crossing one internal pipe.
+///
+/// Reuse of a command that moved bytes through a pipe is permitted only when the reader's
+/// observations cannot depend on how the kernel happened to packetise the stream. Three
+/// conditions make that true, and each one is *detected* here rather than assumed:
+///
+/// - a single process wrote the pipe, so the write order is that process's program order;
+/// - every read either received exactly what it asked for, or was the final data before
+///   end-of-file, so the sequence of read results is fixed by the concatenated stream;
+/// - no write was refused or truncated, so no reader exited early.
+///
+/// Any violation is recorded with the observation that triggered it and makes the execution
+/// unguardable. The test suite exercises each rule.
+#[derive(Default)]
+struct PipeRecord {
+    writers: HashSet<i32>,
+    /// Sequence of a short read whose stream has not yet been shown to be complete.
+    short_read: Option<u64>,
+    unstable: Option<String>,
 }
 
 struct TraceeGuard {
@@ -204,6 +241,89 @@ impl Drop for TraceeGuard {
 }
 
 impl Collector {
+    fn open_pipe(&mut self) -> u64 {
+        self.next_pipe += 1;
+        self.pipes.insert(self.next_pipe, PipeRecord::default());
+        self.next_pipe
+    }
+
+    fn pipe_read(&mut self, _pid: Pid, pipe: u64, count: Option<u64>, result: i64) {
+        let Some(record) = self.pipes.get_mut(&pipe) else {
+            return;
+        };
+        if record.unstable.is_some() {
+            return;
+        }
+        let Some(count) = count else {
+            record.unstable = Some(format!(
+                "pipe {pipe}: a vectored read has no tracked request size, so the result depends on how the writer packetised the stream"
+            ));
+            return;
+        };
+        let read = result as u64;
+        if read == 0 {
+            // End of file: everything the writer produced has been consumed.
+            record.short_read = None;
+            return;
+        }
+        if read < count {
+            record.short_read = Some(self.sequence);
+        }
+    }
+
+    fn pipe_write(&mut self, pid: Pid, pipe: u64, count: Option<u64>, result: i64) {
+        let Some(record) = self.pipes.get_mut(&pipe) else {
+            return;
+        };
+        if record.unstable.is_some() {
+            return;
+        }
+        if record.short_read.is_some() {
+            record.unstable = Some(format!(
+                "pipe {pipe}: a read returned less than it requested and more data followed, so the reader's observations depend on scheduling"
+            ));
+            return;
+        }
+        let Some(count) = count else {
+            record.unstable = Some(format!(
+                "pipe {pipe}: a vectored write has no tracked size, so a partial transfer cannot be ruled out"
+            ));
+            return;
+        };
+        if (result as u64) < count {
+            record.unstable = Some(format!(
+                "pipe {pipe}: a write was only partially accepted, so the split depends on the reader's progress"
+            ));
+            return;
+        }
+        record.writers.insert(pid.as_raw());
+        if record.writers.len() > 1 {
+            record.unstable = Some(format!(
+                "pipe {pipe}: more than one process wrote to it, so byte order depends on scheduling"
+            ));
+        }
+    }
+
+    fn flush_pipes(&mut self) {
+        let mut unstable = self
+            .pipes
+            .iter()
+            .filter_map(|(pipe, record)| record.unstable.clone().map(|reason| (*pipe, reason)))
+            .collect::<Vec<_>>();
+        unstable.sort_by_key(|(pipe, _)| *pipe);
+        for (_, reason) in unstable {
+            self.sequence += 1;
+            self.effects.push(EffectRecord {
+                sequence: self.sequence,
+                pid: 0,
+                effect: Effect::Unknown(UnknownEffect {
+                    syscall: None,
+                    detail: reason,
+                }),
+            });
+        }
+    }
+
     fn push(&mut self, pid: Pid, effect: Effect) {
         let kind = match &effect {
             Effect::Read(_) => DependencyKind::Reads,
@@ -375,6 +495,8 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
         sequence: 0,
         effects: Vec::new(),
         dependencies: Vec::new(),
+        pipes: HashMap::new(),
+        next_pipe: 0,
     };
     collector.push(
         root_pid,
@@ -553,6 +675,9 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
         .map_err(|error| TraceError::OutputCapture(error.to_string()))?;
     let exit_code = root_exit
         .ok_or_else(|| TraceError::TargetTerminated("root process exit was not observed".into()))?;
+    // Pipe determinism is a property of the whole transfer, so it can only be judged once every
+    // process has exited. An unstable pattern becomes an unknown effect, which refuses reuse.
+    collector.flush_pipes();
     let trace = Trace {
         execution: ExecutionMetadata {
             command: request.argv,
@@ -642,21 +767,21 @@ fn decode_entry(
         libc::SYS_stat => PendingSyscall::Metadata {
             path: resolve_path(pid, state, libc::AT_FDCWD, args[0])?,
         },
-        libc::SYS_access => PendingSyscall::Access {
-            path: resolve_path(pid, state, libc::AT_FDCWD, args[0])?,
-            mode: args[1] as i32,
-            flags: 0,
-        },
-        libc::SYS_faccessat => PendingSyscall::Access {
-            path: resolve_path(pid, state, args[0] as i32, args[1])?,
-            mode: args[2] as i32,
-            flags: 0,
-        },
-        libc::SYS_faccessat2 => PendingSyscall::Access {
-            path: resolve_path(pid, state, args[0] as i32, args[1])?,
-            mode: args[2] as i32,
-            flags: args[3] as i32,
-        },
+        libc::SYS_access => {
+            access_pending(pid, state, libc::AT_FDCWD, args[0], args[1] as i32, 0, number)?
+        }
+        libc::SYS_faccessat => {
+            access_pending(pid, state, args[0] as i32, args[1], args[2] as i32, 0, number)?
+        }
+        libc::SYS_faccessat2 => access_pending(
+            pid,
+            state,
+            args[0] as i32,
+            args[1],
+            args[2] as i32,
+            args[3] as i32,
+            number,
+        )?,
         libc::SYS_fstat => state
             .fds
             .get(&(args[0] as i32))
@@ -664,6 +789,13 @@ fn decode_entry(
                 FdState::File(path) | FdState::InheritedFile(path) => {
                     Some(PendingSyscall::Metadata { path: path.clone() })
                 }
+                FdState::InternalPipe { .. } => Some(PendingSyscall::Unknown {
+                    number,
+                    detail: format!(
+                        "fstat on pipe descriptor {} reports buffered byte counts, which depend on scheduling",
+                        args[0]
+                    ),
+                }),
                 FdState::Other if args[0] <= 2 => Some(PendingSyscall::None),
                 _ => None,
             })
@@ -769,12 +901,29 @@ fn decode_entry(
         },
         libc::SYS_fcntl => PendingSyscall::None,
         libc::SYS_close => PendingSyscall::Close { fd: args[0] as i32 },
-        libc::SYS_read | libc::SYS_readv | libc::SYS_pread64 => {
-            PendingSyscall::Read { fd: args[0] as i32 }
-        }
-        libc::SYS_write | libc::SYS_writev | libc::SYS_pwrite64 => {
-            PendingSyscall::Write { fd: args[0] as i32 }
-        }
+        // x86-64 `read(fd, buffer, count)` and `pread64(fd, buffer, count, offset)` carry the
+        // length in the third argument; the second is the buffer address.
+        libc::SYS_read | libc::SYS_pread64 => PendingSyscall::Read {
+            fd: args[0] as i32,
+            count: Some(args[2]),
+        },
+        libc::SYS_readv => PendingSyscall::Read {
+            fd: args[0] as i32,
+            // The iovec is not inspected, so the requested length is unknown.
+            count: None,
+        },
+        libc::SYS_write | libc::SYS_pwrite64 => PendingSyscall::Write {
+            fd: args[0] as i32,
+            count: Some(args[2]),
+        },
+        libc::SYS_writev => PendingSyscall::Write {
+            fd: args[0] as i32,
+            count: None,
+        },
+        libc::SYS_pipe | libc::SYS_pipe2 => PendingSyscall::Pipe {
+            address: args[0],
+            close_on_exec: number == libc::SYS_pipe2 && args[1] as i32 & libc::O_CLOEXEC != 0,
+        },
         libc::SYS_rename => rename_pending(
             resolve_path(pid, state, libc::AT_FDCWD, args[0])?,
             resolve_path(pid, state, libc::AT_FDCWD, args[1])?,
@@ -1050,6 +1199,36 @@ fn record_symlink_metadata(pid: Pid, path: PathBuf, collector: &mut Collector) {
     }
 }
 
+/// Records a permission probe, or refuses it when it does not name a path.
+///
+/// `AT_EMPTY_PATH` asks about the descriptor's inode, so re-evaluating a path would answer a
+/// different question than the program asked. An empty name without that flag is an `ENOENT` probe
+/// that the absence metadata guard already covers. Both are refused here rather than approximated.
+fn access_pending(
+    pid: Pid,
+    state: &ProcessState,
+    dirfd: i32,
+    address: u64,
+    mode: i32,
+    flags: i32,
+    number: i64,
+) -> Result<PendingSyscall, TraceError> {
+    let named = !read_c_string(pid, address)?.is_empty();
+    if !named || flags & libc::AT_EMPTY_PATH != 0 {
+        return Ok(PendingSyscall::Unknown {
+            number,
+            detail:
+                "access check resolves through a descriptor, not a name, so it cannot be replayed"
+                    .into(),
+        });
+    }
+    Ok(PendingSyscall::Access {
+        path: resolve_path(pid, state, dirfd, address)?,
+        mode,
+        flags,
+    })
+}
+
 fn open_pending(
     pid: Pid,
     state: &ProcessState,
@@ -1236,8 +1415,47 @@ fn complete_syscall(
                 mode,
                 flags,
                 errno: None,
+                credential: credential_identity(pid.as_raw() as u32),
             })),
         ),
+        PendingSyscall::Pipe {
+            address,
+            close_on_exec,
+        } => match read_word(pid, address) {
+            Ok(word) => {
+                // `pipe` writes two adjacent `int`s; the first occupies the low half of the word.
+                let read_fd = (word & 0xffff_ffff) as u32 as i32;
+                let write_fd = (word >> 32) as u32 as i32;
+                let pipe = collector.open_pipe();
+                state.fds.insert(
+                    read_fd,
+                    FdState::InternalPipe {
+                        pipe,
+                        readable: true,
+                        writable: false,
+                    },
+                );
+                state.fds.insert(
+                    write_fd,
+                    FdState::InternalPipe {
+                        pipe,
+                        readable: false,
+                        writable: true,
+                    },
+                );
+                if close_on_exec {
+                    state.close_on_exec.insert(read_fd);
+                    state.close_on_exec.insert(write_fd);
+                }
+            }
+            Err(_) => collector.push(
+                pid,
+                Effect::Unknown(UnknownEffect {
+                    syscall: Some(libc::SYS_pipe2),
+                    detail: "pipe descriptor pair could not be read from the traced process".into(),
+                }),
+            ),
+        },
         PendingSyscall::Chdir { path } => {
             state.cwd = path.clone();
             collector.push(pid, Effect::Control(ControlEffect::Chdir(path)));
@@ -1313,7 +1531,7 @@ fn complete_syscall(
                 })),
             );
         }
-        PendingSyscall::Read { fd } => match state.fds.get(&fd).cloned() {
+        PendingSyscall::Read { fd, count } => match state.fds.get(&fd).cloned() {
             Some(FdState::Network) => collector.push(
                 pid,
                 Effect::Read(ReadEffect::Network(NetworkRead {
@@ -1321,6 +1539,21 @@ fn complete_syscall(
                 })),
             ),
             Some(FdState::File(_)) => {}
+            // Bytes from a pipe created inside this execution are a function of inputs that are
+            // already guarded, so the read itself is not a dependency. Whether the transfer is
+            // packetisation independent is tracked per pipe and enforced at the end of the trace.
+            Some(FdState::InternalPipe {
+                pipe,
+                readable: true,
+                ..
+            }) => collector.pipe_read(pid, pipe, count, result),
+            Some(FdState::InternalPipe { pipe, .. }) => collector.push(
+                pid,
+                Effect::Unknown(UnknownEffect {
+                    syscall: Some(libc::SYS_read),
+                    detail: format!("read from the write end of internal pipe {pipe}"),
+                }),
+            ),
             Some(FdState::InheritedFile(path)) if path == Path::new("/dev/null") => {}
             Some(FdState::InheritedFile(path)) => collector.push(
                 pid,
@@ -1366,7 +1599,7 @@ fn complete_syscall(
                 }
             }
         },
-        PendingSyscall::Write { fd } => match state.fds.get(&fd) {
+        PendingSyscall::Write { fd, count } => match state.fds.get(&fd) {
             Some(FdState::File(path)) => collector.push(
                 pid,
                 Effect::Write(WriteEffect::File(FileWrite {
@@ -1381,6 +1614,11 @@ fn complete_syscall(
                     operation: "write to socket".into(),
                 })),
             ),
+            Some(FdState::InternalPipe {
+                pipe,
+                writable: true,
+                ..
+            }) => collector.pipe_write(pid, *pipe, count, result),
             Some(FdState::Other) if fd == 1 || fd == 2 => {}
             _ => collector.push(
                 pid,
@@ -1594,6 +1832,7 @@ fn complete_failed_syscall(
                 mode,
                 flags,
                 errno: Some(errno as i32),
+                credential: credential_identity(pid.as_raw() as u32),
             })),
         ),
         PendingSyscall::Rename { from, to, .. } => collector.push(
@@ -1644,7 +1883,7 @@ fn complete_failed_syscall(
                 target_pid: target,
             })),
         ),
-        PendingSyscall::Read { fd } | PendingSyscall::Write { fd } => collector.push(
+        PendingSyscall::Read { fd, .. } | PendingSyscall::Write { fd, .. } => collector.push(
             pid,
             Effect::Unknown(UnknownEffect {
                 syscall: None,
@@ -1709,14 +1948,18 @@ fn resolve_path(
     Ok(normalize(base.join(path)))
 }
 
+/// Removes `.` components without ever collapsing `..` lexically.
+///
+/// `a/symlink/../b` is not `a/b` when `symlink` is a link: the kernel resolves the link first, so
+/// the recorded dependency would otherwise name a different file than the one the process read.
+/// Keeping `..` in place lets every later `open`, `hash_file` and `fingerprint` call interpret the
+/// path exactly as the kernel does, which is what makes the recorded dependency describe the bytes
+/// that were actually observed.
 fn normalize(path: PathBuf) -> PathBuf {
     let mut normalized = PathBuf::new();
     for component in path.components() {
         match component {
             Component::CurDir => {}
-            Component::ParentDir => {
-                normalized.pop();
-            }
             other => normalized.push(other.as_os_str()),
         }
     }
@@ -2213,8 +2456,9 @@ fn pending_description(pending: &PendingSyscall) -> String {
         }
         PendingSyscall::Network { .. } => "network operation".into(),
         PendingSyscall::Unknown { number, detail } => format!("syscall {number}: {detail}"),
-        PendingSyscall::Read { fd } => format!("read from fd {fd}"),
-        PendingSyscall::Write { fd } => format!("write to fd {fd}"),
+        PendingSyscall::Read { fd, .. } => format!("read from fd {fd}"),
+        PendingSyscall::Write { fd, .. } => format!("write to fd {fd}"),
+        PendingSyscall::Pipe { .. } => "pipe creation".into(),
         PendingSyscall::Signal { signal, target } => {
             format!("signal {signal} to process {target}")
         }
@@ -2294,6 +2538,89 @@ fn ptrace_operation(operation: &str, pid: Pid, error: Errno) -> TraceError {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn collector() -> Collector {
+        Collector {
+            sequence: 0,
+            effects: Vec::new(),
+            dependencies: Vec::new(),
+            pipes: HashMap::new(),
+            next_pipe: 0,
+        }
+    }
+
+    #[test]
+    fn normalize_keeps_parent_components_so_links_resolve_like_the_kernel() {
+        // `..` after a symlink is resolved by the kernel from the link target, so collapsing it
+        // lexically would record a different file than the one the process read.
+        assert_eq!(
+            normalize(PathBuf::from("/a/link/../b")),
+            PathBuf::from("/a/link/../b")
+        );
+        assert_eq!(normalize(PathBuf::from("/a/./b")), PathBuf::from("/a/b"));
+    }
+
+    #[test]
+    fn a_scheduler_stable_pipe_transfer_is_not_an_effect() {
+        let mut collector = collector();
+        let pipe = collector.open_pipe();
+        let pid = Pid::from_raw(1);
+        collector.pipe_write(pid, pipe, Some(9), 9);
+        collector.pipe_read(pid, pipe, Some(64), 9);
+        collector.flush_pipes();
+        assert!(collector.effects.is_empty());
+    }
+
+    #[test]
+    fn a_short_read_followed_by_more_data_refuses_reuse() {
+        let mut collector = collector();
+        let pipe = collector.open_pipe();
+        let pid = Pid::from_raw(1);
+        collector.pipe_read(pid, pipe, Some(64), 4);
+        collector.pipe_write(pid, pipe, Some(4), 4);
+        collector.flush_pipes();
+        assert_eq!(collector.effects.len(), 1);
+        assert!(matches!(collector.effects[0].effect, Effect::Unknown(_)));
+    }
+
+    #[test]
+    fn a_short_read_before_end_of_file_stays_stable() {
+        let mut collector = collector();
+        let pipe = collector.open_pipe();
+        let pid = Pid::from_raw(1);
+        collector.pipe_read(pid, pipe, Some(64), 9);
+        collector.pipe_read(pid, pipe, Some(64), 0);
+        collector.flush_pipes();
+        assert!(collector.effects.is_empty());
+    }
+
+    #[test]
+    fn two_writers_make_byte_order_scheduling_dependent() {
+        let mut collector = collector();
+        let pipe = collector.open_pipe();
+        collector.pipe_write(Pid::from_raw(1), pipe, Some(1), 1);
+        collector.pipe_write(Pid::from_raw(2), pipe, Some(1), 1);
+        collector.flush_pipes();
+        assert_eq!(collector.effects.len(), 1);
+    }
+
+    #[test]
+    fn a_partial_write_refuses_reuse() {
+        let mut collector = collector();
+        let pipe = collector.open_pipe();
+        collector.pipe_write(Pid::from_raw(1), pipe, Some(8), 3);
+        collector.flush_pipes();
+        assert_eq!(collector.effects.len(), 1);
+    }
+
+    #[test]
+    fn an_untracked_vectored_transfer_refuses_reuse() {
+        let mut collector = collector();
+        let pipe = collector.open_pipe();
+        collector.pipe_write(Pid::from_raw(1), pipe, None, 4);
+        collector.flush_pipes();
+        assert_eq!(collector.effects.len(), 1);
+    }
 
     fn shared_read_only() -> FileMapping {
         FileMapping {

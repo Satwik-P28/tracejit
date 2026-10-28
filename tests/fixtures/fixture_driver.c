@@ -348,6 +348,55 @@ int main(int argc, char **argv) {
     copy_file(input, output);
     return 0;
   }
+  if (!strcmp(name, "pipe_roundtrip")) {
+    /* One process writes one complete record into a pipe and reads it back after closing the
+       write end. Every read either receives the whole request or reaches end-of-file, so the
+       observed transfer does not depend on scheduling and reuse is permitted. */
+    int fds[2];
+    const char *payload = "tracejit\n";
+    char buffer[64] = {0};
+    ssize_t received;
+    if (pipe(fds) != 0) return 1;
+    if (write(fds[1], payload, 9) != 9) return 2;
+    if (close(fds[1]) != 0) return 3;
+    received = read(fds[0], buffer, sizeof(buffer));
+    if (close(fds[0]) != 0) return 4;
+    if (received != 9) return 5;
+    if (write(STDOUT_FILENO, buffer, (size_t)received) != received) return 6;
+    copy_file(input, output);
+    return 0;
+  }
+  if (!strcmp(name, "pipe_short_read")) {
+    /* A read that is only partially satisfied while the writer still has data pending makes the
+       reader's observations schedule dependent, so the classification must refuse it. The second
+       pipe only orders the two events, which keeps the fixture itself deterministic: the child's
+       read of 64 bytes cannot block, because one byte is already buffered. */
+    int fds[2];
+    int sync[2];
+    pid_t child;
+    char buffer[64] = {0};
+    char token = 's';
+    if (pipe(fds) != 0) return 1;
+    if (pipe(sync) != 0) return 2;
+    child = fork();
+    if (child < 0) return 3;
+    if (child == 0) {
+      if (close(fds[1]) != 0) _exit(4);
+      if (close(sync[0]) != 0) _exit(5);
+      if (read(fds[0], buffer, sizeof(buffer)) != 1) _exit(6);
+      if (write(sync[1], &token, 1) != 1) _exit(7);
+      _exit(0);
+    }
+    if (close(fds[0]) != 0) return 8;
+    if (close(sync[1]) != 0) return 9;
+    if (write(fds[1], "a", 1) != 1) return 10;
+    if (read(sync[0], &token, 1) != 1) return 11;
+    if (write(fds[1], "b", 1) != 1) return 12;
+    if (close(fds[1]) != 0) return 13;
+    if (waitpid(child, NULL, 0) != child) return 14;
+    copy_file(input, output);
+    return 0;
+  }
   if (!strcmp(name, "nonzero_exit")) return 7;
   if (!strcmp(name, "stdout_only"))
     return write(STDOUT_FILENO, "stdout fixture\n", 15) != 15;
