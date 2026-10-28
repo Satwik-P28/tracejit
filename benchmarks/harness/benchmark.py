@@ -320,6 +320,25 @@ def markdown(result: dict[str, object]) -> str:
     return "\n".join(lines)
 
 
+def _sample_tree_dirty() -> bool:
+    """Sample the working tree once, before any workload writes into the repository.
+
+    Sampling this after the measurement reported every run as dirty, because the
+    benchmark workload itself writes its output inside the repository.
+    """
+    result = subprocess.run(
+        ["git", "status", "--porcelain"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return bool(result.stdout.strip())
+
+
+TREE_DIRTY_AT_START = _sample_tree_dirty()
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--runs", type=int, default=30)
@@ -482,7 +501,7 @@ def main() -> None:
 
         python_etl = python_probe(tracejit, env)
         commit = text_command(["git", "rev-parse", "HEAD"])
-        working_tree_dirty = bool(text_command(["git", "status", "--porcelain"]))
+        working_tree_dirty = TREE_DIRTY_AT_START
         tracing_overhead = (
             (traced_cold["median_ns"] - baseline["median_ns"])
             / baseline["median_ns"]

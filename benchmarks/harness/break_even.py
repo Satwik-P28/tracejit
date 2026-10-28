@@ -487,6 +487,25 @@ def break_even_statement(rows: list[dict[str, object]]) -> dict[str, object]:
     }
 
 
+def _sample_tree_dirty() -> bool:
+    """Sample the working tree once, before any workload writes into the repository.
+
+    Sampling this after the measurement reported every run as dirty, because the
+    benchmark workload itself writes its output inside the repository.
+    """
+    result = subprocess.run(
+        ["git", "status", "--porcelain"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return bool(result.stdout.strip())
+
+
+TREE_DIRTY_AT_START = _sample_tree_dirty()
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--runs", type=int, default=30)
@@ -588,7 +607,7 @@ def main() -> None:
         scratch_temporary.cleanup()
     result = {
         "commit": text_command(["git", "rev-parse", "HEAD"]),
-        "working_tree_dirty": bool(text_command(["git", "status", "--porcelain"])),
+        "working_tree_dirty": TREE_DIRTY_AT_START,
         "repository_changes_during_run": sorted(
             path for path in repository_snapshot() if path not in initial_repository_state
         ),
