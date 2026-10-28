@@ -234,12 +234,32 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
         .unwrap_or_default()
         .as_millis();
     let started = Instant::now();
-    let mut command = Command::new(&request.executable);
-    // Exec the resolved path but keep the caller's argv[0] byte-for-byte. `resolve_executable`
-    // canonicalizes symlinks, and the kernel-visible argv[0] is observable: CPython derives its
-    // installation prefix, and therefore its module search path, from argv[0], so rewriting it to
-    // the canonical target makes a traced execution resolve a different installation than a direct
-    // execution of the same command line.
+    // Exec the path the caller named whenever it still resolves to the executable that was
+    // resolved for the identity. Preserving argv[0] alone is not enough for a script: the kernel
+    // hands the interpreter the path that was passed to execve, so exec'ing the canonical target
+    // leaves `$0` absolute where a direct `./script` invocation left it relative. A name without
+    // a separator cannot be execed as a path at all, so PATH-name invocations keep the resolved
+    // path and rely on the preserved argv[0].
+    let executable_path = request
+        .argv
+        .first()
+        .filter(|argument| argument.to_string_lossy().contains('/'))
+        .and_then(|argument| {
+            let named = Path::new(argument);
+            let absolute = if named.is_absolute() {
+                named.to_path_buf()
+            } else {
+                request.cwd.join(named)
+            };
+            (fs::canonicalize(&absolute).ok()? == request.executable).then(|| named.to_path_buf())
+        })
+        .unwrap_or_else(|| request.executable.clone());
+    let mut command = Command::new(&executable_path);
+    // Keep the caller's argv[0] byte-for-byte. `resolve_executable` canonicalizes symlinks, and
+    // the kernel-visible argv[0] is observable: CPython derives its installation prefix, and
+    // therefore its module search path, from argv[0], so rewriting it to the canonical target
+    // makes a traced execution resolve a different installation than a direct execution of the
+    // same command line.
     if let Some(program) = request.argv.first() {
         command.arg0(program);
     }
