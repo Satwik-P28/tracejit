@@ -113,3 +113,25 @@ Tests: 77 passing. Benchmarks have **not** been re-run at `2edbf0d`; do not quot
 for this commit. See `docs/PROJECT_EXECUTION_STATE.md`, `docs/audits/PHASE2_ACCESS_PREDICATES.md`,
 `docs/audits/PHASE2_EXEC_IDENTITY.md`, `docs/audits/PHASE2_CENSUS_DELTA.md`, and
 `benchmarks/results/phase2/census-2edbf0d/`.
+
+## Phase 2B (branch `verify/phase1-5`, commit `b57bc7f`)
+
+Soundness audit of the access mechanism found three high-severity defects, all fixed with regression
+tests. (A1) The replay ran as the validating process, so a check recorded by a privilege-dropped
+child was re-answered as root: root bypasses discretionary checks, so a revoked ACL still looked
+permitted. Each check now records a digest of the uid/gid quadruple, supplementary groups and
+capability sets, and the guard refuses when the replaying process does not hold that identity. (A2)
+`AT_EMPTY_PATH` was answered about a path instead of a descriptor; now refused. (A3) `normalize()`
+collapsed `..` lexically, so `a/link/../b` was recorded as `a/b` and the guard hashed a different
+file than the one that was read; `..` is now preserved and resolved by the kernel.
+
+Internal pipes are modelled by pipe identity (`FdState::InternalPipe`) across `dup`, fork and exec,
+so `pipe2` and `unclassified_descriptor` have disappeared from the census ranking entirely. Reuse of
+pipe traffic requires one writing process, no short read followed by more data, and no partial or
+untracked transfer; each violation is recorded with the observation that triggered it.
+
+Eligibility is **still 0 of 9**, now blocked by `clock`/`randomness`/`process_identity` (interpreter
+startup), pipe short-read-then-more (3 workloads), `fstat` on a pipe (2), `getrusage` (2) and
+`epoll_create1` (1). Output equivalence stayed 9/9. Tests: 86 passing. Benchmarks have **not** been
+re-run at this commit. See `docs/audits/PHASE2B_*.md` and
+`benchmarks/results/phase2b/census-b57bc7f/`.
