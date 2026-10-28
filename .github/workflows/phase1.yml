@@ -1,0 +1,84 @@
+name: Phase 1 suite
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "phase1/**"
+
+jobs:
+  suite:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Record the runner
+        run: |
+          set -eu
+          uname -a
+          cat /etc/os-release
+          tests="$(nproc)"
+          echo "RESULT runner linux x86_64 cpus=${tests}"
+          test "$(uname -s)" = "Linux"
+          test "$(uname -m)" = "x86_64"
+
+      - name: Formatting
+        run: cargo fmt --all -- --check
+
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+      - name: Tests
+        run: cargo test --workspace
+
+      - name: Release build
+        run: cargo build --workspace --release
+
+      - name: Capability report
+        run: |
+          set -eu
+          ./target/release/tracejit doctor
+          echo "RESULT doctor recorded"
+
+      - name: Compatibility census
+        run: |
+          set -eu
+          python3 -m pip install --quiet --disable-pip-version-check pillow ||
+            echo "RESULT census: pillow unavailable; the image workload will be recorded as a missing tool"
+          python3 benchmarks/realworld/census.py --runs 5 --warmups 1 \
+            --output-dir "${RUNNER_TEMP}/phase1"
+          echo "RESULT census PASS"
+
+      - name: Commit-stamped benchmark
+        run: |
+          set -eu
+          python3 benchmarks/harness/benchmark.py --runs 50 --warmups 10 \
+            --output-dir "${RUNNER_TEMP}/phase1"
+          echo "RESULT benchmark PASS"
+
+      - name: Commit-stamped break-even sweep
+        run: |
+          set -eu
+          python3 benchmarks/harness/break_even.py --runs 50 --warmups 10 \
+            --output-dir "${RUNNER_TEMP}/phase1"
+          echo "RESULT break-even PASS"
+
+      - name: Repository was not mutated
+        run: |
+          set -eu
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "the suite left tracked or untracked repository changes:" >&2
+            git status --porcelain >&2
+            exit 1
+          fi
+          echo "RESULT isolation PASS"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tracejit-phase1-${{ github.sha }}
+          path: ${{ runner.temp }}/phase1

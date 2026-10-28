@@ -70,6 +70,19 @@ jobs:
             exit 1
           fi
           echo "RESULT integration PASS"
+      - name: Real-world compatibility census
+        run: |
+          set -eu
+          python3 -m pip install --quiet --disable-pip-version-check pillow ||
+            echo "RESULT census: pillow unavailable; the image workload will be recorded as a missing tool"
+          python3 benchmarks/realworld/census.py --runs 3 --warmups 1 \
+            --output-dir "${RUNNER_TEMP}/census"
+          echo "RESULT census PASS"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tracejit-census-${{ github.sha }}
+          path: ${{ runner.temp }}/census
       - name: Demo
         run: |
           set -eu
