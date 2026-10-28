@@ -50,6 +50,7 @@ mod linux {
     use std::path::Path;
 
     const LANDLOCK_CREATE_RULESET_VERSION: u32 = 1;
+    const SECCOMP_GET_ACTION_AVAIL: u32 = 2;
     const LANDLOCK_RULE_PATH_BENEATH: i32 = 1;
     const LANDLOCK_ACCESS_FS_EXECUTE: u64 = 1 << 0;
     const LANDLOCK_ACCESS_FS_WRITE_FILE: u64 = 1 << 1;
@@ -110,10 +111,21 @@ mod linux {
             )
         };
         let landlock_abi = (abi >= 1).then_some(abi as i32);
-        // Querying no_new_privs is enough to establish that the prctl interface exists. The
-        // actual filter installation is still checked in the child.
-        // SAFETY: PR_GET_NO_NEW_PRIVS has no pointer arguments.
-        let seccomp = unsafe { libc::prctl(libc::PR_GET_NO_NEW_PRIVS, 0, 0, 0, 0) } >= 0;
+        // `PR_GET_NO_NEW_PRIVS` succeeds on any kernel that has `prctl` at all, so it says
+        // nothing about whether a seccomp *filter* can be installed. `SECCOMP_GET_ACTION_AVAIL`
+        // is the documented probe: it answers only when the filter interface supports the action
+        // this crate installs, which is the capability `apply_seccomp` actually needs. A kernel
+        // that cannot report it fails closed here rather than claiming PROVEN and failing later.
+        let mut action: u32 = libc::SECCOMP_RET_KILL_PROCESS;
+        // SAFETY: the third argument points to writable storage for the queried action.
+        let seccomp = unsafe {
+            libc::syscall(
+                libc::SYS_seccomp,
+                SECCOMP_GET_ACTION_AVAIL,
+                0u32,
+                &mut action as *mut u32,
+            )
+        } == 0;
         let reason = if seccomp && landlock_abi.is_some_and(|version| version >= 3) {
             None
         } else {
@@ -259,7 +271,7 @@ mod linux {
         Ok(())
     }
 
-    fn apply_seccomp(allow_network: bool) -> Result<(), SandboxError> {
+    pub(super) fn apply_seccomp(allow_network: bool) -> Result<(), SandboxError> {
         if allow_network {
             return Err(SandboxError::Unsupported(
                 "V1 enforced mode does not permit network access".into(),
@@ -495,6 +507,90 @@ mod tests {
             sandbox_probe(&policy, &declared, Probe::ForbiddenSyscall),
             0,
             "forbidden syscall was accessible"
+        );
+    }
+
+    /// Exercises the seccomp half of enforcement on its own.
+    ///
+    /// `apply` installs nothing unless Landlock is also available, so on a kernel without
+    /// Landlock the filter was never installed by any test and the whole mechanism went
+    /// unverified. This probe installs exactly the filter `apply` installs and checks the
+    /// surface it is meant to close, together with the ordinary work it must leave alone.
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn seccomp_filter_alone_denies_its_forbidden_surface() {
+        let capability = capabilities();
+        if !capability.seccomp {
+            println!(
+                "skipped seccomp enforcement probe: {}",
+                capability
+                    .reason
+                    .unwrap_or_else(|| "seccomp filter interface unavailable".into())
+            );
+            return;
+        }
+        // SAFETY: the child performs no test-harness work after fork: it installs the filter,
+        // runs three syscall probes, and exits with _exit. The parent only waits.
+        let child = unsafe { libc::fork() };
+        assert!(
+            child >= 0,
+            "fork failed: {}",
+            std::io::Error::last_os_error()
+        );
+        if child == 0 {
+            if linux::apply_seccomp(false).is_err() {
+                // SAFETY: this is the fork child and no Rust destructors should run here.
+                unsafe { libc::_exit(125) };
+            }
+            // The filter must not disturb ordinary filesystem work.
+            let usable = std::fs::write("/dev/null", b"allowed").is_ok();
+            // SAFETY: socket has scalar arguments and returns a descriptor or errno.
+            let socket_fd = unsafe { libc::socket(libc::AF_INET, libc::SOCK_STREAM, 0) };
+            let socket_denied = socket_fd < 0
+                && std::io::Error::last_os_error().raw_os_error() == Some(libc::EPERM);
+            // SAFETY: PTRACE_TRACEME takes no pointer arguments.
+            let traced = unsafe {
+                libc::ptrace(
+                    libc::PTRACE_TRACEME,
+                    0,
+                    std::ptr::null_mut::<libc::c_void>(),
+                    std::ptr::null_mut::<libc::c_void>(),
+                )
+            };
+            let ptrace_denied =
+                traced == -1 && std::io::Error::last_os_error().raw_os_error() == Some(libc::EPERM);
+            // SAFETY: this is the fork child and no Rust destructors should run here.
+            unsafe {
+                libc::_exit(if usable && socket_denied && ptrace_denied {
+                    0
+                } else {
+                    1
+                })
+            }
+        }
+        let mut status = 0;
+        // SAFETY: child is a live child PID returned by fork and status is writable.
+        let waited = unsafe { libc::waitpid(child, &mut status, 0) };
+        assert_eq!(waited, child, "waitpid failed");
+        assert!(libc::WIFEXITED(status), "seccomp probe child did not exit");
+        let code = libc::WEXITSTATUS(status);
+        assert_ne!(code, 125, "seccomp filter installation failed");
+        assert_eq!(
+            code, 0,
+            "a forbidden syscall stayed reachable, or ordinary filesystem work broke"
+        );
+    }
+
+    /// Enforcement without Landlock must fail closed instead of installing a partial policy.
+    #[test]
+    fn enforcement_refuses_when_landlock_is_absent() {
+        if capabilities().landlock_abi.is_some_and(|abi| abi >= 3) {
+            println!("skipped fail-closed probe: this kernel provides Landlock ABI 3 or newer");
+            return;
+        }
+        assert!(
+            apply(&SandboxPolicy::default()).is_err(),
+            "enforcement installed a policy without Landlock"
         );
     }
 }
