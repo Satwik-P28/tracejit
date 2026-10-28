@@ -82,7 +82,9 @@ Unit tests in `crates/tracejit-cache`, plus the end-to-end reproduction script.
 | --- | --- | --- | --- |
 | 1 | Concurrent cache reads for one key | `concurrent_cache_reads_all_reuse_the_same_result` (8 parallel processes) | PASS — all `HIT`, identical stdout |
 | 2 | Concurrent cold runs for an identical key | `concurrent_identical_runs_neither_fail_nor_reuse_unsafely` (8 parallel processes) | PASS |
-| 2b | Same, at 32 parallel processes, pre-fix and post-fix binary | shell probe | PASS — 0 non-zero exits, 0 errors; SQLite contention **not reproduced** |
+| 2b | Same, at 32 parallel processes, pre-fix and post-fix binary | shell probe | PASS — 0 non-zero exits, 0 errors; cross-process SQLite contention **not reproduced** (see S1) |
+| 2c | First-time initialization of one fresh cache root by concurrent starts | `a_marker_written_by_a_peer_is_not_unrelated_content`, `concurrent_first_initialization_never_refuses_its_own_marker` | PASS — the false `unsafe cache root` abort (**defect D7**) is fixed; `database is locked` from eight connections *in one process* is tolerated as documented, expected SQLite behaviour (S1) |
+| 2d | Several connections in one process | `concurrent_first_initialization_never_refuses_its_own_marker` (control) | **UNSUPPORTED** — not serialized; the supported model is one cache connection per process, which is what the CLI does (S1) |
 | 3 | Corrupted cached output object | `a_corrupted_cached_output_fails_closed` | PASS — no cached byte served, run retraces, object repaired, next run reuses |
 | 4 | Truncated or invalid SQLite record | `a_malformed_record_fails_closed_instead_of_reusing` | PASS at the cache layer (`CacheError::Serialization`, fail closed). The end-to-end retrace path is covered by the same code branch as case 3 but is not asserted end to end: **UNSUPPORTED end-to-end** |
 | 5 | Cache root replaced by a symlink | `a_symlinked_cache_root_is_refused` | PASS — refused with `unsafe cache root` |
@@ -108,7 +110,7 @@ No `PROVEN` claim is made anywhere in this Phase 1 report.
 
 | Suite | Tests | Result |
 | --- | ---: | --- |
-| `tracejit-cache` unit | 14 | PASS |
+| `tracejit-cache` unit | 16 | PASS |
 | `tracejit-cli` unit (`src/main.rs`) | 5 | PASS |
 | `tracejit-cli` `linux_integration` | 20 | PASS |
 | `tracejit-core` unit | 7 | PASS |
@@ -116,7 +118,7 @@ No `PROVEN` claim is made anywhere in this Phase 1 report.
 | `tracejit-guards` unit | 8 | PASS |
 | `tracejit-sandbox` unit | 2 | PASS |
 | `tracejit-trace` unit | 5 | PASS |
-| **Total** | **66** | **PASS** |
+| **Total** | **68** | **PASS** |
 | `cargo fmt --all -- --check` | — | PASS |
 | `cargo clippy --workspace --all-targets --all-features -- -D warnings` | — | PASS |
 

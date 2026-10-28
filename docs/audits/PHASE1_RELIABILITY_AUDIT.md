@@ -258,18 +258,84 @@ the canonical target, so a program that identifies itself through
 `/proc/self/exe` still sees the link target — which is what the kernel reports for
 a direct execution of a symlink as well, so the two now agree.
 
+### D7 — Concurrent first-time cache initialization aborted the command with a false "unsafe cache root" (MEDIUM-HIGH, fixed)
+
+**Location** `crates/tracejit-cache/src/lib.rs`, `prepare_root`.
+
+**Behavior before the fix.** `prepare_root` accepts a root that already carries the
+ownership marker, and otherwise enumerates the root and refuses any entry that is
+not `objects`, `executions` or a SQLite file. `.tracejit-cache-v1` was **not** in
+that allowed set, and the marker check runs *before* the enumeration, so two
+processes starting against one fresh cache root could interleave as: A checks the
+marker (absent) → B creates the root and writes the marker → A enumerates, finds
+`.tracejit-cache-v1`, and returns
+`UnsafeRoot { reason: "unexpected existing entry: <root>/.tracejit-cache-v1" }`.
+
+**Severity** MEDIUM-HIGH. It fails *closed* — nothing wrong is reused and no
+cached byte is exposed — but it fails **the command**, so a parallel build can
+abort with a cache-directory error that has nothing to do with the workload.
+
+**Reproduction** Captured during the Phase 1 validation gate:
+
+```console
+$ cargo test -p tracejit-cli --test linux_integration -- --test-threads=1
+test concurrent_identical_runs_neither_fail_nor_reuse_unsafely ...
+thread 'concurrent_identical_runs_neither_fail_nor_reuse_unsafely' panicked at
+  crates/tracejit-cli/tests/linux_integration.rs:586:9:
+a concurrent run failed:
+tracejit: refusing to use unsafe cache root /tmp/.tmpfYSWcX/cache: unexpected existing entry: /tmp/.tmpfYSWcX/cache/.tracejit-cache-v1
+```
+
+The window is narrow: 144 further concurrent cold starts (12 rounds × 12
+processes) did not reproduce it, and the test passed on two immediate re-runs.
+That is why it is recorded with the captured output rather than as a stable
+reproduction.
+
+**Fix.** The marker is our own file, so it is never "unrelated content":
+`.tracejit-cache-v1` is now in the allowed set, and a marker that appears between
+the check and the enumeration is adopted without being written to — the second
+part also refuses to follow a symlink planted at that path. Coverage:
+`a_marker_written_by_a_peer_is_not_unrelated_content` (deterministic, exercises
+the exact branch) and `concurrent_first_initialization_never_refuses_its_own_marker`
+(8 racers × 50 fresh roots, asserting that no racer reports the false refusal).
+
+**Residual.** The enumeration is still a snapshot of the directory. A malicious
+writer that inserts a foreign entry between the marker check and the write is
+still only detected on the next run; that is the S3 hardening item below, not a
+privilege boundary, because an attacker with write access to the cache root
+already controls its contents.
+
 ## Suspected defects that were not reproduced
 
-### S1 — SQLite writer contention under concurrent cold runs (UNVERIFIED, hardening applied)
+### S1 — SQLite writer contention (cross-process not reproduced; same-process confirmed and out of the product path)
 
-The cache opens SQLite with WAL and `synchronous=FULL` and, before this change,
-no `busy_timeout`, so a second writer was expected to fail with `SQLITE_BUSY`
-immediately. Probes at 8 and 32 concurrent cold `run` invocations of the same
-command against a single fresh cache produced **zero** non-zero exits and **zero**
-errors on this host, for both the pre-fix and the fixed binary. The hypothesis is
-therefore not confirmed here. `PRAGMA busy_timeout=10000` was added anyway as
-defence in depth, and is reported as hardening rather than as the fix for an
-observed failure. A slower or more contended machine may still reproduce it.
+The cache opens SQLite with WAL and `synchronous=FULL` and, before this Phase,
+no `busy_timeout`, so a second writer was expected to fail with `SQLITE_BUSY`.
+
+**Cross-process: not reproduced.** Probes at 8 and 32 concurrent cold `run`
+invocations of the same command against a single fresh cache produced **zero**
+non-zero exits and **zero** errors, on both the pre-fix and the fixed binary;
+during Phase 1 another 144 concurrent cold starts reproduced nothing either.
+`PRAGMA busy_timeout=10000` is retained as hardening, not as a fix for an
+observed cross-process failure.
+
+**Same-process: reproduced, and expected.** The new unit test
+`concurrent_first_initialization_never_refuses_its_own_marker` opens eight
+connections from one process and does observe
+`cache database failed: database is locked` (round 4 of 50 on this host). That is
+SQLite's documented behaviour — it does **not** invoke the busy handler when the
+conflicting lock is held by another connection in the **same process**, to avoid
+deadlock. The CLI opens exactly one connection per process, so this is not a
+product code path, and no code change was made for it: the guess that reordering
+`journal_mode=WAL` after `busy_timeout` would fix it is wrong for the same-process
+case, and making the test tolerate the error would hide the distinction. The test
+asserts only what the design guarantees (no false `unsafe cache root`), and the
+cross-process guarantee is asserted by
+`concurrent_identical_runs_neither_fail_nor_reuse_unsafely`.
+
+**If the cache is ever embedded** with several connections in one process, this
+becomes a real gap and needs a process-wide serializer or a retry loop around the
+WAL conversion.
 
 ### S2 — Time-of-check/time-of-use between guard validation and restoration (documented, not fixed)
 
@@ -328,6 +394,8 @@ filesystem during this audit.
    re-execution; there is no quarantine of the affected record.
 4. Directory and special-file outputs remain non-reusable.
 5. `PROVEN` could not be exercised on the audit host (no Landlock).
+6. Same-process multi-connection cache use is not serialized (S1); the supported
+   model is one process, one cache connection, which is what the CLI does.
 
 ## Reproducing this audit
 

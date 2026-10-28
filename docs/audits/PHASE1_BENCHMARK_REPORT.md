@@ -231,6 +231,7 @@ Unsuccessful, discarded, or aborted runs — reported rather than hidden:
   workload; the census in the compatibility report shows those are all refused.
 - They say nothing about multi-process trees, sandboxed (`--enforce`) runs, or
   `PROVEN` reuse, none of which could be exercised here (no Landlock).
+- The measured binaries were built from this branch **before** the cache-initialization fix (reliability audit D7), which was found last, by the validation gate. That change touches first-time initialization only: the hit path returns at the same early marker check as before, and the cold condition adds one `symlink_metadata` call on a fresh root (microseconds against an 18.7 ms median). **No number in this report was re-measured after it** — the difference is far below the reported noise, but it is a real difference between the binary that was measured and the final tree.
 - The `c-transform` speedup is a synthetic workload and is not a product claim.
 
 ## Reproducing
