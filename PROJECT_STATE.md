@@ -26,6 +26,26 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 - `vdso_clock` calls libc `clock_gettime`, `gettimeofday`, and `time` and is `NONDETERMINISTIC`. Shared writable mmap fixtures are `UNKNOWN`.
 - v0.1.1 is the published release at that commit. v0.1.0 remains the older release and does not contain this `explain` summary, these `doctor` sentences, the shared-mmap refusal, or the vDSO redirect.
 
+## Phase 1 status
+
+Branch `freebuff/c4bae51ae7d50b70f5bd4fc1`, branched from `f90b4db`. Audited, reproduced and
+fixed five reliability defects (partial multi-output restoration, unrecoverable corrupt CAS object,
+permanently fatal malformed record, deleted-output precondition, benchmark methodology) and one
+execution-equivalence defect: `resolve_executable` canonicalized symlinks, so `tracejit run` exec'd
+the canonical target with a rewritten `argv[0]` and CPython resolved a different installation
+(`sys.prefix=/usr`) than a direct run (`/opt/freestyle/python`). Fixed by restoring the caller's
+`argv[0`]; regression test `traced_execution_preserves_the_caller_supplied_argv0`.
+
+Real-world census (`benchmarks/realworld/census.py`, 9 workloads, commit `6358522` plus the fixes):
+**0 of 9 reusable**, 9 refused, 0 execution failures, output equivalence PASS on all 9. Ranked
+blockers: unguardable `access()` checks (4 workloads, 28 occurrences), unclassified descriptors (4),
+interpreter startup clock/pid/getrandom (3), then `pipe2` (5), `epoll_create1`, `fstat`, `/dev/null`,
+failed `close(-1)`, `getrusage`. Reports: `docs/audits/PHASE1_COMPATIBILITY_REPORT.md`,
+`docs/audits/PHASE1_CORRECTNESS_MATRIX.md`, `docs/audits/PHASE1_RELIABILITY_AUDIT.md`,
+`docs/audits/PHASE1_PHASE2_HANDOFF.md`.
+
+Raw data for this phase is in `benchmarks/results/phase1/` (census and native timing samples).
+
 ## Benchmark status
 
 Do not replace these with local guesses.
@@ -41,7 +61,7 @@ v0.1.0 stays at its existing tag. v0.1.1 is published from `31c36d1`. Do not mov
 ## Blockers before a public announcement of this tree
 
 - Social preview upload is a GitHub settings action. The 1280×640 PNG is `docs/assets/social-preview.png`.
-- Shell, `cc`, and CPython remain refused. That is correct until a fixture says otherwise.
+- Shell, `cc`, and CPython remain refused, and the Phase 1 census confirms it on 9 real workloads. That is correct until a fixture says otherwise.
 
 ## Known-good benchmark commits
 
