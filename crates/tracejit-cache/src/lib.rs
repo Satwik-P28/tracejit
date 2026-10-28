@@ -472,6 +472,12 @@ fn prepare_root(root: &Path) -> Result<(), CacheError> {
     if marker.is_file() {
         return Ok(());
     }
+    // The marker is our own file, so it is never "unrelated content". Listing it here closes a
+    // first-initialization race: two processes starting against the same fresh root both observe
+    // `marker.is_file() == false`, and the peer that writes the marker between that check and this
+    // enumeration would otherwise look like foreign content, abort the run with "unsafe cache
+    // root", and never execute the command it was invoked for. Observed in
+    // crates/tracejit-cli/tests/linux_integration.rs::concurrent_identical_runs_neither_fail_nor_reuse_unsafely.
     let allowed = [
         "objects",
         "executions",
@@ -479,6 +485,7 @@ fn prepare_root(root: &Path) -> Result<(), CacheError> {
         "db.sqlite3-wal",
         "db.sqlite3-shm",
         "db.sqlite3-journal",
+        ".tracejit-cache-v1",
     ];
     for entry in fs::read_dir(root).map_err(|source| io_error(root, source))? {
         let entry = entry.map_err(|source| io_error(root, source))?;
@@ -488,6 +495,11 @@ fn prepare_root(root: &Path) -> Result<(), CacheError> {
                 reason: format!("unexpected existing entry: {}", entry.path().display()),
             });
         }
+    }
+    // A peer may have created the marker since the check above. Adopt it without writing to it:
+    // writing would follow whatever now sits at that path, including a symlink.
+    if fs::symlink_metadata(&marker).is_ok() {
+        return Ok(());
     }
     fs::write(&marker, b"TraceJIT cache v1\n").map_err(|source| io_error(&marker, source))
 }
@@ -1067,6 +1079,64 @@ mod tests {
             )
             .unwrap();
         assert!(matches!(cache.find(key), Err(CacheError::Serialization(_))));
+    }
+
+    #[test]
+    fn a_marker_written_by_a_peer_is_not_unrelated_content() {
+        // Regression for the first-initialization race in `prepare_root`: the marker is our own
+        // file, so a root that already carries one must never be refused as unsafe. A dangling
+        // symlink at the marker path reproduces the exact branch the race takes —
+        // `marker.is_file()` reads false while the enumeration still lists the marker — without
+        // depending on timing.
+        let directory = tempfile::tempdir().unwrap();
+        fs::create_dir_all(directory.path().join("objects")).unwrap();
+        std::os::unix::fs::symlink(
+            directory.path().join("absent-target"),
+            directory.path().join(".tracejit-cache-v1"),
+        )
+        .unwrap();
+        assert!(
+            Cache::open(directory.path()).is_ok(),
+            "a pre-existing marker must not make the root look foreign"
+        );
+    }
+
+    #[test]
+    fn concurrent_first_initialization_never_refuses_its_own_marker() {
+        // Regression for the first-initialization race in `prepare_root`: when several starts race
+        // on one fresh root, a peer's marker written between the marker check and the root
+        // enumeration used to be reported as `unsafe cache root: unexpected existing entry
+        // <root>/.tracejit-cache-v1`, which aborted the command. That false refusal is the only
+        // failure this test asserts against.
+        //
+        // `database is locked` is tolerated deliberately. SQLite does not invoke the busy handler
+        // when the conflicting lock belongs to another connection in the *same* process, and this
+        // test opens eight connections from one process. TraceJIT opens one cache connection per
+        // process, and the cross-process guarantee is covered by
+        // crates/tracejit-cli/tests/linux_integration.rs::concurrent_identical_runs_neither_fail_nor_reuse_unsafely.
+        // See the S1 entry in docs/audits/PHASE1_RELIABILITY_AUDIT.md.
+        let directory = tempfile::tempdir().unwrap();
+        for round in 0..50 {
+            let root = directory.path().join(format!("cache-{round}"));
+            let barrier = std::sync::Arc::new(std::sync::Barrier::new(8));
+            let mut handles = Vec::new();
+            for _ in 0..8 {
+                let root = root.clone();
+                let barrier = barrier.clone();
+                handles.push(std::thread::spawn(move || {
+                    barrier.wait();
+                    Cache::open(&root).map(|_| ())
+                }));
+            }
+            for handle in handles {
+                if let Err(error) = handle.join().unwrap() {
+                    assert!(
+                        !matches!(error, CacheError::UnsafeRoot { .. }),
+                        "round {round}: a start refused its own cache root: {error}"
+                    );
+                }
+            }
+        }
     }
 
     #[test]
