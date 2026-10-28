@@ -1,0 +1,142 @@
+TraceJIT explanation
+
+execution      66e54f2a62d857d8
+command        /workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/c-etl/etl
+classification GUARDED
+cache decision Deoptimized
+reason         cached execution deoptimized
+effects        29
+guards         36
+inputs         8
+outputs        1
+deopt          file content changed
+expected       3c49e4908a16857ab1b0bd9809f054cd608b4e73ae38ad6f68525c4aa4587414
+actual         6979a7c85f2848cbad5c0d6bf4a3835aa8424989378bb747694eb224fe7c6bfa
+details
+  - all observed dependencies are guardable or captured outputs
+cache key      argv, cwd, executable hash, runtime identity, and all 18 inherited environment entries
+observed inputs
+  READ  /etc/ld.so.cache
+  READ  /lib/x86_64-linux-gnu/libc.so.6
+  READ  /workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/python-etl/inputs/customers.csv
+  READ  /workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/python-etl/inputs/sales.csv
+  EXEC  /workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/c-etl/etl
+  META  /etc/ld.so.cache
+  META  /etc/ld.so.preload
+  META  /lib/x86_64-linux-gnu/libc.so.6
+outputs
+  WRITE /workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/c-etl/output/report.json
+guards
+  file metadata /workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/c-etl/etl
+  executable content /workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/c-etl/etl
+  working directory /workspace/chats/c4bae51ae7d50b70f5bd4fc1
+  runtime identity
+  environment key GLIBC_TUNABLES
+  environment key HOME
+  environment key INVOCATION_ID
+  environment key JOURNAL_STREAM
+  environment key LANG
+  environment key LOGNAME
+  environment key MALLOC_ARENA_MAX
+  environment key OLDPWD
+  environment key PATH
+  environment key PWD
+  environment key PYTHONDONTWRITEBYTECODE
+  environment key PYTHONHASHSEED
+  environment key SHELL
+  environment key SHLVL
+  environment key SYSTEMD_EXEC_PID
+  environment key TRACEJIT_CACHE_DIR
+  environment key USER
+  environment key _
+  file metadata /etc/ld.so.cache
+  file content /etc/ld.so.cache
+  file metadata /lib/x86_64-linux-gnu/libc.so.6
+  file content /lib/x86_64-linux-gnu/libc.so.6
+  file metadata /workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/python-etl/inputs/customers.csv
+  file content /workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/python-etl/inputs/customers.csv
+  file metadata /workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/python-etl/inputs/sales.csv
+  file content /workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/python-etl/inputs/sales.csv
+  file metadata /workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/c-etl/etl
+  executable content /workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/c-etl/etl
+  file metadata /etc/ld.so.cache
+  file metadata /etc/ld.so.preload
+  file metadata /lib/x86_64-linux-gnu/libc.so.6
+effect detail
+  0 pid 78527 Control(Exec(ProcessExec { path: "/workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/c-etl/etl", hash: Some(Hash([13, 3, 232, 202, 4, 168, 68, 219, 46, 172, 170, 201, 41, 90, 183, 209, 197, 115, 34, 28, 76, 99, 119, 183, 231, 100, 63, 172, 244, 230, 131, 160])), fingerprint: Some(FileFingerprint { device: 65024, inode: 533542, size: 16608, blocks: 40, block_size: 4096, accessed_ns: 1793151066229035381, modified_ns: 1793151066221035381, changed_ns: 1793151066221035381, mode: 33261, link_count: 1, uid: 206386417, gid: 1001, device_id: 0 }) }))
+  1 pid 78527 Read(FileMetadata(FileMetadataRead { path: "/etc/ld.so.preload", fingerprint: Some(FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }) }))
+  2 pid 78527 Read(File(FileRead { path: "/etc/ld.so.cache", hash: Some(Hash([213, 127, 232, 200, 215, 78, 149, 172, 57, 90, 103, 100, 92, 149, 14, 152, 171, 204, 160, 56, 123, 101, 105, 54, 159, 246, 196, 188, 215, 234, 41, 90])), fingerprint: Some(FileFingerprint { device: 65024, inode: 130856, size: 15647, blocks: 32, block_size: 4096, accessed_ns: 1793144488323751193, modified_ns: 1792189595809103763, changed_ns: 1792189595821103763, mode: 33188, link_count: 1, uid: 0, gid: 0, device_id: 0 }) }))
+  3 pid 78527 Read(FileMetadata(FileMetadataRead { path: "/etc/ld.so.cache", fingerprint: Some(FileFingerprint { device: 65024, inode: 130856, size: 15647, blocks: 32, block_size: 4096, accessed_ns: 1793144488323751193, modified_ns: 1792189595809103763, changed_ns: 1792189595821103763, mode: 33188, link_count: 1, uid: 0, gid: 0, device_id: 0 }) }))
+  4 pid 78527 Read(File(FileRead { path: "/lib/x86_64-linux-gnu/libc.so.6", hash: Some(Hash([229, 150, 184, 222, 70, 188, 174, 164, 10, 5, 29, 54, 157, 35, 11, 76, 140, 1, 242, 172, 6, 229, 215, 59, 223, 87, 142, 194, 173, 166, 218, 56])), fingerprint: Some(FileFingerprint { device: 65024, inode: 66792, size: 2129424, blocks: 4160, block_size: 4096, accessed_ns: 1793144488323751193, modified_ns: 1788444912000000000, changed_ns: 1792189513000000000, mode: 33261, link_count: 1, uid: 0, gid: 0, device_id: 0 }) }))
+  5 pid 78527 Read(FileMetadata(FileMetadataRead { path: "/lib/x86_64-linux-gnu/libc.so.6", fingerprint: Some(FileFingerprint { device: 65024, inode: 66792, size: 2129424, blocks: 4160, block_size: 4096, accessed_ns: 1793144488323751193, modified_ns: 1788444912000000000, changed_ns: 1792189513000000000, mode: 33261, link_count: 1, uid: 0, gid: 0, device_id: 0 }) }))
+  6 pid 78527 Read(File(FileRead { path: "/workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/python-etl/inputs/customers.csv", hash: Some(Hash([77, 125, 92, 145, 76, 69, 125, 61, 133, 124, 34, 142, 142, 195, 214, 214, 109, 164, 100, 136, 183, 108, 12, 176, 217, 210, 253, 11, 111, 20, 145, 42])), fingerprint: Some(FileFingerprint { device: 65024, inode: 524405, size: 62, blocks: 8, block_size: 4096, accessed_ns: 1793150486568570547, modified_ns: 1793144491743165739, changed_ns: 1793150480184959012, mode: 33188, link_count: 1, uid: 206386417, gid: 1001, device_id: 0 }) }))
+  7 pid 78527 Read(File(FileRead { path: "/workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/python-etl/inputs/sales.csv", hash: Some(Hash([105, 121, 167, 200, 95, 40, 72, 203, 173, 92, 13, 107, 244, 163, 131, 90, 168, 66, 73, 137, 55, 139, 183, 71, 105, 78, 178, 36, 254, 124, 107, 250])), fingerprint: Some(FileFingerprint { device: 65024, inode: 524406, size: 136, blocks: 8, block_size: 4096, accessed_ns: 1793151068473100474, modified_ns: 1793151068469100474, changed_ns: 1793151068469100474, mode: 33188, link_count: 1, uid: 206386417, gid: 1001, device_id: 0 }) }))
+  8 pid 78527 Write(File(FileWrite { path: "/workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/c-etl/output/report.json", operation: CreateOrModify, allows_create: Some(true) }))
+  9 pid 78527 Write(File(FileWrite { path: "/workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/c-etl/output/report.json", operation: CreateOrModify, allows_create: None }))
+  10 pid 78527 Read(WorkingDirectory)
+  11 pid 78527 Read(Environment(EnvironmentRead { key: "GLIBC_TUNABLES", value: Some("glibc.malloc.tcache_count=0") }))
+  12 pid 78527 Read(Environment(EnvironmentRead { key: "HOME", value: Some("/workspace/homes/c4bae51ae7d50b70f5bd4fc1") }))
+  13 pid 78527 Read(Environment(EnvironmentRead { key: "INVOCATION_ID", value: Some("ab28d4f2651f4f2ea09039758b1dde50") }))
+  14 pid 78527 Read(Environment(EnvironmentRead { key: "JOURNAL_STREAM", value: Some("8:841") }))
+  15 pid 78527 Read(Environment(EnvironmentRead { key: "LANG", value: Some("C.UTF-8") }))
+  16 pid 78527 Read(Environment(EnvironmentRead { key: "LOGNAME", value: Some("fbc4bae51ae7d50b70f5bd4fc1") }))
+  17 pid 78527 Read(Environment(EnvironmentRead { key: "MALLOC_ARENA_MAX", value: Some("1") }))
+  18 pid 78527 Read(Environment(EnvironmentRead { key: "OLDPWD", value: Some("/workspace/chats/c4bae51ae7d50b70f5bd4fc1") }))
+  19 pid 78527 Read(Environment(EnvironmentRead { key: "PATH", value: Some("/workspace/homes/c4bae51ae7d50b70f5bd4fc1/.cargo/bin:/workspace/homes/c4bae51ae7d50b70f5bd4fc1/.bun/bin:/workspace/homes/c4bae51ae7d50b70f5bd4fc1/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin") }))
+  20 pid 78527 Read(Environment(EnvironmentRead { key: "PWD", value: Some("/workspace/chats/c4bae51ae7d50b70f5bd4fc1") }))
+  21 pid 78527 Read(Environment(EnvironmentRead { key: "PYTHONDONTWRITEBYTECODE", value: Some("1") }))
+  22 pid 78527 Read(Environment(EnvironmentRead { key: "PYTHONHASHSEED", value: Some("0") }))
+  23 pid 78527 Read(Environment(EnvironmentRead { key: "SHELL", value: Some("/bin/bash") }))
+  24 pid 78527 Read(Environment(EnvironmentRead { key: "SHLVL", value: Some("2") }))
+  25 pid 78527 Read(Environment(EnvironmentRead { key: "SYSTEMD_EXEC_PID", value: Some("1222") }))
+  26 pid 78527 Read(Environment(EnvironmentRead { key: "TRACEJIT_CACHE_DIR", value: Some("/tmp/tracejit-deopt-7lo1g2p5") }))
+  27 pid 78527 Read(Environment(EnvironmentRead { key: "USER", value: Some("fbc4bae51ae7d50b70f5bd4fc1") }))
+  28 pid 78527 Read(Environment(EnvironmentRead { key: "_", value: Some("/usr/local/bin/python3") }))
+guard detail
+  FileMetadata { path: "/workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/c-etl/etl", expected: FileFingerprint { device: 65024, inode: 533542, size: 16608, blocks: 40, block_size: 4096, accessed_ns: 1793151066229035381, modified_ns: 1793151066221035381, changed_ns: 1793151066221035381, mode: 33261, link_count: 1, uid: 206386417, gid: 1001, device_id: 0 } }
+  ExecutableHash { path: "/workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/c-etl/etl", expected: Hash([13, 3, 232, 202, 4, 168, 68, 219, 46, 172, 170, 201, 41, 90, 183, 209, 197, 115, 34, 28, 76, 99, 119, 183, 231, 100, 63, 172, 244, 230, 131, 160]) }
+  WorkingDirectory { expected: "/workspace/chats/c4bae51ae7d50b70f5bd4fc1" }
+  RuntimeIdentity { expected: RuntimeIdentity { os: "Linux", architecture: "x86_64", kernel_release: "6.1.102", kernel_version: "#1 SMP PREEMPT_DYNAMIC Wed Aug 26 20:12:24 UTC 2026", hostname: "freestyle-vm", domain_name: "(none)", uid: 206386417, euid: 206386417, gid: 1001, egid: 1001, stack_limit_soft: 8388608, stack_limit_hard: 18446744073709551615, stdin: FileDescriptorIdentity { target: "/dev/null", fingerprint: Some(FileFingerprint { device: 5, inode: 4, size: 0, blocks: 0, block_size: 4096, accessed_ns: 1792189596329446873, modified_ns: 1792189596329446873, changed_ns: 1792189596329446873, mode: 8630, link_count: 1, uid: 0, gid: 0, device_id: 259 }) } } }
+  EnvironmentValue { key: "GLIBC_TUNABLES", expected: Some("glibc.malloc.tcache_count=0") }
+  EnvironmentValue { key: "HOME", expected: Some("/workspace/homes/c4bae51ae7d50b70f5bd4fc1") }
+  EnvironmentValue { key: "INVOCATION_ID", expected: Some("ab28d4f2651f4f2ea09039758b1dde50") }
+  EnvironmentValue { key: "JOURNAL_STREAM", expected: Some("8:841") }
+  EnvironmentValue { key: "LANG", expected: Some("C.UTF-8") }
+  EnvironmentValue { key: "LOGNAME", expected: Some("fbc4bae51ae7d50b70f5bd4fc1") }
+  EnvironmentValue { key: "MALLOC_ARENA_MAX", expected: Some("1") }
+  EnvironmentValue { key: "OLDPWD", expected: Some("/workspace/chats/c4bae51ae7d50b70f5bd4fc1") }
+  EnvironmentValue { key: "PATH", expected: Some("/workspace/homes/c4bae51ae7d50b70f5bd4fc1/.cargo/bin:/workspace/homes/c4bae51ae7d50b70f5bd4fc1/.bun/bin:/workspace/homes/c4bae51ae7d50b70f5bd4fc1/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin") }
+  EnvironmentValue { key: "PWD", expected: Some("/workspace/chats/c4bae51ae7d50b70f5bd4fc1") }
+  EnvironmentValue { key: "PYTHONDONTWRITEBYTECODE", expected: Some("1") }
+  EnvironmentValue { key: "PYTHONHASHSEED", expected: Some("0") }
+  EnvironmentValue { key: "SHELL", expected: Some("/bin/bash") }
+  EnvironmentValue { key: "SHLVL", expected: Some("2") }
+  EnvironmentValue { key: "SYSTEMD_EXEC_PID", expected: Some("1222") }
+  EnvironmentValue { key: "TRACEJIT_CACHE_DIR", expected: Some("/tmp/tracejit-deopt-7lo1g2p5") }
+  EnvironmentValue { key: "USER", expected: Some("fbc4bae51ae7d50b70f5bd4fc1") }
+  EnvironmentValue { key: "_", expected: Some("/usr/local/bin/python3") }
+  FileMetadata { path: "/etc/ld.so.cache", expected: FileFingerprint { device: 65024, inode: 130856, size: 15647, blocks: 32, block_size: 4096, accessed_ns: 1793144488323751193, modified_ns: 1792189595809103763, changed_ns: 1792189595821103763, mode: 33188, link_count: 1, uid: 0, gid: 0, device_id: 0 } }
+  FileHash { path: "/etc/ld.so.cache", expected: Hash([213, 127, 232, 200, 215, 78, 149, 172, 57, 90, 103, 100, 92, 149, 14, 152, 171, 204, 160, 56, 123, 101, 105, 54, 159, 246, 196, 188, 215, 234, 41, 90]) }
+  FileMetadata { path: "/lib/x86_64-linux-gnu/libc.so.6", expected: FileFingerprint { device: 65024, inode: 66792, size: 2129424, blocks: 4160, block_size: 4096, accessed_ns: 1793144488323751193, modified_ns: 1788444912000000000, changed_ns: 1792189513000000000, mode: 33261, link_count: 1, uid: 0, gid: 0, device_id: 0 } }
+  FileHash { path: "/lib/x86_64-linux-gnu/libc.so.6", expected: Hash([229, 150, 184, 222, 70, 188, 174, 164, 10, 5, 29, 54, 157, 35, 11, 76, 140, 1, 242, 172, 6, 229, 215, 59, 223, 87, 142, 194, 173, 166, 218, 56]) }
+  FileMetadata { path: "/workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/python-etl/inputs/customers.csv", expected: FileFingerprint { device: 65024, inode: 524405, size: 62, blocks: 8, block_size: 4096, accessed_ns: 1793150486568570547, modified_ns: 1793144491743165739, changed_ns: 1793150480184959012, mode: 33188, link_count: 1, uid: 206386417, gid: 1001, device_id: 0 } }
+  FileHash { path: "/workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/python-etl/inputs/customers.csv", expected: Hash([77, 125, 92, 145, 76, 69, 125, 61, 133, 124, 34, 142, 142, 195, 214, 214, 109, 164, 100, 136, 183, 108, 12, 176, 217, 210, 253, 11, 111, 20, 145, 42]) }
+  FileMetadata { path: "/workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/python-etl/inputs/sales.csv", expected: FileFingerprint { device: 65024, inode: 524406, size: 136, blocks: 8, block_size: 4096, accessed_ns: 1793151068473100474, modified_ns: 1793151068469100474, changed_ns: 1793151068469100474, mode: 33188, link_count: 1, uid: 206386417, gid: 1001, device_id: 0 } }
+  FileHash { path: "/workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/python-etl/inputs/sales.csv", expected: Hash([105, 121, 167, 200, 95, 40, 72, 203, 173, 92, 13, 107, 244, 163, 131, 90, 168, 66, 73, 137, 55, 139, 183, 71, 105, 78, 178, 36, 254, 124, 107, 250]) }
+  FileMetadata { path: "/workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/c-etl/etl", expected: FileFingerprint { device: 65024, inode: 533542, size: 16608, blocks: 40, block_size: 4096, accessed_ns: 1793151066229035381, modified_ns: 1793151066221035381, changed_ns: 1793151066221035381, mode: 33261, link_count: 1, uid: 206386417, gid: 1001, device_id: 0 } }
+  ExecutableHash { path: "/workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/c-etl/etl", expected: Hash([13, 3, 232, 202, 4, 168, 68, 219, 46, 172, 170, 201, 41, 90, 183, 209, 197, 115, 34, 28, 76, 99, 119, 183, 231, 100, 63, 172, 244, 230, 131, 160]) }
+  FileMetadata { path: "/etc/ld.so.cache", expected: FileFingerprint { device: 65024, inode: 130856, size: 15647, blocks: 32, block_size: 4096, accessed_ns: 1793144488323751193, modified_ns: 1792189595809103763, changed_ns: 1792189595821103763, mode: 33188, link_count: 1, uid: 0, gid: 0, device_id: 0 } }
+  FileMetadata { path: "/etc/ld.so.preload", expected: FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 } }
+  FileMetadata { path: "/lib/x86_64-linux-gnu/libc.so.6", expected: FileFingerprint { device: 65024, inode: 66792, size: 2129424, blocks: 4160, block_size: 4096, accessed_ns: 1793144488323751193, modified_ns: 1788444912000000000, changed_ns: 1792189513000000000, mode: 33261, link_count: 1, uid: 0, gid: 0, device_id: 0 } }
+  NoUnexpectedEffects
+input hashes
+  File { path: "/etc/ld.so.cache", expected_hash: Hash([213, 127, 232, 200, 215, 78, 149, 172, 57, 90, 103, 100, 92, 149, 14, 152, 171, 204, 160, 56, 123, 101, 105, 54, 159, 246, 196, 188, 215, 234, 41, 90]), fingerprint: Some(FileFingerprint { device: 65024, inode: 130856, size: 15647, blocks: 32, block_size: 4096, accessed_ns: 1793144488323751193, modified_ns: 1792189595809103763, changed_ns: 1792189595821103763, mode: 33188, link_count: 1, uid: 0, gid: 0, device_id: 0 }) }
+  File { path: "/lib/x86_64-linux-gnu/libc.so.6", expected_hash: Hash([229, 150, 184, 222, 70, 188, 174, 164, 10, 5, 29, 54, 157, 35, 11, 76, 140, 1, 242, 172, 6, 229, 215, 59, 223, 87, 142, 194, 173, 166, 218, 56]), fingerprint: Some(FileFingerprint { device: 65024, inode: 66792, size: 2129424, blocks: 4160, block_size: 4096, accessed_ns: 1793144488323751193, modified_ns: 1788444912000000000, changed_ns: 1792189513000000000, mode: 33261, link_count: 1, uid: 0, gid: 0, device_id: 0 }) }
+  File { path: "/workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/python-etl/inputs/customers.csv", expected_hash: Hash([77, 125, 92, 145, 76, 69, 125, 61, 133, 124, 34, 142, 142, 195, 214, 214, 109, 164, 100, 136, 183, 108, 12, 176, 217, 210, 253, 11, 111, 20, 145, 42]), fingerprint: Some(FileFingerprint { device: 65024, inode: 524405, size: 62, blocks: 8, block_size: 4096, accessed_ns: 1793150486568570547, modified_ns: 1793144491743165739, changed_ns: 1793150480184959012, mode: 33188, link_count: 1, uid: 206386417, gid: 1001, device_id: 0 }) }
+  File { path: "/workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/python-etl/inputs/sales.csv", expected_hash: Hash([105, 121, 167, 200, 95, 40, 72, 203, 173, 92, 13, 107, 244, 163, 131, 90, 168, 66, 73, 137, 55, 139, 183, 71, 105, 78, 178, 36, 254, 124, 107, 250]), fingerprint: Some(FileFingerprint { device: 65024, inode: 524406, size: 136, blocks: 8, block_size: 4096, accessed_ns: 1793151068473100474, modified_ns: 1793151068469100474, changed_ns: 1793151068469100474, mode: 33188, link_count: 1, uid: 206386417, gid: 1001, device_id: 0 }) }
+  Executable { path: "/workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/c-etl/etl", expected_hash: Hash([13, 3, 232, 202, 4, 168, 68, 219, 46, 172, 170, 201, 41, 90, 183, 209, 197, 115, 34, 28, 76, 99, 119, 183, 231, 100, 63, 172, 244, 230, 131, 160]), fingerprint: Some(FileFingerprint { device: 65024, inode: 533542, size: 16608, blocks: 40, block_size: 4096, accessed_ns: 1793151066229035381, modified_ns: 1793151066221035381, changed_ns: 1793151066221035381, mode: 33261, link_count: 1, uid: 206386417, gid: 1001, device_id: 0 }) }
+  Metadata { path: "/etc/ld.so.cache", fingerprint: FileFingerprint { device: 65024, inode: 130856, size: 15647, blocks: 32, block_size: 4096, accessed_ns: 1793144488323751193, modified_ns: 1792189595809103763, changed_ns: 1792189595821103763, mode: 33188, link_count: 1, uid: 0, gid: 0, device_id: 0 } }
+  Metadata { path: "/etc/ld.so.preload", fingerprint: FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 } }
+  Metadata { path: "/lib/x86_64-linux-gnu/libc.so.6", fingerprint: FileFingerprint { device: 65024, inode: 66792, size: 2129424, blocks: 4160, block_size: 4096, accessed_ns: 1793144488323751193, modified_ns: 1788444912000000000, changed_ns: 1792189513000000000, mode: 33261, link_count: 1, uid: 0, gid: 0, device_id: 0 } }
+output hashes
+  OutputArtifact { path: "/workspace/chats/c4bae51ae7d50b70f5bd4fc1/benchmarks/workloads/c-etl/output/report.json", kind: File, content: Some(Hash([59, 50, 228, 238, 7, 53, 213, 76, 113, 231, 110, 114, 151, 163, 95, 141, 5, 30, 45, 12, 65, 118, 10, 78, 132, 245, 86, 48, 147, 237, 91, 112])), unix_mode: Some(33188), allows_create: true }

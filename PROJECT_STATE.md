@@ -77,3 +77,21 @@ cargo test -p tracejit-cli --test linux_integration -- --nocapture
 cargo build --workspace --release
 ./scripts/demo.sh
 ```
+
+## Phase 1.5 verification (branch `verify/phase1-5`)
+
+Independent verification of Phase 1 ran on Ubuntu 24.04.5 / kernel 6.1.102, 2 vCPU. All seven Phase 1
+defects were re-tested: D6, D7, D1-D4 all hold, D2/D3 recovered end to end. Four new defects were
+found and fixed with regression tests: D8 (a refused cached replacement aborted a command that
+succeeds when re-run), D9 (a traced script saw a canonical `$0` instead of the caller's path), D10
+(benchmarks recorded every run as dirty) and D11 (the seccomp capability probe tested `prctl`
+instead of the filter interface). The seccomp filter is now verified on its own, so enforcement has
+real coverage even without Landlock.
+
+`PROVEN` still has never been exercised: this kernel has no Landlock (`ENOSYS`, LSM list
+`capability,selinux`), so those probes report SKIP. CI already fails on `RESULT sandbox SKIP`; that
+gate cannot run here without a push. Two clean benchmark sessions: baseline 8.3414/8.3508 ms, cold
+19.0236/18.5066 ms, hit 3.9715/3.9912 ms, speedup 2.1003x/2.0923x, 2.33-2.44 hits to recover a cold
+trace. The break-even sweep did not finish and is reported as BLOCKED, not estimated.
+
+See `docs/audits/PHASE1_5_*.md` and `benchmarks/results/phase1_5/`.
