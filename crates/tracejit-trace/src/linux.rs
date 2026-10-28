@@ -2304,6 +2304,25 @@ mod tests {
         }
     }
 
+    /// The identity hash is sampled before tracing. If the path no longer matches it, the tracer
+    /// must refuse rather than file the run's profile under an identity that did not produce it.
+    #[test]
+    fn refuses_to_trace_an_executable_that_no_longer_matches_its_identity() {
+        let executable = std::env::current_exe().unwrap();
+        let request = TraceRequest {
+            executable: executable.clone(),
+            argv: vec![executable.clone().into_os_string()],
+            cwd: std::env::current_dir().unwrap(),
+            environment: std::collections::BTreeMap::new(),
+            expected_executable_hash: Some(tracejit_effects::Hash::new([0xab; 32])),
+            sandbox: None,
+        };
+        match trace_command(request) {
+            Err(TraceError::ExecutableChanged(_)) => {}
+            other => panic!("expected the tracer to refuse, got {other:?}"),
+        }
+    }
+
     #[test]
     fn shared_mprotect_write_is_visible_to_the_guard() {
         let mut mappings = vec![shared_read_only()];

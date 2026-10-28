@@ -95,3 +95,21 @@ gate cannot run here without a push. Two clean benchmark sessions: baseline 8.34
 trace. The break-even sweep did not finish and is reported as BLOCKED, not estimated.
 
 See `docs/audits/PHASE1_5_*.md` and `benchmarks/results/phase1_5/`.
+
+## Phase 2 (branch `verify/phase1-5`, commit `2edbf0d`)
+
+Phase 2B.2 landed: `access`/`faccessat`/`faccessat2` are now recorded verbatim (path, mode, flags and
+the exact errno) and replayed as a predicate at validation time, instead of being refused. This was
+the census's most frequent blocker (4 of 9 workloads, 28 occurrences) and it is now absent from the
+ranking. Phase 2A.1 landed too: the tracer re-hashes the executable immediately before exec and
+refuses to trace on a mismatch, so a replaced path cannot file a profile under an identity that did
+not produce it; the final window between the check and `execve` remains open and is documented.
+
+Eligibility is still **0 of 9**: the remaining blockers are `unclassified_descriptor` (4 workloads,
+11 occurrences), `pipe2` (5), `getrusage` (2), `epoll_create1` (1) and `fstat` (1). Output
+equivalence stayed 9/9. `PROVEN` is still unexercised (no Landlock on this host).
+
+Tests: 77 passing. Benchmarks have **not** been re-run at `2edbf0d`; do not quote Phase 1.5 numbers
+for this commit. See `docs/PROJECT_EXECUTION_STATE.md`, `docs/audits/PHASE2_ACCESS_PREDICATES.md`,
+`docs/audits/PHASE2_EXEC_IDENTITY.md`, `docs/audits/PHASE2_CENSUS_DELTA.md`, and
+`benchmarks/results/phase2/census-2edbf0d/`.
