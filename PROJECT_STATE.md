@@ -135,3 +135,26 @@ startup), pipe short-read-then-more (3 workloads), `fstat` on a pipe (2), `getru
 `epoll_create1` (1). Output equivalence stayed 9/9. Tests: 86 passing. Benchmarks have **not** been
 re-run at this commit. See `docs/audits/PHASE2B_*.md` and
 `benchmarks/results/phase2b/census-b57bc7f/`.
+
+## Phase 2C (branch `verify/phase1-5`, commit `bd59a0e`)
+
+**First real-world cache hit.** `gzip -9 -c <18 MB text>` classifies `GUARDED` with 9 dependencies
+and one process; the second run reports `Reused` and returns bytes identical to a direct run, 20/20
+consecutive runs hit, and the measured speedup is **23.84x** (259.41 ms direct vs 10.88 ms cached,
+p95 272.03 / 14.05), with two repeated uses repaying the cold trace. A content change deoptimizes and
+returns the new bytes; an mtime-only change deoptimizes because gzip stores the timestamp; a changed
+environment is not reused; a symlink repointed at another program is never replayed. The regression
+test is `real_gzip_workload_is_reused_and_invalidated`.
+
+`getrusage` was investigated and **not** admitted. It is called once by `as` (not `cc1`, not for
+`-ftime-report`, `RUSAGE_SELF`); overriding the value with zeros or absurd numbers, or failing the
+call outright, leaves the object file byte-identical, and `as --statistics` prints `0.000000` under
+either extreme, so the value reaches no observable output — for these inputs. It stays
+`NONDETERMINISTIC` because per-run consumption cannot be guarded.
+
+Census unchanged at **0 of 9**. Two findings explain most of it: the census invokes workloads through
+`sh -c`, so the shell's own `/dev/tty`, `getpeername` and `statfs` are part of what is measured; and
+`sort`/`base64`/`md5sum`/`tr`/`wc`/`head` read `getrandom` at startup, so they are nondeterministic
+regardless of modelling. Pipe reuse is limited by the packetisation argument, not by a missing
+syscall. Tests: 87 passing. See `docs/audits/PHASE2C_*.md` and
+`benchmarks/results/phase2c/direct-suite/`.
