@@ -158,3 +158,34 @@ Census unchanged at **0 of 9**. Two findings explain most of it: the census invo
 regardless of modelling. Pipe reuse is limited by the packetisation argument, not by a missing
 syscall. Tests: 87 passing. See `docs/audits/PHASE2C_*.md` and
 `benchmarks/results/phase2c/direct-suite/`.
+
+## Phase 2D (branch `verify/phase1-5`)
+
+A fixed **direct-execution suite** of 16 real commands (no shell, own working directory, denominator
+fixed with refusals in it) replaces guesswork about what is reusable: **1 of 16 reused** (`gzip`),
+**16 of 16** traced output identical to a direct run, in two independent sessions. `getrandom` at
+startup refuses nine of them; `statfs` refuses `tar` and `sed`; `/proc/self/maps` refuses `grep`; an
+inherited descriptor read refuses `tr`; `getrusage` refuses `gcc` and `as`. `zstd`, `clang`, `pandoc`,
+`convert` and `ffmpeg` are absent, so image and documentation conversion are BLOCKED, not refused.
+
+The Phase 2C claim that a future-dated input `mtime` caused repeated deoptimization was **wrong**,
+and the atime hypothesis with it. `explain` shows the failing guard is a `FileMetadata` dependency on
+the **parent directory** of the opened path; its `mtime`/`ctime` change when anything is created or
+removed in that directory, including the command's own output, and directories have no content hash
+to fall back on. `atime` was byte-identical in the failing comparison. The scoped fix (identity-only
+comparison for resolution-time directory snapshots, keeping full fingerprints for genuine `stat`)
+would be sound, but the recording site was not located, and a guard-level shortcut would also stop
+noticing a real directory `stat` — so it is documented as open, not patched. Consequence: the 7x
+below holds only while that directory is unchanged.
+
+Two benchmark sessions, 480 KB input: direct 28.84/28.78 ms, cached 4.03/4.18 ms, cold
+46.26/47.10 ms, **7.16x/6.89x**, **0.70/0.74 hits to repay**. Only `gzip` is timed (the others never
+reused). No competitive comparison is possible here.
+
+Certified effect noninterference was surveyed, not built: Rattle ignores nondeterminism by assumption
+and substitutes observed values, Firebuild refuses by contract, `rr` proves path identity (the
+opposite direction), and only self-adjusting computation has a machine-checked equivalence theorem —
+for an instrumented language, not a shipped binary. No system in that literature certifies a specific
+dynamic read as dead. The hypothesis put forward (perturbation-coverage certificates stored in the
+record) is untested, so no research contribution is claimed. Tests: 87 passing. See
+`docs/audits/PHASE2D_*.md` and `benchmarks/results/phase2d/`.
