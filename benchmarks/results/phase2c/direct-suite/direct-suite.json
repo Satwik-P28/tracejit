@@ -1,0 +1,83 @@
+{
+  "candidates": [
+    {
+      "classification": "Guarded",
+      "dependency_count": 9,
+      "eligible": true,
+      "name": "gzip",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs"
+      ]
+    },
+    {
+      "classification": "Unknown",
+      "dependency_count": 11,
+      "eligible": false,
+      "name": "sort",
+      "reasons": [
+        "clone file-descriptor and cwd sharing semantics are not eligible for V1 reuse"
+      ]
+    },
+    {
+      "classification": "Nondeterministic",
+      "dependency_count": 8,
+      "eligible": false,
+      "name": "base64",
+      "reasons": [
+        "process read randomness via getrandom"
+      ]
+    },
+    {
+      "classification": "Nondeterministic",
+      "dependency_count": 10,
+      "eligible": false,
+      "name": "md5sum",
+      "reasons": [
+        "process read randomness via getrandom"
+      ]
+    },
+    {
+      "classification": "Nondeterministic",
+      "dependency_count": 6,
+      "eligible": false,
+      "name": "tr",
+      "reasons": [
+        "process read randomness via getrandom"
+      ]
+    },
+    {
+      "classification": "Nondeterministic",
+      "dependency_count": 7,
+      "eligible": false,
+      "name": "wc",
+      "reasons": [
+        "process read randomness via getrandom"
+      ]
+    }
+  ],
+  "checks": {
+    "classification is Guarded": true,
+    "content change alters output": true,
+    "content change deoptimizes": true,
+    "deoptimized run matches direct": true,
+    "entry reusable again": true,
+    "recorded run matches direct": true,
+    "reusable bytes match direct": true,
+    "reused bytes match direct": true,
+    "second run reports Reused": true
+  },
+  "failures": [],
+  "input_bytes": 18000014,
+  "timing": {
+    "cached_median_ms": 10.904091,
+    "cached_p95_ms": 15.349232,
+    "cold_ms": 458.948105,
+    "direct_median_ms": 258.1936445,
+    "direct_p95_ms": 261.278965,
+    "hits_to_repay": 1.8118194143611488,
+    "runs": 20,
+    "saved_ms": 247.2895535,
+    "speedup": 23.67860324166407
+  },
+  "tracejit": "/workspace/chats/c4bae51ae7d50b70f5bd4fc1/target/release/tracejit"
+}

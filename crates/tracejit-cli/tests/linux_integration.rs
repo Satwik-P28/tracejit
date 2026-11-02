@@ -108,6 +108,83 @@ fn adversarial_classification_table() {
     eprintln!("RESULT classification PASS");
 }
 
+fn stdout_bytes_of(report: &Value) -> Vec<u8> {
+    report["stdout_bytes"]
+        .as_array()
+        .expect("stdout_bytes must be an array")
+        .iter()
+        .map(|byte| byte.as_u64().expect("byte") as u8)
+        .collect()
+}
+
+/// The first ordinary developer command that TraceJIT can skip: `gzip -c`.
+///
+/// This is the end-to-end contract in one test. A fresh cache records, the next run must report
+/// `Reused` with the exact bytes a direct run produces, a content change must deoptimize and produce
+/// the *new* bytes, and the entry must become reusable again afterwards. If `gzip` is absent the
+/// test reports SKIP rather than pretending to pass.
+#[test]
+fn real_gzip_workload_is_reused_and_invalidated() {
+    if !Command::new("gzip")
+        .arg("--version")
+        .output()
+        .is_ok_and(|output| output.status.success())
+    {
+        eprintln!("RESULT gzip-reuse SKIP");
+        return;
+    }
+
+    let temporary = tempfile::tempdir().unwrap();
+    let cache = temporary.path().join("cache");
+    let source = temporary.path().join("data.txt");
+    let body = "record-payload\n".repeat(4096);
+    fs::write(&source, &body).unwrap();
+    let source_text = source.to_str().unwrap();
+
+    let direct = |suffix: &str| {
+        let mut payload = body.clone();
+        payload.push_str(suffix);
+        fs::write(&source, &payload).unwrap();
+        Command::new("gzip")
+            .args(["-9", "-c", source_text])
+            .output()
+            .unwrap()
+            .stdout
+    };
+
+    let expected = direct("");
+    let args = ["run", "--json", "--", "gzip", "-9", "-c", source_text];
+
+    let recorded = invoke(&cache, &args, None);
+    let recorded: Value = serde_json::from_slice(&recorded.stdout).unwrap();
+    assert_eq!(recorded["classification"], "Guarded", "{recorded}");
+    assert_eq!(recorded["eligible_for_reuse"], true);
+    assert_eq!(stdout_bytes_of(&recorded), expected);
+
+    let reused = invoke(&cache, &args, None);
+    let reused: Value = serde_json::from_slice(&reused.stdout).unwrap();
+    assert_eq!(reused["cache_decision"], "Reused", "{reused}");
+    assert_eq!(stdout_bytes_of(&reused), expected);
+
+    // A content change must not replay the old bytes.
+    let changed = direct("appended-line\n");
+    assert_ne!(changed, expected, "fixture change must alter the output");
+    let invalidated = invoke(&cache, &args, None);
+    let invalidated: Value = serde_json::from_slice(&invalidated.stdout).unwrap();
+    assert_eq!(
+        invalidated["cache_decision"], "Deoptimized",
+        "{invalidated}"
+    );
+    assert_eq!(stdout_bytes_of(&invalidated), changed);
+
+    let reusable = invoke(&cache, &args, None);
+    let reusable: Value = serde_json::from_slice(&reusable.stdout).unwrap();
+    assert_eq!(reusable["cache_decision"], "Reused", "{reusable}");
+    assert_eq!(stdout_bytes_of(&reusable), changed);
+
+    eprintln!("RESULT gzip-reuse PASS");
+}
+
 #[test]
 fn guarded_hit_deopt_restore_and_replay() {
     let temporary = tempfile::tempdir().unwrap();
