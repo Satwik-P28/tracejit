@@ -43,6 +43,17 @@ pub enum Guard {
         path: PathBuf,
         expected: FileFingerprint,
     },
+    /// A directory that was opened, not inspected.
+    ///
+    /// Validation reproduces the observation instead of comparing a fingerprint: the path must
+    /// still name the same directory (device, inode, mode and ownership), and this process must
+    /// still be able to open it. Timestamps are deliberately not compared, because an `open` of a
+    /// directory cannot report them; a program that reads them issues a `stat`, which produces a
+    /// [`Guard::FileMetadata`] that does compare them.
+    DirectoryOpened {
+        path: PathBuf,
+        expected: FileFingerprint,
+    },
     SymlinkTarget {
         path: PathBuf,
         expected: Option<PathBuf>,
@@ -346,6 +357,55 @@ impl Guard {
                         actual: format!("{actual:?}"),
                     })
                 }
+            }
+            Self::DirectoryOpened { path, expected } => {
+                let actual = match fingerprint(path) {
+                    Ok(actual) => actual,
+                    Err(error) => {
+                        return Err(GuardFailure {
+                            guard: Box::new(self.clone()),
+                            reason: "directory is unavailable".into(),
+                            expected: format!("{expected:?}"),
+                            actual: error.to_string(),
+                        });
+                    }
+                };
+                if actual.mode & libc::S_IFMT != libc::S_IFDIR {
+                    return Err(GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "path is no longer a directory".into(),
+                        expected: "directory".into(),
+                        actual: format!("mode {:#o}", actual.mode),
+                    });
+                }
+                // Identity and the bits that decide whether the open can succeed. Size, blocks,
+                // link count and timestamps are excluded on purpose: creating or deleting an entry
+                // changes all of them without changing anything an open can observe.
+                if actual.device != expected.device
+                    || actual.inode != expected.inode
+                    || actual.mode != expected.mode
+                    || actual.uid != expected.uid
+                    || actual.gid != expected.gid
+                {
+                    return Err(GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "directory identity or permissions changed".into(),
+                        expected: format!("{expected:?}"),
+                        actual: format!("{actual:?}"),
+                    });
+                }
+                // Replay the observable itself: the recorded execution opened this directory, and
+                // a fresh run would have to do the same. This is what covers permission and ACL
+                // changes that mode bits do not fully express.
+                if let Err(error) = fs::File::open(path) {
+                    return Err(GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "directory can no longer be opened".into(),
+                        expected: "open succeeds".into(),
+                        actual: error.to_string(),
+                    });
+                }
+                Ok(())
             }
             Self::SymlinkTarget { path, expected } => {
                 let actual = match fs::read_link(path) {
@@ -744,6 +804,12 @@ pub fn compile_guards(executable: PathBuf, identity: &ExecutionIdentity) -> Vec<
                 path: path.clone(),
                 expected: fingerprint.clone(),
             }),
+            InputDependency::DirectoryOpened { path, fingerprint } => {
+                guards.push(Guard::DirectoryOpened {
+                    path: path.clone(),
+                    expected: fingerprint.clone(),
+                })
+            }
             InputDependency::SymlinkMetadata { path, fingerprint } => {
                 guards.push(Guard::SymlinkMetadata {
                     path: path.clone(),
@@ -935,6 +1001,149 @@ mod tests {
         let report = validate_all(&guards, GuardMode::Strict);
         assert_eq!(report.passed, 2);
         assert!(report.failure.is_none());
+    }
+
+    #[test]
+    fn directory_open_guard_ignores_entries_created_beside_an_input() {
+        let root = tempfile::tempdir().unwrap();
+        let directory = root.path().join("work");
+        fs::create_dir(&directory).unwrap();
+        let guard = Guard::DirectoryOpened {
+            path: directory.clone(),
+            expected: fingerprint(&directory).unwrap(),
+        };
+        assert!(guard.validate(GuardMode::Strict).is_ok());
+        // Every one of these mutates mtime, ctime, size, or link count. An open observes none of
+        // them, so none of them may invalidate the entry.
+        fs::write(directory.join("sibling"), b"data").unwrap();
+        assert!(guard.validate(GuardMode::Strict).is_ok());
+        fs::remove_file(directory.join("sibling")).unwrap();
+        assert!(guard.validate(GuardMode::Strict).is_ok());
+        fs::create_dir(directory.join("child")).unwrap();
+        assert!(guard.validate(GuardMode::Strict).is_ok());
+    }
+
+    #[test]
+    fn directory_open_guard_ignores_timestamps_size_and_link_count() {
+        let root = tempfile::tempdir().unwrap();
+        let directory = root.path().join("work");
+        fs::create_dir(&directory).unwrap();
+        let mut expected = fingerprint(&directory).unwrap();
+        expected.accessed_ns += 1_000_000_000;
+        expected.modified_ns += 1_000_000_000;
+        expected.changed_ns += 1_000_000_000;
+        expected.size += 4096;
+        expected.blocks += 8;
+        expected.link_count += 1;
+        let guard = Guard::DirectoryOpened {
+            path: directory.clone(),
+            expected,
+        };
+        // None of these are observable through an open, so none may invalidate reuse.
+        assert!(guard.validate(GuardMode::Strict).is_ok());
+    }
+
+    #[test]
+    fn directory_open_guard_detects_permission_change() {
+        use std::os::unix::fs::PermissionsExt;
+
+        let root = tempfile::tempdir().unwrap();
+        let directory = root.path().join("work");
+        fs::create_dir(&directory).unwrap();
+        let guard = Guard::DirectoryOpened {
+            path: directory.clone(),
+            expected: fingerprint(&directory).unwrap(),
+        };
+        assert!(guard.validate(GuardMode::Strict).is_ok());
+        fs::set_permissions(&directory, fs::Permissions::from_mode(0o500)).unwrap();
+        assert_eq!(
+            guard.validate(GuardMode::Strict).unwrap_err().reason,
+            "directory identity or permissions changed"
+        );
+    }
+
+    #[test]
+    fn directory_open_guard_detects_removal() {
+        let root = tempfile::tempdir().unwrap();
+        let directory = root.path().join("work");
+        fs::create_dir(&directory).unwrap();
+        let guard = Guard::DirectoryOpened {
+            path: directory.clone(),
+            expected: fingerprint(&directory).unwrap(),
+        };
+        fs::remove_dir(&directory).unwrap();
+        assert_eq!(
+            guard.validate(GuardMode::Strict).unwrap_err().reason,
+            "directory is unavailable"
+        );
+    }
+
+    /// Replacement is tested with both directories alive at once so the replacement cannot land on
+    /// the just-freed inode: a filesystem is free to reuse it, which would make this test flaky
+    /// rather than wrong.
+    #[test]
+    fn directory_open_guard_detects_replacement() {
+        let root = tempfile::tempdir().unwrap();
+        let directory = root.path().join("work");
+        let replacement = root.path().join("replacement");
+        fs::create_dir(&directory).unwrap();
+        fs::create_dir(&replacement).unwrap();
+        let guard = Guard::DirectoryOpened {
+            path: directory.clone(),
+            expected: fingerprint(&directory).unwrap(),
+        };
+        assert!(guard.validate(GuardMode::Strict).is_ok());
+        fs::remove_dir(&directory).unwrap();
+        fs::rename(&replacement, &directory).unwrap();
+        assert_eq!(
+            guard.validate(GuardMode::Strict).unwrap_err().reason,
+            "directory identity or permissions changed"
+        );
+    }
+
+    #[test]
+    fn directory_open_guard_detects_a_type_change() {
+        let root = tempfile::tempdir().unwrap();
+        let directory = root.path().join("work");
+        fs::create_dir(&directory).unwrap();
+        let guard = Guard::DirectoryOpened {
+            path: directory.clone(),
+            expected: fingerprint(&directory).unwrap(),
+        };
+        fs::remove_dir(&directory).unwrap();
+        fs::write(&directory, b"a file where a directory was").unwrap();
+        assert_eq!(
+            guard.validate(GuardMode::Strict).unwrap_err().reason,
+            "path is no longer a directory"
+        );
+    }
+
+    /// The reduced comparison must not leak into genuine directory metadata reads.
+    #[test]
+    fn explicit_directory_metadata_guard_still_compares_timestamps() {
+        let root = tempfile::tempdir().unwrap();
+        let directory = root.path().join("work");
+        fs::create_dir(&directory).unwrap();
+        assert!(Guard::DirectoryOpened {
+            path: directory.clone(),
+            expected: fingerprint(&directory).unwrap(),
+        }
+        .validate(GuardMode::Strict)
+        .is_ok());
+        // The expected fingerprint is synthesized so the assertion depends on the comparison
+        // itself, not on how quickly this filesystem publishes an entry-creation timestamp to a
+        // later `stat` in the same process (measured: it can lag by tens of milliseconds here).
+        let mut changed = fingerprint(&directory).unwrap();
+        changed.modified_ns += 1_000_000_000;
+        changed.changed_ns += 1_000_000_000;
+        let guard = Guard::FileMetadata {
+            path: directory.clone(),
+            expected: changed,
+        };
+        assert_eq!(
+            guard.validate(GuardMode::Strict).unwrap_err().reason,
+            "file metadata changed"
+        );
     }
 
     #[cfg(target_os = "linux")]

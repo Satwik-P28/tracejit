@@ -189,3 +189,27 @@ for an instrumented language, not a shipped binary. No system in that literature
 dynamic read as dead. The hypothesis put forward (perturbation-coverage certificates stored in the
 record) is untested, so no research contribution is claimed. Tests: 87 passing. See
 `docs/audits/PHASE2D_*.md` and `benchmarks/results/phase2d/`.
+
+## Phase 2E (branch `verify/phase1-5`)
+
+The Phase 2D explanation of the directory invalidation was wrong in both of its parts. The dependency
+is created by a real `openat(AT_FDCWD, "<dir>", O_RDONLY|O_DIRECTORY)` that `gzip` issues to obtain a
+name-resolution base for the input, which the tracer recorded as a metadata read because a directory
+has no content hash. There is no `stat` and no path-resolution snapshot: `strace` and the new
+`TRACEJIT_DIAG_DEPS=1` events show only the open, then `openat(dirfd, "in.txt")`.
+
+That dependency is now its own kind, end to end: `ReadEffect::DirectoryOpened` →
+`InputDependency::DirectoryOpened` → `Guard::DirectoryOpened`, which compares `device`, `inode`,
+`mode`, `uid` and `gid`, requires the path to still be a directory, and replays a probe open. `stat`,
+`fstat` and `newfstatat` still produce `Metadata` and still compare every timestamp; a program that
+enumerates a directory is now refused, because `getdents64` had been silently ignored and entries were
+never guarded.
+
+Ordinary output placement now costs nothing: with the output and unrelated siblings written beside the
+input, 15/15 runs reuse and 0% invalidate in all eight cells of two sessions (5.86–12.04 ms warm versus
+112–1494 ms direct, one hit repaying the trace). The `0ccf181` baseline for the same sequence was 1/6
+hits, 83% invalidation, and 0.82x–0.96x, i.e. slower than not caching. The added guard is below this
+VM's measurement floor (6.02/10.41 ms versus 9.46/14.30 ms baseline, p95 spread wider than the
+difference). The direct suite is unchanged at 1 of 16 reused (gzip) with 16/16 output equivalence, and
+the nine-workload census at 0 of 9: no new category was obtained. Tests: 95 passing. See
+`docs/audits/PHASE2E_DIRECTORY_DEPENDENCY.md` and `benchmarks/results/phase2e/`.

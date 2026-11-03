@@ -1,0 +1,94 @@
+[
+  {
+    "size": "small",
+    "bytes": 480000,
+    "layout": "isolated",
+    "runs": 6,
+    "direct_median_ms": 112.31,
+    "direct_p95_ms": 133.84,
+    "cold_ms": 187.74,
+    "cold_output_matches": true,
+    "warm_median_ms": 9.46,
+    "warm_p95_ms": 13.43,
+    "warm_hits": 6,
+    "warm_output_matches": 6,
+    "speedup": 11.87,
+    "saved_per_run_ms": 102.85,
+    "tracing_penalty_ms": 75.43,
+    "hits_to_repay": 0.73,
+    "cumulative_saved_ms": 617.1,
+    "invalidation_rate": 0.0,
+    "exit_codes": [
+      0
+    ]
+  },
+  {
+    "size": "small",
+    "bytes": 480000,
+    "layout": "same-dir",
+    "runs": 6,
+    "direct_median_ms": 113.68,
+    "direct_p95_ms": 138.77,
+    "cold_ms": 182.59,
+    "cold_output_matches": true,
+    "warm_median_ms": 138.21,
+    "warm_p95_ms": 144.25,
+    "warm_hits": 1,
+    "warm_output_matches": 6,
+    "speedup": 0.82,
+    "saved_per_run_ms": -24.53,
+    "tracing_penalty_ms": 68.91,
+    "hits_to_repay": null,
+    "cumulative_saved_ms": -24.53,
+    "invalidation_rate": 0.833,
+    "exit_codes": [
+      0
+    ]
+  },
+  {
+    "size": "large",
+    "bytes": 6000000,
+    "layout": "isolated",
+    "runs": 6,
+    "direct_median_ms": 1491.03,
+    "direct_p95_ms": 1521.77,
+    "cold_ms": 1664.2,
+    "cold_output_matches": true,
+    "warm_median_ms": 14.3,
+    "warm_p95_ms": 19.52,
+    "warm_hits": 6,
+    "warm_output_matches": 6,
+    "speedup": 104.3,
+    "saved_per_run_ms": 1476.74,
+    "tracing_penalty_ms": 173.17,
+    "hits_to_repay": 0.12,
+    "cumulative_saved_ms": 8860.44,
+    "invalidation_rate": 0.0,
+    "exit_codes": [
+      0
+    ]
+  },
+  {
+    "size": "large",
+    "bytes": 6000000,
+    "layout": "same-dir",
+    "runs": 6,
+    "direct_median_ms": 1492.0,
+    "direct_p95_ms": 1510.84,
+    "cold_ms": 1518.35,
+    "cold_output_matches": true,
+    "warm_median_ms": 1548.51,
+    "warm_p95_ms": 1596.53,
+    "warm_hits": 1,
+    "warm_output_matches": 6,
+    "speedup": 0.96,
+    "saved_per_run_ms": -56.51,
+    "tracing_penalty_ms": 26.35,
+    "hits_to_repay": null,
+    "cumulative_saved_ms": -56.51,
+    "invalidation_rate": 0.833,
+    "exit_codes": [
+      0
+    ]
+  }
+]

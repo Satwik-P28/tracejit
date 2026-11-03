@@ -94,6 +94,7 @@ impl Effect {
         match self {
             Self::Read(ReadEffect::File(_))
             | Self::Read(ReadEffect::FileMetadata(_))
+            | Self::Read(ReadEffect::DirectoryOpened(_))
             | Self::Read(ReadEffect::SymlinkMetadata(_))
             | Self::Read(ReadEffect::Symlink(_))
             | Self::Read(ReadEffect::Access(_))
@@ -172,6 +173,7 @@ pub struct EffectProperties {
 pub enum ReadEffect {
     File(FileRead),
     FileMetadata(FileMetadataRead),
+    DirectoryOpened(DirectoryOpen),
     SymlinkMetadata(FileMetadataRead),
     Symlink(SymlinkRead),
     Access(AccessCheck),
@@ -263,6 +265,24 @@ pub struct FileRead {
 pub struct FileMetadataRead {
     pub path: PathBuf,
     pub fingerprint: Option<FileFingerprint>,
+}
+
+/// A directory the process opened without observing its metadata or its entries.
+///
+/// This is the observation a name-resolution base makes: `gzip` opens the input's parent directory
+/// and then opens the basename relative to that descriptor. What such an open depends on is that the
+/// path still names the same directory, with the permissions that let the recorded process open it.
+/// It cannot observe the directory's timestamps, size, block count or link count, so recording a
+/// full [`FileFingerprint`] here turned every create or delete in the directory — including the
+/// command's own output — into an invalidation of an otherwise reusable execution.
+///
+/// A program that genuinely inspects directory metadata issues `stat`/`fstat`/`newfstatat`, which
+/// are recorded separately as [`FileMetadataRead`] and still compare timestamps. A program that
+/// enumerates the directory is refused, because entry sets are not modelled.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct DirectoryOpen {
+    pub path: PathBuf,
+    pub fingerprint: FileFingerprint,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -473,6 +493,11 @@ pub enum InputDependency {
         path: PathBuf,
         fingerprint: FileFingerprint,
     },
+    /// A directory that was opened, without any of its metadata being observed.
+    DirectoryOpened {
+        path: PathBuf,
+        fingerprint: FileFingerprint,
+    },
     SymlinkMetadata {
         path: PathBuf,
         fingerprint: FileFingerprint,
@@ -575,6 +600,7 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
     let mut files = BTreeMap::new();
     let mut executables = BTreeMap::new();
     let mut metadata = BTreeMap::new();
+    let mut directory_opens = BTreeMap::new();
     let mut symlink_metadata = BTreeMap::new();
     let mut symlinks = BTreeMap::new();
     let mut access = BTreeMap::<(PathBuf, i32, i32), (Option<i32>, Option<Hash>)>::new();
@@ -597,6 +623,13 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
                         .entry(read.path.clone())
                         .or_insert(fingerprint.clone());
                 }
+            }
+            Effect::Read(ReadEffect::DirectoryOpened(read))
+                if precedes_first_write(&first_writes, &read.path, record.sequence) =>
+            {
+                directory_opens
+                    .entry(read.path.clone())
+                    .or_insert(read.fingerprint.clone());
             }
             Effect::Read(ReadEffect::SymlinkMetadata(read))
                 if precedes_first_write(&first_writes, &read.path, record.sequence) =>
@@ -659,6 +692,11 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
         metadata
             .into_iter()
             .map(|(path, fingerprint)| InputDependency::Metadata { path, fingerprint }),
+    );
+    dependencies.extend(
+        directory_opens
+            .into_iter()
+            .map(|(path, fingerprint)| InputDependency::DirectoryOpened { path, fingerprint }),
     );
     dependencies.extend(
         symlink_metadata

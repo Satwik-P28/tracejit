@@ -185,6 +185,75 @@ fn real_gzip_workload_is_reused_and_invalidated() {
     eprintln!("RESULT gzip-reuse PASS");
 }
 
+/// Ordinary output placement must not defeat reuse.
+///
+/// `gzip -9 -c input.txt > input.txt.gz` writes into the directory that holds the input. The program
+/// opens that directory, but only to resolve the input's name: the open cannot report the
+/// directory's timestamps, size or link count. Before the directory-open dependency was typed, this
+/// sequence deoptimized and re-traced every time the output was written.
+#[test]
+fn gzip_reuse_survives_creating_entries_beside_the_input() {
+    if !Command::new("gzip")
+        .arg("--version")
+        .output()
+        .is_ok_and(|output| output.status.success())
+    {
+        eprintln!("RESULT gzip-directory-dependency SKIP");
+        return;
+    }
+
+    let temporary = tempfile::tempdir().unwrap();
+    let cache = temporary.path().join("cache");
+    let work = temporary.path().join("work");
+    fs::create_dir(&work).unwrap();
+    let source = work.join("input.txt");
+    let body = "directory-dependency-payload\n".repeat(8192);
+    fs::write(&source, &body).unwrap();
+    let source_text = source.to_str().unwrap();
+    let args = ["run", "--json", "--", "gzip", "-9", "-c", source_text];
+    let direct = || {
+        Command::new("gzip")
+            .args(["-9", "-c", source_text])
+            .output()
+            .unwrap()
+            .stdout
+    };
+    let expected = direct();
+
+    let first = invoke(&cache, &args, None);
+    let first: Value = serde_json::from_slice(&first.stdout).unwrap();
+    assert_eq!(first["classification"], "Guarded", "{first}");
+    assert_eq!(stdout_bytes_of(&first), expected);
+
+    // The command's own output lands beside its input, exactly as a shell redirect would place it.
+    fs::write(work.join("input.txt.gz"), &expected).unwrap();
+    let second = invoke(&cache, &args, None);
+    let second: Value = serde_json::from_slice(&second.stdout).unwrap();
+    assert_eq!(
+        second["cache_decision"], "Reused",
+        "output written beside the input must not invalidate reuse: {second}"
+    );
+    assert_eq!(stdout_bytes_of(&second), expected);
+
+    // An unrelated sibling entry is equally irrelevant.
+    fs::write(work.join("notes.txt"), b"unrelated\n").unwrap();
+    let third = invoke(&cache, &args, None);
+    let third: Value = serde_json::from_slice(&third.stdout).unwrap();
+    assert_eq!(third["cache_decision"], "Reused", "{third}");
+
+    // The input itself is not irrelevant: a content change must still deoptimize and produce the
+    // new bytes.
+    fs::write(&source, format!("{body}changed\n")).unwrap();
+    let changed = direct();
+    assert_ne!(changed, expected, "fixture change must alter the output");
+    let fourth = invoke(&cache, &args, None);
+    let fourth: Value = serde_json::from_slice(&fourth.stdout).unwrap();
+    assert_eq!(fourth["cache_decision"], "Deoptimized", "{fourth}");
+    assert_eq!(stdout_bytes_of(&fourth), changed);
+
+    eprintln!("RESULT gzip-directory-dependency PASS");
+}
+
 #[test]
 fn guarded_hit_deopt_restore_and_replay() {
     let temporary = tempfile::tempdir().unwrap();

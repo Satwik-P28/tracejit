@@ -15,7 +15,7 @@ use std::process::{Command, Stdio};
 use std::thread;
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
 use tracejit_effects::{
-    ClockKind, ControlEffect, DependencyEdge, DependencyKind, Effect, EffectRecord,
+    ClockKind, ControlEffect, DependencyEdge, DependencyKind, DirectoryOpen, Effect, EffectRecord,
     ExecutionMetadata, FileMetadataRead, FileRead, FileWrite, FileWriteKind, IpcWrite,
     KernelStateRead, NetworkRead, NetworkWrite, ProcessExec, ProcessNode, ProcessSpawn,
     RandomSource, ReadEffect, SignalEffect, SymlinkRead, Trace, UnknownEffect, WriteEffect,
@@ -758,11 +758,15 @@ fn decode_entry(
         registers.r9,
     ];
     let pending = match number {
-        libc::SYS_open => open_pending(pid, state, libc::AT_FDCWD, args[0], args[1] as i32)?,
-        libc::SYS_openat => open_pending(pid, state, args[0] as i32, args[1], args[2] as i32)?,
+        libc::SYS_open => {
+            open_pending(pid, state, libc::AT_FDCWD, args[0], args[1] as i32, number)?
+        }
+        libc::SYS_openat => {
+            open_pending(pid, state, args[0] as i32, args[1], args[2] as i32, number)?
+        }
         libc::SYS_openat2 => {
             let flags = read_word(pid, args[2])? as i32;
-            open_pending(pid, state, args[0] as i32, args[1], flags)?
+            open_pending(pid, state, args[0] as i32, args[1], flags, number)?
         }
         libc::SYS_stat => PendingSyscall::Metadata {
             path: resolve_path(pid, state, libc::AT_FDCWD, args[0])?,
@@ -802,6 +806,26 @@ fn decode_entry(
             .unwrap_or_else(|| PendingSyscall::Unknown {
                 number,
                 detail: format!("fstat on unclassified fd {}", args[0]),
+            }),
+        // Enumeration is not modelled: the tracer sees `getdents64` complete but does not record
+        // which entries were returned, so reuse would be unsound whenever a program lists a
+        // directory. Refusing the execution is the honest answer until entry sets are guarded.
+        libc::SYS_getdents64 => state
+            .fds
+            .get(&(args[0] as i32))
+            .and_then(|fd| match fd {
+                FdState::File(path) if path.is_dir() => Some(PendingSyscall::Unknown {
+                    number,
+                    detail: format!(
+                        "directory enumeration of {} is not modelled, so its entries cannot be guarded",
+                        path.display()
+                    ),
+                }),
+                _ => None,
+            })
+            .unwrap_or_else(|| PendingSyscall::Unknown {
+                number,
+                detail: format!("getdents64 on unclassified fd {}", args[0]),
             }),
         libc::SYS_lstat => PendingSyscall::SymlinkMetadata {
             path: resolve_path(pid, state, libc::AT_FDCWD, args[0])?,
@@ -1155,6 +1179,32 @@ fn record_snapshot(pid: Pid, path: PathBuf, snapshot: PathSnapshot, collector: &
     }
 }
 
+/// Structured provenance for recorded dependencies, enabled with `TRACEJIT_DIAG_DEPS=1`.
+///
+/// The kind of a dependency is not implied by the syscall that produced it: an `open` of a
+/// directory yields a directory-open dependency, while `stat`, `fstat` and `newfstatat` all yield
+/// the same metadata dependency. Printing the recording site, thread, path and resulting effect
+/// together makes that mapping observable instead of something to be inferred from syscall order.
+/// Diagnostics go to stderr so they never contaminate a traced command's stdout.
+fn diag_dependency(tid: Pid, site: &str, path: &Path, detail: &str) {
+    if std::env::var_os("TRACEJIT_DIAG_DEPS").is_none() {
+        return;
+    }
+    let path = path
+        .display()
+        .to_string()
+        .replace('\\', "\\\\")
+        .replace('"', "\\\"");
+    let detail = detail.replace('"', "\\\"");
+    eprintln!(
+        "{{\"event\":\"dependency\",\"tid\":{},\"site\":\"{}\",\"path\":\"{}\",\"detail\":\"{}\"}}",
+        tid.as_raw(),
+        site,
+        path,
+        detail
+    );
+}
+
 fn record_metadata(pid: Pid, path: PathBuf, collector: &mut Collector) {
     match fingerprint(&path) {
         Ok(value) => collector.push(
@@ -1235,8 +1285,15 @@ fn open_pending(
     dirfd: i32,
     address: u64,
     flags: i32,
+    number: i64,
 ) -> Result<PendingSyscall, TraceError> {
     let path = resolve_path(pid, state, dirfd, address)?;
+    diag_dependency(
+        pid,
+        "tracejit-trace::open_pending",
+        &path,
+        &format!("syscall={number} flags={flags:#x} dirfd={dirfd}"),
+    );
     Ok(PendingSyscall::Open {
         before_hash: path.is_file().then(|| hash_file(&path).ok()).flatten(),
         before_fingerprint: fingerprint(&path).ok(),
@@ -1347,12 +1404,22 @@ fn complete_syscall(
                     })),
                 );
             } else if let Some(fingerprint) = before_fingerprint.filter(|_| path.is_dir()) {
+                // A directory opened without being read is a name-resolution base, not a
+                // metadata observation: an open cannot report its timestamps, size or link
+                // count. Recording it as a full metadata read made every create or delete in
+                // the directory invalidate the entry, including the command's own output.
                 state.fds.insert(fd, FdState::File(path.clone()));
+                diag_dependency(
+                    pid,
+                    "tracejit-trace::complete_syscall",
+                    &path,
+                    &format!("fd={fd} effect=DirectoryOpened flags={flags:#x}"),
+                );
                 collector.push(
                     pid,
-                    Effect::Read(ReadEffect::FileMetadata(FileMetadataRead {
-                        path,
-                        fingerprint: Some(fingerprint),
+                    Effect::Read(ReadEffect::DirectoryOpened(DirectoryOpen {
+                        path: path.clone(),
+                        fingerprint,
                     })),
                 );
             } else {
@@ -2413,7 +2480,6 @@ fn is_known_internal_syscall(number: i64) -> bool {
         number,
         libc::SYS_lseek
             | libc::SYS_fadvise64
-            | libc::SYS_getdents64
             | libc::SYS_brk
             | libc::SYS_madvise
             | libc::SYS_futex

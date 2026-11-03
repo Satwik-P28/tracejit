@@ -1,0 +1,16 @@
+{"event":"dependency","tid":14731,"site":"tracejit-trace::open_pending","path":"/etc/ld.so.cache","detail":"syscall=257 flags=0x80000 dirfd=-100"}
+{"event":"dependency","tid":14731,"site":"tracejit-trace::open_pending","path":"/lib/x86_64-linux-gnu/libc.so.6","detail":"syscall=257 flags=0x80000 dirfd=-100"}
+{"event":"dependency","tid":14731,"site":"tracejit-trace::open_pending","path":"/tmp/diag/work","detail":"syscall=257 flags=0x10000 dirfd=-100"}
+{"event":"dependency","tid":14731,"site":"tracejit-trace::complete_syscall","path":"/tmp/diag/work","detail":"fd=3 effect=DirectoryOpened flags=0x10000"}
+{"event":"dependency","tid":14731,"site":"tracejit-trace::open_pending","path":"/tmp/diag/work/in.txt","detail":"syscall=257 flags=0x900 dirfd=3"}
+
+TraceJIT
+
+cache          MISS
+classified     GUARDED
+dependencies   9
+outputs        0
+unknown        0
+runtime        474.11ms
+
+next run is eligible for guarded reuse

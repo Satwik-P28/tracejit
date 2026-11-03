@@ -848,6 +848,7 @@ fn policy_from_record(record: &StoredExecution) -> Option<SandboxPolicy> {
             InputDependency::Executable { path, .. }
             | InputDependency::File { path, .. }
             | InputDependency::Metadata { path, .. }
+            | InputDependency::DirectoryOpened { path, .. }
             | InputDependency::SymlinkMetadata { path, .. }
             | InputDependency::Symlink { path, .. } => {
                 if !path.exists() {

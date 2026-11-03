@@ -1,0 +1,94 @@
+[
+  {
+    "size": "small",
+    "bytes": 480000,
+    "layout": "isolated",
+    "runs": 15,
+    "direct_median_ms": 111.65,
+    "direct_p95_ms": 142.22,
+    "cold_ms": 156.55,
+    "cold_output_matches": true,
+    "warm_median_ms": 5.88,
+    "warm_p95_ms": 12.26,
+    "warm_hits": 15,
+    "warm_output_matches": 15,
+    "speedup": 18.98,
+    "saved_per_run_ms": 105.77,
+    "tracing_penalty_ms": 44.9,
+    "hits_to_repay": 0.42,
+    "cumulative_saved_ms": 1586.48,
+    "invalidation_rate": 0.0,
+    "exit_codes": [
+      0
+    ]
+  },
+  {
+    "size": "small",
+    "bytes": 480000,
+    "layout": "same-dir",
+    "runs": 15,
+    "direct_median_ms": 111.85,
+    "direct_p95_ms": 142.11,
+    "cold_ms": 148.06,
+    "cold_output_matches": true,
+    "warm_median_ms": 5.92,
+    "warm_p95_ms": 12.11,
+    "warm_hits": 15,
+    "warm_output_matches": 15,
+    "speedup": 18.89,
+    "saved_per_run_ms": 105.93,
+    "tracing_penalty_ms": 36.22,
+    "hits_to_repay": 0.34,
+    "cumulative_saved_ms": 1588.88,
+    "invalidation_rate": 0.0,
+    "exit_codes": [
+      0
+    ]
+  },
+  {
+    "size": "large",
+    "bytes": 6000000,
+    "layout": "isolated",
+    "runs": 15,
+    "direct_median_ms": 1482.99,
+    "direct_p95_ms": 1502.71,
+    "cold_ms": 1553.68,
+    "cold_output_matches": true,
+    "warm_median_ms": 11.04,
+    "warm_p95_ms": 13.67,
+    "warm_hits": 15,
+    "warm_output_matches": 15,
+    "speedup": 134.28,
+    "saved_per_run_ms": 1471.95,
+    "tracing_penalty_ms": 70.69,
+    "hits_to_repay": 0.05,
+    "cumulative_saved_ms": 22079.2,
+    "invalidation_rate": 0.0,
+    "exit_codes": [
+      0
+    ]
+  },
+  {
+    "size": "large",
+    "bytes": 6000000,
+    "layout": "same-dir",
+    "runs": 15,
+    "direct_median_ms": 1493.9,
+    "direct_p95_ms": 1519.96,
+    "cold_ms": 1562.33,
+    "cold_output_matches": true,
+    "warm_median_ms": 12.04,
+    "warm_p95_ms": 21.81,
+    "warm_hits": 15,
+    "warm_output_matches": 15,
+    "speedup": 124.08,
+    "saved_per_run_ms": 1481.86,
+    "tracing_penalty_ms": 68.44,
+    "hits_to_repay": 0.05,
+    "cumulative_saved_ms": 22227.83,
+    "invalidation_rate": 0.0,
+    "exit_codes": [
+      0
+    ]
+  }
+]

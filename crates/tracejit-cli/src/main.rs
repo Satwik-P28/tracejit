@@ -409,6 +409,7 @@ fn input_dependency_line(dependency: &InputDependency) -> String {
         InputDependency::File { path, .. } => format!("READ  {}", path.display()),
         InputDependency::Executable { path, .. } => format!("EXEC  {}", path.display()),
         InputDependency::Metadata { path, .. } => format!("META  {}", path.display()),
+        InputDependency::DirectoryOpened { path, .. } => format!("DIROP {}", path.display()),
         InputDependency::SymlinkMetadata { path, .. } => format!("LSTAT {}", path.display()),
         InputDependency::Symlink { path, target } => {
             let shown = target
@@ -436,6 +437,7 @@ fn guard_line(guard: &Guard) -> String {
         Guard::ExecutableHash { path, .. } => format!("executable content {}", path.display()),
         Guard::FileHash { path, .. } => format!("file content {}", path.display()),
         Guard::FileMetadata { path, .. } => format!("file metadata {}", path.display()),
+        Guard::DirectoryOpened { path, .. } => format!("directory open {}", path.display()),
         Guard::SymlinkTarget { path, .. } => format!("symlink target {}", path.display()),
         Guard::SymlinkMetadata { path, .. } => format!("symlink metadata {}", path.display()),
         Guard::AccessCheck { path, mode, .. } => {
