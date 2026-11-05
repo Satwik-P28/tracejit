@@ -266,3 +266,29 @@ developer workflow on 5.4 MB saves **14.74x** (645.62 → 43.80 ms). Contract ch
 
 Tests: **105 passing**; fmt and clippy clean. `PROVEN`/Landlock remain unverified. Nothing was
 pushed or released. See `docs/audits/PHASE2G_*.md` and `benchmarks/results/phase2g/`.
+
+## Phase 2H (branch `verify/phase1-5`, from `45bd1c3`)
+
+The contract no longer trusts a shared-library *pattern*. Admission is now an audited call-site
+profile: GNU build ID `a4a7992a8e66555c8141ab2a08a8465ff6e0ea65`, resume offset `0xa9e89`,
+destination offset `0x20b178`, and the bytes `0f 05 48 8d 5d d0 48 83 f8 08`. Any other build,
+offset, destination or signature is refused, and records written under the old rule (empty build
+ID) are refused rather than reinterpreted. The guard repeats every check against the current
+library. A compiled double-free program still aborts with glibc's diagnostic under the contract, so
+the injected key does not disable detection; the fixed key does remove per-process secrecy, which
+is documented as an opt-in, heap-corruption-only weakening, with a per-identity derived key named
+as the safer alternative.
+
+`atime` was removed from the inherited-stdin runtime identity (the reference to the `tr` miss). `tr`
+now reuses in both sessions, with content changes still invalidating. A new `--admission
+always|auto|never` policy measures a command's direct runtime before paying for a trace, and stops
+tracing identities already recorded as ineligible.
+
+Two sessions: native **1/16** direct, controlled **7/16** (both sessions), census **0/9** in both
+modes and both sessions with 9/9 equivalence. Auto shows 0/16 on the suite's second run by design
+(it measures first, traces second, hits third). Workflow (5.4 MB, four commands): 8.95x/9.64x with
+always, 10.36x/10.27x with auto, both sessions. Developer loops: always 1.52x/1.59x (slower than
+direct), auto 1.08x/1.08x; refused workloads stop paying repeatedly under auto. Differential fuzzer:
+32 mutation cases, **0 incorrect hits**. Tests: **108 passing**; fmt and clippy clean. `PROVEN` still
+BLOCKED (LSM list `capability,selinux`; Landlock unavailable). Nothing pushed or released. See
+`docs/audits/PHASE2H_*.md` and `benchmarks/results/phase2h/`.

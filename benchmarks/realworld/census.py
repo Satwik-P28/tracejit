@@ -399,10 +399,13 @@ def tracejit_json(
     cwd: Path,
     env: dict[str, str],
     contract: str | None = None,
+    admission: str = "always",
 ) -> tuple[dict[str, object], subprocess.CompletedProcess[bytes]]:
     prefix = [str(tracejit), "run", "--json"]
     if contract:
         prefix += ["--contract", contract]
+    if admission != "always":
+        prefix += ["--admission", admission]
     completed = run_command(
         [*prefix, "--", *command],
         cwd,
@@ -436,6 +439,7 @@ def census_workload(
     warmups: int,
     table: dict[int, str],
     contract: str | None = None,
+    admission: str = "always",
 ) -> dict[str, object]:
     missing = [tool for tool in workload.requires if tool_path(tool) is None]
     record: dict[str, object] = {
@@ -490,7 +494,7 @@ def census_workload(
         # A fresh cache per sample, so every traced sample is a real cold miss.
         cold_env = arm_env(env, scratch / f"cold-{index}")
         started = now_ns()
-        report, _ = tracejit_json(tracejit, command, cwd, cold_env, contract)
+        report, _ = tracejit_json(tracejit, command, cwd, cold_env, contract, admission)
         elapsed = now_ns() - started
         if index >= warmups:
             cold_samples.append(elapsed)
@@ -541,7 +545,7 @@ def census_workload(
 
     hit_root = scratch / "hit"
     hit_env = arm_env(env, hit_root)
-    primed, _ = tracejit_json(tracejit, command, cwd, hit_env, contract)
+    primed, _ = tracejit_json(tracejit, command, cwd, hit_env, contract, admission)
     if primed.get("kind") != "Executed":
         record["status"] = "unexpected_prime_result"
         record["prime_kind"] = primed.get("kind")
@@ -552,6 +556,8 @@ def census_workload(
         prefix = [str(tracejit), "run", "--json"]
         if contract:
             prefix += ["--contract", contract]
+        if admission != "always":
+            prefix += ["--admission", admission]
         elapsed, completed = timed([*prefix, "--", *command], cwd, hit_env)
         hit_report = json.loads(completed.stdout)
         if hit_report.get("kind") != "Reused":
@@ -764,6 +770,8 @@ def main() -> int:
     parser.add_argument("--warmups", type=int, default=1)
     parser.add_argument("--contract", default=None,
                         help="run under a controlled-execution contract (e.g. allocator-entropy-v1)")
+    parser.add_argument("--admission", default="always", choices=["always", "auto", "never"],
+                        help="cache admission policy")
     parser.add_argument("--scratch", default=None)
     args = parser.parse_args()
 
@@ -788,7 +796,7 @@ def main() -> int:
         for workload in workloads(fixture_source):
             try:
                 record = census_workload(
-                    workload, tracejit, scratch, args.runs, args.warmups, table, args.contract
+                    workload, tracejit, scratch, args.runs, args.warmups, table, args.contract, args.admission
                 )
             except Exception as error:  # noqa: BLE001 - recorded as a harness failure
                 record = {
@@ -815,6 +823,7 @@ def main() -> int:
         "environment": environment(),
         "runs": {"warmups": args.warmups, "measured": args.runs},
         "contract": args.contract,
+        "admission": args.admission,
         "workloads": records,
         "aggregate": aggregate(records),
     }

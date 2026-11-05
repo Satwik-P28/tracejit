@@ -1,0 +1,456 @@
+{
+  "generated_by": "benchmarks/realworld/direct_suite.py",
+  "tracejit_binary": "/workspace/chats/3ead97f7907244943d2638d7/target/release/tracejit",
+  "contract": "allocator-entropy-v1",
+  "admission": "auto",
+  "workloads": 16,
+  "reused": 0,
+  "reused_names": [],
+  "traced_output_equivalent": 16,
+  "runs": 5,
+  "rows": [
+    {
+      "workload": "gzip",
+      "argv": [
+        "gzip",
+        "-9",
+        "-c",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Unknown",
+      "eligible": false,
+      "reasons": [
+        "admission policy is measuring this command before deciding whether to cache"
+      ],
+      "cold_decision": "Skipped",
+      "second_decision": "Executed",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 88929,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 29.26,
+      "cold_ms": 57.5,
+      "traced_overhead_ms": 28.24,
+      "reused": false
+    },
+    {
+      "workload": "bzip2",
+      "argv": [
+        "bzip2",
+        "-9",
+        "-c",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Unknown",
+      "eligible": false,
+      "reasons": [
+        "admission policy is measuring this command before deciding whether to cache"
+      ],
+      "cold_decision": "Skipped",
+      "second_decision": "Executed",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 57867,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 20.44,
+      "cold_ms": 54.71,
+      "traced_overhead_ms": 34.27,
+      "reused": false
+    },
+    {
+      "workload": "xz",
+      "argv": [
+        "xz",
+        "-9",
+        "-c",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Unknown",
+      "eligible": false,
+      "reasons": [
+        "admission policy is measuring this command before deciding whether to cache"
+      ],
+      "cold_decision": "Skipped",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 29372,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 69.05,
+      "cold_ms": 88.14,
+      "traced_overhead_ms": 19.09,
+      "reused": false
+    },
+    {
+      "workload": "tar",
+      "argv": [
+        "tar",
+        "-cf",
+        "bundle.tar",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Unknown",
+      "eligible": false,
+      "reasons": [
+        "admission policy is measuring this command before deciding whether to cache"
+      ],
+      "cold_decision": "Skipped",
+      "second_decision": "Skipped",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 0,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 2.61,
+      "cold_ms": 12.75,
+      "traced_overhead_ms": 10.15,
+      "reused": false
+    },
+    {
+      "workload": "sed",
+      "argv": [
+        "sed",
+        "-e",
+        "s/alpha/ALPHA/g",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Unknown",
+      "eligible": false,
+      "reasons": [
+        "admission policy is measuring this command before deciding whether to cache"
+      ],
+      "cold_decision": "Skipped",
+      "second_decision": "Skipped",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 270762,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 4.5,
+      "cold_ms": 39.16,
+      "traced_overhead_ms": 34.65,
+      "reused": false
+    },
+    {
+      "workload": "grep",
+      "argv": [
+        "grep",
+        "-c",
+        "alpha",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Unknown",
+      "eligible": false,
+      "reasons": [
+        "admission policy is measuring this command before deciding whether to cache"
+      ],
+      "cold_decision": "Skipped",
+      "second_decision": "Skipped",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 5,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 1.91,
+      "cold_ms": 11.79,
+      "traced_overhead_ms": 9.88,
+      "reused": false
+    },
+    {
+      "workload": "sort",
+      "argv": [
+        "sort",
+        "-u",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Unknown",
+      "eligible": false,
+      "reasons": [
+        "admission policy is measuring this command before deciding whether to cache"
+      ],
+      "cold_decision": "Skipped",
+      "second_decision": "Skipped",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 270762,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 6.08,
+      "cold_ms": 39.45,
+      "traced_overhead_ms": 33.37,
+      "reused": false
+    },
+    {
+      "workload": "tr",
+      "argv": [
+        "tr",
+        "a-z",
+        "A-Z"
+      ],
+      "stdin": "input.txt",
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Unknown",
+      "eligible": false,
+      "reasons": [
+        "admission policy is measuring this command before deciding whether to cache"
+      ],
+      "cold_decision": "Skipped",
+      "second_decision": "Skipped",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 270762,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 1.55,
+      "cold_ms": 31.29,
+      "traced_overhead_ms": 29.74,
+      "reused": false
+    },
+    {
+      "workload": "base64",
+      "argv": [
+        "base64",
+        "-w0",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Unknown",
+      "eligible": false,
+      "reasons": [
+        "admission policy is measuring this command before deciding whether to cache"
+      ],
+      "cold_decision": "Skipped",
+      "second_decision": "Skipped",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 361016,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 2.39,
+      "cold_ms": 33.73,
+      "traced_overhead_ms": 31.34,
+      "reused": false
+    },
+    {
+      "workload": "md5sum",
+      "argv": [
+        "md5sum",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Unknown",
+      "eligible": false,
+      "reasons": [
+        "admission policy is measuring this command before deciding whether to cache"
+      ],
+      "cold_decision": "Skipped",
+      "second_decision": "Skipped",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 44,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 2.77,
+      "cold_ms": 13.37,
+      "traced_overhead_ms": 10.61,
+      "reused": false
+    },
+    {
+      "workload": "wc",
+      "argv": [
+        "wc",
+        "-c",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Unknown",
+      "eligible": false,
+      "reasons": [
+        "admission policy is measuring this command before deciding whether to cache"
+      ],
+      "cold_decision": "Skipped",
+      "second_decision": "Skipped",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 17,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 1.16,
+      "cold_ms": 10.59,
+      "traced_overhead_ms": 9.43,
+      "reused": false
+    },
+    {
+      "workload": "jq",
+      "argv": [
+        "jq",
+        "-c",
+        "map(select(.v > 5)) | length",
+        "input.json"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Unknown",
+      "eligible": false,
+      "reasons": [
+        "admission policy is measuring this command before deciding whether to cache"
+      ],
+      "cold_decision": "Skipped",
+      "second_decision": "Skipped",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 5,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 12.21,
+      "cold_ms": 22.47,
+      "traced_overhead_ms": 10.26,
+      "reused": false
+    },
+    {
+      "workload": "python-json",
+      "argv": [
+        "python3",
+        "-c",
+        "import json,sys;d=json.load(open('input.json'));print(sum(x['v'] for x in d))"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Unknown",
+      "eligible": false,
+      "reasons": [
+        "admission policy is measuring this command before deciding whether to cache"
+      ],
+      "cold_decision": "Skipped",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 6,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 28.75,
+      "cold_ms": 41.56,
+      "traced_overhead_ms": 12.81,
+      "reused": false
+    },
+    {
+      "workload": "gcc-compile",
+      "argv": [
+        "gcc",
+        "-O2",
+        "-c",
+        "hello.c",
+        "-o",
+        "hello.o"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Unknown",
+      "eligible": false,
+      "reasons": [
+        "admission policy is measuring this command before deciding whether to cache"
+      ],
+      "cold_decision": "Skipped",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 0,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 31.78,
+      "cold_ms": 54.31,
+      "traced_overhead_ms": 22.52,
+      "reused": false
+    },
+    {
+      "workload": "assemble",
+      "argv": [
+        "as",
+        "hello.s",
+        "-o",
+        "hello.o"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Unknown",
+      "eligible": false,
+      "reasons": [
+        "admission policy is measuring this command before deciding whether to cache"
+      ],
+      "cold_decision": "Skipped",
+      "second_decision": "Skipped",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 0,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 2.88,
+      "cold_ms": 11.19,
+      "traced_overhead_ms": 8.31,
+      "reused": false
+    },
+    {
+      "workload": "strip",
+      "argv": [
+        "strip",
+        "-o",
+        "stripped",
+        "hello.o"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Unknown",
+      "eligible": false,
+      "reasons": [
+        "admission policy is measuring this command before deciding whether to cache"
+      ],
+      "cold_decision": "Skipped",
+      "second_decision": "Skipped",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 0,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 2.34,
+      "cold_ms": 11.13,
+      "traced_overhead_ms": 8.79,
+      "reused": false
+    }
+  ]
+}

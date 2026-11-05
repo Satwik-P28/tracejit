@@ -132,11 +132,13 @@ def run(cmd, cwd, env, stdin_path=None, capture=True):
     }
 
 
-def traced(cmd, cwd, env, stdin_path, contract=None):
+def traced(cmd, cwd, env, stdin_path, contract=None, admission=None):
     """Run under TraceJIT with --json so the cache decision is observable."""
     prefix = [str(binary()), "run", "--json"]
     if contract:
         prefix += ["--contract", contract]
+    if admission and admission != "always":
+        prefix += ["--admission", admission]
     result = run([*prefix, "--", *cmd], cwd, env, stdin_path)
     try:
         report = json.loads(result["stdout"])
@@ -199,7 +201,7 @@ def p95_ms(samples):
     return round(ordered[index], 2)
 
 
-def measure(name, argv, work, stdin_name, runs, decision, cache_root, contract=None):
+def measure(name, argv, work, stdin_name, runs, decision, cache_root, contract=None, admission=None):
     """Time direct and cached invocations of a workload that actually reused."""
     direct, cached = [], []
     cache = fresh_cache(cache_root, f"timing-{name}")
@@ -208,6 +210,8 @@ def measure(name, argv, work, stdin_name, runs, decision, cache_root, contract=N
     prefix = [str(binary()), "run"]
     if contract:
         prefix += ["--contract", contract]
+    if admission and admission != "always":
+        prefix += ["--admission", admission]
     cold = run([*prefix, "--", *argv], work, env, stdin_path)
     for _ in range(runs):
         direct.append(run(argv, work, env, stdin_path)["elapsed_ms"])
@@ -242,6 +246,8 @@ def main() -> int:
     parser.add_argument("--only", default=None, help="restrict to one workload name")
     parser.add_argument("--contract", default=None,
                         help="run under a controlled-execution contract (e.g. allocator-entropy-v1)")
+    parser.add_argument("--admission", default="always", choices=["always", "auto", "never"],
+                        help="cache admission policy")
     args = parser.parse_args()
 
     if not binary():
@@ -272,13 +278,13 @@ def main() -> int:
         stdin_path = str(work / stdin_name) if stdin_name else None
 
         direct = run(argv, work, env, stdin_path)
-        cold_report, cold = traced(argv, work, env, stdin_path, args.contract)
+        cold_report, cold = traced(argv, work, env, stdin_path, args.contract, args.admission)
         if cold_report is None:
             rows.append({"workload": name, "status": "trace-failed",
                          "reason": cold["stderr"].decode(errors="replace")[:400]})
             failures.append(f"{name}: traced run produced no report")
             continue
-        second_report, second = traced(argv, work, env, stdin_path, args.contract)
+        second_report, second = traced(argv, work, env, stdin_path, args.contract, args.admission)
 
         direct_out = direct["stdout"]
         row = {
@@ -322,6 +328,7 @@ def main() -> int:
         "generated_by": "benchmarks/realworld/direct_suite.py",
         "tracejit_binary": str(binary()),
         "contract": args.contract,
+        "admission": args.admission,
         "workloads": denominator,
         "reused": len(reusable),
         "reused_names": [row["workload"] for row in reusable],

@@ -37,6 +37,7 @@ REPO = Path(__file__).resolve().parents[2]
 DEBUG = REPO / "target" / "debug" / "tracejit"
 RELEASE = REPO / "target" / "release" / "tracejit"
 CONTRACT = "allocator-entropy-v1"
+ADMISSION = "always"
 
 
 def binary() -> Path:
@@ -94,11 +95,13 @@ def run(command, cwd, env):
 
 
 def traced(command, cwd, env):
-    return run([str(binary()), "run", "--contract", CONTRACT, "--", *command], cwd, env)
+    extra = [] if ADMISSION == "always" else ["--admission", ADMISSION]
+    return run([str(binary()), "run", "--contract", CONTRACT, *extra, "--", *command], cwd, env)
 
 
 def traced_json(command, cwd, env):
-    result = run([str(binary()), "run", "--json", "--contract", CONTRACT, "--", *command], cwd, env)
+    extra = [] if ADMISSION == "always" else ["--admission", ADMISSION]
+    result = run([str(binary()), "run", "--json", "--contract", CONTRACT, *extra, "--", *command], cwd, env)
     return json.loads(result["stdout"])
 
 
@@ -111,7 +114,10 @@ def main() -> int:
     parser.add_argument("--reps", type=int, default=5)
     parser.add_argument("--rows", type=int, default=400_000)
     parser.add_argument("--output-dir", default="benchmarks/results/phase2g/workflow")
+    parser.add_argument("--admission", default="always", choices=["always", "auto", "never"])
     args = parser.parse_args()
+    global ADMISSION
+    ADMISSION = args.admission
 
     output_dir = REPO / args.output_dir
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -139,9 +145,11 @@ def main() -> int:
 
     cache = root / "cache"
     env = environment(cache)
-    # Prime every entry outside the measurement.
-    for _, command in STEPS:
-        traced(command, work, env)
+    # Prime every entry outside the measurement. `auto` spends its first invocation measuring the
+    # direct cost and only traces on the second, so it needs two passes before the cache is warm.
+    for _ in range(2 if ADMISSION == "auto" else 1):
+        for _, command in STEPS:
+            traced(command, work, env)
     # Verify each command is a real hit and returns the direct bytes.
     hits = {}
     for name, command in STEPS:
@@ -172,6 +180,7 @@ def main() -> int:
     result = {
         "generated_by": "benchmarks/realworld/workflow.py",
         "contract": CONTRACT,
+        "admission": ADMISSION,
         "input_bytes": data_bytes,
         "reps": args.reps,
         "steps": [name for name, _ in STEPS],
@@ -193,7 +202,16 @@ def main() -> int:
     print(json.dumps({key: result[key] for key in (
         "input_bytes", "reps", "direct_total_median_ms", "cached_total_median_ms",
         "workflow_speedup", "per_step", "hits")}, indent=2))
-    all_hits = all(hit["decision"] == "Reused" and hit["output_matches_direct"] for hit in hits.values())
+    # `auto` deliberately runs short steps directly instead of caching them; that is a valid
+    # outcome, provided the bytes are the direct bytes.
+    accepted = {"Reused", "Skipped"}
+    all_hits = all(
+        hit["decision"] in accepted and hit["output_matches_direct"] for hit in hits.values()
+    )
+    result["reused_steps"] = sum(1 for hit in hits.values() if hit["decision"] == "Reused")
+    result["skipped_steps"] = sum(1 for hit in hits.values() if hit["decision"] == "Skipped")
+    (output_dir / "workflow.json").write_text(json.dumps(result, indent=2) + "\n")
+    print(json.dumps({"reused_steps": result["reused_steps"], "skipped_steps": result["skipped_steps"]}))
     print("RESULT workflow PASS" if all_hits else "RESULT workflow FAIL")
     return 0 if all_hits else 1
 

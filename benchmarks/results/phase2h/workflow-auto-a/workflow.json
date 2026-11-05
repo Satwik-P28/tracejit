@@ -1,0 +1,72 @@
+{
+  "generated_by": "benchmarks/realworld/workflow.py",
+  "contract": "allocator-entropy-v1",
+  "admission": "auto",
+  "input_bytes": 5416589,
+  "reps": 5,
+  "steps": [
+    "sed",
+    "wc",
+    "md5sum",
+    "gzip"
+  ],
+  "direct_total_median_ms": 657.91,
+  "cached_total_median_ms": 63.5,
+  "workflow_speedup": 10.36,
+  "per_step": {
+    "sed": {
+      "direct_median_ms": 55.71,
+      "cached_median_ms": 27.69
+    },
+    "wc": {
+      "direct_median_ms": 1.26,
+      "cached_median_ms": 6.37
+    },
+    "md5sum": {
+      "direct_median_ms": 11.05,
+      "cached_median_ms": 13.4
+    },
+    "gzip": {
+      "direct_median_ms": 584.4,
+      "cached_median_ms": 13.54
+    }
+  },
+  "hits": {
+    "sed": {
+      "decision": "Reused",
+      "contract": "tracejit.allocator-entropy.v1",
+      "output_matches_direct": true
+    },
+    "wc": {
+      "decision": "Skipped",
+      "contract": "tracejit.allocator-entropy.v1",
+      "output_matches_direct": true
+    },
+    "md5sum": {
+      "decision": "Reused",
+      "contract": "tracejit.allocator-entropy.v1",
+      "output_matches_direct": true
+    },
+    "gzip": {
+      "decision": "Reused",
+      "contract": "tracejit.allocator-entropy.v1",
+      "output_matches_direct": true
+    }
+  },
+  "direct_samples_ms": [
+    655.65,
+    667.0,
+    666.7,
+    652.17,
+    657.91
+  ],
+  "cached_samples_ms": [
+    65.5,
+    60.84,
+    63.5,
+    60.58,
+    63.9
+  ],
+  "reused_steps": 3,
+  "skipped_steps": 1
+}

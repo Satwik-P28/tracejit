@@ -1,0 +1,364 @@
+{
+  "generated_by": "benchmarks/realworld/dev_loops.py",
+  "session": "b",
+  "contract": "allocator-entropy-v1",
+  "reps": 5,
+  "scenarios": [
+    {
+      "name": "transform",
+      "description": "filter a changed word, then measure the file",
+      "steps": [
+        "sed -e s/alpha/ALPHA/g data.txt",
+        "wc -c data.txt"
+      ],
+      "direct": {
+        "median_ms": 30.93,
+        "samples_ms": [
+          46.9,
+          34.83,
+          26.59,
+          26.09,
+          30.93
+        ],
+        "decisions": []
+      },
+      "always": {
+        "median_ms": 25.18,
+        "samples_ms": [
+          31.11,
+          25.52,
+          24.13,
+          25.18,
+          23.09
+        ],
+        "decisions": [
+          {
+            "command": "sed -e s/alpha/ALPHA/g data.txt",
+            "decision": "Reused",
+            "classification": "Guarded"
+          },
+          {
+            "command": "wc -c data.txt",
+            "decision": "Reused",
+            "classification": "Guarded"
+          }
+        ]
+      },
+      "auto": {
+        "median_ms": 20.79,
+        "samples_ms": [
+          22.26,
+          17.42,
+          20.79,
+          19.66,
+          21.28
+        ],
+        "decisions": [
+          {
+            "command": "sed -e s/alpha/ALPHA/g data.txt",
+            "decision": "Reused",
+            "classification": "Guarded"
+          },
+          {
+            "command": "wc -c data.txt",
+            "decision": "Skipped",
+            "classification": "Unknown"
+          }
+        ]
+      },
+      "always_vs_direct": 0.81,
+      "auto_vs_direct": 0.67
+    },
+    {
+      "name": "compile",
+      "description": "compile the same translation unit twice",
+      "steps": [
+        "cc -c -O2 unit.c -o unit.o",
+        "cc -c -O2 unit.c -o unit.o"
+      ],
+      "direct": {
+        "median_ms": 320.74,
+        "samples_ms": [
+          320.74,
+          319.23,
+          334.6,
+          323.2,
+          309.79
+        ],
+        "decisions": []
+      },
+      "always": {
+        "median_ms": 494.75,
+        "samples_ms": [
+          479.94,
+          494.75,
+          503.19,
+          1908.78,
+          493.62
+        ],
+        "decisions": [
+          {
+            "command": "cc -c -O2 unit.c -o unit.o",
+            "decision": "Ineligible",
+            "classification": "Unknown"
+          },
+          {
+            "command": "cc -c -O2 unit.c -o unit.o",
+            "decision": "Ineligible",
+            "classification": "Unknown"
+          }
+        ]
+      },
+      "auto": {
+        "median_ms": 346.53,
+        "samples_ms": [
+          341.16,
+          346.53,
+          344.49,
+          357.8,
+          351.42
+        ],
+        "decisions": [
+          {
+            "command": "cc -c -O2 unit.c -o unit.o",
+            "decision": "Skipped",
+            "classification": "Unknown"
+          },
+          {
+            "command": "cc -c -O2 unit.c -o unit.o",
+            "decision": "Skipped",
+            "classification": "Unknown"
+          }
+        ]
+      },
+      "always_vs_direct": 1.54,
+      "auto_vs_direct": 1.08
+    },
+    {
+      "name": "codegen",
+      "description": "render generated source, then compile",
+      "steps": [
+        "sed -e s/generated_/value_/g template.txt",
+        "cc -c -O2 unit.c -o unit.o"
+      ],
+      "direct": {
+        "median_ms": 161.86,
+        "samples_ms": [
+          163.38,
+          156.16,
+          161.86,
+          164.29,
+          158.02
+        ],
+        "decisions": []
+      },
+      "always": {
+        "median_ms": 251.05,
+        "samples_ms": [
+          247.3,
+          251.12,
+          246.38,
+          251.05,
+          267.51
+        ],
+        "decisions": [
+          {
+            "command": "sed -e s/generated_/value_/g template.txt",
+            "decision": "Reused",
+            "classification": "Guarded"
+          },
+          {
+            "command": "cc -c -O2 unit.c -o unit.o",
+            "decision": "Ineligible",
+            "classification": "Unknown"
+          }
+        ]
+      },
+      "auto": {
+        "median_ms": 175.52,
+        "samples_ms": [
+          173.0,
+          171.84,
+          176.8,
+          178.41,
+          175.52
+        ],
+        "decisions": [
+          {
+            "command": "sed -e s/generated_/value_/g template.txt",
+            "decision": "Skipped",
+            "classification": "Unknown"
+          },
+          {
+            "command": "cc -c -O2 unit.c -o unit.o",
+            "decision": "Skipped",
+            "classification": "Unknown"
+          }
+        ]
+      },
+      "always_vs_direct": 1.55,
+      "auto_vs_direct": 1.08
+    },
+    {
+      "name": "mixed",
+      "description": "a short command beside an expensive one",
+      "steps": [
+        "wc -c watch.txt",
+        "gzip -9 -c data.txt",
+        "md5sum data.txt"
+      ],
+      "direct": {
+        "median_ms": 26.72,
+        "samples_ms": [
+          26.68,
+          24.26,
+          30.47,
+          26.72,
+          27.89
+        ],
+        "decisions": []
+      },
+      "always": {
+        "median_ms": 31.08,
+        "samples_ms": [
+          34.75,
+          31.08,
+          29.77,
+          29.07,
+          31.3
+        ],
+        "decisions": [
+          {
+            "command": "wc -c watch.txt",
+            "decision": "Reused",
+            "classification": "Guarded"
+          },
+          {
+            "command": "gzip -9 -c data.txt",
+            "decision": "Reused",
+            "classification": "Guarded"
+          },
+          {
+            "command": "md5sum data.txt",
+            "decision": "Reused",
+            "classification": "Guarded"
+          }
+        ]
+      },
+      "auto": {
+        "median_ms": 25.74,
+        "samples_ms": [
+          29.59,
+          25.74,
+          26.74,
+          23.96,
+          25.47
+        ],
+        "decisions": [
+          {
+            "command": "wc -c watch.txt",
+            "decision": "Skipped",
+            "classification": "Unknown"
+          },
+          {
+            "command": "gzip -9 -c data.txt",
+            "decision": "Reused",
+            "classification": "Guarded"
+          },
+          {
+            "command": "md5sum data.txt",
+            "decision": "Skipped",
+            "classification": "Unknown"
+          }
+        ]
+      },
+      "always_vs_direct": 1.16,
+      "auto_vs_direct": 0.96
+    },
+    {
+      "name": "edit",
+      "description": "edit an input between two invocations",
+      "steps": [
+        "md5sum watch.txt",
+        "sed -i s/beta/BETA/g watch.txt",
+        "md5sum watch.txt"
+      ],
+      "direct": {
+        "median_ms": 5.72,
+        "samples_ms": [
+          6.74,
+          5.72,
+          5.27,
+          5.75,
+          5.3
+        ],
+        "decisions": []
+      },
+      "always": {
+        "median_ms": 65.21,
+        "samples_ms": [
+          66.44,
+          62.32,
+          65.21,
+          65.27,
+          61.32
+        ],
+        "decisions": [
+          {
+            "command": "md5sum watch.txt",
+            "decision": "Reused",
+            "classification": "Guarded"
+          },
+          {
+            "command": "sed -i s/beta/BETA/g watch.txt",
+            "decision": "Ineligible",
+            "classification": "Unknown"
+          },
+          {
+            "command": "md5sum watch.txt",
+            "decision": "Deoptimized",
+            "classification": "Guarded"
+          }
+        ]
+      },
+      "auto": {
+        "median_ms": 22.18,
+        "samples_ms": [
+          18.64,
+          20.29,
+          22.63,
+          22.18,
+          22.98
+        ],
+        "decisions": [
+          {
+            "command": "md5sum watch.txt",
+            "decision": "Skipped",
+            "classification": "Unknown"
+          },
+          {
+            "command": "sed -i s/beta/BETA/g watch.txt",
+            "decision": "Skipped",
+            "classification": "Unknown"
+          },
+          {
+            "command": "md5sum watch.txt",
+            "decision": "Skipped",
+            "classification": "Unknown"
+          }
+        ]
+      },
+      "always_vs_direct": 11.4,
+      "auto_vs_direct": 3.88
+    }
+  ],
+  "totals": {
+    "direct_ms": 545.97,
+    "always_ms": 867.27,
+    "auto_ms": 590.76,
+    "always_vs_direct": 1.59,
+    "auto_vs_direct": 1.08,
+    "slowdowns_always": 4,
+    "slowdowns_auto": 3
+  }
+}
