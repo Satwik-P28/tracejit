@@ -67,6 +67,25 @@ v0.1.0 stays at its existing tag. v0.1.1 is published from `31c36d1`. Do not mov
 
 `e9684c1c01a7bbbab4cae50e2389105596d613f1` for the transform and the sweep. `63e33638709aacfaed896ab587435e64c0ecea62` for the published short-command loss.
 
+## Phase 2I (branch `freebuff/3ead97f7907244943d2638d7`, base `9b777ee`)
+
+The allocator-key question is resolved by decision, not by a new key: the fixed controlled value is
+retained because glibc's `tcache_key` is an integrity value checked by list membership, a derived
+key cannot keep a secret the child can read, and fresh OS randomness would make reuse impossible. It
+stays opt-in, build-ID/offset/signature checked, and outside any `PROVEN` claim.
+
+Admission now records deoptimisations and uses a Laplace-smoothed, three-invocation cumulative
+benefit estimate with a 30-day sample TTL; `--admission auto-v1` preserves the Phase 2H policy for
+comparison. The policy does not beat `auto-v1` on the 20-invocation matrix (3.54x/2.73x vs
+3.55x/2.84x) and `always` wins that stable matrix (4.03x/3.19x), but on a real zlib v1.3.1 session
+`auto` saves **1.20x/1.07x** net while `always` is **1.71x/1.82x slower**, because it refuses to
+trace `make` and caches repeated `./minigzip` compressions (24-28 ms vs ~380 ms). Decompression stays
+ineligible on `lseek` of inherited fd 0. Coverage is unchanged: 1/16 native, 7/16 controlled, 0/9
+census, 16/16 and 9/9 output equivalence. The differential fuzzer is 45 cases x seeds 7 and 11 with
+0 incorrect hits. A genuine concurrency defect (`database is locked` during concurrent cache open)
+was found and fixed with a busy timeout plus bounded retry. Tests: 109 passing, three consecutive
+runs. See `docs/audits/PHASE2I_*.md` and `benchmarks/results/phase2i/`.
+
 ## Validation still required on Linux
 
 ```bash
