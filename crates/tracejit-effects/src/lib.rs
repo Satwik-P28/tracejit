@@ -95,6 +95,9 @@ impl Effect {
             Self::Read(ReadEffect::File(_))
             | Self::Read(ReadEffect::FileMetadata(_))
             | Self::Read(ReadEffect::DirectoryOpened(_))
+            | Self::Read(ReadEffect::DirectoryEnumerated(_))
+            | Self::Read(ReadEffect::FilesystemStats(_))
+            | Self::Read(ReadEffect::InheritedStream(_))
             | Self::Read(ReadEffect::SymlinkMetadata(_))
             | Self::Read(ReadEffect::Symlink(_))
             | Self::Read(ReadEffect::Access(_))
@@ -174,6 +177,9 @@ pub enum ReadEffect {
     File(FileRead),
     FileMetadata(FileMetadataRead),
     DirectoryOpened(DirectoryOpen),
+    DirectoryEnumerated(DirectoryEnumerationRead),
+    FilesystemStats(FilesystemStatsRead),
+    InheritedStream(InheritedStreamRead),
     SymlinkMetadata(FileMetadataRead),
     Symlink(SymlinkRead),
     Access(AccessCheck),
@@ -283,12 +289,117 @@ pub struct FileMetadataRead {
 pub struct DirectoryOpen {
     pub path: PathBuf,
     pub fingerprint: FileFingerprint,
+    /// The open flags the program used. Validation reproduces the same access mode instead of
+    /// assuming read permission: an `O_PATH` open needs only search permission on the path.
+    #[serde(default)]
+    pub flags: i32,
+    /// Digest of the process credential set that performed the open.
+    #[serde(default)]
+    pub credential: Option<Hash>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct SymlinkRead {
     pub path: PathBuf,
     pub target: Option<PathBuf>,
+}
+
+/// The exact bytes one `getdents64` call returned, with the buffer size that was requested.
+///
+/// Replaying a directory enumeration means asking the kernel for the same number of bytes at
+/// the same stream position and requiring the same bytes back. Recording only a sorted set of
+/// names would discard the order, the per-call boundaries, `d_off` cookies, `d_type`, `d_ino`
+/// and the point at which a short read returned, all of which the program can observe.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct DirectoryEnumerationRequest {
+    pub requested: u64,
+    pub returned: Vec<u8>,
+}
+
+/// A directory enumeration the program performed, as a replayable byte-stream contract.
+///
+/// The tracer refuses the execution when the directory descriptor was not positioned at zero
+/// when enumeration began, when the directory was seeked or duplicated in a way this model does
+/// not track, or when the recorded stream is too large to keep in a cache record.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct DirectoryEnumerationRead {
+    pub path: PathBuf,
+    pub requests: Vec<DirectoryEnumerationRequest>,
+    pub fingerprint: Option<FileFingerprint>,
+    #[serde(default)]
+    pub credential: Option<Hash>,
+    #[serde(default)]
+    pub mount_namespace: Option<NamespaceIdentity>,
+}
+
+/// The exact result of a `statfs`/`fstatfs` query.
+///
+/// Every field is kept, including the capacity fields that move as the filesystem is used. A
+/// program may read any of them; pretending `f_bfree` is uninteresting would be an assumption
+/// about the program, not a guard.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct FilesystemStats {
+    pub f_type: i64,
+    pub f_bsize: i64,
+    pub f_blocks: u64,
+    pub f_bfree: u64,
+    pub f_bavail: u64,
+    pub f_files: u64,
+    pub f_ffree: u64,
+    pub f_fsid: [i32; 2],
+    pub f_namelen: i64,
+    pub f_frsize: i64,
+    pub f_flags: i64,
+    pub f_spare: [i64; 4],
+}
+
+/// Which syscall produced a [`FilesystemStats`] observation.
+///
+/// `statfs` names a path and `fstatfs` names a descriptor; replaying one as the other would
+/// answer a slightly different question, so the guard reproduces the recorded call shape.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub enum FilesystemStatsSource {
+    Path,
+    Descriptor,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct FilesystemStatsRead {
+    pub path: PathBuf,
+    pub source: FilesystemStatsSource,
+    /// `None` when the kernel refused the query; `errno` then holds what the program observed.
+    pub stats: Option<FilesystemStats>,
+    pub errno: Option<i32>,
+    /// Identity of the object the path resolved to when the query ran.
+    pub fingerprint: Option<FileFingerprint>,
+    #[serde(default)]
+    pub credential: Option<Hash>,
+    #[serde(default)]
+    pub mount_namespace: Option<NamespaceIdentity>,
+}
+
+/// Identity of a mount namespace, taken from `/proc/<pid>/ns/mnt`.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct NamespaceIdentity {
+    pub device: u64,
+    pub inode: u64,
+}
+
+/// A read from an inherited regular-file descriptor, with the offset contract it carries.
+///
+/// The bytes are the descriptor target's content, which is guarded like any other file. The
+/// offsets are not content: a reuse that did not consume the same bytes would leave the shared
+/// open file description at a different position than a direct execution, which the caller can
+/// observe afterwards. Reuse therefore requires the recorded start offset and reproduces the
+/// recorded end offset.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct InheritedStreamRead {
+    pub path: PathBuf,
+    pub hash: Option<Hash>,
+    pub fingerprint: Option<FileFingerprint>,
+    pub start_offset: u64,
+    pub end_offset: u64,
+    pub bytes_read: u64,
 }
 
 /// A recorded permission check, stored verbatim so it can be re-evaluated instead of
@@ -497,6 +608,37 @@ pub enum InputDependency {
     DirectoryOpened {
         path: PathBuf,
         fingerprint: FileFingerprint,
+        #[serde(default)]
+        flags: i32,
+        #[serde(default)]
+        credential: Option<Hash>,
+    },
+    /// A directory whose entries were read, as an exact replayable byte stream.
+    DirectoryEnumerated {
+        path: PathBuf,
+        requests: Vec<DirectoryEnumerationRequest>,
+        fingerprint: Option<FileFingerprint>,
+        credential: Option<Hash>,
+        mount_namespace: Option<NamespaceIdentity>,
+    },
+    /// A `statfs`/`fstatfs` observation, replayed as the same kernel query.
+    FilesystemStats {
+        path: PathBuf,
+        source: FilesystemStatsSource,
+        stats: Option<FilesystemStats>,
+        errno: Option<i32>,
+        fingerprint: Option<FileFingerprint>,
+        credential: Option<Hash>,
+        mount_namespace: Option<NamespaceIdentity>,
+    },
+    /// An inherited regular-file descriptor read, with its offset contract.
+    InheritedStream {
+        path: PathBuf,
+        expected_hash: Option<Hash>,
+        fingerprint: Option<FileFingerprint>,
+        start_offset: u64,
+        end_offset: u64,
+        bytes_read: u64,
     },
     SymlinkMetadata {
         path: PathBuf,
@@ -601,6 +743,9 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
     let mut executables = BTreeMap::new();
     let mut metadata = BTreeMap::new();
     let mut directory_opens = BTreeMap::new();
+    let mut directory_enumerations = Vec::<DirectoryEnumerationRead>::new();
+    let mut filesystem_stats = Vec::<FilesystemStatsRead>::new();
+    let mut inherited_streams = BTreeMap::<PathBuf, InheritedStreamRead>::new();
     let mut symlink_metadata = BTreeMap::new();
     let mut symlinks = BTreeMap::new();
     let mut access = BTreeMap::<(PathBuf, i32, i32), (Option<i32>, Option<Hash>)>::new();
@@ -627,9 +772,37 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
             Effect::Read(ReadEffect::DirectoryOpened(read))
                 if precedes_first_write(&first_writes, &read.path, record.sequence) =>
             {
-                directory_opens
+                directory_opens.entry(read.path.clone()).or_insert((
+                    read.fingerprint.clone(),
+                    read.flags,
+                    read.credential,
+                ));
+            }
+            Effect::Read(ReadEffect::DirectoryEnumerated(read))
+                if precedes_first_write(&first_writes, &read.path, record.sequence) =>
+            {
+                // Each distinct stream is a separate observation. Two enumerations of the same
+                // directory can legitimately start at different times, so keeping only the first
+                // would leave the second unguarded.
+                if !directory_enumerations.contains(read) {
+                    directory_enumerations.push(read.clone());
+                }
+            }
+            Effect::Read(ReadEffect::FilesystemStats(read))
+                if precedes_first_write(&first_writes, &read.path, record.sequence) =>
+            {
+                // Two identical queries collapse into one guard; two *different* observations
+                // of the same path both stay, because a replay has to reproduce each one.
+                if !filesystem_stats.contains(read) {
+                    filesystem_stats.push(read.clone());
+                }
+            }
+            Effect::Read(ReadEffect::InheritedStream(read))
+                if precedes_first_write(&first_writes, &read.path, record.sequence) =>
+            {
+                inherited_streams
                     .entry(read.path.clone())
-                    .or_insert(read.fingerprint.clone());
+                    .or_insert_with(|| read.clone());
             }
             Effect::Read(ReadEffect::SymlinkMetadata(read))
                 if precedes_first_write(&first_writes, &read.path, record.sequence) =>
@@ -693,11 +866,44 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
             .into_iter()
             .map(|(path, fingerprint)| InputDependency::Metadata { path, fingerprint }),
     );
-    dependencies.extend(
-        directory_opens
-            .into_iter()
-            .map(|(path, fingerprint)| InputDependency::DirectoryOpened { path, fingerprint }),
-    );
+    dependencies.extend(directory_opens.into_iter().map(
+        |(path, (fingerprint, flags, credential))| InputDependency::DirectoryOpened {
+            path,
+            fingerprint,
+            flags,
+            credential,
+        },
+    ));
+    dependencies.extend(directory_enumerations.into_iter().map(|read| {
+        InputDependency::DirectoryEnumerated {
+            path: read.path,
+            requests: read.requests,
+            fingerprint: read.fingerprint,
+            credential: read.credential,
+            mount_namespace: read.mount_namespace,
+        }
+    }));
+    dependencies.extend(filesystem_stats.into_iter().map(|read| {
+        InputDependency::FilesystemStats {
+            path: read.path,
+            source: read.source,
+            stats: read.stats,
+            errno: read.errno,
+            fingerprint: read.fingerprint,
+            credential: read.credential,
+            mount_namespace: read.mount_namespace,
+        }
+    }));
+    dependencies.extend(inherited_streams.into_iter().map(|(path, read)| {
+        InputDependency::InheritedStream {
+            path,
+            expected_hash: read.hash,
+            fingerprint: read.fingerprint,
+            start_offset: read.start_offset,
+            end_offset: read.end_offset,
+            bytes_read: read.bytes_read,
+        }
+    }));
     dependencies.extend(
         symlink_metadata
             .into_iter()

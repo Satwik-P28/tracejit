@@ -14,8 +14,8 @@ use tracejit_effects::{
     WriteEffect,
 };
 use tracejit_guards::{
-    canonical_hash, compile_guards, current_runtime_identity, hash_file, validate_all, GuardError,
-    GuardMode, GuardReport,
+    apply_inherited_stream_offsets, canonical_hash, compile_guards, current_runtime_identity,
+    hash_file, validate_all, GuardError, GuardMode, GuardReport,
 };
 use tracejit_sandbox::{capabilities, SandboxPolicy};
 use tracejit_trace::{probe_ptrace, trace_command, TraceError, TraceOutcome, TraceRequest};
@@ -204,6 +204,32 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
                 phases.stdio_replay_ns = phase_elapsed(timing, mark);
                 match loaded {
                     Ok((stdout, stderr)) => {
+                        // A cached execution that read an inherited regular file advanced the
+                        // caller's shared open file description. Reproduce that side effect
+                        // before reporting the hit, or a following command would read from a
+                        // different position than after a direct run.
+                        if let Err(error) = apply_inherited_stream_offsets(&candidate.guards) {
+                            candidate.last_decision = DecisionRecord {
+                                decision: CacheDecision::Deoptimized,
+                                reason: format!(
+                                    "inherited stream offset could not be reproduced ({error}); retracing"
+                                ),
+                                guard_failure: None,
+                                decided_unix_ms: now_unix_ms(),
+                            };
+                            cache.put_execution(&candidate)?;
+                            return execute_and_store(
+                                prepared,
+                                cache,
+                                lookup_key,
+                                Some(guards),
+                                Some(
+                                    "inherited stream state could not be reproduced; the execution was retraced"
+                                        .into(),
+                                ),
+                                None,
+                            );
+                        }
                         let runtime_ns = started.elapsed().as_nanos();
                         let persist_decision =
                             candidate.last_decision.decision != CacheDecision::Reused;
@@ -849,6 +875,9 @@ fn policy_from_record(record: &StoredExecution) -> Option<SandboxPolicy> {
             | InputDependency::File { path, .. }
             | InputDependency::Metadata { path, .. }
             | InputDependency::DirectoryOpened { path, .. }
+            | InputDependency::DirectoryEnumerated { path, .. }
+            | InputDependency::FilesystemStats { path, .. }
+            | InputDependency::InheritedStream { path, .. }
             | InputDependency::SymlinkMetadata { path, .. }
             | InputDependency::Symlink { path, .. } => {
                 if !path.exists() {

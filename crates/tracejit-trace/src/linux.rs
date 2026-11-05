@@ -15,12 +15,16 @@ use std::process::{Command, Stdio};
 use std::thread;
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
 use tracejit_effects::{
-    ClockKind, ControlEffect, DependencyEdge, DependencyKind, DirectoryOpen, Effect, EffectRecord,
-    ExecutionMetadata, FileMetadataRead, FileRead, FileWrite, FileWriteKind, IpcWrite,
-    KernelStateRead, NetworkRead, NetworkWrite, ProcessExec, ProcessNode, ProcessSpawn,
-    RandomSource, ReadEffect, SignalEffect, SymlinkRead, Trace, UnknownEffect, WriteEffect,
+    ClockKind, ControlEffect, DependencyEdge, DependencyKind, DirectoryEnumerationRead,
+    DirectoryEnumerationRequest, DirectoryOpen, Effect, EffectRecord, ExecutionMetadata,
+    FileMetadataRead, FileRead, FileWrite, FileWriteKind, FilesystemStatsRead,
+    FilesystemStatsSource, InheritedStreamRead, IpcWrite, KernelStateRead, NetworkRead,
+    NetworkWrite, ProcessExec, ProcessNode, ProcessSpawn, RandomSource, ReadEffect, SignalEffect,
+    SymlinkRead, Trace, UnknownEffect, WriteEffect,
 };
-use tracejit_guards::{credential_identity, fingerprint, hash_file, symlink_fingerprint};
+use tracejit_guards::{
+    credential_identity, fingerprint, hash_file, namespace_identity, symlink_fingerprint,
+};
 
 const OPTIONS: ptrace::Options = ptrace::Options::PTRACE_O_TRACESYSGOOD
     .union(ptrace::Options::PTRACE_O_TRACEFORK)
@@ -38,8 +42,41 @@ struct ProcessState {
     synchronize_on_next_syscall: bool,
     pending: Option<PendingSyscall>,
     file_mappings: Vec<FileMapping>,
+    /// Directory enumerations in progress, keyed by descriptor.
+    enumerations: HashMap<i32, EnumerationState>,
+    /// Consumption of an inherited regular-file stdin description, when it is modelled.
+    stdin_stream: Option<InheritedStreamState>,
     /// False after exec until vDSO time entry points are redirected to syscalls.
     vdso_disarmed: bool,
+}
+
+/// Records one directory's entry stream while the program reads it.
+#[derive(Clone)]
+struct EnumerationState {
+    fingerprint: tracejit_effects::FileFingerprint,
+    credential: Option<tracejit_effects::Hash>,
+    mount_namespace: Option<tracejit_effects::NamespaceIdentity>,
+    /// Bytes captured so far, to bound the cache record.
+    bytes: usize,
+    /// Index of the effect record this stream appends to.
+    effect_index: Option<usize>,
+    /// Set when the stream exceeded the capture bound or could not be recorded.
+    refused: bool,
+}
+
+/// Tracks the shared open file description an inherited regular-file stdin names.
+///
+/// `start_offset` comes from `/proc/<pid>/fdinfo/0` before the program runs, and `end_offset`
+/// follows the bytes it actually consumed. Reuse reproduces the same final position.
+#[derive(Clone)]
+struct InheritedStreamState {
+    path: PathBuf,
+    hash: tracejit_effects::Hash,
+    fingerprint: tracejit_effects::FileFingerprint,
+    start_offset: u64,
+    end_offset: u64,
+    bytes_read: u64,
+    effect_index: Option<usize>,
 }
 
 #[derive(Clone)]
@@ -125,6 +162,17 @@ enum PendingSyscall {
     Delete {
         path: PathBuf,
         snapshot: PathSnapshot,
+    },
+    FsStats {
+        path: PathBuf,
+        buffer: u64,
+        source: FilesystemStatsSource,
+    },
+    Enumerate {
+        path: PathBuf,
+        fd: i32,
+        buffer: u64,
+        requested: u64,
     },
     Read {
         fd: i32,
@@ -470,6 +518,7 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
     ptrace::syscall(root_pid, None)
         .map_err(|error| ptrace_operation("resume initial process", root_pid, error))?;
 
+    let stdin_stream = initial_inherited_stream(root_pid);
     let mut states = HashMap::from([(
         root_pid,
         ProcessState {
@@ -482,6 +531,8 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
             synchronize_on_next_syscall: false,
             pending: None,
             file_mappings: Vec::new(),
+            enumerations: HashMap::new(),
+            stdin_stream,
             vdso_disarmed: true,
         },
     )]);
@@ -551,6 +602,10 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
                         entering: false,
                         synchronize_on_next_syscall: true,
                         pending: None,
+                        enumerations: HashMap::new(),
+                        // A child shares the open file description but not this model's
+                        // consumption accounting, so it must not silently read stdin.
+                        stdin_stream: None,
                         ..inherited
                     },
                 );
@@ -768,6 +823,17 @@ fn decode_entry(
             let flags = read_word(pid, args[2])? as i32;
             open_pending(pid, state, args[0] as i32, args[1], flags, number)?
         }
+        // `creat(path, mode)` is `open(path, O_CREAT|O_WRONLY|O_TRUNC)`. Leaving it unmodelled
+        // meant every later `fstat` on the new descriptor was unclassified too, which refused
+        // `tar` and every other tool that creates an output file.
+        libc::SYS_creat => open_pending(
+            pid,
+            state,
+            libc::AT_FDCWD,
+            args[0],
+            libc::O_CREAT | libc::O_WRONLY | libc::O_TRUNC,
+            number,
+        )?,
         libc::SYS_stat => PendingSyscall::Metadata {
             path: resolve_path(pid, state, libc::AT_FDCWD, args[0])?,
         },
@@ -807,25 +873,54 @@ fn decode_entry(
                 number,
                 detail: format!("fstat on unclassified fd {}", args[0]),
             }),
-        // Enumeration is not modelled: the tracer sees `getdents64` complete but does not record
-        // which entries were returned, so reuse would be unsound whenever a program lists a
-        // directory. Refusing the execution is the honest answer until entry sets are guarded.
-        libc::SYS_getdents64 => state
+        // A directory enumeration is recorded as the exact byte stream the kernel returned. It
+        // is only admitted when the descriptor is at position zero, so a rewind or a seek that
+        // this model does not track cannot silently change which entries the program saw.
+        libc::SYS_getdents64 => match state.fds.get(&(args[0] as i32)) {
+            Some(FdState::File(path)) if path.is_dir() => {
+                let fd = args[0] as i32;
+                let first = !state.enumerations.contains_key(&fd);
+                if first && fd_position(pid, fd) != Some(0) {
+                    PendingSyscall::Unknown {
+                        number,
+                        detail: format!(
+                            "directory enumeration of {} did not start at offset zero",
+                            path.display()
+                        ),
+                    }
+                } else {
+                    PendingSyscall::Enumerate {
+                        path: path.clone(),
+                        fd,
+                        buffer: args[1],
+                        requested: args[2],
+                    }
+                }
+            }
+            _ => PendingSyscall::Unknown {
+                number,
+                detail: format!("getdents64 on unclassified fd {}", args[0]),
+            },
+        },
+        libc::SYS_statfs => PendingSyscall::FsStats {
+            path: resolve_path(pid, state, libc::AT_FDCWD, args[0])?,
+            buffer: args[1],
+            source: FilesystemStatsSource::Path,
+        },
+        libc::SYS_fstatfs => state
             .fds
             .get(&(args[0] as i32))
             .and_then(|fd| match fd {
-                FdState::File(path) if path.is_dir() => Some(PendingSyscall::Unknown {
-                    number,
-                    detail: format!(
-                        "directory enumeration of {} is not modelled, so its entries cannot be guarded",
-                        path.display()
-                    ),
+                FdState::File(path) | FdState::InheritedFile(path) => Some(PendingSyscall::FsStats {
+                    path: path.clone(),
+                    buffer: args[1],
+                    source: FilesystemStatsSource::Descriptor,
                 }),
                 _ => None,
             })
             .unwrap_or_else(|| PendingSyscall::Unknown {
                 number,
-                detail: format!("getdents64 on unclassified fd {}", args[0]),
+                detail: format!("fstatfs on unclassified fd {}", args[0]),
             }),
         libc::SYS_lstat => PendingSyscall::SymlinkMetadata {
             path: resolve_path(pid, state, libc::AT_FDCWD, args[0])?,
@@ -1075,6 +1170,35 @@ fn decode_entry(
                 detail: format!("TCGETS on unclassified fd {}", args[0]),
             }),
         libc::SYS_ioctl if args[0] == 1 || args[0] == 2 => PendingSyscall::None,
+        // A seek on a directory or on the inherited stdin description changes which bytes a
+        // later read observes. Neither stream model tracks a mid-stream seek, so it is refused
+        // instead of being treated as process-internal.
+        libc::SYS_lseek => match state.fds.get(&(args[0] as i32)) {
+            Some(FdState::File(path)) if path.is_dir() => PendingSyscall::Unknown {
+                number,
+                detail: format!(
+                    "lseek on directory descriptor {} is not modelled",
+                    args[0]
+                ),
+            },
+            Some(FdState::InheritedFile(path))
+                if state
+                    .stdin_stream
+                    .as_ref()
+                    .is_some_and(|stream| stream.path == *path) =>
+            {
+                PendingSyscall::Unknown {
+                    number,
+                    detail: format!(
+                        "lseek on inherited descriptor {} is not modelled",
+                        args[0]
+                    ),
+                }
+            }
+            // Seeks on every other descriptor keep the pre-existing treatment: they are
+            // process-internal and no read model depends on their offset.
+            _ => PendingSyscall::None,
+        },
         _ if is_known_internal_syscall(number) => PendingSyscall::None,
         _ => PendingSyscall::Unknown {
             number,
@@ -1420,6 +1544,8 @@ fn complete_syscall(
                     Effect::Read(ReadEffect::DirectoryOpened(DirectoryOpen {
                         path: path.clone(),
                         fingerprint,
+                        flags,
+                        credential: credential_identity(pid.as_raw() as u32),
                     })),
                 );
             } else {
@@ -1598,6 +1724,146 @@ fn complete_syscall(
                 })),
             );
         }
+        PendingSyscall::FsStats {
+            path,
+            buffer,
+            source,
+        } => {
+            let mut raw = [0_u8; 120];
+            match read_remote(pid, buffer, &mut raw) {
+                Ok(()) => {
+                    let mut words = [0_i64; 15];
+                    for (index, chunk) in raw.chunks_exact(8).enumerate() {
+                        let mut word = [0_u8; 8];
+                        word.copy_from_slice(chunk);
+                        words[index] = i64::from_ne_bytes(word);
+                    }
+                    match fingerprint(&path) {
+                        Ok(expected) => collector.push(
+                            pid,
+                            Effect::Read(ReadEffect::FilesystemStats(FilesystemStatsRead {
+                                path,
+                                source,
+                                stats: Some(statfs_from_words(&words)),
+                                errno: None,
+                                fingerprint: Some(expected),
+                                credential: credential_identity(pid.as_raw() as u32),
+                                mount_namespace: namespace_identity(pid.as_raw() as u32),
+                            })),
+                        ),
+                        Err(error) => collector.push(
+                            pid,
+                            Effect::Unknown(UnknownEffect {
+                                syscall: Some(libc::SYS_statfs),
+                                detail: format!(
+                                    "filesystem-stat result cannot be bound to a path: {} ({error})",
+                                    path.display()
+                                ),
+                            }),
+                        ),
+                    }
+                }
+                Err(detail) => collector.push(
+                    pid,
+                    Effect::Unknown(UnknownEffect {
+                        syscall: Some(libc::SYS_statfs),
+                        detail: format!("filesystem-stat result could not be read: {detail}"),
+                    }),
+                ),
+            }
+        }
+        PendingSyscall::Enumerate {
+            path,
+            fd,
+            buffer,
+            requested,
+        } => {
+            let length = result as usize;
+            if length > requested as usize {
+                collector.push(
+                    pid,
+                    Effect::Unknown(UnknownEffect {
+                        syscall: Some(libc::SYS_getdents64),
+                        detail: format!(
+                            "getdents64 returned {length} bytes for a {requested}-byte buffer"
+                        ),
+                    }),
+                );
+            } else {
+                let mut bytes = vec![0_u8; length];
+                match read_remote(pid, buffer, &mut bytes) {
+                    Ok(()) => {
+                        let request = DirectoryEnumerationRequest {
+                            requested,
+                            returned: bytes,
+                        };
+                        let entry =
+                            state
+                                .enumerations
+                                .entry(fd)
+                                .or_insert_with(|| EnumerationState {
+                                    fingerprint: fingerprint(&path)
+                                        .unwrap_or(tracejit_effects::FileFingerprint::absent()),
+                                    credential: credential_identity(pid.as_raw() as u32),
+                                    mount_namespace: namespace_identity(pid.as_raw() as u32),
+                                    bytes: 0,
+                                    effect_index: None,
+                                    refused: false,
+                                });
+                        let size = request.returned.len();
+                        if !entry.refused && entry.bytes + size > MAX_ENUMERATION_BYTES {
+                            entry.refused = true;
+                            collector.push(
+                                pid,
+                                Effect::Unknown(UnknownEffect {
+                                    syscall: Some(libc::SYS_getdents64),
+                                    detail: format!(
+                                        "directory enumeration of {} is too large to guard",
+                                        path.display()
+                                    ),
+                                }),
+                            );
+                        } else if !entry.refused {
+                            entry.bytes += size;
+                            match entry.effect_index {
+                                Some(index) => {
+                                    if let Some(EffectRecord {
+                                        effect: Effect::Read(ReadEffect::DirectoryEnumerated(read)),
+                                        ..
+                                    }) = collector.effects.get_mut(index)
+                                    {
+                                        read.requests.push(request);
+                                    }
+                                }
+                                None => {
+                                    let first = DirectoryEnumerationRead {
+                                        path: path.clone(),
+                                        requests: vec![request],
+                                        fingerprint: Some(entry.fingerprint.clone()),
+                                        credential: entry.credential,
+                                        mount_namespace: entry.mount_namespace,
+                                    };
+                                    collector.push(
+                                        pid,
+                                        Effect::Read(ReadEffect::DirectoryEnumerated(first)),
+                                    );
+                                    entry.effect_index = collector.effects.len().checked_sub(1);
+                                }
+                            }
+                        }
+                    }
+                    Err(detail) => collector.push(
+                        pid,
+                        Effect::Unknown(UnknownEffect {
+                            syscall: Some(libc::SYS_getdents64),
+                            detail: format!(
+                                "directory enumeration bytes could not be read: {detail}"
+                            ),
+                        }),
+                    ),
+                }
+            }
+        }
         PendingSyscall::Read { fd, count } => match state.fds.get(&fd).cloned() {
             Some(FdState::Network) => collector.push(
                 pid,
@@ -1622,6 +1888,59 @@ fn complete_syscall(
                 }),
             ),
             Some(FdState::InheritedFile(path)) if path == Path::new("/dev/null") => {}
+            // A read from an inherited regular file is guarded as its content plus the offset
+            // contract of the shared open file description. The effect is pushed on the first
+            // read so its sequence stays before any later write, then updated in place.
+            Some(FdState::InheritedFile(path))
+                if fd == 0
+                    && state
+                        .stdin_stream
+                        .as_ref()
+                        .is_some_and(|stream| stream.path == path) =>
+            {
+                let consumed = result as u64;
+                let (start_offset, end_offset, bytes_read, index, hash, expected) = {
+                    let stream = state.stdin_stream.as_mut().expect("checked above");
+                    stream.bytes_read = stream.bytes_read.saturating_add(consumed);
+                    stream.end_offset = stream.start_offset.saturating_add(stream.bytes_read);
+                    (
+                        stream.start_offset,
+                        stream.end_offset,
+                        stream.bytes_read,
+                        stream.effect_index,
+                        stream.hash,
+                        stream.fingerprint.clone(),
+                    )
+                };
+                match index {
+                    Some(index) => {
+                        if let Some(EffectRecord {
+                            effect: Effect::Read(ReadEffect::InheritedStream(read)),
+                            ..
+                        }) = collector.effects.get_mut(index)
+                        {
+                            read.end_offset = end_offset;
+                            read.bytes_read = bytes_read;
+                        }
+                    }
+                    None => {
+                        collector.push(
+                            pid,
+                            Effect::Read(ReadEffect::InheritedStream(InheritedStreamRead {
+                                path: path.clone(),
+                                hash: Some(hash),
+                                fingerprint: Some(expected),
+                                start_offset,
+                                end_offset,
+                                bytes_read,
+                            })),
+                        );
+                        if let Some(stream) = state.stdin_stream.as_mut() {
+                            stream.effect_index = collector.effects.len().checked_sub(1);
+                        }
+                    }
+                }
+            }
             Some(FdState::InheritedFile(path)) => collector.push(
                 pid,
                 Effect::Unknown(UnknownEffect {
@@ -1949,6 +2268,28 @@ fn complete_failed_syscall(
                 signal,
                 target_pid: target,
             })),
+        ),
+        PendingSyscall::FsStats { path, source, .. } => collector.push(
+            pid,
+            Effect::Read(ReadEffect::FilesystemStats(FilesystemStatsRead {
+                fingerprint: fingerprint(&path).ok(),
+                path,
+                source,
+                stats: None,
+                errno: Some(errno as i32),
+                credential: credential_identity(pid.as_raw() as u32),
+                mount_namespace: namespace_identity(pid.as_raw() as u32),
+            })),
+        ),
+        PendingSyscall::Enumerate { path, .. } => collector.push(
+            pid,
+            Effect::Unknown(UnknownEffect {
+                syscall: Some(libc::SYS_getdents64),
+                detail: format!(
+                    "directory enumeration of {} failed with errno {errno}",
+                    path.display()
+                ),
+            }),
         ),
         PendingSyscall::Read { fd, .. } | PendingSyscall::Write { fd, .. } => collector.push(
             pid,
@@ -2475,6 +2816,71 @@ fn mapping_prot_makes_shared_file_writable(
     shared_write
 }
 
+/// Upper bound on the entry bytes kept in one cache record.
+///
+/// A record has to stay replayable and reasonably sized; a directory larger than this refuses
+/// the execution instead of silently keeping a prefix of the stream.
+const MAX_ENUMERATION_BYTES: usize = 1 << 20;
+
+/// Parses the kernel's 120-byte `struct statfs` layout on x86_64.
+fn statfs_from_words(words: &[i64; 15]) -> tracejit_effects::FilesystemStats {
+    tracejit_effects::FilesystemStats {
+        f_type: words[0],
+        f_bsize: words[1],
+        f_blocks: words[2] as u64,
+        f_bfree: words[3] as u64,
+        f_bavail: words[4] as u64,
+        f_files: words[5] as u64,
+        f_ffree: words[6] as u64,
+        f_fsid: [words[7] as u32 as i32, (words[7] >> 32) as u32 as i32],
+        f_namelen: words[8],
+        f_frsize: words[9],
+        f_flags: words[10],
+        f_spare: [words[11], words[12], words[13], words[14]],
+    }
+}
+
+/// Reads the file position a descriptor currently holds from `/proc/<pid>/fdinfo`.
+fn fd_position(pid: Pid, fd: i32) -> Option<u64> {
+    let info = fs::read_to_string(format!("/proc/{}/fdinfo/{fd}", pid.as_raw())).ok()?;
+    info.lines()
+        .find_map(|line| line.strip_prefix("pos:")?.trim().parse().ok())
+}
+
+/// Captures the contract of an inherited regular-file stdin before the program runs.
+///
+/// Only a regular file whose descriptor target is still reachable at the same path is admitted.
+/// Pipes, sockets, terminals and unknown descriptors keep the conservative refusal.
+fn initial_inherited_stream(pid: Pid) -> Option<InheritedStreamState> {
+    let link = format!("/proc/{}/fd/0", pid.as_raw());
+    let path = fs::read_link(&link).ok()?;
+    if !path.is_absolute() || path == Path::new("/dev/null") {
+        return None;
+    }
+    let metadata = fs::metadata(&link).ok()?;
+    if !metadata.is_file() {
+        return None;
+    }
+    let expected = fingerprint(Path::new(&link)).ok()?;
+    // The path must still name the inode the descriptor refers to, otherwise a replay by path
+    // would hash a different file than the one the program will read.
+    let named = fingerprint(&path).ok()?;
+    if named.device != expected.device || named.inode != expected.inode {
+        return None;
+    }
+    let hash = hash_file(Path::new(&link)).ok()?;
+    let start_offset = fd_position(pid, 0)?;
+    Some(InheritedStreamState {
+        path,
+        hash,
+        fingerprint: expected,
+        start_offset,
+        end_offset: start_offset,
+        bytes_read: 0,
+        effect_index: None,
+    })
+}
+
 fn is_known_internal_syscall(number: i64) -> bool {
     matches!(
         number,
@@ -2535,6 +2941,12 @@ fn pending_description(pending: &PendingSyscall) -> String {
         PendingSyscall::Mprotect { .. } => "mprotect".into(),
         PendingSyscall::Munmap { .. } => "munmap".into(),
         PendingSyscall::Mremap { .. } => "mremap".into(),
+        PendingSyscall::FsStats { path, .. } => {
+            format!("filesystem statistics for {}", path.display())
+        }
+        PendingSyscall::Enumerate { path, .. } => {
+            format!("directory enumeration of {}", path.display())
+        }
         PendingSyscall::Dup { .. }
         | PendingSyscall::Close { .. }
         | PendingSyscall::SetCloseOnExec { .. }

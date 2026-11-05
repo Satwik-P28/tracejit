@@ -410,6 +410,23 @@ fn input_dependency_line(dependency: &InputDependency) -> String {
         InputDependency::Executable { path, .. } => format!("EXEC  {}", path.display()),
         InputDependency::Metadata { path, .. } => format!("META  {}", path.display()),
         InputDependency::DirectoryOpened { path, .. } => format!("DIROP {}", path.display()),
+        InputDependency::DirectoryEnumerated { path, requests, .. } => {
+            format!("DIRLIST {} ({} calls)", path.display(), requests.len())
+        }
+        InputDependency::FilesystemStats { path, .. } => {
+            format!("FSSTAT {}", path.display())
+        }
+        InputDependency::InheritedStream {
+            path,
+            start_offset,
+            end_offset,
+            ..
+        } => format!(
+            "STDIN {} [{}..{}]",
+            path.display(),
+            start_offset,
+            end_offset
+        ),
         InputDependency::SymlinkMetadata { path, .. } => format!("LSTAT {}", path.display()),
         InputDependency::Symlink { path, target } => {
             let shown = target
@@ -438,6 +455,25 @@ fn guard_line(guard: &Guard) -> String {
         Guard::FileHash { path, .. } => format!("file content {}", path.display()),
         Guard::FileMetadata { path, .. } => format!("file metadata {}", path.display()),
         Guard::DirectoryOpened { path, .. } => format!("directory open {}", path.display()),
+        Guard::DirectoryEnumerated { path, requests, .. } => format!(
+            "directory entry stream {} ({} calls)",
+            path.display(),
+            requests.len()
+        ),
+        Guard::FilesystemStats { path, .. } => {
+            format!("filesystem statistics {}", path.display())
+        }
+        Guard::InheritedStream {
+            path,
+            start_offset,
+            end_offset,
+            ..
+        } => format!(
+            "inherited stdin {} [{}..{}]",
+            path.display(),
+            start_offset,
+            end_offset
+        ),
         Guard::SymlinkTarget { path, .. } => format!("symlink target {}", path.display()),
         Guard::SymlinkMetadata { path, .. } => format!("symlink metadata {}", path.display()),
         Guard::AccessCheck { path, mode, .. } => {
