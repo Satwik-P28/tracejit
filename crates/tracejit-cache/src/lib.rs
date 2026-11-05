@@ -54,6 +54,9 @@ pub enum CacheDecision {
     Reused,
     Deoptimized,
     Ineligible,
+    /// The admission policy ran the command without tracing or reusing a record, because the
+    /// measured cost of doing so would exceed the command's own runtime.
+    Skipped,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -97,6 +100,15 @@ pub struct CacheStats {
     pub executions: u64,
     pub objects: u64,
     pub object_bytes: u64,
+}
+
+#[derive(Clone, Copy, Debug, Default, Serialize, Deserialize)]
+pub struct AdmissionCost {
+    pub direct_ns: u64,
+    pub hit_ns: u64,
+    pub cold_ns: u64,
+    pub hits: u64,
+    pub skips: u64,
 }
 
 #[derive(Clone, Copy, Debug, Default)]
@@ -144,6 +156,15 @@ impl Cache {
                  lookup_key TEXT PRIMARY KEY NOT NULL,
                  execution_id TEXT NOT NULL,
                  record_json BLOB NOT NULL,
+                 updated_unix_ms TEXT NOT NULL
+             );
+             CREATE TABLE IF NOT EXISTS admission (
+                 lookup_key TEXT PRIMARY KEY NOT NULL,
+                 direct_ns INTEGER NOT NULL,
+                 hit_ns INTEGER NOT NULL,
+                 cold_ns INTEGER NOT NULL,
+                 hits INTEGER NOT NULL,
+                 skips INTEGER NOT NULL,
                  updated_unix_ms TEXT NOT NULL
              );",
         )?;
@@ -379,6 +400,76 @@ impl Cache {
                 Ok(StagedOutput::Content(temporary))
             }
         }
+    }
+
+    /// The cost history for one cache identity, if one has been recorded.
+    pub fn admission_cost(&self, lookup_key: Hash) -> Result<Option<AdmissionCost>, CacheError> {
+        self.connection
+            .query_row(
+                "SELECT direct_ns, hit_ns, cold_ns, hits, skips FROM admission WHERE lookup_key = ?1",
+                [lookup_key.to_string()],
+                |row| {
+                    Ok(AdmissionCost {
+                        direct_ns: row.get(0)?,
+                        hit_ns: row.get(1)?,
+                        cold_ns: row.get(2)?,
+                        hits: row.get(3)?,
+                        skips: row.get(4)?,
+                    })
+                },
+            )
+            .optional()
+            .map_err(CacheError::from)
+    }
+
+    /// Records one observed cost sample. Averages are a simple 3:1 blend, so a policy decision is
+    /// interpretable from the stored numbers and does not depend on model state elsewhere.
+    pub fn record_admission(
+        &self,
+        lookup_key: Hash,
+        direct_ns: u64,
+        cold_ns: u64,
+        hit_ns: Option<u64>,
+        skipped: bool,
+    ) -> Result<(), CacheError> {
+        let previous = self.admission_cost(lookup_key)?;
+        let blend = |old: u64, new: u64| {
+            if old == 0 {
+                new
+            } else {
+                old.saturating_mul(3).saturating_add(new) / 4
+            }
+        };
+        let old = previous.unwrap_or_default();
+        let direct = blend(old.direct_ns, direct_ns);
+        let hit = match hit_ns {
+            Some(value) => blend(old.hit_ns, value),
+            None => old.hit_ns,
+        };
+        let cold = if cold_ns == 0 { old.cold_ns } else { cold_ns };
+        let hits = old.hits + u64::from(hit_ns.is_some());
+        let skips = old.skips + u64::from(skipped);
+        self.connection.execute(
+            "INSERT INTO admission (lookup_key, direct_ns, hit_ns, cold_ns, hits, skips, updated_unix_ms)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)
+             ON CONFLICT(lookup_key) DO UPDATE SET
+               direct_ns=excluded.direct_ns,
+               hit_ns=excluded.hit_ns,
+               cold_ns=excluded.cold_ns,
+               hits=excluded.hits,
+               skips=excluded.skips,
+               updated_unix_ms=excluded.updated_unix_ms",
+            params![
+                lookup_key.to_string(),
+                direct,
+                hit,
+                cold,
+                hits,
+                skips,
+                now_unix_ms().to_string()
+            ],
+        )?;
+        Ok(())
     }
 
     pub fn stats(&self) -> Result<CacheStats, CacheError> {

@@ -1185,3 +1185,182 @@ fn access_check_is_replayed_as_a_predicate() {
     );
     eprintln!("RESULT access_predicate PASS");
 }
+
+/// `tr` reads stdin through an inherited regular file, and a read can update `atime`. That must
+/// not change the cache identity: the reported defect was a miss on every fresh session.
+#[test]
+fn inherited_stdin_reuse_is_stable_across_fresh_sessions() {
+    if !Command::new("tr")
+        .arg("--version")
+        .output()
+        .is_ok_and(|output| output.status.success())
+    {
+        eprintln!("RESULT controlled-tr SKIP");
+        return;
+    }
+    for session in 0..2 {
+        let temporary = tempfile::tempdir().unwrap();
+        let cache = temporary.path().join("cache");
+        let input = temporary.path().join("input.txt");
+        fs::write(&input, "alpha beta\n").unwrap();
+        let direct = |path: &Path| {
+            Command::new("tr")
+                .args(["a-z", "A-Z"])
+                .stdin(std::process::Stdio::from(fs::File::open(path).unwrap()))
+                .output()
+                .unwrap()
+                .stdout
+        };
+        let expected = direct(&input);
+        let args = [
+            "run",
+            "--json",
+            "--contract",
+            "allocator-entropy-v1",
+            "--",
+            "tr",
+            "a-z",
+            "A-Z",
+        ];
+        let traced = |cache: &Path, stdin: &Path| {
+            let output = Command::new(tracejit())
+                .args(args)
+                .env("TRACEJIT_CACHE_DIR", cache)
+                .stdin(std::process::Stdio::from(fs::File::open(stdin).unwrap()))
+                .output()
+                .unwrap();
+            serde_json::from_slice::<Value>(&output.stdout).unwrap()
+        };
+
+        let first = traced(&cache, &input);
+        assert_eq!(
+            first["classification"], "Guarded",
+            "session {session}: {first}"
+        );
+        assert_eq!(stdout_bytes_of(&first), expected);
+        let second = traced(&cache, &input);
+        assert_eq!(
+            second["cache_decision"], "Reused",
+            "session {session}: reading stdin must not invalidate the identity: {second}"
+        );
+        assert_eq!(stdout_bytes_of(&second), expected);
+
+        fs::write(&input, "gamma delta\n").unwrap();
+        let changed = direct(&input);
+        let third = traced(&cache, &input);
+        assert_ne!(
+            third["cache_decision"], "Reused",
+            "session {session}: {third}"
+        );
+        assert_eq!(stdout_bytes_of(&third), changed);
+    }
+    eprintln!("RESULT controlled-tr PASS");
+}
+
+/// glibc's tcache key also implements double-free detection. Injecting a fixed key must not make a
+/// double free look legal: the program must still abort with glibc's diagnostic.
+#[test]
+fn allocator_double_free_detection_survives_the_contract() {
+    let temporary = tempfile::tempdir().unwrap();
+    let source = temporary.path().join("double_free.c");
+    fs::write(
+        &source,
+        "#include <stdlib.h>\nint main(void) { void *p = malloc(64); free(p); free(p); return 0; }\n",
+    )
+    .unwrap();
+    let binary = temporary.path().join("double-free");
+    let compiled = Command::new("cc")
+        .args(["-O0", "-g"])
+        .arg(&source)
+        .arg("-o")
+        .arg(&binary)
+        .status()
+        .unwrap();
+    assert!(compiled.success(), "double-free fixture compilation failed");
+    let native = Command::new(&binary).output().unwrap();
+    assert!(!native.status.success(), "the fixture must abort natively");
+
+    let cache = temporary.path().join("cache");
+    let output = invoke(
+        &cache,
+        &[
+            "run",
+            "--json",
+            "--contract",
+            "allocator-entropy-v1",
+            "--",
+            binary.to_str().unwrap(),
+        ],
+        None,
+    );
+    let report: Value = serde_json::from_slice(&output.stdout).unwrap();
+    let stderr: Vec<u8> = report["stderr_bytes"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|byte| byte.as_u64().unwrap() as u8)
+        .collect();
+    let text = String::from_utf8_lossy(&stderr);
+    assert_ne!(report["exit_code"].as_i64().unwrap_or(0), 0, "{report}");
+    assert!(
+        text.contains("double free") || text.contains("invalid pointer"),
+        "the contract must not hide glibc's double-free diagnostic: {text}"
+    );
+    eprintln!("RESULT allocator-double-free PASS");
+}
+
+/// Cost-aware admission must run short commands directly and still cache commands that repay.
+#[test]
+fn auto_admission_skips_short_commands_and_caches_expensive_ones() {
+    let temporary = tempfile::tempdir().unwrap();
+    let small = temporary.path().join("small.txt");
+    fs::write(&small, "alpha\n".repeat(1000)).unwrap();
+    let cache = temporary.path().join("cache");
+    let short = [
+        "run",
+        "--json",
+        "--admission",
+        "auto",
+        "--",
+        "wc",
+        "-c",
+        small.to_str().unwrap(),
+    ];
+    let first: Value = serde_json::from_slice(&invoke(&cache, &short, None).stdout).unwrap();
+    assert_eq!(first["cache_decision"], "Skipped", "{first}");
+    let second: Value = serde_json::from_slice(&invoke(&cache, &short, None).stdout).unwrap();
+    assert_eq!(second["cache_decision"], "Skipped", "{second}");
+    assert_eq!(first["stdout_bytes"], second["stdout_bytes"]);
+    assert_eq!(first["exit_code"], second["exit_code"]);
+
+    if !Command::new("gzip")
+        .arg("--version")
+        .output()
+        .is_ok_and(|output| output.status.success())
+    {
+        eprintln!("RESULT auto-admission SKIP gzip");
+        return;
+    }
+    let large = temporary.path().join("large.txt");
+    fs::write(&large, "alpha beta gamma\n".repeat(150_000)).unwrap();
+    let long = [
+        "run",
+        "--json",
+        "--admission",
+        "auto",
+        "--",
+        "gzip",
+        "-9",
+        "-c",
+        large.to_str().unwrap(),
+    ];
+    let measured: Value = serde_json::from_slice(&invoke(&cache, &long, None).stdout).unwrap();
+    assert_eq!(measured["cache_decision"], "Skipped", "{measured}");
+    let traced: Value = serde_json::from_slice(&invoke(&cache, &long, None).stdout).unwrap();
+    assert_eq!(traced["cache_decision"], "Executed", "{traced}");
+    assert_eq!(traced["classification"], "Guarded", "{traced}");
+    let reused: Value = serde_json::from_slice(&invoke(&cache, &long, None).stdout).unwrap();
+    assert_eq!(reused["cache_decision"], "Reused", "{reused}");
+    assert_eq!(stdout_bytes_of(&reused), stdout_bytes_of(&traced));
+    eprintln!("RESULT auto-admission PASS");
+}

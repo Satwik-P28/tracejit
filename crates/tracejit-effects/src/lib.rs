@@ -188,6 +188,107 @@ pub const ALLOCATOR_ENTROPY_CONTRACT: &str = "tracejit.allocator-entropy.v1";
 /// destination is a private writable mapping of the shared library that issued it.
 pub const ALLOCATOR_ENTROPY_VALUE: u64 = 0x9e37_79b9_7f4a_7c15;
 
+/// An audited runtime call site the allocator-entropy contract may answer.
+///
+/// A profile is not a pattern: it names one exact build and the exact offsets and instruction
+/// bytes of its allocator probe. Any other library, build or call site is refused, even if its
+/// memory layout looks similar.
+#[derive(Clone, Copy, Debug)]
+pub struct AllocatorEntropyProfile {
+    /// GNU build ID of the runtime library, hex encoded (as `readelf -n` prints it).
+    pub build_id: &'static str,
+    /// Offset at which the tracer reports the syscall stop, relative to the library's load base.
+    /// On x86-64 this is the byte after the two-byte `syscall` instruction.
+    pub site_offset: u64,
+    /// Offset of the runtime's `tcache_key` in its writable data, relative to the load base.
+    pub destination_offset: u64,
+    /// The audited bytes ending at `site_offset`, i.e. the `syscall` instruction and the
+    /// instructions immediately after it.
+    pub site_signature: &'static [u8],
+}
+
+/// The audited profiles. Only these builds are admitted.
+///
+/// The entry below was audited on Ubuntu 24.04 glibc 2.39: the `syscall` is at `libc+0xa9e87`,
+/// execution resumes at `libc+0xa9e89`, the destination is `libc+0x20b178`, and the caller is
+/// `ptmalloc_init` through `tcache_key_initialize`.
+pub const ALLOCATOR_ENTROPY_PROFILES: &[AllocatorEntropyProfile] = &[AllocatorEntropyProfile {
+    build_id: "a4a7992a8e66555c8141ab2a08a8465ff6e0ea65",
+    site_offset: 0xa9e89,
+    destination_offset: 0x20b178,
+    site_signature: &[0x0f, 0x05, 0x48, 0x8d, 0x5d, 0xd0, 0x48, 0x83, 0xf8, 0x08],
+}];
+
+pub fn allocator_entropy_profile(build_id: &str) -> Option<&'static AllocatorEntropyProfile> {
+    ALLOCATOR_ENTROPY_PROFILES
+        .iter()
+        .find(|profile| profile.build_id == build_id)
+}
+
+/// Reads the GNU build ID note of an ELF64 little-endian shared object.
+///
+/// The build ID is the identity a profile is keyed by. It is deliberately not derived from a
+/// pathname or a mapping name: the same library can be mapped under many names, and a different
+/// library can be mapped under the same one.
+pub fn elf_build_id(path: &std::path::Path) -> Option<String> {
+    let bytes = std::fs::read(path).ok()?;
+    if bytes.len() < 64 || &bytes[..4] != b"\x7fELF" || bytes[4] != 2 || bytes[5] != 1 {
+        return None;
+    }
+    let u16_at = |at: usize| {
+        bytes
+            .get(at..at + 2)
+            .map(|slice| u16::from_le_bytes([slice[0], slice[1]]))
+    };
+    let u32_at = |at: usize| {
+        bytes
+            .get(at..at + 4)
+            .map(|slice| u32::from_le_bytes([slice[0], slice[1], slice[2], slice[3]]))
+    };
+    let u64_at = |at: usize| -> Option<u64> {
+        bytes.get(at..at + 8).map(|slice| {
+            u64::from_le_bytes([
+                slice[0], slice[1], slice[2], slice[3], slice[4], slice[5], slice[6], slice[7],
+            ])
+        })
+    };
+    let program_offset = u64_at(0x20)? as usize;
+    let entry_size = u16_at(0x36)? as usize;
+    let entry_count = u16_at(0x38)? as usize;
+    for index in 0..entry_count {
+        let at = program_offset.checked_add(index.checked_mul(entry_size)?)?;
+        if u32_at(at)? != 4 {
+            continue;
+        }
+        let offset = u64_at(at + 8)? as usize;
+        let size = u64_at(at + 32)? as usize;
+        let note = bytes.get(offset..offset.checked_add(size)?)?;
+        let mut cursor = 0usize;
+        while cursor + 12 <= note.len() {
+            let word = |base: usize| -> Option<u32> {
+                note.get(base..base + 4)
+                    .map(|slice| u32::from_le_bytes([slice[0], slice[1], slice[2], slice[3]]))
+            };
+            let namesz = word(cursor)? as usize;
+            let descsz = word(cursor + 4)? as usize;
+            let kind = word(cursor + 8)?;
+            let name_start = cursor + 12;
+            let name_end = name_start.checked_add(namesz)?;
+            let desc_start = name_end.checked_add((4 - namesz % 4) % 4)?;
+            let desc_end = desc_start.checked_add(descsz)?;
+            if kind == 3 && note.get(name_start..name_end)?.starts_with(b"GNU") {
+                let mut hex = String::with_capacity(descsz * 2);
+                for byte in note.get(desc_start..desc_end)? {
+                    hex.push_str(&format!("{byte:02x}"));
+                }
+                return Some(hex);
+            }
+            cursor = desc_end.checked_add((4 - descsz % 4) % 4)?;
+        }
+    }
+    None
+}
+
 /// One `getrandom` result the controlled-execution contract supplied instead of the kernel.
 ///
 /// The record pins the runtime library by content hash and the call site by module offset, so a
@@ -197,6 +298,17 @@ pub const ALLOCATOR_ENTROPY_VALUE: u64 = 0x9e37_79b9_7f4a_7c15;
 pub struct ControlledEntropyRead {
     pub library: PathBuf,
     pub library_hash: Hash,
+    /// Audited runtime build this call site belongs to. Empty on records written before the
+    /// call-site profile existed; those records are refused rather than reinterpreted.
+    #[serde(default)]
+    pub build_id: String,
+    /// Offset of the `syscall` instruction, relative to the library's load base.
+    #[serde(default)]
+    pub site_offset: u64,
+    /// Offset of the runtime's allocator key, relative to the library's load base.
+    #[serde(default)]
+    pub destination_offset: u64,
+    #[serde(default)]
     pub module_offset: u64,
     pub length: u32,
     pub flags: i32,
@@ -693,6 +805,13 @@ pub enum InputDependency {
     ControlledEntropy {
         library: PathBuf,
         library_hash: Hash,
+        #[serde(default)]
+        build_id: String,
+        #[serde(default)]
+        site_offset: u64,
+        #[serde(default)]
+        destination_offset: u64,
+        #[serde(default)]
         module_offset: u64,
         length: u32,
         flags: i32,
@@ -982,6 +1101,9 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
         InputDependency::ControlledEntropy {
             library: read.library,
             library_hash: read.library_hash,
+            build_id: read.build_id,
+            site_offset: read.site_offset,
+            destination_offset: read.destination_offset,
             module_offset: read.module_offset,
             length: read.length,
             flags: read.flags,

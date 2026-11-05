@@ -95,6 +95,9 @@ pub enum Guard {
     ControlledEntropy {
         library: PathBuf,
         expected: Hash,
+        build_id: String,
+        site_offset: u64,
+        destination_offset: u64,
         module_offset: u64,
         length: u32,
         flags: i32,
@@ -293,7 +296,14 @@ pub fn current_runtime_identity() -> Result<RuntimeIdentity, GuardError> {
         let stdin_link = Path::new("/dev/fd/0");
         let stdin_target = fs::read_link(stdin_link)
             .map_err(|error| GuardError::Runtime(format!("could not inspect stdin: {error}")))?;
-        let stdin_fingerprint = fingerprint(stdin_link).ok();
+        // Access time is not an input to the command. Reading a fresh regular file can update it,
+        // which would change the lookup key between two identical invocations and turn a sound
+        // hit into a miss (`tr` was the reported case). Metadata a program can actually observe
+        // through `fstat(0)` is recorded separately as its own dependency and guarded there.
+        let stdin_fingerprint = fingerprint(stdin_link).ok().map(|mut fingerprint| {
+            fingerprint.accessed_ns = 0;
+            fingerprint
+        });
         Ok(RuntimeIdentity {
             os: field(&info.sysname),
             architecture: field(&info.machine),
@@ -408,7 +418,10 @@ impl Guard {
             Self::ControlledEntropy {
                 library,
                 expected,
-                module_offset: _,
+                build_id,
+                site_offset,
+                destination_offset,
+                module_offset,
                 length,
                 flags,
                 value,
@@ -430,6 +443,52 @@ impl Guard {
                         reason: "controlled entropy request shape is not the admitted one".into(),
                         expected: "8 bytes, GRND_NONBLOCK".into(),
                         actual: format!("{length} bytes, flags {flags}"),
+                    });
+                }
+                let Some(profile) = tracejit_effects::allocator_entropy_profile(build_id) else {
+                    return Err(GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "controlled entropy names an unaudited runtime build".into(),
+                        expected: format!(
+                            "one of {} audited builds",
+                            tracejit_effects::ALLOCATOR_ENTROPY_PROFILES.len()
+                        ),
+                        actual: build_id.clone(),
+                    });
+                };
+                if *site_offset != profile.site_offset
+                    || *destination_offset != profile.destination_offset
+                    || *module_offset != profile.site_offset
+                {
+                    return Err(GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "controlled entropy call site is not the audited one".into(),
+                        expected: format!(
+                            "site {:#x}, destination {:#x}",
+                            profile.site_offset, profile.destination_offset
+                        ),
+                        actual: format!(
+                            "site {site_offset:#x}, destination {destination_offset:#x}"
+                        ),
+                    });
+                }
+                let Ok(library_bytes) = std::fs::read(library) else {
+                    return Err(GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "runtime library could not be read".into(),
+                        expected: profile.build_id.into(),
+                        actual: library.display().to_string(),
+                    });
+                };
+                let start = profile.site_offset.saturating_sub(2) as usize;
+                if library_bytes.get(start..start + profile.site_signature.len())
+                    != Some(profile.site_signature)
+                {
+                    return Err(GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "runtime library no longer contains the audited call site".into(),
+                        expected: profile.build_id.into(),
+                        actual: build_id.clone(),
                     });
                 }
                 if *value != tracejit_effects::ALLOCATOR_ENTROPY_VALUE {
@@ -1451,6 +1510,9 @@ pub fn compile_guards(executable: PathBuf, identity: &ExecutionIdentity) -> Vec<
             InputDependency::ControlledEntropy {
                 library,
                 library_hash,
+                build_id,
+                site_offset,
+                destination_offset,
                 module_offset,
                 length,
                 flags,
@@ -1459,6 +1521,9 @@ pub fn compile_guards(executable: PathBuf, identity: &ExecutionIdentity) -> Vec<
             } => guards.push(Guard::ControlledEntropy {
                 library: library.clone(),
                 expected: *library_hash,
+                build_id: build_id.clone(),
+                site_offset: *site_offset,
+                destination_offset: *destination_offset,
                 module_offset: *module_offset,
                 length: *length,
                 flags: *flags,
@@ -1689,10 +1754,21 @@ mod tests {
             return;
         }
         let expected = hash_file(library).unwrap();
+        let Some(build_id) = tracejit_effects::elf_build_id(library) else {
+            eprintln!("RESULT controlled-entropy-guard SKIP");
+            return;
+        };
+        let Some(profile) = tracejit_effects::allocator_entropy_profile(&build_id) else {
+            eprintln!("RESULT controlled-entropy-guard SKIP unaudited build {build_id}");
+            return;
+        };
         let guard = Guard::ControlledEntropy {
             library: library.to_path_buf(),
             expected,
-            module_offset: 0x1612ef,
+            build_id: build_id.clone(),
+            site_offset: profile.site_offset,
+            destination_offset: profile.destination_offset,
+            module_offset: profile.site_offset,
             length: 8,
             flags: 1,
             value: tracejit_effects::ALLOCATOR_ENTROPY_VALUE,
@@ -1725,6 +1801,22 @@ mod tests {
             *flags = 0;
         }
         assert!(wrong_shape.validate(GuardMode::Strict).is_err());
+
+        // A build that is not in the audited table is refused even with an apparently valid shape.
+        let mut unknown_build = guard.clone();
+        if let Guard::ControlledEntropy { build_id, .. } = &mut unknown_build {
+            *build_id = "00".repeat(20);
+        }
+        assert!(unknown_build.validate(GuardMode::Strict).is_err());
+
+        // Degenerate allocator keys are never replayable.
+        for degenerate in [0_u64, u64::MAX] {
+            let mut wrong = guard.clone();
+            if let Guard::ControlledEntropy { value, .. } = &mut wrong {
+                *value = degenerate;
+            }
+            assert!(wrong.validate(GuardMode::Strict).is_err());
+        }
     }
 
     #[test]

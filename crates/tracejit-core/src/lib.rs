@@ -5,8 +5,8 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 use tracejit_cache::{
-    now_unix_ms, output_from_path, Cache, CacheDecision, CacheError, DecisionRecord, OutputKind,
-    StoredExecution,
+    now_unix_ms, output_from_path, AdmissionCost, Cache, CacheDecision, CacheError, DecisionRecord,
+    OutputKind, StoredExecution,
 };
 use tracejit_effects::{
     classify, reconstruct_dependencies, DeterminismClass, Effect, EffectRecord, EnvironmentRead,
@@ -35,6 +35,8 @@ pub enum CoreError {
     TargetNotFound(OsString),
     #[error("output cannot be captured safely: {0}")]
     UnsafeOutput(PathBuf),
+    #[error(transparent)]
+    Io(#[from] std::io::Error),
 }
 
 #[derive(Clone, Debug)]
@@ -47,6 +49,29 @@ pub struct RunOptions {
     /// nondeterminism and is part of the cache identity, so native and controlled entries never
     /// share a record.
     pub contract: Option<tracejit_trace::Contract>,
+    pub admission: Admission,
+}
+
+/// When a command is worth tracing and caching at all.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
+pub enum Admission {
+    /// Trace and store every invocation, then reuse when the guards pass. Historical behaviour.
+    #[default]
+    Always,
+    /// Measure before committing: the first invocation runs directly and records its cost; a
+    /// later invocation is traced only if the measured direct runtime can repay a hit.
+    Auto,
+    /// Never trace or reuse; run the command directly.
+    Never,
+}
+
+/// A hit costs process startup, identity, SQLite lookup, guards and restoration. A command whose
+/// native runtime is below this is not worth caching even if it would always hit.
+const HIT_COST_FLOOR_NS: u64 = 6_000_000;
+
+fn admission_is_profitable(cost: &AdmissionCost) -> bool {
+    let hit = cost.hit_ns.max(HIT_COST_FLOOR_NS);
+    cost.direct_ns >= hit.saturating_mul(2)
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -55,7 +80,7 @@ pub enum RunKind {
     Reused,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct EffectCounts {
     pub reads: usize,
     pub writes: usize,
@@ -186,6 +211,45 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
         ..PhaseTimings::default()
     };
 
+    // Cost-aware admission. `Always` keeps the historical behaviour. `Auto` learns the direct
+    // runtime before it pays for a trace, so a command that cannot repay a hit never pays for one.
+    if options.admission != Admission::Always {
+        let reusable = candidate.as_ref().is_some_and(|candidate| {
+            candidate.classification.cache_eligible()
+                && candidate.contract.as_deref() == options.contract.map(|contract| contract.id())
+        });
+        let mut run_without_cache = options.admission == Admission::Never;
+        let mut reason = "admission policy disabled caching for this run";
+        if options.admission == Admission::Auto && !reusable {
+            // A record that was classified ineligible has already answered the question: tracing
+            // this identity again cannot produce a reusable entry, so pay for it once, not forever.
+            if candidate
+                .as_ref()
+                .is_some_and(|candidate| !candidate.classification.cache_eligible())
+            {
+                run_without_cache = true;
+                reason = "admission policy: the recorded classification is not eligible for reuse";
+            }
+        }
+        if options.admission == Admission::Auto && !reusable && !run_without_cache {
+            match cache.admission_cost(lookup_key)? {
+                None => {
+                    run_without_cache = true;
+                    reason = "admission policy is measuring this command before deciding whether to cache";
+                }
+                Some(cost) if !admission_is_profitable(&cost) => {
+                    run_without_cache = true;
+                    reason =
+                        "admission policy measured a direct runtime below the cost of a cache hit";
+                }
+                Some(_) => {}
+            }
+        }
+        if run_without_cache {
+            return run_direct(&prepared, &cache, lookup_key, reason, options.contract);
+        }
+    }
+
     if let Some(mut candidate) = candidate {
         if candidate.classification.cache_eligible()
             && candidate.contract.as_deref() == options.contract.map(|contract| contract.id())
@@ -239,6 +303,13 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
                             );
                         }
                         let runtime_ns = started.elapsed().as_nanos();
+                        cache.record_admission(
+                            lookup_key,
+                            u64::try_from(candidate.baseline_runtime_ns).unwrap_or(u64::MAX),
+                            0,
+                            Some(u64::try_from(runtime_ns).unwrap_or(u64::MAX)),
+                            false,
+                        )?;
                         let persist_decision =
                             candidate.last_decision.decision != CacheDecision::Reused;
                         candidate.last_decision = DecisionRecord {
@@ -569,6 +640,60 @@ pub fn explain(
     }
 }
 
+/// Runs the command without tracing, caching or restoring anything.
+///
+/// This is ordinary execution: the child inherits stdin, the prepared environment and working
+/// directory, and its bytes and status are passed through. It exists so that the admission policy
+/// never pays tracing cost for a command that cannot repay it.
+fn run_direct(
+    prepared: &PreparedExecution,
+    cache: &Cache,
+    lookup_key: Hash,
+    reason: &str,
+    contract: Option<tracejit_trace::Contract>,
+) -> Result<RunReport, CoreError> {
+    let started = Instant::now();
+    let output = std::process::Command::new(&prepared.executable)
+        .args(prepared.command.iter().skip(1))
+        .current_dir(&prepared.cwd)
+        .env_clear()
+        .envs(&prepared.environment)
+        .stdin(std::process::Stdio::inherit())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .output()?;
+    let runtime_ns = started.elapsed().as_nanos();
+    cache.record_admission(
+        lookup_key,
+        u64::try_from(runtime_ns).unwrap_or(u64::MAX),
+        0,
+        None,
+        true,
+    )?;
+    Ok(RunReport {
+        execution_id: "direct".into(),
+        kind: RunKind::Executed,
+        cache_decision: Some(CacheDecision::Skipped),
+        decision_reason: Some(reason.into()),
+        classification: DeterminismClass::Unknown,
+        eligible_for_reuse: false,
+        runtime_ns,
+        baseline_runtime_ns: runtime_ns,
+        process_count: 1,
+        effect_counts: EffectCounts::default(),
+        irreversible_effect_count: 0,
+        dependency_count: 0,
+        output_count: 0,
+        guards: None,
+        reasons: vec![reason.into()],
+        contract: contract.map(|contract| contract.id().to_string()),
+        stdout: output.stdout,
+        stderr: output.stderr,
+        exit_code: output.status.code().unwrap_or(-1),
+        phases: None,
+    })
+}
+
 fn execute_and_store(
     prepared: PreparedExecution,
     mut cache: Cache,
@@ -716,6 +841,13 @@ fn store_outcome(
         },
     };
     cache.put_execution(&record)?;
+    cache.record_admission(
+        lookup_key,
+        u64::try_from(record.baseline_runtime_ns).unwrap_or(u64::MAX),
+        0,
+        None,
+        false,
+    )?;
     Ok(report_from_record(
         &record,
         RunKind::Executed,

@@ -7,7 +7,7 @@ use std::process::ExitCode;
 use std::time::Instant;
 use tracejit_cache::{Cache, CacheDecision, OutputArtifact, OutputKind};
 use tracejit_core::{
-    analyze, doctor, explain, phase_timing_enabled, process_startup_ns, run, Contract,
+    analyze, doctor, explain, phase_timing_enabled, process_startup_ns, run, Admission, Contract,
     PhaseTimings, RunKind, RunOptions, RunReport,
 };
 use tracejit_effects::{Effect, InputDependency};
@@ -46,6 +46,12 @@ struct RunArgs {
     /// native execution, and records from different contracts are never mixed.
     #[arg(long, value_enum)]
     contract: Option<ContractArg>,
+    /// Cache admission policy.
+    ///
+    /// `auto` measures the command's direct runtime before paying for a trace, so commands too
+    /// short to repay a cache hit are run directly and never traced.
+    #[arg(long, value_enum, default_value_t = AdmissionArg::Always)]
+    admission: AdmissionArg,
     #[arg(long)]
     verbose: bool,
     #[arg(long)]
@@ -105,6 +111,26 @@ impl From<GuardModeArg> for GuardMode {
 }
 
 #[derive(Clone, Copy, ValueEnum)]
+enum AdmissionArg {
+    /// Trace and cache every invocation.
+    Always,
+    /// Measure first; trace only when a hit can repay itself.
+    Auto,
+    /// Never trace or reuse; always run the command directly.
+    Never,
+}
+
+impl From<AdmissionArg> for Admission {
+    fn from(value: AdmissionArg) -> Self {
+        match value {
+            AdmissionArg::Always => Self::Always,
+            AdmissionArg::Auto => Self::Auto,
+            AdmissionArg::Never => Self::Never,
+        }
+    }
+}
+
+#[derive(Clone, Copy, ValueEnum)]
 enum ContractArg {
     /// Fix the runtime's internal allocator entropy probe.
     AllocatorEntropyV1,
@@ -146,6 +172,7 @@ fn run_cli(cli: Cli, process_startup_ns: u64, cli_parse_ns: u64) -> Result<i32> 
                 enforce: args.enforce,
                 cache_root: Cache::default_root(),
                 contract: args.contract.map(Into::into),
+                admission: args.admission.into(),
             })?;
             let present_started = Instant::now();
             present_report(&report, args.json, args.verbose)?;
@@ -328,6 +355,7 @@ fn present_report(report: &RunReport, json_output: bool, verbose: bool) -> Resul
                     CacheDecision::Executed | CacheDecision::Ineligible => {
                         eprintln!("cache          MISS")
                     }
+                    CacheDecision::Skipped => eprintln!("cache          SKIP (admission policy)"),
                     CacheDecision::Reused => {}
                 }
             }

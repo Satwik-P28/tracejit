@@ -203,7 +203,9 @@ enum PendingSyscall {
         flags: i32,
         library: PathBuf,
         library_hash: tracejit_effects::Hash,
-        module_offset: u64,
+        build_id: String,
+        site_offset: u64,
+        destination_offset: u64,
     },
     KernelState {
         kind: KernelStateRead,
@@ -809,7 +811,9 @@ fn handle_syscall(
             flags,
             library,
             library_hash,
-            module_offset,
+            build_id,
+            site_offset,
+            destination_offset,
         } = pending
         {
             write_process_bytes(pid, buffer, &value.to_ne_bytes())?;
@@ -823,7 +827,10 @@ fn handle_syscall(
                 Effect::Read(ReadEffect::ControlledEntropy(ControlledEntropyRead {
                     library,
                     library_hash,
-                    module_offset,
+                    build_id,
+                    site_offset,
+                    destination_offset,
+                    module_offset: site_offset,
                     length,
                     flags,
                     value,
@@ -1160,7 +1167,9 @@ fn decode_entry(
                             flags,
                             library: site.library,
                             library_hash: site.library_hash,
-                            module_offset: site.module_offset,
+                            build_id: site.build_id,
+                            site_offset: site.site_offset,
+                            destination_offset: site.destination_offset,
                         },
                         None => PendingSyscall::Random,
                     }
@@ -2430,7 +2439,9 @@ fn complete_failed_syscall(
 struct EntropySite {
     library: PathBuf,
     library_hash: tracejit_effects::Hash,
-    module_offset: u64,
+    build_id: String,
+    site_offset: u64,
+    destination_offset: u64,
 }
 
 struct AddressMapping {
@@ -2513,20 +2524,44 @@ fn allocator_entropy_site(pid: Pid, ip: u64, buffer: u64) -> Option<EntropySite>
     let Some(base) = code.start.checked_sub(code.offset) else {
         return refuse();
     };
-    let Some(module_offset) = ip.checked_sub(base) else {
+    let Some(site_offset) = ip.checked_sub(base) else {
         return refuse();
     };
-    // The destination must lie inside the library's own writable PT_LOAD. The loader maps the tail
-    // of that segment (`.bss`, where glibc keeps its tcache key) anonymously, so a pathname
-    // comparison is not enough; the ELF layout is what actually proves the address belongs to the
-    // runtime's data rather than to an application buffer.
-    let Some(buffer_offset) = buffer.checked_sub(base) else {
+    let Some(destination_offset) = buffer.checked_sub(base) else {
         return refuse();
     };
-    match library_writable_data_contains(&code.path, buffer_offset) {
+    // Beyond being in the library's writable segment, the address must be the offset the audited
+    // build uses for its allocator key. The loader maps the tail of that segment (`.bss`, where
+    // glibc keeps its tcache key) anonymously, so a pathname comparison is not enough; the ELF
+    // layout and the audited offset together are.
+    match library_writable_data_contains(&code.path, destination_offset) {
         Some(true) => {}
         Some(false) => return refuse(),
         None => return refuse(),
+    }
+    // The call site profile is the admission rule: one exact runtime build, one exact instruction
+    // offset, one exact destination offset, and the audited instruction bytes. A different library
+    // that happens to request eight non-blocking bytes into its own data does not match, and an
+    // unknown build of the same library is refused rather than assumed equivalent.
+    let Some(build_id) = tracejit_effects::elf_build_id(&code.path) else {
+        return refuse();
+    };
+    let Some(profile) = tracejit_effects::allocator_entropy_profile(&build_id) else {
+        return refuse();
+    };
+    if site_offset != profile.site_offset || destination_offset != profile.destination_offset {
+        return refuse();
+    }
+    let Ok(library_bytes) = fs::read(&code.path) else {
+        return refuse();
+    };
+    // The signature covers the `syscall` instruction and what follows it; the reported stop is
+    // two bytes past the instruction.
+    let signature_start = profile.site_offset.saturating_sub(2) as usize;
+    if library_bytes.get(signature_start..signature_start + profile.site_signature.len())
+        != Some(profile.site_signature)
+    {
+        return refuse();
     }
     let Ok(library_hash) = hash_file(&code.path) else {
         return refuse();
@@ -2534,7 +2569,9 @@ fn allocator_entropy_site(pid: Pid, ip: u64, buffer: u64) -> Option<EntropySite>
     Some(EntropySite {
         library: code.path.clone(),
         library_hash,
-        module_offset,
+        build_id,
+        site_offset,
+        destination_offset,
     })
 }
 
