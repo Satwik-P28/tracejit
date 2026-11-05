@@ -74,6 +74,10 @@ pub struct StoredExecution {
     pub classification: DeterminismClass,
     pub classification_reasons: Vec<String>,
     pub effects: Vec<EffectRecord>,
+    /// The controlled-execution contract this record belongs to. `None` is native mode. Entries
+    /// from different contracts are never reused for each other.
+    #[serde(default)]
+    pub contract: Option<String>,
     pub guards: Vec<Guard>,
     pub outputs: Vec<OutputArtifact>,
     pub stdout: Hash,

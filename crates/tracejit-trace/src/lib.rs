@@ -22,6 +22,29 @@ pub enum TraceError {
     OutputCapture(String),
 }
 
+/// A controlled, reproducible execution contract.
+///
+/// It exists so that environmental nondeterminism can be *deliberately controlled* rather than
+/// ignored. A result recorded under a contract is reproducible under that contract; it is not
+/// claimed to be equivalent to arbitrary native execution, and native mode never admits the
+/// effects a contract fixes.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub enum Contract {
+    /// Fixes the runtime's internal allocator entropy probe (`getrandom` of eight bytes with
+    /// `GRND_NONBLOCK`, destination in the issuing shared library's private writable data).
+    AllocatorEntropyV1,
+}
+
+impl Contract {
+    pub const fn id(self) -> &'static str {
+        tracejit_effects::ALLOCATOR_ENTROPY_CONTRACT
+    }
+
+    pub const fn controlled_value(self) -> u64 {
+        tracejit_effects::ALLOCATOR_ENTROPY_VALUE
+    }
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TraceRequest {
     pub executable: PathBuf,
@@ -33,6 +56,10 @@ pub struct TraceRequest {
     /// that did not produce it.
     pub expected_executable_hash: Option<tracejit_effects::Hash>,
     pub sandbox: Option<tracejit_sandbox::SandboxPolicy>,
+    /// `None` is native guarded execution: no environmental nondeterminism is controlled and the
+    /// contract effect stays ineligible.
+    #[serde(default)]
+    pub contract: Option<Contract>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

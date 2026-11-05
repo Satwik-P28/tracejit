@@ -110,6 +110,12 @@ impl Effect {
                 guardable: true,
                 cache_key_relevant: true,
             },
+            Self::Read(ReadEffect::ControlledEntropy(_)) => EffectProperties {
+                observable: false,
+                reversible: true,
+                guardable: true,
+                cache_key_relevant: true,
+            },
             Self::Read(ReadEffect::Clock(_))
             | Self::Read(ReadEffect::Random(_))
             | Self::Read(ReadEffect::Network(_))
@@ -172,6 +178,32 @@ pub struct EffectProperties {
     pub cache_key_relevant: bool,
 }
 
+/// The only controlled-execution contract this version implements.
+pub const ALLOCATOR_ENTROPY_CONTRACT: &str = "tracejit.allocator-entropy.v1";
+
+/// Bytes supplied for allocator-internal entropy under that contract.
+///
+/// The value is fixed so that a trace recorded under the contract can be reproduced exactly. It
+/// never leaves the runtime's own allocator state: the tracer admits a call only when the
+/// destination is a private writable mapping of the shared library that issued it.
+pub const ALLOCATOR_ENTROPY_VALUE: u64 = 0x9e37_79b9_7f4a_7c15;
+
+/// One `getrandom` result the controlled-execution contract supplied instead of the kernel.
+///
+/// The record pins the runtime library by content hash and the call site by module offset, so a
+/// changed libc invalidates the entry. `observable` is false in the strict sense: the bytes are
+/// written into the runtime's own allocator state, not into a caller buffer.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct ControlledEntropyRead {
+    pub library: PathBuf,
+    pub library_hash: Hash,
+    pub module_offset: u64,
+    pub length: u32,
+    pub flags: i32,
+    pub value: u64,
+    pub contract: String,
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum ReadEffect {
     File(FileRead),
@@ -188,6 +220,7 @@ pub enum ReadEffect {
     WorkingDirectory,
     Clock(ClockKind),
     Random(RandomSource),
+    ControlledEntropy(ControlledEntropyRead),
     Network(NetworkRead),
     KernelState(KernelStateRead),
 }
@@ -656,6 +689,16 @@ pub enum InputDependency {
         #[serde(default)]
         credential: Option<Hash>,
     },
+    /// Runtime-internal entropy that a controlled-execution contract fixed.
+    ControlledEntropy {
+        library: PathBuf,
+        library_hash: Hash,
+        module_offset: u64,
+        length: u32,
+        flags: i32,
+        value: u64,
+        contract: String,
+    },
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -749,6 +792,7 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
     let mut symlink_metadata = BTreeMap::new();
     let mut symlinks = BTreeMap::new();
     let mut access = BTreeMap::<(PathBuf, i32, i32), (Option<i32>, Option<Hash>)>::new();
+    let mut controlled_entropy = Vec::<ControlledEntropyRead>::new();
     for record in effects {
         match &record.effect {
             Effect::Read(ReadEffect::File(read))
@@ -826,6 +870,13 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
                 access
                     .entry((check.path.clone(), check.mode, check.flags))
                     .or_insert((check.errno, check.credential));
+            }
+            Effect::Read(ReadEffect::ControlledEntropy(read)) => {
+                // Each distinct call site is a separate observation; two calls from the same site
+                // with the same shape collapse into one guard.
+                if !controlled_entropy.contains(read) {
+                    controlled_entropy.push(read.clone());
+                }
             }
             Effect::Control(ControlEffect::Exec(exec)) => {
                 if let Some(hash) = exec.hash {
@@ -927,6 +978,17 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
                 },
             ),
     );
+    dependencies.extend(controlled_entropy.into_iter().map(|read| {
+        InputDependency::ControlledEntropy {
+            library: read.library,
+            library_hash: read.library_hash,
+            module_offset: read.module_offset,
+            length: read.length,
+            flags: read.flags,
+            value: read.value,
+            contract: read.contract,
+        }
+    }));
     dependencies
 }
 

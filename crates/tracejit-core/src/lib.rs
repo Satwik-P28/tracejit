@@ -18,6 +18,7 @@ use tracejit_guards::{
     hash_file, validate_all, GuardError, GuardMode, GuardReport,
 };
 use tracejit_sandbox::{capabilities, SandboxPolicy};
+pub use tracejit_trace::Contract;
 use tracejit_trace::{probe_ptrace, trace_command, TraceError, TraceOutcome, TraceRequest};
 
 #[derive(Debug, thiserror::Error)]
@@ -42,6 +43,10 @@ pub struct RunOptions {
     pub guard_mode: GuardMode,
     pub enforce: bool,
     pub cache_root: PathBuf,
+    /// `None` is native guarded execution. A contract deliberately fixes selected environmental
+    /// nondeterminism and is part of the cache identity, so native and controlled entries never
+    /// share a record.
+    pub contract: Option<tracejit_trace::Contract>,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -75,6 +80,8 @@ pub struct RunReport {
     pub output_count: usize,
     pub guards: Option<GuardReport>,
     pub reasons: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub contract: Option<String>,
     #[serde(skip)]
     pub stdout: Vec<u8>,
     #[serde(skip)]
@@ -146,7 +153,7 @@ pub fn process_startup_ns() -> u64 {
 pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
     let timing = phase_timing_enabled();
     let mark = Instant::now();
-    let prepared = PreparedExecution::new(&options.command)?;
+    let prepared = PreparedExecution::new(&options.command, options.contract)?;
     let identity_prepare_ns = phase_elapsed(timing, mark);
     let mut cache = Cache::open(&options.cache_root)?;
     let open = cache.open_timings;
@@ -181,6 +188,7 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
 
     if let Some(mut candidate) = candidate {
         if candidate.classification.cache_eligible()
+            && candidate.contract.as_deref() == options.contract.map(|contract| contract.id())
             && !(options.enforce && candidate.classification != DeterminismClass::Proven)
         {
             let mark = Instant::now();
@@ -405,7 +413,7 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
 }
 
 pub fn analyze(command: Vec<OsString>) -> Result<RunReport, CoreError> {
-    let prepared = PreparedExecution::new(&command)?;
+    let prepared = PreparedExecution::new(&command, None)?;
     let outcome = trace_command(prepared.trace_request(None))?;
     let mut trace = outcome.trace;
     add_discovery_effects(&mut trace, &prepared.environment, &prepared.cwd);
@@ -426,6 +434,7 @@ pub fn analyze(command: Vec<OsString>) -> Result<RunReport, CoreError> {
         irreversible_effect_count: count_irreversible_effects(&trace.effects),
         dependency_count: dependencies.len(),
         output_count,
+        contract: None,
         guards: None,
         reasons: classification.reasons,
         stdout: outcome.stdout,
@@ -604,6 +613,28 @@ fn store_outcome(
             .reasons
             .push("seccomp and Landlock policy applied successfully".into());
     }
+    let contract = prepared.contract.map(|contract| contract.id().to_string());
+    // A record that contains contract effects is only meaningful inside its contract. If the
+    // contract is not active the execution must not be eligible, even though the effect itself is
+    // guardable under the contract.
+    if contract.is_none()
+        && outcome.trace.effects.iter().any(|record| {
+            matches!(
+                record.effect,
+                Effect::Read(tracejit_effects::ReadEffect::ControlledEntropy(_))
+            )
+        })
+    {
+        classification.class = DeterminismClass::Unknown;
+        classification
+            .reasons
+            .push("controlled entropy was recorded without an active contract".into());
+    }
+    if let Some(contract) = contract.as_deref() {
+        classification.reasons.push(format!(
+            "executed under the {contract} contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ));
+    }
     let dependencies = reconstruct_dependencies(&outcome.trace.effects);
     let identity = ExecutionIdentity {
         executable_hash: prepared.executable_hash,
@@ -660,6 +691,7 @@ fn store_outcome(
         classification: classification.class,
         classification_reasons: classification.reasons.clone(),
         effects: outcome.trace.effects.clone(),
+        contract,
         guards,
         outputs,
         stdout: stdout_hash,
@@ -701,10 +733,14 @@ struct PreparedExecution {
     cwd: PathBuf,
     environment: BTreeMap<OsString, OsString>,
     runtime_identity: RuntimeIdentity,
+    contract: Option<tracejit_trace::Contract>,
 }
 
 impl PreparedExecution {
-    fn new(command: &[OsString]) -> Result<Self, CoreError> {
+    fn new(
+        command: &[OsString],
+        contract: Option<tracejit_trace::Contract>,
+    ) -> Result<Self, CoreError> {
         let program = command.first().ok_or(CoreError::EmptyCommand)?;
         let cwd =
             std::env::current_dir().map_err(|_| CoreError::TargetNotFound(program.clone()))?;
@@ -720,6 +756,7 @@ impl PreparedExecution {
             cwd,
             environment,
             runtime_identity,
+            contract,
         })
     }
 
@@ -738,6 +775,12 @@ impl PreparedExecution {
             &mut hasher,
             &serde_json::to_vec(&self.runtime_identity).map_err(GuardError::Serialization)?,
         );
+        hash_component(
+            &mut hasher,
+            self.contract
+                .map_or("native", |contract| contract.id())
+                .as_bytes(),
+        );
         Ok(Hash::from(hasher.finalize()))
     }
 
@@ -749,6 +792,7 @@ impl PreparedExecution {
             environment: self.environment.clone(),
             expected_executable_hash: Some(self.executable_hash),
             sandbox,
+            contract: self.contract,
         }
     }
 }
@@ -893,6 +937,11 @@ fn policy_from_record(record: &StoredExecution) -> Option<SandboxPolicy> {
                     readable.insert(path.clone());
                 }
             }
+            // Under the controlled contract the runtime library is read by the tracer, not by the
+            // child, but a sandbox policy still has to let the child map it.
+            InputDependency::ControlledEntropy { library, .. } => {
+                readable.insert(library.clone());
+            }
         }
     }
     let mut writable = BTreeSet::new();
@@ -937,6 +986,7 @@ fn report_from_record(
         output_count: record.outputs.len(),
         guards,
         reasons: record.classification_reasons.clone(),
+        contract: record.contract.clone(),
         stdout,
         stderr,
         exit_code: record.exit_code,

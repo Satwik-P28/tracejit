@@ -1,4 +1,4 @@
-use super::{TraceError, TraceOutcome, TraceRequest};
+use super::{Contract, TraceError, TraceOutcome, TraceRequest};
 use nix::errno::Errno;
 use nix::sys::ptrace;
 use nix::sys::signal::{kill, Signal};
@@ -15,9 +15,9 @@ use std::process::{Command, Stdio};
 use std::thread;
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
 use tracejit_effects::{
-    ClockKind, ControlEffect, DependencyEdge, DependencyKind, DirectoryEnumerationRead,
-    DirectoryEnumerationRequest, DirectoryOpen, Effect, EffectRecord, ExecutionMetadata,
-    FileMetadataRead, FileRead, FileWrite, FileWriteKind, FilesystemStatsRead,
+    ClockKind, ControlEffect, ControlledEntropyRead, DependencyEdge, DependencyKind,
+    DirectoryEnumerationRead, DirectoryEnumerationRequest, DirectoryOpen, Effect, EffectRecord,
+    ExecutionMetadata, FileMetadataRead, FileRead, FileWrite, FileWriteKind, FilesystemStatsRead,
     FilesystemStatsSource, InheritedStreamRead, IpcWrite, KernelStateRead, NetworkRead,
     NetworkWrite, ProcessExec, ProcessNode, ProcessSpawn, RandomSource, ReadEffect, SignalEffect,
     SymlinkRead, Trace, UnknownEffect, WriteEffect,
@@ -194,6 +194,17 @@ enum PendingSyscall {
         kind: ClockKind,
     },
     Random,
+    /// A runtime-internal entropy probe that the controlled-execution contract answers itself.
+    ControlledRandom {
+        contract: String,
+        value: u64,
+        buffer: u64,
+        length: u32,
+        flags: i32,
+        library: PathBuf,
+        library_hash: tracejit_effects::Hash,
+        module_offset: u64,
+    },
     KernelState {
         kind: KernelStateRead,
     },
@@ -577,7 +588,13 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
         match status {
             WaitStatus::PtraceSyscall(pid) => {
                 ensure_vdso_disarmed(pid, &mut states, &mut collector);
-                handle_syscall(pid, &mut states, &mut collector, request.sandbox.is_some())?;
+                handle_syscall(
+                    pid,
+                    &mut states,
+                    &mut collector,
+                    request.sandbox.is_some(),
+                    request.contract,
+                )?;
                 ptrace::syscall(pid, None)
                     .map_err(|error| ptrace_operation("resume after syscall", pid, error))?;
             }
@@ -758,6 +775,7 @@ fn handle_syscall(
     states: &mut HashMap<Pid, ProcessState>,
     collector: &mut Collector,
     enforced: bool,
+    contract: Option<Contract>,
 ) -> Result<(), TraceError> {
     let registers =
         ptrace::getregs(pid).map_err(|error| ptrace_operation("read registers", pid, error))?;
@@ -769,11 +787,53 @@ fn handle_syscall(
         state.synchronize_on_next_syscall = false;
     }
     if state.entering {
-        state.pending = Some(decode_entry(pid, state, &registers)?);
+        let pending = decode_entry(pid, state, &registers, contract)?;
+        // The contract supplies the bytes, so the kernel must not produce a different value. An
+        // invalid syscall number makes the kernel return ENOSYS; the exit stop below replaces
+        // the return register and writes the contract bytes as if the call had succeeded.
+        if matches!(pending, PendingSyscall::ControlledRandom { .. }) {
+            let mut injected = registers;
+            injected.orig_rax = u64::MAX;
+            ptrace::setregs(pid, injected)
+                .map_err(|error| ptrace_operation("inject controlled entropy", pid, error))?;
+        }
+        state.pending = Some(pending);
         state.entering = false;
     } else {
-        let result = registers.rax as i64;
         let pending = state.pending.take().unwrap_or(PendingSyscall::None);
+        if let PendingSyscall::ControlledRandom {
+            contract,
+            value,
+            buffer,
+            length,
+            flags,
+            library,
+            library_hash,
+            module_offset,
+        } = pending
+        {
+            write_process_bytes(pid, buffer, &value.to_ne_bytes())?;
+            let mut resumed = ptrace::getregs(pid)
+                .map_err(|error| ptrace_operation("read registers", pid, error))?;
+            resumed.rax = u64::from(length);
+            ptrace::setregs(pid, resumed)
+                .map_err(|error| ptrace_operation("finish controlled entropy", pid, error))?;
+            collector.push(
+                pid,
+                Effect::Read(ReadEffect::ControlledEntropy(ControlledEntropyRead {
+                    library,
+                    library_hash,
+                    module_offset,
+                    length,
+                    flags,
+                    value,
+                    contract,
+                })),
+            );
+            state.entering = true;
+            return Ok(());
+        }
+        let result = registers.rax as i64;
         if result >= 0 {
             complete_syscall(pid, state, pending, result, collector);
         } else if enforced
@@ -802,6 +862,7 @@ fn decode_entry(
     pid: Pid,
     state: &ProcessState,
     registers: &libc::user_regs_struct,
+    contract: Option<Contract>,
 ) -> Result<PendingSyscall, TraceError> {
     let number = registers.orig_rax as i64;
     let args = [
@@ -1081,7 +1142,32 @@ fn decode_entry(
             };
             PendingSyscall::Clock { kind }
         }
-        libc::SYS_getrandom => PendingSyscall::Random,
+        // Native mode keeps `getrandom` nondeterministic. Under the allocator-entropy contract
+        // only the runtime's own internal probe is answered by the tracer; an application buffer,
+        // a different length or different flags still makes the execution ineligible.
+        libc::SYS_getrandom => {
+            let buffer = args[0];
+            let length = args[1];
+            let flags = args[2] as i32;
+            match contract {
+                Some(Contract::AllocatorEntropyV1) if length == 8 && flags == 1 => {
+                    match allocator_entropy_site(pid, registers.rip, buffer) {
+                        Some(site) => PendingSyscall::ControlledRandom {
+                            contract: Contract::AllocatorEntropyV1.id().to_string(),
+                            value: Contract::AllocatorEntropyV1.controlled_value(),
+                            buffer,
+                            length: length as u32,
+                            flags,
+                            library: site.library,
+                            library_hash: site.library_hash,
+                            module_offset: site.module_offset,
+                        },
+                        None => PendingSyscall::Random,
+                    }
+                }
+                _ => PendingSyscall::Random,
+            }
+        }
         libc::SYS_mmap => {
             let length = args[1];
             let prot = args[2];
@@ -2037,6 +2123,13 @@ fn complete_syscall(
             pid,
             Effect::Read(ReadEffect::Random(RandomSource::GetRandom)),
         ),
+        PendingSyscall::ControlledRandom { .. } => collector.push(
+            pid,
+            Effect::Unknown(UnknownEffect {
+                syscall: Some(libc::SYS_getrandom),
+                detail: "controlled entropy was not completed by the tracer".into(),
+            }),
+        ),
         PendingSyscall::KernelState { kind } => {
             collector.push(pid, Effect::Read(ReadEffect::KernelState(kind)));
         }
@@ -2333,6 +2426,193 @@ fn complete_failed_syscall(
     }
 }
 
+/// The runtime-internal call site a controlled-entropy contract may answer.
+struct EntropySite {
+    library: PathBuf,
+    library_hash: tracejit_effects::Hash,
+    module_offset: u64,
+}
+
+struct AddressMapping {
+    start: u64,
+    end: u64,
+    offset: u64,
+    permissions: String,
+    path: PathBuf,
+}
+
+/// Decides whether a `getrandom(8, GRND_NONBLOCK)` call is the runtime's own allocator probe.
+///
+/// The contract's whole justification is that the value never reaches an application buffer. That
+/// is checked mechanically, not assumed: the instruction pointer and the destination must lie in
+/// the *same* shared library, the destination must be in that library's private writable data, and
+/// the issuing module must not be the program itself (where runtime and application code share one
+/// address space and the check could not tell them apart).
+fn allocator_entropy_site(pid: Pid, ip: u64, buffer: u64) -> Option<EntropySite> {
+    fn refuse() -> Option<EntropySite> {
+        None
+    }
+    let Some(maps) = fs::read_to_string(format!("/proc/{}/maps", pid.as_raw())).ok() else {
+        return refuse();
+    };
+    let mut mappings = Vec::new();
+    for line in maps.lines() {
+        let mut fields = line.splitn(6, ' ');
+        let (Some(range), Some(permissions), Some(offset), Some(_device), Some(_inode)) = (
+            fields.next(),
+            fields.next(),
+            fields.next(),
+            fields.next(),
+            fields.next(),
+        ) else {
+            return refuse();
+        };
+        let Ok(offset) = u64::from_str_radix(offset, 16) else {
+            return refuse();
+        };
+        let path = PathBuf::from(fields.next().unwrap_or_default().trim_start());
+        let Some((start, end)) = range.split_once('-') else {
+            return refuse();
+        };
+        let (Ok(start), Ok(end)) = (u64::from_str_radix(start, 16), u64::from_str_radix(end, 16))
+        else {
+            return refuse();
+        };
+        mappings.push(AddressMapping {
+            start,
+            end,
+            offset,
+            permissions: permissions.to_string(),
+            path,
+        });
+    }
+    let Some(code) = mappings
+        .iter()
+        .find(|mapping| ip >= mapping.start && ip < mapping.end)
+    else {
+        return refuse();
+    };
+    if !code.permissions.starts_with("r-x") || !code.path.is_absolute() {
+        return refuse();
+    }
+    let Ok(executable) = fs::read_link(format!("/proc/{}/exe", pid.as_raw())) else {
+        return refuse();
+    };
+    if code.path == executable {
+        return refuse();
+    }
+    let Some(data) = mappings
+        .iter()
+        .find(|mapping| buffer >= mapping.start && buffer < mapping.end)
+    else {
+        return refuse();
+    };
+    if !data.permissions.starts_with("rw") || data.permissions.contains('s') {
+        return refuse();
+    }
+    let Some(base) = code.start.checked_sub(code.offset) else {
+        return refuse();
+    };
+    let Some(module_offset) = ip.checked_sub(base) else {
+        return refuse();
+    };
+    // The destination must lie inside the library's own writable PT_LOAD. The loader maps the tail
+    // of that segment (`.bss`, where glibc keeps its tcache key) anonymously, so a pathname
+    // comparison is not enough; the ELF layout is what actually proves the address belongs to the
+    // runtime's data rather than to an application buffer.
+    let Some(buffer_offset) = buffer.checked_sub(base) else {
+        return refuse();
+    };
+    match library_writable_data_contains(&code.path, buffer_offset) {
+        Some(true) => {}
+        Some(false) => return refuse(),
+        None => return refuse(),
+    }
+    let Ok(library_hash) = hash_file(&code.path) else {
+        return refuse();
+    };
+    Some(EntropySite {
+        library: code.path.clone(),
+        library_hash,
+        module_offset,
+    })
+}
+
+/// Whether `offset` falls inside a `PT_LOAD` segment that the library maps writable.
+///
+/// `offset` is relative to the library's load base, which is the same coordinate space as the ELF
+/// program headers' virtual addresses.
+fn library_writable_data_contains(library: &Path, offset: u64) -> Option<bool> {
+    let bytes = fs::read(library).ok()?;
+    if bytes.len() < 64 || &bytes[..4] != b"\x7fELF" || bytes[4] != 2 || bytes[5] != 1 {
+        return None;
+    }
+    let read_u16 = |at: usize| -> Option<u16> {
+        bytes
+            .get(at..at + 2)
+            .map(|slice| u16::from_le_bytes([slice[0], slice[1]]))
+    };
+    let read_u32 = |at: usize| -> Option<u32> {
+        bytes
+            .get(at..at + 4)
+            .map(|slice| u32::from_le_bytes([slice[0], slice[1], slice[2], slice[3]]))
+    };
+    let read_u64 = |at: usize| -> Option<u64> {
+        bytes.get(at..at + 8).map(|slice| {
+            u64::from_le_bytes([
+                slice[0], slice[1], slice[2], slice[3], slice[4], slice[5], slice[6], slice[7],
+            ])
+        })
+    };
+    let program_offset = read_u64(0x20)? as usize;
+    let entry_size = read_u16(0x36)? as usize;
+    let entry_count = read_u16(0x38)? as usize;
+    let mut found = false;
+    for index in 0..entry_count {
+        let at = program_offset.checked_add(index.checked_mul(entry_size)?)?;
+        let kind = read_u32(at)?;
+        let flags = read_u32(at + 4)?;
+        let virtual_address = read_u64(at + 16)?;
+        let memory_size = read_u64(at + 40)?;
+        if kind == 1 && flags & 0x2 != 0 {
+            found = true;
+            if offset >= virtual_address && offset < virtual_address.saturating_add(memory_size) {
+                return Some(true);
+            }
+        }
+    }
+    Some(!found)
+}
+
+/// Writes into the tracee's address space without assuming word-sized alignment.
+fn write_process_bytes(pid: Pid, address: u64, bytes: &[u8]) -> Result<(), TraceError> {
+    let local = libc::iovec {
+        iov_base: bytes.as_ptr() as *mut libc::c_void,
+        iov_len: bytes.len(),
+    };
+    let remote = libc::iovec {
+        iov_base: address as *mut libc::c_void,
+        iov_len: bytes.len(),
+    };
+    // SAFETY: `bytes` is a live local slice and the remote address is the buffer the tracee
+    // passed to `getrandom`, inside its own address space.
+    let written = unsafe { libc::process_vm_writev(pid.as_raw(), &local, 1, &remote, 1, 0) };
+    if written == bytes.len() as isize {
+        return Ok(());
+    }
+    for (index, chunk) in bytes.chunks(std::mem::size_of::<u64>()).enumerate() {
+        let mut word = [0_u8; 8];
+        word[..chunk.len()].copy_from_slice(chunk);
+        ptrace::write(
+            pid,
+            (address as usize + index * 8) as ptrace::AddressType,
+            u64::from_ne_bytes(word) as libc::c_long,
+        )
+        .map_err(ptrace_error)?;
+    }
+    Ok(())
+}
+
 fn resolve_path(
     pid: Pid,
     state: &ProcessState,
@@ -2342,7 +2622,7 @@ fn resolve_path(
     let raw = read_c_string(pid, address)?;
     let path = PathBuf::from(OsString::from_vec(raw));
     if path.is_absolute() {
-        return Ok(normalize_join(path));
+        return Ok(normalize(path));
     }
     let base = if dirfd == libc::AT_FDCWD {
         state.cwd.clone()
@@ -2353,42 +2633,25 @@ fn resolve_path(
             TraceError::Ptrace(format!("cannot resolve dirfd {dirfd} for {pid}: {error}"))
         })?
     };
-    Ok(normalize_join(base.join(path)))
+    Ok(normalize(base.join(path)))
 }
 
-/// Resolves a path without losing the meaning of `..` across a symlink.
+/// Removes `.` components and keeps the pathname otherwise verbatim, `..` included.
 ///
-/// Lexical normalisation is only correct when no component is a symlink. The kernel resolves
-/// `..` *after* following a symlinked directory, so `/a/link/../b` can name a different file than
-/// `/b`. Recording the lexical result would guard the wrong path, which is a false-reuse defect.
-/// Paths containing `..` are therefore canonicalised; when the leaf does not exist yet (an
-/// `O_CREAT` target) the existing parent is canonicalised instead. Anything else keeps the
-/// previous, purely lexical treatment.
-fn normalize_join(path: PathBuf) -> PathBuf {
-    if !path
-        .components()
-        .any(|component| matches!(component, Component::ParentDir))
-    {
-        return normalize(path);
-    }
-    if let Ok(canonical) = fs::canonicalize(&path) {
-        return canonical;
-    }
-    if let (Some(parent), Some(name)) = (path.parent(), path.file_name()) {
-        if let Ok(canonical) = fs::canonicalize(parent) {
-            return canonical.join(name);
-        }
-    }
-    normalize(path)
-}
-
-/// Removes `.` components without ever collapsing `..` lexically.
+/// The dependency record must keep the pathname the process actually passed to the kernel. Two
+/// things then fall out of replaying that pathname instead of a rewrite of it:
 ///
-/// `a/symlink/../b` is not `a/b` when `symlink` is a link: the kernel resolves the link first, so
-/// the recorded dependency would otherwise name a different file than the one the process read.
-/// Keeping `..` in place lets every later `open`, `hash_file` and `fingerprint` call interpret the
-/// path exactly as the kernel does, which is what makes the recorded dependency describe the bytes
-/// that were actually observed.
+/// - `a/symlink/../b` is not `a/b` when `symlink` is a link: the kernel follows the link first and
+///   resolves `..` afterwards. Substituting the canonical target (`be94f38`) discards the symlink
+///   components, so repointing the link is invisible to the guard and the cache replays bytes a
+///   native run would no longer read. That is a false hit, and the regression tests
+///   `a_repointed_symlink_before_dotdot_is_never_a_cache_hit` and its chain variant keep it out.
+/// - The observed target is still pinned exactly, and more strongly than by its name: every read
+///   dependency carries the target's content hash and a fingerprint with device and inode.
+///
+/// Keeping the pathname is therefore what preserves the resolution evidence: the guard asks the
+/// kernel the same question the program asked, so every condition that made the pathname resolve
+/// to the recorded inode is re-evaluated. Only `.` is removed, because the kernel ignores it.
 fn normalize(path: PathBuf) -> PathBuf {
     let mut normalized = PathBuf::new();
     for component in path.components() {
@@ -2962,6 +3225,7 @@ fn pending_description(pending: &PendingSyscall) -> String {
         }
         PendingSyscall::Clock { .. } => "clock read".into(),
         PendingSyscall::Random => "randomness read".into(),
+        PendingSyscall::ControlledRandom { .. } => "controlled allocator entropy".into(),
         PendingSyscall::KernelState { kind } => format!("kernel state read: {kind:?}"),
         PendingSyscall::Mmap { .. } => "file-backed mmap".into(),
         PendingSyscall::Mprotect { .. } => "mprotect".into(),
@@ -3147,6 +3411,7 @@ mod tests {
             environment: std::collections::BTreeMap::new(),
             expected_executable_hash: Some(tracejit_effects::Hash::new([0xab; 32])),
             sandbox: None,
+            contract: None,
         };
         match trace_command(request) {
             Err(TraceError::ExecutableChanged(_)) => {}

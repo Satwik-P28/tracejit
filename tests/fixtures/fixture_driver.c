@@ -409,6 +409,15 @@ int main(int argc, char **argv) {
   if (!strcmp(name, "symlink_target_changed")) {
     join_path(input, sizeof(input), root, "input-link");
   }
+  if (!strcmp(name, "read_to_stdout")) {
+    int fd = open(input, O_RDONLY);
+    if (fd < 0) return 91;
+    char buffer[4096];
+    ssize_t count = read(fd, buffer, sizeof(buffer));
+    close(fd);
+    if (count < 0) return 92;
+    return write(STDOUT_FILENO, buffer, (size_t)count) != count;
+  }
   copy_file(input, output);
   return 0;
 }

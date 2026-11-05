@@ -3,6 +3,7 @@
   {"case":"file_content_changed","expected":"Guarded","eligible":true},
   {"case":"file_mtime_changed","expected":"Guarded","eligible":true},
   {"case":"symlink_target_changed","expected":"Guarded","eligible":true},
+  {"case":"read_to_stdout","expected":"Guarded","eligible":true},
   {"case":"cwd_dependency","expected":"Guarded","eligible":true},
   {"case":"environment_dependency","expected":"Guarded","eligible":true},
   {"case":"unset_environment_dependency","expected":"Guarded","eligible":true},

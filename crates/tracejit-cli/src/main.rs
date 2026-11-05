@@ -7,8 +7,8 @@ use std::process::ExitCode;
 use std::time::Instant;
 use tracejit_cache::{Cache, CacheDecision, OutputArtifact, OutputKind};
 use tracejit_core::{
-    analyze, doctor, explain, phase_timing_enabled, process_startup_ns, run, PhaseTimings, RunKind,
-    RunOptions, RunReport,
+    analyze, doctor, explain, phase_timing_enabled, process_startup_ns, run, Contract,
+    PhaseTimings, RunKind, RunOptions, RunReport,
 };
 use tracejit_effects::{Effect, InputDependency};
 use tracejit_guards::{Guard, GuardMode};
@@ -39,6 +39,13 @@ struct RunArgs {
     enforce: bool,
     #[arg(long, value_enum, default_value_t = GuardModeArg::Strict)]
     guard_mode: GuardModeArg,
+    /// Controlled, reproducible execution contract.
+    ///
+    /// The contract deliberately fixes selected environmental nondeterminism. Its results are
+    /// reproducible under that contract; they are not claimed to be equivalent to arbitrary
+    /// native execution, and records from different contracts are never mixed.
+    #[arg(long, value_enum)]
+    contract: Option<ContractArg>,
     #[arg(long)]
     verbose: bool,
     #[arg(long)]
@@ -97,6 +104,20 @@ impl From<GuardModeArg> for GuardMode {
     }
 }
 
+#[derive(Clone, Copy, ValueEnum)]
+enum ContractArg {
+    /// Fix the runtime's internal allocator entropy probe.
+    AllocatorEntropyV1,
+}
+
+impl From<ContractArg> for Contract {
+    fn from(value: ContractArg) -> Self {
+        match value {
+            ContractArg::AllocatorEntropyV1 => Self::AllocatorEntropyV1,
+        }
+    }
+}
+
 fn main() -> ExitCode {
     tracing_subscriber::fmt()
         .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
@@ -124,6 +145,7 @@ fn run_cli(cli: Cli, process_startup_ns: u64, cli_parse_ns: u64) -> Result<i32> 
                 guard_mode: args.guard_mode.into(),
                 enforce: args.enforce,
                 cache_root: Cache::default_root(),
+                contract: args.contract.map(Into::into),
             })?;
             let present_started = Instant::now();
             present_report(&report, args.json, args.verbose)?;
@@ -281,6 +303,7 @@ fn present_report(report: &RunReport, json_output: bool, verbose: bool) -> Resul
             "output_count": report.output_count,
             "guards": report.guards,
             "reasons": report.reasons,
+            "contract": report.contract,
             "stdout_bytes": report.stdout,
             "stderr_bytes": report.stderr,
             "exit_code": report.exit_code,
@@ -294,6 +317,9 @@ fn present_report(report: &RunReport, json_output: bool, verbose: bool) -> Resul
     io::stderr().write_all(&report.stderr)?;
     io::stderr().flush()?;
     eprintln!("\nTraceJIT\n");
+    if let Some(contract) = &report.contract {
+        eprintln!("contract       {contract}");
+    }
     match report.kind {
         RunKind::Executed => {
             if let Some(decision) = &report.cache_decision {
@@ -438,6 +464,9 @@ fn input_dependency_line(dependency: &InputDependency) -> String {
         InputDependency::Access { path, mode, .. } => {
             format!("ACCESS {} (mode {mode:#x})", path.display())
         }
+        InputDependency::ControlledEntropy { library, .. } => {
+            format!("ENTROPY {}", library.display())
+        }
     }
 }
 
@@ -478,6 +507,9 @@ fn guard_line(guard: &Guard) -> String {
         Guard::SymlinkMetadata { path, .. } => format!("symlink metadata {}", path.display()),
         Guard::AccessCheck { path, mode, .. } => {
             format!("access check {} (mode {mode:#x})", path.display())
+        }
+        Guard::ControlledEntropy { library, .. } => {
+            format!("controlled allocator entropy {}", library.display())
         }
         Guard::EnvironmentValue { key, .. } => {
             format!("environment key {}", key.to_string_lossy())

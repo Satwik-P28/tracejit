@@ -442,6 +442,118 @@ fn sandbox_child() {
     assert!(std::net::TcpStream::connect("127.0.0.1:9").is_err());
 }
 
+/// The allocator-entropy contract unlocks an ordinary glibc tool that native mode refuses.
+///
+/// `sed` calls `getrandom(8, GRND_NONBLOCK)` from `ptmalloc_init` before it touches its input, so
+/// native mode classifies it `NONDETERMINISTIC`. Under the contract the tracer answers only that
+/// runtime-internal probe, records the call site and library hash, and the execution becomes
+/// guardable and reusable. The report must say the result is reproducible *within the contract*,
+/// and a native invocation must never reuse the controlled entry.
+#[test]
+fn allocator_entropy_contract_reuses_a_glibc_tool() {
+    if !Command::new("sed")
+        .arg("--version")
+        .output()
+        .is_ok_and(|output| output.status.success())
+    {
+        eprintln!("RESULT controlled-sed SKIP");
+        return;
+    }
+    let temporary = tempfile::tempdir().unwrap();
+    let cache = temporary.path().join("cache");
+    let input = temporary.path().join("input.txt");
+    fs::write(&input, "alpha\nbeta\n").unwrap();
+    let input_text = input.to_str().unwrap();
+    let expected = Command::new("sed")
+        .args(["s/alpha/ALPHA/", input_text])
+        .output()
+        .unwrap()
+        .stdout;
+    let args = [
+        "run",
+        "--json",
+        "--contract",
+        "allocator-entropy-v1",
+        "--",
+        "sed",
+        "s/alpha/ALPHA/",
+        input_text,
+    ];
+
+    let first = invoke(&cache, &args, None);
+    let first: Value = serde_json::from_slice(&first.stdout).unwrap();
+    assert_eq!(first["classification"], "Guarded", "{first}");
+    assert_eq!(first["contract"], "tracejit.allocator-entropy.v1");
+    assert!(
+        first["reasons"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|reason| reason
+                .as_str()
+                .unwrap()
+                .contains("not equivalent to native")),
+        "the contract must be visible in the report: {first}"
+    );
+    assert_eq!(stdout_bytes_of(&first), expected);
+
+    let second = invoke(&cache, &args, None);
+    let second: Value = serde_json::from_slice(&second.stdout).unwrap();
+    assert_eq!(second["cache_decision"], "Reused", "{second}");
+    assert_eq!(stdout_bytes_of(&second), expected);
+
+    // A changed input still invalidates.
+    fs::write(&input, "alpha\ngamma\n").unwrap();
+    let changed_expected = Command::new("sed")
+        .args(["s/alpha/ALPHA/", input_text])
+        .output()
+        .unwrap()
+        .stdout;
+    let third = invoke(&cache, &args, None);
+    let third: Value = serde_json::from_slice(&third.stdout).unwrap();
+    assert_eq!(third["cache_decision"], "Deoptimized", "{third}");
+    assert_eq!(stdout_bytes_of(&third), changed_expected);
+
+    // Native mode has a different identity and must not reuse the controlled entry.
+    let native = invoke(
+        &cache,
+        &["run", "--json", "--", "sed", "s/alpha/ALPHA/", input_text],
+        None,
+    );
+    let native: Value = serde_json::from_slice(&native.stdout).unwrap();
+    assert_ne!(native["cache_decision"], "Reused", "{native}");
+    assert_eq!(native["classification"], "Nondeterministic", "{native}");
+    eprintln!("RESULT controlled-sed PASS");
+}
+
+/// The contract must not absorb randomness an application asked for itself.
+///
+/// The fixture requests one byte with flags `0` from its own stack. Even with the contract active
+/// that call has no runtime-internal destination, so it must stay nondeterministic.
+#[test]
+fn a_contract_does_not_absorb_application_randomness() {
+    let temporary = tempfile::tempdir().unwrap();
+    workspace(temporary.path());
+    let binary = compile_fixture(temporary.path());
+    let cache = temporary.path().join("cache");
+    let args = [
+        "run",
+        "--json",
+        "--contract",
+        "allocator-entropy-v1",
+        "--",
+        binary.to_str().unwrap(),
+        "getrandom",
+        temporary.path().to_str().unwrap(),
+    ];
+    let report: Value = serde_json::from_slice(&invoke(&cache, &args, None).stdout).unwrap();
+    assert_eq!(
+        report["classification"], "Nondeterministic",
+        "application randomness must not be absorbed by the contract: {report}"
+    );
+    eprintln!("RESULT controlled-application-randomness PASS");
+}
+
 fn stderr_of(output: &Output) -> String {
     String::from_utf8_lossy(&output.stderr).into_owned()
 }
@@ -599,6 +711,98 @@ fn permission_change_deoptimizes() {
     fs::set_permissions(&input, permissions).unwrap();
     let changed = fixture.run("plain_file_read");
     assert!(deoptimized(&changed), "{}", stderr_of(&changed));
+}
+
+/// A pathname's meaning is not its canonical target.
+///
+/// `be94f38` canonicalised every path containing `..` before recording it. That discards the
+/// evidence that made the pathname meaningful: `<link>/../input.txt` was recorded as
+/// `<a>/input.txt`, so repointing `<link>` at `b/sub` left the guard looking at the old,
+/// unchanged target. A native run then reads `b/input.txt` while the cache replays `a/input.txt`.
+/// The record has to keep the pathname the process used and let the guard re-resolve it, because
+/// the kernel resolves `..` *after* following the symlink.
+#[test]
+fn a_repointed_symlink_before_dotdot_is_never_a_cache_hit() {
+    let temporary = tempfile::tempdir().unwrap();
+    let binary = compile_fixture(temporary.path());
+    let a = temporary.path().join("a");
+    let b = temporary.path().join("b");
+    fs::create_dir_all(a.join("sub")).unwrap();
+    fs::create_dir_all(b.join("sub")).unwrap();
+    fs::write(a.join("input.txt"), b"alpha\n").unwrap();
+    fs::write(b.join("input.txt"), b"beta\n").unwrap();
+    let link = temporary.path().join("link");
+    std::os::unix::fs::symlink(a.join("sub"), &link).unwrap();
+    // `link/..` is `a` now and `b` after the repoint.
+    let root = format!("{}/..", link.display());
+    let cache = temporary.path().join("cache");
+    let args = [
+        "run",
+        "--json",
+        "--",
+        binary.to_str().unwrap(),
+        "read_to_stdout",
+        &root,
+    ];
+
+    let first = invoke(&cache, &args, None);
+    let first: Value = serde_json::from_slice(&first.stdout).unwrap();
+    assert_eq!(first["classification"], "Guarded", "{first}");
+    assert_eq!(stdout_bytes_of(&first), b"alpha\n");
+
+    fs::remove_file(&link).unwrap();
+    std::os::unix::fs::symlink(b.join("sub"), &link).unwrap();
+
+    let second = invoke(&cache, &args, None);
+    let second: Value = serde_json::from_slice(&second.stdout).unwrap();
+    assert_ne!(
+        second["cache_decision"], "Reused",
+        "a symlink repointed before `..` changed which file a native run reads; replaying the \
+         cached result is a false hit: {second}"
+    );
+    assert_eq!(
+        stdout_bytes_of(&second),
+        b"beta\n",
+        "the second run must observe the file the pathname now resolves to: {second}"
+    );
+}
+
+/// The same guarantee through a chain of symlinks.
+#[test]
+fn a_repointed_symlink_chain_before_dotdot_is_never_a_cache_hit() {
+    let temporary = tempfile::tempdir().unwrap();
+    let binary = compile_fixture(temporary.path());
+    let a = temporary.path().join("a");
+    let b = temporary.path().join("b");
+    fs::create_dir_all(a.join("sub")).unwrap();
+    fs::create_dir_all(b.join("sub")).unwrap();
+    fs::write(a.join("input.txt"), b"alpha\n").unwrap();
+    fs::write(b.join("input.txt"), b"beta\n").unwrap();
+    let first_link = temporary.path().join("first");
+    let second_link = temporary.path().join("second");
+    std::os::unix::fs::symlink(&second_link, &first_link).unwrap();
+    std::os::unix::fs::symlink(a.join("sub"), &second_link).unwrap();
+    let root = format!("{}/..", first_link.display());
+    let cache = temporary.path().join("cache");
+    let args = [
+        "run",
+        "--json",
+        "--",
+        binary.to_str().unwrap(),
+        "read_to_stdout",
+        &root,
+    ];
+    let first = invoke(&cache, &args, None);
+    let first: Value = serde_json::from_slice(&first.stdout).unwrap();
+    assert_eq!(first["classification"], "Guarded", "{first}");
+
+    fs::remove_file(&second_link).unwrap();
+    std::os::unix::fs::symlink(b.join("sub"), &second_link).unwrap();
+
+    let second = invoke(&cache, &args, None);
+    let second: Value = serde_json::from_slice(&second.stdout).unwrap();
+    assert_ne!(second["cache_decision"], "Reused", "{second}");
+    assert_eq!(stdout_bytes_of(&second), b"beta\n");
 }
 
 #[test]

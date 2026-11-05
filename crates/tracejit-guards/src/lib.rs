@@ -87,6 +87,20 @@ pub enum Guard {
         start_offset: u64,
         end_offset: u64,
     },
+    /// Runtime-internal entropy fixed by a controlled-execution contract.
+    ///
+    /// The value itself cannot be re-observed: the kernel was deliberately bypassed. What can be
+    /// checked is that the record belongs to the implemented contract, that its shape is the only
+    /// one admitted, and that the runtime library that issued the call is still byte-identical.
+    ControlledEntropy {
+        library: PathBuf,
+        expected: Hash,
+        module_offset: u64,
+        length: u32,
+        flags: i32,
+        value: u64,
+        contract: String,
+    },
     SymlinkTarget {
         path: PathBuf,
         expected: Option<PathBuf>,
@@ -390,6 +404,57 @@ impl Guard {
                         actual: format!("{actual:?}"),
                     })
                 }
+            }
+            Self::ControlledEntropy {
+                library,
+                expected,
+                module_offset: _,
+                length,
+                flags,
+                value,
+                contract,
+            } => {
+                if contract != tracejit_effects::ALLOCATOR_ENTROPY_CONTRACT {
+                    return Err(GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "unknown controlled-execution contract".into(),
+                        expected: tracejit_effects::ALLOCATOR_ENTROPY_CONTRACT.into(),
+                        actual: contract.clone(),
+                    });
+                }
+                // Only the runtime's eight-byte non-blocking probe is admitted. A record with a
+                // different shape could have fed bytes into an application buffer.
+                if *length != 8 || *flags != 1 {
+                    return Err(GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "controlled entropy request shape is not the admitted one".into(),
+                        expected: "8 bytes, GRND_NONBLOCK".into(),
+                        actual: format!("{length} bytes, flags {flags}"),
+                    });
+                }
+                if *value != tracejit_effects::ALLOCATOR_ENTROPY_VALUE {
+                    return Err(GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "controlled entropy value is not the contract value".into(),
+                        expected: format!("{:#x}", tracejit_effects::ALLOCATOR_ENTROPY_VALUE),
+                        actual: format!("{value:#x}"),
+                    });
+                }
+                let actual = hash_file(library).map_err(|error| GuardFailure {
+                    guard: Box::new(self.clone()),
+                    reason: "runtime library could not be hashed".into(),
+                    expected: expected.to_string(),
+                    actual: error.to_string(),
+                })?;
+                if &actual != expected {
+                    return Err(GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "runtime library changed".into(),
+                        expected: expected.to_string(),
+                        actual: actual.to_string(),
+                    });
+                }
+                Ok(())
             }
             Self::DirectoryOpened {
                 path,
@@ -1383,6 +1448,23 @@ pub fn compile_guards(executable: PathBuf, identity: &ExecutionIdentity) -> Vec<
                 start_offset: *start_offset,
                 end_offset: *end_offset,
             }),
+            InputDependency::ControlledEntropy {
+                library,
+                library_hash,
+                module_offset,
+                length,
+                flags,
+                value,
+                contract,
+            } => guards.push(Guard::ControlledEntropy {
+                library: library.clone(),
+                expected: *library_hash,
+                module_offset: *module_offset,
+                length: *length,
+                flags: *flags,
+                value: *value,
+                contract: contract.clone(),
+            }),
             InputDependency::SymlinkMetadata { path, fingerprint } => {
                 guards.push(Guard::SymlinkMetadata {
                     path: path.clone(),
@@ -1596,6 +1678,53 @@ mod tests {
         assert!(guard.validate(GuardMode::Strict).is_ok());
         fs::create_dir(directory.join("child")).unwrap();
         assert!(guard.validate(GuardMode::Strict).is_ok());
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn controlled_entropy_guard_requires_the_recorded_runtime_and_shape() {
+        let library = Path::new("/lib/x86_64-linux-gnu/libc.so.6");
+        if !library.exists() {
+            eprintln!("RESULT controlled-entropy-guard SKIP");
+            return;
+        }
+        let expected = hash_file(library).unwrap();
+        let guard = Guard::ControlledEntropy {
+            library: library.to_path_buf(),
+            expected,
+            module_offset: 0x1612ef,
+            length: 8,
+            flags: 1,
+            value: tracejit_effects::ALLOCATOR_ENTROPY_VALUE,
+            contract: tracejit_effects::ALLOCATOR_ENTROPY_CONTRACT.into(),
+        };
+        assert!(guard.validate(GuardMode::Strict).is_ok(), "{guard:?}");
+
+        // A runtime whose bytes changed invalidates the record.
+        let mut wrong_runtime = guard.clone();
+        if let Guard::ControlledEntropy { expected, .. } = &mut wrong_runtime {
+            *expected = canonical_hash(&"a different runtime").unwrap();
+        }
+        assert!(wrong_runtime.validate(GuardMode::Strict).is_err());
+
+        // A record claiming another contract is not interpretable here.
+        let mut wrong_contract = guard.clone();
+        if let Guard::ControlledEntropy { contract, .. } = &mut wrong_contract {
+            *contract = "something-else".into();
+        }
+        assert!(wrong_contract.validate(GuardMode::Strict).is_err());
+
+        // Only the contract value and the admitted request shape are replayable.
+        let mut wrong_value = guard.clone();
+        if let Guard::ControlledEntropy { value, .. } = &mut wrong_value {
+            *value ^= 1;
+        }
+        assert!(wrong_value.validate(GuardMode::Strict).is_err());
+        let mut wrong_shape = guard.clone();
+        if let Guard::ControlledEntropy { flags, .. } = &mut wrong_shape {
+            *flags = 0;
+        }
+        assert!(wrong_shape.validate(GuardMode::Strict).is_err());
     }
 
     #[test]
