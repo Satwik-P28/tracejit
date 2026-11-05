@@ -238,3 +238,31 @@ reused (gzip, 16/16 output equivalent) and **0 of 9** census workloads, in two c
 each at `be94f38`. gzip: 28.89/29.00 ms direct, 4.33/4.06 ms warm, 6.67x/7.14x, 0.48/0.54 hits to
 repay. Tests: **100 passing**; fmt and clippy clean. `PROVEN` remains BLOCKED (no Landlock on this
 host). See `docs/audits/PHASE2F_*.md` and `benchmarks/results/phase2f/`.
+
+## Phase 2G (branch `verify/phase1-5`, from `6941443`)
+
+The path audit confirmed a **false cache hit** in `be94f38`: canonicalising `..` replaced the path
+question with a file, so repointing a symlink before `..` still passed every guard (93/93) and
+returned stale bytes. Two regression tests failed that way first, then passed after `normalize`
+stopped collapsing `..`; the guard now replays the exact pathname. No false hit was found in the
+remaining tested scenarios; mount changes are BLOCKED (`unshare -m` EPERM).
+
+The allocator `getrandom` was forensically identified: glibc 2.39 `tcache_key_initialize`, called
+from `ptmalloc_init` via `libselinux`→`strdup`→`malloc`, destination in libc's `.bss`, build ID
+`a4a7992a8e66555c8141ab2a08a8465ff6e0ea65`. `tcache_count=0` does not remove it, no
+`glibc.malloc.tcache_key` tunable exists, and static glibc still calls it; musl is untested (BLOCKED).
+
+A second, opt-in contract `tracejit.allocator-entropy.v1` admits only a `getrandom(8,
+GRND_NONBLOCK)` whose caller is a shared library and whose destination lies in that library's own
+`PF_W` `PT_LOAD`, returning a fixed value; library hash, call shape, value and contract id are
+recorded and guarded, and native and controlled entries cannot mix. It is **not** a sandbox and not
+general determinism.
+
+Measured, two sessions, fixed denominators: native **1/16** direct and **0/9** census unchanged;
+controlled **7/16** and **6/16** direct (the difference is `tr`'s stdin atime changing the identity)
+and **0/9** census, with 16/16 and 9/9 output equivalence throughout. `gzip` 7.39x, `bzip2` 4.10x;
+sub-6 ms filters are slower cached (0.21–0.69x) because a hit costs 4–6 ms. A four-command
+developer workflow on 5.4 MB saves **14.74x** (645.62 → 43.80 ms). Contract checks pass 4/4.
+
+Tests: **105 passing**; fmt and clippy clean. `PROVEN`/Landlock remain unverified. Nothing was
+pushed or released. See `docs/audits/PHASE2G_*.md` and `benchmarks/results/phase2g/`.

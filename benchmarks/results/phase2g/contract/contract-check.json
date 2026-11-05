@@ -1,0 +1,95 @@
+{
+  "generated_by": "benchmarks/realworld/contract_check.py",
+  "contract": "allocator-entropy-v1",
+  "tracejit_binary": "/workspace/chats/3ead97f7907244943d2638d7/target/release/tracejit",
+  "workloads": 4,
+  "reusable_under_contract": 4,
+  "fully_verified": 4,
+  "rows": [
+    {
+      "workload": "sed",
+      "command": [
+        "sed",
+        "-e",
+        "s/alpha/ALPHA/g",
+        "input.txt"
+      ],
+      "direct_runs": 3,
+      "direct_output_stable": true,
+      "classification": "Guarded",
+      "contract": "tracejit.allocator-entropy.v1",
+      "first_matches_direct": true,
+      "reused": true,
+      "reused_matches_direct": true,
+      "consecutive_reused": true,
+      "checks": {
+        "content_change_not_reused": true,
+        "environment_change_misses": true,
+        "native_does_not_reuse_controlled": true
+      }
+    },
+    {
+      "workload": "tr",
+      "command": [
+        "tr",
+        "a-z",
+        "A-Z"
+      ],
+      "direct_runs": 3,
+      "direct_output_stable": true,
+      "classification": "Guarded",
+      "contract": "tracejit.allocator-entropy.v1",
+      "first_matches_direct": true,
+      "reused": true,
+      "reused_matches_direct": true,
+      "consecutive_reused": true,
+      "checks": {
+        "content_change_not_reused": true,
+        "environment_change_misses": true,
+        "native_does_not_reuse_controlled": true
+      }
+    },
+    {
+      "workload": "base64",
+      "command": [
+        "base64",
+        "-w0",
+        "input.txt"
+      ],
+      "direct_runs": 3,
+      "direct_output_stable": true,
+      "classification": "Guarded",
+      "contract": "tracejit.allocator-entropy.v1",
+      "first_matches_direct": true,
+      "reused": true,
+      "reused_matches_direct": true,
+      "consecutive_reused": true,
+      "checks": {
+        "content_change_not_reused": true,
+        "environment_change_misses": true,
+        "native_does_not_reuse_controlled": true
+      }
+    },
+    {
+      "workload": "wc",
+      "command": [
+        "wc",
+        "-c",
+        "input.txt"
+      ],
+      "direct_runs": 3,
+      "direct_output_stable": true,
+      "classification": "Guarded",
+      "contract": "tracejit.allocator-entropy.v1",
+      "first_matches_direct": true,
+      "reused": true,
+      "reused_matches_direct": true,
+      "consecutive_reused": true,
+      "checks": {
+        "content_change_not_reused": true,
+        "environment_change_misses": true,
+        "native_does_not_reuse_controlled": true
+      }
+    }
+  ]
+}

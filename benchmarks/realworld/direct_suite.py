@@ -132,9 +132,12 @@ def run(cmd, cwd, env, stdin_path=None, capture=True):
     }
 
 
-def traced(cmd, cwd, env, stdin_path):
+def traced(cmd, cwd, env, stdin_path, contract=None):
     """Run under TraceJIT with --json so the cache decision is observable."""
-    result = run([str(binary()), "run", "--json", "--", *cmd], cwd, env, stdin_path)
+    prefix = [str(binary()), "run", "--json"]
+    if contract:
+        prefix += ["--contract", contract]
+    result = run([*prefix, "--", *cmd], cwd, env, stdin_path)
     try:
         report = json.loads(result["stdout"])
     except json.JSONDecodeError:
@@ -196,16 +199,19 @@ def p95_ms(samples):
     return round(ordered[index], 2)
 
 
-def measure(name, argv, work, stdin_name, runs, decision, cache_root):
+def measure(name, argv, work, stdin_name, runs, decision, cache_root, contract=None):
     """Time direct and cached invocations of a workload that actually reused."""
     direct, cached = [], []
     cache = fresh_cache(cache_root, f"timing-{name}")
     env = environment(cache)
     stdin_path = str(work / stdin_name) if stdin_name else None
-    cold = run([str(binary()), "run", "--", *argv], work, env, stdin_path)
+    prefix = [str(binary()), "run"]
+    if contract:
+        prefix += ["--contract", contract]
+    cold = run([*prefix, "--", *argv], work, env, stdin_path)
     for _ in range(runs):
         direct.append(run(argv, work, env, stdin_path)["elapsed_ms"])
-        hit = run([str(binary()), "run", "--", *argv], work, env, stdin_path)
+        hit = run([*prefix, "--", *argv], work, env, stdin_path)
         cached.append(hit["elapsed_ms"])
     # The cached samples include the whole TraceJIT process; the last one must still be a
     # hit, which is verified separately by `decision`.
@@ -234,6 +240,8 @@ def main() -> int:
     parser.add_argument("--runs", type=int, default=20)
     parser.add_argument("--output-dir", default="benchmarks/results/phase2d/direct-suite")
     parser.add_argument("--only", default=None, help="restrict to one workload name")
+    parser.add_argument("--contract", default=None,
+                        help="run under a controlled-execution contract (e.g. allocator-entropy-v1)")
     args = parser.parse_args()
 
     if not binary():
@@ -264,19 +272,20 @@ def main() -> int:
         stdin_path = str(work / stdin_name) if stdin_name else None
 
         direct = run(argv, work, env, stdin_path)
-        cold_report, cold = traced(argv, work, env, stdin_path)
+        cold_report, cold = traced(argv, work, env, stdin_path, args.contract)
         if cold_report is None:
             rows.append({"workload": name, "status": "trace-failed",
                          "reason": cold["stderr"].decode(errors="replace")[:400]})
             failures.append(f"{name}: traced run produced no report")
             continue
-        second_report, second = traced(argv, work, env, stdin_path)
+        second_report, second = traced(argv, work, env, stdin_path, args.contract)
 
         direct_out = direct["stdout"]
         row = {
             "workload": name,
             "argv": argv,
             "stdin": stdin_name,
+            "contract": cold_report.get("contract"),
             "classification": cold_report["classification"],
             "eligible": cold_report["eligible_for_reuse"],
             "reasons": cold_report["reasons"][:6],
@@ -301,7 +310,8 @@ def main() -> int:
             if not row["second_stdout_matches"]:
                 failures.append(f"{name}: reused bytes differ from a direct run")
             row["timing"] = measure(
-                name, argv, work, stdin_name, args.runs, row["second_decision"], cache_root
+                name, argv, work, stdin_name, args.runs, row["second_decision"], cache_root,
+                args.contract
             )
         rows.append(row)
 
@@ -311,6 +321,7 @@ def main() -> int:
     summary = {
         "generated_by": "benchmarks/realworld/direct_suite.py",
         "tracejit_binary": str(binary()),
+        "contract": args.contract,
         "workloads": denominator,
         "reused": len(reusable),
         "reused_names": [row["workload"] for row in reusable],

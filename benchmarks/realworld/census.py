@@ -393,9 +393,18 @@ def base_env() -> dict[str, str]:
     return env
 
 
-def tracejit_json(tracejit: Path, command: list[str], cwd: Path, env: dict[str, str]) -> tuple[dict[str, object], subprocess.CompletedProcess[bytes]]:
+def tracejit_json(
+    tracejit: Path,
+    command: list[str],
+    cwd: Path,
+    env: dict[str, str],
+    contract: str | None = None,
+) -> tuple[dict[str, object], subprocess.CompletedProcess[bytes]]:
+    prefix = [str(tracejit), "run", "--json"]
+    if contract:
+        prefix += ["--contract", contract]
     completed = run_command(
-        [str(tracejit), "run", "--json", "--", *command],
+        [*prefix, "--", *command],
         cwd,
         env,
     )
@@ -426,6 +435,7 @@ def census_workload(
     runs: int,
     warmups: int,
     table: dict[int, str],
+    contract: str | None = None,
 ) -> dict[str, object]:
     missing = [tool for tool in workload.requires if tool_path(tool) is None]
     record: dict[str, object] = {
@@ -480,7 +490,7 @@ def census_workload(
         # A fresh cache per sample, so every traced sample is a real cold miss.
         cold_env = arm_env(env, scratch / f"cold-{index}")
         started = now_ns()
-        report, _ = tracejit_json(tracejit, command, cwd, cold_env)
+        report, _ = tracejit_json(tracejit, command, cwd, cold_env, contract)
         elapsed = now_ns() - started
         if index >= warmups:
             cold_samples.append(elapsed)
@@ -531,7 +541,7 @@ def census_workload(
 
     hit_root = scratch / "hit"
     hit_env = arm_env(env, hit_root)
-    primed, _ = tracejit_json(tracejit, command, cwd, hit_env)
+    primed, _ = tracejit_json(tracejit, command, cwd, hit_env, contract)
     if primed.get("kind") != "Executed":
         record["status"] = "unexpected_prime_result"
         record["prime_kind"] = primed.get("kind")
@@ -539,7 +549,10 @@ def census_workload(
     hit_samples: list[int] = []
     hit_report = None
     for index in range(warmups + runs):
-        elapsed, completed = timed([str(tracejit), "run", "--json", "--", *command], cwd, hit_env)
+        prefix = [str(tracejit), "run", "--json"]
+        if contract:
+            prefix += ["--contract", contract]
+        elapsed, completed = timed([*prefix, "--", *command], cwd, hit_env)
         hit_report = json.loads(completed.stdout)
         if hit_report.get("kind") != "Reused":
             record["status"] = "reuse_was_not_obtained"
@@ -749,6 +762,8 @@ def main() -> int:
     parser.add_argument("--output-dir", default=str(ROOT / "benchmarks" / "results" / "phase1"))
     parser.add_argument("--runs", type=int, default=5)
     parser.add_argument("--warmups", type=int, default=1)
+    parser.add_argument("--contract", default=None,
+                        help="run under a controlled-execution contract (e.g. allocator-entropy-v1)")
     parser.add_argument("--scratch", default=None)
     args = parser.parse_args()
 
@@ -772,7 +787,9 @@ def main() -> int:
     try:
         for workload in workloads(fixture_source):
             try:
-                record = census_workload(workload, tracejit, scratch, args.runs, args.warmups, table)
+                record = census_workload(
+                    workload, tracejit, scratch, args.runs, args.warmups, table, args.contract
+                )
             except Exception as error:  # noqa: BLE001 - recorded as a harness failure
                 record = {
                     "name": workload.name,
@@ -797,6 +814,7 @@ def main() -> int:
         "syscall_name_source": "host kernel headers" if table else "unavailable; numbers only",
         "environment": environment(),
         "runs": {"warmups": args.warmups, "measured": args.runs},
+        "contract": args.contract,
         "workloads": records,
         "aggregate": aggregate(records),
     }

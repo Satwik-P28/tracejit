@@ -1,0 +1,578 @@
+{
+  "generated_by": "benchmarks/realworld/direct_suite.py",
+  "tracejit_binary": "/workspace/chats/3ead97f7907244943d2638d7/target/release/tracejit",
+  "contract": "allocator-entropy-v1",
+  "workloads": 16,
+  "reused": 7,
+  "reused_names": [
+    "gzip",
+    "bzip2",
+    "sed",
+    "tr",
+    "base64",
+    "md5sum",
+    "wc"
+  ],
+  "traced_output_equivalent": 16,
+  "runs": 5,
+  "rows": [
+    {
+      "workload": "gzip",
+      "argv": [
+        "gzip",
+        "-9",
+        "-c",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Guarded",
+      "eligible": true,
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "cold_decision": "Executed",
+      "second_decision": "Reused",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 88929,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 33.47,
+      "cold_ms": 50.46,
+      "traced_overhead_ms": 16.99,
+      "reused": true,
+      "timing": {
+        "direct_median_ms": 28.61,
+        "direct_p95_ms": 30.47,
+        "cached_median_ms": 3.87,
+        "cached_p95_ms": 6.78,
+        "cold_ms": 47.36,
+        "runs": 5,
+        "saved_ms": 24.74,
+        "speedup": 7.39,
+        "tracing_penalty_ms": 18.75,
+        "hits_to_repay": 0.76,
+        "final_decision": "Reused"
+      }
+    },
+    {
+      "workload": "bzip2",
+      "argv": [
+        "bzip2",
+        "-9",
+        "-c",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Guarded",
+      "eligible": true,
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "cold_decision": "Executed",
+      "second_decision": "Reused",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 57867,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 17.99,
+      "cold_ms": 43.33,
+      "traced_overhead_ms": 25.35,
+      "reused": true,
+      "timing": {
+        "direct_median_ms": 17.55,
+        "direct_p95_ms": 17.73,
+        "cached_median_ms": 4.28,
+        "cached_p95_ms": 6.93,
+        "cold_ms": 34.4,
+        "runs": 5,
+        "saved_ms": 13.27,
+        "speedup": 4.1,
+        "tracing_penalty_ms": 16.85,
+        "hits_to_repay": 1.27,
+        "final_decision": "Reused"
+      }
+    },
+    {
+      "workload": "xz",
+      "argv": [
+        "xz",
+        "-9",
+        "-c",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Nondeterministic",
+      "eligible": false,
+      "reasons": [
+        "process read system information via sysinfo",
+        "process read system clock: monotonic",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "cold_decision": "Ineligible",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 29372,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 68.04,
+      "cold_ms": 94.35,
+      "traced_overhead_ms": 26.31,
+      "reused": false
+    },
+    {
+      "workload": "tar",
+      "argv": [
+        "tar",
+        "-cf",
+        "bundle.tar",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Nondeterministic",
+      "eligible": false,
+      "reasons": [
+        "process read system clock: realtime",
+        "process wrote network: failed socket control (errno 2)",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "cold_decision": "Ineligible",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 0,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 2.36,
+      "cold_ms": 24.13,
+      "traced_overhead_ms": 21.78,
+      "reused": false
+    },
+    {
+      "workload": "sed",
+      "argv": [
+        "sed",
+        "-e",
+        "s/alpha/ALPHA/g",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Guarded",
+      "eligible": true,
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "cold_decision": "Executed",
+      "second_decision": "Reused",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 270762,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 3.66,
+      "cold_ms": 43.16,
+      "traced_overhead_ms": 39.5,
+      "reused": true,
+      "timing": {
+        "direct_median_ms": 3.59,
+        "direct_p95_ms": 3.66,
+        "cached_median_ms": 5.19,
+        "cached_p95_ms": 7.95,
+        "cold_ms": 22.53,
+        "runs": 5,
+        "saved_ms": -1.6,
+        "speedup": 0.69,
+        "tracing_penalty_ms": 18.94,
+        "hits_to_repay": null,
+        "final_decision": "Reused"
+      }
+    },
+    {
+      "workload": "grep",
+      "argv": [
+        "grep",
+        "-c",
+        "alpha",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Unknown",
+      "eligible": false,
+      "reasons": [
+        "process-relative procfs dependency: /proc/self/maps",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "cold_decision": "Ineligible",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 5,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 1.33,
+      "cold_ms": 15.85,
+      "traced_overhead_ms": 14.52,
+      "reused": false
+    },
+    {
+      "workload": "sort",
+      "argv": [
+        "sort",
+        "-u",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Nondeterministic",
+      "eligible": false,
+      "reasons": [
+        "process read system information via sched_getaffinity",
+        "process read system information via prlimit64",
+        "process read system information via sysinfo",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "cold_decision": "Ineligible",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 270762,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 4.9,
+      "cold_ms": 44.14,
+      "traced_overhead_ms": 39.24,
+      "reused": false
+    },
+    {
+      "workload": "tr",
+      "argv": [
+        "tr",
+        "a-z",
+        "A-Z"
+      ],
+      "stdin": "input.txt",
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Guarded",
+      "eligible": true,
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "cold_decision": "Executed",
+      "second_decision": "Reused",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 270762,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 1.59,
+      "cold_ms": 39.89,
+      "traced_overhead_ms": 38.3,
+      "reused": true,
+      "timing": {
+        "direct_median_ms": 1.13,
+        "direct_p95_ms": 1.19,
+        "cached_median_ms": 4.51,
+        "cached_p95_ms": 6.86,
+        "cold_ms": 17.13,
+        "runs": 5,
+        "saved_ms": -3.38,
+        "speedup": 0.25,
+        "tracing_penalty_ms": 16.0,
+        "hits_to_repay": null,
+        "final_decision": "Reused"
+      }
+    },
+    {
+      "workload": "base64",
+      "argv": [
+        "base64",
+        "-w0",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Guarded",
+      "eligible": true,
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "cold_decision": "Executed",
+      "second_decision": "Reused",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 361016,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 1.38,
+      "cold_ms": 42.86,
+      "traced_overhead_ms": 41.48,
+      "reused": true,
+      "timing": {
+        "direct_median_ms": 1.52,
+        "direct_p95_ms": 1.74,
+        "cached_median_ms": 5.1,
+        "cached_p95_ms": 7.68,
+        "cold_ms": 18.0,
+        "runs": 5,
+        "saved_ms": -3.58,
+        "speedup": 0.3,
+        "tracing_penalty_ms": 16.48,
+        "hits_to_repay": null,
+        "final_decision": "Reused"
+      }
+    },
+    {
+      "workload": "md5sum",
+      "argv": [
+        "md5sum",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Guarded",
+      "eligible": true,
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "cold_decision": "Executed",
+      "second_decision": "Reused",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 44,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 1.88,
+      "cold_ms": 19.04,
+      "traced_overhead_ms": 17.16,
+      "reused": true,
+      "timing": {
+        "direct_median_ms": 1.74,
+        "direct_p95_ms": 1.78,
+        "cached_median_ms": 5.74,
+        "cached_p95_ms": 8.6,
+        "cold_ms": 17.86,
+        "runs": 5,
+        "saved_ms": -4.0,
+        "speedup": 0.3,
+        "tracing_penalty_ms": 16.12,
+        "hits_to_repay": null,
+        "final_decision": "Reused"
+      }
+    },
+    {
+      "workload": "wc",
+      "argv": [
+        "wc",
+        "-c",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Guarded",
+      "eligible": true,
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "cold_decision": "Executed",
+      "second_decision": "Reused",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 17,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 0.87,
+      "cold_ms": 18.44,
+      "traced_overhead_ms": 17.57,
+      "reused": true,
+      "timing": {
+        "direct_median_ms": 0.85,
+        "direct_p95_ms": 0.86,
+        "cached_median_ms": 4.08,
+        "cached_p95_ms": 6.26,
+        "cold_ms": 13.5,
+        "runs": 5,
+        "saved_ms": -3.23,
+        "speedup": 0.21,
+        "tracing_penalty_ms": 12.65,
+        "hits_to_repay": null,
+        "final_decision": "Reused"
+      }
+    },
+    {
+      "workload": "jq",
+      "argv": [
+        "jq",
+        "-c",
+        "map(select(.v > 5)) | length",
+        "input.json"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Nondeterministic",
+      "eligible": false,
+      "reasons": [
+        "process read randomness via getrandom",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "cold_decision": "Ineligible",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 5,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 10.73,
+      "cold_ms": 30.09,
+      "traced_overhead_ms": 19.36,
+      "reused": false
+    },
+    {
+      "workload": "python-json",
+      "argv": [
+        "python3",
+        "-c",
+        "import json,sys;d=json.load(open('input.json'));print(sum(x['v'] for x in d))"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Nondeterministic",
+      "eligible": false,
+      "reasons": [
+        "process read process identity via getpid",
+        "process read process identity via getppid",
+        "process read system clock: monotonic",
+        "process read randomness via getrandom",
+        "process read process identity via gettid",
+        "process read system clock: realtime"
+      ],
+      "cold_decision": "Ineligible",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 6,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 23.78,
+      "cold_ms": 109.53,
+      "traced_overhead_ms": 85.75,
+      "reused": false
+    },
+    {
+      "workload": "gcc-compile",
+      "argv": [
+        "gcc",
+        "-O2",
+        "-c",
+        "hello.c",
+        "-o",
+        "hello.o"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Unknown",
+      "eligible": false,
+      "reasons": [
+        "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffdae6efab0, 0x7ffdae6f0038, 0x7ffdae6efc00, 0x0, 0x7fa761c9d380]",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "cold_decision": "Ineligible",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 0,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 28.99,
+      "cold_ms": 153.67,
+      "traced_overhead_ms": 124.68,
+      "reused": false
+    },
+    {
+      "workload": "assemble",
+      "argv": [
+        "as",
+        "hello.s",
+        "-o",
+        "hello.o"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Unknown",
+      "eligible": false,
+      "reasons": [
+        "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffcde85b860, 0x7ffcde85bde0, 0x7ffcde85b9b0, 0x0, 0x7ff3a936c380]",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "cold_decision": "Ineligible",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 0,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 2.46,
+      "cold_ms": 23.42,
+      "traced_overhead_ms": 20.96,
+      "reused": false
+    },
+    {
+      "workload": "strip",
+      "argv": [
+        "strip",
+        "-o",
+        "stripped",
+        "hello.o"
+      ],
+      "stdin": null,
+      "contract": "tracejit.allocator-entropy.v1",
+      "classification": "Nondeterministic",
+      "eligible": false,
+      "reasons": [
+        "process read system information via prlimit64",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "cold_decision": "Ineligible",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 0,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 2.14,
+      "cold_ms": 22.9,
+      "traced_overhead_ms": 20.76,
+      "reused": false
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 # TraceJIT execution state
 
-Updated at the Phase 2F tip (commits `5db741f`, `be94f38`) on branch `verify/phase1-5`. This file is
-the resume point: what is done, what is measured, and what is blocked.
+Updated at the Phase 2G worktree (base `6941443`, branch `verify/phase1-5`, uncommitted at the time
+of writing). This file is the resume point: what is done, what is measured, and what is blocked.
 
 ## Phase status
 
@@ -17,63 +17,71 @@ the resume point: what is done, what is measured, and what is blocked.
 | 2D.2 | Fixed direct-execution compatibility suite | **PASS** — 16 workloads, fixed denominator | `PHASE2D_DIRECT_COMPATIBILITY.md` |
 | 2D.3 | Certified effect noninterference | **ASSESSED, NOT IMPLEMENTED** | `PHASE2D_NONINTERFERENCE_RESEARCH.md` |
 | 2E.1 | Directory dependency traced to its origin | **PASS** — a real `openat(... O_DIRECTORY)` by the command, recorded as a metadata read | `PHASE2E_DIRECTORY_DEPENDENCY.md` |
-| 2E.2 | Typed directory provenance and production fix | **PASS** — `DirectoryOpened` effect/dependency/guard; timestamps excluded, identity and openability compared | `PHASE2E_DIRECTORY_DEPENDENCY.md` |
+| 2E.2 | Typed directory provenance and production fix | **PASS** — `DirectoryOpened` effect/dependency/guard | `PHASE2E_DIRECTORY_DEPENDENCY.md` |
 | 2E.3 | Ordinary output placement no longer invalidates | **PASS** — 0% invalidation in 8/8 benchmark cells | `PHASE2E_DIRECTORY_DEPENDENCY.md` |
 | 2F.0 | Independent `DirectoryOpened` audit | **PASS with defects fixed** — credential binding, `O_PATH` access mode, `..` through symlinks | `PHASE2F_DIRECTORY_GUARD_AUDIT.md` |
-| 2F.1 | Sound `statfs`/`fstatfs` model | **PASS** — all 120 bytes, same call shape, namespace + credential bound; adversarial capacity change invalidates | `PHASE2F_STATFS_AND_DESCRIPTORS.md` |
-| 2F.2 | Safe inherited descriptor inputs | **PARTIAL PASS** — regular files modelled (hash, offsets); pipes/sockets/TTYs/anonymous still refused | `PHASE2F_STATFS_AND_DESCRIPTORS.md` §5–6 |
+| 2F.1 | Sound `statfs`/`fstatfs` model | **PASS** — all 120 bytes, same call shape, namespace + credential bound | `PHASE2F_STATFS_AND_DESCRIPTORS.md` |
+| 2F.2 | Safe inherited descriptor inputs | **PARTIAL PASS** — regular files modelled; pipes/sockets/TTYs/anonymous refused | `PHASE2F_STATFS_AND_DESCRIPTORS.md` §5–6 |
 | 2F.3 | Sound directory enumeration | **PASS (bounded)** — exact per-call byte stream; refuses non-zero offset and >1 MiB | `PHASE2F_DIRECTORY_ENUMERATION.md` |
-| 2F.4 | Two additional reusable categories | **FAIL** — 1 of 16 direct, 0 of 9 census; all candidates blocked by allocator `getrandom` | `PHASE2F_COMPATIBILITY.md` §4 |
+| 2F.4 | Two additional reusable categories | **FAIL** — 1 of 16 direct, 0 of 9 census | `PHASE2F_COMPATIBILITY.md` §4 |
+| 2G.A | Path-resolution adversarial audit | **PASS after fix** — confirmed false hit in `be94f38`, removed; regression tests fail on the defective build | `PHASE2G_PATH_RESOLUTION.md` |
+| 2G.B | Forensic identification of allocator randomness | **PASS** — glibc `tcache_key_initialize` via `ptmalloc_init`, call site, build IDs, tunables, static variant; musl **BLOCKED** | `PHASE2G_ALLOCATOR_ENTROPY.md` |
+| 2G.C | Two explicit execution contracts | **PASS** — native unchanged; `tracejit.allocator-entropy.v1` specified with admission conditions, recorded evidence and non-equivalence statement | `PHASE2G_EXECUTION_CONTRACTS.md` |
+| 2G.D | Controlled-mode prototype on real workloads | **PASS (narrow)** — `sed`, `tr`, `base64`, `wc` verified; `gzip`, `bzip2`, `md5sum` also reuse under the contract | `PHASE2G_COMPATIBILITY.md` |
+| 2G.E | Adversarial correctness testing | **PASS** — application randomness refused, tampered runtime/contract/value/shape refused, mode mixing impossible, input/env changes invalidate | `PHASE2G_EXECUTION_CONTRACTS.md` §"Verified by tests" |
+| 2G.F | Two fixed suites, both modes, two sessions + workflow | **PASS** — native 1/16, 0/9; controlled 7/16 and 6/16, 0/9; 16/16 and 9/9 equivalence; workflow 14.74x | `PHASE2G_COMPATIBILITY.md` |
 | 2D.6 | `PROVEN` enforcement | **BLOCKED** — never executed on any host | — |
-| 3 | Performance engineering | **NOT STARTED** — one reusable workload is too narrow to tune against | `PHASE2F_COMPATIBILITY.md` §9 |
+| 3 | Performance engineering | **NOT STARTED** — controlled mode is a prerequisite, now measurable | — |
 | 4 | Developer integrations | **NOT STARTED** | — |
-| 5 | Research contribution | **NOT ESTABLISHED** — no mechanism or comparison exists | — |
+| 5 | Research contribution | **NOT ESTABLISHED** — the contract is a mechanism, not a verified contribution | — |
 | 6 | Competitive benchmarking | **BLOCKED** — no ccache/sccache/Firebuild/clang on this host | — |
 
 ## Latest verified test results
 
-`cargo test --workspace` **100 passed, 0 failed** across 8 suites (16 cache + 5 CLI + 26 Linux
-integration + 7 core + 5 effects + 24 guards + 4 sandbox + 13 trace), with `fmt --check` and
-`clippy -D warnings` clean, at `be94f38`.
+`cargo test --workspace` **105 passed, 0 failed** across 8 suites (16 cache + 5 CLI + 30 Linux
+integration + 7 core + 5 effects + 25 guards + 4 sandbox + 13 trace), with `fmt --check` and
+`clippy -D warnings` clean, at the Phase 2G worktree.
 
-## Latest measured results (`be94f38`, two clean-tree sessions)
+## Latest measured results (Phase 2G, two sessions per mode)
 
-- **Direct suite** (16 workloads, 5 runs): **1 of 16 reused** (`gzip`), **16 of 16** output
-  equivalent, PASS in both sessions.
-- **Census** (nine workloads, unchanged denominator, 3 runs + 1 warmup): **0 of 9**, 9 refused,
-  0 execution failures, 9/9 output equivalent, in both sessions.
-- **gzip** `-9 -c` on a 20 000-line input: direct 28.89 / 29.00 ms (p95 29.16 / 29.03), warm
-  4.33 / 4.06 ms (p95 7.23 / 6.96), cold 40.79 / 42.49 ms, **6.67x / 7.14x**, **0.48 / 0.54 hits**
-  to repay the trace.
-- No other workload reached `Reused`, so no other timing is reported.
-
-`statfs`, enumeration and stdin refusals are gone from the chains: `sed` and `tar` now stop at
-`getrandom`, `tr` at `getrandom` after a recorded regular-file stdin dependency, and `nm` at
-`getrandom` plus `prlimit64` after four enumerated plugin directories.
+- **Direct suite** (16 workloads): native **1/16** (`gzip`); controlled **7/16** (session A:
+  `gzip`, `bzip2`, `sed`, `tr`, `base64`, `md5sum`, `wc`) and **6/16** (session B, `tr` missed
+  because its stdin read changed `atime` in the remembered identity). Output equivalence 16/16.
+- **Census** (nine workloads, 3 runs + 1 warmup): **0/9** in native *and* controlled mode, both
+  sessions, 9/9 output equivalence; blockers are the shell's clocks, PIDs and sockets, not the
+  allocator key.
+- **gzip** direct 28.61/28.66 ms, cached 3.87/3.88 ms, cold 47.36/40.56 ms, **7.39x/7.39x**,
+  0.76/0.48 hits to repay. **bzip2** 17.55/17.62 → 4.28/4.34 ms, **4.10x/4.06x**, 1.27/1.28.
+- **Small filters are losses on a hit**: `sed` 0.69x, `tr` 0.25x, `base64` 0.30x, `md5sum` 0.30x,
+  `wc` 0.21x, because a hit costs 4–6 ms. Positive savings need ≥ ~10 ms of native work.
+- **Workflow** (5.416 MB, `sed` → `wc -c` → `md5sum` → `gzip -9 -c`, 5 reps): 645.62 → 43.80 ms,
+  **14.74x**, about 602 ms saved per iteration; every step a hit with direct-equal bytes.
+- **Contract differential check**: 4/4 reusable and fully verified (`sed`, `tr`, `base64`, `wc`).
 
 ## Open correctness risks
 
-1. **glibc allocator `getrandom` refuses essentially every dynamically linked tool.** About 50
-   surveyed, including `sed`, `tar`, `tr`, `nm`, `ar`, `grep`, `sort`, `perl`, `make`, `zip` and
-   `gcc`. The call sits in `malloc` via `setlocale`; disabling tcache does not remove it. No model
-   exists; ignoring it would be a forbidden global whitelist.
-2. **`/proc/self/maps`** still refuses `grep`; process memory identity is unmodelled.
-3. **`getrusage`** still refuses compilers and assemblers; per-run consumption is unguardable.
-4. **Enumeration is bounded** at 1 MiB and refuses a non-zero start offset; large trees fall back to
-   direct execution.
-5. **Mount-namespace changes after a path open** are not modelled by path guards; `statfs` and
-   enumeration bind namespace identity.
-6. **Every guard has a validation-to-restore TOCTOU window**; the executable re-hash narrows one.
-7. **Restoration is not crash-atomic**; re-execution repairs it.
-8. **`PROVEN` has never been executed**; no enforcement claim is made anywhere.
+1. **The contract is narrow, not general determinism.** It controls only a shared runtime library's
+   8-byte `GRND_NONBLOCK` probe. Clocks, PIDs, `sysinfo`, `sched_getaffinity`, application
+   randomness, `/proc/self/maps` and network remain refused.
+2. **Validation-to-restore TOCTOU** remains for every guard; the false-hit defect was about recorded
+   evidence, not this window.
+3. **Symlinked output ancestors are refused**; restoration through a repointable path would be unsafe.
+4. **Mount-namespace changes** are only bound by `statfs`/enumeration dependencies; `unshare -m` is
+   not permitted here, so the path case is untested (BLOCKED).
+5. **`tr`'s stdin `atime` in the runtime identity** turns some hits into misses across sessions; a
+   reach, not a soundness, limitation.
+6. **musl and static-musl variants were not tested** (no toolchain); static glibc still emits the
+   probe and is excluded by the contract's module rule.
+7. **`PROVEN` has never been executed**; the contract is explicitly not a sandbox and makes no
+   isolation claim.
+8. **Restoration is not crash-atomic**; re-execution repairs it.
 
 ## Next executable actions
 
-1. Test a workload class that avoids glibc's allocator entropy — a static or musl binary, or a
-   direct-syscall tool — end to end, to see whether a second reusable category is reachable at all.
-2. If that succeeds, profile the ~4 ms hit path across the new categories before choosing between
-   faster validation, lower ptrace overhead and cache-admission changes (Phase 3).
-3. Model `/proc/self/maps` for `grep` (process memory identity), or keep it refused.
-4. Decide the `getrusage` question explicitly: an opt-in, recorded, falsifiable certificate, or keep
-   compilers refused. Never a global whitelist.
+1. Decide whether to exclude `atime` from the inherited-stdin identity so `tr` and similar filters
+   reuse reliably, with a test that a content change still invalidates.
+2. Model `/proc/self/maps` for `grep`, or keep it refused.
+3. Decide the `getrusage` question explicitly: an opt-in, recorded, falsifiable certificate, or keep
+   compilers refused.
+4. Test a musl toolchain and a fully static program to complete the allocator-entropy matrix.
 5. Landlock-capable CI job for the `PROVEN` gate.
