@@ -1,7 +1,7 @@
 # TraceJIT execution state
 
-Updated at the Phase 2E tip on branch `verify/phase1-5`. This file is the resume point: what is done,
-what is measured, and what is blocked.
+Updated at the Phase 2F tip (commits `5db741f`, `be94f38`) on branch `verify/phase1-5`. This file is
+the resume point: what is done, what is measured, and what is blocked.
 
 ## Phase status
 
@@ -18,50 +18,62 @@ what is measured, and what is blocked.
 | 2D.3 | Certified effect noninterference | **ASSESSED, NOT IMPLEMENTED** | `PHASE2D_NONINTERFERENCE_RESEARCH.md` |
 | 2E.1 | Directory dependency traced to its origin | **PASS** — a real `openat(... O_DIRECTORY)` by the command, recorded as a metadata read | `PHASE2E_DIRECTORY_DEPENDENCY.md` |
 | 2E.2 | Typed directory provenance and production fix | **PASS** — `DirectoryOpened` effect/dependency/guard; timestamps excluded, identity and openability compared | `PHASE2E_DIRECTORY_DEPENDENCY.md` |
-| 2E.3 | Ordinary output placement no longer invalidates | **PASS** — 0% invalidation in 8/8 benchmark cells; 83% invalidation on the baseline for the same sequence | `PHASE2E_DIRECTORY_DEPENDENCY.md` |
-| 2E.4 | Two additional reusable categories | **FAIL** — 1 of 16 in the direct suite, 0 of 9 in the census | `PHASE2E_DIRECTORY_DEPENDENCY.md` §7 |
-| 2D.6 | `PROVEN` enforcement | **BLOCKED** — unchanged; never executed on any host | — |
-| 3 | Performance engineering | **NOT STARTED** — the hit path has not been profiled | — |
+| 2E.3 | Ordinary output placement no longer invalidates | **PASS** — 0% invalidation in 8/8 benchmark cells | `PHASE2E_DIRECTORY_DEPENDENCY.md` |
+| 2F.0 | Independent `DirectoryOpened` audit | **PASS with defects fixed** — credential binding, `O_PATH` access mode, `..` through symlinks | `PHASE2F_DIRECTORY_GUARD_AUDIT.md` |
+| 2F.1 | Sound `statfs`/`fstatfs` model | **PASS** — all 120 bytes, same call shape, namespace + credential bound; adversarial capacity change invalidates | `PHASE2F_STATFS_AND_DESCRIPTORS.md` |
+| 2F.2 | Safe inherited descriptor inputs | **PARTIAL PASS** — regular files modelled (hash, offsets); pipes/sockets/TTYs/anonymous still refused | `PHASE2F_STATFS_AND_DESCRIPTORS.md` §5–6 |
+| 2F.3 | Sound directory enumeration | **PASS (bounded)** — exact per-call byte stream; refuses non-zero offset and >1 MiB | `PHASE2F_DIRECTORY_ENUMERATION.md` |
+| 2F.4 | Two additional reusable categories | **FAIL** — 1 of 16 direct, 0 of 9 census; all candidates blocked by allocator `getrandom` | `PHASE2F_COMPATIBILITY.md` §4 |
+| 2D.6 | `PROVEN` enforcement | **BLOCKED** — never executed on any host | — |
+| 3 | Performance engineering | **NOT STARTED** — one reusable workload is too narrow to tune against | `PHASE2F_COMPATIBILITY.md` §9 |
 | 4 | Developer integrations | **NOT STARTED** | — |
-| 5 | Research contribution | **NOT ESTABLISHED** — mechanism and evidence do not exist | — |
+| 5 | Research contribution | **NOT ESTABLISHED** — no mechanism or comparison exists | — |
 | 6 | Competitive benchmarking | **BLOCKED** — no ccache/sccache/Firebuild/clang on this host | — |
 
 ## Latest verified test results
 
-`cargo test --workspace` **95 passed, 0 failed** across 8 suites (16 cache + 5 CLI + 26 Linux
-integration + 7 core + 5 effects + 19 guards + 4 sandbox + 13 trace), with `fmt --check` and
-`clippy -D warnings` clean.
+`cargo test --workspace` **100 passed, 0 failed** across 8 suites (16 cache + 5 CLI + 26 Linux
+integration + 7 core + 5 effects + 24 guards + 4 sandbox + 13 trace), with `fmt --check` and
+`clippy -D warnings` clean, at `be94f38`.
 
-## Latest measured results
+## Latest measured results (`be94f38`, two clean-tree sessions)
 
-- **Ordinary gzip use**, 6 MB and 480 kB, 15 runs, two sessions: output written beside the input is
-  now as cheap as an isolated directory — 0% invalidation, 15/15 hits, 5.86–12.04 ms warm against
-  112–1494 ms direct (18.6–147x), every cell repaying the trace within 0.42 hits.
-- **Baseline `0ccf181`**, same sequence: 83% invalidation, 1/6 hits, 138.21 ms and 1548.51 ms warm —
-  slower than running the command directly (0.82x and 0.96x).
-- **Direct suite**, two sessions, 3 runs: **1 of 16 reused** (`gzip`), **16 of 16** output equivalent.
-- **Fixed census** (nine workloads, unchanged denominator): **0 of 9**, 9 of 9 output equivalent,
-  0 execution failures.
-- **Synthetic C ETL** at `9571772`: baseline 8.366 ms, cold 21.089 ms, hit 4.043 ms, 2.069x.
+- **Direct suite** (16 workloads, 5 runs): **1 of 16 reused** (`gzip`), **16 of 16** output
+  equivalent, PASS in both sessions.
+- **Census** (nine workloads, unchanged denominator, 3 runs + 1 warmup): **0 of 9**, 9 refused,
+  0 execution failures, 9/9 output equivalent, in both sessions.
+- **gzip** `-9 -c` on a 20 000-line input: direct 28.89 / 29.00 ms (p95 29.16 / 29.03), warm
+  4.33 / 4.06 ms (p95 7.23 / 6.96), cold 40.79 / 42.49 ms, **6.67x / 7.14x**, **0.48 / 0.54 hits**
+  to repay the trace.
+- No other workload reached `Reused`, so no other timing is reported.
+
+`statfs`, enumeration and stdin refusals are gone from the chains: `sed` and `tar` now stop at
+`getrandom`, `tr` at `getrandom` after a recorded regular-file stdin dependency, and `nm` at
+`getrandom` plus `prlimit64` after four enumerated plugin directories.
 
 ## Open correctness risks
 
-1. **Directory enumeration is refused, not guarded.** `getdents64` used to be silently ignored, which
-   was unsound; it now fails closed. A real entry-set dependency is unimplemented.
-2. **`getrusage` blocks every compiler and assembler.** Deliberately unadmitted; the value reaches no
-   output for the tested inputs, but per-run consumption cannot be guarded.
-3. **Unmodelled `statfs`, `/proc/self/maps`, inherited descriptor reads** refuse `tar`, `sed`, `grep`
-   and `tr`.
-4. **Every guard has a validation-to-restore TOCTOU window**; the executable re-hash narrows one.
-5. **Restoration is not crash-atomic**; re-execution repairs it.
-6. **`PROVEN` has never been executed**; no enforcement claim is made anywhere.
+1. **glibc allocator `getrandom` refuses essentially every dynamically linked tool.** About 50
+   surveyed, including `sed`, `tar`, `tr`, `nm`, `ar`, `grep`, `sort`, `perl`, `make`, `zip` and
+   `gcc`. The call sits in `malloc` via `setlocale`; disabling tcache does not remove it. No model
+   exists; ignoring it would be a forbidden global whitelist.
+2. **`/proc/self/maps`** still refuses `grep`; process memory identity is unmodelled.
+3. **`getrusage`** still refuses compilers and assemblers; per-run consumption is unguardable.
+4. **Enumeration is bounded** at 1 MiB and refuses a non-zero start offset; large trees fall back to
+   direct execution.
+5. **Mount-namespace changes after a path open** are not modelled by path guards; `statfs` and
+   enumeration bind namespace identity.
+6. **Every guard has a validation-to-restore TOCTOU window**; the executable re-hash narrows one.
+7. **Restoration is not crash-atomic**; re-execution repairs it.
+8. **`PROVEN` has never been executed**; no enforcement claim is made anywhere.
 
 ## Next executable actions
 
-1. Model `statfs` so `tar` and `sed` can be re-evaluated — the cheapest route to another category.
-2. Implement a directory enumeration dependency (entry-set digest) instead of refusing it.
-3. Profile the ~6–10 ms hit path (Phase 3) before optimising it; the added directory guard is below
-   this VM's measurement floor.
-4. Landlock-capable CI job for the `PROVEN` gate.
-5. Decide the `getrusage` question explicitly: an opt-in, recorded, falsifiable certificate, or keep
+1. Test a workload class that avoids glibc's allocator entropy — a static or musl binary, or a
+   direct-syscall tool — end to end, to see whether a second reusable category is reachable at all.
+2. If that succeeds, profile the ~4 ms hit path across the new categories before choosing between
+   faster validation, lower ptrace overhead and cache-admission changes (Phase 3).
+3. Model `/proc/self/maps` for `grep` (process memory identity), or keep it refused.
+4. Decide the `getrusage` question explicitly: an opt-in, recorded, falsifiable certificate, or keep
    compilers refused. Never a global whitelist.
+5. Landlock-capable CI job for the `PROVEN` gate.

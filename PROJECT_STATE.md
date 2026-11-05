@@ -213,3 +213,28 @@ VM's measurement floor (6.02/10.41 ms versus 9.46/14.30 ms baseline, p95 spread 
 difference). The direct suite is unchanged at 1 of 16 reused (gzip) with 16/16 output equivalence, and
 the nine-workload census at 0 of 9: no new category was obtained. Tests: 95 passing. See
 `docs/audits/PHASE2E_DIRECTORY_DEPENDENCY.md` and `benchmarks/results/phase2e/`.
+
+## Phase 2F (branch `verify/phase1-5`, commits `5db741f`, `be94f38`)
+
+The `DirectoryOpened` audit found two soundness defects — the probe open ran under the validator's
+credentials instead of the recorded child's, and it replayed an `O_PATH` open as a read open — both
+fixed by recording the credential digest and the original access mode. It also found a
+pre-existing path defect: `..` was normalised lexically, so `/a/link/../b` was guarded as `/b` while
+the kernel resolved it through the symlink; `be94f38` canonicalises paths containing `..`.
+
+Three dependency models landed: `statfs`/`fstatfs` (all 120 returned bytes, same call shape, mount
+namespace and credentials bound, cached errno replayable), `getdents64` (the exact per-call byte
+stream, preserving order, cookies, `d_type` and partial reads) and inherited regular-file stdin
+(content hash, descriptor identity, start offset; the hit path advances to the recorded end offset).
+Pipes, sockets, terminals, anonymous and unknown descriptors still refuse.
+
+The blockers those models targeted are gone: `sed` and `tar` now stop at `getrandom`, `tr` stops at
+`getrandom` after its stdin read, and `nm` enumerates its plugin directory successfully. **The
+two-additional-category target is unmet**: every surveyed glibc-linked tool (about 50, including
+`sed`, `tar`, `tr`, `nm`, `ar`, `grep`, `sort`, `perl`, `make`, `zip`, `gcc`) calls `getrandom` from
+inside `malloc`/`setlocale`, and `GLIBC_TUNABLES` tcache disabling does not remove it. Ignoring it
+would be the forbidden global whitelist. Compatibility is unchanged: **1 of 16** direct workloads
+reused (gzip, 16/16 output equivalent) and **0 of 9** census workloads, in two clean-tree sessions
+each at `be94f38`. gzip: 28.89/29.00 ms direct, 4.33/4.06 ms warm, 6.67x/7.14x, 0.48/0.54 hits to
+repay. Tests: **100 passing**; fmt and clippy clean. `PROVEN` remains BLOCKED (no Landlock on this
+host). See `docs/audits/PHASE2F_*.md` and `benchmarks/results/phase2f/`.
