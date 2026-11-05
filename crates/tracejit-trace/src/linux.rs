@@ -2342,7 +2342,7 @@ fn resolve_path(
     let raw = read_c_string(pid, address)?;
     let path = PathBuf::from(OsString::from_vec(raw));
     if path.is_absolute() {
-        return Ok(normalize(path));
+        return Ok(normalize_join(path));
     }
     let base = if dirfd == libc::AT_FDCWD {
         state.cwd.clone()
@@ -2353,7 +2353,33 @@ fn resolve_path(
             TraceError::Ptrace(format!("cannot resolve dirfd {dirfd} for {pid}: {error}"))
         })?
     };
-    Ok(normalize(base.join(path)))
+    Ok(normalize_join(base.join(path)))
+}
+
+/// Resolves a path without losing the meaning of `..` across a symlink.
+///
+/// Lexical normalisation is only correct when no component is a symlink. The kernel resolves
+/// `..` *after* following a symlinked directory, so `/a/link/../b` can name a different file than
+/// `/b`. Recording the lexical result would guard the wrong path, which is a false-reuse defect.
+/// Paths containing `..` are therefore canonicalised; when the leaf does not exist yet (an
+/// `O_CREAT` target) the existing parent is canonicalised instead. Anything else keeps the
+/// previous, purely lexical treatment.
+fn normalize_join(path: PathBuf) -> PathBuf {
+    if !path
+        .components()
+        .any(|component| matches!(component, Component::ParentDir))
+    {
+        return normalize(path);
+    }
+    if let Ok(canonical) = fs::canonicalize(&path) {
+        return canonical;
+    }
+    if let (Some(parent), Some(name)) = (path.parent(), path.file_name()) {
+        if let Ok(canonical) = fs::canonicalize(parent) {
+            return canonical.join(name);
+        }
+    }
+    normalize(path)
 }
 
 /// Removes `.` components without ever collapsing `..` lexically.
