@@ -1,6 +1,6 @@
 # TraceJIT execution state
 
-Updated at the Phase 2I worktree (base `9b777ee`, branch `freebuff/3ead97f7907244943d2638d7`). This
+Updated at the Phase 2I worktree (base `9b777ee`, branch `freebuff/phase2f`). This
 file is the resume point: what is done, what is measured, and what is blocked.
 
 ## Phase status
