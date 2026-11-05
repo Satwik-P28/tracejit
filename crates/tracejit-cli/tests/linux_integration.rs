@@ -1342,7 +1342,9 @@ fn auto_admission_skips_short_commands_and_caches_expensive_ones() {
         return;
     }
     let large = temporary.path().join("large.txt");
-    fs::write(&large, "alpha beta gamma\n".repeat(150_000)).unwrap();
+    // Large enough that the measured direct run clears the cumulative-benefit threshold even
+    // with the 6 ms hit-cost floor; a 13 ms gzip is correctly declined by the Phase 2I policy.
+    fs::write(&large, "alpha beta gamma\n".repeat(1_200_000)).unwrap();
     let long = [
         "run",
         "--json",

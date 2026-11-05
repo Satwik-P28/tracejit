@@ -114,8 +114,11 @@ impl From<GuardModeArg> for GuardMode {
 enum AdmissionArg {
     /// Trace and cache every invocation.
     Always,
-    /// Measure first; trace only when a hit can repay itself.
+    /// Measure first, then trace when the estimated cumulative benefit exceeds the trace premium.
     Auto,
+    /// Phase 2H's threshold policy, kept for before/after comparison.
+    #[value(name = "auto-v1")]
+    AutoV1,
     /// Never trace or reuse; always run the command directly.
     Never,
 }
@@ -125,6 +128,7 @@ impl From<AdmissionArg> for Admission {
         match value {
             AdmissionArg::Always => Self::Always,
             AdmissionArg::Auto => Self::Auto,
+            AdmissionArg::AutoV1 => Self::AutoLegacy,
             AdmissionArg::Never => Self::Never,
         }
     }

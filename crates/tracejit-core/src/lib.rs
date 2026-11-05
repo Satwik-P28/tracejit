@@ -58,9 +58,11 @@ pub enum Admission {
     /// Trace and store every invocation, then reuse when the guards pass. Historical behaviour.
     #[default]
     Always,
-    /// Measure before committing: the first invocation runs directly and records its cost; a
-    /// later invocation is traced only if the measured direct runtime can repay a hit.
+    /// Measure before committing, then estimate cumulative benefit from observed hits,
+    /// invalidations and a fixed horizon. The first invocation always runs directly.
     Auto,
+    /// Phase 2H's policy: measure, then trace when `direct >= 2 x max(hit, 6 ms)`.
+    AutoLegacy,
     /// Never trace or reuse; run the command directly.
     Never,
 }
@@ -68,10 +70,35 @@ pub enum Admission {
 /// A hit costs process startup, identity, SQLite lookup, guards and restoration. A command whose
 /// native runtime is below this is not worth caching even if it would always hit.
 const HIT_COST_FLOOR_NS: u64 = 6_000_000;
+/// One trace is paid once and is assumed to cost about this much more than a direct run,
+/// measured in Phase 2G/2H cold-minus-direct samples (11–18 ms on this host).
+const TRACE_OVERHEAD_NS: u64 = 12_000_000;
+/// How many future invocations the decision assumes. Deliberately conservative and constant so
+/// the decision is reproducible from the stored numbers alone.
+const EXPECTED_FUTURE_INVOCATIONS: u64 = 3;
+/// Stale cost samples are discarded rather than trusted forever.
+const ADMISSION_SAMPLE_TTL_MS: u128 = 30 * 24 * 60 * 60 * 1000;
 
 fn admission_is_profitable(cost: &AdmissionCost) -> bool {
     let hit = cost.hit_ns.max(HIT_COST_FLOOR_NS);
     cost.direct_ns >= hit.saturating_mul(2)
+}
+
+/// Cumulative-benefit estimate: expected hits over the horizon times the per-hit saving, versus
+/// the one-time trace premium. The reuse probability is Laplace-smoothed hits/(hits+deopts), so an
+/// identity that invalidates often stops being traced instead of paying a premium every run.
+fn admission_has_cumulative_benefit(cost: &AdmissionCost) -> bool {
+    let direct = cost.direct_ns;
+    let hit = cost.hit_ns.max(HIT_COST_FLOOR_NS);
+    if direct <= hit {
+        return false;
+    }
+    let hits = cost.hits as f64;
+    let deopts = cost.deopts as f64;
+    let reuse_probability = (hits + 1.0) / (hits + deopts + 2.0);
+    let expected_hits = reuse_probability * EXPECTED_FUTURE_INVOCATIONS as f64;
+    let saving = (direct - hit) as f64 * expected_hits;
+    saving > TRACE_OVERHEAD_NS as f64
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -220,7 +247,8 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
         });
         let mut run_without_cache = options.admission == Admission::Never;
         let mut reason = "admission policy disabled caching for this run";
-        if options.admission == Admission::Auto && !reusable {
+        let measuring = matches!(options.admission, Admission::Auto | Admission::AutoLegacy);
+        if measuring && !reusable {
             // A record that was classified ineligible has already answered the question: tracing
             // this identity again cannot produce a reusable entry, so pay for it once, not forever.
             if candidate
@@ -231,18 +259,27 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
                 reason = "admission policy: the recorded classification is not eligible for reuse";
             }
         }
-        if options.admission == Admission::Auto && !reusable && !run_without_cache {
-            match cache.admission_cost(lookup_key)? {
+        if measuring && !reusable && !run_without_cache {
+            // A changed executable, environment or contract is a different identity, so it has its
+            // own (usually absent) cost sample and is re-examined from scratch.
+            let cost = cache.admission_cost(lookup_key)?.filter(|cost| {
+                now_unix_ms().saturating_sub(cost.updated_ms) <= ADMISSION_SAMPLE_TTL_MS
+            });
+            match cost {
                 None => {
                     run_without_cache = true;
                     reason = "admission policy is measuring this command before deciding whether to cache";
                 }
-                Some(cost) if !admission_is_profitable(&cost) => {
-                    run_without_cache = true;
-                    reason =
-                        "admission policy measured a direct runtime below the cost of a cache hit";
+                Some(cost) => {
+                    let profitable = match options.admission {
+                        Admission::AutoLegacy => admission_is_profitable(&cost),
+                        _ => admission_has_cumulative_benefit(&cost),
+                    };
+                    if !profitable {
+                        run_without_cache = true;
+                        reason = "admission policy estimates that a trace cannot repay itself for this identity";
+                    }
                 }
-                Some(_) => {}
             }
         }
         if run_without_cache {
@@ -308,6 +345,7 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
                             u64::try_from(candidate.baseline_runtime_ns).unwrap_or(u64::MAX),
                             0,
                             Some(u64::try_from(runtime_ns).unwrap_or(u64::MAX)),
+                            false,
                             false,
                         )?;
                         let persist_decision =
@@ -669,6 +707,7 @@ fn run_direct(
         0,
         None,
         true,
+        false,
     )?;
     Ok(RunReport {
         execution_id: "direct".into(),
@@ -847,6 +886,7 @@ fn store_outcome(
         0,
         None,
         false,
+        record.last_decision.decision == CacheDecision::Deoptimized,
     )?;
     Ok(report_from_record(
         &record,
@@ -1242,6 +1282,53 @@ mod tests {
     fn stat_start_ticks_skip_spaces_inside_comm() {
         let stat = "12 (trace jit) S 1 1 1 0 -1 0 0 0 0 0 0 0 0 0 20 0 1 0 424242 0";
         assert_eq!(start_ticks_from_stat(stat), Some(424242));
+    }
+
+    #[test]
+    fn cumulative_admission_policy_declines_cheap_and_invalidating_identities() {
+        let cheap = AdmissionCost {
+            direct_ns: 2_000_000,
+            hit_ns: 1_000_000,
+            cold_ns: 3_000_000,
+            hits: 0,
+            skips: 0,
+            deopts: 0,
+            updated_ms: 0,
+        };
+        assert!(!admission_has_cumulative_benefit(&cheap));
+
+        let expensive = AdmissionCost {
+            direct_ns: 300_000_000,
+            hit_ns: 6_000_000,
+            cold_ns: 312_000_000,
+            hits: 0,
+            skips: 0,
+            deopts: 0,
+            updated_ms: 0,
+        };
+        assert!(admission_has_cumulative_benefit(&expensive));
+
+        let invalidating = AdmissionCost {
+            direct_ns: 300_000_000,
+            hit_ns: 6_000_000,
+            cold_ns: 312_000_000,
+            hits: 0,
+            skips: 0,
+            deopts: 100,
+            updated_ms: 0,
+        };
+        assert!(!admission_has_cumulative_benefit(&invalidating));
+
+        let stable = AdmissionCost {
+            direct_ns: 300_000_000,
+            hit_ns: 6_000_000,
+            cold_ns: 312_000_000,
+            hits: 20,
+            skips: 0,
+            deopts: 0,
+            updated_ms: 0,
+        };
+        assert!(admission_has_cumulative_benefit(&stable));
     }
 
     fn cache_status_scratch() -> PathBuf {

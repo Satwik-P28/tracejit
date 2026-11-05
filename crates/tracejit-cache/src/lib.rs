@@ -109,6 +109,10 @@ pub struct AdmissionCost {
     pub cold_ns: u64,
     pub hits: u64,
     pub skips: u64,
+    /// Guard failures that invalidated a record for this identity.
+    pub deopts: u64,
+    /// When the sample was last updated, so a stale estimate can be discarded.
+    pub updated_ms: u128,
 }
 
 #[derive(Clone, Copy, Debug, Default)]
@@ -146,11 +150,19 @@ impl Cache {
         let database = root.join("db.sqlite3");
         let started = Instant::now();
         let connection = Connection::open(&database)?;
+        // The timeout must be armed on the connection before `journal_mode=WAL`, which needs an
+        // exclusive lock; otherwise concurrent cold starts fail immediately with SQLITE_BUSY.
+        connection.busy_timeout(std::time::Duration::from_secs(10))?;
         let sqlite_open_ns = u64_nanos(started);
         let started = Instant::now();
-        connection.execute_batch(
-            "PRAGMA journal_mode=WAL;
-             PRAGMA busy_timeout=10000;
+        // A concurrent open can still return SQLITE_BUSY from `journal_mode=WAL` before the busy
+        // handler is armed, so initialization is retried with a bounded backoff. Reads and writes
+        // after this point rely on the 10 s busy timeout.
+        let mut attempts: u64 = 0;
+        loop {
+            match connection.execute_batch(
+                "PRAGMA busy_timeout=10000;
+             PRAGMA journal_mode=WAL;
              PRAGMA synchronous=FULL;
              CREATE TABLE IF NOT EXISTS executions (
                  lookup_key TEXT PRIMARY KEY NOT NULL,
@@ -165,9 +177,33 @@ impl Cache {
                  cold_ns INTEGER NOT NULL,
                  hits INTEGER NOT NULL,
                  skips INTEGER NOT NULL,
+                 deopts INTEGER NOT NULL DEFAULT 0,
                  updated_unix_ms TEXT NOT NULL
              );",
-        )?;
+            ) {
+                Ok(()) => break,
+                Err(error)
+                    if attempts < 20
+                        && matches!(
+                            error.sqlite_error_code(),
+                            Some(
+                                rusqlite::ErrorCode::DatabaseBusy
+                                    | rusqlite::ErrorCode::DatabaseLocked
+                            )
+                        ) =>
+                {
+                    attempts += 1;
+                    std::thread::sleep(std::time::Duration::from_millis(5 * attempts));
+                }
+                Err(error) => return Err(error.into()),
+            }
+        }
+        // Older caches predate the deoptimisation counter; adding it is idempotent and ignored
+        // when the column already exists.
+        let _ = connection.execute(
+            "ALTER TABLE admission ADD COLUMN deopts INTEGER NOT NULL DEFAULT 0",
+            [],
+        );
         let schema_ns = u64_nanos(started);
         Ok(Self {
             root,
@@ -406,7 +442,8 @@ impl Cache {
     pub fn admission_cost(&self, lookup_key: Hash) -> Result<Option<AdmissionCost>, CacheError> {
         self.connection
             .query_row(
-                "SELECT direct_ns, hit_ns, cold_ns, hits, skips FROM admission WHERE lookup_key = ?1",
+                "SELECT direct_ns, hit_ns, cold_ns, hits, skips, deopts, updated_unix_ms \
+                 FROM admission WHERE lookup_key = ?1",
                 [lookup_key.to_string()],
                 |row| {
                     Ok(AdmissionCost {
@@ -415,6 +452,8 @@ impl Cache {
                         cold_ns: row.get(2)?,
                         hits: row.get(3)?,
                         skips: row.get(4)?,
+                        deopts: row.get(5)?,
+                        updated_ms: row.get::<_, String>(6)?.parse().unwrap_or_default(),
                     })
                 },
             )
@@ -431,6 +470,7 @@ impl Cache {
         cold_ns: u64,
         hit_ns: Option<u64>,
         skipped: bool,
+        deoptimized: bool,
     ) -> Result<(), CacheError> {
         let previous = self.admission_cost(lookup_key)?;
         let blend = |old: u64, new: u64| {
@@ -449,15 +489,17 @@ impl Cache {
         let cold = if cold_ns == 0 { old.cold_ns } else { cold_ns };
         let hits = old.hits + u64::from(hit_ns.is_some());
         let skips = old.skips + u64::from(skipped);
+        let deopts = old.deopts + u64::from(deoptimized);
         self.connection.execute(
-            "INSERT INTO admission (lookup_key, direct_ns, hit_ns, cold_ns, hits, skips, updated_unix_ms)
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)
+            "INSERT INTO admission (lookup_key, direct_ns, hit_ns, cold_ns, hits, skips, deopts, updated_unix_ms)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)
              ON CONFLICT(lookup_key) DO UPDATE SET
                direct_ns=excluded.direct_ns,
                hit_ns=excluded.hit_ns,
                cold_ns=excluded.cold_ns,
                hits=excluded.hits,
                skips=excluded.skips,
+               deopts=excluded.deopts,
                updated_unix_ms=excluded.updated_unix_ms",
             params![
                 lookup_key.to_string(),
@@ -466,6 +508,7 @@ impl Cache {
                 cold,
                 hits,
                 skips,
+                deopts,
                 now_unix_ms().to_string()
             ],
         )?;
