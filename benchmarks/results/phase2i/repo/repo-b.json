@@ -1,0 +1,505 @@
+{
+  "repo": "zlib v1.3.1",
+  "session": "b",
+  "policies": {
+    "direct": {
+      "total_ms": 6606.07,
+      "phases": [
+        {
+          "phase": "configure",
+          "ms": 378.8,
+          "exit": 0
+        },
+        {
+          "phase": "clean-build",
+          "ms": 12.3,
+          "exit": 0
+        },
+        {
+          "phase": "build",
+          "ms": 3169.03,
+          "exit": 0
+        },
+        {
+          "phase": "rebuild",
+          "ms": 3.23,
+          "exit": 0
+        },
+        {
+          "phase": "unrelated-edit",
+          "ms": 2.99,
+          "exit": 0
+        },
+        {
+          "phase": "relevant-edit",
+          "ms": 198.12,
+          "exit": 0
+        },
+        {
+          "phase": "test",
+          "ms": 14.55,
+          "exit": 0
+        },
+        {
+          "phase": "generate-corpus",
+          "ms": 289.94,
+          "exit": 0
+        },
+        {
+          "phase": "compress-1",
+          "ms": 384.3,
+          "exit": 0
+        },
+        {
+          "phase": "compress-2",
+          "ms": 378.07,
+          "exit": 0
+        },
+        {
+          "phase": "compress-3",
+          "ms": 375.92,
+          "exit": 0
+        },
+        {
+          "phase": "compress-4",
+          "ms": 375.08,
+          "exit": 0
+        },
+        {
+          "phase": "compress-5",
+          "ms": 379.22,
+          "exit": 0
+        },
+        {
+          "phase": "compress-6",
+          "ms": 379.2,
+          "exit": 0
+        },
+        {
+          "phase": "decompress-1",
+          "ms": 67.86,
+          "exit": 0
+        },
+        {
+          "phase": "decompress-2",
+          "ms": 65.5,
+          "exit": 0
+        },
+        {
+          "phase": "decompress-3",
+          "ms": 67.19,
+          "exit": 0
+        },
+        {
+          "phase": "decompress-4",
+          "ms": 64.78,
+          "exit": 0
+        }
+      ],
+      "decisions": [],
+      "speedup": 1.0,
+      "slowdown": 1.0
+    },
+    "never": {
+      "total_ms": 6932.9,
+      "phases": [
+        {
+          "phase": "configure",
+          "ms": 426.5,
+          "exit": 0
+        },
+        {
+          "phase": "clean-build",
+          "ms": 18.25,
+          "exit": 0
+        },
+        {
+          "phase": "build",
+          "ms": 3216.75,
+          "exit": 0
+        },
+        {
+          "phase": "rebuild",
+          "ms": 9.23,
+          "exit": 0
+        },
+        {
+          "phase": "unrelated-edit",
+          "ms": 8.71,
+          "exit": 0
+        },
+        {
+          "phase": "relevant-edit",
+          "ms": 210.98,
+          "exit": 0
+        },
+        {
+          "phase": "test",
+          "ms": 24.43,
+          "exit": 0
+        },
+        {
+          "phase": "generate-corpus",
+          "ms": 299.96,
+          "exit": 0
+        },
+        {
+          "phase": "compress-1",
+          "ms": 405.72,
+          "exit": 0
+        },
+        {
+          "phase": "compress-2",
+          "ms": 387.17,
+          "exit": 0
+        },
+        {
+          "phase": "compress-3",
+          "ms": 386.16,
+          "exit": 0
+        },
+        {
+          "phase": "compress-4",
+          "ms": 388.76,
+          "exit": 0
+        },
+        {
+          "phase": "compress-5",
+          "ms": 398.8,
+          "exit": 0
+        },
+        {
+          "phase": "compress-6",
+          "ms": 395.86,
+          "exit": 0
+        },
+        {
+          "phase": "decompress-1",
+          "ms": 88.49,
+          "exit": 0
+        },
+        {
+          "phase": "decompress-2",
+          "ms": 107.78,
+          "exit": 0
+        },
+        {
+          "phase": "decompress-3",
+          "ms": 75.94,
+          "exit": 0
+        },
+        {
+          "phase": "decompress-4",
+          "ms": 83.42,
+          "exit": 0
+        }
+      ],
+      "decisions": [
+        {
+          "command": "make -j1",
+          "decision": "Skipped",
+          "classification": "Unknown",
+          "reasons": [
+            "admission policy disabled caching for this run"
+          ]
+        },
+        {
+          "command": "make test",
+          "decision": "Skipped",
+          "classification": "Unknown",
+          "reasons": [
+            "admission policy disabled caching for this run"
+          ]
+        },
+        {
+          "command": "./minigzip",
+          "decision": "Skipped",
+          "classification": "Unknown",
+          "reasons": [
+            "admission policy disabled caching for this run"
+          ]
+        },
+        {
+          "command": "./minigzip -d",
+          "decision": "Skipped",
+          "classification": "Unknown",
+          "reasons": [
+            "admission policy disabled caching for this run"
+          ]
+        }
+      ],
+      "speedup": 0.95,
+      "slowdown": 1.05
+    },
+    "always": {
+      "total_ms": 12027.03,
+      "phases": [
+        {
+          "phase": "configure",
+          "ms": 1800.77,
+          "exit": 0
+        },
+        {
+          "phase": "clean-build",
+          "ms": 96.4,
+          "exit": 0
+        },
+        {
+          "phase": "build",
+          "ms": 6987.81,
+          "exit": 0
+        },
+        {
+          "phase": "rebuild",
+          "ms": 121.89,
+          "exit": 0
+        },
+        {
+          "phase": "unrelated-edit",
+          "ms": 23.1,
+          "exit": 0
+        },
+        {
+          "phase": "relevant-edit",
+          "ms": 1011.08,
+          "exit": 0
+        },
+        {
+          "phase": "test",
+          "ms": 99.23,
+          "exit": 0
+        },
+        {
+          "phase": "generate-corpus",
+          "ms": 415.33,
+          "exit": 0
+        },
+        {
+          "phase": "compress-1",
+          "ms": 527.83,
+          "exit": 0
+        },
+        {
+          "phase": "compress-2",
+          "ms": 28.41,
+          "exit": 0
+        },
+        {
+          "phase": "compress-3",
+          "ms": 22.05,
+          "exit": 0
+        },
+        {
+          "phase": "compress-4",
+          "ms": 26.12,
+          "exit": 0
+        },
+        {
+          "phase": "compress-5",
+          "ms": 24.13,
+          "exit": 0
+        },
+        {
+          "phase": "compress-6",
+          "ms": 25.15,
+          "exit": 0
+        },
+        {
+          "phase": "decompress-1",
+          "ms": 202.16,
+          "exit": 0
+        },
+        {
+          "phase": "decompress-2",
+          "ms": 200.25,
+          "exit": 0
+        },
+        {
+          "phase": "decompress-3",
+          "ms": 213.35,
+          "exit": 0
+        },
+        {
+          "phase": "decompress-4",
+          "ms": 201.98,
+          "exit": 0
+        }
+      ],
+      "decisions": [
+        {
+          "command": "make -j1",
+          "decision": "Ineligible",
+          "classification": "Nondeterministic",
+          "reasons": [
+            "process read system clock: realtime",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ]
+        },
+        {
+          "command": "make test",
+          "decision": "Ineligible",
+          "classification": "Unknown",
+          "reasons": [
+            "unmodeled successful syscall 117: unmodeled syscall 117 args [0xffffffff, 0x3ec601f, 0xffffffff, 0x8, 0x7ffc6ee2ae50, 0x0]",
+            "unmodeled successful syscall 119: unmodeled syscall 119 args [0xffffffff, 0x3e9, 0xffffffff, 0x8, 0x7ffc6ee2ae50, 0x0]",
+            "failed fd operation on -1 is not modeled (errno 9)"
+          ]
+        },
+        {
+          "command": "./minigzip",
+          "decision": "Reused",
+          "classification": "Guarded",
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ]
+        },
+        {
+          "command": "./minigzip -d",
+          "decision": "Ineligible",
+          "classification": "Unknown",
+          "reasons": [
+            "unmodeled successful syscall 8: lseek on inherited descriptor 0 is not modelled",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ]
+        }
+      ],
+      "speedup": 0.55,
+      "slowdown": 1.82
+    },
+    "auto": {
+      "total_ms": 6150.66,
+      "phases": [
+        {
+          "phase": "configure",
+          "ms": 697.04,
+          "exit": 0
+        },
+        {
+          "phase": "clean-build",
+          "ms": 17.05,
+          "exit": 0
+        },
+        {
+          "phase": "build",
+          "ms": 3168.67,
+          "exit": 0
+        },
+        {
+          "phase": "rebuild",
+          "ms": 45.51,
+          "exit": 0
+        },
+        {
+          "phase": "unrelated-edit",
+          "ms": 15.94,
+          "exit": 0
+        },
+        {
+          "phase": "relevant-edit",
+          "ms": 250.19,
+          "exit": 0
+        },
+        {
+          "phase": "test",
+          "ms": 35.22,
+          "exit": 0
+        },
+        {
+          "phase": "generate-corpus",
+          "ms": 313.81,
+          "exit": 0
+        },
+        {
+          "phase": "compress-1",
+          "ms": 402.97,
+          "exit": 0
+        },
+        {
+          "phase": "compress-2",
+          "ms": 552.22,
+          "exit": 0
+        },
+        {
+          "phase": "compress-3",
+          "ms": 28.47,
+          "exit": 0
+        },
+        {
+          "phase": "compress-4",
+          "ms": 27.13,
+          "exit": 0
+        },
+        {
+          "phase": "compress-5",
+          "ms": 26.69,
+          "exit": 0
+        },
+        {
+          "phase": "compress-6",
+          "ms": 25.61,
+          "exit": 0
+        },
+        {
+          "phase": "decompress-1",
+          "ms": 123.34,
+          "exit": 0
+        },
+        {
+          "phase": "decompress-2",
+          "ms": 273.83,
+          "exit": 0
+        },
+        {
+          "phase": "decompress-3",
+          "ms": 73.08,
+          "exit": 0
+        },
+        {
+          "phase": "decompress-4",
+          "ms": 73.88,
+          "exit": 0
+        }
+      ],
+      "decisions": [
+        {
+          "command": "make -j1",
+          "decision": "Skipped",
+          "classification": "Unknown",
+          "reasons": [
+            "admission policy: the recorded classification is not eligible for reuse"
+          ]
+        },
+        {
+          "command": "make test",
+          "decision": "Ineligible",
+          "classification": "Unknown",
+          "reasons": [
+            "unmodeled successful syscall 117: unmodeled syscall 117 args [0xffffffff, 0x3ec601f, 0xffffffff, 0x8, 0x7ffca23659e0, 0x0]",
+            "unmodeled successful syscall 119: unmodeled syscall 119 args [0xffffffff, 0x3e9, 0xffffffff, 0x8, 0x7ffca23659e0, 0x0]",
+            "failed fd operation on -1 is not modeled (errno 9)"
+          ]
+        },
+        {
+          "command": "./minigzip",
+          "decision": "Reused",
+          "classification": "Guarded",
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ]
+        },
+        {
+          "command": "./minigzip -d",
+          "decision": "Skipped",
+          "classification": "Unknown",
+          "reasons": [
+            "admission policy: the recorded classification is not eligible for reuse"
+          ]
+        }
+      ],
+      "speedup": 1.07,
+      "slowdown": 0.93
+    }
+  }
+}

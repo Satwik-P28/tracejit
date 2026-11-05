@@ -1,0 +1,484 @@
+{
+  "generated_by": "benchmarks/realworld/direct_suite.py",
+  "tracejit_binary": "/workspace/chats/3ead97f7907244943d2638d7/target/release/tracejit",
+  "contract": null,
+  "admission": "always",
+  "workloads": 16,
+  "reused": 1,
+  "reused_names": [
+    "gzip"
+  ],
+  "traced_output_equivalent": 16,
+  "runs": 20,
+  "rows": [
+    {
+      "workload": "gzip",
+      "argv": [
+        "gzip",
+        "-9",
+        "-c",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": null,
+      "classification": "Guarded",
+      "eligible": true,
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs"
+      ],
+      "cold_decision": "Executed",
+      "second_decision": "Reused",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 88929,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 35.57,
+      "cold_ms": 52.0,
+      "traced_overhead_ms": 16.43,
+      "reused": true,
+      "timing": {
+        "direct_median_ms": 32.53,
+        "direct_p95_ms": 34.77,
+        "cached_median_ms": 7.11,
+        "cached_p95_ms": 8.95,
+        "cold_ms": 50.41,
+        "runs": 20,
+        "saved_ms": 25.42,
+        "speedup": 4.58,
+        "tracing_penalty_ms": 17.88,
+        "hits_to_repay": 0.7,
+        "final_decision": "Reused"
+      }
+    },
+    {
+      "workload": "bzip2",
+      "argv": [
+        "bzip2",
+        "-9",
+        "-c",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": null,
+      "classification": "Nondeterministic",
+      "eligible": false,
+      "reasons": [
+        "process read randomness via getrandom"
+      ],
+      "cold_decision": "Ineligible",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 57867,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 18.77,
+      "cold_ms": 40.2,
+      "traced_overhead_ms": 21.43,
+      "reused": false
+    },
+    {
+      "workload": "xz",
+      "argv": [
+        "xz",
+        "-9",
+        "-c",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": null,
+      "classification": "Nondeterministic",
+      "eligible": false,
+      "reasons": [
+        "process read randomness via getrandom",
+        "process read system information via sysinfo",
+        "process read system clock: monotonic"
+      ],
+      "cold_decision": "Ineligible",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 29372,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 74.17,
+      "cold_ms": 98.84,
+      "traced_overhead_ms": 24.66,
+      "reused": false
+    },
+    {
+      "workload": "tar",
+      "argv": [
+        "tar",
+        "-cf",
+        "bundle.tar",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": null,
+      "classification": "Nondeterministic",
+      "eligible": false,
+      "reasons": [
+        "process read randomness via getrandom",
+        "process read system clock: realtime",
+        "process wrote network: failed socket control (errno 2)"
+      ],
+      "cold_decision": "Ineligible",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 0,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 3.14,
+      "cold_ms": 26.45,
+      "traced_overhead_ms": 23.31,
+      "reused": false
+    },
+    {
+      "workload": "sed",
+      "argv": [
+        "sed",
+        "-e",
+        "s/alpha/ALPHA/g",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": null,
+      "classification": "Nondeterministic",
+      "eligible": false,
+      "reasons": [
+        "process read randomness via getrandom"
+      ],
+      "cold_decision": "Ineligible",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 270762,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 4.68,
+      "cold_ms": 55.35,
+      "traced_overhead_ms": 50.67,
+      "reused": false
+    },
+    {
+      "workload": "grep",
+      "argv": [
+        "grep",
+        "-c",
+        "alpha",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": null,
+      "classification": "Unknown",
+      "eligible": false,
+      "reasons": [
+        "process-relative procfs dependency: /proc/self/maps"
+      ],
+      "cold_decision": "Ineligible",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 5,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 1.77,
+      "cold_ms": 23.36,
+      "traced_overhead_ms": 21.59,
+      "reused": false
+    },
+    {
+      "workload": "sort",
+      "argv": [
+        "sort",
+        "-u",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": null,
+      "classification": "Nondeterministic",
+      "eligible": false,
+      "reasons": [
+        "process read randomness via getrandom",
+        "process read system information via sched_getaffinity",
+        "process read system information via prlimit64",
+        "process read system information via sysinfo"
+      ],
+      "cold_decision": "Ineligible",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 270762,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 6.48,
+      "cold_ms": 47.82,
+      "traced_overhead_ms": 41.34,
+      "reused": false
+    },
+    {
+      "workload": "tr",
+      "argv": [
+        "tr",
+        "a-z",
+        "A-Z"
+      ],
+      "stdin": "input.txt",
+      "contract": null,
+      "classification": "Nondeterministic",
+      "eligible": false,
+      "reasons": [
+        "process read randomness via getrandom"
+      ],
+      "cold_decision": "Ineligible",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 270762,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 1.63,
+      "cold_ms": 38.47,
+      "traced_overhead_ms": 36.84,
+      "reused": false
+    },
+    {
+      "workload": "base64",
+      "argv": [
+        "base64",
+        "-w0",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": null,
+      "classification": "Nondeterministic",
+      "eligible": false,
+      "reasons": [
+        "process read randomness via getrandom"
+      ],
+      "cold_decision": "Ineligible",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 361016,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 1.5,
+      "cold_ms": 45.83,
+      "traced_overhead_ms": 44.34,
+      "reused": false
+    },
+    {
+      "workload": "md5sum",
+      "argv": [
+        "md5sum",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": null,
+      "classification": "Nondeterministic",
+      "eligible": false,
+      "reasons": [
+        "process read randomness via getrandom"
+      ],
+      "cold_decision": "Ineligible",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 44,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 2.27,
+      "cold_ms": 20.47,
+      "traced_overhead_ms": 18.2,
+      "reused": false
+    },
+    {
+      "workload": "wc",
+      "argv": [
+        "wc",
+        "-c",
+        "input.txt"
+      ],
+      "stdin": null,
+      "contract": null,
+      "classification": "Nondeterministic",
+      "eligible": false,
+      "reasons": [
+        "process read randomness via getrandom"
+      ],
+      "cold_decision": "Ineligible",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 17,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 1.09,
+      "cold_ms": 14.69,
+      "traced_overhead_ms": 13.6,
+      "reused": false
+    },
+    {
+      "workload": "jq",
+      "argv": [
+        "jq",
+        "-c",
+        "map(select(.v > 5)) | length",
+        "input.json"
+      ],
+      "stdin": null,
+      "contract": null,
+      "classification": "Nondeterministic",
+      "eligible": false,
+      "reasons": [
+        "process read randomness via getrandom"
+      ],
+      "cold_decision": "Ineligible",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 5,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 13.19,
+      "cold_ms": 37.25,
+      "traced_overhead_ms": 24.07,
+      "reused": false
+    },
+    {
+      "workload": "python-json",
+      "argv": [
+        "python3",
+        "-c",
+        "import json,sys;d=json.load(open('input.json'));print(sum(x['v'] for x in d))"
+      ],
+      "stdin": null,
+      "contract": null,
+      "classification": "Nondeterministic",
+      "eligible": false,
+      "reasons": [
+        "process read process identity via getpid",
+        "process read randomness via getrandom",
+        "process read process identity via getppid",
+        "process read system clock: monotonic",
+        "process read process identity via gettid",
+        "process read system clock: realtime"
+      ],
+      "cold_decision": "Ineligible",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 6,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 25.55,
+      "cold_ms": 116.57,
+      "traced_overhead_ms": 91.02,
+      "reused": false
+    },
+    {
+      "workload": "gcc-compile",
+      "argv": [
+        "gcc",
+        "-O2",
+        "-c",
+        "hello.c",
+        "-o",
+        "hello.o"
+      ],
+      "stdin": null,
+      "contract": null,
+      "classification": "Unknown",
+      "eligible": false,
+      "reasons": [
+        "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffcf9e28180, 0x7ffcf9e28708, 0x7ffcf9e282d0, 0x0, 0x7f35f0bb9380]"
+      ],
+      "cold_decision": "Ineligible",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 0,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 51.67,
+      "cold_ms": 212.97,
+      "traced_overhead_ms": 161.3,
+      "reused": false
+    },
+    {
+      "workload": "assemble",
+      "argv": [
+        "as",
+        "hello.s",
+        "-o",
+        "hello.o"
+      ],
+      "stdin": null,
+      "contract": null,
+      "classification": "Unknown",
+      "eligible": false,
+      "reasons": [
+        "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffe7bb742b0, 0x7ffe7bb74830, 0x7ffe7bb74400, 0x0, 0x7f57b89cc380]"
+      ],
+      "cold_decision": "Ineligible",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 0,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 3.3,
+      "cold_ms": 22.95,
+      "traced_overhead_ms": 19.65,
+      "reused": false
+    },
+    {
+      "workload": "strip",
+      "argv": [
+        "strip",
+        "-o",
+        "stripped",
+        "hello.o"
+      ],
+      "stdin": null,
+      "contract": null,
+      "classification": "Nondeterministic",
+      "eligible": false,
+      "reasons": [
+        "process read randomness via getrandom",
+        "process read system information via prlimit64"
+      ],
+      "cold_decision": "Ineligible",
+      "second_decision": "Ineligible",
+      "direct_exit": 0,
+      "traced_exit": 0,
+      "direct_stdout_bytes": 0,
+      "traced_stdout_matches": true,
+      "traced_stderr_matches": true,
+      "second_stdout_matches": true,
+      "direct_ms": 2.29,
+      "cold_ms": 28.67,
+      "traced_overhead_ms": 26.38,
+      "reused": false
+    }
+  ]
+}

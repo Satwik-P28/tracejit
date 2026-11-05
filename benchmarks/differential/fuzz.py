@@ -67,6 +67,7 @@ def prepare(root: Path) -> None:
     (root / "input.txt").write_text("alpha\nbeta\ngamma\n" * 2000)
     (root / "other").mkdir()
     (root / "sub").mkdir()
+    (root / "sub" / "input.txt").write_text("alpha from sub\n" * 100)
     (root / "a").mkdir()
     (root / "b").mkdir()
     (root / "a" / "input.txt").write_text("alpha from a\n" * 100)
@@ -87,6 +88,7 @@ CASES = [
     ("gzip", ["gzip", "-9", "-c", "input.txt"], b""),
     ("base64", ["base64", "input.txt"], b""),
     ("tr", ["tr", "a-z", "A-Z"], b"alpha beta\n"),
+    ("sed-sub", ["sed", "-e", "s/alpha/ALPHA/g", "sub/input.txt"], b""),
 ]
 
 
@@ -114,6 +116,19 @@ def executable_replacement(root: Path, rng: random.Random) -> None:
 
 def stdin_offset(root: Path, rng: random.Random) -> bytes:
     return b"x" * 3
+
+
+def touch_metadata(root: Path, rng: random.Random) -> None:
+    os.utime(root / "input.txt", None)
+
+
+def directory_replacement(root: Path, rng: random.Random) -> None:
+    # The command reads `sub/input.txt`; replace the directory the relative path resolves through.
+    shutil.rmtree(root / "sub2", ignore_errors=True)
+    (root / "sub2").mkdir()
+    (root / "sub2" / "input.txt").write_text("alpha from sub2\n" * 80)
+    (root / "sub").rename(root / "sub-old")
+    (root / "sub2").rename(root / "sub")
 
 
 def concurrent_writer(root: Path, rng: random.Random) -> None:
@@ -178,13 +193,15 @@ def main() -> int:
 
     # Mutations: the second invocation must return what a native run observes now, or refuse.
     for mutation in (replace_content, repoint_symlink, permissions, executable_replacement,
-                     stdin_offset, concurrent_writer):
+                     stdin_offset, concurrent_writer, touch_metadata, directory_replacement):
         for name, argv, stdin_bytes in CASES:
             local_argv = list(argv)
             if mutation is executable_replacement:
                 local_argv = list(argv)
                 continue
             if mutation is stdin_offset and name != "tr":
+                continue
+            if mutation is directory_replacement and name != "sed-sub":
                 continue
             current_root = root
             cache = root / f"cache-{mutation.__name__}-{name}"
@@ -207,6 +224,7 @@ def main() -> int:
                 "decision": decision,
                 "matches_native": actual == expected["stdout"],
                 "status": "ok" if actual == expected["stdout"] else "INCORRECT_HIT",
+                "repro": f"bash: run --contract {CONTRACT} -- {' '.join(local_argv)}",
             }
             if decision == "Reused" and actual != expected["stdout"]:
                 results["incorrect_hits"] += 1
