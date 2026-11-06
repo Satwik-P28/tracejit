@@ -66,8 +66,12 @@ struct EnumerationState {
 
 /// Tracks the shared open file description an inherited regular-file stdin names.
 ///
-/// `start_offset` comes from `/proc/<pid>/fdinfo/0` before the program runs, and `end_offset`
-/// follows the bytes it actually consumed. Reuse reproduces the same final position.
+/// `start_offset` comes from `/proc/<pid>/fdinfo/0` before the program runs. `end_offset` is the
+/// model's current position for that description: reads advance it by the bytes returned, and a
+/// successful `lseek` with `SEEK_SET`/`SEEK_CUR`/`SEEK_END` sets it to the syscall's result.
+/// `bytes_read` counts bytes the program actually observed; `pread` contributes to it without
+/// moving the description. Reuse reproduces the final position, not the intervening history,
+/// because only the final position is observable to the caller after the process exits.
 #[derive(Clone)]
 struct InheritedStreamState {
     path: PathBuf,
@@ -178,6 +182,14 @@ enum PendingSyscall {
         fd: i32,
         /// Requested byte count, or `None` for a vectored call whose iovec was not inspected.
         count: Option<u64>,
+        /// `pread64` reads at an explicit offset and does not move the shared description.
+        positioned: bool,
+    },
+    /// A seek on the inherited regular-file stdin description. Only `SEEK_SET`, `SEEK_CUR` and
+    /// `SEEK_END` on fd 0 itself reach this state; the dispatch refuses aliases and
+    /// `SEEK_DATA`/`SEEK_HOLE`.
+    Seek {
+        fd: i32,
     },
     Write {
         fd: i32,
@@ -1089,15 +1101,23 @@ fn decode_entry(
         libc::SYS_fcntl => PendingSyscall::None,
         libc::SYS_close => PendingSyscall::Close { fd: args[0] as i32 },
         // x86-64 `read(fd, buffer, count)` and `pread64(fd, buffer, count, offset)` carry the
-        // length in the third argument; the second is the buffer address.
-        libc::SYS_read | libc::SYS_pread64 => PendingSyscall::Read {
+        // length in the third argument; the second is the buffer address. They differ in the
+        // effect on the shared open file description, which the inherited-stdin model tracks.
+        libc::SYS_read => PendingSyscall::Read {
             fd: args[0] as i32,
             count: Some(args[2]),
+            positioned: false,
+        },
+        libc::SYS_pread64 => PendingSyscall::Read {
+            fd: args[0] as i32,
+            count: Some(args[2]),
+            positioned: true,
         },
         libc::SYS_readv => PendingSyscall::Read {
             fd: args[0] as i32,
             // The iovec is not inspected, so the requested length is unknown.
             count: None,
+            positioned: false,
         },
         libc::SYS_write | libc::SYS_pwrite64 => PendingSyscall::Write {
             fd: args[0] as i32,
@@ -1265,14 +1285,20 @@ fn decode_entry(
                 detail: format!("TCGETS on unclassified fd {}", args[0]),
             }),
         libc::SYS_ioctl if args[0] == 1 || args[0] == 2 => PendingSyscall::None,
-        // A seek on a directory or on the inherited stdin description changes which bytes a
-        // later read observes. Neither stream model tracks a mid-stream seek, so it is refused
-        // instead of being treated as process-internal.
+        // A directory seek changes which entries a later `getdents64` observes, and no directory
+        // stream model tracks a mid-stream seek, so it stays refused.
         libc::SYS_lseek => match state.fds.get(&(args[0] as i32)) {
             Some(FdState::File(path)) if path.is_dir() => PendingSyscall::Unknown {
                 number,
                 detail: format!(
                     "lseek on directory descriptor {} is not modelled",
+                    args[0]
+                ),
+            },
+            Some(FdState::InheritedFile(path)) if path.is_dir() => PendingSyscall::Unknown {
+                number,
+                detail: format!(
+                    "lseek on inherited directory descriptor {} is not modelled",
                     args[0]
                 ),
             },
@@ -1282,12 +1308,28 @@ fn decode_entry(
                     .as_ref()
                     .is_some_and(|stream| stream.path == *path) =>
             {
-                PendingSyscall::Unknown {
-                    number,
-                    detail: format!(
-                        "lseek on inherited descriptor {} is not modelled",
-                        args[0]
-                    ),
+                let fd = args[0] as i32;
+                let whence = args[2] as i32;
+                // The caller-visible description is fd 0. A duplicate moves the same offset, but
+                // the model tracks one position per stream, so an alias is refused rather than
+                // guessed. `SEEK_DATA`/`SEEK_HOLE` answer about allocation layout, which the
+                // content hash does not capture, so they are refused too.
+                if fd != 0 {
+                    PendingSyscall::Unknown {
+                        number,
+                        detail: format!(
+                            "lseek on inherited descriptor {fd}, an alias of stdin, is not modelled"
+                        ),
+                    }
+                } else if !matches!(whence, libc::SEEK_SET | libc::SEEK_CUR | libc::SEEK_END) {
+                    PendingSyscall::Unknown {
+                        number,
+                        detail: format!(
+                            "lseek whence {whence} on inherited descriptor 0 is not modelled"
+                        ),
+                    }
+                } else {
+                    PendingSyscall::Seek { fd }
                 }
             }
             // Seeks on every other descriptor keep the pre-existing treatment: they are
@@ -1959,7 +2001,11 @@ fn complete_syscall(
                 }
             }
         }
-        PendingSyscall::Read { fd, count } => match state.fds.get(&fd).cloned() {
+        PendingSyscall::Read {
+            fd,
+            count,
+            positioned,
+        } => match state.fds.get(&fd).cloned() {
             Some(FdState::Network) => collector.push(
                 pid,
                 Effect::Read(ReadEffect::Network(NetworkRead {
@@ -1994,47 +2040,15 @@ fn complete_syscall(
                         .is_some_and(|stream| stream.path == path) =>
             {
                 let consumed = result as u64;
-                let (start_offset, end_offset, bytes_read, index, hash, expected) = {
-                    let stream = state.stdin_stream.as_mut().expect("checked above");
+                if let Some(stream) = state.stdin_stream.as_mut() {
                     stream.bytes_read = stream.bytes_read.saturating_add(consumed);
-                    stream.end_offset = stream.start_offset.saturating_add(stream.bytes_read);
-                    (
-                        stream.start_offset,
-                        stream.end_offset,
-                        stream.bytes_read,
-                        stream.effect_index,
-                        stream.hash,
-                        stream.fingerprint.clone(),
-                    )
-                };
-                match index {
-                    Some(index) => {
-                        if let Some(EffectRecord {
-                            effect: Effect::Read(ReadEffect::InheritedStream(read)),
-                            ..
-                        }) = collector.effects.get_mut(index)
-                        {
-                            read.end_offset = end_offset;
-                            read.bytes_read = bytes_read;
-                        }
-                    }
-                    None => {
-                        collector.push(
-                            pid,
-                            Effect::Read(ReadEffect::InheritedStream(InheritedStreamRead {
-                                path: path.clone(),
-                                hash: Some(hash),
-                                fingerprint: Some(expected),
-                                start_offset,
-                                end_offset,
-                                bytes_read,
-                            })),
-                        );
-                        if let Some(stream) = state.stdin_stream.as_mut() {
-                            stream.effect_index = collector.effects.len().checked_sub(1);
-                        }
+                    // `pread` reads at an explicit offset and leaves the shared description
+                    // where it was; only an ordinary read advances the model's position.
+                    if !positioned {
+                        stream.end_offset = stream.end_offset.saturating_add(consumed);
                     }
                 }
+                record_inherited_stream_effect(state, collector, pid, path.clone());
             }
             Some(FdState::InheritedFile(path)) => collector.push(
                 pid,
@@ -2080,6 +2094,24 @@ fn complete_syscall(
                 }
             }
         },
+        // A successful seek moves the shared open file description. The final position is the
+        // caller-visible effect; reproducing it is what makes a cache hit equivalent to running
+        // the program. The bytes the program would read after the seek depend on the same guarded
+        // content and initial position, so cached stdout remains valid.
+        PendingSyscall::Seek { fd } => {
+            if fd == 0 && result >= 0 {
+                if let Some(stream) = state.stdin_stream.as_mut() {
+                    stream.end_offset = result as u64;
+                }
+                let path = state
+                    .stdin_stream
+                    .as_ref()
+                    .map(|stream| stream.path.clone());
+                if let Some(path) = path {
+                    record_inherited_stream_effect(state, collector, pid, path);
+                }
+            }
+        }
         PendingSyscall::Write { fd, count } => match state.fds.get(&fd) {
             Some(FdState::File(path)) => collector.push(
                 pid,
@@ -2222,6 +2254,57 @@ fn complete_syscall(
             remove_mapping_range(&mut state.file_mappings, address, old_length);
         }
         PendingSyscall::None => {}
+    }
+}
+
+/// Writes the current offset contract into the execution's single inherited-stream effect.
+///
+/// One effect per stream is necessary rather than one per read: the effect layer deduplicates by
+/// path while keeping the first record, so a per-read record would replay the first read's end
+/// position instead of the final one. `bytes_read` is diagnostic; the guard uses the start and
+/// final positions plus the content hash.
+fn record_inherited_stream_effect(
+    state: &mut ProcessState,
+    collector: &mut Collector,
+    pid: Pid,
+    path: PathBuf,
+) {
+    let Some(stream) = state.stdin_stream.as_mut() else {
+        return;
+    };
+    let start_offset = stream.start_offset;
+    let end_offset = stream.end_offset;
+    let bytes_read = stream.bytes_read;
+    let index = stream.effect_index;
+    let hash = stream.hash;
+    let fingerprint = stream.fingerprint.clone();
+    match index {
+        Some(index) => {
+            if let Some(EffectRecord {
+                effect: Effect::Read(ReadEffect::InheritedStream(read)),
+                ..
+            }) = collector.effects.get_mut(index)
+            {
+                read.end_offset = end_offset;
+                read.bytes_read = bytes_read;
+            }
+        }
+        None => {
+            collector.push(
+                pid,
+                Effect::Read(ReadEffect::InheritedStream(InheritedStreamRead {
+                    path,
+                    hash: Some(hash),
+                    fingerprint: Some(fingerprint),
+                    start_offset,
+                    end_offset,
+                    bytes_read,
+                })),
+            );
+            if let Some(stream) = state.stdin_stream.as_mut() {
+                stream.effect_index = collector.effects.len().checked_sub(1);
+            }
+        }
     }
 }
 
@@ -2393,6 +2476,10 @@ fn complete_failed_syscall(
                 ),
             }),
         ),
+        // A failed seek leaves the description exactly where it was. The program observed the
+        // errno, and that observation is already reflected in the cached output; there is no
+        // caller-visible offset change to reproduce.
+        PendingSyscall::Seek { .. } => {}
         PendingSyscall::Read { fd, .. } | PendingSyscall::Write { fd, .. } => collector.push(
             pid,
             Effect::Unknown(UnknownEffect {
@@ -3255,6 +3342,7 @@ fn pending_description(pending: &PendingSyscall) -> String {
         PendingSyscall::Network { .. } => "network operation".into(),
         PendingSyscall::Unknown { number, detail } => format!("syscall {number}: {detail}"),
         PendingSyscall::Read { fd, .. } => format!("read from fd {fd}"),
+        PendingSyscall::Seek { fd } => format!("seek on fd {fd}"),
         PendingSyscall::Write { fd, .. } => format!("write to fd {fd}"),
         PendingSyscall::Pipe { .. } => "pipe creation".into(),
         PendingSyscall::Signal { signal, target } => {

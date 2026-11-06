@@ -2,6 +2,7 @@
 
 use serde_json::Value;
 use std::fs;
+use std::io::{Seek, SeekFrom};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
 
@@ -1074,6 +1075,26 @@ fn a_hard_linked_output_retraces_instead_of_aborting() {
     );
 }
 
+/// `execve` returns `ETXTBSY` when any process still holds the target open for writing. This test
+/// harness runs tests in parallel, so a sibling's `fork` can briefly inherit this test's freshly
+/// written script descriptor before its own `exec`. Reproduced deterministically outside TraceJIT
+/// with `bash -c 'exec 9>prog; prog'`, which prints "Text file busy". The failure is in the direct
+/// run, before the product is involved, so retry the harness's own bounded exec race.
+fn run_when_executable_ready(build: impl Fn() -> Command) -> Output {
+    for attempt in 0..40 {
+        match build().output() {
+            Ok(output) => return output,
+            Err(error)
+                if error.kind() == std::io::ErrorKind::ExecutableFileBusy && attempt < 39 =>
+            {
+                std::thread::sleep(std::time::Duration::from_millis(5));
+            }
+            Err(error) => panic!("executable could not be started: {error}"),
+        }
+    }
+    unreachable!("retry loop returns or panics")
+}
+
 #[test]
 fn a_traced_script_sees_the_callers_script_path() {
     // The kernel passes the execve path to a script's interpreter, so exec'ing the canonical
@@ -1085,18 +1106,21 @@ fn a_traced_script_sees_the_callers_script_path() {
     let mut permissions = fs::metadata(&script).unwrap().permissions();
     std::os::unix::fs::PermissionsExt::set_mode(&mut permissions, 0o700);
     fs::set_permissions(&script, permissions).unwrap();
-    let direct = Command::new("./echo-zero.sh")
-        .current_dir(temporary.path())
-        .output()
-        .unwrap();
+    let direct = run_when_executable_ready(|| {
+        let mut command = Command::new("./echo-zero.sh");
+        command.current_dir(temporary.path());
+        command
+    });
     assert!(direct.status.success(), "the direct run itself failed");
-    let traced = Command::new(tracejit())
-        .args(["run", "--", "./echo-zero.sh"])
-        .current_dir(temporary.path())
-        .env("TRACEJIT_CACHE_DIR", temporary.path().join("cache"))
-        .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0")
-        .output()
-        .unwrap();
+    let traced = run_when_executable_ready(|| {
+        let mut command = Command::new(tracejit());
+        command
+            .args(["run", "--", "./echo-zero.sh"])
+            .current_dir(temporary.path())
+            .env("TRACEJIT_CACHE_DIR", temporary.path().join("cache"))
+            .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0");
+        command
+    });
     assert!(
         traced.status.success(),
         "traced script run failed: {}",
@@ -1365,4 +1389,197 @@ fn auto_admission_skips_short_commands_and_caches_expensive_ones() {
     assert_eq!(reused["cache_decision"], "Reused", "{reused}");
     assert_eq!(stdout_bytes_of(&reused), stdout_bytes_of(&traced));
     eprintln!("RESULT auto-admission PASS");
+}
+
+fn compile_seek_fixture(directory: &Path) -> PathBuf {
+    let source =
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/fixtures/stdin_seek.c");
+    let binary = directory.join("stdin-seek");
+    let status = Command::new("cc")
+        .args(["-O2", "-Wall", "-Wextra", "-Werror"])
+        .arg(source)
+        .arg("-o")
+        .arg(&binary)
+        .status()
+        .expect("C compiler must be available");
+    assert!(status.success(), "stdin seek fixture compilation failed");
+    binary
+}
+
+/// Inherited `stdin` is a shared open file description, not a private cursor: a seek changes a
+/// caller-visible position, `pread` does not, and an alias is refused rather than given a second
+/// position. Each case checks the bytes, the decision and the final position of the caller's file.
+#[test]
+fn inherited_stdin_seek_model_reproduces_offsets_and_refuses_unsound_cases() {
+    let temporary = tempfile::tempdir().unwrap();
+    let binary = compile_seek_fixture(temporary.path());
+    let input = temporary.path().join("input.txt");
+    fs::write(&input, b"0123456789abcdef").unwrap();
+
+    let direct = |mode: &str, start: u64| -> (Vec<u8>, u64) {
+        let mut stdin = fs::File::open(&input).unwrap();
+        if start != 0 {
+            stdin.seek(SeekFrom::Start(start)).unwrap();
+        }
+        let duplicate = stdin.try_clone().unwrap();
+        let output = Command::new(&binary)
+            .arg(mode)
+            .stdin(std::process::Stdio::from(duplicate))
+            .output()
+            .unwrap();
+        assert!(output.status.success(), "direct {mode} failed");
+        (output.stdout, stdin.stream_position().unwrap())
+    };
+    let traced = |cache: &Path, mode: &str, start: u64| -> (Value, u64) {
+        let mut stdin = fs::File::open(&input).unwrap();
+        if start != 0 {
+            stdin.seek(SeekFrom::Start(start)).unwrap();
+        }
+        let duplicate = stdin.try_clone().unwrap();
+        let output = Command::new(tracejit())
+            .args([
+                "run",
+                "--json",
+                "--contract",
+                "allocator-entropy-v1",
+                "--",
+                binary.to_str().unwrap(),
+                mode,
+            ])
+            .env("TRACEJIT_CACHE_DIR", cache)
+            .stdin(std::process::Stdio::from(duplicate))
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "traced {mode} failed: {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        let report: Value = serde_json::from_slice(&output.stdout).unwrap();
+        (report, stdin.stream_position().unwrap())
+    };
+
+    // Seek after read, then read again: final position is 10, not the 14 bytes observed.
+    let (expected, expected_position) = direct("read-seek-read", 0);
+    assert_eq!(expected_position, 10);
+    let cache = temporary.path().join("cache-seek");
+    let (first, position) = traced(&cache, "read-seek-read", 0);
+    assert_eq!(
+        (
+            first["classification"].clone(),
+            first["cache_decision"].clone()
+        ),
+        ("Guarded".into(), "Executed".into()),
+        "{first}"
+    );
+    assert_eq!(stdout_bytes_of(&first), expected);
+    assert_eq!(
+        position, expected_position,
+        "first run must leave the caller's offset at the final position"
+    );
+    let (second, position) = traced(&cache, "read-seek-read", 0);
+    assert_eq!(second["cache_decision"], "Reused", "{second}");
+    assert_eq!(stdout_bytes_of(&second), expected);
+    assert_eq!(
+        position, expected_position,
+        "reuse must reproduce the seek's final offset"
+    );
+
+    // A pure `SEEK_CUR` offset query is the zlib seekability probe; it must not move the offset.
+    let (probe_expected, probe_position) = direct("probe", 0);
+    let probe_cache = temporary.path().join("cache-probe");
+    let (first, position) = traced(&probe_cache, "probe", 0);
+    assert_eq!(first["cache_decision"], "Executed", "{first}");
+    assert_eq!(stdout_bytes_of(&first), probe_expected);
+    assert_eq!(position, probe_position);
+    let (second, position) = traced(&probe_cache, "probe", 0);
+    assert_eq!(second["cache_decision"], "Reused", "{second}");
+    assert_eq!(stdout_bytes_of(&second), probe_expected);
+    assert_eq!(position, probe_position);
+
+    // A relative end seek depends on the guarded file size and must be reproduced.
+    let (end_expected, end_position) = direct("end-relative", 0);
+    let end_cache = temporary.path().join("cache-end");
+    assert_eq!(
+        traced(&end_cache, "end-relative", 0).0["cache_decision"],
+        "Executed"
+    );
+    let (end_second, end_position_after) = traced(&end_cache, "end-relative", 0);
+    assert_eq!(end_second["cache_decision"], "Reused", "{end_second}");
+    assert_eq!(stdout_bytes_of(&end_second), end_expected);
+    assert_eq!(end_position_after, end_position);
+
+    // `pread` observes bytes without advancing the description; the following read starts at 0.
+    let (pread_expected, pread_position) = direct("pread", 0);
+    assert_eq!(pread_position, 4);
+    let pread_cache = temporary.path().join("cache-pread");
+    let (first, position) = traced(&pread_cache, "pread", 0);
+    assert_eq!(stdout_bytes_of(&first), pread_expected);
+    assert_eq!(
+        position, pread_position,
+        "pread must not advance the shared offset"
+    );
+    let (second, position) = traced(&pread_cache, "pread", 0);
+    assert_eq!(second["cache_decision"], "Reused", "{second}");
+    assert_eq!(stdout_bytes_of(&second), pread_expected);
+    assert_eq!(
+        position, pread_position,
+        "reuse must not add pread's bytes to the offset"
+    );
+
+    // A failed seek has no caller-visible offset effect, so it does not have to be replayed.
+    let (failed_expected, failed_position) = direct("failed-seek", 0);
+    let failed_cache = temporary.path().join("cache-failed");
+    assert_eq!(
+        traced(&failed_cache, "failed-seek", 0).0["cache_decision"],
+        "Executed"
+    );
+    let (failed_second, position) = traced(&failed_cache, "failed-seek", 0);
+    assert_eq!(failed_second["cache_decision"], "Reused", "{failed_second}");
+    assert_eq!(stdout_bytes_of(&failed_second), failed_expected);
+    assert_eq!(position, failed_position);
+
+    // An alias moves the same description, but the model tracks one position per stream.
+    let alias_cache = temporary.path().join("cache-alias");
+    let (first, _) = traced(&alias_cache, "alias", 0);
+    assert_ne!(first["classification"], "Guarded", "{first}");
+    let (second, _) = traced(&alias_cache, "alias", 0);
+    assert_ne!(second["cache_decision"], "Reused", "{second}");
+    assert!(
+        second["reasons"].to_string().contains("alias of stdin"),
+        "{second}"
+    );
+
+    // Allocation-layout queries are not implied by content.
+    let data_cache = temporary.path().join("cache-data");
+    let (first, _) = traced(&data_cache, "data", 0);
+    assert_ne!(first["classification"], "Guarded", "{first}");
+    let (second, _) = traced(&data_cache, "data", 0);
+    assert_ne!(second["cache_decision"], "Reused", "{second}");
+    assert!(
+        second["reasons"].to_string().contains("whence 3"),
+        "{second}"
+    );
+
+    // A different initial position must not reuse a record that started at zero.
+    let offset_cache = temporary.path().join("cache-offset");
+    assert_eq!(
+        traced(&offset_cache, "read-seek-read", 0).0["cache_decision"],
+        "Executed"
+    );
+    let (shifted_expected, shifted_position) = direct("read-seek-read", 2);
+    let (shifted, position) = traced(&offset_cache, "read-seek-read", 2);
+    assert_ne!(shifted["cache_decision"], "Reused", "{shifted}");
+    assert_eq!(stdout_bytes_of(&shifted), shifted_expected);
+    assert_eq!(position, shifted_position);
+
+    // The content hash still invalidates a seek-using command.
+    fs::write(&input, b"ABCDEFGHIJKLMNOP").unwrap();
+    let (changed_expected, changed_position) = direct("read-seek-read", 0);
+    let (changed, position) = traced(&offset_cache, "read-seek-read", 0);
+    assert_ne!(changed["cache_decision"], "Reused", "{changed}");
+    assert_eq!(stdout_bytes_of(&changed), changed_expected);
+    assert_eq!(position, changed_position);
+
+    eprintln!("RESULT inherited-stdin-seek PASS");
 }

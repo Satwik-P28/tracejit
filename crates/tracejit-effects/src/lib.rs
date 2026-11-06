@@ -537,6 +537,11 @@ pub struct NamespaceIdentity {
 /// open file description at a different position than a direct execution, which the caller can
 /// observe afterwards. Reuse therefore requires the recorded start offset and reproduces the
 /// recorded end offset.
+///
+/// `end_offset` is the final position, not necessarily the sum of the bytes read: a successful
+/// `lseek` with `SEEK_SET`, `SEEK_CUR` or `SEEK_END` repositions the description, and `pread`
+/// leaves it unchanged. Only the final position is caller-visible after the process exits, so the
+/// model records that rather than the seek history.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct InheritedStreamRead {
     pub path: PathBuf,
