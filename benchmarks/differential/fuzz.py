@@ -89,6 +89,12 @@ CASES = [
     ("base64", ["base64", "input.txt"], b""),
     ("tr", ["tr", "a-z", "A-Z"], b"alpha beta\n"),
     ("sed-sub", ["sed", "-e", "s/alpha/ALPHA/g", "sub/input.txt"], b""),
+    ("cat", ["cat", "input.txt"], b""),
+    ("head", ["head", "-c", "1000", "input.txt"], b""),
+    ("cut", ["cut", "-d", " ", "-f1", "input.txt"], b""),
+    ("sed-range", ["sed", "-n", "1,5p", "input.txt"], b""),
+    ("sort", ["sort", "-u", "input.txt"], b""),
+    ("tr-file", ["tr", "a-z", "A-Z", "input.txt"], b""),
 ]
 
 
@@ -131,6 +137,19 @@ def directory_replacement(root: Path, rng: random.Random) -> None:
     (root / "sub2").rename(root / "sub")
 
 
+def truncate_input(root: Path, rng: random.Random) -> None:
+    (root / "input.txt").write_text("truncated\n")
+
+
+def append_input(root: Path, rng: random.Random) -> None:
+    with open(root / "input.txt", "a") as handle:
+        handle.write(f"appended {rng.random()}\n")
+
+
+def rename_input(root: Path, rng: random.Random) -> None:
+    os.rename(root / "input.txt", root / "input-moved.txt")
+
+
 def concurrent_writer(root: Path, rng: random.Random) -> None:
     def writer():
         time.sleep(0.005)
@@ -152,7 +171,7 @@ def corrupt_object(cache: Path, rng: random.Random) -> str | None:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed", type=int, default=7)
-    parser.add_argument("--output", default="benchmarks/results/phase2h/differential")
+    parser.add_argument("--output", default="benchmarks/results/phase2j/differential")
     args = parser.parse_args()
     rng = random.Random(args.seed)
     output_dir = REPO / args.output
@@ -193,7 +212,8 @@ def main() -> int:
 
     # Mutations: the second invocation must return what a native run observes now, or refuse.
     for mutation in (replace_content, repoint_symlink, permissions, executable_replacement,
-                     stdin_offset, concurrent_writer, touch_metadata, directory_replacement):
+                     stdin_offset, concurrent_writer, touch_metadata, directory_replacement,
+                     truncate_input, append_input, rename_input):
         for name, argv, stdin_bytes in CASES:
             local_argv = list(argv)
             if mutation is executable_replacement:

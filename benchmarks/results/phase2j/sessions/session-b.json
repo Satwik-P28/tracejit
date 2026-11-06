@@ -1,0 +1,1448 @@
+{
+  "session": "b",
+  "contract": "allocator-entropy-v1",
+  "repos": {
+    "libpng": {
+      "name": "libpng v1.6.43",
+      "commit": "ed217e3e601d8e462f7fd1e04bed43ac42212429",
+      "policies": {
+        "direct": {
+          "total_ms": 9817.18,
+          "phases": [
+            {
+              "phase": "configure",
+              "ms": 3327.66,
+              "exit": 0
+            },
+            {
+              "phase": "build",
+              "ms": 4974.8,
+              "exit": 0
+            },
+            {
+              "phase": "rebuild",
+              "ms": 39.23,
+              "exit": 0
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 53.8,
+              "exit": 0
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 1393.36,
+              "exit": 0
+            },
+            {
+              "phase": "pngtest-1",
+              "ms": 6.65,
+              "exit": 0
+            },
+            {
+              "phase": "pngtest-2",
+              "ms": 7.87,
+              "exit": 0
+            },
+            {
+              "phase": "pngtest-3",
+              "ms": 6.31,
+              "exit": 0
+            },
+            {
+              "phase": "pngtest-4",
+              "ms": 7.51,
+              "exit": 0
+            }
+          ],
+          "repeated": {
+            "count": 4,
+            "p50_ms": 7.08,
+            "p95_ms": 7.87
+          },
+          "cache_bytes": 0,
+          "peak_rss_kb": null,
+          "decisions": [],
+          "speedup": 1.0,
+          "slowdown": 1.0
+        },
+        "never": {
+          "total_ms": 12087.42,
+          "phases": [
+            {
+              "phase": "configure",
+              "ms": 4993.23,
+              "exit": 0
+            },
+            {
+              "phase": "build",
+              "ms": 5608.31,
+              "exit": 0
+            },
+            {
+              "phase": "rebuild",
+              "ms": 50.99,
+              "exit": 0
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 59.25,
+              "exit": 0
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 1312.63,
+              "exit": 0
+            },
+            {
+              "phase": "pngtest-1",
+              "ms": 15.96,
+              "exit": 0
+            },
+            {
+              "phase": "pngtest-2",
+              "ms": 16.13,
+              "exit": 0
+            },
+            {
+              "phase": "pngtest-3",
+              "ms": 16.0,
+              "exit": 0
+            },
+            {
+              "phase": "pngtest-4",
+              "ms": 14.93,
+              "exit": 0
+            }
+          ],
+          "repeated": {
+            "count": 4,
+            "p50_ms": 15.98,
+            "p95_ms": 16.13
+          },
+          "cache_bytes": 20498,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "./pngtest pngtest.png",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy disabled caching for this run"
+              ]
+            }
+          ],
+          "speedup": 0.812,
+          "slowdown": 1.231
+        },
+        "auto-v1": {
+          "total_ms": 10419.93,
+          "phases": [
+            {
+              "phase": "configure",
+              "ms": 3704.65,
+              "exit": 0
+            },
+            {
+              "phase": "build",
+              "ms": 5109.62,
+              "exit": 0
+            },
+            {
+              "phase": "rebuild",
+              "ms": 202.72,
+              "exit": 0
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 58.79,
+              "exit": 0
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 1295.95,
+              "exit": 0
+            },
+            {
+              "phase": "pngtest-1",
+              "ms": 12.05,
+              "exit": 0
+            },
+            {
+              "phase": "pngtest-2",
+              "ms": 12.02,
+              "exit": 0
+            },
+            {
+              "phase": "pngtest-3",
+              "ms": 11.83,
+              "exit": 0
+            },
+            {
+              "phase": "pngtest-4",
+              "ms": 12.3,
+              "exit": 0
+            }
+          ],
+          "repeated": {
+            "count": 4,
+            "p50_ms": 12.04,
+            "p95_ms": 12.3
+          },
+          "cache_bytes": 2520148,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "./pngtest pngtest.png",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy estimates that a trace cannot repay itself for this identity"
+              ]
+            }
+          ],
+          "speedup": 0.942,
+          "slowdown": 1.061
+        },
+        "always": {
+          "total_ms": 18646.95,
+          "phases": [
+            {
+              "phase": "configure",
+              "ms": 17850.43,
+              "exit": 0
+            },
+            {
+              "phase": "build",
+              "ms": 452.94,
+              "exit": 1,
+              "stderr": "tracejit: ptrace failed: missing process state for 194436\n"
+            },
+            {
+              "phase": "rebuild",
+              "ms": 119.14,
+              "exit": 1,
+              "stderr": "tracejit: ptrace failed: missing process state for 194451\n"
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 118.03,
+              "exit": 1,
+              "stderr": "tracejit: ptrace failed: missing process state for 194466\n"
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 99.11,
+              "exit": 1,
+              "stderr": "tracejit: ptrace failed: missing process state for 194477\n"
+            },
+            {
+              "phase": "pngtest-1",
+              "ms": 1.68,
+              "exit": 1,
+              "stderr": "tracejit: target binary not found: \"./pngtest\"\n"
+            },
+            {
+              "phase": "pngtest-2",
+              "ms": 1.67,
+              "exit": 1,
+              "stderr": "tracejit: target binary not found: \"./pngtest\"\n"
+            },
+            {
+              "phase": "pngtest-3",
+              "ms": 2.25,
+              "exit": 1,
+              "stderr": "tracejit: target binary not found: \"./pngtest\"\n"
+            },
+            {
+              "phase": "pngtest-4",
+              "ms": 1.7,
+              "exit": 1,
+              "stderr": "tracejit: target binary not found: \"./pngtest\"\n"
+            }
+          ],
+          "repeated": {
+            "count": 4,
+            "p50_ms": 1.69,
+            "p95_ms": 2.25
+          },
+          "cache_bytes": 44645559,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "./pngtest pngtest.png",
+              "decision": null,
+              "classification": null,
+              "reasons": []
+            }
+          ],
+          "speedup": 0.526,
+          "slowdown": 1.899
+        },
+        "auto": {
+          "total_ms": 10364.77,
+          "phases": [
+            {
+              "phase": "configure",
+              "ms": 3777.02,
+              "exit": 0
+            },
+            {
+              "phase": "build",
+              "ms": 4916.98,
+              "exit": 0
+            },
+            {
+              "phase": "rebuild",
+              "ms": 188.42,
+              "exit": 0
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 58.58,
+              "exit": 0
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 1367.13,
+              "exit": 0
+            },
+            {
+              "phase": "pngtest-1",
+              "ms": 16.34,
+              "exit": 0
+            },
+            {
+              "phase": "pngtest-2",
+              "ms": 14.27,
+              "exit": 0
+            },
+            {
+              "phase": "pngtest-3",
+              "ms": 13.21,
+              "exit": 0
+            },
+            {
+              "phase": "pngtest-4",
+              "ms": 12.83,
+              "exit": 0
+            }
+          ],
+          "repeated": {
+            "count": 4,
+            "p50_ms": 13.74,
+            "p95_ms": 16.34
+          },
+          "cache_bytes": 2512886,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "./pngtest pngtest.png",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy estimates that a trace cannot repay itself for this identity"
+              ]
+            }
+          ],
+          "speedup": 0.947,
+          "slowdown": 1.056
+        }
+      }
+    },
+    "zlib": {
+      "name": "zlib v1.3.1",
+      "commit": "51b7f2abdade71cd9bb0e7a373ef2610ec6f9daf",
+      "policies": {
+        "direct": {
+          "total_ms": 2757.26,
+          "phases": [
+            {
+              "phase": "configure",
+              "ms": 442.81,
+              "exit": 0
+            },
+            {
+              "phase": "build",
+              "ms": 897.88,
+              "exit": 0
+            },
+            {
+              "phase": "rebuild",
+              "ms": 4.34,
+              "exit": 0
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 3.17,
+              "exit": 0
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 137.11,
+              "exit": 0
+            },
+            {
+              "phase": "test",
+              "ms": 15.42,
+              "exit": 0
+            },
+            {
+              "phase": "compress-1",
+              "ms": 179.69,
+              "exit": 0
+            },
+            {
+              "phase": "compress-2",
+              "ms": 208.06,
+              "exit": 0
+            },
+            {
+              "phase": "compress-3",
+              "ms": 182.19,
+              "exit": 0
+            },
+            {
+              "phase": "compress-4",
+              "ms": 180.76,
+              "exit": 0
+            },
+            {
+              "phase": "compress-5",
+              "ms": 189.83,
+              "exit": 0
+            },
+            {
+              "phase": "compress-6",
+              "ms": 182.02,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-1",
+              "ms": 33.35,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-2",
+              "ms": 37.72,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-3",
+              "ms": 28.68,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-4",
+              "ms": 34.23,
+              "exit": 0
+            }
+          ],
+          "repeated": {
+            "count": 10,
+            "p50_ms": 180.22,
+            "p95_ms": 208.06
+          },
+          "cache_bytes": 0,
+          "peak_rss_kb": null,
+          "decisions": [],
+          "speedup": 1.0,
+          "slowdown": 1.0
+        },
+        "never": {
+          "total_ms": 3017.06,
+          "phases": [
+            {
+              "phase": "configure",
+              "ms": 577.24,
+              "exit": 0
+            },
+            {
+              "phase": "build",
+              "ms": 853.19,
+              "exit": 0
+            },
+            {
+              "phase": "rebuild",
+              "ms": 11.27,
+              "exit": 0
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 12.57,
+              "exit": 0
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 177.52,
+              "exit": 0
+            },
+            {
+              "phase": "test",
+              "ms": 31.16,
+              "exit": 0
+            },
+            {
+              "phase": "compress-1",
+              "ms": 202.4,
+              "exit": 0
+            },
+            {
+              "phase": "compress-2",
+              "ms": 192.99,
+              "exit": 0
+            },
+            {
+              "phase": "compress-3",
+              "ms": 190.46,
+              "exit": 0
+            },
+            {
+              "phase": "compress-4",
+              "ms": 187.26,
+              "exit": 0
+            },
+            {
+              "phase": "compress-5",
+              "ms": 188.43,
+              "exit": 0
+            },
+            {
+              "phase": "compress-6",
+              "ms": 188.65,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-1",
+              "ms": 60.35,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-2",
+              "ms": 54.59,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-3",
+              "ms": 43.01,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-4",
+              "ms": 45.94,
+              "exit": 0
+            }
+          ],
+          "repeated": {
+            "count": 10,
+            "p50_ms": 187.84,
+            "p95_ms": 202.4
+          },
+          "cache_bytes": 20498,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "make -j1",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy disabled caching for this run"
+              ]
+            },
+            {
+              "command": "./minigzip",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy disabled caching for this run"
+              ]
+            },
+            {
+              "command": "./minigzip -d",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy disabled caching for this run"
+              ]
+            }
+          ],
+          "speedup": 0.914,
+          "slowdown": 1.094
+        },
+        "auto-v1": {
+          "total_ms": 2420.04,
+          "phases": [
+            {
+              "phase": "configure",
+              "ms": 486.94,
+              "exit": 0
+            },
+            {
+              "phase": "build",
+              "ms": 889.82,
+              "exit": 0
+            },
+            {
+              "phase": "rebuild",
+              "ms": 35.79,
+              "exit": 0
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 15.09,
+              "exit": 0
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 168.97,
+              "exit": 0
+            },
+            {
+              "phase": "test",
+              "ms": 21.52,
+              "exit": 0
+            },
+            {
+              "phase": "compress-1",
+              "ms": 198.93,
+              "exit": 0
+            },
+            {
+              "phase": "compress-2",
+              "ms": 282.51,
+              "exit": 0
+            },
+            {
+              "phase": "compress-3",
+              "ms": 20.96,
+              "exit": 0
+            },
+            {
+              "phase": "compress-4",
+              "ms": 16.99,
+              "exit": 0
+            },
+            {
+              "phase": "compress-5",
+              "ms": 19.03,
+              "exit": 0
+            },
+            {
+              "phase": "compress-6",
+              "ms": 17.49,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-1",
+              "ms": 46.16,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-2",
+              "ms": 139.19,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-3",
+              "ms": 29.11,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-4",
+              "ms": 31.54,
+              "exit": 0
+            }
+          ],
+          "repeated": {
+            "count": 10,
+            "p50_ms": 30.32,
+            "p95_ms": 282.51
+          },
+          "cache_bytes": 9447223,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "make -j1",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy is measuring this command before deciding whether to cache"
+              ]
+            },
+            {
+              "command": "./minigzip",
+              "decision": "Reused",
+              "classification": "Guarded",
+              "reasons": [
+                "all observed dependencies are guardable or captured outputs",
+                "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+              ]
+            },
+            {
+              "command": "./minigzip -d",
+              "decision": "Reused",
+              "classification": "Guarded",
+              "reasons": [
+                "all observed dependencies are guardable or captured outputs",
+                "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+              ]
+            }
+          ],
+          "speedup": 1.139,
+          "slowdown": 0.878
+        },
+        "always": {
+          "total_ms": 7743.73,
+          "phases": [
+            {
+              "phase": "configure",
+              "ms": 2007.09,
+              "exit": 0
+            },
+            {
+              "phase": "build",
+              "ms": 74.95,
+              "exit": 1,
+              "stderr": "tracejit: ptrace failed: missing process state for 221276\n"
+            },
+            {
+              "phase": "rebuild",
+              "ms": 1343.78,
+              "exit": 1,
+              "stderr": "tracejit: ptrace failed: missing process state for 221319\n"
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 40.8,
+              "exit": 1,
+              "stderr": "tracejit: ptrace failed: missing process state for 221328\n"
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 38.16,
+              "exit": 1,
+              "stderr": "tracejit: ptrace failed: missing process state for 221337\n"
+            },
+            {
+              "phase": "test",
+              "ms": 3623.41,
+              "exit": 0
+            },
+            {
+              "phase": "compress-1",
+              "ms": 268.08,
+              "exit": 0
+            },
+            {
+              "phase": "compress-2",
+              "ms": 23.89,
+              "exit": 0
+            },
+            {
+              "phase": "compress-3",
+              "ms": 20.77,
+              "exit": 0
+            },
+            {
+              "phase": "compress-4",
+              "ms": 17.25,
+              "exit": 0
+            },
+            {
+              "phase": "compress-5",
+              "ms": 16.85,
+              "exit": 0
+            },
+            {
+              "phase": "compress-6",
+              "ms": 19.2,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-1",
+              "ms": 146.49,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-2",
+              "ms": 42.78,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-3",
+              "ms": 33.28,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-4",
+              "ms": 26.97,
+              "exit": 0
+            }
+          ],
+          "repeated": {
+            "count": 10,
+            "p50_ms": 25.43,
+            "p95_ms": 268.08
+          },
+          "cache_bytes": 31766517,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "make -j1",
+              "decision": "Ineligible",
+              "classification": "Nondeterministic",
+              "reasons": [
+                "process read system clock: realtime",
+                "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+              ]
+            },
+            {
+              "command": "./minigzip",
+              "decision": "Reused",
+              "classification": "Guarded",
+              "reasons": [
+                "all observed dependencies are guardable or captured outputs",
+                "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+              ]
+            },
+            {
+              "command": "./minigzip -d",
+              "decision": "Reused",
+              "classification": "Guarded",
+              "reasons": [
+                "all observed dependencies are guardable or captured outputs",
+                "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+              ]
+            }
+          ],
+          "speedup": 0.356,
+          "slowdown": 2.808
+        },
+        "auto": {
+          "total_ms": 2245.51,
+          "phases": [
+            {
+              "phase": "configure",
+              "ms": 430.43,
+              "exit": 0
+            },
+            {
+              "phase": "build",
+              "ms": 836.52,
+              "exit": 0
+            },
+            {
+              "phase": "rebuild",
+              "ms": 36.23,
+              "exit": 0
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 10.02,
+              "exit": 0
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 146.98,
+              "exit": 0
+            },
+            {
+              "phase": "test",
+              "ms": 22.11,
+              "exit": 0
+            },
+            {
+              "phase": "compress-1",
+              "ms": 187.32,
+              "exit": 0
+            },
+            {
+              "phase": "compress-2",
+              "ms": 290.47,
+              "exit": 0
+            },
+            {
+              "phase": "compress-3",
+              "ms": 19.85,
+              "exit": 0
+            },
+            {
+              "phase": "compress-4",
+              "ms": 17.61,
+              "exit": 0
+            },
+            {
+              "phase": "compress-5",
+              "ms": 14.16,
+              "exit": 0
+            },
+            {
+              "phase": "compress-6",
+              "ms": 16.72,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-1",
+              "ms": 42.27,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-2",
+              "ms": 121.29,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-3",
+              "ms": 26.43,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-4",
+              "ms": 27.1,
+              "exit": 0
+            }
+          ],
+          "repeated": {
+            "count": 10,
+            "p50_ms": 26.77,
+            "p95_ms": 290.47
+          },
+          "cache_bytes": 9442188,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "make -j1",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy is measuring this command before deciding whether to cache"
+              ]
+            },
+            {
+              "command": "./minigzip",
+              "decision": "Reused",
+              "classification": "Guarded",
+              "reasons": [
+                "all observed dependencies are guardable or captured outputs",
+                "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+              ]
+            },
+            {
+              "command": "./minigzip -d",
+              "decision": "Reused",
+              "classification": "Guarded",
+              "reasons": [
+                "all observed dependencies are guardable or captured outputs",
+                "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+              ]
+            }
+          ],
+          "speedup": 1.228,
+          "slowdown": 0.814
+        }
+      }
+    },
+    "lz4": {
+      "name": "lz4 v1.9.4",
+      "commit": "5ff839680134437dbf4678f3d0c7b371d84f4964",
+      "policies": {
+        "direct": {
+          "total_ms": 15388.65,
+          "phases": [
+            {
+              "phase": "build",
+              "ms": 7733.44,
+              "exit": 0
+            },
+            {
+              "phase": "rebuild",
+              "ms": 76.52,
+              "exit": 0
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 77.29,
+              "exit": 0
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 7337.95,
+              "exit": 0
+            },
+            {
+              "phase": "compress-1",
+              "ms": 16.58,
+              "exit": 0
+            },
+            {
+              "phase": "compress-2",
+              "ms": 14.99,
+              "exit": 0
+            },
+            {
+              "phase": "compress-3",
+              "ms": 13.41,
+              "exit": 0
+            },
+            {
+              "phase": "compress-4",
+              "ms": 14.37,
+              "exit": 0
+            },
+            {
+              "phase": "compress-5",
+              "ms": 14.08,
+              "exit": 0
+            },
+            {
+              "phase": "compress-6",
+              "ms": 13.86,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-1",
+              "ms": 18.14,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-2",
+              "ms": 22.06,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-3",
+              "ms": 18.09,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-4",
+              "ms": 17.89,
+              "exit": 0
+            }
+          ],
+          "repeated": {
+            "count": 10,
+            "p50_ms": 15.79,
+            "p95_ms": 22.06
+          },
+          "cache_bytes": 0,
+          "peak_rss_kb": null,
+          "decisions": [],
+          "speedup": 1.0,
+          "slowdown": 1.0
+        },
+        "never": {
+          "total_ms": 15424.57,
+          "phases": [
+            {
+              "phase": "build",
+              "ms": 8047.18,
+              "exit": 0
+            },
+            {
+              "phase": "rebuild",
+              "ms": 83.19,
+              "exit": 0
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 87.97,
+              "exit": 0
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 6955.56,
+              "exit": 0
+            },
+            {
+              "phase": "compress-1",
+              "ms": 25.31,
+              "exit": 0
+            },
+            {
+              "phase": "compress-2",
+              "ms": 27.59,
+              "exit": 0
+            },
+            {
+              "phase": "compress-3",
+              "ms": 22.4,
+              "exit": 0
+            },
+            {
+              "phase": "compress-4",
+              "ms": 22.48,
+              "exit": 0
+            },
+            {
+              "phase": "compress-5",
+              "ms": 22.48,
+              "exit": 0
+            },
+            {
+              "phase": "compress-6",
+              "ms": 21.59,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-1",
+              "ms": 28.87,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-2",
+              "ms": 30.04,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-3",
+              "ms": 27.04,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-4",
+              "ms": 22.87,
+              "exit": 0
+            }
+          ],
+          "repeated": {
+            "count": 10,
+            "p50_ms": 24.09,
+            "p95_ms": 30.04
+          },
+          "cache_bytes": 20498,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "./programs/lz4 -1 -c",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy disabled caching for this run"
+              ]
+            },
+            {
+              "command": "./programs/lz4 -d -c",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy disabled caching for this run"
+              ]
+            }
+          ],
+          "speedup": 0.998,
+          "slowdown": 1.002
+        },
+        "auto-v1": {
+          "total_ms": 16117.09,
+          "phases": [
+            {
+              "phase": "build",
+              "ms": 7892.55,
+              "exit": 0
+            },
+            {
+              "phase": "rebuild",
+              "ms": 458.71,
+              "exit": 0
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 96.71,
+              "exit": 0
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 7340.78,
+              "exit": 0
+            },
+            {
+              "phase": "compress-1",
+              "ms": 23.36,
+              "exit": 0
+            },
+            {
+              "phase": "compress-2",
+              "ms": 37.25,
+              "exit": 0
+            },
+            {
+              "phase": "compress-3",
+              "ms": 27.35,
+              "exit": 0
+            },
+            {
+              "phase": "compress-4",
+              "ms": 27.11,
+              "exit": 0
+            },
+            {
+              "phase": "compress-5",
+              "ms": 32.04,
+              "exit": 0
+            },
+            {
+              "phase": "compress-6",
+              "ms": 25.05,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-1",
+              "ms": 28.44,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-2",
+              "ms": 70.23,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-3",
+              "ms": 27.33,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-4",
+              "ms": 30.17,
+              "exit": 0
+            }
+          ],
+          "repeated": {
+            "count": 10,
+            "p50_ms": 27.9,
+            "p95_ms": 70.23
+          },
+          "cache_bytes": 7154462,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "./programs/lz4 -1 -c",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy: the recorded classification is not eligible for reuse"
+              ]
+            },
+            {
+              "command": "./programs/lz4 -d -c",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy: the recorded classification is not eligible for reuse"
+              ]
+            }
+          ],
+          "speedup": 0.955,
+          "slowdown": 1.047
+        },
+        "always": {
+          "total_ms": 19470.66,
+          "phases": [
+            {
+              "phase": "build",
+              "ms": 8389.22,
+              "exit": 1,
+              "stderr": "tracejit: ptrace failed: missing process state for 217655\n"
+            },
+            {
+              "phase": "rebuild",
+              "ms": 1622.19,
+              "exit": 0
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 507.79,
+              "exit": 0
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 8511.38,
+              "exit": 0
+            },
+            {
+              "phase": "compress-1",
+              "ms": 49.57,
+              "exit": 0
+            },
+            {
+              "phase": "compress-2",
+              "ms": 42.02,
+              "exit": 0
+            },
+            {
+              "phase": "compress-3",
+              "ms": 32.21,
+              "exit": 0
+            },
+            {
+              "phase": "compress-4",
+              "ms": 35.84,
+              "exit": 0
+            },
+            {
+              "phase": "compress-5",
+              "ms": 33.15,
+              "exit": 0
+            },
+            {
+              "phase": "compress-6",
+              "ms": 35.18,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-1",
+              "ms": 63.91,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-2",
+              "ms": 52.91,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-3",
+              "ms": 46.7,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-4",
+              "ms": 48.58,
+              "exit": 0
+            }
+          ],
+          "repeated": {
+            "count": 10,
+            "p50_ms": 44.36,
+            "p95_ms": 63.91
+          },
+          "cache_bytes": 24076012,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "./programs/lz4 -1 -c",
+              "decision": "Ineligible",
+              "classification": "Nondeterministic",
+              "reasons": [
+                "process read system clock: monotonic",
+                "process read system clock: clock 2"
+              ]
+            },
+            {
+              "command": "./programs/lz4 -d -c",
+              "decision": "Ineligible",
+              "classification": "Nondeterministic",
+              "reasons": [
+                "process read system clock: clock 2",
+                "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+              ]
+            }
+          ],
+          "speedup": 0.79,
+          "slowdown": 1.265
+        },
+        "auto": {
+          "total_ms": 15888.97,
+          "phases": [
+            {
+              "phase": "build",
+              "ms": 7845.46,
+              "exit": 0
+            },
+            {
+              "phase": "rebuild",
+              "ms": 440.85,
+              "exit": 0
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 78.56,
+              "exit": 0
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 7153.55,
+              "exit": 0
+            },
+            {
+              "phase": "compress-1",
+              "ms": 27.75,
+              "exit": 0
+            },
+            {
+              "phase": "compress-2",
+              "ms": 41.1,
+              "exit": 0
+            },
+            {
+              "phase": "compress-3",
+              "ms": 22.22,
+              "exit": 0
+            },
+            {
+              "phase": "compress-4",
+              "ms": 21.81,
+              "exit": 0
+            },
+            {
+              "phase": "compress-5",
+              "ms": 21.65,
+              "exit": 0
+            },
+            {
+              "phase": "compress-6",
+              "ms": 21.05,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-1",
+              "ms": 33.81,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-2",
+              "ms": 105.28,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-3",
+              "ms": 46.66,
+              "exit": 0
+            },
+            {
+              "phase": "decompress-4",
+              "ms": 29.2,
+              "exit": 0
+            }
+          ],
+          "repeated": {
+            "count": 10,
+            "p50_ms": 28.48,
+            "p95_ms": 105.28
+          },
+          "cache_bytes": 7152994,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "./programs/lz4 -1 -c",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy: the recorded classification is not eligible for reuse"
+              ]
+            },
+            {
+              "command": "./programs/lz4 -d -c",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy: the recorded classification is not eligible for reuse"
+              ]
+            }
+          ],
+          "speedup": 0.969,
+          "slowdown": 1.033
+        }
+      }
+    }
+  }
+}
