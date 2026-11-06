@@ -58,8 +58,9 @@ pub enum Admission {
     /// Trace and store every invocation, then reuse when the guards pass. Historical behaviour.
     #[default]
     Always,
-    /// Measure before committing, then estimate cumulative benefit from observed hits,
-    /// invalidations and a fixed horizon. The first invocation always runs directly.
+    /// Measure before committing, then trace when one trace can plausibly repay itself and
+    /// observed invalidations have not outnumbered the hits they replaced. The first invocation
+    /// always runs directly.
     Auto,
     /// Phase 2H's policy: measure, then trace when `direct >= 2 x max(hit, 6 ms)`.
     AutoLegacy,
@@ -70,12 +71,6 @@ pub enum Admission {
 /// A hit costs process startup, identity, SQLite lookup, guards and restoration. A command whose
 /// native runtime is below this is not worth caching even if it would always hit.
 const HIT_COST_FLOOR_NS: u64 = 6_000_000;
-/// One trace is paid once and is assumed to cost about this much more than a direct run,
-/// measured in Phase 2G/2H cold-minus-direct samples (11–18 ms on this host).
-const TRACE_OVERHEAD_NS: u64 = 12_000_000;
-/// How many future invocations the decision assumes. Deliberately conservative and constant so
-/// the decision is reproducible from the stored numbers alone.
-const EXPECTED_FUTURE_INVOCATIONS: u64 = 3;
 /// Stale cost samples are discarded rather than trusted forever.
 const ADMISSION_SAMPLE_TTL_MS: u128 = 30 * 24 * 60 * 60 * 1000;
 
@@ -84,21 +79,15 @@ fn admission_is_profitable(cost: &AdmissionCost) -> bool {
     cost.direct_ns >= hit.saturating_mul(2)
 }
 
-/// Cumulative-benefit estimate: expected hits over the horizon times the per-hit saving, versus
-/// the one-time trace premium. The reuse probability is Laplace-smoothed hits/(hits+deopts), so an
-/// identity that invalidates often stops being traced instead of paying a premium every run.
-fn admission_has_cumulative_benefit(cost: &AdmissionCost) -> bool {
-    let direct = cost.direct_ns;
-    let hit = cost.hit_ns.max(HIT_COST_FLOOR_NS);
-    if direct <= hit {
-        return false;
-    }
-    let hits = cost.hits as f64;
-    let deopts = cost.deopts as f64;
-    let reuse_probability = (hits + 1.0) / (hits + deopts + 2.0);
-    let expected_hits = reuse_probability * EXPECTED_FUTURE_INVOCATIONS as f64;
-    let saving = (direct - hit) as f64 * expected_hits;
-    saving > TRACE_OVERHEAD_NS as f64
+/// Whether continuing to trace this identity can repay itself.
+///
+/// Two measured quantities, both stored: a direct run must be at least twice the floor-or-observed
+/// hit cost, so one hit can pay for a trace; and hits plus one must exceed invalidations, so an
+/// identity whose inputs are edited before every run stops paying for traces it cannot reuse. The
+/// Phase 2J ablation found the previous smoothed three-invocation model indistinguishable from the
+/// Phase 2H threshold, so the extra arithmetic and horizon constant were removed.
+fn admission_is_worth_tracing(cost: &AdmissionCost) -> bool {
+    admission_is_profitable(cost) && cost.hits.saturating_add(1) > cost.deopts
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -273,7 +262,7 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
                 Some(cost) => {
                     let profitable = match options.admission {
                         Admission::AutoLegacy => admission_is_profitable(&cost),
-                        _ => admission_has_cumulative_benefit(&cost),
+                        _ => admission_is_worth_tracing(&cost),
                     };
                     if !profitable {
                         run_without_cache = true;
@@ -1285,7 +1274,7 @@ mod tests {
     }
 
     #[test]
-    fn cumulative_admission_policy_declines_cheap_and_invalidating_identities() {
+    fn simplified_admission_declines_cheap_and_frequently_invalidating_identities() {
         let cheap = AdmissionCost {
             direct_ns: 2_000_000,
             hit_ns: 1_000_000,
@@ -1295,7 +1284,7 @@ mod tests {
             deopts: 0,
             updated_ms: 0,
         };
-        assert!(!admission_has_cumulative_benefit(&cheap));
+        assert!(!admission_is_worth_tracing(&cheap));
 
         let expensive = AdmissionCost {
             direct_ns: 300_000_000,
@@ -1306,7 +1295,7 @@ mod tests {
             deopts: 0,
             updated_ms: 0,
         };
-        assert!(admission_has_cumulative_benefit(&expensive));
+        assert!(admission_is_worth_tracing(&expensive));
 
         let invalidating = AdmissionCost {
             direct_ns: 300_000_000,
@@ -1317,7 +1306,7 @@ mod tests {
             deopts: 100,
             updated_ms: 0,
         };
-        assert!(!admission_has_cumulative_benefit(&invalidating));
+        assert!(!admission_is_worth_tracing(&invalidating));
 
         let stable = AdmissionCost {
             direct_ns: 300_000_000,
@@ -1328,7 +1317,22 @@ mod tests {
             deopts: 0,
             updated_ms: 0,
         };
-        assert!(admission_has_cumulative_benefit(&stable));
+        assert!(admission_is_worth_tracing(&stable));
+
+        // One invalidation after a single hit is still allowed: the next run can recover it. Two
+        // invalidations against one hit are not, which stops the edit-every-run loop.
+        let balanced = AdmissionCost {
+            hits: 1,
+            deopts: 1,
+            ..stable
+        };
+        assert!(admission_is_worth_tracing(&balanced));
+        let losing = AdmissionCost {
+            hits: 1,
+            deopts: 2,
+            ..stable
+        };
+        assert!(!admission_is_worth_tracing(&losing));
     }
 
     fn cache_status_scratch() -> PathBuf {
