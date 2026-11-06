@@ -86,6 +86,29 @@ census, 16/16 and 9/9 output equivalence. The differential fuzzer is 45 cases x 
 was found and fixed with a busy timeout plus bounded retry. Tests: 109 passing, three consecutive
 runs. See `docs/audits/PHASE2I_*.md` and `benchmarks/results/phase2i/`.
 
+## Phase 2J (base `4ecb804`)
+
+Inherited stdin now has an offset model instead of a blanket `lseek` refusal. `SEEK_SET`,
+`SEEK_CUR` and `SEEK_END` on fd 0 itself update a model position; the guard still requires the
+recorded start offset and content hash, and a hit seeks the shared description to the recorded
+final offset. `pread64` no longer counts as consuming bytes. Aliases (`dup` of stdin), directory
+fds and `SEEK_DATA`/`SEEK_HOLE` are refused. This unlocks `./minigzip -d`: first run `Guarded`,
+second `Reused`, byte-identical output. `tests/fixtures/stdin_seek.c` covers seek-before/after-read,
+`SEEK_END`, `pread`, failed seeks, aliases, `SEEK_DATA`, changed initial offset and content
+mutation, checking both bytes and the caller's file position.
+
+Admission was simplified after an ablation: the Phase 2I smoothed probability and 3-invocation
+horizon did not beat the Phase 2H threshold, so `auto` is now `direct >= 2 x max(hit, 6 ms)` and
+`hits + 1 > deopts`, with `auto-v1` retained. Real sessions: zlib **1.099x/1.228x** net with both
+compression and decompression reused (`always` 0.268x/0.356x); libpng's 1.1x in session A is
+noise because `pngtest` is 7 ms and is correctly declined, and `always` makes its configure exit 1;
+lz4 is `NONDETERMINISTIC` because its CLI reads the monotonic clock (one valid session, 0.969x).
+The differential fuzzer is 120 cases x seeds 7/11/17 (360 comparisons, 0 incorrect hits). The
+intermittent `ETXTBSY` was the test's direct exec racing a parallel fork that inherited the
+script's write descriptor; reproduced with `bash -c 'exec 9>prog; prog'` and fixed in the test
+only with a bounded retry. Tests: **110 passing**; fmt and clippy clean; `PROVEN` still blocked
+(`landlock no`). See `docs/audits/PHASE2J_*.md` and `benchmarks/results/phase2j/`.
+
 ## Validation still required on Linux
 
 ```bash

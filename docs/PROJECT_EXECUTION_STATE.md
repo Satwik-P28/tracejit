@@ -1,6 +1,6 @@
 # TraceJIT execution state
 
-Updated at the Phase 2I worktree (base `9b777ee`, branch `freebuff/phase2f`). This
+Updated at the Phase 2J worktree (base `4ecb804`, branch `freebuff/phase2f`). This
 file is the resume point: what is done, what is measured, and what is blocked.
 
 ## Phase status
@@ -35,6 +35,11 @@ file is the resume point: what is done, what is measured, and what is blocked.
 | 2I.4 | Expanded differential testing | **PASS** — 45 cases × 2 seeds, 0 incorrect hits; repro lines saved | `benchmarks/results/phase2i/differential/` |
 | 2I.5 | Compatibility measurement | **PASS** — 1/16 native, 7/16 controlled, 0/9 census, all equivalence counts unchanged | `PHASE2I_DIFFERENTIAL_COMPATIBILITY_ENFORCEMENT.md` |
 | 2I.6 | Enforcement | **STILL BLOCKED** — no Landlock; `PROVEN` unexercised | same |
+| 2J.1 | Inherited-descriptor semantics audit | **DONE** — descriptor vs open file description, all read/seek forms classified | `PHASE2J_INHERITED_DESCRIPTOR_MODEL.md` |
+| 2J.2 | Sound inherited-file offset model | **IMPLEMENTED** — SET/CUR/END on fd 0; `pread` non-advancing; aliases/DATA/HOLE refused | same |
+| 2J.3 | Unlock decompression and real workflows | **PASS for zlib** — `./minigzip -d` reused, byte-identical; libpng and lz4 remain blocked (cheap tool / clock) | same and `PHASE2J_ADMISSION_AND_REAL_SESSIONS.md` |
+| 2J.4 | Admission ablation and simplification | **DONE** — smoothed estimator removed; threshold + deopt brake; `auto-v1` kept | `PHASE2J_ADMISSION_AND_REAL_SESSIONS.md` |
+| 2J.5 | Reliability and expanded fuzzing | **PASS** — `ETXTBSY` cause proven and fixed in the harness; 120 cases x 3 seeds, 0 incorrect hits | same |
 | 2D.6 | `PROVEN` enforcement | **BLOCKED** — never executed on any host | — |
 | 3 | Performance engineering | **NOT STARTED** | — |
 | 4 | Developer integrations | **NOT STARTED** | — |
@@ -43,8 +48,8 @@ file is the resume point: what is done, what is measured, and what is blocked.
 
 ## Latest verified test results
 
-`cargo test --workspace` **109 passed, 0 failed** across 8 suites (16 cache + 5 CLI + 33 Linux
-integration + 8 core + 5 effects + 25 guards + 4 sandbox + 13 trace), three consecutive runs, with
+`cargo test --workspace` **110 passed, 0 failed** across 8 suites (16 cache + 5 CLI + 34 Linux
+integration + 8 core + 5 effects + 25 guards + 4 sandbox + 13 trace), with
 `fmt --check` and `clippy --all-targets --all-features -D warnings` clean, at the Phase 2I tree.
 The cache initialization now retries `SQLITE_BUSY`/`LOCKED` and arms the busy timeout first; before
 that fix, concurrent cold starts failed intermittently with `database is locked`.
@@ -60,7 +65,13 @@ that fix, concurrent cold starts failed intermittently with `database is locked`
 - **zlib v1.3.1 session:** direct 6781.17/6606.07 ms; auto **1.20×/1.07×** net; always 1.71×/1.82×
   slower; never 0.98×/0.95×. Compression hits 24–28 ms vs ~380 ms native; decompression stays
   ineligible (`lseek` on inherited fd 0).
-- **Differential fuzzer:** 45 cases × seeds 7 and 11, **0 incorrect hits**, 45/45 ok each.
+- **Phase 2J zlib session:** direct 2728.99/2757.26 ms; auto **1.099×/1.228×**; auto-v1 1.188×/1.139×;
+  always 0.268×/0.356×. `./minigzip` and `./minigzip -d` both `Reused` under both adaptive policies.
+- **libpng session:** `pngtest` is ~7 ms and every policy declines it, so the 1.1×/0.95× deltas are
+  build variance, not reuse; under `always` `./configure` exits 1 and the build does not complete.
+- **lz4 session B:** direct 15388.65 ms, auto 0.969×; the CLI reads the monotonic clock, so it is
+  `NONDETERMINISTIC` and cannot reuse. Session A is invalid (harness CLI build failure).
+- **Differential fuzzer:** 120 cases × seeds 7/11/17, **0 incorrect hits**, 360/360 ok.
 
 ## Open correctness and security risks
 
@@ -82,10 +93,12 @@ that fix, concurrent cold starts failed intermittently with `database is locked`
 
 ## Next executable actions
 
-1. Model `lseek` on an inherited, seekable stdin descriptor as a recorded offset dependency; this
-   unlocks `./minigzip -d` and filter pipelines and is the cheapest remaining win.
+1. Investigate why tracing `./configure` with `always` makes it exit 1 (libpng), before using
+   `always` on any build workflow; this may be a regression beyond performance.
 2. Handle `setresuid`/`setresgid` with `-1` arguments as exact no-op queries (including the `-1`
    failure case) so test binaries can be classified; keep everything else refused.
+3. Decide whether a sub-10 ms hit path is feasible; otherwise most test binaries and filters will
+   stay correctly declined, and real-session wins will remain limited to repeated heavy tools.
 3. Do not derive the allocator key; the decision record explains why. Revisit only if key secrecy
    inside the traced process becomes a requirement, which would mean not reusing those runs.
 4. Replace the constant 3-invocation horizon with a measured, per-identity invocation-rate estimate
