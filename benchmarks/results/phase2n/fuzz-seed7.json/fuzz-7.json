@@ -1,0 +1,885 @@
+{
+  "seed": 7,
+  "contract": "allocator-entropy-v1",
+  "cases": [
+    {
+      "case": "sed",
+      "classification": "Guarded",
+      "first_decision": "Executed",
+      "warm_decision": "Executed",
+      "first_matches_native": true,
+      "warm_matches_native": true,
+      "reused": false,
+      "status": "ok"
+    },
+    {
+      "case": "wc",
+      "classification": "Guarded",
+      "first_decision": "Executed",
+      "warm_decision": "Executed",
+      "first_matches_native": true,
+      "warm_matches_native": true,
+      "reused": false,
+      "status": "ok"
+    },
+    {
+      "case": "md5sum",
+      "classification": "Guarded",
+      "first_decision": "Executed",
+      "warm_decision": "Executed",
+      "first_matches_native": true,
+      "warm_matches_native": true,
+      "reused": false,
+      "status": "ok"
+    },
+    {
+      "case": "gzip",
+      "classification": "Guarded",
+      "first_decision": "Executed",
+      "warm_decision": "Executed",
+      "first_matches_native": true,
+      "warm_matches_native": true,
+      "reused": false,
+      "status": "ok"
+    },
+    {
+      "case": "base64",
+      "classification": "Guarded",
+      "first_decision": "Executed",
+      "warm_decision": "Executed",
+      "first_matches_native": true,
+      "warm_matches_native": true,
+      "reused": false,
+      "status": "ok"
+    },
+    {
+      "case": "tr",
+      "classification": "Unknown",
+      "first_decision": "Ineligible",
+      "warm_decision": "Ineligible",
+      "first_matches_native": true,
+      "warm_matches_native": true,
+      "reused": false,
+      "status": "ok"
+    },
+    {
+      "case": "sed-sub",
+      "classification": "Guarded",
+      "first_decision": "Executed",
+      "warm_decision": "Executed",
+      "first_matches_native": true,
+      "warm_matches_native": true,
+      "reused": false,
+      "status": "ok"
+    },
+    {
+      "case": "cat",
+      "classification": "Guarded",
+      "first_decision": "Executed",
+      "warm_decision": "Executed",
+      "first_matches_native": true,
+      "warm_matches_native": true,
+      "reused": false,
+      "status": "ok"
+    },
+    {
+      "case": "head",
+      "classification": "Guarded",
+      "first_decision": "Executed",
+      "warm_decision": "Executed",
+      "first_matches_native": true,
+      "warm_matches_native": true,
+      "reused": false,
+      "status": "ok"
+    },
+    {
+      "case": "cut",
+      "classification": "Guarded",
+      "first_decision": "Executed",
+      "warm_decision": "Executed",
+      "first_matches_native": true,
+      "warm_matches_native": true,
+      "reused": false,
+      "status": "ok"
+    },
+    {
+      "case": "sed-range",
+      "classification": "Guarded",
+      "first_decision": "Executed",
+      "warm_decision": "Executed",
+      "first_matches_native": true,
+      "warm_matches_native": true,
+      "reused": false,
+      "status": "ok"
+    },
+    {
+      "case": "sort",
+      "classification": "Nondeterministic",
+      "first_decision": "Ineligible",
+      "warm_decision": "Ineligible",
+      "first_matches_native": true,
+      "warm_matches_native": true,
+      "reused": false,
+      "status": "ok"
+    },
+    {
+      "case": "tr-file",
+      "classification": "Guarded",
+      "first_decision": "Executed",
+      "warm_decision": "Executed",
+      "first_matches_native": true,
+      "warm_matches_native": true,
+      "reused": false,
+      "status": "ok"
+    },
+    {
+      "case": "replace_content:sed",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g input.txt"
+    },
+    {
+      "case": "replace_content:wc",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- wc -c input.txt"
+    },
+    {
+      "case": "replace_content:md5sum",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- md5sum input.txt"
+    },
+    {
+      "case": "replace_content:gzip",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- gzip -9 -c input.txt"
+    },
+    {
+      "case": "replace_content:base64",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- base64 input.txt"
+    },
+    {
+      "case": "replace_content:tr",
+      "decision": "Ineligible",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- tr a-z A-Z"
+    },
+    {
+      "case": "replace_content:sed-sub",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g sub/input.txt"
+    },
+    {
+      "case": "replace_content:cat",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- cat input.txt"
+    },
+    {
+      "case": "replace_content:head",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- head -c 1000 input.txt"
+    },
+    {
+      "case": "replace_content:cut",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- cut -d   -f1 input.txt"
+    },
+    {
+      "case": "replace_content:sed-range",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sed -n 1,5p input.txt"
+    },
+    {
+      "case": "replace_content:sort",
+      "decision": "Ineligible",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sort -u input.txt"
+    },
+    {
+      "case": "replace_content:tr-file",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- tr a-z A-Z input.txt"
+    },
+    {
+      "case": "repoint_symlink:sed",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g input.txt"
+    },
+    {
+      "case": "repoint_symlink:wc",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- wc -c input.txt"
+    },
+    {
+      "case": "repoint_symlink:md5sum",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- md5sum input.txt"
+    },
+    {
+      "case": "repoint_symlink:gzip",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- gzip -9 -c input.txt"
+    },
+    {
+      "case": "repoint_symlink:base64",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- base64 input.txt"
+    },
+    {
+      "case": "repoint_symlink:tr",
+      "decision": "Ineligible",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- tr a-z A-Z"
+    },
+    {
+      "case": "repoint_symlink:sed-sub",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g sub/input.txt"
+    },
+    {
+      "case": "repoint_symlink:cat",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- cat input.txt"
+    },
+    {
+      "case": "repoint_symlink:head",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- head -c 1000 input.txt"
+    },
+    {
+      "case": "repoint_symlink:cut",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- cut -d   -f1 input.txt"
+    },
+    {
+      "case": "repoint_symlink:sed-range",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sed -n 1,5p input.txt"
+    },
+    {
+      "case": "repoint_symlink:sort",
+      "decision": "Ineligible",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sort -u input.txt"
+    },
+    {
+      "case": "repoint_symlink:tr-file",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- tr a-z A-Z input.txt"
+    },
+    {
+      "case": "permissions:sed",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g input.txt"
+    },
+    {
+      "case": "permissions:wc",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- wc -c input.txt"
+    },
+    {
+      "case": "permissions:md5sum",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- md5sum input.txt"
+    },
+    {
+      "case": "permissions:gzip",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- gzip -9 -c input.txt"
+    },
+    {
+      "case": "permissions:base64",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- base64 input.txt"
+    },
+    {
+      "case": "permissions:tr",
+      "decision": "Ineligible",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- tr a-z A-Z"
+    },
+    {
+      "case": "permissions:sed-sub",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g sub/input.txt"
+    },
+    {
+      "case": "permissions:cat",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- cat input.txt"
+    },
+    {
+      "case": "permissions:head",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- head -c 1000 input.txt"
+    },
+    {
+      "case": "permissions:cut",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- cut -d   -f1 input.txt"
+    },
+    {
+      "case": "permissions:sed-range",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sed -n 1,5p input.txt"
+    },
+    {
+      "case": "permissions:sort",
+      "decision": "Ineligible",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sort -u input.txt"
+    },
+    {
+      "case": "permissions:tr-file",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- tr a-z A-Z input.txt"
+    },
+    {
+      "case": "stdin_offset:tr",
+      "decision": "Ineligible",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- tr a-z A-Z"
+    },
+    {
+      "case": "concurrent_writer:sed",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g input.txt"
+    },
+    {
+      "case": "concurrent_writer:wc",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- wc -c input.txt"
+    },
+    {
+      "case": "concurrent_writer:md5sum",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- md5sum input.txt"
+    },
+    {
+      "case": "concurrent_writer:gzip",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- gzip -9 -c input.txt"
+    },
+    {
+      "case": "concurrent_writer:base64",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- base64 input.txt"
+    },
+    {
+      "case": "concurrent_writer:tr",
+      "decision": "Ineligible",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- tr a-z A-Z"
+    },
+    {
+      "case": "concurrent_writer:sed-sub",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g sub/input.txt"
+    },
+    {
+      "case": "concurrent_writer:cat",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- cat input.txt"
+    },
+    {
+      "case": "concurrent_writer:head",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- head -c 1000 input.txt"
+    },
+    {
+      "case": "concurrent_writer:cut",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- cut -d   -f1 input.txt"
+    },
+    {
+      "case": "concurrent_writer:sed-range",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sed -n 1,5p input.txt"
+    },
+    {
+      "case": "concurrent_writer:sort",
+      "decision": "Ineligible",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sort -u input.txt"
+    },
+    {
+      "case": "concurrent_writer:tr-file",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- tr a-z A-Z input.txt"
+    },
+    {
+      "case": "touch_metadata:sed",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g input.txt"
+    },
+    {
+      "case": "touch_metadata:wc",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- wc -c input.txt"
+    },
+    {
+      "case": "touch_metadata:md5sum",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- md5sum input.txt"
+    },
+    {
+      "case": "touch_metadata:gzip",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- gzip -9 -c input.txt"
+    },
+    {
+      "case": "touch_metadata:base64",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- base64 input.txt"
+    },
+    {
+      "case": "touch_metadata:tr",
+      "decision": "Ineligible",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- tr a-z A-Z"
+    },
+    {
+      "case": "touch_metadata:sed-sub",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g sub/input.txt"
+    },
+    {
+      "case": "touch_metadata:cat",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- cat input.txt"
+    },
+    {
+      "case": "touch_metadata:head",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- head -c 1000 input.txt"
+    },
+    {
+      "case": "touch_metadata:cut",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- cut -d   -f1 input.txt"
+    },
+    {
+      "case": "touch_metadata:sed-range",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sed -n 1,5p input.txt"
+    },
+    {
+      "case": "touch_metadata:sort",
+      "decision": "Ineligible",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sort -u input.txt"
+    },
+    {
+      "case": "touch_metadata:tr-file",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- tr a-z A-Z input.txt"
+    },
+    {
+      "case": "directory_replacement:sed-sub",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g sub/input.txt"
+    },
+    {
+      "case": "truncate_input:sed",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g input.txt"
+    },
+    {
+      "case": "truncate_input:wc",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- wc -c input.txt"
+    },
+    {
+      "case": "truncate_input:md5sum",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- md5sum input.txt"
+    },
+    {
+      "case": "truncate_input:gzip",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- gzip -9 -c input.txt"
+    },
+    {
+      "case": "truncate_input:base64",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- base64 input.txt"
+    },
+    {
+      "case": "truncate_input:tr",
+      "decision": "Ineligible",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- tr a-z A-Z"
+    },
+    {
+      "case": "truncate_input:sed-sub",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g sub/input.txt"
+    },
+    {
+      "case": "truncate_input:cat",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- cat input.txt"
+    },
+    {
+      "case": "truncate_input:head",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- head -c 1000 input.txt"
+    },
+    {
+      "case": "truncate_input:cut",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- cut -d   -f1 input.txt"
+    },
+    {
+      "case": "truncate_input:sed-range",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sed -n 1,5p input.txt"
+    },
+    {
+      "case": "truncate_input:sort",
+      "decision": "Ineligible",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sort -u input.txt"
+    },
+    {
+      "case": "truncate_input:tr-file",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- tr a-z A-Z input.txt"
+    },
+    {
+      "case": "append_input:sed",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g input.txt"
+    },
+    {
+      "case": "append_input:wc",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- wc -c input.txt"
+    },
+    {
+      "case": "append_input:md5sum",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- md5sum input.txt"
+    },
+    {
+      "case": "append_input:gzip",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- gzip -9 -c input.txt"
+    },
+    {
+      "case": "append_input:base64",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- base64 input.txt"
+    },
+    {
+      "case": "append_input:tr",
+      "decision": "Ineligible",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- tr a-z A-Z"
+    },
+    {
+      "case": "append_input:sed-sub",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g sub/input.txt"
+    },
+    {
+      "case": "append_input:cat",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- cat input.txt"
+    },
+    {
+      "case": "append_input:head",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- head -c 1000 input.txt"
+    },
+    {
+      "case": "append_input:cut",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- cut -d   -f1 input.txt"
+    },
+    {
+      "case": "append_input:sed-range",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sed -n 1,5p input.txt"
+    },
+    {
+      "case": "append_input:sort",
+      "decision": "Ineligible",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sort -u input.txt"
+    },
+    {
+      "case": "append_input:tr-file",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- tr a-z A-Z input.txt"
+    },
+    {
+      "case": "rename_input:sed",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g input.txt"
+    },
+    {
+      "case": "rename_input:wc",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- wc -c input.txt"
+    },
+    {
+      "case": "rename_input:md5sum",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- md5sum input.txt"
+    },
+    {
+      "case": "rename_input:gzip",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- gzip -9 -c input.txt"
+    },
+    {
+      "case": "rename_input:base64",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- base64 input.txt"
+    },
+    {
+      "case": "rename_input:tr",
+      "decision": "Ineligible",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- tr a-z A-Z"
+    },
+    {
+      "case": "rename_input:sed-sub",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g sub/input.txt"
+    },
+    {
+      "case": "rename_input:cat",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- cat input.txt"
+    },
+    {
+      "case": "rename_input:head",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- head -c 1000 input.txt"
+    },
+    {
+      "case": "rename_input:cut",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- cut -d   -f1 input.txt"
+    },
+    {
+      "case": "rename_input:sed-range",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sed -n 1,5p input.txt"
+    },
+    {
+      "case": "rename_input:sort",
+      "decision": "Ineligible",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- sort -u input.txt"
+    },
+    {
+      "case": "rename_input:tr-file",
+      "decision": "Executed",
+      "matches_native": true,
+      "status": "ok",
+      "repro": "bash: run --contract allocator-entropy-v1 -- tr a-z A-Z input.txt"
+    },
+    {
+      "case": "corrupt-object",
+      "victim": "af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262",
+      "decision": "Executed",
+      "status": "ok"
+    }
+  ],
+  "incorrect_hits": 0
+}

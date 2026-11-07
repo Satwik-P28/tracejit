@@ -400,3 +400,18 @@ too small to justify transparent interception: a real build's time is in refused
 children. No specialist gzip cache exists, so arm D is not applicable. `PROVEN` stays BLOCKED
 (`landlock no`); preview remains not ready as a general accelerator. See
 `docs/audits/PHASE2M_*.md` and `benchmarks/results/phase2m/`.
+
+## Phase 2N (base `7dd37cf`)
+
+The warm hit is now **12.8 ms for a 2.4 MB gzip child** (was 17.4) and **4.7 ms bare** (was 7.8):
+compact `--json`, one buffered report write, no admission upsert under `always`, and a one-time
+schema migration. The 30 ms wrap figure was payload hashing plus pretty-printed JSON, not an engine
+path; a hit never writes with fsync. Tests 113 pass, fuzzer 120/120, 0 incorrect hits.
+
+Eligibility is unchanged and now measured: `cc -c` refuses on `as`'s `getrusage`, `cc`/`cc1`/`as`
+read `getrandom`, `rustc` additionally reads `/proc/self/*` and `statx`, and Python refuses on
+process identity, clocks and randomness once fd 0 is a regular file. Those values differ every run,
+so no exact guard can hold; nothing in the examined set is safely reusable, and `ccache`/`sccache`
+are absent. Real sessions at `88d528d`: zlib `auto` **1.185x/1.198x**, bzip2 1.037x/1.014x, libpng
+0.942x, lz4 0.957x, all artifacts valid; `always` 0.29-0.74x. `PROVEN` still blocked (`landlock no`);
+CI not rerun because the branch is not pushed. See `docs/audits/PHASE2N_WARM_HIT_AND_ELIGIBILITY.md`.
