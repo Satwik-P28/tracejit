@@ -1,0 +1,451 @@
+{
+  "session": "a",
+  "workload_version": "phase2m-subprocess-wrap-v1",
+  "contract": "allocator-entropy-v1",
+  "tracejit": {
+    "commit": "717ecd9ab293700a08a6a1206b6eb0ba105aee21",
+    "dirty": false,
+    "binary_sha256": "b0576fb19473ab15d5c0197b30f39934ab6ad86b86a976b403f2d33868250560"
+  },
+  "source": {
+    "project": "zlib v1.3.1",
+    "commit": "51b7f2abdade71cd9bb0e7a373ef2610ec6f9daf"
+  },
+  "host": {
+    "platform": "Linux-6.1.102-x86_64-with-glibc2.39",
+    "kernel": "6.1.102",
+    "cpus": 8
+  },
+  "tools": {
+    "gzip": "gzip 1.12",
+    "make": "GNU Make 4.3",
+    "specialist_cache": null
+  },
+  "workload": {
+    "recipe": "data/%.bin.gz: data/%.bin\n\t$(COMPRESS) -n -9 -c < $< > $@",
+    "files": 5,
+    "megabytes_each": 4,
+    "note": "standard static-asset precompression rule over a pristine zlib 1.3.1 tree; no corpus project gzips per file through its own Makefile, so this is the real-world pattern rather than that project's build",
+    "inventory": {
+      "files": {
+        "bundle-0.bin": {
+          "bytes": 2394450,
+          "sha256": "b378d954f4dee3f4970788f235404919c23a57e56df02bd04044f234bfe40769"
+        },
+        "bundle-1.bin": {
+          "bytes": 2394450,
+          "sha256": "e598d8bc473ab4285bc14b5f328c29b1d883e8364978652366512f393042fa0c"
+        },
+        "bundle-2.bin": {
+          "bytes": 2394450,
+          "sha256": "b402ff2f80b66c6b1a554b31b1c96cf2fa0e3d15fdc28faa95f2397ee162c579"
+        },
+        "bundle-3.bin": {
+          "bytes": 2394450,
+          "sha256": "5946c4987f6246df32d14da51aeed3305b8e30b0c2dc66c992f2ae7ad0a92585"
+        },
+        "bundle-4.bin": {
+          "bytes": 2394450,
+          "sha256": "785a49449b9ac4d2cf108a1aa93e8bf8ee7646a56907804b74294e258bf4ab61"
+        }
+      },
+      "total_bytes": 11972250
+    },
+    "inventories_equal": true
+  },
+  "arms": {
+    "direct": {
+      "cold": {
+        "ms": 229.94,
+        "exit": 0,
+        "stdout_bytes": 285,
+        "stderr_bytes": 0,
+        "decisions": {
+          "hits": 0,
+          "misses": 0,
+          "deopts": 0,
+          "skips": 0,
+          "database_locked": false
+        },
+        "artifact_digest": "06453aa904c6ed6829dc81a0f05c4b6ccc993c45a16469c1539b5ba86b6fa448",
+        "stderr": ""
+      },
+      "repeat": [
+        {
+          "ms": 226.38,
+          "exit": 0,
+          "stdout_bytes": 285,
+          "stderr_bytes": 0,
+          "decisions": {
+            "hits": 0,
+            "misses": 0,
+            "deopts": 0,
+            "skips": 0,
+            "database_locked": false
+          },
+          "artifact_digest": "06453aa904c6ed6829dc81a0f05c4b6ccc993c45a16469c1539b5ba86b6fa448",
+          "stderr": ""
+        },
+        {
+          "ms": 229.21,
+          "exit": 0,
+          "stdout_bytes": 285,
+          "stderr_bytes": 0,
+          "decisions": {
+            "hits": 0,
+            "misses": 0,
+            "deopts": 0,
+            "skips": 0,
+            "database_locked": false
+          },
+          "artifact_digest": "06453aa904c6ed6829dc81a0f05c4b6ccc993c45a16469c1539b5ba86b6fa448",
+          "stderr": ""
+        }
+      ],
+      "total_ms": 685.53,
+      "speedup": 1.0,
+      "slowdown": 1.0,
+      "artifacts_match": true,
+      "first_run_overhead_ms": 0.0,
+      "per_child_overhead_ms": 0.0,
+      "valid": true
+    },
+    "wrapped": {
+      "cold": {
+        "ms": 260.31,
+        "exit": 0,
+        "stdout_bytes": 895,
+        "stderr_bytes": 1430,
+        "decisions": {
+          "hits": 0,
+          "misses": 0,
+          "deopts": 0,
+          "skips": 5,
+          "database_locked": false
+        },
+        "artifact_digest": "06453aa904c6ed6829dc81a0f05c4b6ccc993c45a16469c1539b5ba86b6fa448",
+        "stderr": "time        133.70ms\n\nreuse disabled: admission policy is measuring this command before deciding whether to cache\n\nTraceJIT\n\ncontract       tracejit.allocator-entropy.v1\ncache          SKIP (admission policy)\nclassified     UNKNOWN\ndependencies   0\noutputs        0\nunknown        0\nruntime        114.28ms\n\nreuse disabled: admission policy is measuring this command before deciding whether to cache\n"
+      },
+      "repeat": [
+        {
+          "ms": 284.68,
+          "exit": 0,
+          "stdout_bytes": 895,
+          "stderr_bytes": 1070,
+          "decisions": {
+            "hits": 0,
+            "misses": 5,
+            "deopts": 0,
+            "skips": 0,
+            "database_locked": false
+          },
+          "artifact_digest": "06453aa904c6ed6829dc81a0f05c4b6ccc993c45a16469c1539b5ba86b6fa448",
+          "stderr": "acejit.allocator-entropy.v1\ncache          MISS\nclassified     GUARDED\ndependencies   8\noutputs        0\nunknown        0\nruntime        126.42ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.allocator-entropy.v1\ncache          MISS\nclassified     GUARDED\ndependencies   8\noutputs        0\nunknown        0\nruntime        120.67ms\n\nnext run is eligible for guarded reuse\n"
+        },
+        {
+          "ms": 52.16,
+          "exit": 0,
+          "stdout_bytes": 895,
+          "stderr_bytes": 850,
+          "decisions": {
+            "hits": 5,
+            "misses": 0,
+            "deopts": 0,
+            "skips": 0,
+            "database_locked": false
+          },
+          "artifact_digest": "06453aa904c6ed6829dc81a0f05c4b6ccc993c45a16469c1539b5ba86b6fa448",
+          "stderr": "        3.17ms\nsaved          130.15ms\nspeedup        42.0x\n\nTraceJIT\n\ncontract       tracejit.allocator-entropy.v1\nguards         27/27 passed\ncache          HIT\nruntime        2.95ms\nsaved          117.72ms\nspeedup        40.9x\n\nTraceJIT\n\ncontract       tracejit.allocator-entropy.v1\nguards         27/27 passed\ncache          HIT\nruntime        2.86ms\nsaved          123.56ms\nspeedup        44.2x\n"
+        }
+      ],
+      "probes": [
+        {
+          "input": "bundle-0.bin",
+          "exit": 0,
+          "cache_decision": "Skipped",
+          "classification": "Unknown",
+          "child_exit": 0,
+          "reasons": [
+            "admission policy is measuring this command before deciding whether to cache"
+          ]
+        },
+        {
+          "input": "bundle-1.bin",
+          "exit": 0,
+          "cache_decision": "Skipped",
+          "classification": "Unknown",
+          "child_exit": 0,
+          "reasons": [
+            "admission policy is measuring this command before deciding whether to cache"
+          ]
+        },
+        {
+          "input": "bundle-2.bin",
+          "exit": 0,
+          "cache_decision": "Skipped",
+          "classification": "Unknown",
+          "child_exit": 0,
+          "reasons": [
+            "admission policy is measuring this command before deciding whether to cache"
+          ]
+        },
+        {
+          "input": "bundle-3.bin",
+          "exit": 0,
+          "cache_decision": "Skipped",
+          "classification": "Unknown",
+          "child_exit": 0,
+          "reasons": [
+            "admission policy is measuring this command before deciding whether to cache"
+          ]
+        },
+        {
+          "input": "bundle-4.bin",
+          "exit": 0,
+          "cache_decision": "Skipped",
+          "classification": "Unknown",
+          "child_exit": 0,
+          "reasons": [
+            "admission policy is measuring this command before deciding whether to cache"
+          ]
+        }
+      ],
+      "total_ms": 597.15,
+      "speedup": 1.148,
+      "slowdown": 0.871,
+      "artifacts_match": true,
+      "first_run_overhead_ms": 30.37,
+      "per_child_overhead_ms": -11.88,
+      "valid": true
+    },
+    "top": {
+      "cold": {
+        "ms": 243.82,
+        "exit": 0,
+        "stdout_bytes": 285,
+        "stderr_bytes": 286,
+        "decisions": {
+          "hits": 0,
+          "misses": 0,
+          "deopts": 0,
+          "skips": 1,
+          "database_locked": false
+        },
+        "artifact_digest": "06453aa904c6ed6829dc81a0f05c4b6ccc993c45a16469c1539b5ba86b6fa448",
+        "stderr": "\nTraceJIT\n\ncontract       tracejit.allocator-entropy.v1\ncache          SKIP (admission policy)\nclassified     UNKNOWN\ndependencies   0\noutputs        0\nunknown        0\nruntime        226.38ms\n\nreuse disabled: admission policy is measuring this command before deciding whether to cache\n"
+      },
+      "repeat": [
+        {
+          "ms": 313.18,
+          "exit": 0,
+          "stdout_bytes": 285,
+          "stderr_bytes": 2359,
+          "decisions": {
+            "hits": 0,
+            "misses": 1,
+            "deopts": 0,
+            "skips": 0,
+            "database_locked": false
+          },
+          "artifact_digest": "06453aa904c6ed6829dc81a0f05c4b6ccc993c45a16469c1539b5ba86b6fa448",
+          "stderr": "ccessful syscall 117: unmodeled syscall 117 args [0xffffffff, 0x3ec601f, 0xffffffff, 0x8, 0x7ffe3aa93400, 0x0]\nreuse disabled: unmodeled successful syscall 119: unmodeled syscall 119 args [0xffffffff, 0x3e9, 0xffffffff, 0x8, 0x7ffe3aa93400, 0x0]\nreuse disabled: executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution\n"
+        },
+        {
+          "ms": 240.41,
+          "exit": 0,
+          "stdout_bytes": 285,
+          "stderr_bytes": 282,
+          "decisions": {
+            "hits": 0,
+            "misses": 0,
+            "deopts": 0,
+            "skips": 1,
+            "database_locked": false
+          },
+          "artifact_digest": "06453aa904c6ed6829dc81a0f05c4b6ccc993c45a16469c1539b5ba86b6fa448",
+          "stderr": "\nTraceJIT\n\ncontract       tracejit.allocator-entropy.v1\ncache          SKIP (admission policy)\nclassified     UNKNOWN\ndependencies   0\noutputs        0\nunknown        0\nruntime        231.10ms\n\nreuse disabled: admission policy: the recorded classification is not eligible for reuse\n"
+        }
+      ],
+      "total_ms": 797.41,
+      "speedup": 0.86,
+      "slowdown": 1.163,
+      "artifacts_match": true,
+      "first_run_overhead_ms": 13.88,
+      "per_child_overhead_ms": 9.8,
+      "valid": true
+    }
+  },
+  "invalidation": {
+    "wrapped": {
+      "changed_ms": 699.43,
+      "decisions": {
+        "hits": 0,
+        "misses": 4,
+        "deopts": 0,
+        "skips": 1,
+        "database_locked": false
+      },
+      "changed_archives": [
+        "bundle-2.bin.gz"
+      ],
+      "rebuild_exit": 0,
+      "rebuild_decisions": {
+        "hits": 4,
+        "misses": 1,
+        "deopts": 0,
+        "skips": 0,
+        "database_locked": false
+      },
+      "rebuilt_digest": "4c3acd0fd11ea5bab65f9c0f004903d191622e8a9599814ae4a3a4b8163d7b85"
+    },
+    "top": {
+      "changed_ms": 576.24,
+      "decisions": {
+        "hits": 0,
+        "misses": 0,
+        "deopts": 0,
+        "skips": 0,
+        "database_locked": false
+      },
+      "changed_archives": [
+        "bundle-2.bin.gz"
+      ],
+      "rebuild_exit": 0,
+      "rebuild_decisions": {
+        "hits": 0,
+        "misses": 0,
+        "deopts": 0,
+        "skips": 0,
+        "database_locked": false
+      },
+      "rebuilt_digest": "4c3acd0fd11ea5bab65f9c0f004903d191622e8a9599814ae4a3a4b8163d7b85"
+    }
+  },
+  "environment": {
+    "wrapped": {
+      "ms": 633.69,
+      "exit": 0,
+      "stdout_bytes": 895,
+      "stderr_bytes": 1430,
+      "decisions": {
+        "hits": 0,
+        "misses": 0,
+        "deopts": 0,
+        "skips": 5,
+        "database_locked": false
+      },
+      "artifact_digest": "4c3acd0fd11ea5bab65f9c0f004903d191622e8a9599814ae4a3a4b8163d7b85",
+      "stderr": "time        114.41ms\n\nreuse disabled: admission policy is measuring this command before deciding whether to cache\n\nTraceJIT\n\ncontract       tracejit.allocator-entropy.v1\ncache          SKIP (admission policy)\nclassified     UNKNOWN\ndependencies   0\noutputs        0\nunknown        0\nruntime        113.20ms\n\nreuse disabled: admission policy is measuring this command before deciding whether to cache\n"
+    },
+    "top": {
+      "ms": 569.64,
+      "exit": 0,
+      "stdout_bytes": 285,
+      "stderr_bytes": 0,
+      "decisions": {
+        "hits": 0,
+        "misses": 0,
+        "deopts": 0,
+        "skips": 0,
+        "database_locked": false
+      },
+      "artifact_digest": "4c3acd0fd11ea5bab65f9c0f004903d191622e8a9599814ae4a3a4b8163d7b85",
+      "stderr": ""
+    }
+  },
+  "parallel": {
+    "wrapped": {
+      "cold": {
+        "ms": 125.43,
+        "exit": 0,
+        "stdout_bytes": 895,
+        "stderr_bytes": 966,
+        "decisions": {
+          "hits": 4,
+          "misses": 0,
+          "deopts": 0,
+          "skips": 1,
+          "database_locked": false
+        },
+        "artifact_digest": "4c3acd0fd11ea5bab65f9c0f004903d191622e8a9599814ae4a3a4b8163d7b85",
+        "stderr": "guards         27/27 passed\ncache          HIT\nruntime        2.71ms\nsaved          117.96ms\nspeedup        44.5x\n\nTraceJIT\n\ncontract       tracejit.allocator-entropy.v1\ncache          SKIP (admission policy)\nclassified     UNKNOWN\ndependencies   0\noutputs        0\nunknown        0\nruntime        114.02ms\n\nreuse disabled: admission policy is measuring this command before deciding whether to cache\n"
+      },
+      "warm": {
+        "ms": 134.46,
+        "exit": 0,
+        "stdout_bytes": 895,
+        "stderr_bytes": 894,
+        "decisions": {
+          "hits": 4,
+          "misses": 1,
+          "deopts": 0,
+          "skips": 0,
+          "database_locked": false
+        },
+        "artifact_digest": "4c3acd0fd11ea5bab65f9c0f004903d191622e8a9599814ae4a3a4b8163d7b85",
+        "stderr": "up        47.6x\n\nTraceJIT\n\ncontract       tracejit.allocator-entropy.v1\nguards         27/27 passed\ncache          HIT\nruntime        2.85ms\nsaved          117.82ms\nspeedup        42.3x\n\nTraceJIT\n\ncontract       tracejit.allocator-entropy.v1\ncache          MISS\nclassified     GUARDED\ndependencies   8\noutputs        0\nunknown        0\nruntime        119.29ms\n\nnext run is eligible for guarded reuse\n"
+      }
+    },
+    "top": {
+      "cold": {
+        "ms": 245.31,
+        "exit": 0,
+        "stdout_bytes": 285,
+        "stderr_bytes": 0,
+        "decisions": {
+          "hits": 0,
+          "misses": 0,
+          "deopts": 0,
+          "skips": 0,
+          "database_locked": false
+        },
+        "artifact_digest": "4c3acd0fd11ea5bab65f9c0f004903d191622e8a9599814ae4a3a4b8163d7b85",
+        "stderr": ""
+      },
+      "warm": {
+        "ms": 226.01,
+        "exit": 0,
+        "stdout_bytes": 285,
+        "stderr_bytes": 0,
+        "decisions": {
+          "hits": 0,
+          "misses": 0,
+          "deopts": 0,
+          "skips": 0,
+          "database_locked": false
+        },
+        "artifact_digest": "4c3acd0fd11ea5bab65f9c0f004903d191622e8a9599814ae4a3a4b8163d7b85",
+        "stderr": ""
+      }
+    }
+  },
+  "failure_propagation": {
+    "native_exit": 1,
+    "wrapped_exit": 1,
+    "status_equal": true,
+    "native_stderr": "gzip: /nonexistent/input: No such file or directory\n",
+    "wrapped_stderr": "gzip: /nonexistent/input: No such file or directory\n\nTraceJIT\n\ncontract       tracejit.allocator-entropy.v1\ncache          SKIP (admission policy)\nclassified     UNKNOWN\ndependencies   0\noutputs        0\nunknown        0\nruntime        1.27ms\n\nreuse disabled: admission policy is measuring this command before deciding whether to cache\n",
+    "ms": {
+      "native": 1.8,
+      "wrapped": 15.88
+    }
+  },
+  "specialist": {
+    "applicable": false,
+    "reason": "no installed cache serves gzip; ccache and sccache target compilers, which TraceJIT refuses, so a specialist arm cannot perform equivalent work"
+  },
+  "artifacts": {
+    "pristine": {
+      "direct": "06453aa904c6ed6829dc81a0f05c4b6ccc993c45a16469c1539b5ba86b6fa448",
+      "wrapped": "06453aa904c6ed6829dc81a0f05c4b6ccc993c45a16469c1539b5ba86b6fa448",
+      "top": "06453aa904c6ed6829dc81a0f05c4b6ccc993c45a16469c1539b5ba86b6fa448"
+    },
+    "all_equal": true,
+    "after_invalidation": {
+      "direct": "06453aa904c6ed6829dc81a0f05c4b6ccc993c45a16469c1539b5ba86b6fa448",
+      "wrapped": "4c3acd0fd11ea5bab65f9c0f004903d191622e8a9599814ae4a3a4b8163d7b85",
+      "top": "4c3acd0fd11ea5bab65f9c0f004903d191622e8a9599814ae4a3a4b8163d7b85"
+    }
+  },
+  "direct_total_ms": 685.53
+}

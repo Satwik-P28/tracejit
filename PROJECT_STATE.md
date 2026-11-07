@@ -377,3 +377,26 @@ parallel-ordering hazards, and every `cc`/`make` child is already refused for th
 entropy as its parent, so no measured advantage exists yet. Developer-preview gate: not ready as a
 general accelerator; `PROVEN` still BLOCKED (`landlock no`). See
 `docs/audits/PHASE2L_*.md` and `benchmarks/results/phase2l/`.
+
+## Phase 2M (base `c7f2c68`)
+
+CI run 42319563118 failed because the standalone seccomp test installed
+`SECCOMP_MODE_FILTER` without `PR_SET_NO_NEW_PRIVS`. `apply` inherited the flag from the Landlock
+step, but this shell already has `NoNewPrivs: 1`, so only an unprivileged runner saw `EACCES` and
+exit 125. `apply_seccomp` now sets the precondition itself, the probe reports the errno, and the
+child asserts the flag. 113 tests pass; the CI rerun needs an authorized push.
+
+The four-repository matrix ran three sessions at binary `b0576fb1...`. Session B is contaminated
+(`never` bzip2 build 3748 ms vs 1274 ms for `direct`) and retained as evidence of the noise ceiling.
+Sessions A/C: zlib `auto` **1.145x/1.173x**; bzip2 reuses both directions but nets 0.976-0.980x
+because the build dominates; libpng 0.92-1.00x (pngtest is 7 ms and declined); lz4 0.94-1.00x and
+still `NONDETERMINISTIC`. `always` is 0.23-0.77x. All 60 policy runs produced correct artifacts.
+
+Subprocess wrapping (`benchmarks/repos/subprocess_wrap.py`, two sessions, real zlib tree, standard
+per-file compression rule): wrapped child **1.148x/1.175x**, whole-command `make` 0.842-0.860x,
+5/5 cache hits on the cached repeat (52/40 ms vs 226-232 ms), ~12 ms net saved per child, no cache
+lock under `-j4`, correct invalidation, environment and exit-status propagation. The advantage is
+too small to justify transparent interception: a real build's time is in refused `cc`/`make`
+children. No specialist gzip cache exists, so arm D is not applicable. `PROVEN` stays BLOCKED
+(`landlock no`); preview remains not ready as a general accelerator. See
+`docs/audits/PHASE2M_*.md` and `benchmarks/results/phase2m/`.

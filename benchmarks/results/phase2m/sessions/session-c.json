@@ -1,0 +1,2511 @@
+{
+  "session": "c",
+  "workload_version": "phase2k-v1",
+  "contract": "allocator-entropy-v1",
+  "tracejit": {
+    "commit": "f5a948612d037bbdccecd644b782b17754680483",
+    "dirty": false
+  },
+  "host": {
+    "platform": "Linux-6.1.102-x86_64-with-glibc2.39",
+    "kernel": "6.1.102",
+    "cpus": 8
+  },
+  "repos": {
+    "zlib": {
+      "name": "zlib v1.3.1",
+      "commit": "51b7f2abdade71cd9bb0e7a373ef2610ec6f9daf",
+      "policies": {
+        "direct": {
+          "valid": true,
+          "failed_phases": [],
+          "total_ms": 2644.64,
+          "phases": [
+            {
+              "phase": "configure",
+              "ms": 450.25,
+              "exit": 0,
+              "stdout_sha256": "c9660fd3f0ccf8ec187c94524bd758eaa41eb0034e6587cfca2999a5ad206f01",
+              "stdout_bytes": 472
+            },
+            {
+              "phase": "build",
+              "ms": 794.0,
+              "exit": 0,
+              "stdout_sha256": "b21066b8ff8d3da6ab5c73dfb2c3fc35bd9e134d84f645ec39426cfbec7b926e",
+              "stdout_bytes": 1944
+            },
+            {
+              "phase": "rebuild",
+              "ms": 3.03,
+              "exit": 0,
+              "stdout_sha256": "68c5f548009ee20966e380682cc0b78f39bea9c8895af0403577a7204fef2e99",
+              "stdout_bytes": 36
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 2.95,
+              "exit": 0,
+              "stdout_sha256": "68c5f548009ee20966e380682cc0b78f39bea9c8895af0403577a7204fef2e99",
+              "stdout_bytes": 36
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 133.32,
+              "exit": 0,
+              "stdout_sha256": "031d9f3465fc65751d4be6d406d0086754cbc27c59b5df02e0f6bf9b8c55d3f1",
+              "stdout_bytes": 558
+            },
+            {
+              "phase": "test",
+              "ms": 17.06,
+              "exit": 0,
+              "stdout_sha256": "a61078d49c0f2b1d2f5a55d9312402195b45c44a47ce18c5d6c82011a1857b87",
+              "stdout_bytes": 581
+            },
+            {
+              "phase": "compress-1",
+              "ms": 179.86,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "compress-2",
+              "ms": 182.39,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "compress-3",
+              "ms": 187.62,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "compress-4",
+              "ms": 193.0,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "compress-5",
+              "ms": 173.56,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "compress-6",
+              "ms": 175.04,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "decompress-1",
+              "ms": 29.83,
+              "exit": 0,
+              "stdout_sha256": "15e61d3c533421765d371ffea5303efe4ce996856f1e53f17f74750eb7159b12",
+              "stdout_bytes": 7465800
+            },
+            {
+              "phase": "decompress-2",
+              "ms": 30.48,
+              "exit": 0,
+              "stdout_sha256": "15e61d3c533421765d371ffea5303efe4ce996856f1e53f17f74750eb7159b12",
+              "stdout_bytes": 7465800
+            },
+            {
+              "phase": "decompress-3",
+              "ms": 52.8,
+              "exit": 0,
+              "stdout_sha256": "15e61d3c533421765d371ffea5303efe4ce996856f1e53f17f74750eb7159b12",
+              "stdout_bytes": 7465800
+            },
+            {
+              "phase": "decompress-4",
+              "ms": 39.45,
+              "exit": 0,
+              "stdout_sha256": "15e61d3c533421765d371ffea5303efe4ce996856f1e53f17f74750eb7159b12",
+              "stdout_bytes": 7465800
+            }
+          ],
+          "repeated": {
+            "count": 10,
+            "p50_ms": 174.3,
+            "p95_ms": 193.0
+          },
+          "cache_bytes": 0,
+          "peak_rss_kb": null,
+          "decisions": [],
+          "artifacts_match": true,
+          "artifact_mismatches": [],
+          "speedup": 1.0,
+          "slowdown": 1.0,
+          "invalid_reason": null
+        },
+        "never": {
+          "valid": true,
+          "failed_phases": [],
+          "total_ms": 2944.33,
+          "phases": [
+            {
+              "phase": "configure",
+              "ms": 555.09,
+              "exit": 0,
+              "stdout_sha256": "c9660fd3f0ccf8ec187c94524bd758eaa41eb0034e6587cfca2999a5ad206f01",
+              "stdout_bytes": 472
+            },
+            {
+              "phase": "build",
+              "ms": 852.49,
+              "exit": 0,
+              "stdout_sha256": "a402e1d46445ce764e67ac3cbb917b7a6e71e193a08cf026d4657fd6278a4b53",
+              "stdout_bytes": 3245
+            },
+            {
+              "phase": "rebuild",
+              "ms": 10.46,
+              "exit": 0,
+              "stdout_sha256": "68c5f548009ee20966e380682cc0b78f39bea9c8895af0403577a7204fef2e99",
+              "stdout_bytes": 36
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 9.87,
+              "exit": 0,
+              "stdout_sha256": "68c5f548009ee20966e380682cc0b78f39bea9c8895af0403577a7204fef2e99",
+              "stdout_bytes": 36
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 151.91,
+              "exit": 0,
+              "stdout_sha256": "070f8f5e999ca15bfc3f0189f66dd99a7d011975ee2f62f3d7670505df99ec4d",
+              "stdout_bytes": 621
+            },
+            {
+              "phase": "test",
+              "ms": 26.58,
+              "exit": 0,
+              "stdout_sha256": "a61078d49c0f2b1d2f5a55d9312402195b45c44a47ce18c5d6c82011a1857b87",
+              "stdout_bytes": 581
+            },
+            {
+              "phase": "compress-1",
+              "ms": 193.84,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "compress-2",
+              "ms": 194.11,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "compress-3",
+              "ms": 200.02,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "compress-4",
+              "ms": 189.05,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "compress-5",
+              "ms": 189.64,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "compress-6",
+              "ms": 191.04,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "decompress-1",
+              "ms": 49.99,
+              "exit": 0,
+              "stdout_sha256": "15e61d3c533421765d371ffea5303efe4ce996856f1e53f17f74750eb7159b12",
+              "stdout_bytes": 7465800
+            },
+            {
+              "phase": "decompress-2",
+              "ms": 51.04,
+              "exit": 0,
+              "stdout_sha256": "15e61d3c533421765d371ffea5303efe4ce996856f1e53f17f74750eb7159b12",
+              "stdout_bytes": 7465800
+            },
+            {
+              "phase": "decompress-3",
+              "ms": 36.14,
+              "exit": 0,
+              "stdout_sha256": "15e61d3c533421765d371ffea5303efe4ce996856f1e53f17f74750eb7159b12",
+              "stdout_bytes": 7465800
+            },
+            {
+              "phase": "decompress-4",
+              "ms": 43.05,
+              "exit": 0,
+              "stdout_sha256": "15e61d3c533421765d371ffea5303efe4ce996856f1e53f17f74750eb7159b12",
+              "stdout_bytes": 7465800
+            }
+          ],
+          "repeated": {
+            "count": 10,
+            "p50_ms": 189.34,
+            "p95_ms": 200.02
+          },
+          "cache_bytes": 20498,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "make -j1",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy disabled caching for this run"
+              ]
+            },
+            {
+              "command": "./minigzip",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy disabled caching for this run"
+              ]
+            },
+            {
+              "command": "./minigzip -d",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy disabled caching for this run"
+              ]
+            }
+          ],
+          "artifacts_match": true,
+          "artifact_mismatches": [],
+          "speedup": 0.898,
+          "slowdown": 1.113,
+          "invalid_reason": null
+        },
+        "auto-v1": {
+          "valid": true,
+          "failed_phases": [],
+          "total_ms": 2233.33,
+          "phases": [
+            {
+              "phase": "configure",
+              "ms": 425.31,
+              "exit": 0,
+              "stdout_sha256": "c9660fd3f0ccf8ec187c94524bd758eaa41eb0034e6587cfca2999a5ad206f01",
+              "stdout_bytes": 472
+            },
+            {
+              "phase": "build",
+              "ms": 811.84,
+              "exit": 0,
+              "stdout_sha256": "a4aaec31bf202cf38540c22dfa5a05001c5e3365e357ff84b9e73a2a0b83cc52",
+              "stdout_bytes": 3291
+            },
+            {
+              "phase": "rebuild",
+              "ms": 28.33,
+              "exit": 0,
+              "stdout_sha256": "68c5f548009ee20966e380682cc0b78f39bea9c8895af0403577a7204fef2e99",
+              "stdout_bytes": 36
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 11.26,
+              "exit": 0,
+              "stdout_sha256": "68c5f548009ee20966e380682cc0b78f39bea9c8895af0403577a7204fef2e99",
+              "stdout_bytes": 36
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 152.24,
+              "exit": 0,
+              "stdout_sha256": "35c82779bccc1bba34c6d4bd8eb4353dc008197a58df113ee7739a4bf0440a92",
+              "stdout_bytes": 623
+            },
+            {
+              "phase": "test",
+              "ms": 25.2,
+              "exit": 0,
+              "stdout_sha256": "a61078d49c0f2b1d2f5a55d9312402195b45c44a47ce18c5d6c82011a1857b87",
+              "stdout_bytes": 581
+            },
+            {
+              "phase": "compress-1",
+              "ms": 189.27,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "compress-2",
+              "ms": 260.62,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "compress-3",
+              "ms": 19.0,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "compress-4",
+              "ms": 14.82,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "compress-5",
+              "ms": 24.97,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "compress-6",
+              "ms": 19.66,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "decompress-1",
+              "ms": 46.98,
+              "exit": 0,
+              "stdout_sha256": "15e61d3c533421765d371ffea5303efe4ce996856f1e53f17f74750eb7159b12",
+              "stdout_bytes": 7465800
+            },
+            {
+              "phase": "decompress-2",
+              "ms": 138.4,
+              "exit": 0,
+              "stdout_sha256": "15e61d3c533421765d371ffea5303efe4ce996856f1e53f17f74750eb7159b12",
+              "stdout_bytes": 7465800
+            },
+            {
+              "phase": "decompress-3",
+              "ms": 32.97,
+              "exit": 0,
+              "stdout_sha256": "15e61d3c533421765d371ffea5303efe4ce996856f1e53f17f74750eb7159b12",
+              "stdout_bytes": 7465800
+            },
+            {
+              "phase": "decompress-4",
+              "ms": 32.46,
+              "exit": 0,
+              "stdout_sha256": "15e61d3c533421765d371ffea5303efe4ce996856f1e53f17f74750eb7159b12",
+              "stdout_bytes": 7465800
+            }
+          ],
+          "repeated": {
+            "count": 10,
+            "p50_ms": 32.72,
+            "p95_ms": 260.62
+          },
+          "cache_bytes": 9446825,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "make -j1",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy is measuring this command before deciding whether to cache"
+              ]
+            },
+            {
+              "command": "./minigzip",
+              "decision": "Reused",
+              "classification": "Guarded",
+              "reasons": [
+                "all observed dependencies are guardable or captured outputs",
+                "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+              ]
+            },
+            {
+              "command": "./minigzip -d",
+              "decision": "Reused",
+              "classification": "Guarded",
+              "reasons": [
+                "all observed dependencies are guardable or captured outputs",
+                "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+              ]
+            }
+          ],
+          "artifacts_match": true,
+          "artifact_mismatches": [],
+          "speedup": 1.184,
+          "slowdown": 0.844,
+          "invalid_reason": null
+        },
+        "always": {
+          "valid": true,
+          "failed_phases": [],
+          "total_ms": 5684.55,
+          "phases": [
+            {
+              "phase": "configure",
+              "ms": 1816.81,
+              "exit": 0,
+              "stdout_sha256": "c9660fd3f0ccf8ec187c94524bd758eaa41eb0034e6587cfca2999a5ad206f01",
+              "stdout_bytes": 472
+            },
+            {
+              "phase": "build",
+              "ms": 2316.75,
+              "exit": 0,
+              "stdout_sha256": "2e65135e75cc40ce2b4d2a1633e7175210aa3766c84aa174f7c988e4d360005b",
+              "stdout_bytes": 1944
+            },
+            {
+              "phase": "rebuild",
+              "ms": 126.29,
+              "exit": 0,
+              "stdout_sha256": "68c5f548009ee20966e380682cc0b78f39bea9c8895af0403577a7204fef2e99",
+              "stdout_bytes": 36
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 37.24,
+              "exit": 0,
+              "stdout_sha256": "68c5f548009ee20966e380682cc0b78f39bea9c8895af0403577a7204fef2e99",
+              "stdout_bytes": 36
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 658.29,
+              "exit": 0,
+              "stdout_sha256": "031d9f3465fc65751d4be6d406d0086754cbc27c59b5df02e0f6bf9b8c55d3f1",
+              "stdout_bytes": 558
+            },
+            {
+              "phase": "test",
+              "ms": 108.13,
+              "exit": 0,
+              "stdout_sha256": "a61078d49c0f2b1d2f5a55d9312402195b45c44a47ce18c5d6c82011a1857b87",
+              "stdout_bytes": 581
+            },
+            {
+              "phase": "compress-1",
+              "ms": 276.38,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "compress-2",
+              "ms": 22.31,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "compress-3",
+              "ms": 15.93,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "compress-4",
+              "ms": 19.2,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "compress-5",
+              "ms": 18.57,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "compress-6",
+              "ms": 18.4,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "decompress-1",
+              "ms": 150.35,
+              "exit": 0,
+              "stdout_sha256": "15e61d3c533421765d371ffea5303efe4ce996856f1e53f17f74750eb7159b12",
+              "stdout_bytes": 7465800
+            },
+            {
+              "phase": "decompress-2",
+              "ms": 40.44,
+              "exit": 0,
+              "stdout_sha256": "15e61d3c533421765d371ffea5303efe4ce996856f1e53f17f74750eb7159b12",
+              "stdout_bytes": 7465800
+            },
+            {
+              "phase": "decompress-3",
+              "ms": 28.47,
+              "exit": 0,
+              "stdout_sha256": "15e61d3c533421765d371ffea5303efe4ce996856f1e53f17f74750eb7159b12",
+              "stdout_bytes": 7465800
+            },
+            {
+              "phase": "decompress-4",
+              "ms": 30.99,
+              "exit": 0,
+              "stdout_sha256": "15e61d3c533421765d371ffea5303efe4ce996856f1e53f17f74750eb7159b12",
+              "stdout_bytes": 7465800
+            }
+          ],
+          "repeated": {
+            "count": 10,
+            "p50_ms": 25.39,
+            "p95_ms": 276.38
+          },
+          "cache_bytes": 43440507,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "make -j1",
+              "decision": "Ineligible",
+              "classification": "Nondeterministic",
+              "reasons": [
+                "process read system clock: realtime",
+                "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+              ]
+            },
+            {
+              "command": "./minigzip",
+              "decision": "Reused",
+              "classification": "Guarded",
+              "reasons": [
+                "all observed dependencies are guardable or captured outputs",
+                "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+              ]
+            },
+            {
+              "command": "./minigzip -d",
+              "decision": "Reused",
+              "classification": "Guarded",
+              "reasons": [
+                "all observed dependencies are guardable or captured outputs",
+                "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+              ]
+            }
+          ],
+          "artifacts_match": true,
+          "artifact_mismatches": [],
+          "speedup": 0.465,
+          "slowdown": 2.149,
+          "invalid_reason": null
+        },
+        "auto": {
+          "valid": true,
+          "failed_phases": [],
+          "total_ms": 2253.88,
+          "phases": [
+            {
+              "phase": "configure",
+              "ms": 415.91,
+              "exit": 0,
+              "stdout_sha256": "c9660fd3f0ccf8ec187c94524bd758eaa41eb0034e6587cfca2999a5ad206f01",
+              "stdout_bytes": 472
+            },
+            {
+              "phase": "build",
+              "ms": 824.87,
+              "exit": 0,
+              "stdout_sha256": "8a506cfbce614c8c30fe535454dd164efe1721a0f2410fbd6e46e3e1b87b4423",
+              "stdout_bytes": 3222
+            },
+            {
+              "phase": "rebuild",
+              "ms": 36.24,
+              "exit": 0,
+              "stdout_sha256": "68c5f548009ee20966e380682cc0b78f39bea9c8895af0403577a7204fef2e99",
+              "stdout_bytes": 36
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 12.29,
+              "exit": 0,
+              "stdout_sha256": "68c5f548009ee20966e380682cc0b78f39bea9c8895af0403577a7204fef2e99",
+              "stdout_bytes": 36
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 137.81,
+              "exit": 0,
+              "stdout_sha256": "7660625be878bbf254db44cb5547a74f369b67819093b99e33dc85973e795902",
+              "stdout_bytes": 620
+            },
+            {
+              "phase": "test",
+              "ms": 23.58,
+              "exit": 0,
+              "stdout_sha256": "a61078d49c0f2b1d2f5a55d9312402195b45c44a47ce18c5d6c82011a1857b87",
+              "stdout_bytes": 581
+            },
+            {
+              "phase": "compress-1",
+              "ms": 196.24,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "compress-2",
+              "ms": 275.99,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "compress-3",
+              "ms": 19.64,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "compress-4",
+              "ms": 21.29,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "compress-5",
+              "ms": 21.58,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "compress-6",
+              "ms": 23.94,
+              "exit": 0,
+              "stdout_sha256": "8629585aba99ed4c7036f88a12d8939cacf8389ff15a1b7a72b9b4591e3dc77d",
+              "stdout_bytes": 1613676
+            },
+            {
+              "phase": "decompress-1",
+              "ms": 42.97,
+              "exit": 0,
+              "stdout_sha256": "15e61d3c533421765d371ffea5303efe4ce996856f1e53f17f74750eb7159b12",
+              "stdout_bytes": 7465800
+            },
+            {
+              "phase": "decompress-2",
+              "ms": 145.84,
+              "exit": 0,
+              "stdout_sha256": "15e61d3c533421765d371ffea5303efe4ce996856f1e53f17f74750eb7159b12",
+              "stdout_bytes": 7465800
+            },
+            {
+              "phase": "decompress-3",
+              "ms": 29.59,
+              "exit": 0,
+              "stdout_sha256": "15e61d3c533421765d371ffea5303efe4ce996856f1e53f17f74750eb7159b12",
+              "stdout_bytes": 7465800
+            },
+            {
+              "phase": "decompress-4",
+              "ms": 26.1,
+              "exit": 0,
+              "stdout_sha256": "15e61d3c533421765d371ffea5303efe4ce996856f1e53f17f74750eb7159b12",
+              "stdout_bytes": 7465800
+            }
+          ],
+          "repeated": {
+            "count": 10,
+            "p50_ms": 27.84,
+            "p95_ms": 275.99
+          },
+          "cache_bytes": 9441774,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "make -j1",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy is measuring this command before deciding whether to cache"
+              ]
+            },
+            {
+              "command": "./minigzip",
+              "decision": "Reused",
+              "classification": "Guarded",
+              "reasons": [
+                "all observed dependencies are guardable or captured outputs",
+                "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+              ]
+            },
+            {
+              "command": "./minigzip -d",
+              "decision": "Reused",
+              "classification": "Guarded",
+              "reasons": [
+                "all observed dependencies are guardable or captured outputs",
+                "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+              ]
+            }
+          ],
+          "artifacts_match": true,
+          "artifact_mismatches": [],
+          "speedup": 1.173,
+          "slowdown": 0.852,
+          "invalid_reason": null
+        }
+      }
+    },
+    "bzip2": {
+      "name": "bzip2 1.0.8",
+      "commit": "6a8690fc8d26c815e798c588f796eabe9d684cf0",
+      "policies": {
+        "direct": {
+          "valid": true,
+          "failed_phases": [],
+          "total_ms": 3531.31,
+          "phases": [
+            {
+              "phase": "build",
+              "ms": 1266.23,
+              "exit": 0,
+              "stdout_sha256": "f94821af36bc7b731dde36854c50d9ad132c5a43ce6ae907e32122c30a134114",
+              "stdout_bytes": 2682
+            },
+            {
+              "phase": "rebuild",
+              "ms": 95.41,
+              "exit": 0,
+              "stdout_sha256": "8a7894fce6bebeedd80c09d5c6aa3f66c8f692724f6fbfb143de914f5252f4a5",
+              "stdout_bytes": 1457
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 91.03,
+              "exit": 0,
+              "stdout_sha256": "8a7894fce6bebeedd80c09d5c6aa3f66c8f692724f6fbfb143de914f5252f4a5",
+              "stdout_bytes": 1457
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 1217.83,
+              "exit": 0,
+              "stdout_sha256": "80af7417a60d3a3e4bc3db9c4f2d7f445b652c7bb7edc0b77748e53d2d5820be",
+              "stdout_bytes": 1720
+            },
+            {
+              "phase": "compress-1",
+              "ms": 169.62,
+              "exit": 0,
+              "stdout_sha256": "10404107e62d4a630465c53dfeaa13d503f1fb799582aa0437b3caaed5b88de3",
+              "stdout_bytes": 308993
+            },
+            {
+              "phase": "compress-2",
+              "ms": 171.58,
+              "exit": 0,
+              "stdout_sha256": "10404107e62d4a630465c53dfeaa13d503f1fb799582aa0437b3caaed5b88de3",
+              "stdout_bytes": 308993
+            },
+            {
+              "phase": "compress-3",
+              "ms": 166.78,
+              "exit": 0,
+              "stdout_sha256": "10404107e62d4a630465c53dfeaa13d503f1fb799582aa0437b3caaed5b88de3",
+              "stdout_bytes": 308993
+            },
+            {
+              "phase": "compress-4",
+              "ms": 175.35,
+              "exit": 0,
+              "stdout_sha256": "10404107e62d4a630465c53dfeaa13d503f1fb799582aa0437b3caaed5b88de3",
+              "stdout_bytes": 308993
+            },
+            {
+              "phase": "decompress-1",
+              "ms": 62.96,
+              "exit": 0,
+              "stdout_sha256": "4264ebbe4b6155a8dd7ad789e35b09a2a5f5763a14c833ab9c23c0f25b7fdbfd",
+              "stdout_bytes": 1866450
+            },
+            {
+              "phase": "decompress-2",
+              "ms": 57.69,
+              "exit": 0,
+              "stdout_sha256": "4264ebbe4b6155a8dd7ad789e35b09a2a5f5763a14c833ab9c23c0f25b7fdbfd",
+              "stdout_bytes": 1866450
+            },
+            {
+              "phase": "decompress-3",
+              "ms": 56.83,
+              "exit": 0,
+              "stdout_sha256": "4264ebbe4b6155a8dd7ad789e35b09a2a5f5763a14c833ab9c23c0f25b7fdbfd",
+              "stdout_bytes": 1866450
+            }
+          ],
+          "repeated": {
+            "count": 7,
+            "p50_ms": 166.78,
+            "p95_ms": 175.35
+          },
+          "cache_bytes": 0,
+          "peak_rss_kb": null,
+          "decisions": [],
+          "artifacts_match": true,
+          "artifact_mismatches": [],
+          "speedup": 1.0,
+          "slowdown": 1.0,
+          "invalid_reason": null
+        },
+        "never": {
+          "valid": true,
+          "failed_phases": [],
+          "total_ms": 3717.29,
+          "phases": [
+            {
+              "phase": "build",
+              "ms": 1279.59,
+              "exit": 0,
+              "stdout_sha256": "2ca1cd63640541d7a8209b76ecedcc9cc7cb67f3c626738cc4f07bc9f3097804",
+              "stdout_bytes": 2682
+            },
+            {
+              "phase": "rebuild",
+              "ms": 126.0,
+              "exit": 0,
+              "stdout_sha256": "8a7894fce6bebeedd80c09d5c6aa3f66c8f692724f6fbfb143de914f5252f4a5",
+              "stdout_bytes": 1457
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 103.61,
+              "exit": 0,
+              "stdout_sha256": "8a7894fce6bebeedd80c09d5c6aa3f66c8f692724f6fbfb143de914f5252f4a5",
+              "stdout_bytes": 1457
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 1251.05,
+              "exit": 0,
+              "stdout_sha256": "80af7417a60d3a3e4bc3db9c4f2d7f445b652c7bb7edc0b77748e53d2d5820be",
+              "stdout_bytes": 1720
+            },
+            {
+              "phase": "compress-1",
+              "ms": 184.62,
+              "exit": 0,
+              "stdout_sha256": "10404107e62d4a630465c53dfeaa13d503f1fb799582aa0437b3caaed5b88de3",
+              "stdout_bytes": 308993
+            },
+            {
+              "phase": "compress-2",
+              "ms": 179.36,
+              "exit": 0,
+              "stdout_sha256": "10404107e62d4a630465c53dfeaa13d503f1fb799582aa0437b3caaed5b88de3",
+              "stdout_bytes": 308993
+            },
+            {
+              "phase": "compress-3",
+              "ms": 182.37,
+              "exit": 0,
+              "stdout_sha256": "10404107e62d4a630465c53dfeaa13d503f1fb799582aa0437b3caaed5b88de3",
+              "stdout_bytes": 308993
+            },
+            {
+              "phase": "compress-4",
+              "ms": 191.14,
+              "exit": 0,
+              "stdout_sha256": "10404107e62d4a630465c53dfeaa13d503f1fb799582aa0437b3caaed5b88de3",
+              "stdout_bytes": 308993
+            },
+            {
+              "phase": "decompress-1",
+              "ms": 70.53,
+              "exit": 0,
+              "stdout_sha256": "4264ebbe4b6155a8dd7ad789e35b09a2a5f5763a14c833ab9c23c0f25b7fdbfd",
+              "stdout_bytes": 1866450
+            },
+            {
+              "phase": "decompress-2",
+              "ms": 77.8,
+              "exit": 0,
+              "stdout_sha256": "4264ebbe4b6155a8dd7ad789e35b09a2a5f5763a14c833ab9c23c0f25b7fdbfd",
+              "stdout_bytes": 1866450
+            },
+            {
+              "phase": "decompress-3",
+              "ms": 71.2,
+              "exit": 0,
+              "stdout_sha256": "4264ebbe4b6155a8dd7ad789e35b09a2a5f5763a14c833ab9c23c0f25b7fdbfd",
+              "stdout_bytes": 1866450
+            }
+          ],
+          "repeated": {
+            "count": 7,
+            "p50_ms": 179.36,
+            "p95_ms": 191.14
+          },
+          "cache_bytes": 20498,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "make -j1",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy disabled caching for this run"
+              ]
+            },
+            {
+              "command": "./bzip2 -9 -c",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy disabled caching for this run"
+              ]
+            },
+            {
+              "command": "./bzip2 -d -c",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy disabled caching for this run"
+              ]
+            }
+          ],
+          "artifacts_match": true,
+          "artifact_mismatches": [],
+          "speedup": 0.95,
+          "slowdown": 1.053,
+          "invalid_reason": null
+        },
+        "auto-v1": {
+          "valid": true,
+          "failed_phases": [],
+          "total_ms": 3592.7,
+          "phases": [
+            {
+              "phase": "build",
+              "ms": 1304.39,
+              "exit": 0,
+              "stdout_sha256": "a343e2fdb0eff1bd90c676ec9b10326f208a4b5e0ebc8c999fdb6b2c0eed5936",
+              "stdout_bytes": 2682
+            },
+            {
+              "phase": "rebuild",
+              "ms": 257.12,
+              "exit": 0,
+              "stdout_sha256": "8a7894fce6bebeedd80c09d5c6aa3f66c8f692724f6fbfb143de914f5252f4a5",
+              "stdout_bytes": 1457
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 103.19,
+              "exit": 0,
+              "stdout_sha256": "8a7894fce6bebeedd80c09d5c6aa3f66c8f692724f6fbfb143de914f5252f4a5",
+              "stdout_bytes": 1457
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 1281.18,
+              "exit": 0,
+              "stdout_sha256": "80af7417a60d3a3e4bc3db9c4f2d7f445b652c7bb7edc0b77748e53d2d5820be",
+              "stdout_bytes": 1720
+            },
+            {
+              "phase": "compress-1",
+              "ms": 174.0,
+              "exit": 0,
+              "stdout_sha256": "10404107e62d4a630465c53dfeaa13d503f1fb799582aa0437b3caaed5b88de3",
+              "stdout_bytes": 308993
+            },
+            {
+              "phase": "compress-2",
+              "ms": 232.69,
+              "exit": 0,
+              "stdout_sha256": "10404107e62d4a630465c53dfeaa13d503f1fb799582aa0437b3caaed5b88de3",
+              "stdout_bytes": 308993
+            },
+            {
+              "phase": "compress-3",
+              "ms": 14.89,
+              "exit": 0,
+              "stdout_sha256": "10404107e62d4a630465c53dfeaa13d503f1fb799582aa0437b3caaed5b88de3",
+              "stdout_bytes": 308993
+            },
+            {
+              "phase": "compress-4",
+              "ms": 13.24,
+              "exit": 0,
+              "stdout_sha256": "10404107e62d4a630465c53dfeaa13d503f1fb799582aa0437b3caaed5b88de3",
+              "stdout_bytes": 308993
+            },
+            {
+              "phase": "decompress-1",
+              "ms": 76.76,
+              "exit": 0,
+              "stdout_sha256": "4264ebbe4b6155a8dd7ad789e35b09a2a5f5763a14c833ab9c23c0f25b7fdbfd",
+              "stdout_bytes": 1866450
+            },
+            {
+              "phase": "decompress-2",
+              "ms": 118.16,
+              "exit": 0,
+              "stdout_sha256": "4264ebbe4b6155a8dd7ad789e35b09a2a5f5763a14c833ab9c23c0f25b7fdbfd",
+              "stdout_bytes": 1866450
+            },
+            {
+              "phase": "decompress-3",
+              "ms": 17.08,
+              "exit": 0,
+              "stdout_sha256": "4264ebbe4b6155a8dd7ad789e35b09a2a5f5763a14c833ab9c23c0f25b7fdbfd",
+              "stdout_bytes": 1866450
+            }
+          ],
+          "repeated": {
+            "count": 7,
+            "p50_ms": 76.76,
+            "p95_ms": 232.69
+          },
+          "cache_bytes": 3379949,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "make -j1",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy is measuring this command before deciding whether to cache"
+              ]
+            },
+            {
+              "command": "./bzip2 -9 -c",
+              "decision": "Reused",
+              "classification": "Guarded",
+              "reasons": [
+                "all observed dependencies are guardable or captured outputs",
+                "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+              ]
+            },
+            {
+              "command": "./bzip2 -d -c",
+              "decision": "Reused",
+              "classification": "Guarded",
+              "reasons": [
+                "all observed dependencies are guardable or captured outputs",
+                "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+              ]
+            }
+          ],
+          "artifacts_match": true,
+          "artifact_mismatches": [],
+          "speedup": 0.983,
+          "slowdown": 1.017,
+          "invalid_reason": null
+        },
+        "always": {
+          "valid": true,
+          "failed_phases": [],
+          "total_ms": 5178.01,
+          "phases": [
+            {
+              "phase": "build",
+              "ms": 2301.6,
+              "exit": 0,
+              "stdout_sha256": "2ca1cd63640541d7a8209b76ecedcc9cc7cb67f3c626738cc4f07bc9f3097804",
+              "stdout_bytes": 2682
+            },
+            {
+              "phase": "rebuild",
+              "ms": 290.24,
+              "exit": 0,
+              "stdout_sha256": "8a7894fce6bebeedd80c09d5c6aa3f66c8f692724f6fbfb143de914f5252f4a5",
+              "stdout_bytes": 1457
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 244.53,
+              "exit": 0,
+              "stdout_sha256": "8a7894fce6bebeedd80c09d5c6aa3f66c8f692724f6fbfb143de914f5252f4a5",
+              "stdout_bytes": 1457
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 1934.7,
+              "exit": 0,
+              "stdout_sha256": "80af7417a60d3a3e4bc3db9c4f2d7f445b652c7bb7edc0b77748e53d2d5820be",
+              "stdout_bytes": 1720
+            },
+            {
+              "phase": "compress-1",
+              "ms": 221.22,
+              "exit": 0,
+              "stdout_sha256": "10404107e62d4a630465c53dfeaa13d503f1fb799582aa0437b3caaed5b88de3",
+              "stdout_bytes": 308993
+            },
+            {
+              "phase": "compress-2",
+              "ms": 14.17,
+              "exit": 0,
+              "stdout_sha256": "10404107e62d4a630465c53dfeaa13d503f1fb799582aa0437b3caaed5b88de3",
+              "stdout_bytes": 308993
+            },
+            {
+              "phase": "compress-3",
+              "ms": 12.85,
+              "exit": 0,
+              "stdout_sha256": "10404107e62d4a630465c53dfeaa13d503f1fb799582aa0437b3caaed5b88de3",
+              "stdout_bytes": 308993
+            },
+            {
+              "phase": "compress-4",
+              "ms": 14.62,
+              "exit": 0,
+              "stdout_sha256": "10404107e62d4a630465c53dfeaa13d503f1fb799582aa0437b3caaed5b88de3",
+              "stdout_bytes": 308993
+            },
+            {
+              "phase": "decompress-1",
+              "ms": 114.87,
+              "exit": 0,
+              "stdout_sha256": "4264ebbe4b6155a8dd7ad789e35b09a2a5f5763a14c833ab9c23c0f25b7fdbfd",
+              "stdout_bytes": 1866450
+            },
+            {
+              "phase": "decompress-2",
+              "ms": 17.14,
+              "exit": 0,
+              "stdout_sha256": "4264ebbe4b6155a8dd7ad789e35b09a2a5f5763a14c833ab9c23c0f25b7fdbfd",
+              "stdout_bytes": 1866450
+            },
+            {
+              "phase": "decompress-3",
+              "ms": 12.09,
+              "exit": 0,
+              "stdout_sha256": "4264ebbe4b6155a8dd7ad789e35b09a2a5f5763a14c833ab9c23c0f25b7fdbfd",
+              "stdout_bytes": 1866450
+            }
+          ],
+          "repeated": {
+            "count": 7,
+            "p50_ms": 14.62,
+            "p95_ms": 221.22
+          },
+          "cache_bytes": 18464624,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "make -j1",
+              "decision": "Ineligible",
+              "classification": "Unknown",
+              "reasons": [
+                "unmodeled successful syscall 117: unmodeled syscall 117 args [0xffffffff, 0x3ec601f, 0xffffffff, 0x8, 0x7ffd0f6761d0, 0x0]",
+                "unmodeled successful syscall 119: unmodeled syscall 119 args [0xffffffff, 0x3e9, 0xffffffff, 0x8, 0x7ffd0f6761d0, 0x0]"
+              ]
+            },
+            {
+              "command": "./bzip2 -9 -c",
+              "decision": "Reused",
+              "classification": "Guarded",
+              "reasons": [
+                "all observed dependencies are guardable or captured outputs",
+                "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+              ]
+            },
+            {
+              "command": "./bzip2 -d -c",
+              "decision": "Reused",
+              "classification": "Guarded",
+              "reasons": [
+                "all observed dependencies are guardable or captured outputs",
+                "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+              ]
+            }
+          ],
+          "artifacts_match": true,
+          "artifact_mismatches": [],
+          "speedup": 0.682,
+          "slowdown": 1.466,
+          "invalid_reason": null
+        },
+        "auto": {
+          "valid": true,
+          "failed_phases": [],
+          "total_ms": 3603.3,
+          "phases": [
+            {
+              "phase": "build",
+              "ms": 1338.79,
+              "exit": 0,
+              "stdout_sha256": "2ca1cd63640541d7a8209b76ecedcc9cc7cb67f3c626738cc4f07bc9f3097804",
+              "stdout_bytes": 2682
+            },
+            {
+              "phase": "rebuild",
+              "ms": 269.9,
+              "exit": 0,
+              "stdout_sha256": "8a7894fce6bebeedd80c09d5c6aa3f66c8f692724f6fbfb143de914f5252f4a5",
+              "stdout_bytes": 1457
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 105.61,
+              "exit": 0,
+              "stdout_sha256": "8a7894fce6bebeedd80c09d5c6aa3f66c8f692724f6fbfb143de914f5252f4a5",
+              "stdout_bytes": 1457
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 1243.47,
+              "exit": 0,
+              "stdout_sha256": "80af7417a60d3a3e4bc3db9c4f2d7f445b652c7bb7edc0b77748e53d2d5820be",
+              "stdout_bytes": 1720
+            },
+            {
+              "phase": "compress-1",
+              "ms": 182.66,
+              "exit": 0,
+              "stdout_sha256": "10404107e62d4a630465c53dfeaa13d503f1fb799582aa0437b3caaed5b88de3",
+              "stdout_bytes": 308993
+            },
+            {
+              "phase": "compress-2",
+              "ms": 235.94,
+              "exit": 0,
+              "stdout_sha256": "10404107e62d4a630465c53dfeaa13d503f1fb799582aa0437b3caaed5b88de3",
+              "stdout_bytes": 308993
+            },
+            {
+              "phase": "compress-3",
+              "ms": 14.31,
+              "exit": 0,
+              "stdout_sha256": "10404107e62d4a630465c53dfeaa13d503f1fb799582aa0437b3caaed5b88de3",
+              "stdout_bytes": 308993
+            },
+            {
+              "phase": "compress-4",
+              "ms": 13.42,
+              "exit": 0,
+              "stdout_sha256": "10404107e62d4a630465c53dfeaa13d503f1fb799582aa0437b3caaed5b88de3",
+              "stdout_bytes": 308993
+            },
+            {
+              "phase": "decompress-1",
+              "ms": 72.59,
+              "exit": 0,
+              "stdout_sha256": "4264ebbe4b6155a8dd7ad789e35b09a2a5f5763a14c833ab9c23c0f25b7fdbfd",
+              "stdout_bytes": 1866450
+            },
+            {
+              "phase": "decompress-2",
+              "ms": 110.38,
+              "exit": 0,
+              "stdout_sha256": "4264ebbe4b6155a8dd7ad789e35b09a2a5f5763a14c833ab9c23c0f25b7fdbfd",
+              "stdout_bytes": 1866450
+            },
+            {
+              "phase": "decompress-3",
+              "ms": 16.23,
+              "exit": 0,
+              "stdout_sha256": "4264ebbe4b6155a8dd7ad789e35b09a2a5f5763a14c833ab9c23c0f25b7fdbfd",
+              "stdout_bytes": 1866450
+            }
+          ],
+          "repeated": {
+            "count": 7,
+            "p50_ms": 72.59,
+            "p95_ms": 235.94
+          },
+          "cache_bytes": 3378745,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "make -j1",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy is measuring this command before deciding whether to cache"
+              ]
+            },
+            {
+              "command": "./bzip2 -9 -c",
+              "decision": "Reused",
+              "classification": "Guarded",
+              "reasons": [
+                "all observed dependencies are guardable or captured outputs",
+                "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+              ]
+            },
+            {
+              "command": "./bzip2 -d -c",
+              "decision": "Reused",
+              "classification": "Guarded",
+              "reasons": [
+                "all observed dependencies are guardable or captured outputs",
+                "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+              ]
+            }
+          ],
+          "artifacts_match": true,
+          "artifact_mismatches": [],
+          "speedup": 0.98,
+          "slowdown": 1.02,
+          "invalid_reason": null
+        }
+      }
+    },
+    "libpng": {
+      "name": "libpng v1.6.43",
+      "commit": "ed217e3e601d8e462f7fd1e04bed43ac42212429",
+      "policies": {
+        "direct": {
+          "valid": true,
+          "failed_phases": [],
+          "total_ms": 9514.86,
+          "phases": [
+            {
+              "phase": "configure",
+              "ms": 3050.53,
+              "exit": 0,
+              "stdout_sha256": "3ed168ee7dbd17a8ad4eb737f53056fcd6473b28292128ce9920ee38ad76a206",
+              "stdout_bytes": 4699
+            },
+            {
+              "phase": "build",
+              "ms": 5041.15,
+              "exit": 0,
+              "stdout_sha256": "b4f0095e544dc575a09e184cfb26e0d00190b24831dc51a5eccad4ee9521e4b1",
+              "stdout_bytes": 15740
+            },
+            {
+              "phase": "rebuild",
+              "ms": 46.43,
+              "exit": 0,
+              "stdout_sha256": "459911685d1384371b5738ad30a061b8b14f4ef022dd136addd867200ec2f70c",
+              "stdout_bytes": 164
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 49.03,
+              "exit": 0,
+              "stdout_sha256": "459911685d1384371b5738ad30a061b8b14f4ef022dd136addd867200ec2f70c",
+              "stdout_bytes": 164
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 1287.05,
+              "exit": 0,
+              "stdout_sha256": "ce04b4c400ce4c3fff58303db635bde7549118c146cc2b638983c1a220552fc0",
+              "stdout_bytes": 3350
+            },
+            {
+              "phase": "pngtest-1",
+              "ms": 6.6,
+              "exit": 0,
+              "stdout_sha256": "e0767f028d4f00b052c51a558111b0736457383d58dbc2c0738096c1273e035d",
+              "stdout_bytes": 991
+            },
+            {
+              "phase": "pngtest-2",
+              "ms": 19.07,
+              "exit": 0,
+              "stdout_sha256": "e0767f028d4f00b052c51a558111b0736457383d58dbc2c0738096c1273e035d",
+              "stdout_bytes": 991
+            },
+            {
+              "phase": "pngtest-3",
+              "ms": 6.87,
+              "exit": 0,
+              "stdout_sha256": "e0767f028d4f00b052c51a558111b0736457383d58dbc2c0738096c1273e035d",
+              "stdout_bytes": 991
+            },
+            {
+              "phase": "pngtest-4",
+              "ms": 8.14,
+              "exit": 0,
+              "stdout_sha256": "e0767f028d4f00b052c51a558111b0736457383d58dbc2c0738096c1273e035d",
+              "stdout_bytes": 991
+            }
+          ],
+          "repeated": {
+            "count": 4,
+            "p50_ms": 7.51,
+            "p95_ms": 19.07
+          },
+          "cache_bytes": 0,
+          "peak_rss_kb": null,
+          "decisions": [],
+          "artifacts_match": true,
+          "artifact_mismatches": [],
+          "speedup": 1.0,
+          "slowdown": 1.0,
+          "invalid_reason": null
+        },
+        "never": {
+          "valid": true,
+          "failed_phases": [],
+          "total_ms": 9800.04,
+          "phases": [
+            {
+              "phase": "configure",
+              "ms": 3276.87,
+              "exit": 0,
+              "stdout_sha256": "3ed168ee7dbd17a8ad4eb737f53056fcd6473b28292128ce9920ee38ad76a206",
+              "stdout_bytes": 4699
+            },
+            {
+              "phase": "build",
+              "ms": 5060.73,
+              "exit": 0,
+              "stdout_sha256": "d335b163f77925bef78635bc51c768ef8472b693010fe2a5858759473b1645d3",
+              "stdout_bytes": 15747
+            },
+            {
+              "phase": "rebuild",
+              "ms": 43.6,
+              "exit": 0,
+              "stdout_sha256": "9d2d98a8bd181b050f4c43bd10e55a3e27a5bd074a2fa673c3027d43605b1c01",
+              "stdout_bytes": 171
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 48.05,
+              "exit": 0,
+              "stdout_sha256": "9d2d98a8bd181b050f4c43bd10e55a3e27a5bd074a2fa673c3027d43605b1c01",
+              "stdout_bytes": 171
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 1315.52,
+              "exit": 0,
+              "stdout_sha256": "74f7dfc5e8cbffa8ec6a9ad39ef7a56efcd882ff80c2e43623ab4fc779021c61",
+              "stdout_bytes": 3357
+            },
+            {
+              "phase": "pngtest-1",
+              "ms": 13.78,
+              "exit": 0,
+              "stdout_sha256": "e0767f028d4f00b052c51a558111b0736457383d58dbc2c0738096c1273e035d",
+              "stdout_bytes": 991
+            },
+            {
+              "phase": "pngtest-2",
+              "ms": 14.14,
+              "exit": 0,
+              "stdout_sha256": "e0767f028d4f00b052c51a558111b0736457383d58dbc2c0738096c1273e035d",
+              "stdout_bytes": 991
+            },
+            {
+              "phase": "pngtest-3",
+              "ms": 12.6,
+              "exit": 0,
+              "stdout_sha256": "e0767f028d4f00b052c51a558111b0736457383d58dbc2c0738096c1273e035d",
+              "stdout_bytes": 991
+            },
+            {
+              "phase": "pngtest-4",
+              "ms": 14.74,
+              "exit": 0,
+              "stdout_sha256": "e0767f028d4f00b052c51a558111b0736457383d58dbc2c0738096c1273e035d",
+              "stdout_bytes": 991
+            }
+          ],
+          "repeated": {
+            "count": 4,
+            "p50_ms": 13.96,
+            "p95_ms": 14.74
+          },
+          "cache_bytes": 20498,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "./pngtest pngtest.png",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy disabled caching for this run"
+              ]
+            }
+          ],
+          "artifacts_match": true,
+          "artifact_mismatches": [],
+          "speedup": 0.971,
+          "slowdown": 1.03,
+          "invalid_reason": null
+        },
+        "auto-v1": {
+          "valid": true,
+          "failed_phases": [],
+          "total_ms": 9704.39,
+          "phases": [
+            {
+              "phase": "configure",
+              "ms": 3090.46,
+              "exit": 0,
+              "stdout_sha256": "3ed168ee7dbd17a8ad4eb737f53056fcd6473b28292128ce9920ee38ad76a206",
+              "stdout_bytes": 4699
+            },
+            {
+              "phase": "build",
+              "ms": 5035.82,
+              "exit": 0,
+              "stdout_sha256": "7d580ac6ef3aceb9407081dc712b762904687bb617560a9f4dab5fbdf0d9d8a6",
+              "stdout_bytes": 15751
+            },
+            {
+              "phase": "rebuild",
+              "ms": 182.63,
+              "exit": 0,
+              "stdout_sha256": "c53bd76e6baa2edbb07b27d9bed2fde90019524b8f48370fd7be57291705ab22",
+              "stdout_bytes": 166
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 54.87,
+              "exit": 0,
+              "stdout_sha256": "be90b6ca0cbc4c075e5d1753a53b23471df6a36e3fd653dcab39a4a2afabc64c",
+              "stdout_bytes": 175
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 1289.51,
+              "exit": 0,
+              "stdout_sha256": "ff5dfc934ce3d511ad5e03fd0979ed05abe0a43a0ef66d26b36d3744fe0abc74",
+              "stdout_bytes": 3361
+            },
+            {
+              "phase": "pngtest-1",
+              "ms": 12.95,
+              "exit": 0,
+              "stdout_sha256": "e0767f028d4f00b052c51a558111b0736457383d58dbc2c0738096c1273e035d",
+              "stdout_bytes": 991
+            },
+            {
+              "phase": "pngtest-2",
+              "ms": 12.22,
+              "exit": 0,
+              "stdout_sha256": "e0767f028d4f00b052c51a558111b0736457383d58dbc2c0738096c1273e035d",
+              "stdout_bytes": 991
+            },
+            {
+              "phase": "pngtest-3",
+              "ms": 12.01,
+              "exit": 0,
+              "stdout_sha256": "e0767f028d4f00b052c51a558111b0736457383d58dbc2c0738096c1273e035d",
+              "stdout_bytes": 991
+            },
+            {
+              "phase": "pngtest-4",
+              "ms": 13.92,
+              "exit": 0,
+              "stdout_sha256": "e0767f028d4f00b052c51a558111b0736457383d58dbc2c0738096c1273e035d",
+              "stdout_bytes": 991
+            }
+          ],
+          "repeated": {
+            "count": 4,
+            "p50_ms": 12.59,
+            "p95_ms": 13.92
+          },
+          "cache_bytes": 2518013,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "./pngtest pngtest.png",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy estimates that a trace cannot repay itself for this identity"
+              ]
+            }
+          ],
+          "artifacts_match": true,
+          "artifact_mismatches": [],
+          "speedup": 0.98,
+          "slowdown": 1.02,
+          "invalid_reason": null
+        },
+        "always": {
+          "valid": true,
+          "failed_phases": [],
+          "total_ms": 31851.07,
+          "phases": [
+            {
+              "phase": "configure",
+              "ms": 16569.57,
+              "exit": 0,
+              "stdout_sha256": "3ed168ee7dbd17a8ad4eb737f53056fcd6473b28292128ce9920ee38ad76a206",
+              "stdout_bytes": 4699
+            },
+            {
+              "phase": "build",
+              "ms": 10358.04,
+              "exit": 0,
+              "stdout_sha256": "ba988266c5515c80006800790ff3cacc82ec6bf0deef21e55073363259f7f01a",
+              "stdout_bytes": 15740
+            },
+            {
+              "phase": "rebuild",
+              "ms": 504.8,
+              "exit": 0,
+              "stdout_sha256": "a95f46bd2d1ce2c2bfb23e5590572225ccdc11c37a47456ea7670b488c6833a7",
+              "stdout_bytes": 164
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 222.75,
+              "exit": 0,
+              "stdout_sha256": "a95f46bd2d1ce2c2bfb23e5590572225ccdc11c37a47456ea7670b488c6833a7",
+              "stdout_bytes": 164
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 4104.34,
+              "exit": 0,
+              "stdout_sha256": "076cdfc62a0e0d74114f5719b5544ee7d42cd0459807c260b039d5d3f9877483",
+              "stdout_bytes": 3350
+            },
+            {
+              "phase": "pngtest-1",
+              "ms": 35.8,
+              "exit": 0,
+              "stdout_sha256": "e0767f028d4f00b052c51a558111b0736457383d58dbc2c0738096c1273e035d",
+              "stdout_bytes": 991
+            },
+            {
+              "phase": "pngtest-2",
+              "ms": 21.64,
+              "exit": 0,
+              "stdout_sha256": "e0767f028d4f00b052c51a558111b0736457383d58dbc2c0738096c1273e035d",
+              "stdout_bytes": 991
+            },
+            {
+              "phase": "pngtest-3",
+              "ms": 18.2,
+              "exit": 0,
+              "stdout_sha256": "e0767f028d4f00b052c51a558111b0736457383d58dbc2c0738096c1273e035d",
+              "stdout_bytes": 991
+            },
+            {
+              "phase": "pngtest-4",
+              "ms": 15.93,
+              "exit": 0,
+              "stdout_sha256": "e0767f028d4f00b052c51a558111b0736457383d58dbc2c0738096c1273e035d",
+              "stdout_bytes": 991
+            }
+          ],
+          "repeated": {
+            "count": 4,
+            "p50_ms": 19.92,
+            "p95_ms": 35.8
+          },
+          "cache_bytes": 127960137,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "./pngtest pngtest.png",
+              "decision": "Reused",
+              "classification": "Guarded",
+              "reasons": [
+                "all observed dependencies are guardable or captured outputs",
+                "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+              ]
+            }
+          ],
+          "artifacts_match": true,
+          "artifact_mismatches": [],
+          "speedup": 0.299,
+          "slowdown": 3.348,
+          "invalid_reason": null
+        },
+        "auto": {
+          "valid": true,
+          "failed_phases": [],
+          "total_ms": 10306.42,
+          "phases": [
+            {
+              "phase": "configure",
+              "ms": 3539.57,
+              "exit": 0,
+              "stdout_sha256": "3ed168ee7dbd17a8ad4eb737f53056fcd6473b28292128ce9920ee38ad76a206",
+              "stdout_bytes": 4699
+            },
+            {
+              "phase": "build",
+              "ms": 5084.85,
+              "exit": 0,
+              "stdout_sha256": "b2c044a69e12416baa0ceb4a78f1b24ce178d33845e18f8f28678e114943c161",
+              "stdout_bytes": 15745
+            },
+            {
+              "phase": "rebuild",
+              "ms": 216.9,
+              "exit": 0,
+              "stdout_sha256": "06af043970114aec7f4c3b03715ca423ad814d493d8b1f2b7382c26686c41eb9",
+              "stdout_bytes": 160
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 68.53,
+              "exit": 0,
+              "stdout_sha256": "a20c2a2005773ef6f71fd2d409912d356ca9d2f0a76c9888e838430b3d761d5c",
+              "stdout_bytes": 169
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 1335.02,
+              "exit": 0,
+              "stdout_sha256": "75d40f57dd340b2f566b80977ec66027c0b093ff3b6a70789bb49e2271485fa3",
+              "stdout_bytes": 3355
+            },
+            {
+              "phase": "pngtest-1",
+              "ms": 15.52,
+              "exit": 0,
+              "stdout_sha256": "e0767f028d4f00b052c51a558111b0736457383d58dbc2c0738096c1273e035d",
+              "stdout_bytes": 991
+            },
+            {
+              "phase": "pngtest-2",
+              "ms": 15.61,
+              "exit": 0,
+              "stdout_sha256": "e0767f028d4f00b052c51a558111b0736457383d58dbc2c0738096c1273e035d",
+              "stdout_bytes": 991
+            },
+            {
+              "phase": "pngtest-3",
+              "ms": 15.5,
+              "exit": 0,
+              "stdout_sha256": "e0767f028d4f00b052c51a558111b0736457383d58dbc2c0738096c1273e035d",
+              "stdout_bytes": 991
+            },
+            {
+              "phase": "pngtest-4",
+              "ms": 14.93,
+              "exit": 0,
+              "stdout_sha256": "e0767f028d4f00b052c51a558111b0736457383d58dbc2c0738096c1273e035d",
+              "stdout_bytes": 991
+            }
+          ],
+          "repeated": {
+            "count": 4,
+            "p50_ms": 15.51,
+            "p95_ms": 15.61
+          },
+          "cache_bytes": 2512139,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "./pngtest pngtest.png",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy estimates that a trace cannot repay itself for this identity"
+              ]
+            }
+          ],
+          "artifacts_match": true,
+          "artifact_mismatches": [],
+          "speedup": 0.923,
+          "slowdown": 1.083,
+          "invalid_reason": null
+        }
+      }
+    },
+    "lz4": {
+      "name": "lz4 v1.9.4",
+      "commit": "5ff839680134437dbf4678f3d0c7b371d84f4964",
+      "policies": {
+        "direct": {
+          "valid": true,
+          "failed_phases": [],
+          "total_ms": 15820.4,
+          "phases": [
+            {
+              "phase": "build",
+              "ms": 7758.81,
+              "exit": 0,
+              "stdout_sha256": "7cf216b4153b9e63bb9cc7a72af4d97ec52cec3e0971b0a07d7dacf707f5dd40",
+              "stdout_bytes": 555
+            },
+            {
+              "phase": "rebuild",
+              "ms": 90.46,
+              "exit": 0,
+              "stdout_sha256": "4ed789814b6434ea8253475b1e7b176c4f8907120a0a1535263fa903137c6d48",
+              "stdout_bytes": 473
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 92.34,
+              "exit": 0,
+              "stdout_sha256": "4ed789814b6434ea8253475b1e7b176c4f8907120a0a1535263fa903137c6d48",
+              "stdout_bytes": 473
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 7738.6,
+              "exit": 0,
+              "stdout_sha256": "7cf216b4153b9e63bb9cc7a72af4d97ec52cec3e0971b0a07d7dacf707f5dd40",
+              "stdout_bytes": 555
+            },
+            {
+              "phase": "compress-1",
+              "ms": 14.64,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "compress-2",
+              "ms": 17.51,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "compress-3",
+              "ms": 13.38,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "compress-4",
+              "ms": 13.47,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "compress-5",
+              "ms": 12.92,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "compress-6",
+              "ms": 14.49,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "decompress-1",
+              "ms": 16.79,
+              "exit": 0,
+              "stdout_sha256": "a3748824cae56ca419595e817a093fd68ae8a7c262071a18e4e432129edbe165",
+              "stdout_bytes": 4608000
+            },
+            {
+              "phase": "decompress-2",
+              "ms": 14.0,
+              "exit": 0,
+              "stdout_sha256": "a3748824cae56ca419595e817a093fd68ae8a7c262071a18e4e432129edbe165",
+              "stdout_bytes": 4608000
+            },
+            {
+              "phase": "decompress-3",
+              "ms": 10.35,
+              "exit": 0,
+              "stdout_sha256": "a3748824cae56ca419595e817a093fd68ae8a7c262071a18e4e432129edbe165",
+              "stdout_bytes": 4608000
+            },
+            {
+              "phase": "decompress-4",
+              "ms": 12.65,
+              "exit": 0,
+              "stdout_sha256": "a3748824cae56ca419595e817a093fd68ae8a7c262071a18e4e432129edbe165",
+              "stdout_bytes": 4608000
+            }
+          ],
+          "repeated": {
+            "count": 10,
+            "p50_ms": 13.73,
+            "p95_ms": 17.51
+          },
+          "cache_bytes": 0,
+          "peak_rss_kb": null,
+          "decisions": [],
+          "artifacts_match": true,
+          "artifact_mismatches": [],
+          "speedup": 1.0,
+          "slowdown": 1.0,
+          "invalid_reason": null
+        },
+        "never": {
+          "valid": true,
+          "failed_phases": [],
+          "total_ms": 15898.61,
+          "phases": [
+            {
+              "phase": "build",
+              "ms": 8146.24,
+              "exit": 0,
+              "stdout_sha256": "4d2ca32c80a78b765cd52d57c226d715945402fb32c6d3cc7cd22073f4d36d12",
+              "stdout_bytes": 549
+            },
+            {
+              "phase": "rebuild",
+              "ms": 102.26,
+              "exit": 0,
+              "stdout_sha256": "b71b0287fd0e9cfe4cef4495d2da1473014c7275bdb03bf0ae2cd348eed7608d",
+              "stdout_bytes": 467
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 101.93,
+              "exit": 0,
+              "stdout_sha256": "b71b0287fd0e9cfe4cef4495d2da1473014c7275bdb03bf0ae2cd348eed7608d",
+              "stdout_bytes": 467
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 7264.25,
+              "exit": 0,
+              "stdout_sha256": "4d2ca32c80a78b765cd52d57c226d715945402fb32c6d3cc7cd22073f4d36d12",
+              "stdout_bytes": 549
+            },
+            {
+              "phase": "compress-1",
+              "ms": 30.69,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "compress-2",
+              "ms": 27.48,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "compress-3",
+              "ms": 23.82,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "compress-4",
+              "ms": 23.01,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "compress-5",
+              "ms": 21.13,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "compress-6",
+              "ms": 23.61,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "decompress-1",
+              "ms": 34.03,
+              "exit": 0,
+              "stdout_sha256": "a3748824cae56ca419595e817a093fd68ae8a7c262071a18e4e432129edbe165",
+              "stdout_bytes": 4608000
+            },
+            {
+              "phase": "decompress-2",
+              "ms": 36.78,
+              "exit": 0,
+              "stdout_sha256": "a3748824cae56ca419595e817a093fd68ae8a7c262071a18e4e432129edbe165",
+              "stdout_bytes": 4608000
+            },
+            {
+              "phase": "decompress-3",
+              "ms": 31.77,
+              "exit": 0,
+              "stdout_sha256": "a3748824cae56ca419595e817a093fd68ae8a7c262071a18e4e432129edbe165",
+              "stdout_bytes": 4608000
+            },
+            {
+              "phase": "decompress-4",
+              "ms": 31.59,
+              "exit": 0,
+              "stdout_sha256": "a3748824cae56ca419595e817a093fd68ae8a7c262071a18e4e432129edbe165",
+              "stdout_bytes": 4608000
+            }
+          ],
+          "repeated": {
+            "count": 10,
+            "p50_ms": 29.09,
+            "p95_ms": 36.78
+          },
+          "cache_bytes": 20498,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "./programs/lz4 -1 -c",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy disabled caching for this run"
+              ]
+            },
+            {
+              "command": "./programs/lz4 -d -c",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy disabled caching for this run"
+              ]
+            }
+          ],
+          "artifacts_match": true,
+          "artifact_mismatches": [],
+          "speedup": 0.995,
+          "slowdown": 1.005,
+          "invalid_reason": null
+        },
+        "auto-v1": {
+          "valid": true,
+          "failed_phases": [],
+          "total_ms": 16206.78,
+          "phases": [
+            {
+              "phase": "build",
+              "ms": 7793.18,
+              "exit": 0,
+              "stdout_sha256": "b43d90db557b5c38a8b43cdaa81df87dd01827d8a0070397a84e7e21987251e6",
+              "stdout_bytes": 561
+            },
+            {
+              "phase": "rebuild",
+              "ms": 613.61,
+              "exit": 0,
+              "stdout_sha256": "0cb0f1bc6e59363d98b085a87d091e52358cd352669f94265f22b086ae68410e",
+              "stdout_bytes": 479
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 114.35,
+              "exit": 0,
+              "stdout_sha256": "0cb0f1bc6e59363d98b085a87d091e52358cd352669f94265f22b086ae68410e",
+              "stdout_bytes": 479
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 7353.34,
+              "exit": 0,
+              "stdout_sha256": "b43d90db557b5c38a8b43cdaa81df87dd01827d8a0070397a84e7e21987251e6",
+              "stdout_bytes": 561
+            },
+            {
+              "phase": "compress-1",
+              "ms": 27.05,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "compress-2",
+              "ms": 47.15,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "compress-3",
+              "ms": 24.33,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "compress-4",
+              "ms": 26.29,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "compress-5",
+              "ms": 24.47,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "compress-6",
+              "ms": 23.81,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "decompress-1",
+              "ms": 30.3,
+              "exit": 0,
+              "stdout_sha256": "a3748824cae56ca419595e817a093fd68ae8a7c262071a18e4e432129edbe165",
+              "stdout_bytes": 4608000
+            },
+            {
+              "phase": "decompress-2",
+              "ms": 67.41,
+              "exit": 0,
+              "stdout_sha256": "a3748824cae56ca419595e817a093fd68ae8a7c262071a18e4e432129edbe165",
+              "stdout_bytes": 4608000
+            },
+            {
+              "phase": "decompress-3",
+              "ms": 35.02,
+              "exit": 0,
+              "stdout_sha256": "a3748824cae56ca419595e817a093fd68ae8a7c262071a18e4e432129edbe165",
+              "stdout_bytes": 4608000
+            },
+            {
+              "phase": "decompress-4",
+              "ms": 26.47,
+              "exit": 0,
+              "stdout_sha256": "a3748824cae56ca419595e817a093fd68ae8a7c262071a18e4e432129edbe165",
+              "stdout_bytes": 4608000
+            }
+          ],
+          "repeated": {
+            "count": 10,
+            "p50_ms": 26.76,
+            "p95_ms": 67.41
+          },
+          "cache_bytes": 7645175,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "./programs/lz4 -1 -c",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy: the recorded classification is not eligible for reuse"
+              ]
+            },
+            {
+              "command": "./programs/lz4 -d -c",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy: the recorded classification is not eligible for reuse"
+              ]
+            }
+          ],
+          "artifacts_match": true,
+          "artifact_mismatches": [],
+          "speedup": 0.976,
+          "slowdown": 1.024,
+          "invalid_reason": null
+        },
+        "always": {
+          "valid": true,
+          "failed_phases": [],
+          "total_ms": 20475.44,
+          "phases": [
+            {
+              "phase": "build",
+              "ms": 10000.62,
+              "exit": 0,
+              "stdout_sha256": "23124095e311648195c9fbeac8554a550d877b5aaf00d3d8ff58f5cf4a356407",
+              "stdout_bytes": 555
+            },
+            {
+              "phase": "rebuild",
+              "ms": 684.15,
+              "exit": 0,
+              "stdout_sha256": "834680d7ccf9df690f8d7ef7d93faf332fc30c7d844ed325d98be6a9555271a6",
+              "stdout_bytes": 473
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 614.58,
+              "exit": 0,
+              "stdout_sha256": "834680d7ccf9df690f8d7ef7d93faf332fc30c7d844ed325d98be6a9555271a6",
+              "stdout_bytes": 473
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 8610.26,
+              "exit": 0,
+              "stdout_sha256": "23124095e311648195c9fbeac8554a550d877b5aaf00d3d8ff58f5cf4a356407",
+              "stdout_bytes": 555
+            },
+            {
+              "phase": "compress-1",
+              "ms": 45.6,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "compress-2",
+              "ms": 44.46,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "compress-3",
+              "ms": 40.97,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "compress-4",
+              "ms": 44.46,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "compress-5",
+              "ms": 53.69,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "compress-6",
+              "ms": 47.0,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "decompress-1",
+              "ms": 97.77,
+              "exit": 0,
+              "stdout_sha256": "a3748824cae56ca419595e817a093fd68ae8a7c262071a18e4e432129edbe165",
+              "stdout_bytes": 4608000
+            },
+            {
+              "phase": "decompress-2",
+              "ms": 60.85,
+              "exit": 0,
+              "stdout_sha256": "a3748824cae56ca419595e817a093fd68ae8a7c262071a18e4e432129edbe165",
+              "stdout_bytes": 4608000
+            },
+            {
+              "phase": "decompress-3",
+              "ms": 73.75,
+              "exit": 0,
+              "stdout_sha256": "a3748824cae56ca419595e817a093fd68ae8a7c262071a18e4e432129edbe165",
+              "stdout_bytes": 4608000
+            },
+            {
+              "phase": "decompress-4",
+              "ms": 57.28,
+              "exit": 0,
+              "stdout_sha256": "a3748824cae56ca419595e817a093fd68ae8a7c262071a18e4e432129edbe165",
+              "stdout_bytes": 4608000
+            }
+          ],
+          "repeated": {
+            "count": 10,
+            "p50_ms": 50.34,
+            "p95_ms": 97.77
+          },
+          "cache_bytes": 33454910,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "./programs/lz4 -1 -c",
+              "decision": "Ineligible",
+              "classification": "Nondeterministic",
+              "reasons": [
+                "process read system clock: monotonic",
+                "process read system clock: clock 2"
+              ]
+            },
+            {
+              "command": "./programs/lz4 -d -c",
+              "decision": "Ineligible",
+              "classification": "Nondeterministic",
+              "reasons": [
+                "process read system clock: clock 2",
+                "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+              ]
+            }
+          ],
+          "artifacts_match": true,
+          "artifact_mismatches": [],
+          "speedup": 0.773,
+          "slowdown": 1.294,
+          "invalid_reason": null
+        },
+        "auto": {
+          "valid": true,
+          "failed_phases": [],
+          "total_ms": 15828.69,
+          "phases": [
+            {
+              "phase": "build",
+              "ms": 7742.99,
+              "exit": 0,
+              "stdout_sha256": "c4c04e87d6c360f9d27239937c8ddbe5d7f67f064021debbcdd65e85771ef716",
+              "stdout_bytes": 543
+            },
+            {
+              "phase": "rebuild",
+              "ms": 645.64,
+              "exit": 0,
+              "stdout_sha256": "b636000d97da0c191eced03cd5cd3780afb73c1de48263e1ddd4d50041fa958e",
+              "stdout_bytes": 461
+            },
+            {
+              "phase": "unrelated-edit",
+              "ms": 103.02,
+              "exit": 0,
+              "stdout_sha256": "b636000d97da0c191eced03cd5cd3780afb73c1de48263e1ddd4d50041fa958e",
+              "stdout_bytes": 461
+            },
+            {
+              "phase": "relevant-edit",
+              "ms": 6985.46,
+              "exit": 0,
+              "stdout_sha256": "c4c04e87d6c360f9d27239937c8ddbe5d7f67f064021debbcdd65e85771ef716",
+              "stdout_bytes": 543
+            },
+            {
+              "phase": "compress-1",
+              "ms": 24.05,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "compress-2",
+              "ms": 44.59,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "compress-3",
+              "ms": 24.38,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "compress-4",
+              "ms": 30.82,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "compress-5",
+              "ms": 34.5,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "compress-6",
+              "ms": 33.21,
+              "exit": 0,
+              "stdout_sha256": "e2fb372012cd053b0f1ad5b8e0f44bdde924c292b10952f0082fe452668a9fc9",
+              "stdout_bytes": 748082
+            },
+            {
+              "phase": "decompress-1",
+              "ms": 28.95,
+              "exit": 0,
+              "stdout_sha256": "a3748824cae56ca419595e817a093fd68ae8a7c262071a18e4e432129edbe165",
+              "stdout_bytes": 4608000
+            },
+            {
+              "phase": "decompress-2",
+              "ms": 72.94,
+              "exit": 0,
+              "stdout_sha256": "a3748824cae56ca419595e817a093fd68ae8a7c262071a18e4e432129edbe165",
+              "stdout_bytes": 4608000
+            },
+            {
+              "phase": "decompress-3",
+              "ms": 32.94,
+              "exit": 0,
+              "stdout_sha256": "a3748824cae56ca419595e817a093fd68ae8a7c262071a18e4e432129edbe165",
+              "stdout_bytes": 4608000
+            },
+            {
+              "phase": "decompress-4",
+              "ms": 25.21,
+              "exit": 0,
+              "stdout_sha256": "a3748824cae56ca419595e817a093fd68ae8a7c262071a18e4e432129edbe165",
+              "stdout_bytes": 4608000
+            }
+          ],
+          "repeated": {
+            "count": 10,
+            "p50_ms": 31.88,
+            "p95_ms": 72.94
+          },
+          "cache_bytes": 7643791,
+          "peak_rss_kb": null,
+          "decisions": [
+            {
+              "command": "./programs/lz4 -1 -c",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy: the recorded classification is not eligible for reuse"
+              ]
+            },
+            {
+              "command": "./programs/lz4 -d -c",
+              "decision": "Skipped",
+              "classification": "Unknown",
+              "reasons": [
+                "admission policy: the recorded classification is not eligible for reuse"
+              ]
+            }
+          ],
+          "artifacts_match": true,
+          "artifact_mismatches": [],
+          "speedup": 0.999,
+          "slowdown": 1.001,
+          "invalid_reason": null
+        }
+      }
+    }
+  }
+}
