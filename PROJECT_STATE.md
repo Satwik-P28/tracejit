@@ -358,3 +358,22 @@ tool artifacts differ, and records commit/workload/host metadata. Two sessions: 
 8 concurrent cold runs: all correct, no lock error. **112 tests**; fmt/clippy clean. `PROVEN` still
 BLOCKED (`landlock no`). See `docs/audits/PHASE2K_EXECUTION_FIDELITY.md` and
 `benchmarks/results/phase2k/`.
+
+## Phase 2L (base `53aef79`)
+
+Process-tree audit closed two remaining repair defects: no state is installed for a child reaped
+before its fork event (which could stall the wait loop), and a process with no tracked `/proc`
+parent is reconstructed conservatively and marked unknown instead of aborting the command. Timed
+parallel vfork storms cover both. The inherited-descriptor contract and its boundary (kcmp absent,
+external mutation after the last operation) are documented, and zlib reuse is unchanged.
+
+The execution-fidelity matrix is **14/14 accounted, 0 failures**: 3 safely reused, 10 executed
+without reuse, 1 autoconf `Unavailable`. Clean-commit sessions at binary `b6a96117...`: zlib auto
+**1.096x/1.125x**; bzip2 reuses compression and decompression but nets 0.983x/1.039x because its
+build dominates. `always` is 0.44-0.69x. libpng/lz4 were not rerun clean in this phase.
+
+Subprocess-level reuse was studied and **not built**: it adds pipe, signal, shared-descriptor and
+parallel-ordering hazards, and every `cc`/`make` child is already refused for the same clocks and
+entropy as its parent, so no measured advantage exists yet. Developer-preview gate: not ready as a
+general accelerator; `PROVEN` still BLOCKED (`landlock no`). See
+`docs/audits/PHASE2L_*.md` and `benchmarks/results/phase2l/`.

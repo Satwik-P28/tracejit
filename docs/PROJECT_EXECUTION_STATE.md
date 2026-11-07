@@ -115,3 +115,12 @@ position is verified against `fdinfo`. Two sessions, all workflows valid and art
 auto 1.033x/1.164x (compression and decompression reused); libpng always 0.311x/0.283x but builds;
 lz4 no reuse, 0.925x/1.056x. Fidelity suite 9/9 with 0 failures; fuzz 240/240 with 0 incorrect
 hits; 8 concurrent cold runs correct; 112 tests; `PROVEN` BLOCKED (`landlock no`).
+
+## Phase 2L (base `53aef79`)
+
+Ptrace repair hardened against reaped-before-event children and untracked parents; timed vfork
+storms pass. Fidelity matrix 14/14 with 0 failures. Clean sessions at `7157cc0`/`2590d1d` (binary
+`b6a96117...`): zlib auto 1.096x/1.125x, bzip2 0.983x/1.039x despite reuse. Subprocess interception
+rejected for now on correctness-surface and missing measured advantage. Preview gate: not ready;
+`PROVEN` BLOCKED. See `docs/audits/PHASE2L_PTRACE_AND_DESCRIPTOR_AUDIT.md`,
+`PHASE2L_SUBPROCESS_REUSE_FEASIBILITY.md`, `PHASE2L_DEVELOPER_PREVIEW_GATE.md`.
