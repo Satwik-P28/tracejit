@@ -208,7 +208,9 @@ def repository_state() -> dict:
 
     return {
         "commit": git("rev-parse", "HEAD") or None,
-        "dirty": bool(git("status", "--porcelain")),
+        # Generated result files are not source changes; only tracked modifications make the
+        # implementation dirty.
+        "dirty": bool(git("status", "--porcelain", "--untracked-files=no")),
     }
 
 
