@@ -1,0 +1,67 @@
+{
+  "workload": "8 concurrent cold runs of gzip -9 -c over a 2.6 MB base64 input, one shared cache",
+  "admission": "always",
+  "native_stdout_sha256": "a8e821d246fed0c18eb4a8f1344a8e80ece77b339238d0506aaf5c9dc9cf5602",
+  "tracejit_binary_sha256": "60d85526255d96b61f261ac848e4aa3e0e25a74c2364c3b76bfc863dfbf69229",
+  "runs": [
+    {
+      "run": 1,
+      "process_status": 0,
+      "exit_code": 0,
+      "decision": "Executed",
+      "stdout_sha256": "a8e821d246fed0c18eb4a8f1344a8e80ece77b339238d0506aaf5c9dc9cf5602"
+    },
+    {
+      "run": 2,
+      "process_status": 0,
+      "exit_code": 0,
+      "decision": "Executed",
+      "stdout_sha256": "a8e821d246fed0c18eb4a8f1344a8e80ece77b339238d0506aaf5c9dc9cf5602"
+    },
+    {
+      "run": 3,
+      "process_status": 0,
+      "exit_code": 0,
+      "decision": "Executed",
+      "stdout_sha256": "a8e821d246fed0c18eb4a8f1344a8e80ece77b339238d0506aaf5c9dc9cf5602"
+    },
+    {
+      "run": 4,
+      "process_status": 0,
+      "exit_code": 0,
+      "decision": "Executed",
+      "stdout_sha256": "a8e821d246fed0c18eb4a8f1344a8e80ece77b339238d0506aaf5c9dc9cf5602"
+    },
+    {
+      "run": 5,
+      "process_status": 0,
+      "exit_code": 0,
+      "decision": "Executed",
+      "stdout_sha256": "a8e821d246fed0c18eb4a8f1344a8e80ece77b339238d0506aaf5c9dc9cf5602"
+    },
+    {
+      "run": 6,
+      "process_status": 0,
+      "exit_code": 0,
+      "decision": "Executed",
+      "stdout_sha256": "a8e821d246fed0c18eb4a8f1344a8e80ece77b339238d0506aaf5c9dc9cf5602"
+    },
+    {
+      "run": 7,
+      "process_status": 0,
+      "exit_code": 0,
+      "decision": "Executed",
+      "stdout_sha256": "a8e821d246fed0c18eb4a8f1344a8e80ece77b339238d0506aaf5c9dc9cf5602"
+    },
+    {
+      "run": 8,
+      "process_status": 0,
+      "exit_code": 0,
+      "decision": "Executed",
+      "stdout_sha256": "a8e821d246fed0c18eb4a8f1344a8e80ece77b339238d0506aaf5c9dc9cf5602"
+    }
+  ],
+  "all_exit_zero": true,
+  "all_bytes_equal_native": true,
+  "database_lock_errors": 0
+}

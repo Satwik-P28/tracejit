@@ -125,6 +125,11 @@ clock: monotonic`), so its 0.925x/1.056x are overhead and variance, not reuse. z
 smaller than Phase 2J's 1.099x/1.228x; the per-read position check and run-to-run variance both
 contribute, and no improvement is claimed.
 
+The two sessions were measured from the working tree at `f3bd191` with the fix applied, so their
+JSON records `"dirty": true`; the measured release binary hashed `60d85526255d96b61f261ac848e4aa3e0e25a74c2364c3b76bfc863dfbf69229`.
+No source changed after that build, and the tree was committed as `31bade5`-`9fc010d`. The raw
+records identify that state explicitly rather than pretending the tree was clean.
+
 ## 6. Reliability, fuzzing and concurrency
 
 - `ETXTBSY`: reproduced as a cross-test fork inheritance of a freshly written executable. Writing
@@ -135,7 +140,7 @@ contribute, and no improvement is claimed.
   tracer change (`benchmarks/results/phase2k/differential/`). This is sampled evidence, not proof.
 - Concurrency: 8 simultaneous `--admission always` gzip runs on one cold cache all exited 0,
   produced bytes equal to native (SHA-256 `a8e821d2...`), and reported `Executed` with no
-  `database is locked` error.
+  `database is locked` error. Raw record: `benchmarks/results/phase2k/concurrency.json`.
 - The full workspace suite passes: **112 tests**; fmt and clippy with `-D warnings` are clean.
 
 ## 7. Enforcement
