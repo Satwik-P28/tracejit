@@ -43,12 +43,15 @@ CONTRACT = "allocator-entropy-v1"
 FILE_COUNT = 5
 FILE_MEGABYTES = 4
 MAKEFILE = """\
-GZIP ?= gzip
+# Deliberately not named GZIP: make exports command-line variables into the recipe
+# environment, and gzip parses $GZIP as default options, so a wrapper there would be
+# read by gzip itself rather than by the shell.
+COMPRESS ?= gzip
 DATA := $(wildcard data/*.bin)
 GZ := $(DATA:=.gz)
 all: $(GZ)
 data/%.bin.gz: data/%.bin
-\t$(GZIP) -9 -c < $< > $@
+\t$(COMPRESS) -9 -c < $< > $@
 """
 
 
@@ -194,7 +197,7 @@ def arm_wrapped(work: Path, parallel: int, cache: Path) -> dict:
     env = base_environment()
     env["TRACEJIT_CACHE_DIR"] = str(cache)
     wrapped = f"{binary()} run --admission auto --contract {CONTRACT} -- gzip"
-    argv = [*make_argv(parallel), f"GZIP={wrapped}"]
+    argv = [*make_argv(parallel), f"COMPRESS={wrapped}"]
     return {
         "cold": build(work, env, argv),
         "repeat": [build(work, env, argv) for _ in range(2)],
@@ -251,6 +254,7 @@ def probes(work: Path, env: dict) -> list[dict]:
                 "exit": completed.returncode,
                 "cache_decision": None if report is None else report.get("cache_decision"),
                 "classification": None if report is None else report.get("classification"),
+                "child_exit": None if report is None else report.get("exit_code"),
                 "reasons": [] if report is None else (report.get("reasons") or [])[:2],
             }
         )
@@ -263,7 +267,7 @@ def invalidation(work: Path, wrapped: bool, cache: Path) -> dict:
     argv = make_argv(1)
     if wrapped:
         env["TRACEJIT_CACHE_DIR"] = str(cache)
-        argv = [*argv, f"GZIP={binary()} run --admission auto --contract {CONTRACT} -- gzip"]
+        argv = [*argv, f"COMPRESS={binary()} run --admission auto --contract {CONTRACT} -- gzip"]
     # Warm every record first so the invalidation is the only difference.
     build(work, env, argv)
     before = {path.name: sha256_file(path) for path in (work / "data").glob("*.gz")}
@@ -293,7 +297,7 @@ def environment_change(work: Path, wrapped: bool, cache: Path) -> dict:
     argv = make_argv(1)
     if wrapped:
         env["TRACEJIT_CACHE_DIR"] = str(cache)
-        argv = [*argv, f"GZIP={binary()} run --admission auto --contract {CONTRACT} -- gzip"]
+        argv = [*argv, f"COMPRESS={binary()} run --admission auto --contract {CONTRACT} -- gzip"]
     return build(work, env, argv)
 
 
@@ -302,7 +306,7 @@ def parallel_run(work: Path, wrapped: bool, cache: Path, workers: int) -> dict:
     argv = make_argv(workers)
     if wrapped:
         env["TRACEJIT_CACHE_DIR"] = str(cache)
-        argv = [*argv, f"GZIP={binary()} run --admission auto --contract {CONTRACT} -- gzip"]
+        argv = [*argv, f"COMPRESS={binary()} run --admission auto --contract {CONTRACT} -- gzip"]
     cold = build(work, env, argv)
     warm = build(work, env, argv)
     return {"cold": cold, "warm": warm}
@@ -413,7 +417,7 @@ def main() -> int:
             "specialist_cache": shutil.which("ccache") or shutil.which("sccache"),
         },
         "workload": {
-            "recipe": "data/%.bin.gz: data/%.bin\n\t$(GZIP) -9 -c < $< > $@",
+            "recipe": "data/%.bin.gz: data/%.bin\n\t$(COMPRESS) -9 -c < $< > $@",
             "files": FILE_COUNT,
             "megabytes_each": FILE_MEGABYTES,
             "note": (
@@ -459,11 +463,17 @@ def main() -> int:
         results["parallel"][name] = parallel_run(
             work, name == "wrapped", cache, args.workers
         )
-    # The parallel arm overwrites outputs, so re-establish the shared digest before comparing.
+    # Compare the pristine cold-pass artifacts. Invalidation deliberately mutates one input in
+    # the wrapped and top arms, so comparing their post-experiment trees with the untouched
+    # native tree would report a difference the experiment itself created.
+    pristine = {name: results["arms"][name]["cold"]["artifact_digest"] for name in ("direct", "wrapped", "top")}
     results["artifacts"] = {
-        name: artifact_digest(root / name) for name in ("direct", "wrapped", "top")
+        "pristine": pristine,
+        "all_equal": len(set(pristine.values())) == 1,
+        "after_invalidation": {
+            name: artifact_digest(root / name) for name in ("direct", "wrapped", "top")
+        },
     }
-    results["artifacts"]["all_equal"] = len(set(results["artifacts"].values())) == 1
     finalize(results)
     output = REPO / args.output_dir
     output.mkdir(parents=True, exist_ok=True)
