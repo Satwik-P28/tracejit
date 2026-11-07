@@ -1706,3 +1706,58 @@ fn vfork_exec_children_are_registered_before_their_first_stop() {
     assert_eq!(traced.status.code(), direct.status.code());
     eprintln!("RESULT vfork-registration PASS");
 }
+
+/// A vfork child whose only action is `_exit(0)` can be reaped before the parent's vfork event is
+/// processed. The event must not install state for an already-dead pid, which would wait forever
+/// for a status that cannot arrive. `timeout` makes that stall a failure instead of a hung test.
+#[test]
+fn vfork_children_that_exit_without_exec_do_not_stall() {
+    if !Command::new("timeout")
+        .arg("--version")
+        .output()
+        .is_ok_and(|output| output.status.success())
+    {
+        eprintln!("RESULT vfork-exit SKIP timeout absent");
+        return;
+    }
+    let temporary = tempfile::tempdir().unwrap();
+    let source =
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/fixtures/spawn_storm.c");
+    let binary = temporary.path().join("spawn-storm");
+    let status = Command::new("cc")
+        .args(["-O2", "-Wall", "-Wextra", "-Werror", "-pthread"])
+        .arg(&source)
+        .arg("-o")
+        .arg(&binary)
+        .status()
+        .expect("C compiler must be available");
+    assert!(status.success(), "spawn storm fixture compilation failed");
+    let direct = Command::new(&binary)
+        .args(["exit-without-exec", "40", "4"])
+        .output()
+        .unwrap();
+    assert!(direct.status.success());
+    let traced = Command::new("timeout")
+        .args([
+            "60",
+            tracejit().to_str().unwrap(),
+            "run",
+            "--json",
+            "--",
+            binary.to_str().unwrap(),
+            "exit-without-exec",
+            "40",
+            "4",
+        ])
+        .env("TRACEJIT_CACHE_DIR", temporary.path().join("cache"))
+        .output()
+        .unwrap();
+    assert!(
+        traced.status.success(),
+        "traced exit-without-exec storm failed or stalled: {}",
+        String::from_utf8_lossy(&traced.stderr)
+    );
+    let report: Value = serde_json::from_slice(&traced.stdout).unwrap();
+    assert_eq!(stdout_bytes_of(&report), direct.stdout);
+    eprintln!("RESULT vfork-exit PASS");
+}

@@ -368,6 +368,22 @@ fn adopt_child(
     if states.contains_key(&child) {
         return Ok(());
     }
+    // A vfork child that exits without exec can be reaped before the parent's fork event is
+    // processed. Installing a state for that pid would leave an entry that never receives another
+    // wait status, so the loop would never observe an empty process set. Record the event and the
+    // uncertainty instead; reuse is refused.
+    if fs::metadata(format!("/proc/{}", child.as_raw())).is_err() {
+        collector.push(
+            parent,
+            Effect::Unknown(UnknownEffect {
+                syscall: None,
+                detail: format!(
+                    "child {child} exited before its fork event was processed; no state was installed"
+                ),
+            }),
+        );
+        return Ok(());
+    }
     let inherited = states
         .get(&parent)
         .cloned()
@@ -721,15 +737,40 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
         // tracee from /proc instead of failing with a missing state.
         if let Some(pid) = reported_pid(&status) {
             if !states.contains_key(&pid) {
-                if let Some(parent) = traced_parent(pid, &states) {
-                    adopt_child(
+                match traced_parent(pid, &states) {
+                    Some(parent) => adopt_child(
                         pid,
                         parent,
                         &mut states,
                         &mut processes,
                         &mut tracee_guard,
                         &mut collector,
-                    )?;
+                    )?,
+                    // Reparenting, CLONE_PARENT and a TID change across exec can leave no tracked
+                    // /proc parent. Aborting would turn a normal command into a traced failure, so
+                    // reconstruct conservatively from a known process and record that reuse is
+                    // refused: an incomplete state must never be silently treated as complete.
+                    None => {
+                        if let Some(parent) = states.keys().next().copied() {
+                            adopt_child(
+                                pid,
+                                parent,
+                                &mut states,
+                                &mut processes,
+                                &mut tracee_guard,
+                                &mut collector,
+                            )?;
+                            collector.push(
+                                pid,
+                                Effect::Unknown(UnknownEffect {
+                                    syscall: None,
+                                    detail: format!(
+                                        "process {pid} has no tracked parent; inherited state was reconstructed conservatively and reuse is refused"
+                                    ),
+                                }),
+                            );
+                        }
+                    }
                 }
             }
         }

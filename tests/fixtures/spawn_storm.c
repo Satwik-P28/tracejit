@@ -5,6 +5,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
@@ -24,6 +25,11 @@ static void *storm(void *argument) {
             return (void *)1;
         }
         if (pid == 0) {
+            if (strcmp(worker->program, "exit-without-exec") == 0) {
+                // Exiting before exec is the ordering case where the child can be reaped before
+                // the parent's vfork event is processed.
+                _exit(0);
+            }
             execl(worker->program, worker->program, (char *)NULL);
             _exit(127);
         }
