@@ -122,6 +122,21 @@ def libpng_phases(root: Path) -> list[tuple[str, list[str], str | None]]:
     ]
 
 
+def bzip2_phases(root: Path) -> list[tuple[str, list[str], str | None]]:
+    data = mixed_corpus(root, "corpus.bin", 4)
+    return [
+        ("build", ["make", "-j4"], None),
+        ("rebuild", ["make", "-j4"], None),
+        ("unrelated-edit", ["make", "-j4"], None),
+        ("relevant-edit", ["make", "-j4"], None),
+        *[(f"compress-{n}", ["./bzip2", "-9", "-c"], str(data)) for n in range(1, 5)],
+        *[
+            (f"decompress-{n}", ["./bzip2", "-d", "-c"], str(root / "corpus.bz2"))
+            for n in range(1, 4)
+        ],
+    ]
+
+
 def lz4_phases(root: Path) -> list[tuple[str, list[str], str | None]]:
     data = corpus(root, "corpus.bin", 6)
     return [
@@ -158,6 +173,13 @@ SCENARIOS = {
         "commit": "ed217e3e601d8e462f7fd1e04bed43ac42212429",
         "clean": ["make", "distclean"],
         "phases": libpng_phases,
+    },
+    "bzip2": {
+        "source": "/tmp/bzip2",
+        "name": "bzip2 1.0.8",
+        "commit": "6a8690fc8d26c815e798c588f796eabe9d684cf0",
+        "clean": ["make", "clean"],
+        "phases": bzip2_phases,
     },
     "lz4": {
         "source": "/tmp/lz4",
@@ -256,7 +278,12 @@ def session(key: str, work: Path, policy: str) -> dict:
                 readme = work / "README.md"
             edit(readme, "\nnote\n")
         if name == "relevant-edit":
-            target = {"zlib": "adler32.c", "libpng": "pngrutil.c", "lz4": "lib/lz4.c"}[key]
+            target = {
+                "zlib": "adler32.c",
+                "libpng": "pngrutil.c",
+                "lz4": "lib/lz4.c",
+                "bzip2": "compress.c",
+            }[key]
             edit(work / target, "\n/* edit */\n")
         if name == "decompress-1" and key == "zlib":
             # Corpus setup is untimed: it is the same archive for every policy.
@@ -265,6 +292,14 @@ def session(key: str, work: Path, policy: str) -> dict:
             ) as archive:
                 subprocess.run(["./minigzip"], cwd=work, stdin=source, stdout=archive,
                                stderr=subprocess.DEVNULL, check=False)
+        if name == "decompress-1" and key == "bzip2":
+            with open(work / "corpus.bin", "rb") as source, open(
+                work / "corpus.bz2", "wb"
+            ) as archive:
+                subprocess.run(
+                    ["./bzip2", "-9", "-c"], cwd=work, stdin=source, stdout=archive,
+                    stderr=subprocess.DEVNULL, check=False,
+                )
         if name == "decompress-1" and key == "lz4":
             with open(work / "corpus.bin", "rb") as source, open(
                 work / "corpus.lz4", "wb"
@@ -301,6 +336,11 @@ def session(key: str, work: Path, policy: str) -> dict:
                 (["./minigzip", "-d"], work / "corpus.gz"),
             ],
             "libpng": [(["./pngtest", "pngtest.png"], None)],
+            "bzip2": [
+                (["make", "-j1"], None),
+                (["./bzip2", "-9", "-c"], work / "corpus.bin"),
+                (["./bzip2", "-d", "-c"], work / "corpus.bz2"),
+            ],
             "lz4": [
                 (["./programs/lz4", "-1", "-c"], work / "corpus.bin"),
                 (["./programs/lz4", "-d", "-c"], work / "corpus.lz4"),
