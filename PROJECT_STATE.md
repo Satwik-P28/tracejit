@@ -388,7 +388,7 @@ child asserts the flag. 113 tests pass; the CI rerun needs an authorized push.
 
 The four-repository matrix ran three sessions at binary `b0576fb1...`. Session B is contaminated
 (`never` bzip2 build 3748 ms vs 1274 ms for `direct`) and retained as evidence of the noise ceiling.
-Sessions A/C: zlib `auto` **1.145x/1.173x**; bzip2 reuses both directions but nets 0.976-0.980x
+Sessions A/C: zlib `auto-v1` **1.145x/1.184x** and `auto` 0.970x/1.173x; bzip2 reuses both directions but nets 0.976-0.980x
 because the build dominates; libpng 0.92-1.00x (pngtest is 7 ms and declined); lz4 0.94-1.00x and
 still `NONDETERMINISTIC`. `always` is 0.23-0.77x. All 60 policy runs produced correct artifacts.
 

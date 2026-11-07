@@ -68,7 +68,7 @@ policy re-executes the affected steps and zlib's `./minigzip` records deoptimise
 `relevant-edit` phase and become reusable again afterwards (the existing deopt/reuse tests cover the
 mechanism).
 
-**Result: zlib `auto` is the only repeatable net win (1.173x/1.145x, and 0.970x in A).** bzip2
+**Result: zlib is the only repository where a policy beats direct, and the win is policy-sensitive: `auto-v1` is 1.145x in A and 1.184x in C, while `auto` is 0.970x in A and 1.173x in C.** bzip2
 reuses both directions but nets 0.976-0.980x because its ~3 s build dominates. libpng's `auto`
 is 0.92-1.00x because the only eligible command is 7 ms. lz4 cannot reuse at all. `always` is
 0.23-0.77x everywhere except the small zlib session. These negatives are the finding, not an
