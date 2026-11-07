@@ -313,6 +313,103 @@ impl Drop for TraceeGuard {
     }
 }
 
+/// The pid a wait status belongs to, or `None` when the reported process is already gone.
+fn reported_pid(status: &WaitStatus) -> Option<Pid> {
+    match status {
+        WaitStatus::Stopped(pid, _)
+        | WaitStatus::PtraceEvent(pid, _, _)
+        | WaitStatus::PtraceSyscall(pid)
+        | WaitStatus::Continued(pid) => Some(*pid),
+        WaitStatus::Exited(_, _) | WaitStatus::Signaled(_, _, _) | WaitStatus::StillAlive => None,
+    }
+}
+
+/// Reads the parent this kernel attached the tracee on behalf of.
+///
+/// A thread's `/proc` parent is the parent of its whole thread group, so a non-leader thread is
+/// reconciled from its group leader when that leader is already tracked. Returns `None` unless the
+/// process is traced by this tracer, which keeps the reconciliation from adopting an unrelated
+/// child of the tracer itself.
+fn traced_parent(pid: Pid, states: &HashMap<Pid, ProcessState>) -> Option<Pid> {
+    let status = fs::read_to_string(format!("/proc/{}/status", pid.as_raw())).ok()?;
+    let (mut tracer, mut tgid, mut ppid) = (None, None, None);
+    for line in status.lines() {
+        let mut fields = line.split_whitespace();
+        match (fields.next(), fields.next()) {
+            (Some("TracerPid:"), Some(value)) => tracer = value.parse::<i32>().ok(),
+            (Some("Tgid:"), Some(value)) => tgid = value.parse::<i32>().ok(),
+            (Some("PPid:"), Some(value)) => ppid = value.parse::<i32>().ok(),
+            _ => {}
+        }
+    }
+    if tracer? != std::process::id() as i32 {
+        return None;
+    }
+    let tgid = Pid::from_raw(tgid?);
+    if tgid != pid && states.contains_key(&tgid) {
+        return Some(tgid);
+    }
+    let ppid = Pid::from_raw(ppid?);
+    states.contains_key(&ppid).then_some(ppid)
+}
+
+/// Registers a child that the kernel attached to this tracer but whose fork event has not been
+/// processed yet. Registration is idempotent: a vfork child can reach its first stop before the
+/// parent's `PTRACE_EVENT_VFORK`, and the event must not overwrite the post-exec state that the
+/// child's own `PTRACE_EVENT_EXEC` already applied.
+fn adopt_child(
+    child: Pid,
+    parent: Pid,
+    states: &mut HashMap<Pid, ProcessState>,
+    processes: &mut Vec<ProcessNode>,
+    tracee_guard: &mut TraceeGuard,
+    collector: &mut Collector,
+) -> Result<(), TraceError> {
+    if states.contains_key(&child) {
+        return Ok(());
+    }
+    let inherited = states
+        .get(&parent)
+        .cloned()
+        .ok_or_else(|| TraceError::Ptrace(format!("missing parent state for {parent}")))?;
+    if !tracee_guard.pids.contains(&child) {
+        tracee_guard.pids.push(child);
+    }
+    states.insert(
+        child,
+        ProcessState {
+            // The child resumes on the exit side of the creating syscall; the first reported
+            // boundary varies, so synchronize from the entry-stop return-register sentinel.
+            entering: false,
+            synchronize_on_next_syscall: true,
+            pending: None,
+            enumerations: HashMap::new(),
+            // A child shares the open file description but not this model's consumption
+            // accounting, so it must not silently read stdin.
+            stdin_stream: None,
+            ..inherited
+        },
+    );
+    if !processes
+        .iter()
+        .any(|process| process.pid == child.as_raw() as u32)
+    {
+        processes.push(ProcessNode {
+            pid: child.as_raw() as u32,
+            parent_pid: Some(parent.as_raw() as u32),
+            executable: None,
+            exit_code: None,
+        });
+    }
+    collector.push(
+        parent,
+        Effect::Control(ControlEffect::Spawn(ProcessSpawn {
+            child_pid: child.as_raw() as u32,
+        })),
+    );
+    Ok(())
+}
+
 impl Collector {
     fn open_pipe(&mut self) -> u64 {
         self.next_pipe += 1;
@@ -543,14 +640,23 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
     ptrace::syscall(root_pid, None)
         .map_err(|error| ptrace_operation("resume initial process", root_pid, error))?;
 
-    let stdin_stream = initial_inherited_stream(root_pid);
+    let initial_fds = initial_descriptor_table(root_pid);
+    let stdin_alias = stdin_descriptor_alias(root_pid);
+    let stdin_refusal = stdin_alias.map(|fd| {
+        format!(
+            "inherited stdin shares its open file description with descriptor {fd}; the shared offset is not modelled"
+        )
+    });
+    let stdin_stream = if stdin_refusal.is_some() {
+        None
+    } else {
+        initial_inherited_stream(root_pid)
+    };
     let mut states = HashMap::from([(
         root_pid,
         ProcessState {
             cwd: request.cwd.clone(),
-            fds: (0..=2)
-                .map(|fd| (fd, inherited_fd_state(root_pid, fd)))
-                .collect(),
+            fds: initial_fds,
             close_on_exec: HashSet::new(),
             entering: true,
             synchronize_on_next_syscall: false,
@@ -574,6 +680,15 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
         pipes: HashMap::new(),
         next_pipe: 0,
     };
+    if let Some(detail) = stdin_refusal {
+        collector.push(
+            root_pid,
+            Effect::Unknown(UnknownEffect {
+                syscall: None,
+                detail,
+            }),
+        );
+    }
     collector.push(
         root_pid,
         Effect::Control(ControlEffect::Exec(ProcessExec {
@@ -599,6 +714,25 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
             Err(Errno::ECHILD) => break,
             Err(error) => return Err(ptrace_error(error)),
         };
+        // The kernel reports a child to the tracer before the child can run, but it does not
+        // promise that the parent's fork event is dequeued before the child's own first stop.
+        // vfork makes the race concrete: the parent only stops once the child execs or exits, so
+        // the child's SIGSTOP and even its PTRACE_EVENT_EXEC can arrive first. Reconcile that
+        // tracee from /proc instead of failing with a missing state.
+        if let Some(pid) = reported_pid(&status) {
+            if !states.contains_key(&pid) {
+                if let Some(parent) = traced_parent(pid, &states) {
+                    adopt_child(
+                        pid,
+                        parent,
+                        &mut states,
+                        &mut processes,
+                        &mut tracee_guard,
+                        &mut collector,
+                    )?;
+                }
+            }
+        }
         match status {
             WaitStatus::PtraceSyscall(pid) => {
                 ensure_vdso_disarmed(pid, &mut states, &mut collector);
@@ -618,40 +752,14 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
                     || event == libc::PTRACE_EVENT_CLONE =>
             {
                 let child_pid = Pid::from_raw(ptrace::getevent(pid).map_err(ptrace_error)? as i32);
-                tracee_guard.pids.push(child_pid);
-                let inherited = states
-                    .get(&pid)
-                    .cloned()
-                    .ok_or_else(|| TraceError::Ptrace(format!("missing parent state for {pid}")))?;
-                states.insert(
+                adopt_child(
                     child_pid,
-                    ProcessState {
-                        // A newly attached fork/clone child resumes at the exit side of the
-                        // creating syscall on common kernels, but the first reported boundary
-                        // varies across ptrace implementations. Synchronize from x86_64's
-                        // entry-stop return-register sentinel before decoding it.
-                        entering: false,
-                        synchronize_on_next_syscall: true,
-                        pending: None,
-                        enumerations: HashMap::new(),
-                        // A child shares the open file description but not this model's
-                        // consumption accounting, so it must not silently read stdin.
-                        stdin_stream: None,
-                        ..inherited
-                    },
-                );
-                processes.push(ProcessNode {
-                    pid: child_pid.as_raw() as u32,
-                    parent_pid: Some(pid.as_raw() as u32),
-                    executable: None,
-                    exit_code: None,
-                });
-                collector.push(
                     pid,
-                    Effect::Control(ControlEffect::Spawn(ProcessSpawn {
-                        child_pid: child_pid.as_raw() as u32,
-                    })),
-                );
+                    &mut states,
+                    &mut processes,
+                    &mut tracee_guard,
+                    &mut collector,
+                )?;
                 if event == libc::PTRACE_EVENT_CLONE {
                     collector.push(
                         pid,
@@ -683,17 +791,18 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
                 {
                     process.executable = Some(path);
                 }
-                if let Some(state) = states.get_mut(&pid) {
-                    let closed = state.close_on_exec.drain().collect::<Vec<_>>();
-                    for fd in closed {
-                        state.fds.remove(&fd);
-                    }
-                    state.entering = false;
-                    state.synchronize_on_next_syscall = true;
-                    state.pending = None;
-                    state.file_mappings.clear();
-                    state.vdso_disarmed = false;
+                let state = states.get_mut(&pid).ok_or_else(|| {
+                    TraceError::Ptrace(format!("missing process state for {pid}"))
+                })?;
+                let closed = state.close_on_exec.drain().collect::<Vec<_>>();
+                for fd in closed {
+                    state.fds.remove(&fd);
                 }
+                state.entering = false;
+                state.synchronize_on_next_syscall = true;
+                state.pending = None;
+                state.file_mappings.clear();
+                state.vdso_disarmed = false;
                 ptrace::syscall(pid, None).map_err(ptrace_error)?;
             }
             WaitStatus::Stopped(pid, signal) => {
@@ -793,14 +902,38 @@ fn handle_syscall(
 ) -> Result<(), TraceError> {
     let registers =
         ptrace::getregs(pid).map_err(|error| ptrace_operation("read registers", pid, error))?;
-    let state = states
-        .get_mut(&pid)
-        .ok_or_else(|| TraceError::Ptrace(format!("missing process state for {pid}")))?;
+    let state = match states.get_mut(&pid) {
+        Some(state) => state,
+        None => {
+            let proc_status = fs::read_to_string(format!("/proc/{}/status", pid.as_raw()))
+                .unwrap_or_else(|error| format!("<{error}>"));
+            let fields = proc_status
+                .lines()
+                .filter(|line| {
+                    line.starts_with("Name:")
+                        || line.starts_with("Tgid:")
+                        || line.starts_with("PPid:")
+                        || line.starts_with("TracerPid:")
+                        || line.starts_with("State:")
+                })
+                .collect::<Vec<_>>()
+                .join(" ");
+            let tracked = states.keys().map(|key| key.as_raw()).collect::<Vec<_>>();
+            return Err(TraceError::Ptrace(format!(
+                "missing process state for {pid}; proc=[{fields}]; tracked={tracked:?}"
+            )));
+        }
+    };
     if state.synchronize_on_next_syscall {
         state.entering = registers.rax as i64 == -(libc::ENOSYS as i64);
         state.synchronize_on_next_syscall = false;
     }
     if state.entering {
+        // A process that moved the shared description outside the modelled operations, for
+        // example an external observer, is detected before the process disappears.
+        if registers.orig_rax as i64 == libc::SYS_exit_group {
+            verify_stdin_position(pid, state, collector);
+        }
         let pending = decode_entry(pid, state, &registers, contract)?;
         // The contract supplies the bytes, so the kernel must not produce a different value. An
         // invalid syscall number makes the kernel return ENOSYS; the exit stop below replaces
@@ -1332,6 +1465,17 @@ fn decode_entry(
                     PendingSyscall::Seek { fd }
                 }
             }
+            // A forked child shares the open file description but not this model's consumption
+            // accounting, and an inherited alias can move the same description. Both are refused
+            // rather than treated as a process-internal seek.
+            Some(FdState::InheritedFile(path)) => PendingSyscall::Unknown {
+                number,
+                detail: format!(
+                    "lseek on inherited descriptor {} whose open file description ({}) is not modelled",
+                    args[0],
+                    path.display()
+                ),
+            },
             // Seeks on every other descriptor keep the pre-existing treatment: they are
             // process-internal and no read model depends on their offset.
             _ => PendingSyscall::None,
@@ -2049,6 +2193,7 @@ fn complete_syscall(
                     }
                 }
                 record_inherited_stream_effect(state, collector, pid, path.clone());
+                verify_stdin_position(pid, state, collector);
             }
             Some(FdState::InheritedFile(path)) => collector.push(
                 pid,
@@ -2110,6 +2255,7 @@ fn complete_syscall(
                 if let Some(path) = path {
                     record_inherited_stream_effect(state, collector, pid, path);
                 }
+                verify_stdin_position(pid, state, collector);
             }
         }
         PendingSyscall::Write { fd, count } => match state.fds.get(&fd) {
@@ -3264,6 +3410,90 @@ fn fd_position(pid: Pid, fd: i32) -> Option<u64> {
 ///
 /// Only a regular file whose descriptor target is still reachable at the same path is admitted.
 /// Pipes, sockets, terminals and unknown descriptors keep the conservative refusal.
+/// Classifies every inherited descriptor from /proc, not only fds 0..2.
+///
+/// An inherited regular file on any descriptor is `InheritedFile`, and a read from one is refused
+/// unless its offset contract is modelled. Only stdin is modelled, so classifying all descriptors
+/// makes an inherited file on fd 3 fail closed instead of being treated as an ordinary open read.
+fn initial_descriptor_table(pid: Pid) -> HashMap<i32, FdState> {
+    let mut fds = HashMap::new();
+    if let Ok(entries) = fs::read_dir(format!("/proc/{}/fd", pid.as_raw())) {
+        for entry in entries.flatten() {
+            if let Some(fd) = entry
+                .file_name()
+                .to_str()
+                .and_then(|name| name.parse::<i32>().ok())
+            {
+                if fd >= 0 {
+                    fds.insert(fd, inherited_fd_state(pid, fd));
+                }
+            }
+        }
+    }
+    for fd in 0..=2 {
+        fds.entry(fd).or_insert_with(|| inherited_fd_state(pid, fd));
+    }
+    fds
+}
+
+/// Finds another descriptor of the same process that refers to the same open file description as
+/// stdin. `kcmp` is unavailable on this kernel, so equal device, inode and position are used as the
+/// conservative signature: an independent open at exactly the same position is refused too.
+fn stdin_descriptor_alias(pid: Pid) -> Option<i32> {
+    use std::os::unix::fs::MetadataExt;
+    let stdin = fs::metadata(format!("/proc/{}/fd/0", pid.as_raw())).ok()?;
+    if !stdin.is_file() {
+        return None;
+    }
+    let position = fd_position(pid, 0)?;
+    let entries = fs::read_dir(format!("/proc/{}/fd", pid.as_raw())).ok()?;
+    let mut candidates = entries
+        .flatten()
+        .filter_map(|entry| {
+            let fd = entry.file_name().to_str()?.parse::<i32>().ok()?;
+            (fd > 0).then(|| (fd, entry.path()))
+        })
+        .collect::<Vec<_>>();
+    candidates.sort_by_key(|(fd, _)| *fd);
+    candidates.into_iter().find_map(|(fd, path)| {
+        let metadata = fs::metadata(&path).ok()?;
+        (metadata.is_file()
+            && metadata.dev() == stdin.dev()
+            && metadata.ino() == stdin.ino()
+            && fd_position(pid, fd) == Some(position))
+        .then_some(fd)
+    })
+}
+
+/// Compares the kernel's position for the shared description with the model's prediction. A
+/// mismatch means something moved the description outside the operations being replayed (another
+/// process or an alias this run did not observe), so the stream is withdrawn and reuse is refused.
+fn verify_stdin_position(pid: Pid, state: &mut ProcessState, collector: &mut Collector) {
+    let Some(stream) = state.stdin_stream.as_ref() else {
+        return;
+    };
+    let expected = stream.end_offset;
+    // A process may close stdin before exiting, which does not move the description. Absence of
+    // the descriptor is therefore not a mismatch; a present descriptor whose offset differs is.
+    let Some(observed) = fd_position(pid, 0) else {
+        return;
+    };
+    if observed == expected {
+        return;
+    }
+    let detail = format!(
+        "inherited stdin position is {observed:?} but the model expected {expected}; the shared open file description moved outside the modelled reads and seeks"
+    );
+    state.stdin_stream = None;
+    collector.push(
+        pid,
+        Effect::Unknown(UnknownEffect {
+            syscall: None,
+            detail,
+        }),
+    );
+}
+
 fn initial_inherited_stream(pid: Pid) -> Option<InheritedStreamState> {
     let link = format!("/proc/{}/fd/0", pid.as_raw());
     let path = fs::read_link(&link).ok()?;

@@ -5,6 +5,7 @@
 #define _GNU_SOURCE
 #include <fcntl.h>
 #include <string.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 int main(int argc, char **argv) {
@@ -73,6 +74,40 @@ int main(int argc, char **argv) {
     off_t data = lseek(0, 0, SEEK_DATA);
     if (data < 0) return 3;
     return write(1, &data, sizeof data) == (ssize_t)sizeof data ? 0 : 4;
+  }
+
+  if (!strcmp(argv[1], "child-read")) {
+    // A forked child shares the open file description but consumes it in another process.
+    pid_t pid = fork();
+    if (pid < 0) return 3;
+    if (pid == 0) {
+      _exit(read(0, buffer, 4) == 4 ? 0 : 7);
+    }
+    int status = 0;
+    if (waitpid(pid, &status, 0) != pid) return 4;
+    return WIFEXITED(status) ? WEXITSTATUS(status) : 5;
+  }
+
+  if (!strcmp(argv[1], "child-seek")) {
+    // A seek in the child moves the same description the parent's model tracks.
+    pid_t pid = fork();
+    if (pid < 0) return 3;
+    if (pid == 0) {
+      _exit(lseek(0, 0, SEEK_END) >= 0 ? 0 : 7);
+    }
+    int status = 0;
+    if (waitpid(pid, &status, 0) != pid) return 4;
+    return WIFEXITED(status) ? WEXITSTATUS(status) : 5;
+  }
+
+  if (!strcmp(argv[1], "alias-fd3")) {
+    // The caller duplicated stdin onto descriptor 3 before exec. Both names refer to one open
+    // file description, so a seek through fd 3 moves what fd 0 sees.
+    if (lseek(3, 0, SEEK_END) < 0) return 3;
+    ssize_t read_bytes = read(0, buffer, 4);
+    if (read_bytes < 0) return 4;
+    if (write(1, buffer, (size_t)read_bytes) != read_bytes) return 5;
+    return 0;
   }
 
   if (!strcmp(argv[1], "failed-seek")) {

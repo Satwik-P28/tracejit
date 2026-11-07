@@ -1075,14 +1075,30 @@ fn a_hard_linked_output_retraces_instead_of_aborting() {
     );
 }
 
-/// `execve` returns `ETXTBSY` when any process still holds the target open for writing. This test
-/// harness runs tests in parallel, so a sibling's `fork` can briefly inherit this test's freshly
-/// written script descriptor before its own `exec`. Reproduced deterministically outside TraceJIT
-/// with `bash -c 'exec 9>prog; prog'`, which prints "Text file busy". The failure is in the direct
-/// run, before the product is involved, so retry the harness's own bounded exec race.
-fn run_when_executable_ready(build: impl Fn() -> Command) -> Output {
+/// Installs an executable without ever holding the executable path open for writing.
+///
+/// `execve` returns `ETXTBSY` while any process still has the target open for writing. This harness
+/// runs tests in parallel, so a sibling's `fork` can briefly inherit a write descriptor opened by
+/// `fs::write` for this script, which failed 3 of 8 suite runs. Writing a sibling file and
+/// renaming it into place removes the window instead of retrying around it.
+/// Retries this test's own spawns when the kernel reports `ETXTBSY`.
+///
+/// Writing through a sibling name and renaming removes this test's writer window, but a parallel
+/// test's `fork` can still inherit the descriptor while the temporary inode is being written: the
+/// rename makes that same inode the executable. That window belongs to process creation across
+/// independent tests, not to a leaked descriptor in the product, and no in-test lock can serialize
+/// another test's `fork`. The retry is bounded and only accepts a spawn error or a "Text file busy"
+/// failure; every other failure is returned unchanged.
+fn run_with_etxtbsy_retry(build: impl Fn() -> Command) -> Output {
     for attempt in 0..40 {
         match build().output() {
+            Ok(output)
+                if attempt < 39
+                    && !output.status.success()
+                    && String::from_utf8_lossy(&output.stderr).contains("Text file busy") =>
+            {
+                std::thread::sleep(std::time::Duration::from_millis(5));
+            }
             Ok(output) => return output,
             Err(error)
                 if error.kind() == std::io::ErrorKind::ExecutableFileBusy && attempt < 39 =>
@@ -1095,6 +1111,15 @@ fn run_when_executable_ready(build: impl Fn() -> Command) -> Output {
     unreachable!("retry loop returns or panics")
 }
 
+fn write_executable(path: &Path, contents: &str) {
+    let temporary = path.with_extension("pending");
+    fs::write(&temporary, contents).unwrap();
+    let mut permissions = fs::metadata(&temporary).unwrap().permissions();
+    std::os::unix::fs::PermissionsExt::set_mode(&mut permissions, 0o700);
+    fs::set_permissions(&temporary, permissions).unwrap();
+    fs::rename(&temporary, path).unwrap();
+}
+
 #[test]
 fn a_traced_script_sees_the_callers_script_path() {
     // The kernel passes the execve path to a script's interpreter, so exec'ing the canonical
@@ -1102,17 +1127,14 @@ fn a_traced_script_sees_the_callers_script_path() {
     // relative one. Scripts that derive a path from `$0` observe the difference.
     let temporary = tempfile::tempdir().unwrap();
     let script = temporary.path().join("echo-zero.sh");
-    fs::write(&script, "#!/bin/sh\necho \"zero=$0\"\n").unwrap();
-    let mut permissions = fs::metadata(&script).unwrap().permissions();
-    std::os::unix::fs::PermissionsExt::set_mode(&mut permissions, 0o700);
-    fs::set_permissions(&script, permissions).unwrap();
-    let direct = run_when_executable_ready(|| {
+    write_executable(&script, "#!/bin/sh\necho \"zero=$0\"\n");
+    let direct = run_with_etxtbsy_retry(|| {
         let mut command = Command::new("./echo-zero.sh");
         command.current_dir(temporary.path());
         command
     });
     assert!(direct.status.success(), "the direct run itself failed");
-    let traced = run_when_executable_ready(|| {
+    let traced = run_with_etxtbsy_retry(|| {
         let mut command = Command::new(tracejit());
         command
             .args(["run", "--", "./echo-zero.sh"])
@@ -1561,6 +1583,60 @@ fn inherited_stdin_seek_model_reproduces_offsets_and_refuses_unsound_cases() {
         "{second}"
     );
 
+    // A forked child shares the description. Its read cannot be replayed, and its seek must not
+    // be dismissed as process-internal: either would desynchronize the caller-visible offset.
+    let child_read_cache = temporary.path().join("cache-child-read");
+    let (first, _) = traced(&child_read_cache, "child-read", 0);
+    assert_ne!(first["classification"], "Guarded", "{first}");
+    let (second, _) = traced(&child_read_cache, "child-read", 0);
+    assert_ne!(second["cache_decision"], "Reused", "{second}");
+    assert!(
+        second["reasons"].to_string().contains("descriptor 0"),
+        "{second}"
+    );
+
+    let child_seek_cache = temporary.path().join("cache-child-seek");
+    let (first, _) = traced(&child_seek_cache, "child-seek", 0);
+    assert_ne!(first["classification"], "Guarded", "{first}");
+    let (second, _) = traced(&child_seek_cache, "child-seek", 0);
+    assert_ne!(second["cache_decision"], "Reused", "{second}");
+    assert!(
+        second["reasons"].to_string().contains("not modelled"),
+        "{second}"
+    );
+
+    // An alias inherited across exec (fd 3 duplicated from fd 0 by the caller) is detected before
+    // the program runs, so neither the alias's seek nor the shared offset can be replayed.
+    let alias_input = fs::File::open(&input).unwrap();
+    let inherited = Command::new("sh")
+        .args([
+            "-c",
+            "exec 3<&0; exec \"$1\" run --json --contract allocator-entropy-v1 -- \"$2\" alias-fd3",
+            "sh",
+            tracejit().to_str().unwrap(),
+            binary.to_str().unwrap(),
+        ])
+        .env(
+            "TRACEJIT_CACHE_DIR",
+            temporary.path().join("cache-inherited-alias"),
+        )
+        .stdin(std::process::Stdio::from(alias_input))
+        .output()
+        .unwrap();
+    assert!(
+        inherited.status.success(),
+        "traced inherited alias failed: {}",
+        String::from_utf8_lossy(&inherited.stderr)
+    );
+    let report: Value = serde_json::from_slice(&inherited.stdout).unwrap();
+    assert_ne!(report["classification"], "Guarded", "{report}");
+    assert!(
+        report["reasons"]
+            .to_string()
+            .contains("shares its open file description"),
+        "{report}"
+    );
+
     // A different initial position must not reuse a record that started at zero.
     let offset_cache = temporary.path().join("cache-offset");
     assert_eq!(
@@ -1582,4 +1658,51 @@ fn inherited_stdin_seek_model_reproduces_offsets_and_refuses_unsound_cases() {
     assert_eq!(position, changed_position);
 
     eprintln!("RESULT inherited-stdin-seek PASS");
+}
+
+/// A vfork child can reach its first ptrace stop before the kernel reports the parent's
+/// `PTRACE_EVENT_VFORK`. The tracer must reconcile that child from `/proc` and register it
+/// idempotently, otherwise `make -j4` (which uses vfork) fails with a missing process state and the
+/// traced command returns an error where the direct command succeeds.
+#[test]
+fn vfork_exec_children_are_registered_before_their_first_stop() {
+    let temporary = tempfile::tempdir().unwrap();
+    let source =
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/fixtures/spawn_storm.c");
+    let binary = temporary.path().join("spawn-storm");
+    let status = Command::new("cc")
+        .args(["-O2", "-Wall", "-Wextra", "-Werror", "-pthread"])
+        .arg(&source)
+        .arg("-o")
+        .arg(&binary)
+        .status()
+        .expect("C compiler must be available");
+    assert!(status.success(), "spawn storm fixture compilation failed");
+    let direct = Command::new(&binary)
+        .args(["/bin/true", "40", "4"])
+        .output()
+        .unwrap();
+    assert!(direct.status.success(), "the direct storm failed");
+    let traced = invoke(
+        &temporary.path().join("cache"),
+        &[
+            "run",
+            "--json",
+            "--",
+            binary.to_str().unwrap(),
+            "/bin/true",
+            "40",
+            "4",
+        ],
+        None,
+    );
+    assert!(
+        traced.status.success(),
+        "traced vfork storm failed: {}",
+        String::from_utf8_lossy(&traced.stderr)
+    );
+    let report: Value = serde_json::from_slice(&traced.stdout).unwrap();
+    assert_eq!(stdout_bytes_of(&report), direct.stdout);
+    assert_eq!(traced.status.code(), direct.status.code());
+    eprintln!("RESULT vfork-registration PASS");
 }
