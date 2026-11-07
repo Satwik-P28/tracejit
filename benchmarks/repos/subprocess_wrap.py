@@ -2,7 +2,9 @@
 """Bounded subprocess-reuse experiment: explicit wrapping versus whole-command caching.
 
 The four repository sessions show that whole-command reuse cannot help a build: `make` and the
-compiler are refused, and only the project's own tool is cached. This harness asks whether wrapping
+compiler are refused, and only the project's own tool is cached. Compressed outputs use `gzip -n`
+(no name or timestamp) so artifacts are byte-comparable across arms rather than differing only by
+the input file's mtime. This harness asks whether wrapping
 an *eligible* child inside a real Makefile recipe is worth building infrastructure for, before any
 transparent execve interception exists.
 
@@ -51,7 +53,7 @@ DATA := $(wildcard data/*.bin)
 GZ := $(DATA:=.gz)
 all: $(GZ)
 data/%.bin.gz: data/%.bin
-\t$(COMPRESS) -9 -c < $< > $@
+\t$(COMPRESS) -n -9 -c < $< > $@
 """
 
 
@@ -83,7 +85,14 @@ def base_environment() -> dict:
     }
 
 
-def run(argv, cwd: Path, env: dict, timeout: int = 600, stdin_path: Path | None = None):
+def run(
+    argv,
+    cwd: Path,
+    env: dict,
+    timeout: int = 600,
+    stdin_path: Path | None = None,
+    stdout_sink=None,
+):
     source = open(stdin_path, "rb") if stdin_path is not None else subprocess.DEVNULL
     started = time.perf_counter()
     try:
@@ -92,7 +101,7 @@ def run(argv, cwd: Path, env: dict, timeout: int = 600, stdin_path: Path | None 
             cwd=cwd,
             env=env,
             stdin=source,
-            stdout=subprocess.PIPE,
+            stdout=subprocess.PIPE if stdout_sink is None else stdout_sink,
             stderr=subprocess.PIPE,
             timeout=timeout,
         )
@@ -243,11 +252,16 @@ def probes(work: Path, env: dict) -> list[dict]:
             "-9",
             "-c",
         ]
-        _, completed = run(argv, work, env, stdin_path=path)
+        # The recipe redirects stdout to a regular file. A pipe here would be a different
+        # output shape, so the probe would ask a different question and never hit.
+        sink_path = work / "data" / f"probe-{path.name}.gz"
+        with open(sink_path, "wb") as sink:
+            _, completed = run(argv, work, env, stdin_path=path, stdout_sink=sink)
         try:
-            report = json.loads(completed.stdout)
+            report = json.loads(sink_path.read_bytes())
         except json.JSONDecodeError:
             report = None
+        sink_path.unlink()
         results.append(
             {
                 "input": path.name,
@@ -417,7 +431,7 @@ def main() -> int:
             "specialist_cache": shutil.which("ccache") or shutil.which("sccache"),
         },
         "workload": {
-            "recipe": "data/%.bin.gz: data/%.bin\n\t$(COMPRESS) -9 -c < $< > $@",
+            "recipe": "data/%.bin.gz: data/%.bin\n\t$(COMPRESS) -n -9 -c < $< > $@",
             "files": FILE_COUNT,
             "megabytes_each": FILE_MEGABYTES,
             "note": (
