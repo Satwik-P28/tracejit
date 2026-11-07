@@ -188,9 +188,44 @@ fn workloads() -> Vec<Workload> {
             unavailable: None,
         },
         Workload {
-            name: "make-build",
+            name: "make-build-parallel",
             program: "make",
             args: vec!["-j4".into()],
+            stdin: None,
+            unavailable: None,
+        },
+        Workload {
+            name: "make-build-serial",
+            program: "make",
+            args: vec!["-j1".into()],
+            stdin: None,
+            unavailable: None,
+        },
+        Workload {
+            name: "make-test-target",
+            program: "make",
+            args: vec!["test".into()],
+            stdin: None,
+            unavailable: None,
+        },
+        Workload {
+            name: "gzip-compression",
+            program: "gzip",
+            args: vec!["-n".into(), "-9".into(), "-c".into(), "data.txt".into()],
+            stdin: None,
+            unavailable: None,
+        },
+        Workload {
+            name: "gzip-decompression",
+            program: "gzip",
+            args: vec!["-n".into(), "-d".into(), "-c".into(), "data.txt.gz".into()],
+            stdin: None,
+            unavailable: None,
+        },
+        Workload {
+            name: "data-transformation-sort",
+            program: "sort",
+            args: vec!["data.txt".into()],
             stdin: None,
             unavailable: None,
         },
@@ -280,9 +315,17 @@ fn prepare(directory: &Path) {
     .unwrap();
     fs::write(
         directory.join("Makefile"),
-        "app: main.c\n\tcc -O2 main.c -o app\n",
+        "app: main.c\n\tcc -O2 main.c -o app\n\ntest: app\n\t@./app-check\n\t@echo tests-passed\n",
     )
     .unwrap();
+    fs::write(directory.join("data.txt"), "alpha\ncharlie\nbravo\nalpha\n").unwrap();
+    let compressed = Command::new("gzip")
+        .args(["-n", "-9", "-c"])
+        .arg(directory.join("data.txt"))
+        .output()
+        .unwrap();
+    assert!(compressed.status.success(), "gzip setup failed");
+    fs::write(directory.join("data.txt.gz"), &compressed.stdout).unwrap();
     fs::write(
         directory.join("run-tests.sh"),
         "#!/bin/sh\n\
