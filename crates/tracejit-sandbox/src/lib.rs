@@ -277,6 +277,17 @@ mod linux {
                 "V1 enforced mode does not permit network access".into(),
             ));
         }
+        // seccomp(2): installing a filter requires CAP_SYS_ADMIN in the caller's user namespace
+        // *or* `no_new_privs`. `apply` used to inherit the setting from `apply_landlock`, so the
+        // standalone filter install depended on ambient process state: a GitHub runner starts
+        // with `NoNewPrivs: 0` and PR_SET_SECCOMP fails with EACCES, while a hardened local
+        // shell that already set it succeeds. Establish the documented precondition here so the
+        // filter install is self-contained. Setting it twice is idempotent and does not weaken
+        // the guarantee the filter needs.
+        // SAFETY: prctl is called with the documented scalar arguments.
+        if unsafe { libc::prctl(libc::PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) } != 0 {
+            return Err(last_error("set no_new_privs before seccomp"));
+        }
         const LD_ARCH: libc::sock_filter = stmt(0x20, 4);
         const JEQ_ARCH: libc::sock_filter = jump(0x15, 0xc000_003e, 1, 0);
         const KILL: libc::sock_filter = stmt(0x06, libc::SECCOMP_RET_KILL_PROCESS);
@@ -538,10 +549,20 @@ mod tests {
             std::io::Error::last_os_error()
         );
         if child == 0 {
-            if linux::apply_seccomp(false).is_err() {
+            if let Err(error) = linux::apply_seccomp(false) {
+                // A bare 125 hid which errno stopped the install (EACCES from a missing
+                // no_new_privs is indistinguishable from an unsupported filter). Report the
+                // reason on stderr before exiting.
+                let message = format!("seccomp installation failed: {error}\n");
+                // SAFETY: write(2) reads message's bytes for its length; no Rust state is used.
+                unsafe { libc::write(2, message.as_ptr().cast(), message.len()) };
                 // SAFETY: this is the fork child and no Rust destructors should run here.
                 unsafe { libc::_exit(125) };
             }
+            // The install must have established the precondition itself rather than relying on
+            // an ambient `no_new_privs` value inherited from the test runner.
+            // SAFETY: prctl is called with the documented scalar arguments.
+            let no_new_privs = unsafe { libc::prctl(libc::PR_GET_NO_NEW_PRIVS, 0, 0, 0, 0) } == 1;
             // The filter must not disturb ordinary filesystem work.
             let usable = std::fs::write("/dev/null", b"allowed").is_ok();
             // SAFETY: socket has scalar arguments and returns a descriptor or errno.
@@ -561,11 +582,13 @@ mod tests {
                 traced == -1 && std::io::Error::last_os_error().raw_os_error() == Some(libc::EPERM);
             // SAFETY: this is the fork child and no Rust destructors should run here.
             unsafe {
-                libc::_exit(if usable && socket_denied && ptrace_denied {
-                    0
-                } else {
-                    1
-                })
+                libc::_exit(
+                    if usable && socket_denied && ptrace_denied && no_new_privs {
+                        0
+                    } else {
+                        1
+                    },
+                )
             }
         }
         let mut status = 0;
