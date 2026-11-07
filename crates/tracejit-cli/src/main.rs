@@ -339,7 +339,10 @@ fn present_report(report: &RunReport, json_output: bool, verbose: bool) -> Resul
             "stderr_bytes": report.stderr,
             "exit_code": report.exit_code,
         });
-        println!("{}", serde_json::to_string_pretty(&value)?);
+        // Compact JSON. The pretty printer spends most of its time re-indenting the captured
+        // stdout and stderr byte arrays, which dominates a large `--json` hit, and this output is
+        // machine-readable by contract. Keys and values are unchanged.
+        println!("{}", serde_json::to_string(&value)?);
         return Ok(());
     }
 
@@ -347,77 +350,102 @@ fn present_report(report: &RunReport, json_output: bool, verbose: bool) -> Resul
     io::stdout().flush()?;
     io::stderr().write_all(&report.stderr)?;
     io::stderr().flush()?;
-    eprintln!("\nTraceJIT\n");
-    if let Some(contract) = &report.contract {
-        eprintln!("contract       {contract}");
-    }
-    match report.kind {
-        RunKind::Executed => {
-            if let Some(decision) = &report.cache_decision {
-                match decision {
-                    CacheDecision::Deoptimized => eprintln!("cache          DEOPT"),
-                    CacheDecision::Executed | CacheDecision::Ineligible => {
-                        eprintln!("cache          MISS")
+    // The report is assembled once and written with a single call. Unbuffered `eprintln!` per
+    // field costs a syscall per line on the warm path, which is a measurable share of a hit.
+    let mut text = String::with_capacity(512);
+    {
+        use std::fmt::Write as _;
+        let _ = writeln!(text, "\nTraceJIT\n");
+        if let Some(contract) = &report.contract {
+            let _ = writeln!(text, "contract       {contract}");
+        }
+        match report.kind {
+            RunKind::Executed => {
+                if let Some(decision) = &report.cache_decision {
+                    match decision {
+                        CacheDecision::Deoptimized => {
+                            let _ = writeln!(text, "cache          DEOPT");
+                        }
+                        CacheDecision::Executed | CacheDecision::Ineligible => {
+                            let _ = writeln!(text, "cache          MISS");
+                        }
+                        CacheDecision::Skipped => {
+                            let _ = writeln!(text, "cache          SKIP (admission policy)");
+                        }
+                        CacheDecision::Reused => {}
                     }
-                    CacheDecision::Skipped => eprintln!("cache          SKIP (admission policy)"),
-                    CacheDecision::Reused => {}
+                }
+                let _ = writeln!(text, "classified     {}", report.classification);
+                let _ = writeln!(text, "dependencies   {}", report.dependency_count);
+                let _ = writeln!(text, "outputs        {}", report.output_count);
+                let _ = writeln!(text, "unknown        {}", report.effect_counts.unknown);
+                if report.cache_decision.is_none() {
+                    let total_effects = report.effect_counts.reads
+                        + report.effect_counts.writes
+                        + report.effect_counts.controls
+                        + report.effect_counts.unknown;
+                    let _ = writeln!(text, "processes      {}", report.process_count);
+                    let _ = writeln!(text, "effects        {total_effects}");
+                    let _ = writeln!(text, "irreversible   {}", report.irreversible_effect_count);
+                }
+                let _ = writeln!(
+                    text,
+                    "runtime        {}",
+                    format_duration(report.runtime_ns)
+                );
+                if report.eligible_for_reuse {
+                    let _ = writeln!(text, "\nnext run is eligible for guarded reuse");
+                } else if report.reasons.is_empty() {
+                    let _ = writeln!(text, "\nreuse disabled");
+                } else {
+                    let _ = writeln!(text);
+                    for reason in &report.reasons {
+                        let _ = writeln!(text, "reuse disabled: {reason}");
+                    }
                 }
             }
-            eprintln!("classified     {}", report.classification);
-            eprintln!("dependencies   {}", report.dependency_count);
-            eprintln!("outputs        {}", report.output_count);
-            eprintln!("unknown        {}", report.effect_counts.unknown);
-            if report.cache_decision.is_none() {
-                let total_effects = report.effect_counts.reads
-                    + report.effect_counts.writes
-                    + report.effect_counts.controls
-                    + report.effect_counts.unknown;
-                eprintln!("processes      {}", report.process_count);
-                eprintln!("effects        {total_effects}");
-                eprintln!("irreversible   {}", report.irreversible_effect_count);
+            RunKind::Reused => {
+                if let Some(guards) = &report.guards {
+                    let _ = writeln!(
+                        text,
+                        "guards         {}/{} passed",
+                        guards.passed, guards.checked
+                    );
+                }
+                let _ = writeln!(text, "cache          HIT");
+                let _ = writeln!(
+                    text,
+                    "runtime        {}",
+                    format_duration(report.runtime_ns)
+                );
+                let saved = report.baseline_runtime_ns.saturating_sub(report.runtime_ns);
+                let _ = writeln!(text, "saved          {}", format_duration(saved));
+                if report.runtime_ns > 0 {
+                    let speedup = report.baseline_runtime_ns as f64 / report.runtime_ns as f64;
+                    let _ = writeln!(text, "speedup        {speedup:.1}x");
+                }
             }
-            eprintln!("runtime        {}", format_duration(report.runtime_ns));
+        }
+        if verbose {
+            let _ = writeln!(text, "execution      {}", report.execution_id);
+            let _ = writeln!(text, "processes      {}", report.process_count);
+            let _ = writeln!(
+                text,
+                "effects        {} read, {} write, {} control, {} unknown",
+                report.effect_counts.reads,
+                report.effect_counts.writes,
+                report.effect_counts.controls,
+                report.effect_counts.unknown
+            );
             if report.eligible_for_reuse {
-                eprintln!("\nnext run is eligible for guarded reuse");
-            } else if report.reasons.is_empty() {
-                eprintln!("\nreuse disabled");
-            } else {
-                eprintln!();
                 for reason in &report.reasons {
-                    eprintln!("reuse disabled: {reason}");
+                    let _ = writeln!(text, "reason         {reason}");
                 }
             }
         }
-        RunKind::Reused => {
-            if let Some(guards) = &report.guards {
-                eprintln!("guards         {}/{} passed", guards.passed, guards.checked);
-            }
-            eprintln!("cache          HIT");
-            eprintln!("runtime        {}", format_duration(report.runtime_ns));
-            let saved = report.baseline_runtime_ns.saturating_sub(report.runtime_ns);
-            eprintln!("saved          {}", format_duration(saved));
-            if report.runtime_ns > 0 {
-                let speedup = report.baseline_runtime_ns as f64 / report.runtime_ns as f64;
-                eprintln!("speedup        {speedup:.1}x");
-            }
-        }
     }
-    if verbose {
-        eprintln!("execution      {}", report.execution_id);
-        eprintln!("processes      {}", report.process_count);
-        eprintln!(
-            "effects        {} read, {} write, {} control, {} unknown",
-            report.effect_counts.reads,
-            report.effect_counts.writes,
-            report.effect_counts.controls,
-            report.effect_counts.unknown
-        );
-        if report.eligible_for_reuse {
-            for reason in &report.reasons {
-                eprintln!("reason         {reason}");
-            }
-        }
-    }
+    io::stderr().write_all(text.as_bytes())?;
+    io::stderr().flush()?;
     Ok(())
 }
 

@@ -329,14 +329,19 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
                             );
                         }
                         let runtime_ns = started.elapsed().as_nanos();
-                        cache.record_admission(
-                            lookup_key,
-                            u64::try_from(candidate.baseline_runtime_ns).unwrap_or(u64::MAX),
-                            0,
-                            Some(u64::try_from(runtime_ns).unwrap_or(u64::MAX)),
-                            false,
-                            false,
-                        )?;
+                        // The cost history exists for the admission policy. `always` never
+                        // consults it, so writing a row on every one of its hits is pure warm
+                        // path cost; `never` never reaches a hit. Skip the read and upsert.
+                        if options.admission != Admission::Always {
+                            cache.record_admission(
+                                lookup_key,
+                                u64::try_from(candidate.baseline_runtime_ns).unwrap_or(u64::MAX),
+                                0,
+                                Some(u64::try_from(runtime_ns).unwrap_or(u64::MAX)),
+                                false,
+                                false,
+                            )?;
+                        }
                         let persist_decision =
                             candidate.last_decision.decision != CacheDecision::Reused;
                         candidate.last_decision = DecisionRecord {

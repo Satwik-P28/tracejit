@@ -128,6 +128,10 @@ pub struct QueryTimings {
     pub decode_ns: u64,
 }
 
+/// Bumped when the SQLite schema changes, so `Cache::open` runs the migration batch once instead
+/// of on every invocation.
+const CACHE_SCHEMA_VERSION: i64 = 1;
+
 pub struct Cache {
     root: PathBuf,
     objects: PathBuf,
@@ -155,13 +159,18 @@ impl Cache {
         connection.busy_timeout(std::time::Duration::from_secs(10))?;
         let sqlite_open_ns = u64_nanos(started);
         let started = Instant::now();
-        // A concurrent open can still return SQLITE_BUSY from `journal_mode=WAL` before the busy
-        // handler is armed, so initialization is retried with a bounded backoff. Reads and writes
-        // after this point rely on the 10 s busy timeout.
-        let mut attempts: u64 = 0;
-        loop {
-            match connection.execute_batch(
-                "PRAGMA busy_timeout=10000;
+        // The schema, the WAL journal mode and the FULL synchronous setting are persistent. Once
+        // the cache has been initialized, re-running the CREATE/ALTER batch on every invocation is
+        // warm-path work that buys nothing, so the version stamp selects a one-time migration.
+        let version: i64 = connection.query_row("PRAGMA user_version", [], |row| row.get(0))?;
+        if version < CACHE_SCHEMA_VERSION {
+            // A concurrent open can still return SQLITE_BUSY from `journal_mode=WAL` before the
+            // busy handler is armed, so initialization is retried with a bounded backoff. Reads
+            // and writes after this point rely on the 10 s busy timeout.
+            let mut attempts: u64 = 0;
+            loop {
+                match connection.execute_batch(
+                    "PRAGMA busy_timeout=10000;
              PRAGMA journal_mode=WAL;
              PRAGMA synchronous=FULL;
              CREATE TABLE IF NOT EXISTS executions (
@@ -179,31 +188,33 @@ impl Cache {
                  skips INTEGER NOT NULL,
                  deopts INTEGER NOT NULL DEFAULT 0,
                  updated_unix_ms TEXT NOT NULL
-             );",
-            ) {
-                Ok(()) => break,
-                Err(error)
-                    if attempts < 20
-                        && matches!(
-                            error.sqlite_error_code(),
-                            Some(
-                                rusqlite::ErrorCode::DatabaseBusy
-                                    | rusqlite::ErrorCode::DatabaseLocked
-                            )
-                        ) =>
-                {
-                    attempts += 1;
-                    std::thread::sleep(std::time::Duration::from_millis(5 * attempts));
+             );
+             PRAGMA user_version=1;",
+                ) {
+                    Ok(()) => break,
+                    Err(error)
+                        if attempts < 20
+                            && matches!(
+                                error.sqlite_error_code(),
+                                Some(
+                                    rusqlite::ErrorCode::DatabaseBusy
+                                        | rusqlite::ErrorCode::DatabaseLocked
+                                )
+                            ) =>
+                    {
+                        attempts += 1;
+                        std::thread::sleep(std::time::Duration::from_millis(5 * attempts));
+                    }
+                    Err(error) => return Err(error.into()),
                 }
-                Err(error) => return Err(error.into()),
             }
+            // Older caches predate the deoptimisation counter; adding it is idempotent and ignored
+            // when the column already exists.
+            let _ = connection.execute(
+                "ALTER TABLE admission ADD COLUMN deopts INTEGER NOT NULL DEFAULT 0",
+                [],
+            );
         }
-        // Older caches predate the deoptimisation counter; adding it is idempotent and ignored
-        // when the column already exists.
-        let _ = connection.execute(
-            "ALTER TABLE admission ADD COLUMN deopts INTEGER NOT NULL DEFAULT 0",
-            [],
-        );
         let schema_ns = u64_nanos(started);
         Ok(Self {
             root,
