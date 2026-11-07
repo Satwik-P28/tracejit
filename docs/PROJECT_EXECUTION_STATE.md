@@ -105,3 +105,13 @@ that fix, concurrent cold starts failed intermittently with `database is locked`
    before claiming the adaptive policy is better than `auto-v1`; the current matrix shows a tie.
 5. Model `/proc/self/maps` for `grep`, finish the musl/static allocator matrix, and add a
    Landlock-capable CI job; `PROVEN` stays blocked until then.
+
+## Phase 2K (base `f3bd191`)
+
+The libpng failure was a vfork event-ordering race in the tracer, not configure: see
+`docs/audits/PHASE2K_EXECUTION_FIDELITY.md`. Children are adopted idempotently from `/proc`, all
+inherited descriptors are classified, stdin aliases and child seeks are refused, and the modelled
+position is verified against `fdinfo`. Two sessions, all workflows valid and artifact-equal: zlib
+auto 1.033x/1.164x (compression and decompression reused); libpng always 0.311x/0.283x but builds;
+lz4 no reuse, 0.925x/1.056x. Fidelity suite 9/9 with 0 failures; fuzz 240/240 with 0 incorrect
+hits; 8 concurrent cold runs correct; 112 tests; `PROVEN` BLOCKED (`landlock no`).

@@ -334,3 +334,27 @@ direct), auto 1.08x/1.08x; refused workloads stop paying repeatedly under auto. 
 32 mutation cases, **0 incorrect hits**. Tests: **108 passing**; fmt and clippy clean. `PROVEN` still
 BLOCKED (LSM list `capability,selinux`; Landlock unavailable). Nothing pushed or released. See
 `docs/audits/PHASE2H_*.md` and `benchmarks/results/phase2h/`.
+
+## Phase 2K (base `f3bd191`)
+
+The Phase 2J libpng diagnosis was wrong: traced `configure` exited 0; `make -j4` failed with
+`missing process state`, because a vfork child's first stop can be reported before the parent's
+`PTRACE_EVENT_VFORK`. Children are now adopted idempotently from `/proc` before their stop is
+decoded, with a parallel-vfork regression that fails on the old tree and passes now. libpng builds
+under every policy; `always` costs 0.311x/0.283x but no longer fails.
+
+Inherited descriptors: every fd is classified at exec, an inherited regular file on fd 3 is refused
+rather than read as ordinary content, stdin aliases (same device/inode/position, since `kcmp` is
+`ENOSYS`) refuse the stream, a child's seek on shared stdin is refused, and the real fd position is
+checked after each read/seek and before `exit_group`. zlib still reuses compression and
+decompression, byte-identically.
+
+The session harness now spells out `--admission`, invalidates a policy whose phases failed or whose
+tool artifacts differ, and records commit/workload/host metadata. Two sessions: zlib auto
+**1.033x/1.164x** (decompression and compression both `Reused`); libpng valid at 1.055x/0.929x
+(noise, `pngtest` declined) and `always` 0.311x/0.283x; lz4 valid but no reuse (monotonic clock),
+0.925x/1.056x. New execution-fidelity suite: 9/9 accounted, 0 failures (1 autoconf `Unavailable`,
+7 safely executed without reuse, 1 reused). Fuzzing seeds 7/11: 240 comparisons, 0 incorrect hits.
+8 concurrent cold runs: all correct, no lock error. **112 tests**; fmt/clippy clean. `PROVEN` still
+BLOCKED (`landlock no`). See `docs/audits/PHASE2K_EXECUTION_FIDELITY.md` and
+`benchmarks/results/phase2k/`.
