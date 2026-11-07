@@ -13,8 +13,10 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
+import platform
 import shutil
 import statistics
 import subprocess
@@ -24,6 +26,8 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 CONTRACT = "allocator-entropy-v1"
+WORKLOAD = "phase2k-v1"
+TOOL_PHASES = ("compress-", "decompress-", "pngtest-")
 POLICIES = ("direct", "never", "auto-v1", "always", "auto")
 
 
@@ -55,7 +59,10 @@ def run(argv, cwd: Path, env: dict, stdin_path: Path | None = None):
     elapsed = (time.perf_counter() - started) * 1000.0
     if stdin_path is not None:
         source.close()
-    return elapsed, completed
+    # Tool output is the artifact whose equivalence must be checked; build logs are not, so the
+    # caller decides by phase name which digests have to agree across policies.
+    digest = hashlib.sha256(completed.stdout).hexdigest()
+    return elapsed, completed, digest, len(completed.stdout)
 
 
 def edit(path: Path, line: str) -> None:
@@ -165,11 +172,53 @@ SCENARIOS = {
 def flags(policy: str) -> list[str] | None:
     if policy == "direct":
         return None
-    if policy == "never":
-        return ["--contract", CONTRACT, "--admission", "never"]
-    if policy == "always":
-        return ["--contract", CONTRACT]
+    # Spell out every policy: relying on the default made "always" indistinguishable from a future
+    # default change and hid which admission rule produced the result.
     return ["--contract", CONTRACT, "--admission", policy]
+
+
+def repository_state() -> dict:
+    def git(*args: str) -> str:
+        completed = subprocess.run(
+            ["git", "-C", str(REPO), *args], capture_output=True, text=True, check=False
+        )
+        return completed.stdout.strip()
+
+    return {
+        "commit": git("rev-parse", "HEAD") or None,
+        "dirty": bool(git("status", "--porcelain")),
+    }
+
+
+def finalize(entry: dict) -> None:
+    """Gates a policy's speedup on a fully successful workflow with equal tool artifacts."""
+    direct = entry["policies"].get("direct", {}).get("total_ms") or 1.0
+    baseline = {
+        phase["phase"]: phase["stdout_sha256"]
+        for phase in entry["policies"].get("direct", {}).get("phases", [])
+    }
+    for measured in entry["policies"].values():
+        mismatches = [
+            phase["phase"]
+            for phase in measured["phases"]
+            if phase["phase"].startswith(TOOL_PHASES)
+            and baseline.get(phase["phase"]) != phase["stdout_sha256"]
+        ]
+        measured["artifacts_match"] = not mismatches
+        measured["artifact_mismatches"] = mismatches
+        measured["valid"] = measured.get("valid", True) and not mismatches
+        if measured["valid"]:
+            measured["speedup"] = round(direct / measured["total_ms"], 3)
+            measured["slowdown"] = round(measured["total_ms"] / direct, 3)
+            measured["invalid_reason"] = None
+        else:
+            measured["speedup"] = None
+            measured["slowdown"] = None
+            measured["invalid_reason"] = (
+                "failed phases: " + ", ".join(measured.get("failed_phases", []))
+                if measured.get("failed_phases")
+                else "tool artifact mismatch: " + ", ".join(mismatches)
+            )
 
 
 def prepare_work(source: Path, work: Path, clean: list[str]) -> None:
@@ -226,9 +275,15 @@ def session(key: str, work: Path, policy: str) -> dict:
                 )
         stdin_path = Path(stdin_name) if stdin_name else None
         command = argv if flags(policy) is None else [str(binary()), "run", *flags(policy), "--", *argv]
-        elapsed, completed = run(command, work, env, stdin_path)
+        elapsed, completed, digest, size = run(command, work, env, stdin_path)
         total += elapsed
-        entry = {"phase": name, "ms": round(elapsed, 2), "exit": completed.returncode}
+        entry = {
+            "phase": name,
+            "ms": round(elapsed, 2),
+            "exit": completed.returncode,
+            "stdout_sha256": digest,
+            "stdout_bytes": size,
+        }
         if completed.returncode != 0:
             entry["stderr"] = completed.stderr.decode(errors="replace")[:200]
         entries.append(entry)
@@ -252,7 +307,7 @@ def session(key: str, work: Path, policy: str) -> dict:
             ],
         }[key]
         for argv, stdin_path in probes:
-            _, completed = run(
+            _, completed, _, _ = run(
                 [str(binary()), "run", "--json", *flags(policy), "--", *argv],
                 work, env, stdin_path,
             )
@@ -272,7 +327,10 @@ def session(key: str, work: Path, policy: str) -> dict:
     if cache.exists():
         footprint = sum(path.stat().st_size for path in cache.rglob("*") if path.is_file())
     peak_rss = peak_memory(work, env)
+    failed = [entry["phase"] for entry in entries if entry["exit"] != 0]
     return {
+        "valid": not failed,
+        "failed_phases": failed,
         "total_ms": round(total, 2),
         "phases": entries,
         "repeated": {
@@ -327,7 +385,18 @@ def main() -> int:
     keys = [item for item in args.repos.split(",") if item]
     policies = [item for item in args.policies.split(",") if item]
     root = Path(tempfile.mkdtemp(prefix="tracejit-sessions-"))
-    results = {"session": args.session, "contract": CONTRACT, "repos": {}}
+    results = {
+        "session": args.session,
+        "workload_version": WORKLOAD,
+        "contract": CONTRACT,
+        "tracejit": repository_state(),
+        "host": {
+            "platform": platform.platform(),
+            "kernel": platform.release(),
+            "cpus": os.cpu_count(),
+        },
+        "repos": {},
+    }
     for key in keys:
         scenario = SCENARIOS[key]
         if not Path(scenario["source"]).is_dir():
@@ -339,14 +408,13 @@ def main() -> int:
         }
         for policy in policies:
             entry["policies"][policy] = session(key, root / f"{key}-{policy}", policy)
-        direct = entry["policies"].get("direct", {}).get("total_ms") or 1.0
-        for policy, measured in entry["policies"].items():
-            measured["speedup"] = round(direct / measured["total_ms"], 3)
-            measured["slowdown"] = round(measured["total_ms"] / direct, 3)
+        finalize(entry)
         results["repos"][key] = entry
         print(f"{key} {args.session}: " + ", ".join(
             f"{policy}={entry['policies'][policy]['total_ms']}ms/"
-            f"{entry['policies'][policy]['speedup']}x" for policy in policies
+            f"{entry['policies'][policy]['speedup']}x"
+            + ("" if entry["policies"][policy]["valid"] else " INVALID")
+            for policy in policies
         ))
     output = REPO / args.output_dir
     output.mkdir(parents=True, exist_ok=True)
@@ -359,11 +427,7 @@ def main() -> int:
         for name, fresh in results["repos"].items():
             merged.setdefault(name, {"name": fresh["name"], "commit": fresh["commit"], "policies": {}})
             merged[name]["policies"].update(fresh["policies"])
-            direct = merged[name]["policies"].get("direct", {}).get("total_ms")
-            if direct:
-                for measured in merged[name]["policies"].values():
-                    measured["speedup"] = round(direct / measured["total_ms"], 3)
-                    measured["slowdown"] = round(measured["total_ms"] / direct, 3)
+            finalize(merged[name])
         results["repos"] = merged
     target.write_text(json.dumps(results, indent=2) + "\n")
     shutil.rmtree(root, ignore_errors=True)
