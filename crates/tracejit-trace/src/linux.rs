@@ -12,12 +12,14 @@ use std::os::unix::ffi::OsStringExt;
 use std::os::unix::process::CommandExt;
 use std::path::{Component, Path, PathBuf};
 use std::process::{Command, Stdio};
+use std::sync::Mutex;
 use std::thread;
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
 use tracejit_effects::{
-    ClockKind, ControlEffect, ControlledEntropyRead, DependencyEdge, DependencyKind,
-    DirectoryEnumerationRead, DirectoryEnumerationRequest, DirectoryOpen, Effect, EffectRecord,
-    ExecutionMetadata, FileMetadataRead, FileRead, FileWrite, FileWriteKind, FilesystemStatsRead,
+    ClockKind, ControlEffect, ControlledEntropyRead, ControlledRuntimeObservation,
+    ControlledRuntimeRead, DependencyEdge, DependencyKind, DirectoryEnumerationRead,
+    DirectoryEnumerationRequest, DirectoryOpen, Effect, EffectRecord, ExecutionMetadata,
+    FileMetadataRead, FileRead, FileWrite, FileWriteKind, FilesystemStatsRead,
     FilesystemStatsSource, InheritedStreamRead, IpcWrite, KernelStateRead, NetworkRead,
     NetworkWrite, ProcessExec, ProcessNode, ProcessSpawn, RandomSource, ReadEffect, SignalEffect,
     SymlinkRead, Trace, UnknownEffect, WriteEffect,
@@ -221,6 +223,16 @@ enum PendingSyscall {
     },
     KernelState {
         kind: KernelStateRead,
+    },
+    /// An incidental runtime observation fixed by the compiler-runtime contract.
+    ControlledRuntime {
+        observation: ControlledRuntimeObservation,
+        executable: PathBuf,
+        executable_hash: tracejit_effects::Hash,
+        build_id: String,
+        buffer: u64,
+        length: u32,
+        value: u64,
     },
     Signal {
         signal: i32,
@@ -1026,6 +1038,43 @@ fn handle_syscall(
             state.entering = true;
             return Ok(());
         }
+        if let PendingSyscall::ControlledRuntime {
+            observation,
+            executable,
+            executable_hash,
+            build_id,
+            buffer,
+            length,
+            value,
+        } = pending
+        {
+            let payload = controlled_runtime_payload(observation, value, length)?;
+            write_process_bytes(pid, buffer, &payload).map_err(|error| {
+                TraceError::Ptrace(format!(
+                    "{} buffer {buffer:#x} (length {length}): {error}",
+                    observation.name()
+                ))
+            })?;
+            let mut resumed = ptrace::getregs(pid)
+                .map_err(|error| ptrace_operation("read registers", pid, error))?;
+            resumed.rax = 0;
+            ptrace::setregs(pid, resumed)
+                .map_err(|error| ptrace_operation("finish controlled observation", pid, error))?;
+            collector.push(
+                pid,
+                Effect::Read(ReadEffect::ControlledRuntime(ControlledRuntimeRead {
+                    observation,
+                    executable,
+                    executable_hash,
+                    build_id,
+                    length,
+                    value,
+                    contract: Contract::CompilerRuntimeV1.id().to_string(),
+                })),
+            );
+            state.entering = true;
+            return Ok(());
+        }
         let result = registers.rax as i64;
         if result >= 0 {
             complete_syscall(pid, state, pending, result, collector);
@@ -1331,7 +1380,7 @@ fn decode_entry(
         | libc::SYS_accept4 => PendingSyscall::Network {
             kind: NetworkOperation::Read("socket receive"),
         },
-        libc::SYS_clock_gettime | libc::SYS_gettimeofday | libc::SYS_time => {
+        libc::SYS_clock_gettime | libc::SYS_gettimeofday => {
             let kind = if number == libc::SYS_clock_gettime {
                 match args[0] as i32 {
                     libc::CLOCK_REALTIME => ClockKind::Realtime,
@@ -1341,8 +1390,38 @@ fn decode_entry(
             } else {
                 ClockKind::Realtime
             };
-            PendingSyscall::Clock { kind }
+            let observation = match &kind {
+                ClockKind::Realtime => Some(ControlledRuntimeObservation::ClockRealtime),
+                ClockKind::Monotonic => Some(ControlledRuntimeObservation::ClockMonotonic),
+                ClockKind::Other(_) => None,
+            };
+            match (contract, observation) {
+                (Some(Contract::CompilerRuntimeV1), Some(observation)) => {
+                    match compiler_observation(pid, observation) {
+                        Some((executable, executable_hash, build_id)) => {
+                            PendingSyscall::ControlledRuntime {
+                                observation,
+                                executable,
+                                executable_hash,
+                                build_id,
+                                buffer: if number == libc::SYS_clock_gettime {
+                                    args[1]
+                                } else {
+                                    args[0]
+                                },
+                                length: observation.length(),
+                                value: observation.value(),
+                            }
+                        }
+                        None => PendingSyscall::Clock { kind },
+                    }
+                }
+                _ => PendingSyscall::Clock { kind },
+            }
         }
+        libc::SYS_time => PendingSyscall::Clock {
+            kind: ClockKind::Realtime,
+        },
         // Native mode keeps `getrandom` nondeterministic. Under the allocator-entropy contract
         // only the runtime's own internal probe is answered by the tracer; an application buffer,
         // a different length or different flags still makes the execution ineligible.
@@ -1351,11 +1430,14 @@ fn decode_entry(
             let length = args[1];
             let flags = args[2] as i32;
             match contract {
-                Some(Contract::AllocatorEntropyV1) if length == 8 && flags == 1 => {
+                Some(_) if length == 8 && flags == 1 => {
+                    // The probe is admitted by the allocator-entropy contract's own audited
+                    // call site; a broader contract activates it but does not redefine it.
+                    let contract_id = Contract::AllocatorEntropyV1.id().to_string();
                     match allocator_entropy_site(pid, registers.rip, buffer) {
                         Some(site) => PendingSyscall::ControlledRandom {
-                            contract: Contract::AllocatorEntropyV1.id().to_string(),
-                            value: Contract::AllocatorEntropyV1.controlled_value(),
+                            contract: contract_id,
+                            value: tracejit_effects::ALLOCATOR_ENTROPY_VALUE,
                             buffer,
                             length: length as u32,
                             flags,
@@ -1403,6 +1485,15 @@ fn decode_entry(
         libc::SYS_uname => PendingSyscall::KernelState {
             kind: KernelStateRead::Hostname,
         },
+        // Under the compiler contract, resource-limit queries and the driver's own stack-limit
+        // raise are process-local configuration of an audited binary; the inherited limits are
+        // part of `RuntimeIdentity`, so a different limit is a different cache identity.
+        libc::SYS_prlimit64
+            if contract == Some(Contract::CompilerRuntimeV1)
+                && audited_toolchain(pid).is_some() =>
+        {
+            PendingSyscall::None
+        }
         libc::SYS_prlimit64
             if args[0] == 0
                 && args[1] == libc::RLIMIT_STACK as u64
@@ -1413,7 +1504,48 @@ fn decode_entry(
             // same values before reuse. Limit changes and all other prlimit calls remain effects.
             PendingSyscall::None
         }
-        libc::SYS_sysinfo => system_information("sysinfo"),
+        libc::SYS_getrusage
+            if contract == Some(Contract::CompilerRuntimeV1)
+                && args[0] == libc::RUSAGE_SELF as u64
+                && args[1] != 0 =>
+        {
+            match compiler_observation(pid, ControlledRuntimeObservation::GetrusageSelf) {
+                Some((executable, executable_hash, build_id)) => {
+                    PendingSyscall::ControlledRuntime {
+                        observation: ControlledRuntimeObservation::GetrusageSelf,
+                        executable,
+                        executable_hash,
+                        build_id,
+                        buffer: args[1],
+                        length: ControlledRuntimeObservation::GetrusageSelf.length(),
+                        value: ControlledRuntimeObservation::GetrusageSelf.value(),
+                    }
+                }
+                None => PendingSyscall::Unknown {
+                    number,
+                    detail: "getrusage outside the audited compiler profile".into(),
+                },
+            }
+        }
+        libc::SYS_sysinfo => match contract {
+            Some(Contract::CompilerRuntimeV1) => {
+                match compiler_observation(pid, ControlledRuntimeObservation::SysinfoMemory) {
+                    Some((executable, executable_hash, build_id)) => {
+                        PendingSyscall::ControlledRuntime {
+                            observation: ControlledRuntimeObservation::SysinfoMemory,
+                            executable,
+                            executable_hash,
+                            build_id,
+                            buffer: args[0],
+                            length: ControlledRuntimeObservation::SysinfoMemory.length(),
+                            value: ControlledRuntimeObservation::SysinfoMemory.value(),
+                        }
+                    }
+                    None => system_information("sysinfo"),
+                }
+            }
+            _ => system_information("sysinfo"),
+        },
         libc::SYS_sched_getaffinity => system_information("sched_getaffinity"),
         libc::SYS_prlimit64 => system_information("prlimit64"),
         libc::SYS_getpid => process_identity("getpid"),
@@ -2358,6 +2490,13 @@ fn complete_syscall(
                 detail: "controlled entropy was not completed by the tracer".into(),
             }),
         ),
+        PendingSyscall::ControlledRuntime { .. } => collector.push(
+            pid,
+            Effect::Unknown(UnknownEffect {
+                syscall: None,
+                detail: "controlled runtime observation was not completed by the tracer".into(),
+            }),
+        ),
         PendingSyscall::KernelState { kind } => {
             collector.push(pid, Effect::Read(ReadEffect::KernelState(kind)));
         }
@@ -2896,6 +3035,90 @@ fn library_writable_data_contains(library: &Path, offset: u64) -> Option<bool> {
 }
 
 /// Writes into the tracee's address space without assuming word-sized alignment.
+fn controlled_runtime_payload(
+    observation: ControlledRuntimeObservation,
+    value: u64,
+    length: u32,
+) -> Result<Vec<u8>, TraceError> {
+    match observation {
+        ControlledRuntimeObservation::GetrusageSelf
+        | ControlledRuntimeObservation::ClockMonotonic
+        | ControlledRuntimeObservation::ClockRealtime => Ok(vec![0_u8; length as usize]),
+        ControlledRuntimeObservation::SysinfoMemory => {
+            // SAFETY: an all-zero `struct sysinfo` is valid; every field is an integer. The
+            // contract fixes the fields `cc1` consults and leaves the rest zero.
+            let mut info: libc::sysinfo = unsafe { std::mem::zeroed() };
+            info.totalram = value as libc::c_ulong;
+            info.freeram = tracejit_effects::COMPILER_RUNTIME_SYSINFO_FREERAM as libc::c_ulong;
+            info.procs = 1;
+            info.mem_unit = 1;
+            // SAFETY: `info` is a live local with no padding read here; the slice covers exactly
+            // its initialized bytes and is copied before `info` goes out of scope.
+            let bytes = unsafe {
+                std::slice::from_raw_parts(
+                    (&info as *const libc::sysinfo).cast::<u8>(),
+                    std::mem::size_of::<libc::sysinfo>(),
+                )
+            };
+            if bytes.len() != length as usize {
+                return Err(TraceError::Ptrace(format!(
+                    "sysinfo payload is {} bytes, contract records {length}",
+                    bytes.len()
+                )));
+            }
+            Ok(bytes.to_vec())
+        }
+    }
+}
+
+/// Returns the audited identity of a process executable, or `None` to fail closed.
+fn compiler_observation(
+    pid: Pid,
+    observation: ControlledRuntimeObservation,
+) -> Option<(PathBuf, tracejit_effects::Hash, String)> {
+    let executable = fs::read_link(format!("/proc/{}/exe", pid.as_raw())).ok()?;
+    let build_id = cached_build_id(&executable)?;
+    let profile = tracejit_effects::compiler_runtime_profile(&executable, &build_id)?;
+    if !profile.allows(observation) {
+        return None;
+    }
+    let executable_hash = cached_executable_hash(&executable)?;
+    Some((executable, executable_hash, build_id))
+}
+
+fn audited_toolchain(pid: Pid) -> Option<(PathBuf, String)> {
+    let executable = fs::read_link(format!("/proc/{}/exe", pid.as_raw())).ok()?;
+    let build_id = cached_build_id(&executable)?;
+    tracejit_effects::compiler_runtime_profile(&executable, &build_id)?;
+    Some((executable, build_id))
+}
+
+/// Reads each binary's GNU build ID once per trace instead of once per observation.
+fn cached_build_id(path: &Path) -> Option<String> {
+    static IDS: std::sync::OnceLock<Mutex<HashMap<PathBuf, Option<String>>>> =
+        std::sync::OnceLock::new();
+    let ids = IDS.get_or_init(|| Mutex::new(HashMap::new()));
+    if let Some(id) = ids.lock().ok()?.get(path) {
+        return id.clone();
+    }
+    let id = tracejit_effects::elf_build_id(path);
+    ids.lock().ok()?.insert(path.to_path_buf(), id.clone());
+    id
+}
+
+/// Hashes each compiler binary once per trace; the guard re-hashes it at every reuse.
+fn cached_executable_hash(path: &Path) -> Option<tracejit_effects::Hash> {
+    static HASHES: std::sync::OnceLock<Mutex<HashMap<PathBuf, tracejit_effects::Hash>>> =
+        std::sync::OnceLock::new();
+    let hashes = HASHES.get_or_init(|| Mutex::new(HashMap::new()));
+    if let Some(hash) = hashes.lock().ok()?.get(path).copied() {
+        return Some(hash);
+    }
+    let hash = hash_file(path).ok()?;
+    hashes.lock().ok()?.insert(path.to_path_buf(), hash);
+    Some(hash)
+}
+
 fn write_process_bytes(pid: Pid, address: u64, bytes: &[u8]) -> Result<(), TraceError> {
     let local = libc::iovec {
         iov_base: bytes.as_ptr() as *mut libc::c_void,
@@ -3622,6 +3845,7 @@ fn pending_description(pending: &PendingSyscall) -> String {
         PendingSyscall::Clock { .. } => "clock read".into(),
         PendingSyscall::Random => "randomness read".into(),
         PendingSyscall::ControlledRandom { .. } => "controlled allocator entropy".into(),
+        PendingSyscall::ControlledRuntime { .. } => "controlled runtime observation".into(),
         PendingSyscall::KernelState { kind } => format!("kernel state read: {kind:?}"),
         PendingSyscall::Mmap { .. } => "file-backed mmap".into(),
         PendingSyscall::Mprotect { .. } => "mprotect".into(),

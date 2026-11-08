@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::ffi::OsString;
 use std::fmt::{Display, Formatter};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
@@ -111,6 +111,12 @@ impl Effect {
                 cache_key_relevant: true,
             },
             Self::Read(ReadEffect::ControlledEntropy(_)) => EffectProperties {
+                observable: false,
+                reversible: true,
+                guardable: true,
+                cache_key_relevant: true,
+            },
+            Self::Read(ReadEffect::ControlledRuntime(_)) => EffectProperties {
                 observable: false,
                 reversible: true,
                 guardable: true,
@@ -225,6 +231,117 @@ pub fn allocator_entropy_profile(build_id: &str) -> Option<&'static AllocatorEnt
         .find(|profile| profile.build_id == build_id)
 }
 
+/// The compiler-runtime contract.
+///
+/// It fixes two *incidental* observations the audited GCC 13.3.0 toolchain makes about itself:
+/// the assembly step's own elapsed CPU time and the compiler's available-memory picture. Neither
+/// is an input the toolchain is asked to act on: `as` reads its time for `--statistics`, and
+/// `cc1` sizes its garbage-collection heuristics from memory. Fixing them changes what timing and
+/// memory introspection report; it is not native equivalence.
+pub const COMPILER_RUNTIME_CONTRACT: &str = "tracejit.compiler-runtime.v1";
+
+/// The fixed memory picture supplied to `cc1` under the contract.
+pub const COMPILER_RUNTIME_SYSINFO_TOTALRAM: u64 = 16 * 1024 * 1024 * 1024;
+pub const COMPILER_RUNTIME_SYSINFO_FREERAM: u64 = 8 * 1024 * 1024 * 1024;
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub enum ControlledRuntimeObservation {
+    /// `getrusage(RUSAGE_SELF, ...)`, which binutils `as` reads for its own timing.
+    GetrusageSelf,
+    /// `sysinfo(...)`, which `cc1` reads to size its garbage collector.
+    SysinfoMemory,
+    /// `clock_gettime(CLOCK_MONOTONIC)`, which the driver reads for elapsed-time reporting.
+    ClockMonotonic,
+    /// `clock_gettime(CLOCK_REALTIME)`/`gettimeofday`, which can feed `__DATE__`/`__TIME__`.
+    ClockRealtime,
+}
+
+impl ControlledRuntimeObservation {
+    /// The payload identifier the guard compares; the full payload is derived from it.
+    pub const fn value(self) -> u64 {
+        match self {
+            Self::GetrusageSelf | Self::ClockMonotonic | Self::ClockRealtime => 0,
+            Self::SysinfoMemory => COMPILER_RUNTIME_SYSINFO_TOTALRAM,
+        }
+    }
+
+    /// Number of bytes the kernel would have written.
+    pub const fn length(self) -> u32 {
+        match self {
+            Self::GetrusageSelf => 144,
+            Self::SysinfoMemory => 112,
+            Self::ClockMonotonic | Self::ClockRealtime => 16,
+        }
+    }
+
+    pub const fn name(self) -> &'static str {
+        match self {
+            Self::GetrusageSelf => "getrusage-self",
+            Self::SysinfoMemory => "sysinfo-memory",
+            Self::ClockMonotonic => "clock-monotonic",
+            Self::ClockRealtime => "clock-realtime",
+        }
+    }
+}
+
+/// One audited compiler binary and the incidental observations it is allowed to receive.
+///
+/// The profile is an exact path plus build ID, matched against `/proc/<pid>/exe`. A different
+/// compiler build, a wrapper script or a renamed binary fails closed and its observation stays an
+/// ordinary effect, which refuses the execution.
+#[derive(Clone, Copy, Debug)]
+pub struct CompilerRuntimeProfile {
+    pub executable: &'static str,
+    pub build_id: &'static str,
+    pub getrusage: bool,
+    pub sysinfo: bool,
+    pub clocks: bool,
+}
+
+pub const COMPILER_RUNTIME_PROFILES: &[CompilerRuntimeProfile] = &[
+    CompilerRuntimeProfile {
+        executable: "/usr/bin/x86_64-linux-gnu-gcc-13",
+        build_id: "9ac130c81c026cf6204ff71a70b526667a09122f",
+        getrusage: false,
+        sysinfo: false,
+        clocks: true,
+    },
+    CompilerRuntimeProfile {
+        executable: "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1",
+        build_id: "32e37dd731113376ea74086d0a292046e09c1e92",
+        getrusage: false,
+        sysinfo: true,
+        clocks: true,
+    },
+    CompilerRuntimeProfile {
+        executable: "/usr/bin/x86_64-linux-gnu-as",
+        build_id: "7fc854c85861e94ccc8725eb40d0cddd3d61fab9",
+        getrusage: true,
+        sysinfo: false,
+        clocks: false,
+    },
+];
+
+pub fn compiler_runtime_profile(
+    executable: &Path,
+    build_id: &str,
+) -> Option<&'static CompilerRuntimeProfile> {
+    COMPILER_RUNTIME_PROFILES
+        .iter()
+        .find(|profile| profile.build_id == build_id && executable == Path::new(profile.executable))
+}
+
+impl CompilerRuntimeProfile {
+    pub const fn allows(self, observation: ControlledRuntimeObservation) -> bool {
+        match observation {
+            ControlledRuntimeObservation::GetrusageSelf => self.getrusage,
+            ControlledRuntimeObservation::SysinfoMemory => self.sysinfo,
+            ControlledRuntimeObservation::ClockMonotonic
+            | ControlledRuntimeObservation::ClockRealtime => self.clocks,
+        }
+    }
+}
+
 /// Reads the GNU build ID note of an ELF64 little-endian shared object.
 ///
 /// The build ID is the identity a profile is keyed by. It is deliberately not derived from a
@@ -316,6 +433,22 @@ pub struct ControlledEntropyRead {
     pub contract: String,
 }
 
+/// One incidental runtime observation the compiler profile supplied instead of the kernel.
+///
+/// The record names the exact binary that made the call. Validation re-derives the audited
+/// profile from the recorded path and build ID, checks the admitted shape, and requires the file
+/// to be byte-identical, so a replaced compiler refuses the record instead of reusing it.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct ControlledRuntimeRead {
+    pub observation: ControlledRuntimeObservation,
+    pub executable: PathBuf,
+    pub executable_hash: Hash,
+    pub build_id: String,
+    pub length: u32,
+    pub value: u64,
+    pub contract: String,
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum ReadEffect {
     File(FileRead),
@@ -333,6 +466,7 @@ pub enum ReadEffect {
     Clock(ClockKind),
     Random(RandomSource),
     ControlledEntropy(ControlledEntropyRead),
+    ControlledRuntime(ControlledRuntimeRead),
     Network(NetworkRead),
     KernelState(KernelStateRead),
 }
@@ -806,6 +940,16 @@ pub enum InputDependency {
         #[serde(default)]
         credential: Option<Hash>,
     },
+    /// An incidental runtime observation that the compiler-runtime contract fixed.
+    ControlledRuntime {
+        observation: ControlledRuntimeObservation,
+        executable: PathBuf,
+        executable_hash: Hash,
+        build_id: String,
+        length: u32,
+        value: u64,
+        contract: String,
+    },
     /// Runtime-internal entropy that a controlled-execution contract fixed.
     ControlledEntropy {
         library: PathBuf,
@@ -845,6 +989,20 @@ pub struct RuntimeIdentity {
     pub egid: u32,
     pub stack_limit_soft: u64,
     pub stack_limit_hard: u64,
+    /// The other inherited limits the compiler contract lets an audited toolchain query. They
+    /// are part of the identity so a different limit is a different cache entry.
+    #[serde(default)]
+    pub nofile_limit_soft: u64,
+    #[serde(default)]
+    pub nofile_limit_hard: u64,
+    #[serde(default)]
+    pub as_limit_soft: u64,
+    #[serde(default)]
+    pub as_limit_hard: u64,
+    #[serde(default)]
+    pub rss_limit_soft: u64,
+    #[serde(default)]
+    pub rss_limit_hard: u64,
     pub stdin: FileDescriptorIdentity,
 }
 
@@ -917,6 +1075,7 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
     let mut symlinks = BTreeMap::new();
     let mut access = BTreeMap::<(PathBuf, i32, i32), (Option<i32>, Option<Hash>)>::new();
     let mut controlled_entropy = Vec::<ControlledEntropyRead>::new();
+    let mut controlled_runtime = Vec::<ControlledRuntimeRead>::new();
     for record in effects {
         match &record.effect {
             Effect::Read(ReadEffect::File(read))
@@ -994,6 +1153,11 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
                 access
                     .entry((check.path.clone(), check.mode, check.flags))
                     .or_insert((check.errno, check.credential));
+            }
+            Effect::Read(ReadEffect::ControlledRuntime(read)) => {
+                if !controlled_runtime.contains(read) {
+                    controlled_runtime.push(read.clone());
+                }
             }
             Effect::Read(ReadEffect::ControlledEntropy(read)) => {
                 // Each distinct call site is a separate observation; two calls from the same site
@@ -1112,6 +1276,17 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
             module_offset: read.module_offset,
             length: read.length,
             flags: read.flags,
+            value: read.value,
+            contract: read.contract,
+        }
+    }));
+    dependencies.extend(controlled_runtime.into_iter().map(|read| {
+        InputDependency::ControlledRuntime {
+            observation: read.observation,
+            executable: read.executable,
+            executable_hash: read.executable_hash,
+            build_id: read.build_id,
+            length: read.length,
             value: read.value,
             contract: read.contract,
         }
@@ -1321,6 +1496,12 @@ mod tests {
                 egid: 1000,
                 stack_limit_soft: 8 * 1024 * 1024,
                 stack_limit_hard: u64::MAX,
+                nofile_limit_soft: 1024,
+                nofile_limit_hard: 4096,
+                as_limit_soft: u64::MAX,
+                as_limit_hard: u64::MAX,
+                rss_limit_soft: u64::MAX,
+                rss_limit_hard: u64::MAX,
                 stdin: FileDescriptorIdentity {
                     target: PathBuf::from("/dev/null"),
                     fingerprint: None,

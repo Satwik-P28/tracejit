@@ -1,0 +1,135 @@
+{
+  "gcc": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "sessions": [
+    {
+      "session": "session1",
+      "rows": [
+        {
+          "file": "compress.c",
+          "native_ms": 35.707473994989414,
+          "tracejit_cold_ms": 208.87902400136227,
+          "tracejit_hit_ms": 247.57836799835786,
+          "ccache_warm_ms": 3.623743999924045,
+          "sccache_warm_ms": 7.59339800424641,
+          "artifact_match": true,
+          "same_identity_kind": "Executed"
+        },
+        {
+          "file": "adler32.c",
+          "native_ms": 77.75225099612726,
+          "tracejit_cold_ms": 273.55090800119797,
+          "tracejit_hit_ms": 320.3490379964933,
+          "ccache_warm_ms": 3.9181560059660114,
+          "sccache_warm_ms": 7.54753100045491,
+          "artifact_match": true,
+          "same_identity_kind": "Executed"
+        },
+        {
+          "file": "crc32.c",
+          "native_ms": 114.77159600326559,
+          "tracejit_cold_ms": 376.79008999839425,
+          "tracejit_hit_ms": 380.85845799650997,
+          "ccache_warm_ms": 4.25699300103588,
+          "sccache_warm_ms": 9.714154002722353,
+          "artifact_match": true,
+          "same_identity_kind": "Executed"
+        },
+        {
+          "file": "trees.c",
+          "native_ms": 250.94154399994295,
+          "tracejit_cold_ms": 478.6389840010088,
+          "tracejit_hit_ms": 497.28566800331464,
+          "ccache_warm_ms": 4.212469000776764,
+          "sccache_warm_ms": 8.291736994578969,
+          "artifact_match": true,
+          "same_identity_kind": "Executed"
+        },
+        {
+          "file": "inflate.c",
+          "native_ms": 400.7585720028146,
+          "tracejit_cold_ms": 660.0527990012779,
+          "tracejit_hit_ms": 687.3538990039378,
+          "ccache_warm_ms": 4.504135002207477,
+          "sccache_warm_ms": 8.251744002336636,
+          "artifact_match": true,
+          "same_identity_kind": "Executed"
+        },
+        {
+          "file": "deflate.c",
+          "native_ms": 413.734674002626,
+          "tracejit_cold_ms": 644.1784819980967,
+          "tracejit_hit_ms": 665.4038709966699,
+          "ccache_warm_ms": 3.90536300255917,
+          "sccache_warm_ms": 7.292443006008398,
+          "artifact_match": true,
+          "same_identity_kind": "Executed"
+        }
+      ]
+    },
+    {
+      "session": "session2",
+      "rows": [
+        {
+          "file": "deflate.c",
+          "native_ms": 409.4165870046709,
+          "tracejit_cold_ms": 649.901492994104,
+          "tracejit_hit_ms": 716.0747740053921,
+          "ccache_warm_ms": 4.246101998433005,
+          "sccache_warm_ms": 7.935489993542433,
+          "artifact_match": true,
+          "same_identity_kind": "Executed"
+        },
+        {
+          "file": "inflate.c",
+          "native_ms": 427.9469120010617,
+          "tracejit_cold_ms": 640.8238719959627,
+          "tracejit_hit_ms": 682.5088859986863,
+          "ccache_warm_ms": 4.88010100525571,
+          "sccache_warm_ms": 8.192550994863268,
+          "artifact_match": true,
+          "same_identity_kind": "Executed"
+        },
+        {
+          "file": "trees.c",
+          "native_ms": 242.8612930016243,
+          "tracejit_cold_ms": 475.45205800270196,
+          "tracejit_hit_ms": 487.81206499552354,
+          "ccache_warm_ms": 4.307105999032501,
+          "sccache_warm_ms": 7.887029001722112,
+          "artifact_match": true,
+          "same_identity_kind": "Executed"
+        },
+        {
+          "file": "crc32.c",
+          "native_ms": 123.20764299511211,
+          "tracejit_cold_ms": 324.29762199899415,
+          "tracejit_hit_ms": 353.0919439945137,
+          "ccache_warm_ms": 4.239128997141961,
+          "sccache_warm_ms": 8.119764999719337,
+          "artifact_match": true,
+          "same_identity_kind": "Executed"
+        },
+        {
+          "file": "adler32.c",
+          "native_ms": 74.65115699596936,
+          "tracejit_cold_ms": 284.9095959973056,
+          "tracejit_hit_ms": 300.51119099516654,
+          "ccache_warm_ms": 3.8880909996805713,
+          "sccache_warm_ms": 7.751014003588352,
+          "artifact_match": true,
+          "same_identity_kind": "Executed"
+        },
+        {
+          "file": "compress.c",
+          "native_ms": 31.460811995202675,
+          "tracejit_cold_ms": 214.7405349969631,
+          "tracejit_hit_ms": 259.0186800007359,
+          "ccache_warm_ms": 3.1171950031421147,
+          "sccache_warm_ms": 7.20359700062545,
+          "artifact_match": true,
+          "same_identity_kind": "Executed"
+        }
+      ]
+    }
+  ]
+}

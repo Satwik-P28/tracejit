@@ -1,0 +1,186 @@
+{
+  "zlib": "1.3.1",
+  "gcc": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "ccache": "ccache version 4.10.2",
+  "sccache": "sccache 0.8.2",
+  "sessions": [
+    {
+      "session": "session1",
+      "rows": [
+        {
+          "file": "compress.c",
+          "native_ms": 37.200915001449175,
+          "ccache_cold_ms": 74.34180600102991,
+          "ccache_warm_ms": 3.6938760022167116,
+          "ccache_match": true,
+          "sccache_cold_ms": 78.28743499703705,
+          "sccache_warm_ms": 7.233272001030855,
+          "sccache_match": true,
+          "tracejit_cold_ms": 220.24049700121395,
+          "tracejit_match": true,
+          "tracejit_second_kind": "Executed",
+          "tracejit_second_decision": "Deoptimized"
+        },
+        {
+          "file": "adler32.c",
+          "native_ms": 75.0268510018941,
+          "ccache_cold_ms": 104.70756499853451,
+          "ccache_warm_ms": 5.077280999103095,
+          "ccache_match": true,
+          "sccache_cold_ms": 166.41289799736114,
+          "sccache_warm_ms": 7.136160995287355,
+          "sccache_match": true,
+          "tracejit_cold_ms": 297.59798900340684,
+          "tracejit_match": true,
+          "tracejit_second_kind": "Executed",
+          "tracejit_second_decision": "Deoptimized"
+        },
+        {
+          "file": "crc32.c",
+          "native_ms": 110.05952999403235,
+          "ccache_cold_ms": 185.17552800039994,
+          "ccache_warm_ms": 3.9557759955641814,
+          "ccache_match": true,
+          "sccache_cold_ms": 189.10503599909134,
+          "sccache_warm_ms": 7.684588999836706,
+          "sccache_match": true,
+          "tracejit_cold_ms": 316.19746300566476,
+          "tracejit_match": true,
+          "tracejit_second_kind": "Executed",
+          "tracejit_second_decision": "Deoptimized"
+        },
+        {
+          "file": "trees.c",
+          "native_ms": 244.11735800094903,
+          "ccache_cold_ms": 269.8568509949837,
+          "ccache_warm_ms": 3.4079510005540214,
+          "ccache_match": true,
+          "sccache_cold_ms": 279.63609900325537,
+          "sccache_warm_ms": 6.961863997275941,
+          "sccache_match": true,
+          "tracejit_cold_ms": 460.7033229985973,
+          "tracejit_match": true,
+          "tracejit_second_kind": "Executed",
+          "tracejit_second_decision": "Deoptimized"
+        },
+        {
+          "file": "inflate.c",
+          "native_ms": 396.80291400145506,
+          "ccache_cold_ms": 423.9749439948355,
+          "ccache_warm_ms": 3.779498001676984,
+          "ccache_match": true,
+          "sccache_cold_ms": 433.01486499694875,
+          "sccache_warm_ms": 7.851442001992837,
+          "sccache_match": true,
+          "tracejit_cold_ms": 632.6826270014863,
+          "tracejit_match": true,
+          "tracejit_second_kind": "Executed",
+          "tracejit_second_decision": "Deoptimized"
+        },
+        {
+          "file": "deflate.c",
+          "native_ms": 415.6655130063882,
+          "ccache_cold_ms": 431.283257996256,
+          "ccache_warm_ms": 4.089688998647034,
+          "ccache_match": true,
+          "sccache_cold_ms": 466.7054570018081,
+          "sccache_warm_ms": 8.690546004800126,
+          "sccache_match": true,
+          "tracejit_cold_ms": 615.0434520022827,
+          "tracejit_match": true,
+          "tracejit_second_kind": "Executed",
+          "tracejit_second_decision": "Deoptimized"
+        }
+      ]
+    },
+    {
+      "session": "session2",
+      "rows": [
+        {
+          "file": "deflate.c",
+          "native_ms": 404.9805489994469,
+          "ccache_cold_ms": 442.3951839999063,
+          "ccache_warm_ms": 4.386123997392133,
+          "ccache_match": true,
+          "sccache_cold_ms": 471.2011960000382,
+          "sccache_warm_ms": 10.0046290026512,
+          "sccache_match": true,
+          "tracejit_cold_ms": 662.0894470033818,
+          "tracejit_match": true,
+          "tracejit_second_kind": "Executed",
+          "tracejit_second_decision": "Deoptimized"
+        },
+        {
+          "file": "inflate.c",
+          "native_ms": 409.20093200111296,
+          "ccache_cold_ms": 450.4811559963855,
+          "ccache_warm_ms": 4.10241300414782,
+          "ccache_match": true,
+          "sccache_cold_ms": 456.7589369980851,
+          "sccache_warm_ms": 8.604723996540997,
+          "sccache_match": true,
+          "tracejit_cold_ms": 612.3882429965306,
+          "tracejit_match": true,
+          "tracejit_second_kind": "Executed",
+          "tracejit_second_decision": "Deoptimized"
+        },
+        {
+          "file": "trees.c",
+          "native_ms": 242.0592190028401,
+          "ccache_cold_ms": 280.16042200033553,
+          "ccache_warm_ms": 3.993648999312427,
+          "ccache_match": true,
+          "sccache_cold_ms": 288.20880300190765,
+          "sccache_warm_ms": 6.687490000331309,
+          "sccache_match": true,
+          "tracejit_cold_ms": 448.23329099745024,
+          "tracejit_match": true,
+          "tracejit_second_kind": "Executed",
+          "tracejit_second_decision": "Deoptimized"
+        },
+        {
+          "file": "crc32.c",
+          "native_ms": 109.04209200089099,
+          "ccache_cold_ms": 144.21531400148524,
+          "ccache_warm_ms": 3.737918996193912,
+          "ccache_match": true,
+          "sccache_cold_ms": 157.7270489942748,
+          "sccache_warm_ms": 7.3422269997536205,
+          "sccache_match": true,
+          "tracejit_cold_ms": 318.5479310050141,
+          "tracejit_match": true,
+          "tracejit_second_kind": "Executed",
+          "tracejit_second_decision": "Deoptimized"
+        },
+        {
+          "file": "adler32.c",
+          "native_ms": 73.54982100514462,
+          "ccache_cold_ms": 114.26630800269777,
+          "ccache_warm_ms": 4.0921929976320826,
+          "ccache_match": true,
+          "sccache_cold_ms": 118.17541699565481,
+          "sccache_warm_ms": 7.15599799877964,
+          "sccache_match": true,
+          "tracejit_cold_ms": 268.6108959969715,
+          "tracejit_match": true,
+          "tracejit_second_kind": "Executed",
+          "tracejit_second_decision": "Deoptimized"
+        },
+        {
+          "file": "compress.c",
+          "native_ms": 30.5904790002387,
+          "ccache_cold_ms": 51.2499670003308,
+          "ccache_warm_ms": 3.4499989997129887,
+          "ccache_match": true,
+          "sccache_cold_ms": 74.2964720047894,
+          "sccache_warm_ms": 6.997821001277771,
+          "sccache_match": true,
+          "tracejit_cold_ms": 199.92808099777903,
+          "tracejit_match": true,
+          "tracejit_second_kind": "Executed",
+          "tracejit_second_decision": "Deoptimized"
+        }
+      ]
+    }
+  ]
+}

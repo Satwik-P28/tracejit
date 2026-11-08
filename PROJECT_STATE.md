@@ -415,3 +415,32 @@ so no exact guard can hold; nothing in the examined set is safely reusable, and 
 are absent. Real sessions at `88d528d`: zlib `auto` **1.185x/1.198x**, bzip2 1.037x/1.014x, libpng
 0.942x, lz4 0.957x, all artifacts valid; `always` 0.29-0.74x. `PROVEN` still blocked (`landlock no`);
 CI not rerun because the branch is not pushed. See `docs/audits/PHASE2N_WARM_HIT_AND_ELIGIBILITY.md`.
+
+## Phase 2O (base `89f5d56`)
+
+A controlled compiler profile was built and **works in controlled conditions**: `gcc -O2 -c`
+classifies `GUARDED` and reuses (235-506 ms cold → 68-81 ms hit) with byte-identical objects, after
+fixing output pre-state guards, directory-timestamp guards and allocator-probe labelling. The audit
+is by exact path and build ID for gcc 13.3.0, cc1 and as; anything else fails closed; contract id is
+in the cache identity; native mode unchanged.
+
+**Competitively it is a clear no-go.** ccache hits in 3-5 ms, sccache 7-10 ms, TraceJIT 68-81 ms,
+and cold tracing adds 173-259 ms. The benchmark harness did not reproduce hits at all (in-tree
+output directories deoptimize), so reproducibility across build layouts is unresolved. Tests, fmt
+and Clippy pass; `PROVEN` still BLOCKED (`landlock no`); CI BLOCKED (unpushed). See
+`docs/audits/PHASE2O_COMPILER_FEASIBILITY.md` and `benchmarks/results/phase2o/`.
+
+
+## Phase 2O (base `89f5d56`)
+
+A controlled compiler profile was built and works in controlled conditions: `gcc -O2 -c`
+classifies `GUARDED` and reuses (235-506 ms cold to 68-81 ms hit) with byte-identical objects,
+after fixing output pre-state guards, directory-timestamp guards and allocator-probe labelling.
+The audit is by exact path and build ID for gcc 13.3.0, cc1 and as; anything else fails closed;
+the contract id is in the cache identity; native mode is unchanged.
+
+Competitively it is a clear no-go. ccache hits in 3-5 ms, sccache 7-10 ms, TraceJIT 68-81 ms, and
+cold tracing adds 173-259 ms. The benchmark harness did not reproduce hits at all (in-tree output
+directories deoptimize), so reproducibility across build layouts is unresolved. Tests, fmt and
+Clippy pass; `PROVEN` still BLOCKED (`landlock no`); CI BLOCKED (unpushed). See
+`docs/audits/PHASE2O_COMPILER_FEASIBILITY.md` and `benchmarks/results/phase2o/`.

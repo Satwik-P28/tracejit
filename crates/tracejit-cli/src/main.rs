@@ -138,12 +138,15 @@ impl From<AdmissionArg> for Admission {
 enum ContractArg {
     /// Fix the runtime's internal allocator entropy probe.
     AllocatorEntropyV1,
+    /// Fix the audited GCC 13.3.0 toolchain's incidental runtime observations.
+    CompilerRuntimeV1,
 }
 
 impl From<ContractArg> for Contract {
     fn from(value: ContractArg) -> Self {
         match value {
             ContractArg::AllocatorEntropyV1 => Self::AllocatorEntropyV1,
+            ContractArg::CompilerRuntimeV1 => Self::CompilerRuntimeV1,
         }
     }
 }
@@ -318,6 +321,11 @@ fn write_phase_file(phases: &PhaseTimings) -> Result<()> {
 
 fn present_report(report: &RunReport, json_output: bool, verbose: bool) -> Result<()> {
     if json_output {
+        // A guard failure can embed a `FileFingerprint::absent()` sentinel, whose `i128::MIN`
+        // timestamp is outside JSON's number range. Reporting must never panic, so such a
+        // report degrades that one field to text rather than aborting the command.
+        let guards = serde_json::to_value(&report.guards)
+            .unwrap_or_else(|_| serde_json::Value::String(format!("{:?}", report.guards)));
         let value = json!({
             "execution_id": report.execution_id,
             "kind": report.kind,
@@ -332,7 +340,7 @@ fn present_report(report: &RunReport, json_output: bool, verbose: bool) -> Resul
             "irreversible_effect_count": report.irreversible_effect_count,
             "dependency_count": report.dependency_count,
             "output_count": report.output_count,
-            "guards": report.guards,
+            "guards": guards,
             "reasons": report.reasons,
             "contract": report.contract,
             "stdout_bytes": report.stdout,
@@ -527,6 +535,9 @@ fn input_dependency_line(dependency: &InputDependency) -> String {
         InputDependency::ControlledEntropy { library, .. } => {
             format!("ENTROPY {}", library.display())
         }
+        InputDependency::ControlledRuntime { executable, .. } => {
+            format!("RUNTIME {}", executable.display())
+        }
     }
 }
 
@@ -564,6 +575,9 @@ fn guard_line(guard: &Guard) -> String {
             end_offset
         ),
         Guard::SymlinkTarget { path, .. } => format!("symlink target {}", path.display()),
+        Guard::ControlledRuntime { executable, .. } => {
+            format!("compiler runtime observation {}", executable.display())
+        }
         Guard::SymlinkMetadata { path, .. } => format!("symlink metadata {}", path.display()),
         Guard::AccessCheck { path, mode, .. } => {
             format!("access check {} (mode {mode:#x})", path.display())

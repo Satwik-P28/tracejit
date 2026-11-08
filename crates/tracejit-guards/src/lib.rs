@@ -104,6 +104,16 @@ pub enum Guard {
         value: u64,
         contract: String,
     },
+    /// An incidental runtime observation fixed by the compiler-runtime contract.
+    ControlledRuntime {
+        observation: tracejit_effects::ControlledRuntimeObservation,
+        executable: PathBuf,
+        expected: Hash,
+        build_id: String,
+        length: u32,
+        value: u64,
+        contract: String,
+    },
     SymlinkTarget {
         path: PathBuf,
         expected: Option<PathBuf>,
@@ -282,14 +292,22 @@ pub fn current_runtime_identity() -> Result<RuntimeIdentity, GuardError> {
         let domain_name = field(&info.domainname);
         #[cfg(not(target_os = "linux"))]
         let domain_name = String::new();
-        let mut stack_limit = std::mem::MaybeUninit::<libc::rlimit>::uninit();
-        // SAFETY: getrlimit initializes stack_limit on success. The inherited stack limits are
-        // part of the runtime behavior and must match before a cached result can be reused.
-        if unsafe { libc::getrlimit(libc::RLIMIT_STACK, stack_limit.as_mut_ptr()) } != 0 {
-            return Err(GuardError::Runtime(io::Error::last_os_error().to_string()));
-        }
-        // SAFETY: the successful getrlimit call above initialized both fields.
-        let stack_limit = unsafe { stack_limit.assume_init() };
+        let limit = |resource: libc::__rlimit_resource_t| -> Result<libc::rlimit, GuardError> {
+            let mut value = std::mem::MaybeUninit::<libc::rlimit>::uninit();
+            // SAFETY: getrlimit initializes `value` on success.
+            if unsafe { libc::getrlimit(resource, value.as_mut_ptr()) } != 0 {
+                return Err(GuardError::Runtime(io::Error::last_os_error().to_string()));
+            }
+            // SAFETY: the successful getrlimit call above initialized both fields.
+            Ok(unsafe { value.assume_init() })
+        };
+        // The inherited limits are part of the runtime behavior and must match before a cached
+        // result can be reused. The compiler contract lets an audited toolchain query and raise
+        // its own stack limit, so the *inherited* values are the ones that define the identity.
+        let stack_limit = limit(libc::RLIMIT_STACK)?;
+        let nofile_limit = limit(libc::RLIMIT_NOFILE)?;
+        let as_limit = limit(libc::RLIMIT_AS)?;
+        let rss_limit = limit(libc::RLIMIT_RSS)?;
         #[cfg(target_os = "linux")]
         let stdin_link = Path::new("/proc/self/fd/0");
         #[cfg(not(target_os = "linux"))]
@@ -321,6 +339,12 @@ pub fn current_runtime_identity() -> Result<RuntimeIdentity, GuardError> {
             egid: unsafe { libc::getegid() },
             stack_limit_soft: stack_limit.rlim_cur,
             stack_limit_hard: stack_limit.rlim_max,
+            nofile_limit_soft: nofile_limit.rlim_cur,
+            nofile_limit_hard: nofile_limit.rlim_max,
+            as_limit_soft: as_limit.rlim_cur,
+            as_limit_hard: as_limit.rlim_max,
+            rss_limit_soft: rss_limit.rlim_cur,
+            rss_limit_hard: rss_limit.rlim_max,
             stdin: FileDescriptorIdentity {
                 target: stdin_target,
                 fingerprint: stdin_fingerprint,
@@ -414,6 +438,76 @@ impl Guard {
                         actual: format!("{actual:?}"),
                     })
                 }
+            }
+            Self::ControlledRuntime {
+                observation,
+                executable,
+                expected,
+                build_id,
+                length,
+                value,
+                contract,
+            } => {
+                if contract != tracejit_effects::COMPILER_RUNTIME_CONTRACT {
+                    return Err(GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "unknown controlled-execution contract".into(),
+                        expected: tracejit_effects::COMPILER_RUNTIME_CONTRACT.into(),
+                        actual: contract.clone(),
+                    });
+                }
+                let Some(profile) =
+                    tracejit_effects::compiler_runtime_profile(executable, build_id)
+                else {
+                    return Err(GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "controlled observation names an unaudited compiler profile".into(),
+                        expected: format!(
+                            "one of {} audited compiler binaries",
+                            tracejit_effects::COMPILER_RUNTIME_PROFILES.len()
+                        ),
+                        actual: format!("{} ({})", executable.display(), build_id),
+                    });
+                };
+                if !profile.allows(*observation) {
+                    return Err(GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "compiler profile does not admit this observation".into(),
+                        expected: profile.executable.into(),
+                        actual: observation.name().into(),
+                    });
+                }
+                if *length != observation.length() {
+                    return Err(GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "controlled observation length is not the admitted one".into(),
+                        expected: observation.length().to_string(),
+                        actual: length.to_string(),
+                    });
+                }
+                if *value != observation.value() {
+                    return Err(GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "controlled observation value is not the contract value".into(),
+                        expected: observation.value().to_string(),
+                        actual: value.to_string(),
+                    });
+                }
+                let actual = hash_file(executable).map_err(|error| GuardFailure {
+                    guard: Box::new(self.clone()),
+                    reason: "compiler binary could not be hashed".into(),
+                    expected: expected.to_string(),
+                    actual: error.to_string(),
+                })?;
+                if &actual != expected {
+                    return Err(GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "compiler binary changed".into(),
+                        expected: expected.to_string(),
+                        actual: actual.to_string(),
+                    });
+                }
+                Ok(())
             }
             Self::ControlledEntropy {
                 library,
@@ -1507,6 +1601,23 @@ pub fn compile_guards(executable: PathBuf, identity: &ExecutionIdentity) -> Vec<
                 start_offset: *start_offset,
                 end_offset: *end_offset,
             }),
+            InputDependency::ControlledRuntime {
+                observation,
+                executable,
+                executable_hash,
+                build_id,
+                length,
+                value,
+                contract,
+            } => guards.push(Guard::ControlledRuntime {
+                observation: *observation,
+                executable: executable.clone(),
+                expected: *executable_hash,
+                build_id: build_id.clone(),
+                length: *length,
+                value: *value,
+                contract: contract.clone(),
+            }),
             InputDependency::ControlledEntropy {
                 library,
                 library_hash,
@@ -1743,6 +1854,66 @@ mod tests {
         assert!(guard.validate(GuardMode::Strict).is_ok());
         fs::create_dir(directory.join("child")).unwrap();
         assert!(guard.validate(GuardMode::Strict).is_ok());
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn compiler_runtime_guard_requires_the_audited_profile() {
+        use tracejit_effects::ControlledRuntimeObservation;
+        let executable = Path::new("/usr/bin/x86_64-linux-gnu-as");
+        if !executable.exists() {
+            eprintln!("RESULT compiler-runtime-guard SKIP no audited assembler");
+            return;
+        }
+        let Some(build_id) = tracejit_effects::elf_build_id(executable) else {
+            eprintln!("RESULT compiler-runtime-guard SKIP unreadable build id");
+            return;
+        };
+        let Some(profile) = tracejit_effects::compiler_runtime_profile(executable, &build_id)
+        else {
+            eprintln!("RESULT compiler-runtime-guard SKIP unaudited build {build_id}");
+            return;
+        };
+        assert!(profile.allows(ControlledRuntimeObservation::GetrusageSelf));
+        let guard = Guard::ControlledRuntime {
+            observation: ControlledRuntimeObservation::GetrusageSelf,
+            executable: executable.to_path_buf(),
+            expected: hash_file(executable).unwrap(),
+            build_id: build_id.clone(),
+            length: ControlledRuntimeObservation::GetrusageSelf.length(),
+            value: ControlledRuntimeObservation::GetrusageSelf.value(),
+            contract: tracejit_effects::COMPILER_RUNTIME_CONTRACT.into(),
+        };
+        assert!(guard.validate(GuardMode::Strict).is_ok(), "{guard:?}");
+
+        // A different contract cannot claim the record.
+        let mut wrong_contract = guard.clone();
+        if let Guard::ControlledRuntime { contract, .. } = &mut wrong_contract {
+            *contract = tracejit_effects::ALLOCATOR_ENTROPY_CONTRACT.into();
+        }
+        assert!(wrong_contract.validate(GuardMode::Strict).is_err());
+
+        // A changed binary refuses the record even if the build ID still matches.
+        let mut wrong_binary = guard.clone();
+        if let Guard::ControlledRuntime { expected, .. } = &mut wrong_binary {
+            *expected = canonical_hash(&"a different compiler").unwrap();
+        }
+        assert!(wrong_binary.validate(GuardMode::Strict).is_err());
+
+        // An observation the profile does not admit is refused rather than trusted.
+        let mut wrong_observation = guard.clone();
+        if let Guard::ControlledRuntime {
+            observation,
+            length,
+            value,
+            ..
+        } = &mut wrong_observation
+        {
+            *observation = ControlledRuntimeObservation::SysinfoMemory;
+            *length = ControlledRuntimeObservation::SysinfoMemory.length();
+            *value = ControlledRuntimeObservation::SysinfoMemory.value();
+        }
+        assert!(wrong_observation.validate(GuardMode::Strict).is_err());
     }
 
     #[cfg(unix)]

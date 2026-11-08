@@ -764,6 +764,59 @@ fn store_outcome(
     mut outcome: TraceOutcome,
 ) -> Result<RunReport, CoreError> {
     add_discovery_effects(&mut outcome.trace, &prepared.environment, &prepared.cwd);
+    // Under the compiler contract a directory's timestamps are not contracted inputs: the
+    // compilation itself creates and removes temporary entries in them, so a timestamp guard
+    // would refuse every reuse. The directory is still guarded by identity and permissions.
+    if prepared.contract == Some(tracejit_trace::Contract::CompilerRuntimeV1) {
+        // The command's own outputs are restored by the cache, so their pre-state is not a
+        // precondition: a compiler that stats its `-o` path before writing sees "absent" on the
+        // first run and "present" on every later one. The output artifact guard is the real
+        // contract for that path.
+        let outputs = outcome
+            .trace
+            .effects
+            .iter()
+            .filter_map(|record| match &record.effect {
+                Effect::Write(WriteEffect::File(write)) => Some(write.path.clone()),
+                _ => None,
+            })
+            .collect::<BTreeSet<PathBuf>>();
+        let mut rewritten = Vec::with_capacity(outcome.trace.effects.len());
+        for mut record in std::mem::take(&mut outcome.trace.effects) {
+            let is_output_metadata = matches!(
+                &record.effect,
+                Effect::Read(tracejit_effects::ReadEffect::FileMetadata(read))
+                    if outputs.contains(&read.path)
+            );
+            if is_output_metadata {
+                continue;
+            }
+            // A directory's timestamps are not contracted inputs: the compilation itself
+            // creates and removes entries in them. Identity and permissions are still guarded.
+            let replacement = match &record.effect {
+                Effect::Read(tracejit_effects::ReadEffect::FileMetadata(read)) => read
+                    .fingerprint
+                    .as_ref()
+                    .filter(|fingerprint| fingerprint.mode & 0o170000 == 0o040000)
+                    .map(|fingerprint| (read.path.clone(), fingerprint.clone())),
+                _ => None,
+            };
+            if let Some((path, fingerprint)) = replacement {
+                record.effect = Effect::Read(tracejit_effects::ReadEffect::DirectoryOpened(
+                    tracejit_effects::DirectoryOpen {
+                        path,
+                        fingerprint,
+                        flags: 0,
+                        // The tracee inherits this process's credentials; recording them lets
+                        // the guard refuse a replay under different credentials.
+                        credential: tracejit_guards::credential_identity(std::process::id()),
+                    },
+                ));
+            }
+            rewritten.push(record);
+        }
+        outcome.trace.effects = rewritten;
+    }
     let mut classification = classify(&outcome.trace.effects);
     if outcome.sandbox_enforced && classification.class == DeterminismClass::Guarded {
         classification.class = DeterminismClass::Proven;
@@ -780,13 +833,14 @@ fn store_outcome(
             matches!(
                 record.effect,
                 Effect::Read(tracejit_effects::ReadEffect::ControlledEntropy(_))
+                    | Effect::Read(tracejit_effects::ReadEffect::ControlledRuntime(_))
             )
         })
     {
         classification.class = DeterminismClass::Unknown;
         classification
             .reasons
-            .push("controlled entropy was recorded without an active contract".into());
+            .push("a controlled observation was recorded without an active contract".into());
     }
     if let Some(contract) = contract.as_deref() {
         classification.reasons.push(format!(
@@ -1107,6 +1161,14 @@ fn policy_from_record(record: &StoredExecution) -> Option<SandboxPolicy> {
             // child, but a sandbox policy still has to let the child map it.
             InputDependency::ControlledEntropy { library, .. } => {
                 readable.insert(library.clone());
+            }
+            // The audited compiler binary is executed by the caller, so the sandbox must let
+            // the child map it; an absent binary cannot be guarded.
+            InputDependency::ControlledRuntime { executable, .. } => {
+                if !executable.exists() {
+                    return None;
+                }
+                readable.insert(executable.clone());
             }
         }
     }

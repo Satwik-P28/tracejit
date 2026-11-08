@@ -33,15 +33,25 @@ pub enum Contract {
     /// Fixes the runtime's internal allocator entropy probe (`getrandom` of eight bytes with
     /// `GRND_NONBLOCK`, destination in the issuing shared library's private writable data).
     AllocatorEntropyV1,
+    /// Fixes two incidental observations of the audited GCC 13.3.0 toolchain: the assembly
+    /// step's own CPU time and the compiler's available-memory picture. Application buffers,
+    /// other toolchain builds and every other call site stay ordinary effects.
+    CompilerRuntimeV1,
 }
 
 impl Contract {
     pub const fn id(self) -> &'static str {
-        tracejit_effects::ALLOCATOR_ENTROPY_CONTRACT
+        match self {
+            Self::AllocatorEntropyV1 => tracejit_effects::ALLOCATOR_ENTROPY_CONTRACT,
+            Self::CompilerRuntimeV1 => tracejit_effects::COMPILER_RUNTIME_CONTRACT,
+        }
     }
 
     pub const fn controlled_value(self) -> u64 {
-        tracejit_effects::ALLOCATOR_ENTROPY_VALUE
+        match self {
+            Self::AllocatorEntropyV1 => tracejit_effects::ALLOCATOR_ENTROPY_VALUE,
+            Self::CompilerRuntimeV1 => tracejit_effects::COMPILER_RUNTIME_SYSINFO_TOTALRAM,
+        }
     }
 }
 
