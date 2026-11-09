@@ -446,6 +446,7 @@ impl Cache {
                 ),
             });
         }
+        validate_artifact_shape(output)?;
         let parent = output
             .path
             .parent()
@@ -776,6 +777,64 @@ pub fn output_from_path(
         artifact_version: OUTPUT_ARTIFACT_VERSION,
         allows_create,
     })
+}
+
+/// Rejects a version-2 artifact that does not carry the complete effect record that version
+/// promises. `serde(default)` keeps older records readable, but a file artifact missing an owner
+/// or timestamp must not be replayed as though that side effect never happened, and a deletion
+/// must not carry content or metadata.
+fn validate_artifact_shape(output: &OutputArtifact) -> Result<(), CacheError> {
+    let reason = match output.kind {
+        OutputKind::File => {
+            if output.content.is_none() {
+                Some("file artifact has no content hash".to_string())
+            } else {
+                #[cfg(unix)]
+                {
+                    let missing: Vec<&str> = [
+                        (output.unix_mode.is_none(), "mode"),
+                        (output.unix_uid.is_none(), "uid"),
+                        (output.unix_gid.is_none(), "gid"),
+                        (output.unix_accessed_ns.is_none(), "atime"),
+                        (output.unix_modified_ns.is_none(), "mtime"),
+                    ]
+                    .into_iter()
+                    .filter_map(|(absent, name)| absent.then_some(name))
+                    .collect();
+                    (!missing.is_empty()).then(|| {
+                        format!(
+                            "file artifact is missing required metadata: {}",
+                            missing.join(", ")
+                        )
+                    })
+                }
+                #[cfg(not(unix))]
+                {
+                    None
+                }
+            }
+        }
+        OutputKind::Deleted => {
+            if output.content.is_some()
+                || output.unix_mode.is_some()
+                || output.unix_uid.is_some()
+                || output.unix_gid.is_some()
+                || output.unix_accessed_ns.is_some()
+                || output.unix_modified_ns.is_some()
+            {
+                Some("deletion artifact carries file content or metadata".to_string())
+            } else {
+                None
+            }
+        }
+    };
+    match reason {
+        Some(reason) => Err(CacheError::OutputPrecondition {
+            path: output.path.clone(),
+            reason,
+        }),
+        None => Ok(()),
+    }
 }
 
 fn validate_output_precondition(output: &OutputArtifact) -> Result<(), CacheError> {
@@ -1331,6 +1390,40 @@ mod tests {
             Err(CacheError::OutputPrecondition { .. })
         ));
         assert_eq!(fs::read(&path).unwrap(), b"user");
+        assert_eq!(temporary_files(directory.path()), 0);
+    }
+
+    #[test]
+    fn a_version_two_file_artifact_without_complete_metadata_fails_closed() {
+        let directory = tempfile::tempdir().unwrap();
+        let cache = Cache::open(directory.path().join("cache")).unwrap();
+        let path = directory.path().join("out.txt");
+        fs::write(&path, b"cached").unwrap();
+        let mut artifact = output_from_path(&cache, &path, false, true).unwrap();
+        artifact.unix_accessed_ns = None;
+        fs::write(&path, b"user").unwrap();
+        assert!(matches!(
+            cache.restore_outputs(&[artifact]),
+            Err(CacheError::OutputPrecondition { .. })
+        ));
+        assert_eq!(fs::read(&path).unwrap(), b"user");
+        assert_eq!(temporary_files(directory.path()), 0);
+    }
+
+    #[test]
+    fn a_deletion_artifact_with_metadata_fails_closed() {
+        let directory = tempfile::tempdir().unwrap();
+        let cache = Cache::open(directory.path().join("cache")).unwrap();
+        let path = directory.path().join("gone.txt");
+        fs::write(&path, b"gone").unwrap();
+        let mut artifact = output_from_path(&cache, &path, true, false).unwrap();
+        artifact.unix_mode = Some(0o644);
+        fs::remove_file(&path).unwrap();
+        assert!(matches!(
+            cache.restore_outputs(&[artifact]),
+            Err(CacheError::OutputPrecondition { .. })
+        ));
+        assert!(!path.exists());
         assert_eq!(temporary_files(directory.path()), 0);
     }
 

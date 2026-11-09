@@ -1,0 +1,551 @@
+{
+  "binary": "/workspace/chats/3ead97f7907244943d2638d7/target/release/tracejit",
+  "binary_sha256": "3ea020aadd082d2aa01becb319c30c11334c755ee870e24983b0bee3bbe17981",
+  "bzip2_scenarios": {
+    "A_output_removed": {
+      "cache_bytes": 359346,
+      "cold": {
+        "decision": "Executed",
+        "ms": 728.49
+      },
+      "command": [
+        "bzip2",
+        "-9",
+        "-k",
+        "-f",
+        "big.txt"
+      ],
+      "correctness_reference": {
+        "gid": 1001,
+        "mode": "0o644",
+        "mtime_ns": 1794268061000000000,
+        "sha256": "d49d12946b56ceadd3dc564f87df4d1444878424bfcc6d8052071e5ca0c69c16",
+        "size": 236894,
+        "uid": 65822751
+      },
+      "native": {
+        "median_ms": 615.08,
+        "samples_ms": [
+          612.22,
+          615.08,
+          643.95,
+          617.04,
+          606.95
+        ],
+        "total_ms": 3095.25
+      },
+      "net_savings_ms": 2295.46,
+      "output_matches_native": true,
+      "per_run_speedup": 43.87,
+      "session_speedup": 3.87,
+      "warm": {
+        "median_ms": 14.02,
+        "samples_ms": [
+          18.21,
+          13.84,
+          14.22,
+          10.99,
+          14.02
+        ],
+        "total_ms": 71.29
+      },
+      "warm_decisions": [
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused"
+      ],
+      "warm_output": {
+        "gid": 1001,
+        "mode": "0o644",
+        "mtime_ns": 1794268061000000000,
+        "sha256": "d49d12946b56ceadd3dc564f87df4d1444878424bfcc6d8052071e5ca0c69c16",
+        "size": 236894,
+        "uid": 65822751
+      }
+    },
+    "B_output_retained": {
+      "cold": {
+        "decision": "Executed",
+        "ms": 757.56
+      },
+      "cold_output": {
+        "gid": 1001,
+        "mode": "0o644",
+        "mtime_ns": 1794268066000000000,
+        "sha256": "307b8be462af0aaa0daeb83167aace16c2ad53ce3b8f28e70bf25ebca4b95630",
+        "size": 236184,
+        "uid": 65822751
+      },
+      "command": [
+        "bzip2",
+        "-9",
+        "-k",
+        "-f",
+        "big.txt"
+      ],
+      "native": {
+        "median_ms": 604.39,
+        "samples_ms": [
+          620.23,
+          592.68,
+          604.39,
+          632.62,
+          597.27
+        ],
+        "total_ms": 3047.19
+      },
+      "native_output": {
+        "gid": 1001,
+        "mode": "0o644",
+        "mtime_ns": 1794268066000000000,
+        "sha256": "307b8be462af0aaa0daeb83167aace16c2ad53ce3b8f28e70bf25ebca4b95630",
+        "size": 236184,
+        "uid": 65822751
+      },
+      "net_savings_ms": 2208.32,
+      "output_matches_cold_metadata": true,
+      "output_matches_native": true,
+      "per_run_speedup": 38.51,
+      "session_speedup": 3.63,
+      "warm": {
+        "median_ms": 15.69,
+        "samples_ms": [
+          20.17,
+          14.02,
+          16.43,
+          15.69,
+          15.0
+        ],
+        "total_ms": 81.31
+      },
+      "warm_decisions": [
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused"
+      ],
+      "warm_output": {
+        "gid": 1001,
+        "mode": "0o644",
+        "mtime_ns": 1794268066000000000,
+        "sha256": "307b8be462af0aaa0daeb83167aace16c2ad53ce3b8f28e70bf25ebca4b95630",
+        "size": 236184,
+        "uid": 65822751
+      }
+    },
+    "C_regenerated": {
+      "command": [
+        "bzip2",
+        "-9",
+        "-k",
+        "-f",
+        "big.txt"
+      ],
+      "controlled": {
+        "median_ms": 733.38,
+        "samples_ms": [
+          718.1,
+          716.65,
+          749.88,
+          766.64,
+          733.38
+        ],
+        "total_ms": 3684.66
+      },
+      "controlled_output": {
+        "gid": 1001,
+        "mode": "0o644",
+        "mtime_ns": 1794268076000000000,
+        "sha256": "a0130715588fb18644663e52815d4935d1a41995d4ce6e3555f5631f7d146049",
+        "size": 236953,
+        "uid": 65822751
+      },
+      "decisions": [
+        "Executed",
+        "Deoptimized",
+        "Deoptimized",
+        "Deoptimized",
+        "Deoptimized"
+      ],
+      "native": {
+        "median_ms": 592.27,
+        "samples_ms": [
+          618.54,
+          602.07,
+          588.87,
+          592.27,
+          574.29
+        ],
+        "total_ms": 2976.04
+      },
+      "native_output": {
+        "gid": 1001,
+        "mode": "0o644",
+        "mtime_ns": 1794268073000000000,
+        "sha256": "a0130715588fb18644663e52815d4935d1a41995d4ce6e3555f5631f7d146049",
+        "size": 236953,
+        "uid": 65822751
+      },
+      "net_savings_ms": -708.61,
+      "output_matches_native": true,
+      "per_run_speedup": 0.81,
+      "session_speedup": 0.81
+    }
+  },
+  "contract": "allocator-entropy-v1",
+  "generated_by": "benchmarks/repos/phase2s_workflows.py",
+  "host": {
+    "glibc": "ldd (Ubuntu GLIBC 2.39-0ubuntu8.9) 2.39",
+    "machine": "x86_64",
+    "os": "Linux",
+    "release": "6.1.102"
+  },
+  "repetitions": 5,
+  "workflows": [
+    {
+      "command": [
+        "bzip2",
+        "-9",
+        "-k",
+        "-f",
+        "app.log"
+      ],
+      "controlled": {
+        "median_ms": 727.3,
+        "samples_ms": [
+          758.71,
+          706.6,
+          805.81,
+          727.3,
+          713.17
+        ],
+        "total_ms": 3711.59
+      },
+      "controlled_output": {
+        "gid": 1001,
+        "mode": "0o644",
+        "mtime_ns": 1794268083000000000,
+        "sha256": "c8dbf2c68a81137318bffe0db296ac86d19d631ff3a47c4d67d3904a4c11758a",
+        "size": 236985,
+        "uid": 65822751
+      },
+      "decisions": [
+        "Executed",
+        "Deoptimized",
+        "Deoptimized",
+        "Deoptimized",
+        "Deoptimized"
+      ],
+      "description": "append a log record and recompress the growing log",
+      "id": "log_archive",
+      "native": {
+        "median_ms": 605.81,
+        "samples_ms": [
+          593.04,
+          605.81,
+          591.59,
+          615.67,
+          620.07
+        ],
+        "total_ms": 3026.17
+      },
+      "native_output": {
+        "gid": 1001,
+        "mode": "0o644",
+        "mtime_ns": 1794268080000000000,
+        "sha256": "c8dbf2c68a81137318bffe0db296ac86d19d631ff3a47c4d67d3904a4c11758a",
+        "size": 236985,
+        "uid": 65822751
+      },
+      "net_savings_ms": -685.42,
+      "output_matches_native": true,
+      "per_run_speedup": 0.83,
+      "repetitions": 5,
+      "session_speedup": 0.82
+    },
+    {
+      "cold_decisions": [
+        "Executed",
+        "Executed",
+        "Executed"
+      ],
+      "cold_workflow_ms": 397.44,
+      "commands": [
+        [
+          "bzip2",
+          "-9",
+          "-k",
+          "-f",
+          "assets/asset-0.js"
+        ],
+        [
+          "bzip2",
+          "-9",
+          "-k",
+          "-f",
+          "assets/asset-1.js"
+        ],
+        [
+          "bzip2",
+          "-9",
+          "-k",
+          "-f",
+          "assets/asset-2.js"
+        ]
+      ],
+      "controlled": {
+        "median_ms": 41.85,
+        "samples_ms": [
+          49.68,
+          41.85,
+          40.87,
+          32.54,
+          44.2
+        ],
+        "total_ms": 209.14
+      },
+      "controlled_outputs": {
+        "asset-0.js": {
+          "gid": 1001,
+          "mode": "0o644",
+          "mtime_ns": 1794268061000000000,
+          "sha256": "123f9e567144c6ef47f3abb605a99ed9b17d40b260b84247b08787c7149aac2e",
+          "size": 148324,
+          "uid": 65822751
+        },
+        "asset-1.js": {
+          "gid": 1001,
+          "mode": "0o644",
+          "mtime_ns": 1794268061000000000,
+          "sha256": "cd1024d42f2035bc4727a7d1d6fd9eb1bc09f41081e00424112e218ff03aadb6",
+          "size": 138036,
+          "uid": 65822751
+        },
+        "asset-2.js": {
+          "gid": 1001,
+          "mode": "0o644",
+          "mtime_ns": 1794268061000000000,
+          "sha256": "684d477c29320b7176edc69db8c32d5d5e1dca24b3ae1a075f71a253eaeb00f8",
+          "size": 137143,
+          "uid": 65822751
+        }
+      },
+      "decisions": [
+        [
+          "Executed",
+          "Executed",
+          "Executed"
+        ],
+        [
+          "Reused",
+          "Reused",
+          "Reused"
+        ],
+        [
+          "Reused",
+          "Reused",
+          "Reused"
+        ],
+        [
+          "Reused",
+          "Reused",
+          "Reused"
+        ],
+        [
+          "Reused",
+          "Reused",
+          "Reused"
+        ],
+        [
+          "Reused",
+          "Reused",
+          "Reused"
+        ]
+      ],
+      "description": "precompress three stable production JavaScript assets",
+      "id": "static_assets",
+      "native": {
+        "median_ms": 269.97,
+        "samples_ms": [
+          313.38,
+          272.35,
+          255.71,
+          252.26,
+          269.97
+        ],
+        "total_ms": 1363.68
+      },
+      "native_outputs": {
+        "asset-0.js": {
+          "gid": 1001,
+          "mode": "0o644",
+          "mtime_ns": 1794268061000000000,
+          "sha256": "123f9e567144c6ef47f3abb605a99ed9b17d40b260b84247b08787c7149aac2e",
+          "size": 148324,
+          "uid": 65822751
+        },
+        "asset-1.js": {
+          "gid": 1001,
+          "mode": "0o644",
+          "mtime_ns": 1794268061000000000,
+          "sha256": "cd1024d42f2035bc4727a7d1d6fd9eb1bc09f41081e00424112e218ff03aadb6",
+          "size": 138036,
+          "uid": 65822751
+        },
+        "asset-2.js": {
+          "gid": 1001,
+          "mode": "0o644",
+          "mtime_ns": 1794268061000000000,
+          "sha256": "684d477c29320b7176edc69db8c32d5d5e1dca24b3ae1a075f71a253eaeb00f8",
+          "size": 137143,
+          "uid": 65822751
+        }
+      },
+      "net_savings_ms": 757.1,
+      "output_matches_native": {
+        "asset-0.js": true,
+        "asset-1.js": true,
+        "asset-2.js": true
+      },
+      "per_run_speedup": 6.45,
+      "repetitions": 5,
+      "session_speedup": 2.25
+    },
+    {
+      "cold_decision": "Executed",
+      "cold_ms": 155.05,
+      "command": [
+        "gzip",
+        "-9",
+        "-c",
+        "release.tar"
+      ],
+      "controlled": {
+        "median_ms": 34.18,
+        "samples_ms": [
+          38.98,
+          34.18,
+          34.73,
+          27.71,
+          26.0
+        ],
+        "total_ms": 161.61
+      },
+      "controlled_output": {
+        "gid": 1001,
+        "mode": "0o644",
+        "mtime_ns": 1794268087249402579,
+        "sha256": "835a9e5de3321afbec6973a383a0930c8f7e910113d16d92515ad9ed29c1c409",
+        "size": 388014,
+        "uid": 65822751
+      },
+      "decisions": [
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused"
+      ],
+      "description": "compress the release tar stream to release.tar.gz",
+      "id": "release_stream",
+      "native": {
+        "median_ms": 65.43,
+        "samples_ms": [
+          78.39,
+          64.08,
+          65.49,
+          65.43,
+          65.32
+        ],
+        "total_ms": 338.71
+      },
+      "native_output": {
+        "gid": 1001,
+        "mode": "0o644",
+        "mtime_ns": 1794268086777123729,
+        "sha256": "835a9e5de3321afbec6973a383a0930c8f7e910113d16d92515ad9ed29c1c409",
+        "size": 388014,
+        "uid": 65822751
+      },
+      "net_savings_ms": 22.05,
+      "output_matches_native": true,
+      "per_run_speedup": 1.91,
+      "repetitions": 5,
+      "session_speedup": 1.07
+    },
+    {
+      "cold_decision": "Ineligible",
+      "cold_ms": 715.17,
+      "cold_reasons": [
+        "process read process identity via getpid",
+        "process read process identity via getppid",
+        "process read system clock: monotonic",
+        "process read randomness via getrandom",
+        "process read process identity via gettid",
+        "process read system clock: realtime"
+      ],
+      "command": [
+        "python3",
+        "/workspace/chats/3ead97f7907244943d2638d7/benchmarks/realworld/workloads/etl.py",
+        "sales.csv",
+        "customers.csv",
+        "report.json"
+      ],
+      "controlled": {
+        "median_ms": 696.72,
+        "samples_ms": [
+          667.19,
+          709.02,
+          659.52,
+          696.72,
+          737.94
+        ],
+        "total_ms": 3470.39
+      },
+      "controlled_output": {
+        "gid": 1001,
+        "mode": "0o644",
+        "mtime_ns": 1794268093820739174,
+        "sha256": "e5c34639b4e1985821f628c5e663184be751c58b9519f2d9e26e3900b09e491a",
+        "size": 400,
+        "uid": 65822751
+      },
+      "decisions": [
+        "Ineligible",
+        "Ineligible",
+        "Ineligible",
+        "Ineligible",
+        "Ineligible"
+      ],
+      "description": "aggregate sales CSV into a regional JSON report",
+      "id": "csv_etl",
+      "native": {
+        "median_ms": 486.91,
+        "samples_ms": [
+          486.91,
+          477.37,
+          475.72,
+          489.57,
+          487.63
+        ],
+        "total_ms": 2417.21
+      },
+      "native_output": {
+        "gid": 1001,
+        "mode": "0o644",
+        "mtime_ns": 1794268089663866861,
+        "sha256": "e5c34639b4e1985821f628c5e663184be751c58b9519f2d9e26e3900b09e491a",
+        "size": 400,
+        "uid": 65822751
+      },
+      "net_savings_ms": -1768.35,
+      "output_matches_native": true,
+      "per_run_speedup": 0.7,
+      "repetitions": 5,
+      "session_speedup": 0.58
+    }
+  ]
+}

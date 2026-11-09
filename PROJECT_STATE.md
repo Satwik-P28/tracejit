@@ -504,3 +504,22 @@ concurrency, 37.6x over ten repeats. gzip reuses only with the output absent; xz
 remain blocked by clocks, identity, `sysinfo`, `prlimit64` or application entropy. The EEXIST
 presence model was analysed but not implemented because it cannot yet preserve unlink semantics
 and concurrency. `PROVEN` BLOCKED (`landlock no`); CI BLOCKED (unpushed); no release.
+
+
+## Phase 2S (base `d6c9e05`)
+
+Independent audit found and fixed a partial-metadata acceptance hole: a version-2 file artifact
+with any missing mode/uid/gid/atime/mtime was replayed as if that effect never existed. Version 2
+now requires complete metadata, deletion artifacts require none, and both cases fail before any
+destination mutation. Legacy v0 records, hard links, symlinks, directories, missing/create
+preconditions and rollback are covered by tests.
+
+Real-workflow measurements (`benchmarks/results/phase2s/`) show bzip2 remains the strong reusable
+workload: 3.87x/3.63x complete-session speedups for removed/retained outputs, with correct misses
+when the input changes. Stable asset precompression saves 757 ms (2.25x session); release gzip is
+marginally positive (1.07x); log append and CSV ETL are correctly negative. Discovery still has
+one reusable of seventeen; xz/gcc/Python/jq remain blocked by clocks, `sysinfo`, identity or
+`getrusage`, and no speculative runtime profile was added. Warm identity preparation is 0.17 ms,
+so session-scoped executable validation was rejected. Local gates: fmt, Clippy, 125 tests, 120
+differential cases with zero incorrect hits. `PROVEN` remains blocked by unavailable Landlock;
+developer preview is limited to explicit stable bzip2/gzip-stream workloads.

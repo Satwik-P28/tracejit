@@ -1,0 +1,835 @@
+[
+  {
+    "artifacts_match_native": null,
+    "category": "compression",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 121.81,
+    "command": [
+      "gzip",
+      "-9",
+      "-k",
+      "-f",
+      "big.txt"
+    ],
+    "contract": "allocator-entropy-v1",
+    "first_refusal": [
+      "failed filesystem effect is not guardable: /tmp/tjq/discovery/work/big.txt.gz (errno 17)",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ],
+    "name": "gzip_text",
+    "native_ms": 64.79,
+    "native_outputs": {
+      "big.txt.gz": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "71eaff4a701d62b0cc86c3f2bd9912db497231b8c657649313883c7f24c5ff5f"
+      }
+    },
+    "prestate": "present",
+    "reuse_frequency": "high in asset/log pipelines",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 103.77,
+    "warm_outputs": {
+      "big.txt.gz": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "71eaff4a701d62b0cc86c3f2bd9912db497231b8c657649313883c7f24c5ff5f"
+      }
+    },
+    "warm_reasons": [
+      "failed filesystem effect is not guardable: /tmp/tjq/discovery/work/big.txt.gz (errno 17)",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "compression",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 1979.78,
+    "command": [
+      "xz",
+      "-6",
+      "-k",
+      "-f",
+      "big.txt"
+    ],
+    "contract": "allocator-entropy-v1",
+    "first_refusal": [
+      "process read system information via sysinfo",
+      "process read system clock: monotonic",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ],
+    "name": "xz_text",
+    "native_ms": 1897.77,
+    "native_outputs": {
+      "big.txt.xz": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "d97fce9b92824ddf25ee555de2f75b0b77c5d3e46c9305329a1b78914a4e7f08"
+      }
+    },
+    "prestate": "present",
+    "reuse_frequency": "medium; release artifact packaging",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 1960.97,
+    "warm_outputs": {
+      "big.txt.xz": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "d97fce9b92824ddf25ee555de2f75b0b77c5d3e46c9305329a1b78914a4e7f08"
+      }
+    },
+    "warm_reasons": [
+      "process read system information via sysinfo",
+      "process read system clock: monotonic",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ]
+  },
+  {
+    "artifacts_match_native": true,
+    "category": "compression",
+    "changed_decision": "Deoptimized",
+    "cold_decision": "Executed",
+    "cold_kind": "Executed",
+    "cold_ms": 657.8,
+    "command": [
+      "bzip2",
+      "-9",
+      "-k",
+      "-f",
+      "big.txt"
+    ],
+    "contract": "allocator-entropy-v1",
+    "first_refusal": [
+      "all observed dependencies are guardable or captured outputs",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ],
+    "name": "bzip2_text",
+    "native_ms": 519.86,
+    "native_outputs": {
+      "big.txt.bz2": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "1fed72bf575d68607a308a67742e9e9ac452286e33491ff1e4c1f6a94d80394e"
+      }
+    },
+    "prestate": "present",
+    "reuse_frequency": "low-medium",
+    "status": "measured",
+    "warm_decision": "Reused",
+    "warm_guard_failure": null,
+    "warm_kind": "Reused",
+    "warm_ms": 18.21,
+    "warm_outputs": {
+      "big.txt.bz2": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "1fed72bf575d68607a308a67742e9e9ac452286e33491ff1e4c1f6a94d80394e"
+      }
+    },
+    "warm_reasons": [
+      "all observed dependencies are guardable or captured outputs",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "archive",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 130.7,
+    "command": [
+      "tar",
+      "-cf",
+      "tree.tar",
+      "tree"
+    ],
+    "contract": "allocator-entropy-v1",
+    "first_refusal": [
+      "process read system clock: realtime",
+      "process wrote network: failed socket control (errno 2)",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ],
+    "name": "tar_tree",
+    "native_ms": 6.97,
+    "native_outputs": {
+      "tree.tar": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "e314b916ecd2465d708bddacc7f2b7c53b1b823d9b0fe3d8156ebe8a454e3385"
+      }
+    },
+    "prestate": "present",
+    "reuse_frequency": "high in packaging",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 104.46,
+    "warm_outputs": {
+      "tree.tar": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "e314b916ecd2465d708bddacc7f2b7c53b1b823d9b0fe3d8156ebe8a454e3385"
+      }
+    },
+    "warm_reasons": [
+      "process read system clock: realtime",
+      "process wrote network: failed socket control (errno 2)",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "archive",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 145.68,
+    "command": [
+      "zip",
+      "-q",
+      "-r",
+      "-X",
+      "tree.zip",
+      "tree"
+    ],
+    "contract": "allocator-entropy-v1",
+    "first_refusal": [
+      "process read system clock: monotonic",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ],
+    "name": "zip_tree",
+    "native_ms": 8.12,
+    "native_outputs": {
+      "tree.zip": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "1645bfbbddd43dbce31d2cb4d93c851e0d57c1af322335668f8f69683b8b6329"
+      }
+    },
+    "prestate": "present",
+    "reuse_frequency": "high in release pipelines",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 181.18,
+    "warm_outputs": {
+      "tree.zip": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "1645bfbbddd43dbce31d2cb4d93c851e0d57c1af322335668f8f69683b8b6329"
+      }
+    },
+    "warm_reasons": [
+      "process read system clock: monotonic",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "data preprocessing",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 225.49,
+    "command": [
+      "sort",
+      "-S",
+      "256M",
+      "-o",
+      "sorted.txt",
+      "big.txt"
+    ],
+    "contract": "allocator-entropy-v1",
+    "first_refusal": [
+      "process read system information via sched_getaffinity",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ],
+    "name": "sort_text",
+    "native_ms": 58.53,
+    "native_outputs": {
+      "sorted.txt": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "5a3ac19673c21aa4cfacf0ff03ff702d5b1f44c63ea9478797db0275ebb2fdc0"
+      }
+    },
+    "prestate": "present",
+    "reuse_frequency": "high in ETL loops",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 175.95,
+    "warm_outputs": {
+      "sorted.txt": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "5a3ac19673c21aa4cfacf0ff03ff702d5b1f44c63ea9478797db0275ebb2fdc0"
+      }
+    },
+    "warm_reasons": [
+      "process read system information via sched_getaffinity",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "data preprocessing",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 325.09,
+    "command": [
+      "sh",
+      "-c",
+      "jq -c '.[] | {id: .id, v: (.v * 2)}' big.json > out.json"
+    ],
+    "contract": "allocator-entropy-v1",
+    "first_refusal": [
+      "process read process identity via getpid",
+      "process read process identity via getppid",
+      "process read randomness via getrandom",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ],
+    "name": "jq_transform",
+    "native_ms": 191.31,
+    "native_outputs": {
+      "out.json": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "2807e5625669d84406f3fdbfff6e4eff66a740b86ec4d0a2940731b43c2ae483"
+      }
+    },
+    "prestate": "present",
+    "reuse_frequency": "high; repeated report generation",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 314.14,
+    "warm_outputs": {
+      "out.json": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "2807e5625669d84406f3fdbfff6e4eff66a740b86ec4d0a2940731b43c2ae483"
+      }
+    },
+    "warm_reasons": [
+      "process read process identity via getpid",
+      "process read process identity via getppid",
+      "process read randomness via getrandom",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "static analysis",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 79.12,
+    "command": [
+      "sh",
+      "-c",
+      "objdump -d prog > prog.dis"
+    ],
+    "contract": "allocator-entropy-v1",
+    "first_refusal": [
+      "process read process identity via getpid",
+      "process read process identity via getppid",
+      "process read system information via prlimit64",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ],
+    "name": "objdump_disassembly",
+    "native_ms": 11.21,
+    "native_outputs": {
+      "prog.dis": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "ce6108c79a6add777217e5eca83afdbeb43c40b7f1d3b6b2546d162b855f6031"
+      }
+    },
+    "prestate": "present",
+    "reuse_frequency": "medium; repeated binary inspection",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 49.42,
+    "warm_outputs": {
+      "prog.dis": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "ce6108c79a6add777217e5eca83afdbeb43c40b7f1d3b6b2546d162b855f6031"
+      }
+    },
+    "warm_reasons": [
+      "process read process identity via getpid",
+      "process read process identity via getppid",
+      "process read system information via prlimit64",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "static analysis",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 60.23,
+    "command": [
+      "sh",
+      "-c",
+      "nm -S --size-sort prog > prog.nm"
+    ],
+    "contract": "allocator-entropy-v1",
+    "first_refusal": [
+      "process read process identity via getpid",
+      "process read process identity via getppid",
+      "process read system information via prlimit64",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ],
+    "name": "nm_symbols",
+    "native_ms": 4.43,
+    "native_outputs": {
+      "prog.nm": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "053a7adc0984a0fbd33e439a34e80ee4a93a57ae46d1e188c6e214f8029ed9b0"
+      }
+    },
+    "prestate": "present",
+    "reuse_frequency": "medium",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 44.9,
+    "warm_outputs": {
+      "prog.nm": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "053a7adc0984a0fbd33e439a34e80ee4a93a57ae46d1e188c6e214f8029ed9b0"
+      }
+    },
+    "warm_reasons": [
+      "process read process identity via getpid",
+      "process read process identity via getppid",
+      "process read system information via prlimit64",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "static analysis",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 57.72,
+    "command": [
+      "sh",
+      "-c",
+      "readelf -a prog > prog.re"
+    ],
+    "contract": "allocator-entropy-v1",
+    "first_refusal": [
+      "process read process identity via getpid",
+      "process read process identity via getppid",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ],
+    "name": "readelf_headers",
+    "native_ms": 4.54,
+    "native_outputs": {
+      "prog.re": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "98e4a99712d4572c106bc7625722b4d7c7e2de16188e97863f228ef6cdc29cb4"
+      }
+    },
+    "prestate": "present",
+    "reuse_frequency": "medium",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 47.43,
+    "warm_outputs": {
+      "prog.re": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "98e4a99712d4572c106bc7625722b4d7c7e2de16188e97863f228ef6cdc29cb4"
+      }
+    },
+    "warm_reasons": [
+      "process read process identity via getpid",
+      "process read process identity via getppid",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "asset pipeline",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 55.36,
+    "command": [
+      "strip",
+      "-o",
+      "prog.stripped",
+      "prog"
+    ],
+    "contract": "allocator-entropy-v1",
+    "first_refusal": [
+      "process read system information via prlimit64",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ],
+    "name": "strip_binary",
+    "native_ms": 3.52,
+    "native_outputs": {
+      "prog.stripped": {
+        "kind": "file",
+        "mode": "0o755",
+        "sha256": "d71bb95a4b46ab949e410bd80b1aa0bbecb5ae84e797b7bfdce90a098b4e6910"
+      }
+    },
+    "prestate": "present",
+    "reuse_frequency": "high in packaging",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 51.19,
+    "warm_outputs": {
+      "prog.stripped": {
+        "kind": "file",
+        "mode": "0o755",
+        "sha256": "d71bb95a4b46ab949e410bd80b1aa0bbecb5ae84e797b7bfdce90a098b4e6910"
+      }
+    },
+    "warm_reasons": [
+      "process read system information via prlimit64",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "asset pipeline",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 52.44,
+    "command": [
+      "objcopy",
+      "-O",
+      "binary",
+      "prog",
+      "prog.bin"
+    ],
+    "contract": "allocator-entropy-v1",
+    "first_refusal": [
+      "process read system information via prlimit64",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ],
+    "name": "objcopy_raw",
+    "native_ms": 2.74,
+    "native_outputs": {
+      "prog.bin": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "8784a9d1767e48bb576774da5ac219cfa05162579ca37907984ed96b23f90de6"
+      }
+    },
+    "prestate": "present",
+    "reuse_frequency": "medium; firmware builds",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 44.81,
+    "warm_outputs": {
+      "prog.bin": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "8784a9d1767e48bb576774da5ac219cfa05162579ca37907984ed96b23f90de6"
+      }
+    },
+    "warm_reasons": [
+      "process read system information via prlimit64",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "code generation",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 326.58,
+    "command": [
+      "python3",
+      "-m",
+      "compileall",
+      "-q",
+      "-f",
+      "pkg"
+    ],
+    "contract": "allocator-entropy-v1",
+    "first_refusal": [
+      "process read process identity via getpid",
+      "process read process identity via getppid",
+      "process read system clock: monotonic",
+      "process read randomness via getrandom",
+      "process read process identity via gettid",
+      "process read system clock: realtime",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ],
+    "name": "python_compileall",
+    "native_ms": 57.56,
+    "native_outputs": {
+      "pkg/__pycache__": {
+        "kind": "dir",
+        "mode": "0o755",
+        "sha256": "2ac743bf008c9463ce4b42b8c440aa11315df10b947b54d015f5b975b82e1f2c"
+      }
+    },
+    "prestate": "present",
+    "reuse_frequency": "high in Python CI",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 285.34,
+    "warm_outputs": {
+      "pkg/__pycache__": {
+        "kind": "dir",
+        "mode": "0o755",
+        "sha256": "2ac743bf008c9463ce4b42b8c440aa11315df10b947b54d015f5b975b82e1f2c"
+      }
+    },
+    "warm_reasons": [
+      "process read process identity via getpid",
+      "process read process identity via getppid",
+      "process read system clock: monotonic",
+      "process read randomness via getrandom",
+      "process read process identity via gettid",
+      "process read system clock: realtime",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "code generation",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 384.23,
+    "command": [
+      "python3",
+      "transform.py",
+      "big.json",
+      "script-out.json"
+    ],
+    "contract": "allocator-entropy-v1",
+    "first_refusal": [
+      "process read process identity via getpid",
+      "process read process identity via getppid",
+      "process read system clock: monotonic",
+      "process read randomness via getrandom",
+      "process read process identity via gettid",
+      "process read system clock: realtime",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ],
+    "name": "python_json_script",
+    "native_ms": 235.58,
+    "native_outputs": {
+      "script-out.json": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "271001ae55f54b669c322d35a47417ea0d085c55a351005e23e50e80caa483a0"
+      }
+    },
+    "prestate": "present",
+    "reuse_frequency": "high; build scripts",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 380.55,
+    "warm_outputs": {
+      "script-out.json": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "271001ae55f54b669c322d35a47417ea0d085c55a351005e23e50e80caa483a0"
+      }
+    },
+    "warm_reasons": [
+      "process read process identity via getpid",
+      "process read process identity via getppid",
+      "process read system clock: monotonic",
+      "process read randomness via getrandom",
+      "process read process identity via gettid",
+      "process read system clock: realtime",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "compiler reference",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 932.68,
+    "command": [
+      "gcc",
+      "-O2",
+      "-Isrc",
+      "-c",
+      "src/a.c",
+      "-o",
+      "a.o"
+    ],
+    "contract": "allocator-entropy-v1",
+    "first_refusal": [
+      "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffef0df64d0, 0x7ffef0df6a68, 0x7ffef0df6620, 0x0, 0x7fd0e2ac9380]",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ],
+    "name": "gcc_compile",
+    "native_ms": 775.35,
+    "native_outputs": {
+      "a.o": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "4b569a2d55739814bbdb0b01e56b5913afe6bc3de28428ecdee29d2840cb190e"
+      }
+    },
+    "prestate": "present",
+    "reuse_frequency": "reference; Phase 2P measured",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 959.27,
+    "warm_outputs": {
+      "a.o": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "4b569a2d55739814bbdb0b01e56b5913afe6bc3de28428ecdee29d2840cb190e"
+      }
+    },
+    "warm_reasons": [
+      "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffd30692f80, 0x7ffd30693518, 0x7ffd306930d0, 0x0, 0x7eff055f0380]",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "large-file transformation",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 214.91,
+    "command": [
+      "sh",
+      "-c",
+      "awk '{print NR, $0}' big.txt > awk.txt"
+    ],
+    "contract": "allocator-entropy-v1",
+    "first_refusal": [
+      "process read process identity via getpid",
+      "process read process identity via getppid",
+      "process read system clock: realtime",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ],
+    "name": "awk_transform",
+    "native_ms": 32.34,
+    "native_outputs": {
+      "awk.txt": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "fd04bb39511b86639c5d8c057b44b53ab560c25dcab2b0569269389a576fb5df"
+      }
+    },
+    "prestate": "present",
+    "reuse_frequency": "medium; one-off but large",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 166.13,
+    "warm_outputs": {
+      "awk.txt": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "fd04bb39511b86639c5d8c057b44b53ab560c25dcab2b0569269389a576fb5df"
+      }
+    },
+    "warm_reasons": [
+      "process read process identity via getpid",
+      "process read process identity via getppid",
+      "process read system clock: realtime",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "large-file transformation",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 315.93,
+    "command": [
+      "sh",
+      "-c",
+      "sed 's/alpha/omega/g' big.txt > sed.txt"
+    ],
+    "contract": "allocator-entropy-v1",
+    "first_refusal": [
+      "process read process identity via getpid",
+      "process read process identity via getppid",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ],
+    "name": "sed_transform",
+    "native_ms": 64.13,
+    "native_outputs": {
+      "sed.txt": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "ee94157af07cd7dba5fd4854ce16aec65c98455ff5b046bf8180fbb1d1366e39"
+      }
+    },
+    "prestate": "present",
+    "reuse_frequency": "medium",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 239.77,
+    "warm_outputs": {
+      "sed.txt": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "ee94157af07cd7dba5fd4854ce16aec65c98455ff5b046bf8180fbb1d1366e39"
+      }
+    },
+    "warm_reasons": [
+      "process read process identity via getpid",
+      "process read process identity via getppid",
+      "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+    ]
+  }
+]
