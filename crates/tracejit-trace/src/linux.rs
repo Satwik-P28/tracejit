@@ -1735,6 +1735,7 @@ fn record_snapshot(pid: Pid, path: PathBuf, snapshot: PathSnapshot, collector: &
             Effect::Read(ReadEffect::FileMetadata(FileMetadataRead {
                 path,
                 fingerprint: Some(fingerprint),
+                audited_toolchain: audited_toolchain(pid).is_some(),
             })),
         ),
         PathSnapshot::Absent => collector.push(
@@ -1742,6 +1743,7 @@ fn record_snapshot(pid: Pid, path: PathBuf, snapshot: PathSnapshot, collector: &
             Effect::Read(ReadEffect::FileMetadata(FileMetadataRead {
                 path,
                 fingerprint: Some(tracejit_effects::FileFingerprint::absent()),
+                audited_toolchain: audited_toolchain(pid).is_some(),
             })),
         ),
         PathSnapshot::Unavailable => collector.push(
@@ -1790,6 +1792,7 @@ fn record_metadata(pid: Pid, path: PathBuf, collector: &mut Collector) {
             Effect::Read(ReadEffect::FileMetadata(FileMetadataRead {
                 fingerprint: Some(value),
                 path,
+                audited_toolchain: audited_toolchain(pid).is_some(),
             })),
         ),
         Err(error) => collector.push(
@@ -1812,6 +1815,7 @@ fn record_symlink_metadata(pid: Pid, path: PathBuf, collector: &mut Collector) {
             Effect::Read(ReadEffect::SymlinkMetadata(FileMetadataRead {
                 fingerprint: Some(value),
                 path,
+                audited_toolchain: audited_toolchain(pid).is_some(),
             })),
         ),
         Err(error) => collector.push(
@@ -1959,6 +1963,7 @@ fn complete_syscall(
                             Effect::Read(ReadEffect::FileMetadata(FileMetadataRead {
                                 path: path.clone(),
                                 fingerprint: Some(tracejit_effects::FileFingerprint::absent()),
+                                audited_toolchain: audited_toolchain(pid).is_some(),
                             })),
                         );
                     }
@@ -2653,6 +2658,7 @@ fn complete_failed_syscall(
                 Effect::Read(ReadEffect::FileMetadata(FileMetadataRead {
                     path,
                     fingerprint: Some(tracejit_effects::FileFingerprint::absent()),
+                    audited_toolchain: audited_toolchain(pid).is_some(),
                 })),
             );
         }
@@ -2664,6 +2670,7 @@ fn complete_failed_syscall(
                 Effect::Read(ReadEffect::SymlinkMetadata(FileMetadataRead {
                     path,
                     fingerprint: Some(tracejit_effects::FileFingerprint::absent()),
+                    audited_toolchain: audited_toolchain(pid).is_some(),
                 })),
             );
         }
@@ -2682,6 +2689,7 @@ fn complete_failed_syscall(
                 Effect::Read(ReadEffect::FileMetadata(FileMetadataRead {
                     path,
                     fingerprint: Some(tracejit_effects::FileFingerprint::absent()),
+                    audited_toolchain: audited_toolchain(pid).is_some(),
                 })),
             );
         }
@@ -2692,6 +2700,7 @@ fn complete_failed_syscall(
                     Effect::Read(ReadEffect::FileMetadata(FileMetadataRead {
                         path,
                         fingerprint: Some(value),
+                        audited_toolchain: audited_toolchain(pid).is_some(),
                     })),
                 );
             } else {

@@ -2,12 +2,23 @@ use serde::{Deserialize, Serialize};
 use std::ffi::{CStr, OsString};
 use std::fs::{self, File};
 use std::io::{self, Read};
+use std::os::unix::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 use tracejit_effects::{
     DirectoryEnumerationRequest, ExecutionIdentity, FileDescriptorIdentity, FileFingerprint,
     FilesystemStats, FilesystemStatsSource, Hash, InputDependency, NamespaceIdentity,
     RuntimeIdentity,
 };
+
+/// Whether a fresh run could open this path for writing at all.
+///
+/// Content, timestamps and inode are deliberately excluded: only the property that decides
+/// between `EACCES`/`EISDIR` and a successful overwrite is part of the output pre-state contract.
+fn writable_regular_file(metadata: &fs::Metadata) -> bool {
+    metadata.file_type().is_file()
+        && metadata.mode() & 0o222 != 0
+        && (metadata.uid() == unsafe { libc::geteuid() } || metadata.mode() & 0o002 != 0)
+}
 
 #[derive(Debug, thiserror::Error)]
 pub enum GuardError {
@@ -60,6 +71,17 @@ pub enum Guard {
         /// Credential set that performed the recorded open.
         #[serde(default)]
         credential: Option<Hash>,
+    },
+    /// The pre-state class of a path the command itself writes.
+    ///
+    /// Timestamps, size, inode and content are not compared: the audited compiler overwrites the
+    /// path, so its old bytes are not an input to the artifact. What is compared is the property
+    /// that decides whether the write can be attempted at all. An absent path and a writable
+    /// regular file are one class; a directory, symlink, read-only file or special file is `Other`
+    /// and never reuses.
+    OutputPrestate {
+        path: PathBuf,
+        expected: tracejit_effects::OutputPrestateClass,
     },
     /// A directory enumeration replayed byte for byte.
     DirectoryEnumerated {
@@ -437,6 +459,32 @@ impl Guard {
                         expected: format!("{expected:?}"),
                         actual: format!("{actual:?}"),
                     })
+                }
+            }
+            Self::OutputPrestate { path, expected } => {
+                if *expected == tracejit_effects::OutputPrestateClass::Other {
+                    return Err(GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "output pre-state was not a writable regular file".into(),
+                        expected: "absent or writable regular file".into(),
+                        actual: format!("{expected:?}"),
+                    });
+                }
+                match fs::symlink_metadata(path) {
+                    Ok(metadata) if writable_regular_file(&metadata) => Ok(()),
+                    Ok(metadata) => Err(GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "output path is no longer a writable regular file".into(),
+                        expected: "absent or writable regular file".into(),
+                        actual: format!("mode {:#o}", metadata.mode()),
+                    }),
+                    Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(()),
+                    Err(error) => Err(GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "output path could not be inspected".into(),
+                        expected: "absent or writable regular file".into(),
+                        actual: error.to_string(),
+                    }),
                 }
             }
             Self::ControlledRuntime {
@@ -1641,6 +1689,10 @@ pub fn compile_guards(executable: PathBuf, identity: &ExecutionIdentity) -> Vec<
                 value: *value,
                 contract: contract.clone(),
             }),
+            InputDependency::OutputPrestate { path, class } => guards.push(Guard::OutputPrestate {
+                path: path.clone(),
+                expected: *class,
+            }),
             InputDependency::SymlinkMetadata { path, fingerprint } => {
                 guards.push(Guard::SymlinkMetadata {
                     path: path.clone(),
@@ -1854,6 +1906,44 @@ mod tests {
         assert!(guard.validate(GuardMode::Strict).is_ok());
         fs::create_dir(directory.join("child")).unwrap();
         assert!(guard.validate(GuardMode::Strict).is_ok());
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn output_prestate_admits_only_an_absent_or_writable_regular_file() {
+        use std::os::unix::fs::PermissionsExt;
+        let temporary = tempfile::tempdir().unwrap();
+        let path = temporary.path().join("output.o");
+        let guard = Guard::OutputPrestate {
+            path: path.clone(),
+            expected: tracejit_effects::OutputPrestateClass::AbsentOrWritableFile,
+        };
+        assert!(guard.validate(GuardMode::Strict).is_ok(), "absent");
+        fs::write(&path, b"old object").unwrap();
+        assert!(guard.validate(GuardMode::Strict).is_ok(), "writable file");
+        // The class deliberately ignores content, size, inode and timestamps: the audited
+        // compiler overwrites the path, so the old bytes cannot reach the artifact.
+        fs::write(&path, b"different bytes").unwrap();
+        assert!(guard.validate(GuardMode::Strict).is_ok(), "content changed");
+        let mut permissions = fs::metadata(&path).unwrap().permissions();
+        permissions.set_mode(0o444);
+        fs::set_permissions(&path, permissions).unwrap();
+        assert!(guard.validate(GuardMode::Strict).is_err(), "read-only file");
+        fs::remove_file(&path).unwrap();
+        fs::create_dir(&path).unwrap();
+        assert!(guard.validate(GuardMode::Strict).is_err(), "directory");
+        fs::remove_dir(&path).unwrap();
+        fs::write(temporary.path().join("target"), b"x").unwrap();
+        std::os::unix::fs::symlink(temporary.path().join("target"), &path).unwrap();
+        assert!(guard.validate(GuardMode::Strict).is_err(), "symlink");
+        let recorded_other = Guard::OutputPrestate {
+            path,
+            expected: tracejit_effects::OutputPrestateClass::Other,
+        };
+        assert!(
+            recorded_other.validate(GuardMode::Strict).is_err(),
+            "a pre-state that was never writable is not reusable"
+        );
     }
 
     #[cfg(unix)]

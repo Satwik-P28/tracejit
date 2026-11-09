@@ -1,0 +1,32 @@
+{
+  "native_ms": 259.02,
+  "tracejit_cold_ms": 586.74,
+  "tracejit_hit_ms": 71.67,
+  "ccache_warm_ms": 3.96,
+  "sccache_warm_ms": 8.36,
+  "reused": 36,
+  "artifacts_equal": 36,
+  "rows": 36,
+  "cold_overhead_ms": 327.72,
+  "hit_vs_ccache": 18.1,
+  "zlib": {
+    "native_ms": 179.61,
+    "tracejit_cold_ms": 461.57,
+    "tracejit_hit_ms": 71.23,
+    "ccache_warm_ms": 3.9,
+    "sccache_warm_ms": 8.5
+  },
+  "lz4": {
+    "native_ms": 2052.46,
+    "tracejit_cold_ms": 2421.63,
+    "tracejit_hit_ms": 72.25,
+    "ccache_warm_ms": 3.98,
+    "sccache_warm_ms": 7.95
+  },
+  "ten_rebuilds": {
+    "native_ms": 2590,
+    "tracejit_ms": 1232,
+    "ccache_ms": 40,
+    "sccache_ms": 84
+  }
+}

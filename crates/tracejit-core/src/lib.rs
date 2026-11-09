@@ -764,14 +764,11 @@ fn store_outcome(
     mut outcome: TraceOutcome,
 ) -> Result<RunReport, CoreError> {
     add_discovery_effects(&mut outcome.trace, &prepared.environment, &prepared.cwd);
-    // Under the compiler contract a directory's timestamps are not contracted inputs: the
-    // compilation itself creates and removes temporary entries in them, so a timestamp guard
-    // would refuse every reuse. The directory is still guarded by identity and permissions.
+    // The compiler contract reclassifies two observations, and only when the observing process is
+    // the audited toolchain itself. Everything else, including an un-audited program's stat of its
+    // own output path, keeps the ordinary guard, negative (absent) form included.
+    let mut non_writable_output_prestate = None;
     if prepared.contract == Some(tracejit_trace::Contract::CompilerRuntimeV1) {
-        // The command's own outputs are restored by the cache, so their pre-state is not a
-        // precondition: a compiler that stats its `-o` path before writing sees "absent" on the
-        // first run and "present" on every later one. The output artifact guard is the real
-        // contract for that path.
         let outputs = outcome
             .trace
             .effects
@@ -783,41 +780,69 @@ fn store_outcome(
             .collect::<BTreeSet<PathBuf>>();
         let mut rewritten = Vec::with_capacity(outcome.trace.effects.len());
         for mut record in std::mem::take(&mut outcome.trace.effects) {
-            let is_output_metadata = matches!(
-                &record.effect,
-                Effect::Read(tracejit_effects::ReadEffect::FileMetadata(read))
-                    if outputs.contains(&read.path)
-            );
-            if is_output_metadata {
-                continue;
-            }
-            // A directory's timestamps are not contracted inputs: the compilation itself
-            // creates and removes entries in them. Identity and permissions are still guarded.
             let replacement = match &record.effect {
-                Effect::Read(tracejit_effects::ReadEffect::FileMetadata(read)) => read
-                    .fingerprint
-                    .as_ref()
-                    .filter(|fingerprint| fingerprint.mode & 0o170000 == 0o040000)
-                    .map(|fingerprint| (read.path.clone(), fingerprint.clone())),
+                // The compiler's own write target. Its pre-state is classified rather than
+                // compared field by field: an absent path and a writable regular file are one
+                // class. Anything that changes whether the write can succeed is `Other` and is
+                // made ineligible below.
+                Effect::Read(tracejit_effects::ReadEffect::FileMetadata(read))
+                | Effect::Read(tracejit_effects::ReadEffect::SymlinkMetadata(read))
+                    if read.audited_toolchain && outputs.contains(&read.path) =>
+                {
+                    let class = output_prestate_class(read.fingerprint.as_ref());
+                    if class == tracejit_effects::OutputPrestateClass::Other {
+                        non_writable_output_prestate = Some(read.path.clone());
+                    }
+                    Some(Effect::Read(tracejit_effects::ReadEffect::OutputPrestate(
+                        tracejit_effects::OutputPrestateRead {
+                            path: read.path.clone(),
+                            class,
+                        },
+                    )))
+                }
+                // A directory this execution mutates itself: the compilation creates and removes
+                // temporary entries, so its timestamps are not reproducible inputs. Only the
+                // audited toolchain gets this treatment, and only identity and permissions are
+                // kept; a genuine `stat` by any other process keeps the full guard.
+                Effect::Read(tracejit_effects::ReadEffect::FileMetadata(read))
+                    if read.audited_toolchain
+                        && read
+                            .fingerprint
+                            .as_ref()
+                            .is_some_and(|fingerprint| fingerprint.mode & 0o170000 == 0o040000) =>
+                {
+                    read.fingerprint.as_ref().map(|fingerprint| {
+                        Effect::Read(tracejit_effects::ReadEffect::DirectoryOpened(
+                            tracejit_effects::DirectoryOpen {
+                                path: read.path.clone(),
+                                fingerprint: fingerprint.clone(),
+                                flags: 0,
+                                // The tracee inherits this process's credentials; recording them
+                                // lets the guard refuse a replay under different credentials.
+                                credential: tracejit_guards::credential_identity(
+                                    std::process::id(),
+                                ),
+                            },
+                        ))
+                    })
+                }
                 _ => None,
             };
-            if let Some((path, fingerprint)) = replacement {
-                record.effect = Effect::Read(tracejit_effects::ReadEffect::DirectoryOpened(
-                    tracejit_effects::DirectoryOpen {
-                        path,
-                        fingerprint,
-                        flags: 0,
-                        // The tracee inherits this process's credentials; recording them lets
-                        // the guard refuse a replay under different credentials.
-                        credential: tracejit_guards::credential_identity(std::process::id()),
-                    },
-                ));
+            if let Some(effect) = replacement {
+                record.effect = effect;
             }
             rewritten.push(record);
         }
         outcome.trace.effects = rewritten;
     }
     let mut classification = classify(&outcome.trace.effects);
+    if let Some(path) = non_writable_output_prestate {
+        classification.class = DeterminismClass::Unknown;
+        classification.reasons.push(format!(
+            "output pre-state is not a writable regular file: {}",
+            path.display()
+        ));
+    }
     if outcome.sandbox_enforced && classification.class == DeterminismClass::Guarded {
         classification.class = DeterminismClass::Proven;
         classification
@@ -1088,6 +1113,28 @@ fn add_discovery_effects(
     });
 }
 
+fn output_prestate_class(
+    fingerprint: Option<&tracejit_effects::FileFingerprint>,
+) -> tracejit_effects::OutputPrestateClass {
+    use std::os::unix::fs::MetadataExt;
+    use tracejit_effects::OutputPrestateClass;
+    let Some(fingerprint) = fingerprint else {
+        return OutputPrestateClass::AbsentOrWritableFile;
+    };
+    if fingerprint.is_absent() {
+        return OutputPrestateClass::AbsentOrWritableFile;
+    }
+    let uid = fs::metadata("/proc/self").map_or(u32::MAX, |metadata| metadata.uid());
+    let regular = fingerprint.mode & 0o170000 == 0o100000;
+    let writable_by_us =
+        fingerprint.mode & 0o222 != 0 && (fingerprint.uid == uid || fingerprint.mode & 0o002 != 0);
+    if regular && writable_by_us {
+        OutputPrestateClass::AbsentOrWritableFile
+    } else {
+        OutputPrestateClass::Other
+    }
+}
+
 fn output_paths(effects: &[EffectRecord]) -> BTreeMap<PathBuf, (FileWriteKind, bool)> {
     effects.iter().fold(BTreeMap::new(), |mut outputs, record| {
         if let Effect::Write(WriteEffect::File(write)) = &record.effect {
@@ -1152,6 +1199,9 @@ fn policy_from_record(record: &StoredExecution) -> Option<SandboxPolicy> {
             // An access check may legitimately refer to a path that is absent: the recorded
             // answer is then "denied", and the guard re-checks exactly that answer. The path is
             // only made readable when it exists, so an absent probe adds nothing to the policy.
+            // A classified output pre-state names a path this command writes, so the sandbox
+            // policy already makes it writable; it adds nothing readable.
+            InputDependency::OutputPrestate { .. } => {}
             InputDependency::Access { path, .. } => {
                 if path.exists() {
                     readable.insert(path.clone());

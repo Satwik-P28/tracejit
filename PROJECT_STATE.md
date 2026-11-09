@@ -444,3 +444,24 @@ cold tracing adds 173-259 ms. The benchmark harness did not reproduce hits at al
 directories deoptimize), so reproducibility across build layouts is unresolved. Tests, fmt and
 Clippy pass; `PROVEN` still BLOCKED (`landlock no`); CI BLOCKED (unpushed). See
 `docs/audits/PHASE2O_COMPILER_FEASIBILITY.md` and `benchmarks/results/phase2o/`.
+
+
+## Phase 2P (base `8dd97cd`)
+
+The Phase 2O reuse was **unsound**: an un-audited program that stats its own output path was reused
+across an absence-to-presence change because the contract dropped every output-path metadata record
+for any binary behind the flag. That is now a permanent regression test. The fix adds a causal
+`OutputPrestate` observation (absent-or-writable class only) for audited compiler processes, keeps
+negative observations everywhere else, and restricts the directory-timestamp relaxation to audited
+processes. `FileMetadataRead` records the observing process's audited status from `/proc/<pid>/exe`
+and build ID, so it is per observation rather than per command.
+
+With the harness repaired (Phase 2O set `TRACEJIT_CACHE`, which the CLI ignores, so every arm shared
+the default cache), zlib 1.3.1 and lz4 1.9.4 reuse **36/36** in external-output and in-tree layouts,
+in two sessions, with **36/36 byte-identical artifacts**, and the decision, guard failure and hash
+are recorded for every row. Hit median is 71.7 ms; guard validation is 45 ms of it. ccache hits in
+4.0 ms and sccache in 8.4 ms; ten identical rebuilds cost 2590 ms native, 1232 ms TraceJIT, 40 ms
+ccache. **Decision: NO-GO for compiler acceleration**; the contract stays experimental and opt-in,
+and the recommended next workload class is deterministic whole-command utilities. Tests: **116
+passing**, fmt and Clippy clean. `PROVEN` BLOCKED (`landlock no`); CI BLOCKED (unpushed). See
+`docs/audits/PHASE2P_CAUSAL_OUTPUT_DEPENDENCIES.md` and `benchmarks/results/phase2p/`.

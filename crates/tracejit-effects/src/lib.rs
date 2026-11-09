@@ -95,6 +95,7 @@ impl Effect {
             Self::Read(ReadEffect::File(_))
             | Self::Read(ReadEffect::FileMetadata(_))
             | Self::Read(ReadEffect::DirectoryOpened(_))
+            | Self::Read(ReadEffect::OutputPrestate(_))
             | Self::Read(ReadEffect::DirectoryEnumerated(_))
             | Self::Read(ReadEffect::FilesystemStats(_))
             | Self::Read(ReadEffect::InheritedStream(_))
@@ -454,6 +455,7 @@ pub enum ReadEffect {
     File(FileRead),
     FileMetadata(FileMetadataRead),
     DirectoryOpened(DirectoryOpen),
+    OutputPrestate(OutputPrestateRead),
     DirectoryEnumerated(DirectoryEnumerationRead),
     FilesystemStats(FilesystemStatsRead),
     InheritedStream(InheritedStreamRead),
@@ -550,6 +552,32 @@ pub struct FileRead {
 pub struct FileMetadataRead {
     pub path: PathBuf,
     pub fingerprint: Option<FileFingerprint>,
+    /// True when the observing process is one of the audited compiler-runtime binaries.
+    ///
+    /// The contract may reclassify this observation only for such a process. An un-audited
+    /// program keeps the ordinary metadata guard, including its negative (absent) form, so a
+    /// program that stats its own output path cannot be reused across a presence change.
+    #[serde(default)]
+    pub audited_toolchain: bool,
+}
+
+/// What a write target looked like before the command replaced it.
+///
+/// Only the property that decides whether a write can succeed is retained. An absent path and a
+/// writable regular file are the same class, because the audited compiler's own output may be the
+/// pre-state it observes on a later run, and its artifact does not depend on the old bytes. A
+/// directory, symlink, read-only file or special file is `Other` and is never reused: those states
+/// change the write's outcome (a symlink could be repointed, a directory fails with `EISDIR`).
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub enum OutputPrestateClass {
+    AbsentOrWritableFile,
+    Other,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct OutputPrestateRead {
+    pub path: PathBuf,
+    pub class: OutputPrestateClass,
 }
 
 /// A directory the process opened without observing its metadata or its entries.
@@ -897,6 +925,12 @@ pub enum InputDependency {
         #[serde(default)]
         credential: Option<Hash>,
     },
+    /// The pre-state class of a path the command itself writes, observed by an audited
+    /// compiler binary. Timestamps, size, inode and content are not part of it.
+    OutputPrestate {
+        path: PathBuf,
+        class: OutputPrestateClass,
+    },
     /// A directory whose entries were read, as an exact replayable byte stream.
     DirectoryEnumerated {
         path: PathBuf,
@@ -1068,6 +1102,7 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
     let mut executables = BTreeMap::new();
     let mut metadata = BTreeMap::new();
     let mut directory_opens = BTreeMap::new();
+    let mut output_prestates = BTreeMap::<PathBuf, OutputPrestateClass>::new();
     let mut directory_enumerations = Vec::<DirectoryEnumerationRead>::new();
     let mut filesystem_stats = Vec::<FilesystemStatsRead>::new();
     let mut inherited_streams = BTreeMap::<PathBuf, InheritedStreamRead>::new();
@@ -1095,6 +1130,11 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
                         .entry(read.path.clone())
                         .or_insert(fingerprint.clone());
                 }
+            }
+            Effect::Read(ReadEffect::OutputPrestate(read)) => {
+                output_prestates
+                    .entry(read.path.clone())
+                    .or_insert(read.class);
             }
             Effect::Read(ReadEffect::DirectoryOpened(read))
                 if precedes_first_write(&first_writes, &read.path, record.sequence) =>
@@ -1204,6 +1244,11 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
         metadata
             .into_iter()
             .map(|(path, fingerprint)| InputDependency::Metadata { path, fingerprint }),
+    );
+    dependencies.extend(
+        output_prestates
+            .into_iter()
+            .map(|(path, class)| InputDependency::OutputPrestate { path, class }),
     );
     dependencies.extend(directory_opens.into_iter().map(
         |(path, (fingerprint, flags, credential))| InputDependency::DirectoryOpened {

@@ -10,6 +10,13 @@ fn tracejit() -> PathBuf {
     PathBuf::from(env!("CARGO_BIN_EXE_tracejit"))
 }
 
+/// Serialises the tests that both compile C and depend on a measured wall-clock threshold.
+///
+/// `auto_admission_skips_short_commands_and_caches_expensive_ones` decides by timing the direct
+/// run; a concurrent compilation can push a short command over its 6 ms threshold and change the
+/// decision for reasons that have nothing to do with the policy under test.
+static COMPILER_TIMING_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
 fn compile_fixture(directory: &Path) -> PathBuf {
     let source =
         PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/fixtures/fixture_driver.c");
@@ -79,6 +86,65 @@ fn analyze_case(binary: &Path, directory: &Path, case: &str) -> Value {
             String::from_utf8_lossy(&output.stderr)
         )
     })
+}
+
+/// A program that stats its own output path must not reuse across a presence change.
+///
+/// This is the Phase 2O release blocker: the contract dropped output metadata for *any* binary
+/// behind the flag, so an un-audited program's "absent" branch was replayed after the path
+/// appeared. The observation must stay a real negative dependency unless the observing process is
+/// the audited toolchain.
+#[test]
+fn un_audited_program_does_not_reuse_across_its_output_presence_change() {
+    let _serial = COMPILER_TIMING_LOCK.lock().unwrap();
+    let temporary = tempfile::tempdir().unwrap();
+    let source = temporary.path().join("presence.c");
+    fs::write(
+        &source,
+        "#include <stdio.h>\n#include <sys/stat.h>\nint main(int argc, char **argv) {\n    struct stat st;\n    int present = stat(argv[1], &st) == 0;\n    FILE *file = fopen(argv[1], \"w\");\n    fputs(present ? \"PRESENT\\n\" : \"ABSENT\\n\", file);\n    fclose(file);\n    return 0;\n}\n",
+    )
+    .unwrap();
+    let binary = temporary.path().join("presence");
+    let status = Command::new("cc")
+        .arg("-O2")
+        .arg(&source)
+        .arg("-o")
+        .arg(&binary)
+        .status()
+        .expect("C compiler must be available");
+    assert!(status.success(), "probe compilation failed");
+    let output = temporary.path().join("out.txt");
+    let cache = temporary.path().join("cache");
+    let invoke_probe = || {
+        invoke(
+            &cache,
+            &[
+                "run",
+                "--contract",
+                "compiler-runtime-v1",
+                "--json",
+                "--",
+                binary.to_str().unwrap(),
+                output.to_str().unwrap(),
+            ],
+            None,
+        )
+    };
+    let first = invoke_probe();
+    assert!(first.status.success(), "first trace failed");
+    assert_eq!(fs::read_to_string(&output).unwrap(), "ABSENT\n");
+    let second = invoke_probe();
+    assert!(second.status.success(), "second run failed");
+    let report: Value = serde_json::from_slice(&second.stdout).unwrap();
+    assert_ne!(
+        report["kind"], "Reused",
+        "un-audited output stat was replayed across a presence change: {report}"
+    );
+    assert_eq!(
+        fs::read_to_string(&output).unwrap(),
+        "PRESENT\n",
+        "the second run must observe the file it created"
+    );
 }
 
 #[test]
@@ -1358,6 +1424,7 @@ fn allocator_double_free_detection_survives_the_contract() {
 /// Cost-aware admission must run short commands directly and still cache commands that repay.
 #[test]
 fn auto_admission_skips_short_commands_and_caches_expensive_ones() {
+    let _serial = COMPILER_TIMING_LOCK.lock().unwrap();
     let temporary = tempfile::tempdir().unwrap();
     let small = temporary.path().join("small.txt");
     fs::write(&small, "alpha\n".repeat(1000)).unwrap();

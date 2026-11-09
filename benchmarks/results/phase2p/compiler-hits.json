@@ -1,0 +1,894 @@
+{
+  "gcc": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "tracejit_cache_env": "TRACEJIT_CACHE_DIR",
+  "sessions": [
+    {
+      "session": 1,
+      "layout": "out-of-tree",
+      "rows": [
+        {
+          "project": "zlib",
+          "file": "compress.c",
+          "native_ms": 42.7,
+          "tracejit_cold_ms": 298.04,
+          "tracejit_hit_ms": 70.96,
+          "ccache_warm_ms": 3.05,
+          "sccache_warm_ms": 6.51,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "zlib",
+          "file": "adler32.c",
+          "native_ms": 73.81,
+          "tracejit_cold_ms": 305.93,
+          "tracejit_hit_ms": 69.34,
+          "ccache_warm_ms": 3.61,
+          "sccache_warm_ms": 9.64,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "zlib",
+          "file": "crc32.c",
+          "native_ms": 113.0,
+          "tracejit_cold_ms": 402.06,
+          "tracejit_hit_ms": 71.51,
+          "ccache_warm_ms": 3.34,
+          "sccache_warm_ms": 7.91,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "zlib",
+          "file": "trees.c",
+          "native_ms": 252.18,
+          "tracejit_cold_ms": 505.93,
+          "tracejit_hit_ms": 73.58,
+          "ccache_warm_ms": 3.89,
+          "sccache_warm_ms": 8.35,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "zlib",
+          "file": "inflate.c",
+          "native_ms": 411.09,
+          "tracejit_cold_ms": 712.25,
+          "tracejit_hit_ms": 69.24,
+          "ccache_warm_ms": 3.88,
+          "sccache_warm_ms": 7.16,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "zlib",
+          "file": "deflate.c",
+          "native_ms": 429.33,
+          "tracejit_cold_ms": 723.63,
+          "tracejit_hit_ms": 76.92,
+          "ccache_warm_ms": 3.86,
+          "sccache_warm_ms": 8.37,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "lz4",
+          "file": "lz4.c",
+          "native_ms": 2204.47,
+          "tracejit_cold_ms": 2770.86,
+          "tracejit_hit_ms": 72.77,
+          "ccache_warm_ms": 4.11,
+          "sccache_warm_ms": 9.34,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "lz4",
+          "file": "lz4hc.c",
+          "native_ms": 2095.09,
+          "tracejit_cold_ms": 2659.36,
+          "tracejit_hit_ms": 68.89,
+          "ccache_warm_ms": 5.69,
+          "sccache_warm_ms": 118.86,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "lz4",
+          "file": "xxhash.c",
+          "native_ms": 225.24,
+          "tracejit_cold_ms": 622.35,
+          "tracejit_hit_ms": 136.9,
+          "ccache_warm_ms": 3.95,
+          "sccache_warm_ms": 7.22,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        }
+      ]
+    },
+    {
+      "session": 1,
+      "layout": "in-tree",
+      "rows": [
+        {
+          "project": "zlib",
+          "file": "compress.c",
+          "native_ms": 34.35,
+          "tracejit_cold_ms": 277.54,
+          "tracejit_hit_ms": 62.92,
+          "ccache_warm_ms": 3.72,
+          "sccache_warm_ms": 14.22,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "zlib",
+          "file": "adler32.c",
+          "native_ms": 74.81,
+          "tracejit_cold_ms": 376.84,
+          "tracejit_hit_ms": 71.57,
+          "ccache_warm_ms": 3.68,
+          "sccache_warm_ms": 10.58,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "zlib",
+          "file": "crc32.c",
+          "native_ms": 115.43,
+          "tracejit_cold_ms": 403.05,
+          "tracejit_hit_ms": 66.64,
+          "ccache_warm_ms": 3.9,
+          "sccache_warm_ms": 10.13,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "zlib",
+          "file": "trees.c",
+          "native_ms": 266.59,
+          "tracejit_cold_ms": 498.84,
+          "tracejit_hit_ms": 72.83,
+          "ccache_warm_ms": 4.22,
+          "sccache_warm_ms": 39.96,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "zlib",
+          "file": "inflate.c",
+          "native_ms": 418.85,
+          "tracejit_cold_ms": 735.48,
+          "tracejit_hit_ms": 73.65,
+          "ccache_warm_ms": 4.22,
+          "sccache_warm_ms": 10.28,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "zlib",
+          "file": "deflate.c",
+          "native_ms": 431.7,
+          "tracejit_cold_ms": 711.4,
+          "tracejit_hit_ms": 68.93,
+          "ccache_warm_ms": 4.2,
+          "sccache_warm_ms": 8.71,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "lz4",
+          "file": "lz4.c",
+          "native_ms": 2204.81,
+          "tracejit_cold_ms": 2554.64,
+          "tracejit_hit_ms": 68.15,
+          "ccache_warm_ms": 3.99,
+          "sccache_warm_ms": 7.38,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "lz4",
+          "file": "lz4hc.c",
+          "native_ms": 2097.68,
+          "tracejit_cold_ms": 2450.57,
+          "tracejit_hit_ms": 73.79,
+          "ccache_warm_ms": 4.06,
+          "sccache_warm_ms": 7.61,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "lz4",
+          "file": "xxhash.c",
+          "native_ms": 207.38,
+          "tracejit_cold_ms": 551.12,
+          "tracejit_hit_ms": 71.87,
+          "ccache_warm_ms": 3.36,
+          "sccache_warm_ms": 6.54,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        }
+      ]
+    },
+    {
+      "session": 2,
+      "layout": "out-of-tree",
+      "rows": [
+        {
+          "project": "lz4",
+          "file": "xxhash.c",
+          "native_ms": 226.33,
+          "tracejit_cold_ms": 545.88,
+          "tracejit_hit_ms": 71.78,
+          "ccache_warm_ms": 3.76,
+          "sccache_warm_ms": 7.37,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "lz4",
+          "file": "lz4hc.c",
+          "native_ms": 2009.83,
+          "tracejit_cold_ms": 2392.69,
+          "tracejit_hit_ms": 72.62,
+          "ccache_warm_ms": 5.66,
+          "sccache_warm_ms": 8.71,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "lz4",
+          "file": "lz4.c",
+          "native_ms": 2187.07,
+          "tracejit_cold_ms": 2525.36,
+          "tracejit_hit_ms": 101.95,
+          "ccache_warm_ms": 3.96,
+          "sccache_warm_ms": 16.58,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "zlib",
+          "file": "deflate.c",
+          "native_ms": 432.41,
+          "tracejit_cold_ms": 746.35,
+          "tracejit_hit_ms": 413.83,
+          "ccache_warm_ms": 4.01,
+          "sccache_warm_ms": 7.51,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Ineligible",
+            "classification": "Nondeterministic",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "zlib",
+          "file": "inflate.c",
+          "native_ms": 407.77,
+          "tracejit_cold_ms": 682.96,
+          "tracejit_hit_ms": 79.07,
+          "ccache_warm_ms": 3.92,
+          "sccache_warm_ms": 7.18,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "zlib",
+          "file": "trees.c",
+          "native_ms": 265.87,
+          "tracejit_cold_ms": 983.43,
+          "tracejit_hit_ms": 334.31,
+          "ccache_warm_ms": 3.44,
+          "sccache_warm_ms": 13.31,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "zlib",
+          "file": "crc32.c",
+          "native_ms": 114.55,
+          "tracejit_cold_ms": 430.33,
+          "tracejit_hit_ms": 77.73,
+          "ccache_warm_ms": 4.02,
+          "sccache_warm_ms": 9.23,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "zlib",
+          "file": "adler32.c",
+          "native_ms": 78.08,
+          "tracejit_cold_ms": 388.02,
+          "tracejit_hit_ms": 79.46,
+          "ccache_warm_ms": 4.41,
+          "sccache_warm_ms": 8.23,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "zlib",
+          "file": "compress.c",
+          "native_ms": 41.05,
+          "tracejit_cold_ms": 272.0,
+          "tracejit_hit_ms": 62.45,
+          "ccache_warm_ms": 3.43,
+          "sccache_warm_ms": 6.52,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        }
+      ]
+    },
+    {
+      "session": 2,
+      "layout": "in-tree",
+      "rows": [
+        {
+          "project": "lz4",
+          "file": "xxhash.c",
+          "native_ms": 217.57,
+          "tracejit_cold_ms": 476.26,
+          "tracejit_hit_ms": 64.39,
+          "ccache_warm_ms": 3.84,
+          "sccache_warm_ms": 7.42,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "lz4",
+          "file": "lz4hc.c",
+          "native_ms": 1995.11,
+          "tracejit_cold_ms": 2250.57,
+          "tracejit_hit_ms": 70.15,
+          "ccache_warm_ms": 3.97,
+          "sccache_warm_ms": 8.41,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "lz4",
+          "file": "lz4.c",
+          "native_ms": 2207.97,
+          "tracejit_cold_ms": 2606.97,
+          "tracejit_hit_ms": 76.13,
+          "ccache_warm_ms": 4.82,
+          "sccache_warm_ms": 8.28,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "zlib",
+          "file": "deflate.c",
+          "native_ms": 419.41,
+          "tracejit_cold_ms": 691.89,
+          "tracejit_hit_ms": 396.69,
+          "ccache_warm_ms": 4.76,
+          "sccache_warm_ms": 8.63,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "zlib",
+          "file": "inflate.c",
+          "native_ms": 428.57,
+          "tracejit_cold_ms": 683.33,
+          "tracejit_hit_ms": 67.66,
+          "ccache_warm_ms": 4.07,
+          "sccache_warm_ms": 6.76,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "zlib",
+          "file": "trees.c",
+          "native_ms": 243.79,
+          "tracejit_cold_ms": 492.81,
+          "tracejit_hit_ms": 65.8,
+          "ccache_warm_ms": 5.49,
+          "sccache_warm_ms": 7.84,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "zlib",
+          "file": "crc32.c",
+          "native_ms": 112.98,
+          "tracejit_cold_ms": 357.73,
+          "tracejit_hit_ms": 67.71,
+          "ccache_warm_ms": 3.99,
+          "sccache_warm_ms": 9.33,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "zlib",
+          "file": "adler32.c",
+          "native_ms": 78.26,
+          "tracejit_cold_ms": 305.91,
+          "tracejit_hit_ms": 63.95,
+          "ccache_warm_ms": 3.63,
+          "sccache_warm_ms": 6.58,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        },
+        {
+          "project": "zlib",
+          "file": "compress.c",
+          "native_ms": 29.84,
+          "tracejit_cold_ms": 265.19,
+          "tracejit_hit_ms": 65.68,
+          "ccache_warm_ms": 3.56,
+          "sccache_warm_ms": 8.88,
+          "cold_decision": {
+            "kind": "Executed",
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "hit_decision": {
+            "kind": "Reused",
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "guard_failure": null,
+            "stdout": null
+          },
+          "artifact_match": true
+        }
+      ]
+    }
+  ]
+}
