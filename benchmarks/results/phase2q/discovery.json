@@ -1,0 +1,788 @@
+[
+  {
+    "artifacts_match_native": null,
+    "category": "compression",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 112.78,
+    "command": [
+      "gzip",
+      "-9",
+      "-k",
+      "-f",
+      "big.txt"
+    ],
+    "first_refusal": [
+      "process read randomness via getrandom"
+    ],
+    "name": "gzip_text",
+    "native_ms": 70.49,
+    "native_outputs": {
+      "big.txt.gz": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "f31e36cabd18cf9f4d64a32ac21abd13a0c38b26d5cbdb9e73d0ca354a58bc23"
+      }
+    },
+    "reuse_frequency": "high in asset/log pipelines",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 87.16,
+    "warm_outputs": {
+      "big.txt.gz": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "f31e36cabd18cf9f4d64a32ac21abd13a0c38b26d5cbdb9e73d0ca354a58bc23"
+      }
+    },
+    "warm_reasons": [
+      "failed filesystem effect is not guardable: /tmp/tjq/discovery/work/big.txt.gz (errno 17)"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "compression",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 2053.27,
+    "command": [
+      "xz",
+      "-6",
+      "-k",
+      "-f",
+      "big.txt"
+    ],
+    "first_refusal": [
+      "failed filesystem effect is not guardable: /tmp/tjq/discovery/work/big.txt.xz (errno 2)"
+    ],
+    "name": "xz_text",
+    "native_ms": 1867.86,
+    "native_outputs": {
+      "big.txt.xz": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "d97fce9b92824ddf25ee555de2f75b0b77c5d3e46c9305329a1b78914a4e7f08"
+      }
+    },
+    "reuse_frequency": "medium; release artifact packaging",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 1949.77,
+    "warm_outputs": {
+      "big.txt.xz": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "d97fce9b92824ddf25ee555de2f75b0b77c5d3e46c9305329a1b78914a4e7f08"
+      }
+    },
+    "warm_reasons": [
+      "process read randomness via getrandom",
+      "process read system information via sysinfo",
+      "process read system clock: monotonic"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "compression",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 672.87,
+    "command": [
+      "bzip2",
+      "-9",
+      "-k",
+      "-f",
+      "big.txt"
+    ],
+    "first_refusal": [
+      "process read randomness via getrandom"
+    ],
+    "name": "bzip2_text",
+    "native_ms": 527.68,
+    "native_outputs": {
+      "big.txt.bz2": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "1fed72bf575d68607a308a67742e9e9ac452286e33491ff1e4c1f6a94d80394e"
+      }
+    },
+    "reuse_frequency": "low-medium",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 618.54,
+    "warm_outputs": {
+      "big.txt.bz2": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "1fed72bf575d68607a308a67742e9e9ac452286e33491ff1e4c1f6a94d80394e"
+      }
+    },
+    "warm_reasons": [
+      "process read randomness via getrandom"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "archive",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 108.2,
+    "command": [
+      "tar",
+      "-cf",
+      "tree.tar",
+      "tree"
+    ],
+    "first_refusal": [
+      "process read randomness via getrandom",
+      "process read system clock: realtime",
+      "process wrote network: failed socket control (errno 2)"
+    ],
+    "name": "tar_tree",
+    "native_ms": 6.08,
+    "native_outputs": {
+      "tree.tar": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "fb7aae4f3cc486c1d154448b5906740c04c89d1ad340cae6ad71ca7b1c9e978d"
+      }
+    },
+    "reuse_frequency": "high in packaging",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 99.71,
+    "warm_outputs": {
+      "tree.tar": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "fb7aae4f3cc486c1d154448b5906740c04c89d1ad340cae6ad71ca7b1c9e978d"
+      }
+    },
+    "warm_reasons": [
+      "process read randomness via getrandom",
+      "process read system clock: realtime",
+      "process wrote network: failed socket control (errno 2)"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "archive",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 153.72,
+    "command": [
+      "zip",
+      "-q",
+      "-r",
+      "-X",
+      "tree.zip",
+      "tree"
+    ],
+    "first_refusal": [
+      "process read randomness via getrandom",
+      "process read system clock: monotonic"
+    ],
+    "name": "zip_tree",
+    "native_ms": 9.04,
+    "native_outputs": {
+      "tree.zip": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "73d6e833536f11b62d8006494b748452b9f51a61b4693424e061f6f50521311f"
+      }
+    },
+    "reuse_frequency": "high in release pipelines",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 157.18,
+    "warm_outputs": {
+      "tree.zip": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "73d6e833536f11b62d8006494b748452b9f51a61b4693424e061f6f50521311f"
+      }
+    },
+    "warm_reasons": [
+      "process read randomness via getrandom",
+      "process read system clock: monotonic"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "data preprocessing",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 184.53,
+    "command": [
+      "sort",
+      "-S",
+      "256M",
+      "-o",
+      "sorted.txt",
+      "big.txt"
+    ],
+    "first_refusal": [
+      "process read randomness via getrandom",
+      "process read system information via sched_getaffinity"
+    ],
+    "name": "sort_text",
+    "native_ms": 62.76,
+    "native_outputs": {
+      "sorted.txt": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "5a3ac19673c21aa4cfacf0ff03ff702d5b1f44c63ea9478797db0275ebb2fdc0"
+      }
+    },
+    "reuse_frequency": "high in ETL loops",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 188.43,
+    "warm_outputs": {
+      "sorted.txt": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "5a3ac19673c21aa4cfacf0ff03ff702d5b1f44c63ea9478797db0275ebb2fdc0"
+      }
+    },
+    "warm_reasons": [
+      "process read randomness via getrandom",
+      "process read system information via sched_getaffinity"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "data preprocessing",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 299.74,
+    "command": [
+      "sh",
+      "-c",
+      "jq -c '.[] | {id: .id, v: (.v * 2)}' big.json > out.json"
+    ],
+    "first_refusal": [
+      "process read process identity via getpid",
+      "process read randomness via getrandom",
+      "process read process identity via getppid"
+    ],
+    "name": "jq_transform",
+    "native_ms": 183.66,
+    "native_outputs": {
+      "out.json": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "2807e5625669d84406f3fdbfff6e4eff66a740b86ec4d0a2940731b43c2ae483"
+      }
+    },
+    "reuse_frequency": "high; repeated report generation",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 277.15,
+    "warm_outputs": {
+      "out.json": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "2807e5625669d84406f3fdbfff6e4eff66a740b86ec4d0a2940731b43c2ae483"
+      }
+    },
+    "warm_reasons": [
+      "process read process identity via getpid",
+      "process read randomness via getrandom",
+      "process read process identity via getppid"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "static analysis",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 64.31,
+    "command": [
+      "sh",
+      "-c",
+      "objdump -d prog > prog.dis"
+    ],
+    "first_refusal": [
+      "process read process identity via getpid",
+      "process read randomness via getrandom",
+      "process read process identity via getppid",
+      "process read system information via prlimit64"
+    ],
+    "name": "objdump_disassembly",
+    "native_ms": 10.32,
+    "native_outputs": {
+      "prog.dis": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "ce6108c79a6add777217e5eca83afdbeb43c40b7f1d3b6b2546d162b855f6031"
+      }
+    },
+    "reuse_frequency": "medium; repeated binary inspection",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 50.6,
+    "warm_outputs": {
+      "prog.dis": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "ce6108c79a6add777217e5eca83afdbeb43c40b7f1d3b6b2546d162b855f6031"
+      }
+    },
+    "warm_reasons": [
+      "process read process identity via getpid",
+      "process read randomness via getrandom",
+      "process read process identity via getppid",
+      "process read system information via prlimit64"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "static analysis",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 44.94,
+    "command": [
+      "sh",
+      "-c",
+      "nm -S --size-sort prog > prog.nm"
+    ],
+    "first_refusal": [
+      "process read process identity via getpid",
+      "process read randomness via getrandom",
+      "process read process identity via getppid",
+      "process read system information via prlimit64"
+    ],
+    "name": "nm_symbols",
+    "native_ms": 4.75,
+    "native_outputs": {
+      "prog.nm": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "053a7adc0984a0fbd33e439a34e80ee4a93a57ae46d1e188c6e214f8029ed9b0"
+      }
+    },
+    "reuse_frequency": "medium",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 42.34,
+    "warm_outputs": {
+      "prog.nm": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "053a7adc0984a0fbd33e439a34e80ee4a93a57ae46d1e188c6e214f8029ed9b0"
+      }
+    },
+    "warm_reasons": [
+      "process read process identity via getpid",
+      "process read randomness via getrandom",
+      "process read process identity via getppid",
+      "process read system information via prlimit64"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "static analysis",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 43.27,
+    "command": [
+      "sh",
+      "-c",
+      "readelf -a prog > prog.re"
+    ],
+    "first_refusal": [
+      "process read process identity via getpid",
+      "process read randomness via getrandom",
+      "process read process identity via getppid"
+    ],
+    "name": "readelf_headers",
+    "native_ms": 3.75,
+    "native_outputs": {
+      "prog.re": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "98e4a99712d4572c106bc7625722b4d7c7e2de16188e97863f228ef6cdc29cb4"
+      }
+    },
+    "reuse_frequency": "medium",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 37.27,
+    "warm_outputs": {
+      "prog.re": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "98e4a99712d4572c106bc7625722b4d7c7e2de16188e97863f228ef6cdc29cb4"
+      }
+    },
+    "warm_reasons": [
+      "process read process identity via getpid",
+      "process read randomness via getrandom",
+      "process read process identity via getppid"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "asset pipeline",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 42.38,
+    "command": [
+      "strip",
+      "-o",
+      "prog.stripped",
+      "prog"
+    ],
+    "first_refusal": [
+      "process read randomness via getrandom",
+      "process read system information via prlimit64"
+    ],
+    "name": "strip_binary",
+    "native_ms": 2.98,
+    "native_outputs": {
+      "prog.stripped": {
+        "kind": "file",
+        "mode": "0o755",
+        "sha256": "d71bb95a4b46ab949e410bd80b1aa0bbecb5ae84e797b7bfdce90a098b4e6910"
+      }
+    },
+    "reuse_frequency": "high in packaging",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 30.26,
+    "warm_outputs": {
+      "prog.stripped": {
+        "kind": "file",
+        "mode": "0o755",
+        "sha256": "d71bb95a4b46ab949e410bd80b1aa0bbecb5ae84e797b7bfdce90a098b4e6910"
+      }
+    },
+    "warm_reasons": [
+      "process read randomness via getrandom",
+      "process read system information via prlimit64"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "asset pipeline",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 37.36,
+    "command": [
+      "objcopy",
+      "-O",
+      "binary",
+      "prog",
+      "prog.bin"
+    ],
+    "first_refusal": [
+      "process read randomness via getrandom",
+      "process read system information via prlimit64"
+    ],
+    "name": "objcopy_raw",
+    "native_ms": 2.31,
+    "native_outputs": {
+      "prog.bin": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "8784a9d1767e48bb576774da5ac219cfa05162579ca37907984ed96b23f90de6"
+      }
+    },
+    "reuse_frequency": "medium; firmware builds",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 27.75,
+    "warm_outputs": {
+      "prog.bin": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "8784a9d1767e48bb576774da5ac219cfa05162579ca37907984ed96b23f90de6"
+      }
+    },
+    "warm_reasons": [
+      "process read randomness via getrandom",
+      "process read system information via prlimit64"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "code generation",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 298.73,
+    "command": [
+      "python3",
+      "-m",
+      "compileall",
+      "-q",
+      "-f",
+      "pkg"
+    ],
+    "first_refusal": [
+      "process read process identity via getpid",
+      "process read randomness via getrandom",
+      "process read process identity via getppid",
+      "process read system clock: monotonic",
+      "process read process identity via gettid",
+      "process read system clock: realtime",
+      "non-file output cannot be restored: /tmp/tjq/discovery/work/pkg/__pycache__"
+    ],
+    "name": "python_compileall",
+    "native_ms": 54.24,
+    "native_outputs": {
+      "pkg/__pycache__": {
+        "kind": "dir",
+        "mode": "0o755",
+        "sha256": "9620a8a82f17026374e9d3bd5686254191cf105824836cd619b88232822e9ba7"
+      }
+    },
+    "reuse_frequency": "high in Python CI",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 262.73,
+    "warm_outputs": {
+      "pkg/__pycache__": {
+        "kind": "dir",
+        "mode": "0o755",
+        "sha256": "9620a8a82f17026374e9d3bd5686254191cf105824836cd619b88232822e9ba7"
+      }
+    },
+    "warm_reasons": [
+      "process read process identity via getpid",
+      "process read randomness via getrandom",
+      "process read process identity via getppid",
+      "process read system clock: monotonic",
+      "process read process identity via gettid",
+      "process read system clock: realtime"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "code generation",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 367.55,
+    "command": [
+      "python3",
+      "transform.py",
+      "big.json",
+      "script-out.json"
+    ],
+    "first_refusal": [
+      "process read process identity via getpid",
+      "process read randomness via getrandom",
+      "process read process identity via getppid",
+      "process read system clock: monotonic",
+      "process read process identity via gettid",
+      "process read system clock: realtime"
+    ],
+    "name": "python_json_script",
+    "native_ms": 225.45,
+    "native_outputs": {
+      "script-out.json": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "271001ae55f54b669c322d35a47417ea0d085c55a351005e23e50e80caa483a0"
+      }
+    },
+    "reuse_frequency": "high; build scripts",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 377.83,
+    "warm_outputs": {
+      "script-out.json": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "271001ae55f54b669c322d35a47417ea0d085c55a351005e23e50e80caa483a0"
+      }
+    },
+    "warm_reasons": [
+      "process read process identity via getpid",
+      "process read randomness via getrandom",
+      "process read process identity via getppid",
+      "process read system clock: monotonic",
+      "process read process identity via gettid",
+      "process read system clock: realtime"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "compiler reference",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 888.9,
+    "command": [
+      "gcc",
+      "-O2",
+      "-Isrc",
+      "-c",
+      "src/a.c",
+      "-o",
+      "a.o"
+    ],
+    "first_refusal": [
+      "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffd5b80ea40, 0x7ffd5b80efd8, 0x7ffd5b80eb90, 0x0, 0x7f8ccc1d3380]"
+    ],
+    "name": "gcc_compile",
+    "native_ms": 730.09,
+    "native_outputs": {
+      "a.o": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "4b569a2d55739814bbdb0b01e56b5913afe6bc3de28428ecdee29d2840cb190e"
+      }
+    },
+    "reuse_frequency": "reference; Phase 2P measured",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 890.67,
+    "warm_outputs": {
+      "a.o": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "4b569a2d55739814bbdb0b01e56b5913afe6bc3de28428ecdee29d2840cb190e"
+      }
+    },
+    "warm_reasons": [
+      "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffffc9fe650, 0x7ffffc9febe8, 0x7ffffc9fe7a0, 0x0, 0x7fa02b435380]"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "large-file transformation",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 222.08,
+    "command": [
+      "sh",
+      "-c",
+      "awk '{print NR, $0}' big.txt > awk.txt"
+    ],
+    "first_refusal": [
+      "process read process identity via getpid",
+      "process read randomness via getrandom",
+      "process read process identity via getppid",
+      "process read system clock: realtime"
+    ],
+    "name": "awk_transform",
+    "native_ms": 26.28,
+    "native_outputs": {
+      "awk.txt": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "fd04bb39511b86639c5d8c057b44b53ab560c25dcab2b0569269389a576fb5df"
+      }
+    },
+    "reuse_frequency": "medium; one-off but large",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 175.6,
+    "warm_outputs": {
+      "awk.txt": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "fd04bb39511b86639c5d8c057b44b53ab560c25dcab2b0569269389a576fb5df"
+      }
+    },
+    "warm_reasons": [
+      "process read process identity via getpid",
+      "process read randomness via getrandom",
+      "process read process identity via getppid",
+      "process read system clock: realtime"
+    ]
+  },
+  {
+    "artifacts_match_native": null,
+    "category": "large-file transformation",
+    "changed_decision": "Ineligible",
+    "cold_decision": "Ineligible",
+    "cold_kind": "Executed",
+    "cold_ms": 225.43,
+    "command": [
+      "sh",
+      "-c",
+      "sed 's/alpha/omega/g' big.txt > sed.txt"
+    ],
+    "first_refusal": [
+      "process read process identity via getpid",
+      "process read randomness via getrandom",
+      "process read process identity via getppid"
+    ],
+    "name": "sed_transform",
+    "native_ms": 54.32,
+    "native_outputs": {
+      "sed.txt": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "ee94157af07cd7dba5fd4854ce16aec65c98455ff5b046bf8180fbb1d1366e39"
+      }
+    },
+    "reuse_frequency": "medium",
+    "status": "measured",
+    "warm_decision": "Ineligible",
+    "warm_guard_failure": null,
+    "warm_kind": "Executed",
+    "warm_ms": 219.42,
+    "warm_outputs": {
+      "sed.txt": {
+        "kind": "file",
+        "mode": "0o644",
+        "sha256": "ee94157af07cd7dba5fd4854ce16aec65c98455ff5b046bf8180fbb1d1366e39"
+      }
+    },
+    "warm_reasons": [
+      "process read process identity via getpid",
+      "process read randomness via getrandom",
+      "process read process identity via getppid"
+    ]
+  }
+]

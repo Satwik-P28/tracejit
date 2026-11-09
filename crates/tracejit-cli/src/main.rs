@@ -692,6 +692,10 @@ mod tests {
                 kind: OutputKind::File,
                 content: None,
                 unix_mode: None,
+                unix_uid: None,
+                unix_gid: None,
+                unix_accessed_ns: None,
+                unix_modified_ns: None,
                 allows_create: true,
             }),
             "WRITE output.bin"

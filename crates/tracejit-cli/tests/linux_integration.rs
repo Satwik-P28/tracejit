@@ -147,6 +147,223 @@ fn un_audited_program_does_not_reuse_across_its_output_presence_change() {
     );
 }
 
+/// A reused compilation must leave the same filesystem effects as a native one.
+///
+/// The compiler replaces its output directory entry rather than truncating an existing inode, so a
+/// pre-existing file's bytes, mode, hard links and extended attributes must not survive a native
+/// run. Reuse is only sound if restoration reproduces that outcome, which is measured here against
+/// a direct GCC run with identical pre-state.
+#[test]
+fn output_prestate_reuse_matches_native_filesystem_effects() {
+    let _serial = COMPILER_TIMING_LOCK.lock().unwrap();
+    use std::os::unix::fs::PermissionsExt;
+    let temporary = tempfile::tempdir().unwrap();
+    let source = temporary.path().join("effect.c");
+    fs::write(&source, "int effect(int x) { return x * 3 + 1; }\n").unwrap();
+    let cache = temporary.path().join("cache");
+    let output = temporary.path().join("effect.o");
+    let other = temporary.path().join("other.bin");
+    let args = [
+        "run",
+        "--contract",
+        "compiler-runtime-v1",
+        "--json",
+        "--",
+        "gcc",
+        "-O2",
+        "-c",
+        source.to_str().unwrap(),
+        "-o",
+        output.to_str().unwrap(),
+    ];
+    let cold = invoke(&cache, &args, None);
+    assert!(
+        cold.status.success(),
+        "{}",
+        String::from_utf8_lossy(&cold.stderr)
+    );
+
+    let stage_prestate = || {
+        let _ = fs::remove_file(&other);
+        fs::write(&output, b"stale object\n").unwrap();
+        let mut permissions = fs::metadata(&output).unwrap().permissions();
+        permissions.set_mode(0o600);
+        fs::set_permissions(&output, permissions).unwrap();
+        fs::hard_link(&output, &other).unwrap();
+    };
+    stage_prestate();
+    let warm = invoke(&cache, &args, None);
+    let report: Value = serde_json::from_slice(&warm.stdout).unwrap();
+    let decision = report["cache_decision"]
+        .as_str()
+        .unwrap_or("Executed")
+        .to_string();
+    let reused_bytes = fs::read(&output).unwrap();
+    let reused_mode = fs::metadata(&output).unwrap().permissions().mode() & 0o7777;
+    let reused_other = fs::read(&other).unwrap();
+
+    stage_prestate();
+    let native = Command::new("gcc")
+        .args([
+            "-O2",
+            "-c",
+            source.to_str().unwrap(),
+            "-o",
+            output.to_str().unwrap(),
+        ])
+        .output()
+        .unwrap();
+    assert!(native.status.success(), "native compilation failed");
+    let native_mode = fs::metadata(&output).unwrap().permissions().mode() & 0o7777;
+    assert_ne!(
+        native_mode, 0o600,
+        "native GCC keeps the old mode; the fixture is invalid"
+    );
+    assert_eq!(
+        reused_mode, native_mode,
+        "mode differs from native after {decision}"
+    );
+    assert_eq!(
+        reused_other,
+        fs::read(&other).unwrap(),
+        "hard link differs from native"
+    );
+    assert_eq!(
+        reused_bytes,
+        fs::read(&output).unwrap(),
+        "bytes differ from native"
+    );
+    if decision == "Reused" {
+        assert_ne!(
+            report["classification"], "Ineligible",
+            "a replayed run must not be classified ineligible"
+        );
+    }
+}
+
+/// A symlink or directory at the output path is not a writable regular file and must never be
+/// replaced by a cached artifact, even when the target is writable.
+#[test]
+fn output_prestate_refuses_non_file_destinations() {
+    let _serial = COMPILER_TIMING_LOCK.lock().unwrap();
+    use std::os::unix::fs::PermissionsExt;
+    let temporary = tempfile::tempdir().unwrap();
+    let source = temporary.path().join("destination.c");
+    fs::write(&source, "int destination(void) { return 9; }\n").unwrap();
+    let cache = temporary.path().join("cache");
+    let output = temporary.path().join("destination.o");
+    let target = temporary.path().join("target.bin");
+    fs::write(&target, b"target contents\n").unwrap();
+    let args = [
+        "run",
+        "--contract",
+        "compiler-runtime-v1",
+        "--json",
+        "--",
+        "gcc",
+        "-O2",
+        "-c",
+        source.to_str().unwrap(),
+        "-o",
+        output.to_str().unwrap(),
+    ];
+    assert!(
+        invoke(&cache, &args, None).status.success(),
+        "cold trace failed"
+    );
+    fs::remove_file(&output).unwrap();
+    std::os::unix::fs::symlink(&target, &output).unwrap();
+    let symlinked = invoke(&cache, &args, None);
+    let report: Value = serde_json::from_slice(&symlinked.stdout).unwrap();
+    assert_ne!(
+        report["kind"], "Reused",
+        "a symlink destination was replayed: {report}"
+    );
+    assert_eq!(fs::read(&target).unwrap(), b"target contents\n");
+    // Reuse is refused, so the real compiler ran. GCC replaces the destination entry, so the
+    // symlink becomes a regular object file exactly as it does natively; only the target matters.
+    assert!(
+        fs::symlink_metadata(&output).unwrap().file_type().is_file(),
+        "the direct run should have replaced the destination entry"
+    );
+    fs::remove_file(&output).unwrap();
+    fs::create_dir(&output).unwrap();
+    let directory = invoke(&cache, &args, None);
+    let report: Value = serde_json::from_slice(&directory.stdout).unwrap();
+    assert_ne!(
+        report["kind"], "Reused",
+        "a directory destination was replayed: {report}"
+    );
+    let mut permissions = fs::metadata(&output).unwrap().permissions();
+    permissions.set_mode(0o755);
+    fs::set_permissions(&output, permissions).unwrap();
+}
+
+/// A program that writes, chmods and utimensats its output must reuse with the same metadata.
+///
+/// `fchmod`, `fchown`, `utimensat` and `ftruncate` were unmodeled, so every metadata-preserving
+/// tool (gzip, xz, bzip2, sort -o) was ineligible. This probe has no randomness: it exercises the
+/// new effects and the artifact metadata replay end to end.
+#[test]
+fn metadata_preserving_program_reuses_and_replays_mode_and_times() {
+    let _serial = COMPILER_TIMING_LOCK.lock().unwrap();
+    use std::os::unix::fs::{MetadataExt, PermissionsExt};
+    let temporary = tempfile::tempdir().unwrap();
+    let source = temporary.path().join("metadata.c");
+    fs::write(
+        &source,
+        "#include <fcntl.h>\n#include <sys/stat.h>\n#include <time.h>\n#include <unistd.h>\n\
+         int main(int argc, char **argv) {\n\
+             int fd = open(argv[1], O_CREAT | O_WRONLY | O_TRUNC, 0644);\n\
+             if (fd < 0) return 1;\n\
+             if (write(fd, \"payload\\n\", 8) != 8) return 1;\n\
+             close(fd);\n\
+             struct timespec times[2] = {{1000000, 0}, {1000000, 0}};\n\
+             if (utimensat(AT_FDCWD, argv[1], times, 0) != 0) return 1;\n\
+             return chmod(argv[1], 0600);\n\
+         }\n",
+    )
+    .unwrap();
+    let binary = temporary.path().join("metadata");
+    assert!(
+        Command::new("cc")
+            .arg("-O2")
+            .arg(&source)
+            .arg("-o")
+            .arg(&binary)
+            .status()
+            .unwrap()
+            .success(),
+        "probe compilation failed"
+    );
+    let output = temporary.path().join("out.bin");
+    let cache = temporary.path().join("cache");
+    let args = [
+        "run",
+        "--json",
+        "--",
+        binary.to_str().unwrap(),
+        output.to_str().unwrap(),
+    ];
+    let cold = invoke(&cache, &args, None);
+    assert!(
+        cold.status.success(),
+        "{}",
+        String::from_utf8_lossy(&cold.stderr)
+    );
+    let warm = invoke(&cache, &args, None);
+    let report: Value = serde_json::from_slice(&warm.stdout).unwrap();
+    assert_eq!(report["kind"], "Reused", "{report}");
+    let metadata = fs::metadata(&output).unwrap();
+    assert_eq!(metadata.permissions().mode() & 0o777, 0o600, "{report}");
+    assert_eq!(
+        metadata.mtime(),
+        1_000_000,
+        "replayed mtime must match native"
+    );
+    assert_eq!(fs::read(&output).unwrap(), b"payload\n");
+}
+
 #[test]
 fn adversarial_classification_table() {
     let temporary = tempfile::tempdir().unwrap();

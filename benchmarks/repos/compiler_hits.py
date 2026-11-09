@@ -80,7 +80,10 @@ def run_session(number, order, in_tree):
     os.makedirs(base)
     outdir = base if in_tree else os.path.join(base, "out")
     os.makedirs(outdir, exist_ok=True)
-    env = dict(os.environ, TRACEJIT_CACHE_DIR=cache)
+    # Strip the ignored legacy variable so a contaminated shell cannot point two arms at the
+    # same default cache, and require the directory the CLI is given to appear.
+    env = {key: value for key, value in os.environ.items() if key != "TRACEJIT_CACHE"}
+    env["TRACEJIT_CACHE_DIR"] = cache
     rows = []
     for unit in order:
         src = unit["src"]
@@ -112,6 +115,10 @@ def run_session(number, order, in_tree):
         subprocess.run(["sccache", "--stop-server"], env=sccache_env, capture_output=True)
         command = ["gcc", "-O2", "-I" + unit["include"], "-c", src, "-o", out]
         cold = tracejit(command, env)
+        if not os.path.isdir(cache):
+            raise RuntimeError(f"{unit['name']}: TRACEJIT_CACHE_DIR was not used")
+        if cold.get("cache_decision") == "Reused":
+            raise RuntimeError(f"{unit['name']}: a cold isolated cache reported Reused")
         cold_ms = statistics.median(timed([TJ, "run", "--contract", "compiler-runtime-v1",
                                            "--json", "--"] + command, env) for _ in range(1))
         # The first call above admitted the record; this one is the hit attempt. Re-running it

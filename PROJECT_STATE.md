@@ -465,3 +465,23 @@ ccache. **Decision: NO-GO for compiler acceleration**; the contract stays experi
 and the recommended next workload class is deterministic whole-command utilities. Tests: **116
 passing**, fmt and Clippy clean. `PROVEN` BLOCKED (`landlock no`); CI BLOCKED (unpushed). See
 `docs/audits/PHASE2P_CAUSAL_OUTPUT_DEPENDENCIES.md` and `benchmarks/results/phase2p/`.
+
+
+## Phase 2Q (base `e382877`)
+
+Output pre-state was validated against native filesystem effects: GCC replaces the destination
+entry, so stale bytes, mode, hard links and xattrs do not survive a native run either; reuse now
+matches that, and symlink/directory destinations are refused. Two tests cover it. Metadata-mutating
+syscalls (`fchmod`, `fchown`, `chmod`, `chown`, `fchmodat`, `fchownat`, `ftruncate`, `truncate`) are
+modeled as output mutations, explicit `utimensat` timestamps are replayed via artifact mode, owner
+and times, and wall-clock timestamps are refused; a probe that chmods and stamps its output reuses
+with identical mode and mtime. `umask` is treated as process-internal with the resulting mode
+captured.
+
+The 17-command discovery suite (`benchmarks/results/phase2q/discovery.json`) found **no reusable
+general workload**. Twelve candidates are stopped by `getrandom` alone (gzip, xz, bzip2, tar, zip,
+sort, jq, static-analysis tools, Python), gzip additionally by its failed `O_EXCL`/`EEXIST` probe,
+and native-mode GCC by `getrusage`. Benchmarks now assert cache isolation, strip the ignored
+`TRACEJIT_CACHE`, and record the decision, full refusal reasons and artifact hashes. **Developer
+preview: NO**; the next requirement is a bounded randomness policy, not more syscall handlers.
+Tests, fmt and Clippy pass locally. `PROVEN` BLOCKED (`landlock no`); CI BLOCKED (unpushed).

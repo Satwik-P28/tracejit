@@ -123,6 +123,12 @@ enum PendingSyscall {
     Metadata {
         path: PathBuf,
     },
+    /// A successful permission, ownership or timestamp change. It is an output mutation: replay
+    /// must reproduce the post-state metadata, and a wall-clock timestamp request is refused
+    /// because a cached value would differ from a native rerun.
+    MetadataWrite {
+        path: PathBuf,
+    },
     SymlinkMetadata {
         path: PathBuf,
     },
@@ -1137,6 +1143,47 @@ fn decode_entry(
             libc::O_CREAT | libc::O_WRONLY | libc::O_TRUNC,
             number,
         )?,
+        libc::SYS_ftruncate => resolution_for_fd(state, args[0] as i32)
+            .map(|path| PendingSyscall::MetadataWrite { path })
+            .unwrap_or_else(|| PendingSyscall::Unknown {
+                number,
+                detail: format!("truncate on unclassified fd {}", args[0]),
+            }),
+        libc::SYS_truncate => PendingSyscall::MetadataWrite {
+            path: resolve_path(pid, state, libc::AT_FDCWD, args[0])?,
+        },
+        libc::SYS_fchmod | libc::SYS_fchown => {
+            resolution_for_fd(state, args[0] as i32)
+                .map(|path| PendingSyscall::MetadataWrite { path })
+                .unwrap_or_else(|| PendingSyscall::Unknown {
+                    number,
+                    detail: format!("metadata change on unclassified fd {}", args[0]),
+                })
+        }
+        libc::SYS_chmod | libc::SYS_chown => PendingSyscall::MetadataWrite {
+            path: resolve_path(pid, state, libc::AT_FDCWD, args[0])?,
+        },
+        libc::SYS_fchmodat | libc::SYS_fchownat => PendingSyscall::MetadataWrite {
+            path: resolve_path(pid, state, args[0] as i32, args[1])?,
+        },
+        libc::SYS_utimensat => {
+            let path = if args[1] == 0 {
+                resolution_for_fd(state, args[0] as i32)
+            } else {
+                Some(resolve_path(pid, state, args[0] as i32, args[1])?)
+            };
+            match (path, utimensat_uses_wall_clock(pid, args[2])) {
+                (Some(path), false) => PendingSyscall::MetadataWrite { path },
+                (Some(_), true) => PendingSyscall::Unknown {
+                    number,
+                    detail: "utimensat timestamps come from the wall clock".into(),
+                },
+                (None, _) => PendingSyscall::Unknown {
+                    number,
+                    detail: format!("utimensat on unclassified fd {}", args[0]),
+                },
+            }
+        }
         libc::SYS_stat => PendingSyscall::Metadata {
             path: resolve_path(pid, state, libc::AT_FDCWD, args[0])?,
         },
@@ -2119,6 +2166,14 @@ fn complete_syscall(
                 path,
                 operation: FileWriteKind::CreateOrModify,
                 allows_create: Some(true),
+            })),
+        ),
+        PendingSyscall::MetadataWrite { path } => collector.push(
+            pid,
+            Effect::Write(WriteEffect::File(FileWrite {
+                path,
+                operation: FileWriteKind::CreateOrModify,
+                allows_create: Some(false),
             })),
         ),
         PendingSyscall::Dup {
@@ -3156,6 +3211,47 @@ fn write_process_bytes(pid: Pid, address: u64, bytes: &[u8]) -> Result<(), Trace
     Ok(())
 }
 
+fn resolution_for_fd(state: &ProcessState, fd: i32) -> Option<PathBuf> {
+    match state.fds.get(&fd) {
+        Some(FdState::File(path)) | Some(FdState::InheritedFile(path)) => Some(path.clone()),
+        _ => None,
+    }
+}
+
+/// A short or failed read is treated as uninspectable, so the caller refuses rather than guesses.
+fn read_tracee_bytes(pid: Pid, address: u64, length: usize) -> Option<Vec<u8>> {
+    if address == 0 {
+        return None;
+    }
+    let mut buffer = vec![0u8; length];
+    let local = libc::iovec {
+        iov_base: buffer.as_mut_ptr().cast(),
+        iov_len: length,
+    };
+    let remote = libc::iovec {
+        iov_base: address as *mut libc::c_void,
+        iov_len: length,
+    };
+    let read = unsafe { libc::process_vm_readv(pid.as_raw(), &local, 1, &remote, 1, 0) };
+    if read == length as isize {
+        Some(buffer)
+    } else {
+        None
+    }
+}
+
+/// A null times pointer means "now", and `UTIME_NOW` in either field does the same.
+fn utimensat_uses_wall_clock(pid: Pid, times: u64) -> bool {
+    let Some(bytes) = read_tracee_bytes(pid, times, 32) else {
+        return true;
+    };
+    (0..2).any(|index| {
+        let offset = index * 16 + 8;
+        let nsec = i64::from_ne_bytes(bytes[offset..offset + 8].try_into().expect("timespec"));
+        nsec == libc::UTIME_NOW
+    })
+}
+
 fn resolve_path(
     pid: Pid,
     state: &ProcessState,
@@ -3803,6 +3899,7 @@ fn is_known_internal_syscall(number: i64) -> bool {
         libc::SYS_lseek
             | libc::SYS_fadvise64
             | libc::SYS_brk
+            | libc::SYS_umask
             | libc::SYS_madvise
             | libc::SYS_futex
             | libc::SYS_arch_prctl
@@ -3838,6 +3935,7 @@ fn pending_description(pending: &PendingSyscall) -> String {
         | PendingSyscall::Chdir { path }
         | PendingSyscall::ExecAttempt { path }
         | PendingSyscall::CreateDirectory { path }
+        | PendingSyscall::MetadataWrite { path }
         | PendingSyscall::Delete { path, .. } => path.display().to_string(),
         PendingSyscall::Rename { from, to, .. } => {
             format!("rename {} to {}", from.display(), to.display())

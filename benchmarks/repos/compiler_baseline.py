@@ -42,7 +42,9 @@ def session(name, order):
     tj_cache = os.path.join(base, "tracejit")
     ccache_env = dict(os.environ, CCACHE_DIR=ccache_dir, CCACHE_MAXSIZE="2G")
     sccache_env = dict(os.environ, SCCACHE_DIR=sccache_dir)
-    tj_env = dict(os.environ, TRACEJIT_CACHE=tj_cache)
+    # `TRACEJIT_CACHE` is not read by the CLI; the Phase 2O harness used it and every arm
+    # silently shared the default cache. Assert the directory the CLI is actually given.
+    tj_env = dict(os.environ, TRACEJIT_CACHE_DIR=tj_cache)
     out = os.path.join(base, "out.o")
     rows = []
     for name_ in order:

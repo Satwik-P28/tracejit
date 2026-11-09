@@ -45,6 +45,17 @@ pub struct OutputArtifact {
     pub kind: OutputKind,
     pub content: Option<Hash>,
     pub unix_mode: Option<u32>,
+    /// Ownership and timestamps a metadata-preserving tool set on its output, replayed so a hit
+    /// has the same filesystem effects as a native run. `#[serde(default)]` keeps records written
+    /// before metadata replay readable.
+    #[serde(default)]
+    pub unix_uid: Option<u32>,
+    #[serde(default)]
+    pub unix_gid: Option<u32>,
+    #[serde(default)]
+    pub unix_accessed_ns: Option<i128>,
+    #[serde(default)]
+    pub unix_modified_ns: Option<i128>,
     pub allows_create: bool,
 }
 
@@ -437,12 +448,55 @@ impl Cache {
                     .and_then(|()| temporary.as_file().sync_all())
                     .map_err(|source| io_error(temporary.path(), source))?;
                 #[cfg(unix)]
-                if let Some(mode) = output.unix_mode {
+                {
                     use std::os::unix::fs::PermissionsExt;
-                    temporary
-                        .as_file()
-                        .set_permissions(fs::Permissions::from_mode(mode))
-                        .map_err(|source| io_error(temporary.path(), source))?;
+                    // Ownership first: chown clears setuid/setgid bits, so restoring the mode must
+                    // be the last metadata operation except for timestamps.
+                    if let (Some(uid), Some(gid)) = (output.unix_uid, output.unix_gid) {
+                        std::os::unix::fs::chown(temporary.path(), Some(uid), Some(gid))
+                            .map_err(|source| io_error(temporary.path(), source))?;
+                    }
+                    if let Some(mode) = output.unix_mode {
+                        temporary
+                            .as_file()
+                            .set_permissions(fs::Permissions::from_mode(mode))
+                            .map_err(|source| io_error(temporary.path(), source))?;
+                    }
+                    if let (Some(accessed), Some(modified)) =
+                        (output.unix_accessed_ns, output.unix_modified_ns)
+                    {
+                        let seconds =
+                            |value: i128| u64::try_from(value).map(std::time::Duration::from_nanos);
+                        let (Ok(accessed), Ok(modified)) = (seconds(accessed), seconds(modified))
+                        else {
+                            return Err(CacheError::OutputPrecondition {
+                                path: output.path.clone(),
+                                reason: "recorded timestamp is before the Unix epoch".into(),
+                            });
+                        };
+                        let accessed =
+                            std::time::UNIX_EPOCH.checked_add(accessed).ok_or_else(|| {
+                                CacheError::OutputPrecondition {
+                                    path: output.path.clone(),
+                                    reason: "recorded access time is out of range".into(),
+                                }
+                            })?;
+                        let modified =
+                            std::time::UNIX_EPOCH.checked_add(modified).ok_or_else(|| {
+                                CacheError::OutputPrecondition {
+                                    path: output.path.clone(),
+                                    reason: "recorded modification time is out of range".into(),
+                                }
+                            })?;
+                        temporary
+                            .as_file()
+                            .set_times(
+                                fs::FileTimes::new()
+                                    .set_accessed(accessed)
+                                    .set_modified(modified),
+                            )
+                            .map_err(|source| io_error(temporary.path(), source))?;
+                    }
                 }
                 Ok(StagedOutput::Content(temporary))
             }
@@ -665,28 +719,39 @@ pub fn output_from_path(
             kind: OutputKind::Deleted,
             content: None,
             unix_mode: None,
+            unix_uid: None,
+            unix_gid: None,
+            unix_accessed_ns: None,
+            unix_modified_ns: None,
             allows_create: false,
         });
     }
     let bytes = fs::read(path).map_err(|source| io_error(path, source))?;
     let content = cache.put_bytes(&bytes)?;
     #[cfg(unix)]
-    let unix_mode = {
-        use std::os::unix::fs::PermissionsExt;
-        Some(
-            fs::metadata(path)
-                .map_err(|source| io_error(path, source))?
-                .permissions()
-                .mode(),
+    let (unix_mode, unix_uid, unix_gid, unix_accessed_ns, unix_modified_ns) = {
+        use std::os::unix::fs::{MetadataExt, PermissionsExt};
+        let metadata = fs::metadata(path).map_err(|source| io_error(path, source))?;
+        (
+            Some(metadata.permissions().mode()),
+            Some(metadata.uid()),
+            Some(metadata.gid()),
+            Some(i128::from(metadata.atime()) * 1_000_000_000 + i128::from(metadata.atime_nsec())),
+            Some(i128::from(metadata.mtime()) * 1_000_000_000 + i128::from(metadata.mtime_nsec())),
         )
     };
     #[cfg(not(unix))]
-    let unix_mode = None;
+    let (unix_mode, unix_uid, unix_gid, unix_accessed_ns, unix_modified_ns) =
+        (None, None, None, None, None);
     Ok(OutputArtifact {
         path: path.to_path_buf(),
         kind: OutputKind::File,
         content: Some(content),
         unix_mode,
+        unix_uid,
+        unix_gid,
+        unix_accessed_ns,
+        unix_modified_ns,
         allows_create,
     })
 }
