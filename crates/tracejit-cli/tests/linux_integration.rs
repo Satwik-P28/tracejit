@@ -299,11 +299,12 @@ fn output_prestate_refuses_non_file_destinations() {
     fs::set_permissions(&output, permissions).unwrap();
 }
 
-/// A program that writes, chmods and utimensats its output must reuse with the same metadata.
+/// A program that creates two outputs must reuse with the same bytes, mode and times.
 ///
-/// `fchmod`, `fchown`, `utimensat` and `ftruncate` were unmodeled, so every metadata-preserving
-/// tool (gzip, xz, bzip2, sort -o) was ineligible. This probe has no randomness: it exercises the
-/// new effects and the artifact metadata replay end to end.
+/// The first output is created with `0666` under `umask(0027)`, written, `ftruncate`d to four
+/// bytes and given explicit timestamps; the second is chmodded. `fchmod`, `ftruncate`,
+/// `utimensat` and umask-derived creation were all unmodeled, so this exercises the new effects
+/// and the artifact metadata replay end to end.
 #[test]
 fn metadata_preserving_program_reuses_and_replays_mode_and_times() {
     let _serial = COMPILER_TIMING_LOCK.lock().unwrap();
@@ -312,16 +313,26 @@ fn metadata_preserving_program_reuses_and_replays_mode_and_times() {
     let source = temporary.path().join("metadata.c");
     fs::write(
         &source,
-        "#include <fcntl.h>\n#include <sys/stat.h>\n#include <time.h>\n#include <unistd.h>\n\
-         int main(int argc, char **argv) {\n\
-             int fd = open(argv[1], O_CREAT | O_WRONLY | O_TRUNC, 0644);\n\
-             if (fd < 0) return 1;\n\
-             if (write(fd, \"payload\\n\", 8) != 8) return 1;\n\
-             close(fd);\n\
-             struct timespec times[2] = {{1000000, 0}, {1000000, 0}};\n\
-             if (utimensat(AT_FDCWD, argv[1], times, 0) != 0) return 1;\n\
-             return chmod(argv[1], 0600);\n\
-         }\n",
+        r#"#include <fcntl.h>
+#include <sys/stat.h>
+#include <time.h>
+#include <unistd.h>
+int main(int argc, char **argv) {
+    umask(0027);
+    int first = open(argv[1], O_CREAT | O_WRONLY | O_TRUNC, 0666);
+    if (first < 0) return 1;
+    if (write(first, "payload\n", 8) != 8) return 1;
+    if (ftruncate(first, 4) != 0) return 1;
+    close(first);
+    struct timespec times[2] = {{1000000, 0}, {1000000, 0}};
+    if (utimensat(AT_FDCWD, argv[1], times, 0) != 0) return 1;
+    if (chmod(argv[1], 0600) != 0) return 1;
+    int second = open(argv[2], O_CREAT | O_WRONLY | O_TRUNC, 0666);
+    if (second < 0) return 1;
+    if (write(second, "second\n", 7) != 7) return 1;
+    return close(second);
+}
+"#,
     )
     .unwrap();
     let binary = temporary.path().join("metadata");
@@ -336,14 +347,16 @@ fn metadata_preserving_program_reuses_and_replays_mode_and_times() {
             .success(),
         "probe compilation failed"
     );
-    let output = temporary.path().join("out.bin");
+    let first = temporary.path().join("first.bin");
+    let second = temporary.path().join("second.bin");
     let cache = temporary.path().join("cache");
     let args = [
         "run",
         "--json",
         "--",
         binary.to_str().unwrap(),
-        output.to_str().unwrap(),
+        first.to_str().unwrap(),
+        second.to_str().unwrap(),
     ];
     let cold = invoke(&cache, &args, None);
     assert!(
@@ -354,14 +367,26 @@ fn metadata_preserving_program_reuses_and_replays_mode_and_times() {
     let warm = invoke(&cache, &args, None);
     let report: Value = serde_json::from_slice(&warm.stdout).unwrap();
     assert_eq!(report["kind"], "Reused", "{report}");
-    let metadata = fs::metadata(&output).unwrap();
-    assert_eq!(metadata.permissions().mode() & 0o777, 0o600, "{report}");
+    let first_metadata = fs::metadata(&first).unwrap();
     assert_eq!(
-        metadata.mtime(),
+        first_metadata.permissions().mode() & 0o777,
+        0o600,
+        "{report}"
+    );
+    assert_eq!(first_metadata.len(), 4, "ftruncate effect must be replayed");
+    assert_eq!(
+        first_metadata.mtime(),
         1_000_000,
         "replayed mtime must match native"
     );
-    assert_eq!(fs::read(&output).unwrap(), b"payload\n");
+    assert_eq!(fs::read(&first).unwrap(), b"payl");
+    let second_metadata = fs::metadata(&second).unwrap();
+    assert_eq!(
+        second_metadata.permissions().mode() & 0o777,
+        0o640,
+        "umask-derived creation mode must be replayed"
+    );
+    assert_eq!(fs::read(&second).unwrap(), b"second\n");
 }
 
 #[test]

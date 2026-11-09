@@ -39,6 +39,12 @@ pub enum OutputKind {
     Deleted,
 }
 
+/// Version of the on-disk output-artifact schema. Records written before metadata replay
+/// (version 0, synthesized by `serde(default)`) are not interpretable as if the absent fields
+/// meant "no metadata was observed": a hit would restore current timestamps and the temporary
+/// file's mode instead of the recorded native effects. They fail closed and are retraced.
+pub const OUTPUT_ARTIFACT_VERSION: u32 = 2;
+
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct OutputArtifact {
     pub path: PathBuf,
@@ -56,6 +62,9 @@ pub struct OutputArtifact {
     pub unix_accessed_ns: Option<i128>,
     #[serde(default)]
     pub unix_modified_ns: Option<i128>,
+    /// Schema version; 0 is a legacy record and is refused by `stage_output`.
+    #[serde(default)]
+    pub artifact_version: u32,
     pub allows_create: bool,
 }
 
@@ -428,6 +437,15 @@ impl Cache {
 
     /// Verifies one cached output and stages it without touching the destination.
     fn stage_output(&self, output: &OutputArtifact) -> Result<StagedOutput, CacheError> {
+        if output.artifact_version != OUTPUT_ARTIFACT_VERSION {
+            return Err(CacheError::OutputPrecondition {
+                path: output.path.clone(),
+                reason: format!(
+                    "output artifact schema version {} is not current ({}); retracing",
+                    output.artifact_version, OUTPUT_ARTIFACT_VERSION
+                ),
+            });
+        }
         let parent = output
             .path
             .parent()
@@ -723,11 +741,12 @@ pub fn output_from_path(
             unix_gid: None,
             unix_accessed_ns: None,
             unix_modified_ns: None,
+            artifact_version: OUTPUT_ARTIFACT_VERSION,
             allows_create: false,
         });
     }
-    let bytes = fs::read(path).map_err(|source| io_error(path, source))?;
-    let content = cache.put_bytes(&bytes)?;
+    // Capture metadata before hashing: reading the file updates its atime (subject to
+    // relatime), and the artifact must record the tool's final effects, not the cache's read.
     #[cfg(unix)]
     let (unix_mode, unix_uid, unix_gid, unix_accessed_ns, unix_modified_ns) = {
         use std::os::unix::fs::{MetadataExt, PermissionsExt};
@@ -743,6 +762,8 @@ pub fn output_from_path(
     #[cfg(not(unix))]
     let (unix_mode, unix_uid, unix_gid, unix_accessed_ns, unix_modified_ns) =
         (None, None, None, None, None);
+    let bytes = fs::read(path).map_err(|source| io_error(path, source))?;
+    let content = cache.put_bytes(&bytes)?;
     Ok(OutputArtifact {
         path: path.to_path_buf(),
         kind: OutputKind::File,
@@ -752,6 +773,7 @@ pub fn output_from_path(
         unix_gid,
         unix_accessed_ns,
         unix_modified_ns,
+        artifact_version: OUTPUT_ARTIFACT_VERSION,
         allows_create,
     })
 }
@@ -1277,6 +1299,109 @@ mod tests {
         assert_eq!(fs::read(&first).unwrap(), b"cached-a");
         assert_eq!(fs::read(&second).unwrap(), b"cached-b");
         assert_eq!(temporary_files(directory.path()), 0);
+    }
+
+    #[test]
+    fn legacy_artifact_without_a_schema_version_fails_closed() {
+        let directory = tempfile::tempdir().unwrap();
+        let cache = Cache::open(directory.path().join("cache")).unwrap();
+        let path = directory.path().join("out.txt");
+        fs::write(&path, b"user").unwrap();
+        let artifact = OutputArtifact {
+            path: path.clone(),
+            kind: OutputKind::File,
+            content: Some(cache.put_bytes(b"cached").unwrap()),
+            unix_mode: Some(0o600),
+            unix_uid: Some(0),
+            unix_gid: Some(0),
+            unix_accessed_ns: Some(1),
+            unix_modified_ns: Some(1),
+            artifact_version: OUTPUT_ARTIFACT_VERSION,
+            allows_create: true,
+        };
+        let mut encoded = serde_json::to_value(&artifact).unwrap();
+        encoded.as_object_mut().unwrap().remove("artifact_version");
+        let legacy: OutputArtifact = serde_json::from_value(encoded).unwrap();
+        assert_eq!(
+            legacy.artifact_version, 0,
+            "absent field must decode as legacy"
+        );
+        assert!(matches!(
+            cache.restore_outputs(&[legacy]),
+            Err(CacheError::OutputPrecondition { .. })
+        ));
+        assert_eq!(fs::read(&path).unwrap(), b"user");
+        assert_eq!(temporary_files(directory.path()), 0);
+    }
+
+    #[test]
+    fn metadata_replay_round_trips_mode_owner_and_times() {
+        use std::os::unix::fs::{MetadataExt, PermissionsExt};
+        let directory = tempfile::tempdir().unwrap();
+        let cache = Cache::open(directory.path().join("cache")).unwrap();
+        let path = directory.path().join("out.txt");
+        fs::write(&path, b"cached").unwrap();
+        fs::set_permissions(&path, fs::Permissions::from_mode(0o640)).unwrap();
+        let accessed = std::time::UNIX_EPOCH + std::time::Duration::from_secs(1);
+        let modified = std::time::UNIX_EPOCH + std::time::Duration::from_secs(2);
+        let file = fs::OpenOptions::new().write(true).open(&path).unwrap();
+        file.set_times(
+            fs::FileTimes::new()
+                .set_accessed(accessed)
+                .set_modified(modified),
+        )
+        .unwrap();
+        drop(file);
+        let expected = fs::metadata(&path).unwrap();
+        let artifact = output_from_path(&cache, &path, false, true).unwrap();
+        // The read performed by `output_from_path` must not leak into the recorded atime.
+        assert_eq!(artifact.unix_accessed_ns, Some(1_000_000_000));
+        fs::write(&path, b"user").unwrap();
+        cache.restore_outputs(&[artifact]).unwrap();
+        let actual = fs::metadata(&path).unwrap();
+        assert_eq!(fs::read(&path).unwrap(), b"cached");
+        assert_eq!(actual.permissions().mode() & 0o7777, 0o640);
+        assert_eq!(actual.uid(), expected.uid());
+        assert_eq!(actual.gid(), expected.gid());
+        assert_eq!(actual.atime(), 1, "accessed time must be replayed");
+        assert_eq!(actual.mtime(), 2, "modified time must be replayed");
+    }
+
+    #[test]
+    fn a_metadata_failure_leaves_the_destination_untouched() {
+        let directory = tempfile::tempdir().unwrap();
+        let cache = Cache::open(directory.path().join("cache")).unwrap();
+        let path = directory.path().join("out.txt");
+        fs::write(&path, b"cached").unwrap();
+        let mut artifact = output_from_path(&cache, &path, false, true).unwrap();
+        artifact.unix_accessed_ns = Some(-1);
+        artifact.unix_modified_ns = Some(-1);
+        fs::write(&path, b"user").unwrap();
+        assert!(matches!(
+            cache.restore_outputs(&[artifact]),
+            Err(CacheError::OutputPrecondition { .. })
+        ));
+        assert_eq!(fs::read(&path).unwrap(), b"user");
+        assert_eq!(temporary_files(directory.path()), 0);
+    }
+
+    #[test]
+    fn a_hard_linked_destination_is_refused_without_touching_either_link() {
+        let directory = tempfile::tempdir().unwrap();
+        let cache = Cache::open(directory.path().join("cache")).unwrap();
+        let path = directory.path().join("out.txt");
+        let alias = directory.path().join("alias.txt");
+        fs::write(&path, b"cached").unwrap();
+        let artifact = output_from_path(&cache, &path, false, true).unwrap();
+        fs::remove_file(&path).unwrap();
+        fs::write(&path, b"user").unwrap();
+        fs::hard_link(&path, &alias).unwrap();
+        assert!(matches!(
+            cache.restore_outputs(&[artifact]),
+            Err(CacheError::OutputPrecondition { .. })
+        ));
+        assert_eq!(fs::read(&path).unwrap(), b"user");
+        assert_eq!(fs::read(&alias).unwrap(), b"user");
     }
 
     #[test]

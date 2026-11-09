@@ -485,3 +485,22 @@ and native-mode GCC by `getrusage`. Benchmarks now assert cache isolation, strip
 `TRACEJIT_CACHE`, and record the decision, full refusal reasons and artifact hashes. **Developer
 preview: NO**; the next requirement is a bounded randomness policy, not more syscall handlers.
 Tests, fmt and Clippy pass locally. `PROVEN` BLOCKED (`landlock no`); CI BLOCKED (unpushed).
+
+
+## Phase 2R (base `0aae8c5`)
+
+The metadata audit found two latent defects, both fixed with regressions: legacy `OutputArtifact`
+records with `serde(default)` fields were silently replayed without ownership/timestamps, and
+hashing an output before capture recorded the cache's atime instead of the tool's. Artifacts now
+carry an explicit schema version (old records fail closed), metadata is captured before reading,
+and tests cover chmod/chown/truncate/umask/times, hard links, partial failure and legacy records.
+
+The 17-workload randomness matrix (`benchmarks/results/phase2r/getrandom.json`) shows all allocator
+calls are the audited `getrandom(8, GRND_NONBLOCK)` at glibc's `tcache_key` site, including child
+processes; Python's 24-byte hash seed is application randomness and stays refused. The existing
+`allocator-entropy-v1` contract matches this host's glibc build and **unlocks bzip2**: cold 627 ms,
+warm ~15 ms, byte/metadata-identical, with correct invalidation, corruption recovery and 8-way
+concurrency, 37.6x over ten repeats. gzip reuses only with the output absent; xz/sort/python/jq
+remain blocked by clocks, identity, `sysinfo`, `prlimit64` or application entropy. The EEXIST
+presence model was analysed but not implemented because it cannot yet preserve unlink semantics
+and concurrency. `PROVEN` BLOCKED (`landlock no`); CI BLOCKED (unpushed); no release.

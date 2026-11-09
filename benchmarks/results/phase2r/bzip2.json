@@ -1,0 +1,190 @@
+{
+  "cache_bytes": 335549,
+  "cache_corruption": {
+    "decision": "Deoptimized",
+    "kind": "Executed",
+    "matches_native": true,
+    "ms": 649.08,
+    "output_restored": "1fed72bf575d68607a308a67742e9e9ac452286e33491ff1e4c1f6a94d80394e",
+    "reason": "cached execution deoptimized"
+  },
+  "changed_arguments": {
+    "decision": "Executed",
+    "kind": "Executed",
+    "ms": 506.37,
+    "reason": "no eligible cached execution matched the pre-execution identity"
+  },
+  "changed_environment": {
+    "decision": "Executed",
+    "kind": "Executed",
+    "ms": 655.93,
+    "reason": "no eligible cached execution matched the pre-execution identity"
+  },
+  "changed_input": {
+    "decision": "Deoptimized",
+    "differs": true,
+    "kind": "Executed",
+    "ms": 660.8,
+    "output": {
+      "gid": 1001,
+      "mode": "0o644",
+      "mtime_ns": 1794247940000000000,
+      "sha256": "45db6941698d73912b7625400095f789f4a44ff52ea93e8046af7485381a9529",
+      "size": 201609,
+      "uid": 65822751
+    },
+    "reason": "cached execution deoptimized"
+  },
+  "cold_decision": "Executed",
+  "cold_kind": "Executed",
+  "cold_ms": 697.06,
+  "cold_output": {
+    "gid": 1001,
+    "mode": "0o644",
+    "mtime_ns": 1794247936000000000,
+    "sha256": "1fed72bf575d68607a308a67742e9e9ac452286e33491ff1e4c1f6a94d80394e",
+    "size": 201556,
+    "uid": 65822751
+  },
+  "cold_phases": null,
+  "command": [
+    "bzip2",
+    "-9",
+    "-k",
+    "-f",
+    "big.txt"
+  ],
+  "concurrent": [
+    {
+      "decision": "Reused",
+      "exit": 0,
+      "kind": "Reused",
+      "ms": 26.41,
+      "sha": "1fed72bf575d68607a308a67742e9e9ac452286e33491ff1e4c1f6a94d80394e"
+    },
+    {
+      "decision": "Reused",
+      "exit": 0,
+      "kind": "Reused",
+      "ms": 76.5,
+      "sha": "1fed72bf575d68607a308a67742e9e9ac452286e33491ff1e4c1f6a94d80394e"
+    },
+    {
+      "decision": "Reused",
+      "exit": 0,
+      "kind": "Reused",
+      "ms": 41.49,
+      "sha": "1fed72bf575d68607a308a67742e9e9ac452286e33491ff1e4c1f6a94d80394e"
+    },
+    {
+      "decision": "Reused",
+      "exit": 0,
+      "kind": "Reused",
+      "ms": 103.36,
+      "sha": "1fed72bf575d68607a308a67742e9e9ac452286e33491ff1e4c1f6a94d80394e"
+    },
+    {
+      "decision": "Reused",
+      "exit": 0,
+      "kind": "Reused",
+      "ms": 32.72,
+      "sha": "1fed72bf575d68607a308a67742e9e9ac452286e33491ff1e4c1f6a94d80394e"
+    },
+    {
+      "decision": "Reused",
+      "exit": 0,
+      "kind": "Reused",
+      "ms": 53.35,
+      "sha": "1fed72bf575d68607a308a67742e9e9ac452286e33491ff1e4c1f6a94d80394e"
+    },
+    {
+      "decision": "Reused",
+      "exit": 0,
+      "kind": "Reused",
+      "ms": 28.87,
+      "sha": "1fed72bf575d68607a308a67742e9e9ac452286e33491ff1e4c1f6a94d80394e"
+    },
+    {
+      "decision": "Reused",
+      "exit": 0,
+      "kind": "Reused",
+      "ms": 26.32,
+      "sha": "1fed72bf575d68607a308a67742e9e9ac452286e33491ff1e4c1f6a94d80394e"
+    }
+  ],
+  "contract": "allocator-entropy-v1",
+  "native_median_ms": 566.43,
+  "native_ms": [
+    521.24,
+    545.41,
+    578.98,
+    577.18,
+    566.43
+  ],
+  "native_output": {
+    "gid": 1001,
+    "mode": "0o644",
+    "mtime_ns": 1794247936000000000,
+    "sha256": "1fed72bf575d68607a308a67742e9e9ac452286e33491ff1e4c1f6a94d80394e",
+    "size": 201556,
+    "uid": 65822751
+  },
+  "phases": {},
+  "repeated": {
+    "all_reused": true,
+    "native_total_ms": 5501.94,
+    "net_ms": 5232.59,
+    "runs": 10,
+    "speedup": 20.43,
+    "warm_total_ms": 269.35
+  },
+  "warm_median_ms": 17.21,
+  "warm_ms": [
+    21.22,
+    17.13,
+    17.21,
+    15.42,
+    19.74
+  ],
+  "warm_output": {
+    "gid": 1001,
+    "mode": "0o644",
+    "mtime_ns": 1794247936000000000,
+    "sha256": "1fed72bf575d68607a308a67742e9e9ac452286e33491ff1e4c1f6a94d80394e",
+    "size": 201556,
+    "uid": 65822751
+  },
+  "warm_output_matches_cold": true,
+  "warm_reports": [
+    {
+      "decision": "Reused",
+      "kind": "Reused",
+      "phases": null,
+      "reason": "all guards passed and cached outputs were restored"
+    },
+    {
+      "decision": "Reused",
+      "kind": "Reused",
+      "phases": null,
+      "reason": "all guards passed and cached outputs were restored"
+    },
+    {
+      "decision": "Reused",
+      "kind": "Reused",
+      "phases": null,
+      "reason": "all guards passed and cached outputs were restored"
+    },
+    {
+      "decision": "Reused",
+      "kind": "Reused",
+      "phases": null,
+      "reason": "all guards passed and cached outputs were restored"
+    },
+    {
+      "decision": "Reused",
+      "kind": "Reused",
+      "phases": null,
+      "reason": "all guards passed and cached outputs were restored"
+    }
+  ]
+}

@@ -696,6 +696,7 @@ mod tests {
                 unix_gid: None,
                 unix_accessed_ns: None,
                 unix_modified_ns: None,
+                artifact_version: tracejit_cache::OUTPUT_ARTIFACT_VERSION,
                 allows_create: true,
             }),
             "WRITE output.bin"

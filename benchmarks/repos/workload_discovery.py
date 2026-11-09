@@ -20,7 +20,10 @@ import time
 ROOT = "/tmp/tjq/discovery"
 TJ = os.path.abspath("target/release/tracejit")
 WORK = os.path.join(ROOT, "work")
-RESULTS = os.path.abspath("benchmarks/results/phase2q")
+CONTRACT = os.environ.get("TRACEJIT_DISCOVERY_CONTRACT")
+ADMISSION = os.environ.get("TRACEJIT_DISCOVERY_ADMISSION")
+KEEP_PRESTATE = os.environ.get("TRACEJIT_DISCOVERY_PRESTATE") == "present"
+RESULTS = os.path.abspath(os.environ.get("TRACEJIT_DISCOVERY_RESULTS", "benchmarks/results/phase2q"))
 
 CANDIDATES = [
     {
@@ -292,15 +295,21 @@ def measure(candidate):
     # glibc seeds tcache with getrandom on first allocation; that is allocator state, not an input
     # the command asked for. Disable it for both arms so the comparison is about the tool.
     env["GLIBC_TUNABLES"] = "glibc.malloc.tcache_count=0"
-    clean(candidate["outputs"])
-    cold_ms, cold_result = timed([TJ, "run", "--json", "--"] + candidate["cmd"], env)
+    if not KEEP_PRESTATE:
+        clean(candidate["outputs"])
+    tj_prefix = [TJ, "run", "--json"]
+    if CONTRACT:
+        tj_prefix += ["--contract", CONTRACT]
+    if ADMISSION:
+        tj_prefix += ["--admission", ADMISSION]
+    cold_ms, cold_result = timed(tj_prefix + ["--"] + candidate["cmd"], env)
     cold = report_of(cold_result)
     if not os.path.isdir(cache):
         return {"name": candidate["name"], "status": "cache-not-created"}
     if cold.get("cache_decision") == "Reused":
         return {"name": candidate["name"], "status": "cold-reused", "cold": cold}
 
-    warm_ms, warm_result = timed([TJ, "run", "--json", "--"] + candidate["cmd"], env)
+    warm_ms, warm_result = timed(tj_prefix + ["--"] + candidate["cmd"], env)
     warm = report_of(warm_result)
     warm_outputs = outputs_fingerprint(candidate["outputs"])
     artifacts_match = native_outputs == warm_outputs
@@ -311,7 +320,7 @@ def measure(candidate):
     original = open(changed_path, "rb").read()
     with open(changed_path, "ab") as handle:
         handle.write(b"\nphase2q-change\n")
-    changed_ms, changed_result = timed([TJ, "run", "--json", "--"] + candidate["cmd"], env)
+    changed_ms, changed_result = timed(tj_prefix + ["--"] + candidate["cmd"], env)
     changed = report_of(changed_result)
     with open(changed_path, "wb") as handle:
         handle.write(original)
@@ -324,6 +333,8 @@ def measure(candidate):
     return {
         "name": candidate["name"],
         "category": candidate["category"],
+        "contract": CONTRACT,
+        "prestate": "present" if KEEP_PRESTATE else "cleaned",
         "command": candidate["cmd"],
         "reuse_frequency": candidate["reuse_frequency"],
         "status": "measured",

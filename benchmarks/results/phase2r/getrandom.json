@@ -1,0 +1,695 @@
+{
+ "libc_build_id": "a4a7992a8e66555c8141ab2a08a8465ff6e0ea65",
+ "host_glibc": "2.39",
+ "rows": [
+  {
+   "name": "gzip_text",
+   "command": [
+    "gzip",
+    "-9",
+    "-k",
+    "-f",
+    "big.txt"
+   ],
+   "calls": 1,
+   "main_pid_calls": 1,
+   "distinct_pids": 1,
+   "lengths": [
+    8
+   ],
+   "flags": [
+    "GRND_NONBLOCK"
+   ],
+   "sites": [
+    "libc+0xa9e89"
+   ],
+   "sample": [
+    {
+     "len": 8,
+     "flags": "GRND_NONBLOCK",
+     "ret": 8,
+     "site": "libc+0xa9e89",
+     "frames": [
+      "libc.so.6(timer_settime+0x1079)",
+      "libc.so.6(malloc+0x215)",
+      "gzip()"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "xz_text",
+   "command": [
+    "xz",
+    "-6",
+    "-k",
+    "-f",
+    "big.txt"
+   ],
+   "calls": 1,
+   "main_pid_calls": 1,
+   "distinct_pids": 1,
+   "lengths": [
+    8
+   ],
+   "flags": [
+    "GRND_NONBLOCK"
+   ],
+   "sites": [
+    "libc+0xa9e89"
+   ],
+   "sample": [
+    {
+     "len": 8,
+     "flags": "GRND_NONBLOCK",
+     "ret": 8,
+     "site": "libc+0xa9e89",
+     "frames": [
+      "libc.so.6(timer_settime+0x1079)",
+      "libc.so.6(malloc+0x215)",
+      "libc.so.6(textdomain+0x6f1)"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "bzip2_text",
+   "command": [
+    "bzip2",
+    "-9",
+    "-k",
+    "-f",
+    "big.txt"
+   ],
+   "calls": 1,
+   "main_pid_calls": 1,
+   "distinct_pids": 1,
+   "lengths": [
+    8
+   ],
+   "flags": [
+    "GRND_NONBLOCK"
+   ],
+   "sites": [
+    "libc+0xa9e89"
+   ],
+   "sample": [
+    {
+     "len": 8,
+     "flags": "GRND_NONBLOCK",
+     "ret": 8,
+     "site": "libc+0xa9e89",
+     "frames": [
+      "libc.so.6(timer_settime+0x1079)",
+      "libc.so.6(malloc+0x215)",
+      "bzip2()"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "tar_tree",
+   "command": [
+    "tar",
+    "-cf",
+    "tree.tar",
+    "tree"
+   ],
+   "calls": 1,
+   "main_pid_calls": 1,
+   "distinct_pids": 1,
+   "lengths": [
+    8
+   ],
+   "flags": [
+    "GRND_NONBLOCK"
+   ],
+   "sites": [
+    "libc+0xa9e89"
+   ],
+   "sample": [
+    {
+     "len": 8,
+     "flags": "GRND_NONBLOCK",
+     "ret": 8,
+     "site": "libc+0xa9e89",
+     "frames": [
+      "libc.so.6(timer_settime+0x1079)",
+      "libc.so.6(malloc+0x215)",
+      "libc.so.6(__strdup+0x1f)"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "zip_tree",
+   "command": [
+    "zip",
+    "-q",
+    "-r",
+    "-X",
+    "tree.zip",
+    "tree"
+   ],
+   "calls": 1,
+   "main_pid_calls": 1,
+   "distinct_pids": 1,
+   "lengths": [
+    8
+   ],
+   "flags": [
+    "GRND_NONBLOCK"
+   ],
+   "sites": [
+    "libc+0xa9e89"
+   ],
+   "sample": [
+    {
+     "len": 8,
+     "flags": "GRND_NONBLOCK",
+     "ret": 8,
+     "site": "libc+0xa9e89",
+     "frames": [
+      "libc.so.6(timer_settime+0x1079)",
+      "libc.so.6(malloc+0x215)",
+      "libc.so.6(textdomain+0x6f1)"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "sort_text",
+   "command": [
+    "sort",
+    "-S",
+    "256M",
+    "-o",
+    "sorted.txt",
+    "big.txt"
+   ],
+   "calls": 1,
+   "main_pid_calls": 1,
+   "distinct_pids": 1,
+   "lengths": [
+    8
+   ],
+   "flags": [
+    "GRND_NONBLOCK"
+   ],
+   "sites": [
+    "libc+0xa9e89"
+   ],
+   "sample": [
+    {
+     "len": 8,
+     "flags": "GRND_NONBLOCK",
+     "ret": 8,
+     "site": "libc+0xa9e89",
+     "frames": [
+      "libc.so.6(timer_settime+0x1079)",
+      "libc.so.6(malloc+0x215)",
+      "libc.so.6(textdomain+0x6f1)"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "jq_transform",
+   "command": [
+    "sh",
+    "-c",
+    "jq -c '.[] | {id: .id, v: (.v * 2)}' big.json > out.json"
+   ],
+   "calls": 2,
+   "main_pid_calls": 1,
+   "distinct_pids": 2,
+   "lengths": [
+    8
+   ],
+   "flags": [
+    "GRND_NONBLOCK"
+   ],
+   "sites": [
+    "libc+0xa9e89"
+   ],
+   "sample": [
+    {
+     "len": 8,
+     "flags": "GRND_NONBLOCK",
+     "ret": 8,
+     "site": "libc+0xa9e89",
+     "frames": [
+      "libc.so.6(timer_settime+0x1079)",
+      "libc.so.6(malloc+0x215)",
+      "dash()"
+     ]
+    },
+    {
+     "len": 8,
+     "flags": "GRND_NONBLOCK",
+     "ret": 8,
+     "site": "libc+0xa9e89",
+     "frames": [
+      "libc.so.6(timer_settime+0x1079)",
+      "libc.so.6(malloc+0x215)",
+      "libc.so.6(textdomain+0x6f1)"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "objdump_disassembly",
+   "command": [
+    "sh",
+    "-c",
+    "objdump -d prog > prog.dis"
+   ],
+   "calls": 2,
+   "main_pid_calls": 1,
+   "distinct_pids": 2,
+   "lengths": [
+    8
+   ],
+   "flags": [
+    "GRND_NONBLOCK"
+   ],
+   "sites": [
+    "libc+0xa9e89"
+   ],
+   "sample": [
+    {
+     "len": 8,
+     "flags": "GRND_NONBLOCK",
+     "ret": 8,
+     "site": "libc+0xa9e89",
+     "frames": [
+      "libc.so.6(timer_settime+0x1079)",
+      "libc.so.6(malloc+0x215)",
+      "dash()"
+     ]
+    },
+    {
+     "len": 8,
+     "flags": "GRND_NONBLOCK",
+     "ret": 8,
+     "site": "libc+0xa9e89",
+     "frames": [
+      "libc.so.6(timer_settime+0x1079)",
+      "libc.so.6(malloc+0x215)",
+      "libc.so.6(textdomain+0x6f1)"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "nm_symbols",
+   "command": [
+    "sh",
+    "-c",
+    "nm -S --size-sort prog > prog.nm"
+   ],
+   "calls": 2,
+   "main_pid_calls": 1,
+   "distinct_pids": 2,
+   "lengths": [
+    8
+   ],
+   "flags": [
+    "GRND_NONBLOCK"
+   ],
+   "sites": [
+    "libc+0xa9e89"
+   ],
+   "sample": [
+    {
+     "len": 8,
+     "flags": "GRND_NONBLOCK",
+     "ret": 8,
+     "site": "libc+0xa9e89",
+     "frames": [
+      "libc.so.6(timer_settime+0x1079)",
+      "libc.so.6(malloc+0x215)",
+      "dash()"
+     ]
+    },
+    {
+     "len": 8,
+     "flags": "GRND_NONBLOCK",
+     "ret": 8,
+     "site": "libc+0xa9e89",
+     "frames": [
+      "libc.so.6(timer_settime+0x1079)",
+      "libc.so.6(malloc+0x215)",
+      "libc.so.6(textdomain+0x6f1)"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "readelf_headers",
+   "command": [
+    "sh",
+    "-c",
+    "readelf -a prog > prog.re"
+   ],
+   "calls": 2,
+   "main_pid_calls": 1,
+   "distinct_pids": 2,
+   "lengths": [
+    8
+   ],
+   "flags": [
+    "GRND_NONBLOCK"
+   ],
+   "sites": [
+    "libc+0xa9e89"
+   ],
+   "sample": [
+    {
+     "len": 8,
+     "flags": "GRND_NONBLOCK",
+     "ret": 8,
+     "site": "libc+0xa9e89",
+     "frames": [
+      "libc.so.6(timer_settime+0x1079)",
+      "libc.so.6(malloc+0x215)",
+      "dash()"
+     ]
+    },
+    {
+     "len": 8,
+     "flags": "GRND_NONBLOCK",
+     "ret": 8,
+     "site": "libc+0xa9e89",
+     "frames": [
+      "libc.so.6(timer_settime+0x1079)",
+      "libc.so.6(malloc+0x215)",
+      "libc.so.6(textdomain+0x6f1)"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "strip_binary",
+   "command": [
+    "strip",
+    "-o",
+    "prog.stripped",
+    "prog"
+   ],
+   "calls": 1,
+   "main_pid_calls": 1,
+   "distinct_pids": 1,
+   "lengths": [
+    8
+   ],
+   "flags": [
+    "GRND_NONBLOCK"
+   ],
+   "sites": [
+    "libc+0xa9e89"
+   ],
+   "sample": [
+    {
+     "len": 8,
+     "flags": "GRND_NONBLOCK",
+     "ret": 8,
+     "site": "libc+0xa9e89",
+     "frames": [
+      "libc.so.6(timer_settime+0x1079)",
+      "libc.so.6(malloc+0x215)",
+      "libc.so.6(textdomain+0x6f1)"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "objcopy_raw",
+   "command": [
+    "objcopy",
+    "-O",
+    "binary",
+    "prog",
+    "prog.bin"
+   ],
+   "calls": 1,
+   "main_pid_calls": 1,
+   "distinct_pids": 1,
+   "lengths": [
+    8
+   ],
+   "flags": [
+    "GRND_NONBLOCK"
+   ],
+   "sites": [
+    "libc+0xa9e89"
+   ],
+   "sample": [
+    {
+     "len": 8,
+     "flags": "GRND_NONBLOCK",
+     "ret": 8,
+     "site": "libc+0xa9e89",
+     "frames": [
+      "libc.so.6(timer_settime+0x1079)",
+      "libc.so.6(malloc+0x215)",
+      "libc.so.6(textdomain+0x6f1)"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "python_compileall",
+   "command": [
+    "python3",
+    "-m",
+    "compileall",
+    "-q",
+    "-f",
+    "pkg"
+   ],
+   "calls": 3,
+   "main_pid_calls": 3,
+   "distinct_pids": 1,
+   "lengths": [
+    8,
+    24
+   ],
+   "flags": [
+    "GRND_NONBLOCK"
+   ],
+   "sites": [
+    "libc+0xa9e89",
+    "other"
+   ],
+   "sample": [
+    {
+     "len": 8,
+     "flags": "GRND_NONBLOCK",
+     "ret": 8,
+     "site": "libc+0xa9e89",
+     "frames": [
+      "libc.so.6(timer_settime+0x1079)",
+      "libc.so.6(malloc+0x215)",
+      "dash()"
+     ]
+    },
+    {
+     "len": 8,
+     "flags": "GRND_NONBLOCK",
+     "ret": 8,
+     "site": "libc+0xa9e89",
+     "frames": [
+      "libc.so.6(timer_settime+0x1079)",
+      "libc.so.6(malloc+0x215)",
+      "python3.12(PyThread_allocate_lock+0x21)"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "python_json_script",
+   "command": [
+    "python3",
+    "transform.py",
+    "big.json",
+    "script-out.json"
+   ],
+   "calls": 3,
+   "main_pid_calls": 3,
+   "distinct_pids": 1,
+   "lengths": [
+    8,
+    24
+   ],
+   "flags": [
+    "GRND_NONBLOCK"
+   ],
+   "sites": [
+    "libc+0xa9e89",
+    "other"
+   ],
+   "sample": [
+    {
+     "len": 8,
+     "flags": "GRND_NONBLOCK",
+     "ret": 8,
+     "site": "libc+0xa9e89",
+     "frames": [
+      "libc.so.6(timer_settime+0x1079)",
+      "libc.so.6(malloc+0x215)",
+      "dash()"
+     ]
+    },
+    {
+     "len": 8,
+     "flags": "GRND_NONBLOCK",
+     "ret": 8,
+     "site": "libc+0xa9e89",
+     "frames": [
+      "libc.so.6(timer_settime+0x1079)",
+      "libc.so.6(malloc+0x215)",
+      "python3.12(PyThread_allocate_lock+0x21)"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "gcc_compile",
+   "command": [
+    "gcc",
+    "-O2",
+    "-Isrc",
+    "-c",
+    "src/a.c",
+    "-o",
+    "a.o"
+   ],
+   "calls": 4,
+   "main_pid_calls": 1,
+   "distinct_pids": 3,
+   "lengths": [
+    8
+   ],
+   "flags": [
+    "GRND_NONBLOCK"
+   ],
+   "sites": [
+    "libc+0xa9e89",
+    "other"
+   ],
+   "sample": [
+    {
+     "len": 8,
+     "flags": "GRND_NONBLOCK",
+     "ret": 8,
+     "site": "libc+0xa9e89",
+     "frames": [
+      "libc.so.6(timer_settime+0x1079)",
+      "libc.so.6(malloc+0x215)",
+      "x86_64-linux-gnu-gcc-13(_obstack_newchunk+0x10964)"
+     ]
+    },
+    {
+     "len": 8,
+     "flags": "GRND_NONBLOCK",
+     "ret": 8,
+     "site": "other",
+     "frames": [
+      "libc.so.6(getrandom+0x14)",
+      "libc.so.6(tempnam+0x54e)",
+      "x86_64-linux-gnu-gcc-13(_obstack_newchunk+0x5d34)"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "awk_transform",
+   "command": [
+    "sh",
+    "-c",
+    "awk '{print NR, $0}' big.txt > awk.txt"
+   ],
+   "calls": 2,
+   "main_pid_calls": 1,
+   "distinct_pids": 2,
+   "lengths": [
+    8
+   ],
+   "flags": [
+    "GRND_NONBLOCK"
+   ],
+   "sites": [
+    "libc+0xa9e89"
+   ],
+   "sample": [
+    {
+     "len": 8,
+     "flags": "GRND_NONBLOCK",
+     "ret": 8,
+     "site": "libc+0xa9e89",
+     "frames": [
+      "libc.so.6(timer_settime+0x1079)",
+      "libc.so.6(malloc+0x215)",
+      "dash()"
+     ]
+    },
+    {
+     "len": 8,
+     "flags": "GRND_NONBLOCK",
+     "ret": 8,
+     "site": "libc+0xa9e89",
+     "frames": [
+      "libc.so.6(timer_settime+0x1079)",
+      "libc.so.6(malloc+0x215)",
+      "libc.so.6(textdomain+0x6f1)"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "sed_transform",
+   "command": [
+    "sh",
+    "-c",
+    "sed 's/alpha/omega/g' big.txt > sed.txt"
+   ],
+   "calls": 2,
+   "main_pid_calls": 1,
+   "distinct_pids": 2,
+   "lengths": [
+    8
+   ],
+   "flags": [
+    "GRND_NONBLOCK"
+   ],
+   "sites": [
+    "libc+0xa9e89"
+   ],
+   "sample": [
+    {
+     "len": 8,
+     "flags": "GRND_NONBLOCK",
+     "ret": 8,
+     "site": "libc+0xa9e89",
+     "frames": [
+      "libc.so.6(timer_settime+0x1079)",
+      "libc.so.6(malloc+0x215)",
+      "dash()"
+     ]
+    },
+    {
+     "len": 8,
+     "flags": "GRND_NONBLOCK",
+     "ret": 8,
+     "site": "libc+0xa9e89",
+     "frames": [
+      "libc.so.6(timer_settime+0x1079)",
+      "libc.so.6(malloc+0x215)",
+      "libc.so.6(__strdup+0x1f)"
+     ]
+    }
+   ]
+  }
+ ]
+}
