@@ -515,11 +515,12 @@ destination mutation. Legacy v0 records, hard links, symlinks, directories, miss
 preconditions and rollback are covered by tests.
 
 Real-workflow measurements (`benchmarks/results/phase2s/`) show bzip2 remains the strong reusable
-workload: 3.87x/3.63x complete-session speedups for removed/retained outputs, with correct misses
-when the input changes. Stable asset precompression saves 757 ms (2.25x session); release gzip is
-marginally positive (1.07x); log append and CSV ETL are correctly negative. Discovery still has
+workload: 6.79x/6.48x complete-session speedups for removed/retained outputs, with correct misses
+when the input changes. Stable asset precompression saves 1.85 s (3.31x session); release gzip is positive per run but
+negative per session (0.93x) once cold trace and output writes are included; log append and CSV ETL
+are correctly negative. Discovery still has
 one reusable of seventeen; xz/gcc/Python/jq remain blocked by clocks, `sysinfo`, identity or
 `getrusage`, and no speculative runtime profile was added. Warm identity preparation is 0.17 ms,
 so session-scoped executable validation was rejected. Local gates: fmt, Clippy, 125 tests, 120
 differential cases with zero incorrect hits. `PROVEN` remains blocked by unavailable Landlock;
-developer preview is limited to explicit stable bzip2/gzip-stream workloads.
+developer preview is limited to explicit stable bzip2 and static-asset workloads.

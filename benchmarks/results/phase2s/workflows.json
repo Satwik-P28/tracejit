@@ -3,10 +3,10 @@
   "binary_sha256": "3ea020aadd082d2aa01becb319c30c11334c755ee870e24983b0bee3bbe17981",
   "bzip2_scenarios": {
     "A_output_removed": {
-      "cache_bytes": 359346,
+      "cache_bytes": 359435,
       "cold": {
         "decision": "Executed",
-        "ms": 728.49
+        "ms": 714.28
       },
       "command": [
         "bzip2",
@@ -18,38 +18,53 @@
       "correctness_reference": {
         "gid": 1001,
         "mode": "0o644",
-        "mtime_ns": 1794268061000000000,
+        "mtime_ns": 1794268347000000000,
         "sha256": "d49d12946b56ceadd3dc564f87df4d1444878424bfcc6d8052071e5ca0c69c16",
         "size": 236894,
         "uid": 65822751
       },
       "native": {
-        "median_ms": 615.08,
+        "median_ms": 583.39,
         "samples_ms": [
-          612.22,
-          615.08,
-          643.95,
-          617.04,
-          606.95
+          584.95,
+          582.01,
+          584.77,
+          586.15,
+          602.54,
+          580.56,
+          581.9,
+          590.31,
+          572.72,
+          581.32
         ],
-        "total_ms": 3095.25
+        "total_ms": 5847.24
       },
-      "net_savings_ms": 2295.46,
+      "net_savings_ms": 4985.63,
       "output_matches_native": true,
-      "per_run_speedup": 43.87,
-      "session_speedup": 3.87,
+      "per_run_speedup": 43.47,
+      "session_speedup": 6.79,
       "warm": {
-        "median_ms": 14.02,
+        "median_ms": 13.42,
         "samples_ms": [
-          18.21,
-          13.84,
-          14.22,
-          10.99,
-          14.02
+          21.61,
+          16.58,
+          14.24,
+          13.42,
+          13.42,
+          13.28,
+          15.19,
+          13.17,
+          13.17,
+          13.24
         ],
-        "total_ms": 71.29
+        "total_ms": 147.33
       },
       "warm_decisions": [
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
         "Reused",
         "Reused",
         "Reused",
@@ -59,7 +74,7 @@
       "warm_output": {
         "gid": 1001,
         "mode": "0o644",
-        "mtime_ns": 1794268061000000000,
+        "mtime_ns": 1794268347000000000,
         "sha256": "d49d12946b56ceadd3dc564f87df4d1444878424bfcc6d8052071e5ca0c69c16",
         "size": 236894,
         "uid": 65822751
@@ -68,12 +83,12 @@
     "B_output_retained": {
       "cold": {
         "decision": "Executed",
-        "ms": 757.56
+        "ms": 763.68
       },
       "cold_output": {
         "gid": 1001,
         "mode": "0o644",
-        "mtime_ns": 1794268066000000000,
+        "mtime_ns": 1794268355000000000,
         "sha256": "307b8be462af0aaa0daeb83167aace16c2ad53ce3b8f28e70bf25ebca4b95630",
         "size": 236184,
         "uid": 65822751
@@ -86,41 +101,56 @@
         "big.txt"
       ],
       "native": {
-        "median_ms": 604.39,
+        "median_ms": 589.52,
         "samples_ms": [
-          620.23,
-          592.68,
-          604.39,
-          632.62,
-          597.27
+          595.41,
+          616.67,
+          582.49,
+          579.79,
+          581.98,
+          590.03,
+          587.2,
+          596.12,
+          590.23,
+          589.0
         ],
-        "total_ms": 3047.19
+        "total_ms": 5908.92
       },
       "native_output": {
         "gid": 1001,
         "mode": "0o644",
-        "mtime_ns": 1794268066000000000,
+        "mtime_ns": 1794268355000000000,
         "sha256": "307b8be462af0aaa0daeb83167aace16c2ad53ce3b8f28e70bf25ebca4b95630",
         "size": 236184,
         "uid": 65822751
       },
-      "net_savings_ms": 2208.32,
+      "net_savings_ms": 4997.61,
       "output_matches_cold_metadata": true,
       "output_matches_native": true,
-      "per_run_speedup": 38.51,
-      "session_speedup": 3.63,
+      "per_run_speedup": 38.03,
+      "session_speedup": 6.48,
       "warm": {
-        "median_ms": 15.69,
+        "median_ms": 15.5,
         "samples_ms": [
-          20.17,
-          14.02,
-          16.43,
-          15.69,
-          15.0
+          18.34,
+          15.5,
+          12.39,
+          15.65,
+          12.37,
+          15.14,
+          11.6,
+          15.54,
+          15.59,
+          15.5
         ],
-        "total_ms": 81.31
+        "total_ms": 147.63
       },
       "warm_decisions": [
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
         "Reused",
         "Reused",
         "Reused",
@@ -130,7 +160,7 @@
       "warm_output": {
         "gid": 1001,
         "mode": "0o644",
-        "mtime_ns": 1794268066000000000,
+        "mtime_ns": 1794268355000000000,
         "sha256": "307b8be462af0aaa0daeb83167aace16c2ad53ce3b8f28e70bf25ebca4b95630",
         "size": 236184,
         "uid": 65822751
@@ -145,22 +175,27 @@
         "big.txt"
       ],
       "controlled": {
-        "median_ms": 733.38,
+        "median_ms": 700.6,
         "samples_ms": [
-          718.1,
-          716.65,
-          749.88,
-          766.64,
-          733.38
+          717.02,
+          710.43,
+          689.84,
+          687.24,
+          694.95,
+          720.0,
+          688.94,
+          694.25,
+          706.25,
+          720.08
         ],
-        "total_ms": 3684.66
+        "total_ms": 7028.99
       },
       "controlled_output": {
         "gid": 1001,
         "mode": "0o644",
-        "mtime_ns": 1794268076000000000,
-        "sha256": "a0130715588fb18644663e52815d4935d1a41995d4ce6e3555f5631f7d146049",
-        "size": 236953,
+        "mtime_ns": 1794268375000000000,
+        "sha256": "e92c8cc639b90fff2752aecf121b2988af965add977d2dbebfdf3ab52d93f60a",
+        "size": 236981,
         "uid": 65822751
       },
       "decisions": [
@@ -168,31 +203,41 @@
         "Deoptimized",
         "Deoptimized",
         "Deoptimized",
+        "Deoptimized",
+        "Deoptimized",
+        "Deoptimized",
+        "Deoptimized",
+        "Deoptimized",
         "Deoptimized"
       ],
       "native": {
-        "median_ms": 592.27,
+        "median_ms": 584.07,
         "samples_ms": [
-          618.54,
-          602.07,
-          588.87,
-          592.27,
-          574.29
+          583.33,
+          592.47,
+          587.63,
+          598.85,
+          581.96,
+          582.77,
+          584.81,
+          582.91,
+          568.09,
+          589.59
         ],
-        "total_ms": 2976.04
+        "total_ms": 5852.43
       },
       "native_output": {
         "gid": 1001,
         "mode": "0o644",
-        "mtime_ns": 1794268073000000000,
-        "sha256": "a0130715588fb18644663e52815d4935d1a41995d4ce6e3555f5631f7d146049",
-        "size": 236953,
+        "mtime_ns": 1794268368000000000,
+        "sha256": "e92c8cc639b90fff2752aecf121b2988af965add977d2dbebfdf3ab52d93f60a",
+        "size": 236981,
         "uid": 65822751
       },
-      "net_savings_ms": -708.61,
+      "net_savings_ms": -1176.55,
       "output_matches_native": true,
-      "per_run_speedup": 0.81,
-      "session_speedup": 0.81
+      "per_run_speedup": 0.83,
+      "session_speedup": 0.83
     }
   },
   "contract": "allocator-entropy-v1",
@@ -203,7 +248,7 @@
     "os": "Linux",
     "release": "6.1.102"
   },
-  "repetitions": 5,
+  "repetitions": 10,
   "workflows": [
     {
       "command": [
@@ -214,26 +259,36 @@
         "app.log"
       ],
       "controlled": {
-        "median_ms": 727.3,
+        "median_ms": 711.05,
         "samples_ms": [
-          758.71,
-          706.6,
-          805.81,
-          727.3,
-          713.17
+          740.18,
+          700.7,
+          714.41,
+          712.75,
+          722.82,
+          705.27,
+          719.3,
+          697.87,
+          708.34,
+          709.35
         ],
-        "total_ms": 3711.59
+        "total_ms": 7130.99
       },
       "controlled_output": {
         "gid": 1001,
         "mode": "0o644",
-        "mtime_ns": 1794268083000000000,
-        "sha256": "c8dbf2c68a81137318bffe0db296ac86d19d631ff3a47c4d67d3904a4c11758a",
-        "size": 236985,
+        "mtime_ns": 1794268388000000000,
+        "sha256": "5d349e09460fd3c10f9443162031e23cf23c99c4888b4a0b82e7a756c22ce767",
+        "size": 236347,
         "uid": 65822751
       },
       "decisions": [
         "Executed",
+        "Deoptimized",
+        "Deoptimized",
+        "Deoptimized",
+        "Deoptimized",
+        "Deoptimized",
         "Deoptimized",
         "Deoptimized",
         "Deoptimized",
@@ -242,28 +297,33 @@
       "description": "append a log record and recompress the growing log",
       "id": "log_archive",
       "native": {
-        "median_ms": 605.81,
+        "median_ms": 582.46,
         "samples_ms": [
-          593.04,
-          605.81,
-          591.59,
-          615.67,
-          620.07
+          596.15,
+          581.86,
+          571.75,
+          594.23,
+          580.38,
+          584.04,
+          572.59,
+          583.07,
+          576.18,
+          598.88
         ],
-        "total_ms": 3026.17
+        "total_ms": 5839.13
       },
       "native_output": {
         "gid": 1001,
         "mode": "0o644",
-        "mtime_ns": 1794268080000000000,
-        "sha256": "c8dbf2c68a81137318bffe0db296ac86d19d631ff3a47c4d67d3904a4c11758a",
-        "size": 236985,
+        "mtime_ns": 1794268380000000000,
+        "sha256": "5d349e09460fd3c10f9443162031e23cf23c99c4888b4a0b82e7a756c22ce767",
+        "size": 236347,
         "uid": 65822751
       },
-      "net_savings_ms": -685.42,
+      "net_savings_ms": -1291.87,
       "output_matches_native": true,
-      "per_run_speedup": 0.83,
-      "repetitions": 5,
+      "per_run_speedup": 0.82,
+      "repetitions": 10,
       "session_speedup": 0.82
     },
     {
@@ -272,7 +332,7 @@
         "Executed",
         "Executed"
       ],
-      "cold_workflow_ms": 397.44,
+      "cold_workflow_ms": 402.17,
       "commands": [
         [
           "bzip2",
@@ -297,21 +357,26 @@
         ]
       ],
       "controlled": {
-        "median_ms": 41.85,
+        "median_ms": 38.4,
         "samples_ms": [
-          49.68,
-          41.85,
-          40.87,
-          32.54,
-          44.2
+          54.38,
+          37.33,
+          37.27,
+          36.69,
+          40.97,
+          36.27,
+          39.48,
+          39.79,
+          40.54,
+          34.55
         ],
-        "total_ms": 209.14
+        "total_ms": 397.26
       },
       "controlled_outputs": {
         "asset-0.js": {
           "gid": 1001,
           "mode": "0o644",
-          "mtime_ns": 1794268061000000000,
+          "mtime_ns": 1794268347000000000,
           "sha256": "123f9e567144c6ef47f3abb605a99ed9b17d40b260b84247b08787c7149aac2e",
           "size": 148324,
           "uid": 65822751
@@ -319,7 +384,7 @@
         "asset-1.js": {
           "gid": 1001,
           "mode": "0o644",
-          "mtime_ns": 1794268061000000000,
+          "mtime_ns": 1794268347000000000,
           "sha256": "cd1024d42f2035bc4727a7d1d6fd9eb1bc09f41081e00424112e218ff03aadb6",
           "size": 138036,
           "uid": 65822751
@@ -327,7 +392,7 @@
         "asset-2.js": {
           "gid": 1001,
           "mode": "0o644",
-          "mtime_ns": 1794268061000000000,
+          "mtime_ns": 1794268348000000000,
           "sha256": "684d477c29320b7176edc69db8c32d5d5e1dca24b3ae1a075f71a253eaeb00f8",
           "size": 137143,
           "uid": 65822751
@@ -363,26 +428,56 @@
           "Reused",
           "Reused",
           "Reused"
+        ],
+        [
+          "Reused",
+          "Reused",
+          "Reused"
+        ],
+        [
+          "Reused",
+          "Reused",
+          "Reused"
+        ],
+        [
+          "Reused",
+          "Reused",
+          "Reused"
+        ],
+        [
+          "Reused",
+          "Reused",
+          "Reused"
+        ],
+        [
+          "Reused",
+          "Reused",
+          "Reused"
         ]
       ],
       "description": "precompress three stable production JavaScript assets",
       "id": "static_assets",
       "native": {
-        "median_ms": 269.97,
+        "median_ms": 258.57,
         "samples_ms": [
-          313.38,
-          272.35,
-          255.71,
-          252.26,
-          269.97
+          287.14,
+          289.35,
+          273.16,
+          253.59,
+          261.11,
+          257.47,
+          258.27,
+          255.61,
+          258.87,
+          251.86
         ],
-        "total_ms": 1363.68
+        "total_ms": 2646.43
       },
       "native_outputs": {
         "asset-0.js": {
           "gid": 1001,
           "mode": "0o644",
-          "mtime_ns": 1794268061000000000,
+          "mtime_ns": 1794268347000000000,
           "sha256": "123f9e567144c6ef47f3abb605a99ed9b17d40b260b84247b08787c7149aac2e",
           "size": 148324,
           "uid": 65822751
@@ -390,7 +485,7 @@
         "asset-1.js": {
           "gid": 1001,
           "mode": "0o644",
-          "mtime_ns": 1794268061000000000,
+          "mtime_ns": 1794268347000000000,
           "sha256": "cd1024d42f2035bc4727a7d1d6fd9eb1bc09f41081e00424112e218ff03aadb6",
           "size": 138036,
           "uid": 65822751
@@ -398,25 +493,25 @@
         "asset-2.js": {
           "gid": 1001,
           "mode": "0o644",
-          "mtime_ns": 1794268061000000000,
+          "mtime_ns": 1794268348000000000,
           "sha256": "684d477c29320b7176edc69db8c32d5d5e1dca24b3ae1a075f71a253eaeb00f8",
           "size": 137143,
           "uid": 65822751
         }
       },
-      "net_savings_ms": 757.1,
+      "net_savings_ms": 1846.99,
       "output_matches_native": {
         "asset-0.js": true,
         "asset-1.js": true,
         "asset-2.js": true
       },
-      "per_run_speedup": 6.45,
-      "repetitions": 5,
-      "session_speedup": 2.25
+      "per_run_speedup": 6.73,
+      "repetitions": 10,
+      "session_speedup": 3.31
     },
     {
       "cold_decision": "Executed",
-      "cold_ms": 155.05,
+      "cold_ms": 205.35,
       "command": [
         "gzip",
         "-9",
@@ -424,25 +519,35 @@
         "release.tar"
       ],
       "controlled": {
-        "median_ms": 34.18,
+        "median_ms": 58.37,
         "samples_ms": [
-          38.98,
-          34.18,
-          34.73,
-          27.71,
-          26.0
+          77.42,
+          68.4,
+          64.58,
+          52.97,
+          53.87,
+          57.74,
+          50.44,
+          65.01,
+          59.0,
+          48.87
         ],
-        "total_ms": 161.61
+        "total_ms": 598.31
       },
       "controlled_output": {
         "gid": 1001,
         "mode": "0o644",
-        "mtime_ns": 1794268087249402579,
-        "sha256": "835a9e5de3321afbec6973a383a0930c8f7e910113d16d92515ad9ed29c1c409",
+        "mtime_ns": 1794268393744610002,
+        "sha256": "777b80d175e3dde4f38b4b17595554297226e724041f82237c00766a510ea8fb",
         "size": 388014,
         "uid": 65822751
       },
       "decisions": [
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
         "Reused",
         "Reused",
         "Reused",
@@ -452,33 +557,38 @@
       "description": "compress the release tar stream to release.tar.gz",
       "id": "release_stream",
       "native": {
-        "median_ms": 65.43,
+        "median_ms": 70.52,
         "samples_ms": [
-          78.39,
-          64.08,
-          65.49,
-          65.43,
-          65.32
+          87.36,
+          73.46,
+          67.58,
+          92.91,
+          67.01,
+          78.46,
+          66.65,
+          66.96,
+          82.07,
+          66.79
         ],
-        "total_ms": 338.71
+        "total_ms": 749.24
       },
       "native_output": {
         "gid": 1001,
         "mode": "0o644",
-        "mtime_ns": 1794268086777123729,
-        "sha256": "835a9e5de3321afbec6973a383a0930c8f7e910113d16d92515ad9ed29c1c409",
+        "mtime_ns": 1794268392936610002,
+        "sha256": "777b80d175e3dde4f38b4b17595554297226e724041f82237c00766a510ea8fb",
         "size": 388014,
         "uid": 65822751
       },
-      "net_savings_ms": 22.05,
+      "net_savings_ms": -54.41,
       "output_matches_native": true,
-      "per_run_speedup": 1.91,
-      "repetitions": 5,
-      "session_speedup": 1.07
+      "per_run_speedup": 1.21,
+      "repetitions": 10,
+      "session_speedup": 0.93
     },
     {
       "cold_decision": "Ineligible",
-      "cold_ms": 715.17,
+      "cold_ms": 661.44,
       "cold_reasons": [
         "process read process identity via getpid",
         "process read process identity via getppid",
@@ -495,20 +605,25 @@
         "report.json"
       ],
       "controlled": {
-        "median_ms": 696.72,
+        "median_ms": 651.37,
         "samples_ms": [
-          667.19,
-          709.02,
-          659.52,
-          696.72,
-          737.94
+          652.45,
+          682.21,
+          717.56,
+          676.84,
+          625.66,
+          650.29,
+          638.41,
+          654.78,
+          649.53,
+          636.51
         ],
-        "total_ms": 3470.39
+        "total_ms": 6584.23
       },
       "controlled_output": {
         "gid": 1001,
         "mode": "0o644",
-        "mtime_ns": 1794268093820739174,
+        "mtime_ns": 1794268405866099446,
         "sha256": "e5c34639b4e1985821f628c5e663184be751c58b9519f2d9e26e3900b09e491a",
         "size": 400,
         "uid": 65822751
@@ -518,34 +633,44 @@
         "Ineligible",
         "Ineligible",
         "Ineligible",
+        "Ineligible",
+        "Ineligible",
+        "Ineligible",
+        "Ineligible",
+        "Ineligible",
         "Ineligible"
       ],
       "description": "aggregate sales CSV into a regional JSON report",
       "id": "csv_etl",
       "native": {
-        "median_ms": 486.91,
+        "median_ms": 485.91,
         "samples_ms": [
-          486.91,
-          477.37,
-          475.72,
-          489.57,
-          487.63
+          483.64,
+          485.68,
+          503.62,
+          486.15,
+          483.05,
+          504.84,
+          479.82,
+          511.05,
+          486.97,
+          475.22
         ],
-        "total_ms": 2417.21
+        "total_ms": 4900.03
       },
       "native_output": {
         "gid": 1001,
         "mode": "0o644",
-        "mtime_ns": 1794268089663866861,
+        "mtime_ns": 1794268398640521369,
         "sha256": "e5c34639b4e1985821f628c5e663184be751c58b9519f2d9e26e3900b09e491a",
         "size": 400,
         "uid": 65822751
       },
-      "net_savings_ms": -1768.35,
+      "net_savings_ms": -2345.64,
       "output_matches_native": true,
-      "per_run_speedup": 0.7,
-      "repetitions": 5,
-      "session_speedup": 0.58
+      "per_run_speedup": 0.75,
+      "repetitions": 10,
+      "session_speedup": 0.68
     }
   ]
 }

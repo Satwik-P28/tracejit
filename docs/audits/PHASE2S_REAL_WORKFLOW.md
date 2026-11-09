@@ -56,52 +56,48 @@ stdin to avoid a harness-only `lseek` refusal.
 ## Part B: independent bzip2 validation
 
 Command: `bzip2 -9 -k -f big.txt`; input 6.0 MB; output 201,556 bytes; contract
-`allocator-entropy-v1`; isolated cache per scenario; five repetitions. Definitions are those in
-the report: per-run = native median / controlled median; session = total native / total controlled
-including the cold trace; net = native session minus controlled session.
+`allocator-entropy-v1`; isolated cache per scenario; ten repetitions. Definitions: per-run =
+native median / controlled median; session = total native / total controlled including the cold
+trace; net = native session minus controlled session.
 
-| Scenario | Native total | Cold | Warm total / median | Per-run | Session | Net |
+| Scenario | Native total | Cold | Warm median | Per-run | Session | Net |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| A output removed each run | 3,095.25 ms | 728.49 ms | 71.29 / 14.02 ms | 43.87x | 3.87x | +2,295.46 ms |
-| B output retained | 3,047.19 ms | 757.56 ms | 81.31 / 15.69 ms | 38.51x | 3.63x | +2,208.32 ms |
-| C input regenerated each run | 2,976.04 ms | included | 733.38 ms (controlled total) | 0.81x | 0.81x | -708.61 ms |
+| A output removed each run | 5,847.24 ms | 714.28 ms | 13.42 ms | 43.47x | 6.79x | +4,985.63 ms |
+| B output retained | 5,908.92 ms | 763.68 ms | 15.50 ms | 38.03x | 6.48x | +4,997.61 ms |
+| C input regenerated each run | 5,852.43 ms | included | 700.60 ms | 0.83x | 0.83x | -1,176.55 ms |
 
-A: cold `Executed`, all five warm runs `Reused`; warm SHA-256, size, mode, uid and gid match the
-native output. B: cold `Executed`, all five warm runs `Reused`; bytes/mode match native and the
-warm metadata equals the cold artifact, including mtime. C: first run `Executed`, then four
-`Deoptimized` runs; output bytes match the native output for the same edit sequence. The negative
-C result is correct: changing the input before every invocation rejects reuse.
+A: cold `Executed`, all ten warm runs `Reused`; warm SHA-256, size, mode, uid and gid match native.
+B: cold `Executed`, all ten warm runs `Reused`; bytes/mode match native and warm metadata equals the
+cold artifact. C: first run `Executed`, then nine `Deoptimized` runs; bytes match native for the same
+edit sequence. C is a correct loss, not a false hit.
 
 ### Phase 2R discrepancy
 
-Phase 2R reported a median-based 37.63x and a second-session aggregate 20.43x. The difference was
-not a cache failure: the ten-run aggregate in session 2 had 269.35 ms warm total (26.9 ms/run),
-while the median was 17.21 ms; the aggregate was sampled after changed-argument, corruption and
-concurrency tests, and `all_reused` only inspected the first five reports. Phase 2S records the
-decision from the same process as each timing sample and includes cold tracing in session totals.
-On stable pre-states the per-run ratios are 38.5–43.9x and sessions are 3.6–3.9x; on changing
-inputs the correct result is a loss.
+Phase 2R's median 37.63x and second-session aggregate 20.43x differed because the ten-run aggregate
+was sampled after mutation, corruption and concurrency tests, while `all_reused` inspected only the
+first five reports; session 2's warm total was 269.35 ms (26.9 ms/run) against a 17.21 ms median.
+Phase 2S uses the decision from the same process as each timing sample and includes cold tracing in
+session totals. Stable pre-states now show 38–43x per run and 6.5–6.8x per session; changing inputs
+correctly lose.
 
 ## Part C: four realistic workflows
 
-`benchmarks/repos/phase2s_workflows.py` runs each complete sequence with the same inputs and
-output preconditions. The controlled arm has a fresh cache and includes its cold trace.
+`benchmarks/repos/phase2s_workflows.py` runs each complete sequence, including its output write and
+log append. The controlled arm has a fresh cache and includes its cold trace.
 
 | Workflow | Natural recurrence | Native total | Controlled total | Session | Net | Decisions |
 | --- | --- | ---: | ---: | ---: | ---: | --- |
-| Log archive: append record, `bzip2 -9 -k -f app.log` | every rotation | 3,026.17 ms | 3,711.59 ms | 0.82x | -685.42 ms | Executed, 4 Deoptimized |
-| Static assets: precompress 3 stable JS files | every build/deploy | 1,363.68 ms | 397.44 cold + 209.14 warm | 2.25x | +757.10 ms | cold all Executed, 15 Reused |
-| Release stream: `gzip -9 -c release.tar` | repeated release packaging | 338.71 ms | 155.05 cold + 161.61 warm | 1.07x | +22.05 ms | all warm Reused |
-| CSV ETL: aggregate 160k sales rows | repeated reports | 2,417.21 ms | 3,470.39 ms | 0.58x | -1,768.35 ms | all Ineligible |
+| Log archive: append, `bzip2 -9 -k -f app.log` | every rotation | 5,839.13 ms | 7,130.99 ms | 0.82x | -1,291.87 ms | Executed, 9 Deoptimized |
+| Static assets: precompress 3 stable JS files | every build/deploy | 2,646.43 ms | 402.17 cold + 397.26 warm | 3.31x | +1,846.99 ms | cold all Executed, 30 Reused |
+| Release stream: `gzip -9 -c release.tar` | release packaging | 749.24 ms | 205.35 cold + 598.31 warm | 0.93x | -54.41 ms | all warm Reused |
+| CSV ETL: aggregate 160k sales rows | repeated reports | 4,900.03 ms | 6,584.23 ms | 0.68x | -2,345.64 ms | all Ineligible |
 
-All output bytes match native. Static assets are byte-identical for all three files; release gzip
-is byte-identical; log archive and ETL outputs also match. The ETL refusal is attributed to
-`getpid`, `getppid`, monotonic/realtime clocks, `gettid` and `getrandom`. The log-append workflow
-correctly deoptimizes on each edit; it is a negative result for caching, not a false hit.
-
-Cumulative across these four complete workflows is negative because ETL and log edits dominate.
-The positive result is real but bounded: **two workflows save time** (stable assets and release
-stream), one is correctly rejected, and one correctly pays trace overhead after every edit.
+All output bytes match native. Static assets are byte-identical for all three files; release gzip,
+log archive and ETL outputs also match. ETL is refused for `getpid`, `getppid`, clocks, `gettid`
+and `getrandom`. Log edits and ETL dominate their workflows, so the cumulative result is negative;
+this is a correct negative result, not a cache failure. The bounded positive result is one
+independent workflow (stable assets, 3.31x session) plus the bzip2 workload; release gzip is
+positive per run (1.21x) but not per session once cold trace and output writing are included.
 
 ## Part D: eligibility and next bottleneck
 
@@ -179,7 +175,6 @@ No release or package publication was performed.
 
 **Developer-preview readiness:** limited, not general. A preview may expose stable, explicit
 `allocator-entropy-v1` workloads such as `bzip2 -9 -k -f` with a retained or removed output
-pre-state and `gzip -9 -c`; the static-asset precompression workflow measured 2.25x session
-speedup. It must not advertise log-append/ETL acceleration, inode identity, open-descriptor
-consistency, or native-equivalent randomness. Existing caches written before schema v2 will
+pre-state; the stable-asset precompression workflow measured 3.31x session speedup. It must not advertise log-append/ETL acceleration, release-stream session acceleration, inode
+identity, open-descriptor consistency, or native-equivalent randomness. Existing caches written before schema v2 will
 retrace once, which is intentional.

@@ -306,10 +306,11 @@ def workflow_log_archive(reps: int) -> dict:
     base_log = log.read_bytes()
     native = []
     for index in range(reps):
+        started = time.perf_counter()
         append(index)
         result = run_native(command, work, native_env)
         assert result["exit"] == 0
-        native.append(result["ms"])
+        native.append((time.perf_counter() - started) * 1000)
     native_fp = fingerprint(output)
 
     # The controlled arm must apply exactly the same edits from the same base bytes.
@@ -320,9 +321,10 @@ def workflow_log_archive(reps: int) -> dict:
     controlled = []
     decisions = []
     for index in range(reps):
+        started = time.perf_counter()
         append(index)
         result = run_traced(command, work, controlled_env)
-        controlled.append(result["ms"])
+        controlled.append((time.perf_counter() - started) * 1000)
         decisions.append(result["report"].get("cache_decision"))
     controlled_fp = fingerprint(output)
     return {
@@ -412,25 +414,29 @@ def workflow_release_gzip(reps: int) -> dict:
     native_env = base_env(None, timing)
 
     def native_run() -> dict:
+        started = time.perf_counter()
         result = run_native(command, work, native_env)
         output.write_bytes(result["stdout"])
+        result["workflow_ms"] = (time.perf_counter() - started) * 1000
         return result
 
     native = []
     for _ in range(reps):
-        native.append(native_run()["ms"])
+        native.append(native_run()["workflow_ms"])
     native_fp = fingerprint(output)
     shutil.rmtree(cache, ignore_errors=True)
     controlled_env = base_env(cache, timing)
+    cold_started = time.perf_counter()
     cold = run_traced(command, work, controlled_env)
     output.write_bytes(cold["stdout"])
-    cold_ms = cold["ms"]
+    cold_ms = (time.perf_counter() - cold_started) * 1000
     controlled = []
     decisions = []
     for _ in range(reps):
+        started = time.perf_counter()
         record = run_traced(command, work, controlled_env)
         output.write_bytes(record["stdout"])
-        controlled.append(record["ms"])
+        controlled.append((time.perf_counter() - started) * 1000)
         decisions.append(record["report"].get("cache_decision"))
     controlled_fp = fingerprint(output)
     return {
