@@ -15,7 +15,7 @@ use tracejit_effects::{
 };
 use tracejit_guards::{
     apply_inherited_stream_offsets, canonical_hash, compile_guards, current_runtime_identity,
-    hash_file, validate_all, GuardError, GuardMode, GuardReport,
+    hash_file, validate_all, verify_inherited_stream_offsets, GuardError, GuardMode, GuardReport,
 };
 use tracejit_sandbox::{capabilities, SandboxPolicy};
 pub use tracejit_trace::Contract;
@@ -201,19 +201,7 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
     let mark = Instant::now();
     let lookup_key = prepared.lookup_key()?;
     let lookup_key_ns = phase_elapsed(timing, mark);
-    let (candidate, metadata_recovery) = match cache.find(lookup_key) {
-        Ok(candidate) => (candidate, None),
-        // A malformed metadata record is a cache-integrity failure, not a reason to refuse
-        // to run the command. It is treated as a miss so the execution is retraced and the
-        // record is rewritten, and no cached byte is exposed either way.
-        Err(CacheError::Serialization(error)) => (
-            None,
-            Some(format!(
-                "stored metadata record could not be decoded ({error}); the execution was retraced"
-            )),
-        ),
-        Err(error) => return Err(error.into()),
-    };
+    let candidates = cache.find_candidates(lookup_key)?;
     let query = cache.last_query();
     let started = Instant::now();
     let mut phases = PhaseTimings {
@@ -230,7 +218,7 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
     // Cost-aware admission. `Always` keeps the historical behaviour. `Auto` learns the direct
     // runtime before it pays for a trace, so a command that cannot repay a hit never pays for one.
     if options.admission != Admission::Always {
-        let reusable = candidate.as_ref().is_some_and(|candidate| {
+        let reusable = candidates.iter().any(|candidate| {
             candidate.classification.cache_eligible()
                 && candidate.contract.as_deref() == options.contract.map(|contract| contract.id())
         });
@@ -240,9 +228,10 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
         if measuring && !reusable {
             // A record that was classified ineligible has already answered the question: tracing
             // this identity again cannot produce a reusable entry, so pay for it once, not forever.
-            if candidate
-                .as_ref()
-                .is_some_and(|candidate| !candidate.classification.cache_eligible())
+            if !candidates.is_empty()
+                && candidates
+                    .iter()
+                    .all(|candidate| !candidate.classification.cache_eligible())
             {
                 run_without_cache = true;
                 reason = "admission policy: the recorded classification is not eligible for reuse";
@@ -276,228 +265,226 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
         }
     }
 
-    if let Some(mut candidate) = candidate {
-        if candidate.classification.cache_eligible()
-            && candidate.contract.as_deref() == options.contract.map(|contract| contract.id())
-            && !(options.enforce && candidate.classification != DeterminismClass::Proven)
-        {
-            let mark = Instant::now();
-            let guards = validate_all(&candidate.guards, options.guard_mode);
-            phases.guard_validation_ns = phase_elapsed(timing, mark);
-            if guards.failure.is_none() {
-                // Outputs are staged and every object is verified before any destination is
-                // mutated, so a corrupt object stops here without changing the workspace.
-                let mark = Instant::now();
-                let restore = cache.restore_outputs(&candidate.outputs);
-                phases.cas_restore_ns = phase_elapsed(timing, mark);
-                let mark = Instant::now();
-                let loaded: Result<(Vec<u8>, Vec<u8>), CacheError> = match restore {
-                    Ok(()) => cache.get_bytes(candidate.stdout).and_then(|stdout| {
-                        cache
-                            .get_bytes(candidate.stderr)
-                            .map(|stderr| (stdout, stderr))
-                    }),
-                    Err(error) => Err(error),
-                };
-                phases.stdio_replay_ns = phase_elapsed(timing, mark);
-                match loaded {
-                    Ok((stdout, stderr)) => {
-                        // A cached execution that read an inherited regular file advanced the
-                        // caller's shared open file description. Reproduce that side effect
-                        // before reporting the hit, or a following command would read from a
-                        // different position than after a direct run.
-                        if let Err(error) = apply_inherited_stream_offsets(&candidate.guards) {
-                            candidate.last_decision = DecisionRecord {
-                                decision: CacheDecision::Deoptimized,
-                                reason: format!(
-                                    "inherited stream offset could not be reproduced ({error}); retracing"
-                                ),
-                                guard_failure: None,
-                                decided_unix_ms: now_unix_ms(),
-                            };
-                            cache.put_execution(&candidate)?;
-                            return execute_and_store(
-                                prepared,
-                                cache,
-                                lookup_key,
-                                Some(guards),
-                                Some(
-                                    "inherited stream state could not be reproduced; the execution was retraced"
-                                        .into(),
-                                ),
-                                None,
-                            );
-                        }
-                        let runtime_ns = started.elapsed().as_nanos();
-                        // The cost history exists for the admission policy. `always` never
-                        // consults it, so writing a row on every one of its hits is pure warm
-                        // path cost; `never` never reaches a hit. Skip the read and upsert.
-                        if options.admission != Admission::Always {
-                            cache.record_admission(
-                                lookup_key,
-                                u64::try_from(candidate.baseline_runtime_ns).unwrap_or(u64::MAX),
-                                0,
-                                Some(u64::try_from(runtime_ns).unwrap_or(u64::MAX)),
-                                false,
-                                false,
-                            )?;
-                        }
-                        let persist_decision =
-                            candidate.last_decision.decision != CacheDecision::Reused;
-                        candidate.last_decision = DecisionRecord {
-                            decision: CacheDecision::Reused,
-                            reason: "all guards passed and cached outputs were restored".into(),
-                            guard_failure: None,
-                            decided_unix_ms: now_unix_ms(),
-                        };
-                        if persist_decision {
-                            let mark = Instant::now();
-                            cache.put_execution(&candidate)?;
-                            phases.decision_persist_ns = phase_elapsed(timing, mark);
-                        }
-                        let mut report = report_from_record(
-                            &candidate,
-                            RunKind::Reused,
-                            runtime_ns,
-                            Some(guards),
-                            stdout,
-                            stderr,
-                        );
-                        if timing {
-                            report.phases = Some(phases);
-                        }
-                        return Ok(report);
-                    }
-                    // The record is readable but a content-addressed object failed
-                    // verification. Nothing has been exposed, so retrace instead of failing
-                    // the command until the cache is cleared by hand.
-                    Err(CacheError::CorruptObject { hash }) => {
-                        candidate.last_decision = DecisionRecord {
-                            decision: CacheDecision::Deoptimized,
-                            reason: format!(
-                                "cached object {hash} failed hash verification; retracing"
-                            ),
-                            guard_failure: None,
-                            decided_unix_ms: now_unix_ms(),
-                        };
-                        cache.put_execution(&candidate)?;
-                        return execute_and_store(
-                            prepared,
-                            cache,
-                            lookup_key,
-                            Some(guards),
-                            Some("cached content was corrupt; the execution was retraced".into()),
-                            None,
-                        );
-                    }
-                    // A destination precondition can fail even though no dependency changed: a
-                    // hard link to an output, for example, is neither a recorded input nor an
-                    // input mutation, so no guard observes it. Refusing the cache entry is
-                    // correct, but aborting the command is not, because the identical command
-                    // line succeeds when it is simply executed again. `restore_outputs`
-                    // validates and stages before it mutates, so a precondition failure leaves
-                    // the workspace untouched and a retrace is safe.
-                    Err(error @ CacheError::OutputPrecondition { .. }) => {
-                        // D4 refuses to reconcile a *deletion* whose path changed shape, and that
-                        // refusal stays fatal: re-running such a command would act on the
-                        // substituted path instead of restoring a recorded absence. A refused
-                        // *replacement* is different, because re-executing rewrites the output
-                        // itself, which is exactly what the cache would have restored.
-                        let deletion = matches!(
-                            &error,
-                            CacheError::OutputPrecondition { path, .. }
-                                if candidate
-                                    .outputs
-                                    .iter()
-                                    .any(|output| output.path == *path && output.content.is_none())
-                        );
-                        if deletion {
-                            return Err(error.into());
-                        }
-                        candidate.last_decision = DecisionRecord {
-                            decision: CacheDecision::Deoptimized,
-                            reason: format!("{error}; retracing"),
-                            guard_failure: None,
-                            decided_unix_ms: now_unix_ms(),
-                        };
-                        cache.put_execution(&candidate)?;
-                        return execute_and_store(
-                            prepared,
-                            cache,
-                            lookup_key,
-                            Some(guards),
-                            Some(
-                                "a cached output precondition failed; the execution was retraced"
-                                    .into(),
-                            ),
-                            None,
-                        );
-                    }
-                    Err(error) => return Err(error.into()),
-                }
+    let mut last_guard_report = None;
+    let mut last_deopt_reason = None;
+    let mut enforcement_candidate = None;
+
+    for mut candidate in candidates {
+        if candidate.contract.as_deref() != options.contract.map(|contract| contract.id()) {
+            continue;
+        }
+        let can_reuse = candidate.classification.cache_eligible()
+            && (!options.enforce || candidate.classification == DeterminismClass::Proven);
+        if !can_reuse {
+            if options.enforce
+                && candidate.classification == DeterminismClass::Guarded
+                && enforcement_candidate.is_none()
+            {
+                enforcement_candidate = Some(candidate);
             }
-            let failure = guards.failure.clone();
-            candidate.last_decision = DecisionRecord {
-                decision: CacheDecision::Deoptimized,
-                reason: failure.as_ref().map_or_else(
-                    || "guard validation failed".into(),
-                    |value| value.reason.clone(),
-                ),
-                guard_failure: failure,
-                decided_unix_ms: now_unix_ms(),
-            };
-            cache.put_execution(&candidate)?;
-            return execute_and_store(
-                prepared,
-                cache,
-                lookup_key,
-                Some(guards),
-                Some("cached execution deoptimized".into()),
-                None,
-            );
+            continue;
         }
 
-        if options.enforce && candidate.classification == DeterminismClass::Guarded {
-            let guards = validate_all(&candidate.guards, options.guard_mode);
-            if guards.failure.is_none() {
-                let sandbox = policy_from_record(&candidate);
-                let reason = if sandbox.is_some() {
-                    "executed under policy compiled from the guarded profile"
-                } else {
-                    "enforcement unavailable for the recorded output policy; execution remains guarded"
-                };
-                return execute_and_store(
-                    prepared,
-                    cache,
-                    lookup_key,
-                    Some(guards),
-                    Some(reason.into()),
-                    sandbox,
-                );
+        let mark = Instant::now();
+        let guards = validate_all(&candidate.guards, options.guard_mode);
+        phases.guard_validation_ns = phase_elapsed(timing, mark);
+        if guards.failure.is_some() {
+            if last_guard_report.is_none() {
+                last_guard_report = Some(guards);
             }
-            let failure = guards.failure.clone();
-            candidate.last_decision = DecisionRecord {
-                decision: CacheDecision::Deoptimized,
-                reason: failure.as_ref().map_or_else(
-                    || "guard validation failed".into(),
-                    |value| value.reason.clone(),
-                ),
-                guard_failure: failure,
-                decided_unix_ms: now_unix_ms(),
-            };
-            cache.put_execution(&candidate)?;
-            return execute_and_store(
-                prepared,
-                cache,
-                lookup_key,
-                Some(guards),
-                Some("cached execution deoptimized before enforcement".into()),
-                None,
-            );
+            continue;
+        }
+
+        // Verify both stream objects before restoring any output. A corrupt stdout object used
+        // to be discovered after files had already been replaced, which forced a retrace from a
+        // workspace the command did not start with.
+        let mark = Instant::now();
+        let loaded = cache.get_bytes(candidate.stdout).and_then(|stdout| {
+            cache
+                .get_bytes(candidate.stderr)
+                .map(|stderr| (stdout, stderr))
+        });
+        phases.stdio_replay_ns = phase_elapsed(timing, mark);
+        let (stdout, stderr) = match loaded {
+            Ok(streams) => streams,
+            Err(CacheError::CorruptObject { hash }) => {
+                if last_deopt_reason.is_none() {
+                    last_deopt_reason = Some(format!("cached object {hash} is corrupt; retracing"));
+                }
+                continue;
+            }
+            Err(error) => return Err(error.into()),
+        };
+
+        if let Err(error) = verify_inherited_stream_offsets(&candidate.guards) {
+            if last_deopt_reason.is_none() {
+                last_deopt_reason = Some(format!(
+                    "inherited stream offset could not be reproduced ({error}); retracing"
+                ));
+            }
+            continue;
+        }
+
+        // Outputs are staged and every object is verified before any destination is mutated, so a
+        // corrupt object or precondition failure stops here without changing the workspace.
+        let mark = Instant::now();
+        let restore = cache.restore_outputs(&candidate.outputs);
+        phases.cas_restore_ns = phase_elapsed(timing, mark);
+        match restore {
+            Ok(()) => {
+                // A cached execution that read an inherited regular file advanced the caller's
+                // shared open file description. The probe above established that this seek is
+                // reproducible; reproduce it before reporting the hit.
+                if let Err(error) = apply_inherited_stream_offsets(&candidate.guards) {
+                    candidate.last_decision = DecisionRecord {
+                        decision: CacheDecision::Deoptimized,
+                        reason: format!(
+                            "inherited stream offset could not be reproduced ({error}); retracing"
+                        ),
+                        guard_failure: None,
+                        decided_unix_ms: now_unix_ms(),
+                    };
+                    cache.put_execution(&candidate)?;
+                    return execute_and_store(
+                        prepared,
+                        cache,
+                        lookup_key,
+                        Some(guards),
+                        Some(
+                            "inherited stream state could not be reproduced; the execution was retraced"
+                                .into(),
+                        ),
+                        None,
+                    );
+                }
+                let runtime_ns = started.elapsed().as_nanos();
+                // The cost history exists for the admission policy. `always` never consults it,
+                // so writing a row on every one of its hits is pure warm path cost; `never` never
+                // reaches a hit. Skip the read and upsert.
+                if options.admission != Admission::Always {
+                    cache.record_admission(
+                        lookup_key,
+                        u64::try_from(candidate.baseline_runtime_ns).unwrap_or(u64::MAX),
+                        0,
+                        Some(u64::try_from(runtime_ns).unwrap_or(u64::MAX)),
+                        false,
+                        false,
+                    )?;
+                }
+                let persist_decision = candidate.last_decision.decision != CacheDecision::Reused;
+                candidate.last_decision = DecisionRecord {
+                    decision: CacheDecision::Reused,
+                    reason: "all guards passed and cached outputs were restored".into(),
+                    guard_failure: None,
+                    decided_unix_ms: now_unix_ms(),
+                };
+                if persist_decision {
+                    let mark = Instant::now();
+                    cache.put_execution(&candidate)?;
+                    phases.decision_persist_ns = phase_elapsed(timing, mark);
+                }
+                let mut report = report_from_record(
+                    &candidate,
+                    RunKind::Reused,
+                    runtime_ns,
+                    Some(guards),
+                    stdout,
+                    stderr,
+                );
+                if timing {
+                    report.phases = Some(phases);
+                }
+                return Ok(report);
+            }
+            Err(CacheError::CorruptObject { hash }) => {
+                if last_deopt_reason.is_none() {
+                    last_deopt_reason = Some(format!("cached object {hash} is corrupt; retracing"));
+                }
+                continue;
+            }
+            // A destination precondition can fail even though no dependency changed: a hard link
+            // to an output, for example, is neither a recorded input nor an input mutation, so no
+            // guard observes it. Refusing the cache entry is correct, but aborting the command is
+            // not, because the identical command line succeeds when simply executed again.
+            Err(error @ CacheError::OutputPrecondition { .. }) => {
+                // A refused *deletion* stays fatal: re-running such a command would act on the
+                // substituted path instead of restoring a recorded absence. A refused
+                // *replacement* can be retraced because re-executing rewrites the output itself.
+                let deletion = matches!(
+                    &error,
+                    CacheError::OutputPrecondition { path, .. }
+                        if candidate
+                            .outputs
+                            .iter()
+                            .any(|output| output.path == *path && output.content.is_none())
+                );
+                if deletion {
+                    return Err(error.into());
+                }
+                if last_deopt_reason.is_none() {
+                    last_deopt_reason = Some(format!("{error}; retracing"));
+                }
+                continue;
+            }
+            Err(error) => return Err(error.into()),
         }
     }
 
-    let mut reason = if options.enforce {
+    if let Some(mut candidate) = enforcement_candidate {
+        let guards = validate_all(&candidate.guards, options.guard_mode);
+        if guards.failure.is_none() {
+            let sandbox = policy_from_record(&candidate);
+            let reason = if sandbox.is_some() {
+                "executed under policy compiled from the guarded profile"
+            } else {
+                "enforcement unavailable for the recorded output policy; execution remains guarded"
+            };
+            return execute_and_store(
+                prepared,
+                cache,
+                lookup_key,
+                Some(guards),
+                Some(reason.into()),
+                sandbox,
+            );
+        }
+        let failure = guards.failure.clone();
+        candidate.last_decision = DecisionRecord {
+            decision: CacheDecision::Deoptimized,
+            reason: failure.as_ref().map_or_else(
+                || "guard validation failed".into(),
+                |value| value.reason.clone(),
+            ),
+            guard_failure: failure,
+            decided_unix_ms: now_unix_ms(),
+        };
+        cache.put_execution(&candidate)?;
+        return execute_and_store(
+            prepared,
+            cache,
+            lookup_key,
+            Some(guards),
+            Some("cached execution deoptimized before enforcement".into()),
+            None,
+        );
+    }
+
+    if let Some(reason) = last_deopt_reason {
+        return execute_and_store(prepared, cache, lookup_key, None, Some(reason), None);
+    }
+
+    if let Some(guards) = last_guard_report {
+        return execute_and_store(
+            prepared,
+            cache,
+            lookup_key,
+            Some(guards),
+            Some("cached execution deoptimized".into()),
+            None,
+        );
+    }
+
+    let reason = if options.enforce {
         let capability = capabilities();
         if capability.can_prove() {
             "no declared dependency profile exists; discovery run is not PROVEN".into()
@@ -509,9 +496,6 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
     } else {
         "no eligible cached execution matched the pre-execution identity".into()
     };
-    if let Some(note) = metadata_recovery {
-        reason = format!("{note}; {reason}");
-    }
     execute_and_store(prepared, cache, lookup_key, None, Some(reason), None)
 }
 

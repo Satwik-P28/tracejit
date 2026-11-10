@@ -1,0 +1,340 @@
+{
+  "schema": "tracejit.candidate-reuse.v1",
+  "fixture": "tests/fixtures/fixture_driver.c:plain_file_read",
+  "sequence": [
+    "input one",
+    "input two",
+    "input one"
+  ],
+  "sessions": 5,
+  "host": {
+    "platform": "Linux-6.1.102-x86_64-with-glibc2.39",
+    "kernel": "6.1.102",
+    "machine": "x86_64",
+    "python": "3.12.3"
+  },
+  "current_binary_sha256": "79ee6501d7b09e8e0f4c02cb4cc32e0f4243b7525377f596e40c550cfafc084c",
+  "baseline_binary_sha256": "3ea020aadd082d2aa01becb319c30c11334c755ee870e24983b0bee3bbe17981",
+  "current": {
+    "third_kind": [
+      "Reused"
+    ],
+    "third_wall_ms_median": 13.841662,
+    "third_execution_ns_median": 3854780,
+    "all_outputs_correct": true
+  },
+  "baseline": {
+    "third_kind": [
+      "Executed"
+    ],
+    "third_wall_ms_median": 20.572657,
+    "third_execution_ns_median": 5258884,
+    "all_outputs_correct": true
+  },
+  "raw": {
+    "current": [
+      {
+        "session": 0,
+        "binary": "/workspace/chats/3ead97f7907244943d2638d7/target/release/tracejit",
+        "records": [
+          {
+            "input": "one",
+            "kind": "Executed",
+            "classification": "Guarded",
+            "runtime_ns": 7016710,
+            "wall_ns": 104454295,
+            "output": "input one\n"
+          },
+          {
+            "input": "two",
+            "kind": "Executed",
+            "classification": "Guarded",
+            "runtime_ns": 6560114,
+            "wall_ns": 22131250,
+            "output": "input two\n"
+          },
+          {
+            "input": "one",
+            "kind": "Reused",
+            "classification": "Guarded",
+            "runtime_ns": 3991196,
+            "wall_ns": 13841662,
+            "output": "input one\n"
+          }
+        ]
+      },
+      {
+        "session": 1,
+        "binary": "/workspace/chats/3ead97f7907244943d2638d7/target/release/tracejit",
+        "records": [
+          {
+            "input": "one",
+            "kind": "Executed",
+            "classification": "Guarded",
+            "runtime_ns": 5698398,
+            "wall_ns": 27171974,
+            "output": "input one\n"
+          },
+          {
+            "input": "two",
+            "kind": "Executed",
+            "classification": "Guarded",
+            "runtime_ns": 5471032,
+            "wall_ns": 19945579,
+            "output": "input two\n"
+          },
+          {
+            "input": "one",
+            "kind": "Reused",
+            "classification": "Guarded",
+            "runtime_ns": 3785751,
+            "wall_ns": 14261319,
+            "output": "input one\n"
+          }
+        ]
+      },
+      {
+        "session": 2,
+        "binary": "/workspace/chats/3ead97f7907244943d2638d7/target/release/tracejit",
+        "records": [
+          {
+            "input": "one",
+            "kind": "Executed",
+            "classification": "Guarded",
+            "runtime_ns": 4643740,
+            "wall_ns": 26049278,
+            "output": "input one\n"
+          },
+          {
+            "input": "two",
+            "kind": "Executed",
+            "classification": "Guarded",
+            "runtime_ns": 6244973,
+            "wall_ns": 20368663,
+            "output": "input two\n"
+          },
+          {
+            "input": "one",
+            "kind": "Reused",
+            "classification": "Guarded",
+            "runtime_ns": 3707724,
+            "wall_ns": 13235896,
+            "output": "input one\n"
+          }
+        ]
+      },
+      {
+        "session": 3,
+        "binary": "/workspace/chats/3ead97f7907244943d2638d7/target/release/tracejit",
+        "records": [
+          {
+            "input": "one",
+            "kind": "Executed",
+            "classification": "Guarded",
+            "runtime_ns": 6738930,
+            "wall_ns": 28295091,
+            "output": "input one\n"
+          },
+          {
+            "input": "two",
+            "kind": "Executed",
+            "classification": "Guarded",
+            "runtime_ns": 6024219,
+            "wall_ns": 21165088,
+            "output": "input two\n"
+          },
+          {
+            "input": "one",
+            "kind": "Reused",
+            "classification": "Guarded",
+            "runtime_ns": 4003910,
+            "wall_ns": 15417558,
+            "output": "input one\n"
+          }
+        ]
+      },
+      {
+        "session": 4,
+        "binary": "/workspace/chats/3ead97f7907244943d2638d7/target/release/tracejit",
+        "records": [
+          {
+            "input": "one",
+            "kind": "Executed",
+            "classification": "Guarded",
+            "runtime_ns": 5456694,
+            "wall_ns": 24450409,
+            "output": "input one\n"
+          },
+          {
+            "input": "two",
+            "kind": "Executed",
+            "classification": "Guarded",
+            "runtime_ns": 5403996,
+            "wall_ns": 19250066,
+            "output": "input two\n"
+          },
+          {
+            "input": "one",
+            "kind": "Reused",
+            "classification": "Guarded",
+            "runtime_ns": 3854780,
+            "wall_ns": 13677474,
+            "output": "input one\n"
+          }
+        ]
+      }
+    ],
+    "baseline": [
+      {
+        "session": 0,
+        "binary": "/workspace/chats/3ead97f7907244943d2638d7/.baseline/target/release/tracejit",
+        "records": [
+          {
+            "input": "one",
+            "kind": "Executed",
+            "classification": "Guarded",
+            "runtime_ns": 6378223,
+            "wall_ns": 57531907,
+            "output": "input one\n"
+          },
+          {
+            "input": "two",
+            "kind": "Executed",
+            "classification": "Guarded",
+            "runtime_ns": 4955123,
+            "wall_ns": 21503091,
+            "output": "input two\n"
+          },
+          {
+            "input": "one",
+            "kind": "Executed",
+            "classification": "Guarded",
+            "runtime_ns": 5006270,
+            "wall_ns": 20633931,
+            "output": "input one\n"
+          }
+        ]
+      },
+      {
+        "session": 1,
+        "binary": "/workspace/chats/3ead97f7907244943d2638d7/.baseline/target/release/tracejit",
+        "records": [
+          {
+            "input": "one",
+            "kind": "Executed",
+            "classification": "Guarded",
+            "runtime_ns": 5394889,
+            "wall_ns": 27004831,
+            "output": "input one\n"
+          },
+          {
+            "input": "two",
+            "kind": "Executed",
+            "classification": "Guarded",
+            "runtime_ns": 5499755,
+            "wall_ns": 36180210,
+            "output": "input two\n"
+          },
+          {
+            "input": "one",
+            "kind": "Executed",
+            "classification": "Guarded",
+            "runtime_ns": 5304479,
+            "wall_ns": 49202555,
+            "output": "input one\n"
+          }
+        ]
+      },
+      {
+        "session": 2,
+        "binary": "/workspace/chats/3ead97f7907244943d2638d7/.baseline/target/release/tracejit",
+        "records": [
+          {
+            "input": "one",
+            "kind": "Executed",
+            "classification": "Guarded",
+            "runtime_ns": 5177170,
+            "wall_ns": 26405777,
+            "output": "input one\n"
+          },
+          {
+            "input": "two",
+            "kind": "Executed",
+            "classification": "Guarded",
+            "runtime_ns": 5302756,
+            "wall_ns": 23262001,
+            "output": "input two\n"
+          },
+          {
+            "input": "one",
+            "kind": "Executed",
+            "classification": "Guarded",
+            "runtime_ns": 5721451,
+            "wall_ns": 20572657,
+            "output": "input one\n"
+          }
+        ]
+      },
+      {
+        "session": 3,
+        "binary": "/workspace/chats/3ead97f7907244943d2638d7/.baseline/target/release/tracejit",
+        "records": [
+          {
+            "input": "one",
+            "kind": "Executed",
+            "classification": "Guarded",
+            "runtime_ns": 5088114,
+            "wall_ns": 24101866,
+            "output": "input one\n"
+          },
+          {
+            "input": "two",
+            "kind": "Executed",
+            "classification": "Guarded",
+            "runtime_ns": 5469037,
+            "wall_ns": 23656330,
+            "output": "input two\n"
+          },
+          {
+            "input": "one",
+            "kind": "Executed",
+            "classification": "Guarded",
+            "runtime_ns": 5258884,
+            "wall_ns": 19982940,
+            "output": "input one\n"
+          }
+        ]
+      },
+      {
+        "session": 4,
+        "binary": "/workspace/chats/3ead97f7907244943d2638d7/.baseline/target/release/tracejit",
+        "records": [
+          {
+            "input": "one",
+            "kind": "Executed",
+            "classification": "Guarded",
+            "runtime_ns": 5296755,
+            "wall_ns": 23258223,
+            "output": "input one\n"
+          },
+          {
+            "input": "two",
+            "kind": "Executed",
+            "classification": "Guarded",
+            "runtime_ns": 5955731,
+            "wall_ns": 23729377,
+            "output": "input two\n"
+          },
+          {
+            "input": "one",
+            "kind": "Executed",
+            "classification": "Guarded",
+            "runtime_ns": 4771058,
+            "wall_ns": 20344519,
+            "output": "input one\n"
+          }
+        ]
+      }
+    ]
+  }
+}

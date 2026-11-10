@@ -1311,6 +1311,55 @@ fn replay_directory_enumeration(
     Ok(None)
 }
 
+/// Checks that a recorded inherited-stream seek is reproducible without keeping the offset
+/// changed. This runs before cached files are restored: if the seek cannot be reproduced, the
+/// caller must not mutate the workspace and then discover that it has to retrace.
+///
+/// The probe moves the shared description to the recorded end and puts it back to the recorded
+/// start. The guard has already established that the current offset is that start and that the
+/// content matches, so a failed probe is a genuine inability to reproduce the observation.
+pub fn verify_inherited_stream_offsets(guards: &[Guard]) -> Result<(), String> {
+    for guard in guards {
+        if let Guard::InheritedStream {
+            end_offset,
+            start_offset,
+            ..
+        } = guard
+        {
+            if *end_offset > i64::MAX as u64 || *start_offset > i64::MAX as u64 {
+                return Err("recorded inherited-stream offset exceeds i64".into());
+            }
+            // SAFETY: lseek only changes the descriptor's offset.
+            let current = unsafe { libc::lseek(0, 0, libc::SEEK_CUR) };
+            if current < 0 || current as u64 != *start_offset {
+                return Err(format!(
+                    "inherited stdin is not at the recorded start offset {start_offset}: {}",
+                    io::Error::last_os_error()
+                ));
+            }
+            // SAFETY: lseek only changes the descriptor's offset.
+            let end = unsafe { libc::lseek(0, *end_offset as i64, libc::SEEK_SET) };
+            if end < 0 || end as u64 != *end_offset {
+                let error = io::Error::last_os_error();
+                // SAFETY: best-effort restoration of the observation this probe changed.
+                unsafe { libc::lseek(0, *start_offset as i64, libc::SEEK_SET) };
+                return Err(format!(
+                    "could not probe inherited stdin offset {end_offset}: {error}"
+                ));
+            }
+            // SAFETY: restore the shared description to the state the guard validated.
+            let restored = unsafe { libc::lseek(0, *start_offset as i64, libc::SEEK_SET) };
+            if restored < 0 || restored as u64 != *start_offset {
+                return Err(format!(
+                    "could not restore inherited stdin to {start_offset}: {}",
+                    io::Error::last_os_error()
+                ));
+            }
+        }
+    }
+    Ok(())
+}
+
 /// Applies the side effects a reuse must reproduce on an inherited stream.
 ///
 /// Only called after every guard has passed and cached output has been verified. A cached

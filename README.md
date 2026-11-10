@@ -56,6 +56,8 @@ Full tables, machine details, and the phase breakdown: [benchmarks/results/break
 
 Make, Ninja, Bazel, Nix, and ccache reuse work when a person or a rule file listed the inputs. TraceJIT is for a command that is already built: it infers the dependencies it can observe and refuses reuse when it cannot. It does not replace those systems. A comparison is in [docs/COMPARISONS.md](docs/COMPARISONS.md).
 
+The current research record and claim boundary are in [docs/research/RESEARCH_GRAPH.md](docs/research/RESEARCH_GRAPH.md) and [docs/research/COMPETITIVE_BENCHMARKS.md](docs/research/COMPETITIVE_BENCHMARKS.md). Phase 3A retains alternate guarded candidates and verifies cached streams before restoring outputs; its audit is [docs/audits/PHASE3A_CANDIDATE_AND_REPLAY_ORDERING.md](docs/audits/PHASE3A_CANDIDATE_AND_REPLAY_ORDERING.md). This does not change the documented negative result against a correctly configured Make or Ninja workflow.
+
 ## 30-second path after install
 
 ```text

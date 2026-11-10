@@ -629,6 +629,71 @@ fn guarded_hit_deopt_restore_and_replay() {
     eprintln!("RESULT mutation DEOPT");
 }
 
+/// Two different input states must remain independently reusable.
+///
+/// `lookup_key` deliberately does not include file content; inputs are guards. The old schema
+/// made that key the primary key, so running B after A replaced A. Returning to A then had to
+/// retrace even though A's guarded record was still valid. The bounded candidate index keeps both
+/// records and verifies each one's guards before choosing a hit.
+#[test]
+fn alternating_inputs_reuse_a_retained_candidate() {
+    let _serial = COMPILER_TIMING_LOCK.lock().unwrap();
+    let temporary = tempfile::tempdir().unwrap();
+    workspace(temporary.path());
+    let binary = compile_fixture(temporary.path());
+    let cache = temporary.path().join("cache");
+    let args = [
+        "run",
+        "--json",
+        "--",
+        binary.to_str().unwrap(),
+        "plain_file_read",
+        temporary.path().to_str().unwrap(),
+    ];
+    let input = temporary.path().join("input.txt");
+    let output = temporary.path().join("output.txt");
+
+    let first = invoke(&cache, &args, None);
+    assert!(
+        first.status.success(),
+        "{}",
+        String::from_utf8_lossy(&first.stderr)
+    );
+    let first: Value = serde_json::from_slice(&first.stdout).unwrap();
+    assert_eq!(first["kind"], "Executed", "{first}");
+    assert_eq!(fs::read(&output).unwrap(), b"input one\n");
+
+    fs::write(&input, b"input two\n").unwrap();
+    let second = invoke(&cache, &args, None);
+    assert!(
+        second.status.success(),
+        "{}",
+        String::from_utf8_lossy(&second.stderr)
+    );
+    let second: Value = serde_json::from_slice(&second.stdout).unwrap();
+    assert_ne!(
+        second["kind"], "Reused",
+        "a different input must not hit: {second}"
+    );
+    assert_eq!(fs::read(&output).unwrap(), b"input two\n");
+
+    fs::write(&input, b"input one\n").unwrap();
+    let third = invoke(&cache, &args, None);
+    assert!(
+        third.status.success(),
+        "{}",
+        String::from_utf8_lossy(&third.stderr)
+    );
+    let third: Value = serde_json::from_slice(&third.stdout).unwrap();
+    assert_eq!(
+        third["kind"], "Reused",
+        "the retained A record was lost: {third}"
+    );
+    assert_eq!(third["classification"], "Guarded", "{third}");
+    assert_eq!(fs::read(&output).unwrap(), b"input one\n");
+    eprintln!("RESULT alternate-candidate-replay PASS");
+}
+
 #[test]
 fn metadata_symlink_and_environment_changes_miss() {
     let temporary = tempfile::tempdir().unwrap();

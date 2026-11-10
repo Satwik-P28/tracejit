@@ -150,7 +150,13 @@ pub struct QueryTimings {
 
 /// Bumped when the SQLite schema changes, so `Cache::open` runs the migration batch once instead
 /// of on every invocation.
-const CACHE_SCHEMA_VERSION: i64 = 1;
+const CACHE_SCHEMA_VERSION: i64 = 2;
+
+/// Alternate guarded records retained for one command identity. Inputs are guards, not part of
+/// the lookup key, so alternating between two versions of an input must not evict the first
+/// result merely because the second was observed later. The bound keeps a pathological workflow
+/// from growing the database without limit; the newest records win.
+const MAX_CANDIDATES_PER_IDENTITY: usize = 8;
 
 pub struct Cache {
     root: PathBuf,
@@ -173,7 +179,7 @@ impl Cache {
         let prepare_ns = u64_nanos(started);
         let database = root.join("db.sqlite3");
         let started = Instant::now();
-        let connection = Connection::open(&database)?;
+        let mut connection = Connection::open(&database)?;
         // The timeout must be armed on the connection before `journal_mode=WAL`, which needs an
         // exclusive lock; otherwise concurrent cold starts fail immediately with SQLITE_BUSY.
         connection.busy_timeout(std::time::Duration::from_secs(10))?;
@@ -189,30 +195,9 @@ impl Cache {
             // and writes after this point rely on the 10 s busy timeout.
             let mut attempts: u64 = 0;
             loop {
-                match connection.execute_batch(
-                    "PRAGMA busy_timeout=10000;
-             PRAGMA journal_mode=WAL;
-             PRAGMA synchronous=FULL;
-             CREATE TABLE IF NOT EXISTS executions (
-                 lookup_key TEXT PRIMARY KEY NOT NULL,
-                 execution_id TEXT NOT NULL,
-                 record_json BLOB NOT NULL,
-                 updated_unix_ms TEXT NOT NULL
-             );
-             CREATE TABLE IF NOT EXISTS admission (
-                 lookup_key TEXT PRIMARY KEY NOT NULL,
-                 direct_ns INTEGER NOT NULL,
-                 hit_ns INTEGER NOT NULL,
-                 cold_ns INTEGER NOT NULL,
-                 hits INTEGER NOT NULL,
-                 skips INTEGER NOT NULL,
-                 deopts INTEGER NOT NULL DEFAULT 0,
-                 updated_unix_ms TEXT NOT NULL
-             );
-             PRAGMA user_version=1;",
-                ) {
+                match initialize_schema(&mut connection) {
                     Ok(()) => break,
-                    Err(error)
+                    Err(CacheError::Database(error))
                         if attempts < 20
                             && matches!(
                                 error.sqlite_error_code(),
@@ -225,15 +210,9 @@ impl Cache {
                         attempts += 1;
                         std::thread::sleep(std::time::Duration::from_millis(5 * attempts));
                     }
-                    Err(error) => return Err(error.into()),
+                    Err(error) => return Err(error),
                 }
             }
-            // Older caches predate the deoptimisation counter; adding it is idempotent and ignored
-            // when the column already exists.
-            let _ = connection.execute(
-                "ALTER TABLE admission ADD COLUMN deopts INTEGER NOT NULL DEFAULT 0",
-                [],
-            );
         }
         let schema_ns = u64_nanos(started);
         Ok(Self {
@@ -321,8 +300,8 @@ impl Cache {
         transaction.execute(
             "INSERT INTO executions (lookup_key, execution_id, record_json, updated_unix_ms)
              VALUES (?1, ?2, ?3, ?4)
-             ON CONFLICT(lookup_key) DO UPDATE SET
-               execution_id=excluded.execution_id,
+             ON CONFLICT(execution_id) DO UPDATE SET
+               lookup_key=excluded.lookup_key,
                record_json=excluded.record_json,
                updated_unix_ms=excluded.updated_unix_ms",
             params![
@@ -332,7 +311,37 @@ impl Cache {
                 now_unix_ms().to_string()
             ],
         )?;
+        let mut stale = Vec::new();
+        {
+            let mut statement = transaction.prepare(
+                "SELECT execution_id FROM executions WHERE lookup_key = ?1
+                 ORDER BY CAST(updated_unix_ms AS INTEGER) DESC, execution_id DESC",
+            )?;
+            let rows = statement.query_map([record.lookup_key.to_string()], |row| {
+                row.get::<_, String>(0)
+            })?;
+            let mut others = Vec::new();
+            for row in rows {
+                let id = row?;
+                if id != record.id {
+                    others.push(id);
+                }
+            }
+            // Keep the record just written plus the newest seven alternates. The query is
+            // newest-first, so the tail is oldest and the current record is never pruned even
+            // when several writes share a millisecond timestamp.
+            stale.extend(others.into_iter().skip(MAX_CANDIDATES_PER_IDENTITY - 1));
+        }
+        for id in &stale {
+            transaction.execute("DELETE FROM executions WHERE execution_id = ?1", [id])?;
+        }
         transaction.commit()?;
+        for id in stale {
+            // The database is authoritative and has already committed. A leftover JSON file is
+            // unreachable and harmless, so failing the command after the cache update would make
+            // a pruning problem look like an execution failure.
+            let _ = fs::remove_file(self.executions.join(format!("{id}.json")));
+        }
         Ok(())
     }
 
@@ -356,6 +365,33 @@ impl Cache {
             decode_ns: u64_nanos(started),
         });
         Ok(record)
+    }
+
+    /// All retained guarded candidates for one command identity, newest first.
+    ///
+    /// A malformed candidate is skipped because each record is independent; a valid sibling can
+    /// still be verified by its own guards. If every record is malformed this returns an empty
+    /// list, which the caller treats as a miss and retraces.
+    pub fn find_candidates(&self, lookup_key: Hash) -> Result<Vec<StoredExecution>, CacheError> {
+        let started = Instant::now();
+        let mut statement = self.connection.prepare(
+            "SELECT record_json FROM executions WHERE lookup_key = ?1
+             ORDER BY CAST(updated_unix_ms AS INTEGER) DESC, execution_id DESC",
+        )?;
+        let rows = statement
+            .query_map([lookup_key.to_string()], |row| row.get::<_, Vec<u8>>(0))?
+            .collect::<Result<Vec<_>, _>>()?;
+        let query_ns = u64_nanos(started);
+        let started = Instant::now();
+        let records = rows
+            .into_iter()
+            .filter_map(|bytes| serde_json::from_slice(&bytes).ok())
+            .collect();
+        self.last_query.set(QueryTimings {
+            query_ns,
+            decode_ns: u64_nanos(started),
+        });
+        Ok(records)
     }
 
     pub fn find_by_id(&self, id: &str) -> Result<Option<StoredExecution>, CacheError> {
@@ -724,6 +760,63 @@ fn prepare_root(root: &Path) -> Result<(), CacheError> {
         return Ok(());
     }
     fs::write(&marker, b"TraceJIT cache v1\n").map_err(|source| io_error(&marker, source))
+}
+
+/// Creates the multi-candidate schema, migrating a v1 cache without dropping its records.
+///
+/// The old table made `lookup_key` the primary key, which silently replaced an alternate input
+/// state. SQLite cannot drop that constraint in place, so the migration copies every old row into
+/// a new table keyed by `execution_id` inside one transaction. A crash leaves the old table and
+/// `user_version` untouched.
+fn initialize_schema(connection: &mut Connection) -> Result<(), CacheError> {
+    connection.execute_batch(
+        "PRAGMA busy_timeout=10000;
+         PRAGMA journal_mode=WAL;
+         PRAGMA synchronous=FULL;
+         CREATE TABLE IF NOT EXISTS executions (
+             lookup_key TEXT PRIMARY KEY NOT NULL,
+             execution_id TEXT NOT NULL,
+             record_json BLOB NOT NULL,
+             updated_unix_ms TEXT NOT NULL
+         );",
+    )?;
+    let transaction = connection.transaction()?;
+    transaction.execute_batch(
+        "CREATE TABLE executions_candidates (
+             lookup_key TEXT NOT NULL,
+             execution_id TEXT PRIMARY KEY NOT NULL,
+             record_json BLOB NOT NULL,
+             updated_unix_ms TEXT NOT NULL
+         );
+         INSERT OR REPLACE INTO executions_candidates
+             (lookup_key, execution_id, record_json, updated_unix_ms)
+             SELECT lookup_key, execution_id, record_json, updated_unix_ms
+             FROM executions
+             ORDER BY CAST(updated_unix_ms AS INTEGER) ASC, rowid ASC;
+         DROP TABLE executions;
+         ALTER TABLE executions_candidates RENAME TO executions;
+         CREATE INDEX IF NOT EXISTS executions_lookup_key
+             ON executions(lookup_key, updated_unix_ms);
+         CREATE TABLE IF NOT EXISTS admission (
+             lookup_key TEXT PRIMARY KEY NOT NULL,
+             direct_ns INTEGER NOT NULL,
+             hit_ns INTEGER NOT NULL,
+             cold_ns INTEGER NOT NULL,
+             hits INTEGER NOT NULL,
+             skips INTEGER NOT NULL,
+             deopts INTEGER NOT NULL DEFAULT 0,
+             updated_unix_ms TEXT NOT NULL
+         );
+         PRAGMA user_version=2;",
+    )?;
+    transaction.commit()?;
+    // Older caches predate the deoptimisation counter; adding it is idempotent and ignored when
+    // the column already exists.
+    let _ = connection.execute(
+        "ALTER TABLE admission ADD COLUMN deopts INTEGER NOT NULL DEFAULT 0",
+        [],
+    );
+    Ok(())
 }
 
 pub fn output_from_path(
@@ -1582,6 +1675,69 @@ mod tests {
         assert_eq!(
             fs::read(directory.path().join("keep.txt")).unwrap(),
             b"user data"
+        );
+    }
+
+    #[test]
+    fn v1_cache_is_migrated_without_losing_its_record() {
+        let directory = tempfile::tempdir().unwrap();
+        let root = directory.path().join("cache");
+        fs::create_dir_all(root.join("objects")).unwrap();
+        fs::create_dir_all(root.join("executions")).unwrap();
+        {
+            let connection = rusqlite::Connection::open(root.join("db.sqlite3")).unwrap();
+            connection
+                .execute_batch(
+                    "CREATE TABLE executions (
+                         lookup_key TEXT PRIMARY KEY NOT NULL,
+                         execution_id TEXT NOT NULL,
+                         record_json BLOB NOT NULL,
+                         updated_unix_ms TEXT NOT NULL
+                     );
+                     CREATE TABLE admission (
+                         lookup_key TEXT PRIMARY KEY NOT NULL,
+                         direct_ns INTEGER NOT NULL,
+                         hit_ns INTEGER NOT NULL,
+                         cold_ns INTEGER NOT NULL,
+                         hits INTEGER NOT NULL,
+                         skips INTEGER NOT NULL,
+                         deopts INTEGER NOT NULL DEFAULT 0,
+                         updated_unix_ms TEXT NOT NULL
+                     );
+                     INSERT INTO executions VALUES ('key', 'legacy', X'7B7D', '1');
+                     PRAGMA user_version=1;",
+                )
+                .unwrap();
+        }
+        let cache = Cache::open(&root).unwrap();
+        let version: i64 = cache
+            .connection
+            .query_row("PRAGMA user_version", [], |row| row.get(0))
+            .unwrap();
+        assert_eq!(version, 2);
+        let count: i64 = cache
+            .connection
+            .query_row("SELECT COUNT(*) FROM executions", [], |row| row.get(0))
+            .unwrap();
+        assert_eq!(count, 1, "migration must preserve the existing record");
+        cache
+            .connection
+            .execute(
+                "INSERT INTO executions VALUES ('key', 'second', X'7B7D', '2')",
+                [],
+            )
+            .unwrap();
+        let count: i64 = cache
+            .connection
+            .query_row(
+                "SELECT COUNT(*) FROM executions WHERE lookup_key = 'key'",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(
+            count, 2,
+            "the migrated schema must allow alternate candidates"
         );
     }
 
