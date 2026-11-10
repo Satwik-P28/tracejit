@@ -1,6 +1,6 @@
 # Phase 3A: Candidate Retention and Replay Ordering
 
-Status: locally verified; hosted CI pending; no `PROVEN` claim added.
+Status: locally verified after the hosted-CI enforcement fix; hosted CI pending for the combined tree; no `PROVEN` claim added.
 
 Starting development tip: `a11ae4b`. The implementation branch is the existing development branch plus
 the preceding Phase 2T audit commit and this change. No pushed commit existed for this work at the time
@@ -44,6 +44,18 @@ The first prune query used `LIMIT -1 OFFSET 8` without excluding the current `ex
 writes shared a millisecond timestamp, the current row could sort into the discard tail and its JSON
 file would be removed after commit. Pruning now filters the current record before choosing the tail.
 
+### F6 (high, found by hosted CI): an absent stat-only dependency refused enforcement
+
+The hosted `2aa662d` run failed `enforced_execution_is_proven_reused_and_invalidated` at the second
+`--enforce` invocation. The report said `classification: "Guarded"` and `enforcement unavailable for
+the recorded output policy; execution remains guarded`. The dependency profile included an absent
+`Metadata` observation for `/etc/ld.so.preload`, and `policy_from_record` returned `None` whenever any
+dependency path did not exist.
+
+Fix (`7358720`): stat-only dependencies (`Metadata`, `FilesystemStats`, `SymlinkMetadata`) may be
+negative observations and are omitted from the sandbox's readable paths when absent. Dependencies that
+the child must actually open or execute still require existence and fail closed otherwise.
+
 ### F4 (residual, not fixed): restoration is not a single atomic multi-file transaction
 
 `restore_outputs` validates, stages, backs up, and renames in phases. A normal error in a later rename
@@ -55,9 +67,9 @@ add an inode-preserving or crash-recovery storage engine.
 ### F5 (residual, environmental): end-to-end `PROVEN` is not executable here
 
 This host has seccomp but no Landlock. `doctor` reports `landlock no` and `proven no`; the new
-`enforced_execution_is_proven_reused_and_invalidated` test reports `SKIP` locally. CI previously passed
-at `a11ae4b` with Landlock ABI 8, but the new commit has not been observed in a hosted run. Do not report
-a new `PROVEN` result until that run is observed.
+`enforced_execution_is_proven_reused_and_invalidated` test reports `SKIP` locally. Hosted CI passed at
+`a11ae4b` with Landlock ABI 8, but the first Phase 3A run at `2aa662d` failed the test for the reason in
+F6. Do not report a new `PROVEN` result until a hosted run of the fixed tree is observed.
 
 ## Changed behavior
 
@@ -92,7 +104,7 @@ Results:
 - Clippy with `-D warnings`: pass
 - workspace tests: 128 passed, 0 failed
 - Linux integration: 42 passed, 0 failed; `PROVEN` test SKIP locally
-- release binary: `79ee6501d7b09e8e0f4c02cb4cc32e0f4243b7525377f596e40c550cfafc084c`
+- release binary: `b2769dc418daee84715feb4807021d49749b7afeb3d6921f4b8d4b8623e4b230`
 - A/B/A, five sessions, using the pre-change binary `3ea020aadd082d2aa01becb319c30c11334c755ee870e24983b0bee3bbe17981`:
   - new binary third invocation: `Reused` in 5/5 sessions, 13.841662 ms median wall
   - pre-change binary third invocation: `Executed` in 5/5 sessions, 20.572657 ms median wall
@@ -105,7 +117,8 @@ system or a content cache.
 
 ## Remaining obligations
 
-1. Observe a hosted CI run for the pushed commit, including `RESULT proven-reuse PASS`.
+1. Observe a hosted CI run for the pushed combined tree, including `RESULT proven-reuse PASS`, after
+the F6 enforcement fix.
 2. Measure candidate lookup and guard-validation cost with larger candidate sets; the current bound of
    eight is a policy choice, not a measured optimum.
 3. Add an independent test for a corrupt stdout object with a workspace state that would reveal the

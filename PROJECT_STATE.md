@@ -568,8 +568,14 @@ order) changed the third invocation from `Executed` on the pre-change binary to 
 13.841662 ms versus 20.572657 ms median wall. Raw data: `benchmarks/results/phase3a/candidate-reuse.json`.
 This is a small candidate-retention measurement, not a general workflow speedup.
 
-Local gates: fmt pass, Clippy `-D warnings` pass, **128 workspace tests**, **42 Linux integration
-tests**, demo pass; release `79ee6501d7b09e8e0f4c02cb4cc32e0f4243b7525377f596e40c550cfafc084c`.
-`PROVEN` remains a local SKIP (`landlock no`); hosted CI for the Phase 3A commit has not been observed.
-Restoration is still pathname-visible, not atomic across a hard kill or inode-preserving. See
+Local gates after the enforcement fix: fmt pass, Clippy `-D warnings` pass, **128 workspace tests**,
+**42 Linux integration tests**, demo pass; release
+`b2769dc418daee84715feb4807021d49749b7afeb3d6921f4b8d4b8623e4b230`. Hosted CI at `2aa662d` failed the
+Landlock-only `enforced_execution_is_proven_reused_and_invalidated` test: the second `--enforce` run
+returned `Guarded` because `policy_from_record` treated an absent `/etc/ld.so.preload` `Metadata`
+dependency as a missing input. `7358720` omits absent stat-only dependencies from the readable policy
+(`Metadata`, `FilesystemStats`, `SymlinkMetadata`) while still failing closed for missing files,
+executables, directories, symlinks and inherited streams. The hosted run for the combined fix/docs tree
+is pending at the time of this update; `PROVEN` remains a local SKIP (`landlock no`). Restoration is
+still pathname-visible, not atomic across a hard kill or inode-preserving. See
 `docs/audits/PHASE3A_CANDIDATE_AND_REPLAY_ORDERING.md` and `docs/research/`.
