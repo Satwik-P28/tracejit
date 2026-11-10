@@ -1,0 +1,1080 @@
+{
+  "phase": "3B",
+  "experiment": "bzip2 identical-rerun transition",
+  "label": "old-a11ae4b",
+  "repository": {
+    "commit": "58c39a7927e6d25b9f9cdde711f29d7f3b9fbf5d"
+  },
+  "binary": {
+    "path": "/workspace/chats/3ead97f7907244943d2638d7/target/old-tracejit",
+    "sha256": "3ea020aadd082d2aa01becb319c30c11334c755ee870e24983b0bee3bbe17981",
+    "size": 6789568
+  },
+  "host": {
+    "platform": "Linux-6.1.102-x86_64-with-glibc2.39",
+    "kernel": "6.1.102",
+    "cpus": 8,
+    "memory": "MemTotal:       16376832 kB"
+  },
+  "contract": "allocator-entropy-v1",
+  "workload": "three 2.8 MB JavaScript assets compressed with bzip2 -9 -k -f",
+  "rounds": [
+    {
+      "label": "first_build_outputs_absent",
+      "ms": 809.446,
+      "decisions": [
+        {
+          "asset": "app.js",
+          "decision": "Executed",
+          "reason": "no eligible cached execution matched the pre-execution identity",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        },
+        {
+          "asset": "vendor.js",
+          "decision": "Executed",
+          "reason": "no eligible cached execution matched the pre-execution identity",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        },
+        {
+          "asset": "worker.js",
+          "decision": "Executed",
+          "reason": "no eligible cached execution matched the pre-execution identity",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        }
+      ],
+      "phases": {},
+      "failures": []
+    },
+    {
+      "label": "identical_rerun_transition",
+      "ms": 811.263,
+      "decisions": [
+        {
+          "asset": "app.js",
+          "decision": "Deoptimized",
+          "reason": "cached execution deoptimized",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        },
+        {
+          "asset": "vendor.js",
+          "decision": "Deoptimized",
+          "reason": "cached execution deoptimized",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        },
+        {
+          "asset": "worker.js",
+          "decision": "Deoptimized",
+          "reason": "cached execution deoptimized",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        }
+      ],
+      "phases": {},
+      "failures": [
+        {
+          "file": "00383fcb8d9c2043.json",
+          "decision": "Deoptimized",
+          "reason": "metadata changed; no content hash was recorded",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/vendor.js.bz2",
+              "expected": {
+                "device": 18446744073709551615,
+                "inode": 18446744073709551615,
+                "size": 18446744073709551615,
+                "blocks": 18446744073709551615,
+                "block_size": 18446744073709551615,
+                "accessed_ns": -170141183460469231731687303715884105728,
+                "modified_ns": -170141183460469231731687303715884105728,
+                "changed_ns": -170141183460469231731687303715884105728,
+                "mode": 4294967295,
+                "link_count": 18446744073709551615,
+                "uid": 4294967295,
+                "gid": 4294967295,
+                "device_id": 18446744073709551615
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }",
+          "actual": "FileFingerprint { device: 65024, inode: 656497, size: 381745, blocks: 752, block_size: 4096, accessed_ns: 1794346281539350561, modified_ns: 1794346281000000000, changed_ns: 1794346281535350561, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }"
+        },
+        {
+          "file": "063c3b75a457015c.json",
+          "decision": "Deoptimized",
+          "reason": "metadata changed; no content hash was recorded",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/vendor.js.bz2",
+              "expected": {
+                "device": 18446744073709551615,
+                "inode": 18446744073709551615,
+                "size": 18446744073709551615,
+                "blocks": 18446744073709551615,
+                "block_size": 18446744073709551615,
+                "accessed_ns": -170141183460469231731687303715884105728,
+                "modified_ns": -170141183460469231731687303715884105728,
+                "changed_ns": -170141183460469231731687303715884105728,
+                "mode": 4294967295,
+                "link_count": 18446744073709551615,
+                "uid": 4294967295,
+                "gid": 4294967295,
+                "device_id": 18446744073709551615
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }",
+          "actual": "FileFingerprint { device: 65024, inode: 656497, size: 381745, blocks: 752, block_size: 4096, accessed_ns: 1794346281539350561, modified_ns: 1794346281000000000, changed_ns: 1794346281535350561, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }"
+        },
+        {
+          "file": "0d459bfc17729ba4.json",
+          "decision": "Deoptimized",
+          "reason": "metadata changed; no content hash was recorded",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/app.js.bz2",
+              "expected": {
+                "device": 18446744073709551615,
+                "inode": 18446744073709551615,
+                "size": 18446744073709551615,
+                "blocks": 18446744073709551615,
+                "block_size": 18446744073709551615,
+                "accessed_ns": -170141183460469231731687303715884105728,
+                "modified_ns": -170141183460469231731687303715884105728,
+                "changed_ns": -170141183460469231731687303715884105728,
+                "mode": 4294967295,
+                "link_count": 18446744073709551615,
+                "uid": 4294967295,
+                "gid": 4294967295,
+                "device_id": 18446744073709551615
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }",
+          "actual": "FileFingerprint { device: 65024, inode: 656453, size: 368892, blocks: 728, block_size: 4096, accessed_ns: 1794346281271350561, modified_ns: 1794346280000000000, changed_ns: 1794346281263350561, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }"
+        },
+        {
+          "file": "a4518490bac141a0.json",
+          "decision": "Deoptimized",
+          "reason": "metadata changed; no content hash was recorded",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/worker.js.bz2",
+              "expected": {
+                "device": 18446744073709551615,
+                "inode": 18446744073709551615,
+                "size": 18446744073709551615,
+                "blocks": 18446744073709551615,
+                "block_size": 18446744073709551615,
+                "accessed_ns": -170141183460469231731687303715884105728,
+                "modified_ns": -170141183460469231731687303715884105728,
+                "changed_ns": -170141183460469231731687303715884105728,
+                "mode": 4294967295,
+                "link_count": 18446744073709551615,
+                "uid": 4294967295,
+                "gid": 4294967295,
+                "device_id": 18446744073709551615
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }",
+          "actual": "FileFingerprint { device: 65024, inode: 656519, size: 377233, blocks: 744, block_size: 4096, accessed_ns: 1794346281799350561, modified_ns: 1794346281000000000, changed_ns: 1794346281791350561, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }"
+        },
+        {
+          "file": "b4ca24f1fc307bc2.json",
+          "decision": "Deoptimized",
+          "reason": "metadata changed; no content hash was recorded",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/app.js.bz2",
+              "expected": {
+                "device": 18446744073709551615,
+                "inode": 18446744073709551615,
+                "size": 18446744073709551615,
+                "blocks": 18446744073709551615,
+                "block_size": 18446744073709551615,
+                "accessed_ns": -170141183460469231731687303715884105728,
+                "modified_ns": -170141183460469231731687303715884105728,
+                "changed_ns": -170141183460469231731687303715884105728,
+                "mode": 4294967295,
+                "link_count": 18446744073709551615,
+                "uid": 4294967295,
+                "gid": 4294967295,
+                "device_id": 18446744073709551615
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }",
+          "actual": "FileFingerprint { device: 65024, inode: 656453, size: 368892, blocks: 728, block_size: 4096, accessed_ns: 1794346281271350561, modified_ns: 1794346280000000000, changed_ns: 1794346281263350561, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }"
+        },
+        {
+          "file": "bad82342be1eb53e.json",
+          "decision": "Deoptimized",
+          "reason": "metadata changed; no content hash was recorded",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/worker.js.bz2",
+              "expected": {
+                "device": 18446744073709551615,
+                "inode": 18446744073709551615,
+                "size": 18446744073709551615,
+                "blocks": 18446744073709551615,
+                "block_size": 18446744073709551615,
+                "accessed_ns": -170141183460469231731687303715884105728,
+                "modified_ns": -170141183460469231731687303715884105728,
+                "changed_ns": -170141183460469231731687303715884105728,
+                "mode": 4294967295,
+                "link_count": 18446744073709551615,
+                "uid": 4294967295,
+                "gid": 4294967295,
+                "device_id": 18446744073709551615
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }",
+          "actual": "FileFingerprint { device: 65024, inode: 656519, size: 377233, blocks: 744, block_size: 4096, accessed_ns: 1794346281799350561, modified_ns: 1794346281000000000, changed_ns: 1794346281791350561, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }"
+        }
+      ]
+    },
+    {
+      "label": "identical_rerun_stable",
+      "ms": 242.411,
+      "decisions": [
+        {
+          "asset": "app.js",
+          "decision": "Reused",
+          "reason": "all guards passed and cached outputs were restored",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        },
+        {
+          "asset": "vendor.js",
+          "decision": "Reused",
+          "reason": "all guards passed and cached outputs were restored",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        },
+        {
+          "asset": "worker.js",
+          "decision": "Reused",
+          "reason": "all guards passed and cached outputs were restored",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        }
+      ],
+      "phases": {
+        "process_startup_ns": 1798426,
+        "cli_parse_ns": 133751,
+        "identity_prepare_ns": 213290,
+        "cache_prepare_ns": 22663,
+        "sqlite_open_ns": 189365,
+        "sqlite_schema_ns": 328326,
+        "lookup_key_ns": 11091,
+        "sqlite_query_ns": 255720,
+        "record_decode_ns": 373260,
+        "guard_validation_ns": 6856521,
+        "cas_restore_ns": 2844404,
+        "stdio_replay_ns": 25178,
+        "decision_persist_ns": 2469002,
+        "present_ns": 31619
+      },
+      "failures": [
+        {
+          "file": "00383fcb8d9c2043.json",
+          "decision": "Deoptimized",
+          "reason": "metadata changed; no content hash was recorded",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/vendor.js.bz2",
+              "expected": {
+                "device": 18446744073709551615,
+                "inode": 18446744073709551615,
+                "size": 18446744073709551615,
+                "blocks": 18446744073709551615,
+                "block_size": 18446744073709551615,
+                "accessed_ns": -170141183460469231731687303715884105728,
+                "modified_ns": -170141183460469231731687303715884105728,
+                "changed_ns": -170141183460469231731687303715884105728,
+                "mode": 4294967295,
+                "link_count": 18446744073709551615,
+                "uid": 4294967295,
+                "gid": 4294967295,
+                "device_id": 18446744073709551615
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }",
+          "actual": "FileFingerprint { device: 65024, inode: 656497, size: 381745, blocks: 752, block_size: 4096, accessed_ns: 1794346281539350561, modified_ns: 1794346281000000000, changed_ns: 1794346281535350561, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }"
+        },
+        {
+          "file": "0d459bfc17729ba4.json",
+          "decision": "Deoptimized",
+          "reason": "metadata changed; no content hash was recorded",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/app.js.bz2",
+              "expected": {
+                "device": 18446744073709551615,
+                "inode": 18446744073709551615,
+                "size": 18446744073709551615,
+                "blocks": 18446744073709551615,
+                "block_size": 18446744073709551615,
+                "accessed_ns": -170141183460469231731687303715884105728,
+                "modified_ns": -170141183460469231731687303715884105728,
+                "changed_ns": -170141183460469231731687303715884105728,
+                "mode": 4294967295,
+                "link_count": 18446744073709551615,
+                "uid": 4294967295,
+                "gid": 4294967295,
+                "device_id": 18446744073709551615
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }",
+          "actual": "FileFingerprint { device: 65024, inode: 656453, size: 368892, blocks: 728, block_size: 4096, accessed_ns: 1794346281271350561, modified_ns: 1794346280000000000, changed_ns: 1794346281263350561, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }"
+        },
+        {
+          "file": "a4518490bac141a0.json",
+          "decision": "Deoptimized",
+          "reason": "metadata changed; no content hash was recorded",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/worker.js.bz2",
+              "expected": {
+                "device": 18446744073709551615,
+                "inode": 18446744073709551615,
+                "size": 18446744073709551615,
+                "blocks": 18446744073709551615,
+                "block_size": 18446744073709551615,
+                "accessed_ns": -170141183460469231731687303715884105728,
+                "modified_ns": -170141183460469231731687303715884105728,
+                "changed_ns": -170141183460469231731687303715884105728,
+                "mode": 4294967295,
+                "link_count": 18446744073709551615,
+                "uid": 4294967295,
+                "gid": 4294967295,
+                "device_id": 18446744073709551615
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }",
+          "actual": "FileFingerprint { device: 65024, inode: 656519, size: 377233, blocks: 744, block_size: 4096, accessed_ns: 1794346281799350561, modified_ns: 1794346281000000000, changed_ns: 1794346281791350561, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }"
+        }
+      ]
+    },
+    {
+      "label": "outputs_deleted",
+      "ms": 807.075,
+      "decisions": [
+        {
+          "asset": "app.js",
+          "decision": "Deoptimized",
+          "reason": "cached execution deoptimized",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        },
+        {
+          "asset": "vendor.js",
+          "decision": "Deoptimized",
+          "reason": "cached execution deoptimized",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        },
+        {
+          "asset": "worker.js",
+          "decision": "Deoptimized",
+          "reason": "cached execution deoptimized",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        }
+      ],
+      "phases": {
+        "process_startup_ns": 1798426,
+        "cli_parse_ns": 133751,
+        "identity_prepare_ns": 213290,
+        "cache_prepare_ns": 22663,
+        "sqlite_open_ns": 189365,
+        "sqlite_schema_ns": 328326,
+        "lookup_key_ns": 11091,
+        "sqlite_query_ns": 255720,
+        "record_decode_ns": 373260,
+        "guard_validation_ns": 6856521,
+        "cas_restore_ns": 2844404,
+        "stdio_replay_ns": 25178,
+        "decision_persist_ns": 2469002,
+        "present_ns": 31619
+      },
+      "failures": [
+        {
+          "file": "00383fcb8d9c2043.json",
+          "decision": "Deoptimized",
+          "reason": "metadata changed; no content hash was recorded",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/vendor.js.bz2",
+              "expected": {
+                "device": 18446744073709551615,
+                "inode": 18446744073709551615,
+                "size": 18446744073709551615,
+                "blocks": 18446744073709551615,
+                "block_size": 18446744073709551615,
+                "accessed_ns": -170141183460469231731687303715884105728,
+                "modified_ns": -170141183460469231731687303715884105728,
+                "changed_ns": -170141183460469231731687303715884105728,
+                "mode": 4294967295,
+                "link_count": 18446744073709551615,
+                "uid": 4294967295,
+                "gid": 4294967295,
+                "device_id": 18446744073709551615
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }",
+          "actual": "FileFingerprint { device: 65024, inode: 656497, size: 381745, blocks: 752, block_size: 4096, accessed_ns: 1794346281539350561, modified_ns: 1794346281000000000, changed_ns: 1794346281535350561, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }"
+        },
+        {
+          "file": "063c3b75a457015c.json",
+          "decision": "Deoptimized",
+          "reason": "file metadata unavailable",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/vendor.js.bz2",
+              "expected": {
+                "device": 65024,
+                "inode": 656497,
+                "size": 381745,
+                "blocks": 752,
+                "block_size": 4096,
+                "accessed_ns": 1794346281539350561,
+                "modified_ns": 1794346281000000000,
+                "changed_ns": 1794346281535350561,
+                "mode": 33188,
+                "link_count": 1,
+                "uid": 65822751,
+                "gid": 1001,
+                "device_id": 0
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 65024, inode: 656497, size: 381745, blocks: 752, block_size: 4096, accessed_ns: 1794346281539350561, modified_ns: 1794346281000000000, changed_ns: 1794346281535350561, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }",
+          "actual": "could not read /tmp/tracejit-phase3b-rerun/work/assets/vendor.js.bz2: No such file or directory (os error 2)"
+        },
+        {
+          "file": "0c83168cd515562b.json",
+          "decision": "Deoptimized",
+          "reason": "file metadata unavailable",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/vendor.js.bz2",
+              "expected": {
+                "device": 65024,
+                "inode": 656497,
+                "size": 381745,
+                "blocks": 752,
+                "block_size": 4096,
+                "accessed_ns": 1794346281539350561,
+                "modified_ns": 1794346281000000000,
+                "changed_ns": 1794346281535350561,
+                "mode": 33188,
+                "link_count": 1,
+                "uid": 65822751,
+                "gid": 1001,
+                "device_id": 0
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 65024, inode: 656497, size: 381745, blocks: 752, block_size: 4096, accessed_ns: 1794346281539350561, modified_ns: 1794346281000000000, changed_ns: 1794346281535350561, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }",
+          "actual": "could not read /tmp/tracejit-phase3b-rerun/work/assets/vendor.js.bz2: No such file or directory (os error 2)"
+        },
+        {
+          "file": "0d459bfc17729ba4.json",
+          "decision": "Deoptimized",
+          "reason": "metadata changed; no content hash was recorded",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/app.js.bz2",
+              "expected": {
+                "device": 18446744073709551615,
+                "inode": 18446744073709551615,
+                "size": 18446744073709551615,
+                "blocks": 18446744073709551615,
+                "block_size": 18446744073709551615,
+                "accessed_ns": -170141183460469231731687303715884105728,
+                "modified_ns": -170141183460469231731687303715884105728,
+                "changed_ns": -170141183460469231731687303715884105728,
+                "mode": 4294967295,
+                "link_count": 18446744073709551615,
+                "uid": 4294967295,
+                "gid": 4294967295,
+                "device_id": 18446744073709551615
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }",
+          "actual": "FileFingerprint { device: 65024, inode: 656453, size: 368892, blocks: 728, block_size: 4096, accessed_ns: 1794346281271350561, modified_ns: 1794346280000000000, changed_ns: 1794346281263350561, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }"
+        },
+        {
+          "file": "4b1415ed7f847a24.json",
+          "decision": "Deoptimized",
+          "reason": "file metadata unavailable",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/worker.js.bz2",
+              "expected": {
+                "device": 65024,
+                "inode": 656519,
+                "size": 377233,
+                "blocks": 744,
+                "block_size": 4096,
+                "accessed_ns": 1794346281799350561,
+                "modified_ns": 1794346281000000000,
+                "changed_ns": 1794346281791350561,
+                "mode": 33188,
+                "link_count": 1,
+                "uid": 65822751,
+                "gid": 1001,
+                "device_id": 0
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 65024, inode: 656519, size: 377233, blocks: 744, block_size: 4096, accessed_ns: 1794346281799350561, modified_ns: 1794346281000000000, changed_ns: 1794346281791350561, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }",
+          "actual": "could not read /tmp/tracejit-phase3b-rerun/work/assets/worker.js.bz2: No such file or directory (os error 2)"
+        },
+        {
+          "file": "a10850100267e6c7.json",
+          "decision": "Deoptimized",
+          "reason": "file metadata unavailable",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/app.js.bz2",
+              "expected": {
+                "device": 65024,
+                "inode": 656453,
+                "size": 368892,
+                "blocks": 728,
+                "block_size": 4096,
+                "accessed_ns": 1794346281271350561,
+                "modified_ns": 1794346280000000000,
+                "changed_ns": 1794346281263350561,
+                "mode": 33188,
+                "link_count": 1,
+                "uid": 65822751,
+                "gid": 1001,
+                "device_id": 0
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 65024, inode: 656453, size: 368892, blocks: 728, block_size: 4096, accessed_ns: 1794346281271350561, modified_ns: 1794346280000000000, changed_ns: 1794346281263350561, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }",
+          "actual": "could not read /tmp/tracejit-phase3b-rerun/work/assets/app.js.bz2: No such file or directory (os error 2)"
+        },
+        {
+          "file": "a4518490bac141a0.json",
+          "decision": "Deoptimized",
+          "reason": "metadata changed; no content hash was recorded",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/worker.js.bz2",
+              "expected": {
+                "device": 18446744073709551615,
+                "inode": 18446744073709551615,
+                "size": 18446744073709551615,
+                "blocks": 18446744073709551615,
+                "block_size": 18446744073709551615,
+                "accessed_ns": -170141183460469231731687303715884105728,
+                "modified_ns": -170141183460469231731687303715884105728,
+                "changed_ns": -170141183460469231731687303715884105728,
+                "mode": 4294967295,
+                "link_count": 18446744073709551615,
+                "uid": 4294967295,
+                "gid": 4294967295,
+                "device_id": 18446744073709551615
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }",
+          "actual": "FileFingerprint { device: 65024, inode: 656519, size: 377233, blocks: 744, block_size: 4096, accessed_ns: 1794346281799350561, modified_ns: 1794346281000000000, changed_ns: 1794346281791350561, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }"
+        },
+        {
+          "file": "b4ca24f1fc307bc2.json",
+          "decision": "Deoptimized",
+          "reason": "file metadata unavailable",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/app.js.bz2",
+              "expected": {
+                "device": 65024,
+                "inode": 656453,
+                "size": 368892,
+                "blocks": 728,
+                "block_size": 4096,
+                "accessed_ns": 1794346281271350561,
+                "modified_ns": 1794346280000000000,
+                "changed_ns": 1794346281263350561,
+                "mode": 33188,
+                "link_count": 1,
+                "uid": 65822751,
+                "gid": 1001,
+                "device_id": 0
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 65024, inode: 656453, size: 368892, blocks: 728, block_size: 4096, accessed_ns: 1794346281271350561, modified_ns: 1794346280000000000, changed_ns: 1794346281263350561, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }",
+          "actual": "could not read /tmp/tracejit-phase3b-rerun/work/assets/app.js.bz2: No such file or directory (os error 2)"
+        },
+        {
+          "file": "bad82342be1eb53e.json",
+          "decision": "Deoptimized",
+          "reason": "file metadata unavailable",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/worker.js.bz2",
+              "expected": {
+                "device": 65024,
+                "inode": 656519,
+                "size": 377233,
+                "blocks": 744,
+                "block_size": 4096,
+                "accessed_ns": 1794346281799350561,
+                "modified_ns": 1794346281000000000,
+                "changed_ns": 1794346281791350561,
+                "mode": 33188,
+                "link_count": 1,
+                "uid": 65822751,
+                "gid": 1001,
+                "device_id": 0
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 65024, inode: 656519, size: 377233, blocks: 744, block_size: 4096, accessed_ns: 1794346281799350561, modified_ns: 1794346281000000000, changed_ns: 1794346281791350561, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }",
+          "actual": "could not read /tmp/tracejit-phase3b-rerun/work/assets/worker.js.bz2: No such file or directory (os error 2)"
+        }
+      ]
+    },
+    {
+      "label": "one_input_modified",
+      "ms": 831.204,
+      "decisions": [
+        {
+          "asset": "app.js",
+          "decision": "Deoptimized",
+          "reason": "cached execution deoptimized",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        },
+        {
+          "asset": "vendor.js",
+          "decision": "Deoptimized",
+          "reason": "cached execution deoptimized",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        },
+        {
+          "asset": "worker.js",
+          "decision": "Deoptimized",
+          "reason": "cached execution deoptimized",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        }
+      ],
+      "phases": {
+        "process_startup_ns": 1798426,
+        "cli_parse_ns": 133751,
+        "identity_prepare_ns": 213290,
+        "cache_prepare_ns": 22663,
+        "sqlite_open_ns": 189365,
+        "sqlite_schema_ns": 328326,
+        "lookup_key_ns": 11091,
+        "sqlite_query_ns": 255720,
+        "record_decode_ns": 373260,
+        "guard_validation_ns": 6856521,
+        "cas_restore_ns": 2844404,
+        "stdio_replay_ns": 25178,
+        "decision_persist_ns": 2469002,
+        "present_ns": 31619
+      },
+      "failures": [
+        {
+          "file": "00383fcb8d9c2043.json",
+          "decision": "Deoptimized",
+          "reason": "metadata changed; no content hash was recorded",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/vendor.js.bz2",
+              "expected": {
+                "device": 18446744073709551615,
+                "inode": 18446744073709551615,
+                "size": 18446744073709551615,
+                "blocks": 18446744073709551615,
+                "block_size": 18446744073709551615,
+                "accessed_ns": -170141183460469231731687303715884105728,
+                "modified_ns": -170141183460469231731687303715884105728,
+                "changed_ns": -170141183460469231731687303715884105728,
+                "mode": 4294967295,
+                "link_count": 18446744073709551615,
+                "uid": 4294967295,
+                "gid": 4294967295,
+                "device_id": 18446744073709551615
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }",
+          "actual": "FileFingerprint { device: 65024, inode: 656497, size: 381745, blocks: 752, block_size: 4096, accessed_ns: 1794346281539350561, modified_ns: 1794346281000000000, changed_ns: 1794346281535350561, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }"
+        },
+        {
+          "file": "063c3b75a457015c.json",
+          "decision": "Deoptimized",
+          "reason": "file metadata unavailable",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/vendor.js.bz2",
+              "expected": {
+                "device": 65024,
+                "inode": 656497,
+                "size": 381745,
+                "blocks": 752,
+                "block_size": 4096,
+                "accessed_ns": 1794346281539350561,
+                "modified_ns": 1794346281000000000,
+                "changed_ns": 1794346281535350561,
+                "mode": 33188,
+                "link_count": 1,
+                "uid": 65822751,
+                "gid": 1001,
+                "device_id": 0
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 65024, inode: 656497, size: 381745, blocks: 752, block_size: 4096, accessed_ns: 1794346281539350561, modified_ns: 1794346281000000000, changed_ns: 1794346281535350561, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }",
+          "actual": "could not read /tmp/tracejit-phase3b-rerun/work/assets/vendor.js.bz2: No such file or directory (os error 2)"
+        },
+        {
+          "file": "0c83168cd515562b.json",
+          "decision": "Deoptimized",
+          "reason": "metadata changed; no content hash was recorded",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/vendor.js.bz2",
+              "expected": {
+                "device": 18446744073709551615,
+                "inode": 18446744073709551615,
+                "size": 18446744073709551615,
+                "blocks": 18446744073709551615,
+                "block_size": 18446744073709551615,
+                "accessed_ns": -170141183460469231731687303715884105728,
+                "modified_ns": -170141183460469231731687303715884105728,
+                "changed_ns": -170141183460469231731687303715884105728,
+                "mode": 4294967295,
+                "link_count": 18446744073709551615,
+                "uid": 4294967295,
+                "gid": 4294967295,
+                "device_id": 18446744073709551615
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }",
+          "actual": "FileFingerprint { device: 65024, inode: 656497, size: 381745, blocks: 752, block_size: 4096, accessed_ns: 1794346283395119021, modified_ns: 1794346281000000000, changed_ns: 1794346283391119021, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }"
+        },
+        {
+          "file": "0d459bfc17729ba4.json",
+          "decision": "Deoptimized",
+          "reason": "metadata changed; no content hash was recorded",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/app.js.bz2",
+              "expected": {
+                "device": 18446744073709551615,
+                "inode": 18446744073709551615,
+                "size": 18446744073709551615,
+                "blocks": 18446744073709551615,
+                "block_size": 18446744073709551615,
+                "accessed_ns": -170141183460469231731687303715884105728,
+                "modified_ns": -170141183460469231731687303715884105728,
+                "changed_ns": -170141183460469231731687303715884105728,
+                "mode": 4294967295,
+                "link_count": 18446744073709551615,
+                "uid": 4294967295,
+                "gid": 4294967295,
+                "device_id": 18446744073709551615
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }",
+          "actual": "FileFingerprint { device: 65024, inode: 656453, size: 368892, blocks: 728, block_size: 4096, accessed_ns: 1794346281271350561, modified_ns: 1794346280000000000, changed_ns: 1794346281263350561, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }"
+        },
+        {
+          "file": "4b1415ed7f847a24.json",
+          "decision": "Deoptimized",
+          "reason": "metadata changed; no content hash was recorded",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/worker.js.bz2",
+              "expected": {
+                "device": 18446744073709551615,
+                "inode": 18446744073709551615,
+                "size": 18446744073709551615,
+                "blocks": 18446744073709551615,
+                "block_size": 18446744073709551615,
+                "accessed_ns": -170141183460469231731687303715884105728,
+                "modified_ns": -170141183460469231731687303715884105728,
+                "changed_ns": -170141183460469231731687303715884105728,
+                "mode": 4294967295,
+                "link_count": 18446744073709551615,
+                "uid": 4294967295,
+                "gid": 4294967295,
+                "device_id": 18446744073709551615
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }",
+          "actual": "FileFingerprint { device: 65024, inode: 656519, size: 377233, blocks: 744, block_size: 4096, accessed_ns: 1794346283671119021, modified_ns: 1794346281000000000, changed_ns: 1794346283667119021, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }"
+        },
+        {
+          "file": "601004bb40aba203.json",
+          "decision": "Deoptimized",
+          "reason": "metadata changed; no content hash was recorded",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/vendor.js.bz2",
+              "expected": {
+                "device": 18446744073709551615,
+                "inode": 18446744073709551615,
+                "size": 18446744073709551615,
+                "blocks": 18446744073709551615,
+                "block_size": 18446744073709551615,
+                "accessed_ns": -170141183460469231731687303715884105728,
+                "modified_ns": -170141183460469231731687303715884105728,
+                "changed_ns": -170141183460469231731687303715884105728,
+                "mode": 4294967295,
+                "link_count": 18446744073709551615,
+                "uid": 4294967295,
+                "gid": 4294967295,
+                "device_id": 18446744073709551615
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }",
+          "actual": "FileFingerprint { device: 65024, inode: 656497, size: 381745, blocks: 752, block_size: 4096, accessed_ns: 1794346283395119021, modified_ns: 1794346281000000000, changed_ns: 1794346283391119021, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }"
+        },
+        {
+          "file": "7c5e0bac163a01ae.json",
+          "decision": "Deoptimized",
+          "reason": "file content changed",
+          "guard": {
+            "FileHash": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/app.js",
+              "expected": [
+                221,
+                178,
+                47,
+                250,
+                69,
+                22,
+                194,
+                57,
+                36,
+                80,
+                235,
+                181,
+                4,
+                243,
+                21,
+                56,
+                221,
+                161,
+                136,
+                62,
+                90,
+                67,
+                10,
+                92,
+                50,
+                54,
+                138,
+                113,
+                161,
+                9,
+                107,
+                102
+              ]
+            }
+          },
+          "expected": "ddb22ffa4516c2392450ebb504f31538dda1883e5a430a5c32368a71a1096b66",
+          "actual": "a69aa678c6fa3c1ca32373874feec50f7b7d96917d8c56c81599b9565de7e9aa"
+        },
+        {
+          "file": "a10850100267e6c7.json",
+          "decision": "Deoptimized",
+          "reason": "file content changed",
+          "guard": {
+            "FileHash": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/app.js",
+              "expected": [
+                221,
+                178,
+                47,
+                250,
+                69,
+                22,
+                194,
+                57,
+                36,
+                80,
+                235,
+                181,
+                4,
+                243,
+                21,
+                56,
+                221,
+                161,
+                136,
+                62,
+                90,
+                67,
+                10,
+                92,
+                50,
+                54,
+                138,
+                113,
+                161,
+                9,
+                107,
+                102
+              ]
+            }
+          },
+          "expected": "ddb22ffa4516c2392450ebb504f31538dda1883e5a430a5c32368a71a1096b66",
+          "actual": "a69aa678c6fa3c1ca32373874feec50f7b7d96917d8c56c81599b9565de7e9aa"
+        },
+        {
+          "file": "a4518490bac141a0.json",
+          "decision": "Deoptimized",
+          "reason": "metadata changed; no content hash was recorded",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/worker.js.bz2",
+              "expected": {
+                "device": 18446744073709551615,
+                "inode": 18446744073709551615,
+                "size": 18446744073709551615,
+                "blocks": 18446744073709551615,
+                "block_size": 18446744073709551615,
+                "accessed_ns": -170141183460469231731687303715884105728,
+                "modified_ns": -170141183460469231731687303715884105728,
+                "changed_ns": -170141183460469231731687303715884105728,
+                "mode": 4294967295,
+                "link_count": 18446744073709551615,
+                "uid": 4294967295,
+                "gid": 4294967295,
+                "device_id": 18446744073709551615
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }",
+          "actual": "FileFingerprint { device: 65024, inode: 656519, size: 377233, blocks: 744, block_size: 4096, accessed_ns: 1794346281799350561, modified_ns: 1794346281000000000, changed_ns: 1794346281791350561, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }"
+        },
+        {
+          "file": "b4ca24f1fc307bc2.json",
+          "decision": "Deoptimized",
+          "reason": "file metadata unavailable",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/app.js.bz2",
+              "expected": {
+                "device": 65024,
+                "inode": 656453,
+                "size": 368892,
+                "blocks": 728,
+                "block_size": 4096,
+                "accessed_ns": 1794346281271350561,
+                "modified_ns": 1794346280000000000,
+                "changed_ns": 1794346281263350561,
+                "mode": 33188,
+                "link_count": 1,
+                "uid": 65822751,
+                "gid": 1001,
+                "device_id": 0
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 65024, inode: 656453, size: 368892, blocks: 728, block_size: 4096, accessed_ns: 1794346281271350561, modified_ns: 1794346280000000000, changed_ns: 1794346281263350561, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }",
+          "actual": "could not read /tmp/tracejit-phase3b-rerun/work/assets/app.js.bz2: No such file or directory (os error 2)"
+        },
+        {
+          "file": "bad82342be1eb53e.json",
+          "decision": "Deoptimized",
+          "reason": "file metadata unavailable",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/worker.js.bz2",
+              "expected": {
+                "device": 65024,
+                "inode": 656519,
+                "size": 377233,
+                "blocks": 744,
+                "block_size": 4096,
+                "accessed_ns": 1794346281799350561,
+                "modified_ns": 1794346281000000000,
+                "changed_ns": 1794346281791350561,
+                "mode": 33188,
+                "link_count": 1,
+                "uid": 65822751,
+                "gid": 1001,
+                "device_id": 0
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 65024, inode: 656519, size: 377233, blocks: 744, block_size: 4096, accessed_ns: 1794346281799350561, modified_ns: 1794346281000000000, changed_ns: 1794346281791350561, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }",
+          "actual": "could not read /tmp/tracejit-phase3b-rerun/work/assets/worker.js.bz2: No such file or directory (os error 2)"
+        },
+        {
+          "file": "f9a707c005769fcd.json",
+          "decision": "Deoptimized",
+          "reason": "metadata changed; no content hash was recorded",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/worker.js.bz2",
+              "expected": {
+                "device": 18446744073709551615,
+                "inode": 18446744073709551615,
+                "size": 18446744073709551615,
+                "blocks": 18446744073709551615,
+                "block_size": 18446744073709551615,
+                "accessed_ns": -170141183460469231731687303715884105728,
+                "modified_ns": -170141183460469231731687303715884105728,
+                "changed_ns": -170141183460469231731687303715884105728,
+                "mode": 4294967295,
+                "link_count": 18446744073709551615,
+                "uid": 4294967295,
+                "gid": 4294967295,
+                "device_id": 18446744073709551615
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }",
+          "actual": "FileFingerprint { device: 65024, inode: 656519, size: 377233, blocks: 744, block_size: 4096, accessed_ns: 1794346283671119021, modified_ns: 1794346281000000000, changed_ns: 1794346283667119021, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }"
+        }
+      ]
+    }
+  ]
+}

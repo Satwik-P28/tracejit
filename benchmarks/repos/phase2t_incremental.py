@@ -514,13 +514,20 @@ def summarize(sessions: list[dict]) -> dict:
 
 
 def main() -> int:
+    global TRACEJIT
     parser = argparse.ArgumentParser()
     parser.add_argument("--sessions", type=int, default=3)
     parser.add_argument("--output-dir", default=str(RESULTS))
     parser.add_argument("--seed", type=int, default=20261110)
+    parser.add_argument(
+        "--binary",
+        default=str(TRACEJIT),
+        help="TraceJIT binary to measure (defaults to target/release/tracejit)",
+    )
     args = parser.parse_args()
+    TRACEJIT = Path(args.binary).resolve()
     if not TRACEJIT.is_file():
-        raise SystemExit("missing target/release/tracejit; build the release workspace first")
+        raise SystemExit(f"missing TraceJIT binary: {TRACEJIT}")
     shutil.rmtree(ROOT, ignore_errors=True)
     ROOT.mkdir(parents=True)
     input_template = ROOT / "inputs"

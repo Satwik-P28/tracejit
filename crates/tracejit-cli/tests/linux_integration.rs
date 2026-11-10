@@ -1470,6 +1470,98 @@ fn a_corrupted_cached_output_fails_closed() {
     );
 }
 
+/// A corrupt stdout or stderr object must be rejected before the cached output is restored.
+///
+/// The fixture branches on whether its output path exists, so restoring first would make the
+/// retrace observe `PRESENT` and produce different bytes than a run against the original
+/// `ABSENT` state. Corrupting the recorded stream object makes the two orders distinguishable.
+#[test]
+fn corrupt_stream_is_rejected_before_output_restoration() {
+    for (case, record_field, report_field, expected_stream) in [
+        (
+            "output_presence_stdout",
+            "stdout",
+            "stdout_bytes",
+            b"stream fixture\n".as_slice(),
+        ),
+        (
+            "output_presence_stderr",
+            "stderr",
+            "stderr_bytes",
+            b"stream fixture\n".as_slice(),
+        ),
+    ] {
+        let fixture = Fixture::new();
+        let output = fixture.input("output.txt");
+        let _ = fs::remove_file(&output);
+        let first = fixture.run(case);
+        assert!(first.status.success(), "{case}: {}", stderr_of(&first));
+        assert_eq!(fs::read(&output).unwrap(), b"ABSENT\n", "{case}");
+
+        let explanation = invoke(&fixture.cache, &["explain", "--json"], None);
+        let record: Value = serde_json::from_slice(&explanation.stdout).unwrap();
+        let hash = record[record_field]
+            .as_array()
+            .map(|bytes| {
+                let bytes = bytes
+                    .iter()
+                    .map(|byte| byte.as_u64().unwrap() as u8)
+                    .collect::<Vec<_>>();
+                bytes
+                    .iter()
+                    .map(|byte| format!("{byte:02x}"))
+                    .collect::<String>()
+            })
+            .unwrap_or_else(|| panic!("{case}: no recorded {record_field} object: {record}"));
+        let object = fixture.cache.join("objects").join(hash);
+        fs::write(&object, b"tampered").unwrap();
+
+        // The original pre-state is absent, so the output guard passes. Only the stream object
+        // is corrupt. A restore-first implementation would leave `ABSENT` in place, detect the
+        // corruption, retrace against `PRESENT`, and produce the wrong bytes.
+        fs::remove_file(&output).unwrap();
+        let run = invoke(
+            &fixture.cache,
+            &[
+                "run",
+                "--json",
+                "--",
+                fixture.binary_arg(),
+                case,
+                fixture.root(),
+            ],
+            None,
+        );
+        assert!(
+            run.status.success(),
+            "{case}: corruption made the command fatal: {}",
+            stderr_of(&run)
+        );
+        let report: Value = serde_json::from_slice(&run.stdout).unwrap();
+        assert_ne!(report["kind"], "Reused", "{case}: {report}");
+        assert_eq!(
+            fs::read(&output).unwrap(),
+            b"ABSENT\n",
+            "{case}: output was restored before the corrupt stream was rejected: {report}"
+        );
+        let stream = report[report_field]
+            .as_array()
+            .unwrap_or_else(|| panic!("{case}: no {report_field}: {report}"))
+            .iter()
+            .map(|byte| byte.as_u64().unwrap() as u8)
+            .collect::<Vec<_>>();
+        assert_eq!(stream, expected_stream, "{case}: {report}");
+
+        let explanation = invoke(&fixture.cache, &["explain", "--json"], None);
+        let record: Value = serde_json::from_slice(&explanation.stdout).unwrap();
+        let reason = record["last_decision"]["reason"]
+            .as_str()
+            .unwrap_or_default();
+        assert!(reason.contains("corrupt"), "{case}: {reason}");
+    }
+    eprintln!("RESULT corrupt-stream-order PASS");
+}
+
 #[test]
 fn a_self_killed_child_is_reported_and_never_reused() {
     let fixture = Fixture::new();

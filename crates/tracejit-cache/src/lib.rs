@@ -156,7 +156,19 @@ const CACHE_SCHEMA_VERSION: i64 = 2;
 /// the lookup key, so alternating between two versions of an input must not evict the first
 /// result merely because the second was observed later. The bound keeps a pathological workflow
 /// from growing the database without limit; the newest records win.
-const MAX_CANDIDATES_PER_IDENTITY: usize = 8;
+const DEFAULT_MAX_CANDIDATES_PER_IDENTITY: usize = 8;
+const MAX_CANDIDATES_ENV: &str = "TRACEJIT_CANDIDATE_BOUND";
+
+/// The retention bound is a policy choice, not an execution identity. An experimental override
+/// lets the scaling benchmark exercise 1, 2, 4, 8, 16 and 32 candidates without changing the
+/// default or making the bound part of a recorded command's key. Invalid values keep the default.
+fn max_candidates_per_identity() -> usize {
+    std::env::var(MAX_CANDIDATES_ENV)
+        .ok()
+        .and_then(|value| value.parse::<usize>().ok())
+        .filter(|bound| (1..=32).contains(bound))
+        .unwrap_or(DEFAULT_MAX_CANDIDATES_PER_IDENTITY)
+}
 
 pub struct Cache {
     root: PathBuf,
@@ -330,7 +342,7 @@ impl Cache {
             // Keep the record just written plus the newest seven alternates. The query is
             // newest-first, so the tail is oldest and the current record is never pruned even
             // when several writes share a millisecond timestamp.
-            stale.extend(others.into_iter().skip(MAX_CANDIDATES_PER_IDENTITY - 1));
+            stale.extend(others.into_iter().skip(max_candidates_per_identity() - 1));
         }
         for id in &stale {
             transaction.execute("DELETE FROM executions WHERE execution_id = ?1", [id])?;

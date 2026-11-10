@@ -1,0 +1,2603 @@
+{
+  "phase": "2T",
+  "workload": "three JavaScript assets precompressed with bzip2 -9 -k -f",
+  "contract": "allocator-entropy-v1",
+  "tracejit": {
+    "sha256": "5c829977a78bff07b4905a7c575e16b9c805c3d0e97041991717f5f0422c2db4",
+    "size": 6826232
+  },
+  "repository": {
+    "commit": "58c39a7927e6d25b9f9cdde711f29d7f3b9fbf5d",
+    "dirty": true
+  },
+  "host": {
+    "platform": "Linux-6.1.102-x86_64-with-glibc2.39",
+    "kernel": "6.1.102",
+    "cpus": 8,
+    "memory": "MemTotal:       16376832 kB",
+    "make": "GNU Make 4.3",
+    "ninja": "1.13.2.git.kitware.jobserver-pipe-1"
+  },
+  "input_fingerprints": {
+    "app.js": {
+      "sha256": "48d467d8d72a62888cbbe4b10752a94176c494ee0e7ed827fe09725fff4245a0",
+      "size": 2815553,
+      "mode": "0o644",
+      "mtime_ns": 1794346179779665077
+    },
+    "vendor.js": {
+      "sha256": "2c6545b384aff4cc0040ec326b73d9aeb8fc77684163dd6bff643180108ac027",
+      "size": 2815554,
+      "mode": "0o644",
+      "mtime_ns": 1794346179819665077
+    },
+    "worker.js": {
+      "sha256": "d87b7449b72e9846ecd1580acde32b39fb8b575d278c90e9ec5e859ba3afe6b8",
+      "size": 2815555,
+      "mode": "0o644",
+      "mtime_ns": 1794346179863665077
+    }
+  },
+  "configuration": {
+    "native": {
+      "lines": 0,
+      "declared_edges": 0,
+      "build_file": false
+    },
+    "ninja": {
+      "lines": 9,
+      "declared_edges": 3,
+      "build_file": true
+    },
+    "hashcache": {
+      "lines": 25,
+      "declared_edges": 3,
+      "build_file": false
+    },
+    "tracejit": {
+      "lines": 0,
+      "declared_edges": 0,
+      "build_file": false
+    },
+    "make": {
+      "lines": 15,
+      "declared_edges": 3,
+      "build_file": true
+    }
+  },
+  "sessions": [
+    {
+      "session": 1,
+      "arm_order": [
+        "native",
+        "ninja",
+        "hashcache",
+        "tracejit",
+        "make"
+      ],
+      "arms": {
+        "native": [
+          {
+            "scenario": "1_first_build_no_outputs",
+            "jobs": 1,
+            "ms": 412.88,
+            "decisions": [],
+            "correct": true,
+            "output_metadata_matches_native": true,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "f6ed261e6b72e1a9372c29d09e662a062b91a08216b58124c549807dca131d04",
+                "size": 368892,
+                "mode": "0o644",
+                "mtime_ns": 1794346179000000000
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346179000000000
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346179000000000
+              }
+            }
+          },
+          {
+            "scenario": "2_identical_rerun_outputs_present",
+            "jobs": 1,
+            "ms": 431.54,
+            "decisions": [],
+            "correct": true,
+            "output_metadata_matches_native": true,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "f6ed261e6b72e1a9372c29d09e662a062b91a08216b58124c549807dca131d04",
+                "size": 368892,
+                "mode": "0o644",
+                "mtime_ns": 1794346179000000000
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346179000000000
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346179000000000
+              }
+            }
+          },
+          {
+            "scenario": "3_outputs_deleted",
+            "jobs": 1,
+            "ms": 403.13,
+            "decisions": [],
+            "correct": true,
+            "output_metadata_matches_native": true,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "f6ed261e6b72e1a9372c29d09e662a062b91a08216b58124c549807dca131d04",
+                "size": 368892,
+                "mode": "0o644",
+                "mtime_ns": 1794346179000000000
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346179000000000
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346179000000000
+              }
+            }
+          },
+          {
+            "scenario": "4_one_input_modified",
+            "jobs": 1,
+            "ms": 420.3,
+            "decisions": [],
+            "correct": true,
+            "output_metadata_matches_native": true,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346182000000000
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346179000000000
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346179000000000
+              }
+            }
+          },
+          {
+            "scenario": "5_unrelated_file_modified",
+            "jobs": 1,
+            "ms": 422.29,
+            "decisions": [],
+            "correct": true,
+            "output_metadata_matches_native": true,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346182000000000
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346179000000000
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346179000000000
+              }
+            }
+          },
+          {
+            "scenario": "6_input_changed_mtime_preserved",
+            "jobs": 1,
+            "ms": 411.63,
+            "decisions": [],
+            "correct": true,
+            "output_metadata_matches_native": true,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346182000000000
+              },
+              "vendor.js": {
+                "sha256": "f95ef752da8908723909755a4ef46b44f2710e245fc6d29bd05aa70b1ee70154",
+                "size": 381778,
+                "mode": "0o644",
+                "mtime_ns": 1794346179000000000
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346179000000000
+              }
+            }
+          },
+          {
+            "scenario": "7_output_corrupted_no_input_change",
+            "jobs": 1,
+            "ms": 418.82,
+            "decisions": [],
+            "correct": true,
+            "output_metadata_matches_native": true,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346182000000000
+              },
+              "vendor.js": {
+                "sha256": "f95ef752da8908723909755a4ef46b44f2710e245fc6d29bd05aa70b1ee70154",
+                "size": 381778,
+                "mode": "0o644",
+                "mtime_ns": 1794346179000000000
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346179000000000
+              }
+            }
+          },
+          {
+            "scenario": "8_build_directory_relocated",
+            "jobs": 1,
+            "ms": 424.31,
+            "decisions": [],
+            "correct": true,
+            "output_metadata_matches_native": true,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346182000000000
+              },
+              "vendor.js": {
+                "sha256": "f95ef752da8908723909755a4ef46b44f2710e245fc6d29bd05aa70b1ee70154",
+                "size": 381778,
+                "mode": "0o644",
+                "mtime_ns": 1794346179000000000
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346179000000000
+              }
+            }
+          },
+          {
+            "scenario": "9_parallel_transformations",
+            "jobs": 3,
+            "ms": 420.46,
+            "decisions": [],
+            "correct": true,
+            "output_metadata_matches_native": true,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346182000000000
+              },
+              "vendor.js": {
+                "sha256": "f95ef752da8908723909755a4ef46b44f2710e245fc6d29bd05aa70b1ee70154",
+                "size": 381778,
+                "mode": "0o644",
+                "mtime_ns": 1794346179000000000
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346179000000000
+              }
+            }
+          },
+          {
+            "scenario": "10_five_development_sessions",
+            "jobs": 1,
+            "ms": 2206.32,
+            "decisions": [],
+            "correct": true,
+            "output_metadata_matches_native": true,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "156ae275be8669a632c010fb74d7557069c071e987c0774781dec25dbd68e0ab",
+                "size": 368919,
+                "mode": "0o644",
+                "mtime_ns": 1794346189000000000
+              },
+              "vendor.js": {
+                "sha256": "1094c8b1931e00d376449f43a52925e90a18ae3f8fafcbb1d7cd6ab82bd37edc",
+                "size": 381828,
+                "mode": "0o644",
+                "mtime_ns": 1794346189000000000
+              },
+              "worker.js": {
+                "sha256": "505010a50cffe23ff1d6bbfb07eafc82bd5f538d12559dba21f4f63fc2d0fde2",
+                "size": 377524,
+                "mode": "0o644",
+                "mtime_ns": 1794346188000000000
+              }
+            }
+          }
+        ],
+        "ninja": [
+          {
+            "scenario": "1_first_build_no_outputs",
+            "jobs": 1,
+            "ms": 445.14,
+            "decisions": [
+              "ninja-exit-0"
+            ],
+            "correct": true,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "f6ed261e6b72e1a9372c29d09e662a062b91a08216b58124c549807dca131d04",
+                "size": 368892,
+                "mode": "0o644",
+                "mtime_ns": 1794346191114774814
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346191266774814
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346191406774814
+              }
+            }
+          },
+          {
+            "scenario": "2_identical_rerun_outputs_present",
+            "jobs": 1,
+            "ms": 3.34,
+            "decisions": [
+              "ninja-exit-0"
+            ],
+            "correct": true,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "f6ed261e6b72e1a9372c29d09e662a062b91a08216b58124c549807dca131d04",
+                "size": 368892,
+                "mode": "0o644",
+                "mtime_ns": 1794346191114774814
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346191266774814
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346191406774814
+              }
+            }
+          },
+          {
+            "scenario": "3_outputs_deleted",
+            "jobs": 1,
+            "ms": 466.18,
+            "decisions": [
+              "ninja-exit-0"
+            ],
+            "correct": true,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "f6ed261e6b72e1a9372c29d09e662a062b91a08216b58124c549807dca131d04",
+                "size": 368892,
+                "mode": "0o644",
+                "mtime_ns": 1794346192450321372
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346192610321372
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346192759360882
+              }
+            }
+          },
+          {
+            "scenario": "4_one_input_modified",
+            "jobs": 1,
+            "ms": 150.22,
+            "decisions": [
+              "ninja-exit-0"
+            ],
+            "correct": true,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346193391512721
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346192610321372
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346192759360882
+              }
+            }
+          },
+          {
+            "scenario": "5_unrelated_file_modified",
+            "jobs": 1,
+            "ms": 2.89,
+            "decisions": [
+              "ninja-exit-0"
+            ],
+            "correct": true,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346193391512721
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346192610321372
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346192759360882
+              }
+            }
+          },
+          {
+            "scenario": "6_input_changed_mtime_preserved",
+            "jobs": 1,
+            "ms": 3.0,
+            "decisions": [
+              "ninja-exit-0"
+            ],
+            "correct": false,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [
+              "vendor.js: content differs"
+            ],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346193391512721
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346192610321372
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346192759360882
+              }
+            }
+          },
+          {
+            "scenario": "7_output_corrupted_no_input_change",
+            "jobs": 1,
+            "ms": 2.5,
+            "decisions": [
+              "ninja-exit-0"
+            ],
+            "correct": false,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [
+              "vendor.js: content differs",
+              "worker.js: content differs"
+            ],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346193391512721
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346192610321372
+              },
+              "worker.js": {
+                "sha256": "cd03d92d6648bd94a6028d8dc72571288e73ea89934640e1f34ba3c3e3d86da5",
+                "size": 41,
+                "mode": "0o644",
+                "mtime_ns": 1794346192521006031
+              }
+            }
+          },
+          {
+            "scenario": "8_build_directory_relocated",
+            "jobs": 1,
+            "ms": 2.79,
+            "decisions": [
+              "ninja-exit-0"
+            ],
+            "correct": false,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [
+              "vendor.js: content differs",
+              "worker.js: content differs"
+            ],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346193391512721
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346192610321372
+              },
+              "worker.js": {
+                "sha256": "cd03d92d6648bd94a6028d8dc72571288e73ea89934640e1f34ba3c3e3d86da5",
+                "size": 41,
+                "mode": "0o644",
+                "mtime_ns": 1794346192521006031
+              }
+            }
+          },
+          {
+            "scenario": "9_parallel_transformations",
+            "jobs": 3,
+            "ms": 162.09,
+            "decisions": [
+              "ninja-exit-0"
+            ],
+            "correct": true,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346195762026532
+              },
+              "vendor.js": {
+                "sha256": "f95ef752da8908723909755a4ef46b44f2710e245fc6d29bd05aa70b1ee70154",
+                "size": 381778,
+                "mode": "0o644",
+                "mtime_ns": 1794346195762026532
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346195750026532
+              }
+            }
+          },
+          {
+            "scenario": "10_five_development_sessions",
+            "jobs": 1,
+            "ms": 806.73,
+            "decisions": [],
+            "correct": true,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "156ae275be8669a632c010fb74d7557069c071e987c0774781dec25dbd68e0ab",
+                "size": 368919,
+                "mode": "0o644",
+                "mtime_ns": 1794346196418515370
+              },
+              "vendor.js": {
+                "sha256": "1094c8b1931e00d376449f43a52925e90a18ae3f8fafcbb1d7cd6ab82bd37edc",
+                "size": 381828,
+                "mode": "0o644",
+                "mtime_ns": 1794346196574515370
+              },
+              "worker.js": {
+                "sha256": "505010a50cffe23ff1d6bbfb07eafc82bd5f538d12559dba21f4f63fc2d0fde2",
+                "size": 377524,
+                "mode": "0o644",
+                "mtime_ns": 1794346196254515370
+              }
+            }
+          }
+        ],
+        "hashcache": [
+          {
+            "scenario": "1_first_build_no_outputs",
+            "jobs": 1,
+            "ms": 487.01,
+            "decisions": [
+              {
+                "hits": 0,
+                "misses": 3
+              }
+            ],
+            "correct": true,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "f6ed261e6b72e1a9372c29d09e662a062b91a08216b58124c549807dca131d04",
+                "size": 368892,
+                "mode": "0o644",
+                "mtime_ns": 1794346197779693265
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346197927693265
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346198064427984
+              }
+            }
+          },
+          {
+            "scenario": "2_identical_rerun_outputs_present",
+            "jobs": 1,
+            "ms": 47.67,
+            "decisions": [
+              {
+                "hits": 3,
+                "misses": 0
+              }
+            ],
+            "correct": true,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "f6ed261e6b72e1a9372c29d09e662a062b91a08216b58124c549807dca131d04",
+                "size": 368892,
+                "mode": "0o644",
+                "mtime_ns": 1794346198553412388
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346198557412388
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346198561412388
+              }
+            }
+          },
+          {
+            "scenario": "3_outputs_deleted",
+            "jobs": 1,
+            "ms": 48.82,
+            "decisions": [
+              {
+                "hits": 3,
+                "misses": 0
+              }
+            ],
+            "correct": true,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "f6ed261e6b72e1a9372c29d09e662a062b91a08216b58124c549807dca131d04",
+                "size": 368892,
+                "mode": "0o644",
+                "mtime_ns": 1794346199034525367
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346199038525367
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346199038525367
+              }
+            }
+          },
+          {
+            "scenario": "4_one_input_modified",
+            "jobs": 1,
+            "ms": 211.76,
+            "decisions": [
+              {
+                "hits": 2,
+                "misses": 1
+              }
+            ],
+            "correct": true,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346199690525367
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346199694525367
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346199698525367
+              }
+            }
+          },
+          {
+            "scenario": "5_unrelated_file_modified",
+            "jobs": 1,
+            "ms": 56.43,
+            "decisions": [
+              {
+                "hits": 3,
+                "misses": 0
+              }
+            ],
+            "correct": true,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346200194795153
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346200198795153
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346200198795153
+              }
+            }
+          },
+          {
+            "scenario": "6_input_changed_mtime_preserved",
+            "jobs": 1,
+            "ms": 192.45,
+            "decisions": [
+              {
+                "hits": 2,
+                "misses": 1
+              }
+            ],
+            "correct": true,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346200706795153
+              },
+              "vendor.js": {
+                "sha256": "f95ef752da8908723909755a4ef46b44f2710e245fc6d29bd05aa70b1ee70154",
+                "size": 381778,
+                "mode": "0o644",
+                "mtime_ns": 1794346200846795153
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346200850795153
+              }
+            }
+          },
+          {
+            "scenario": "7_output_corrupted_no_input_change",
+            "jobs": 1,
+            "ms": 65.02,
+            "decisions": [
+              {
+                "hits": 3,
+                "misses": 0
+              }
+            ],
+            "correct": true,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346201359961516
+              },
+              "vendor.js": {
+                "sha256": "f95ef752da8908723909755a4ef46b44f2710e245fc6d29bd05aa70b1ee70154",
+                "size": 381778,
+                "mode": "0o644",
+                "mtime_ns": 1794346201363961516
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346201367961516
+              }
+            }
+          },
+          {
+            "scenario": "8_build_directory_relocated",
+            "jobs": 1,
+            "ms": 48.74,
+            "decisions": [
+              {
+                "hits": 3,
+                "misses": 0
+              }
+            ],
+            "correct": true,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346201842047119
+              },
+              "vendor.js": {
+                "sha256": "f95ef752da8908723909755a4ef46b44f2710e245fc6d29bd05aa70b1ee70154",
+                "size": 381778,
+                "mode": "0o644",
+                "mtime_ns": 1794346201846047119
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346201850047119
+              }
+            }
+          },
+          {
+            "scenario": "9_parallel_transformations",
+            "jobs": 3,
+            "ms": 47.86,
+            "decisions": [
+              {
+                "hits": 3,
+                "misses": 0
+              }
+            ],
+            "correct": true,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346202316675160
+              },
+              "vendor.js": {
+                "sha256": "f95ef752da8908723909755a4ef46b44f2710e245fc6d29bd05aa70b1ee70154",
+                "size": 381778,
+                "mode": "0o644",
+                "mtime_ns": 1794346202320675160
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346202324675160
+              }
+            }
+          },
+          {
+            "scenario": "10_five_development_sessions",
+            "jobs": 1,
+            "ms": 1069.58,
+            "decisions": [],
+            "correct": true,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "156ae275be8669a632c010fb74d7557069c071e987c0774781dec25dbd68e0ab",
+                "size": 368919,
+                "mode": "0o644",
+                "mtime_ns": 1794346203242478561
+              },
+              "vendor.js": {
+                "sha256": "1094c8b1931e00d376449f43a52925e90a18ae3f8fafcbb1d7cd6ab82bd37edc",
+                "size": 381828,
+                "mode": "0o644",
+                "mtime_ns": 1794346203390478561
+              },
+              "worker.js": {
+                "sha256": "505010a50cffe23ff1d6bbfb07eafc82bd5f538d12559dba21f4f63fc2d0fde2",
+                "size": 377524,
+                "mode": "0o644",
+                "mtime_ns": 1794346203394478561
+              }
+            }
+          }
+        ],
+        "tracejit": [
+          {
+            "scenario": "1_first_build_no_outputs",
+            "jobs": 1,
+            "ms": 643.52,
+            "decisions": [
+              {
+                "decision": "Executed",
+                "reason": "no eligible cached execution matched the pre-execution identity",
+                "guard_failure": null
+              },
+              {
+                "decision": "Executed",
+                "reason": "no eligible cached execution matched the pre-execution identity",
+                "guard_failure": null
+              },
+              {
+                "decision": "Executed",
+                "reason": "no eligible cached execution matched the pre-execution identity",
+                "guard_failure": null
+              }
+            ],
+            "correct": true,
+            "output_metadata_matches_native": true,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 1436337,
+            "outputs": {
+              "app.js": {
+                "sha256": "f6ed261e6b72e1a9372c29d09e662a062b91a08216b58124c549807dca131d04",
+                "size": 368892,
+                "mode": "0o644",
+                "mtime_ns": 1794346203000000000
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346203000000000
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346203000000000
+              }
+            }
+          },
+          {
+            "scenario": "2_identical_rerun_outputs_present",
+            "jobs": 1,
+            "ms": 603.29,
+            "decisions": [
+              {
+                "decision": "Deoptimized",
+                "reason": "cached execution deoptimized",
+                "guard_failure": null
+              },
+              {
+                "decision": "Deoptimized",
+                "reason": "cached execution deoptimized",
+                "guard_failure": null
+              },
+              {
+                "decision": "Deoptimized",
+                "reason": "cached execution deoptimized",
+                "guard_failure": null
+              }
+            ],
+            "correct": true,
+            "output_metadata_matches_native": true,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 1729918,
+            "outputs": {
+              "app.js": {
+                "sha256": "f6ed261e6b72e1a9372c29d09e662a062b91a08216b58124c549807dca131d04",
+                "size": 368892,
+                "mode": "0o644",
+                "mtime_ns": 1794346203000000000
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346203000000000
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346203000000000
+              }
+            }
+          },
+          {
+            "scenario": "3_outputs_deleted",
+            "jobs": 1,
+            "ms": 54.87,
+            "decisions": [
+              {
+                "decision": "Reused",
+                "reason": "all guards passed and cached outputs were restored",
+                "guard_failure": null
+              },
+              {
+                "decision": "Reused",
+                "reason": "all guards passed and cached outputs were restored",
+                "guard_failure": null
+              },
+              {
+                "decision": "Reused",
+                "reason": "all guards passed and cached outputs were restored",
+                "guard_failure": null
+              }
+            ],
+            "correct": true,
+            "output_metadata_matches_native": true,
+            "artifact_failures": [],
+            "tracejit_phases": [
+              {
+                "process_startup_ns": 5619705,
+                "cli_parse_ns": 125766,
+                "identity_prepare_ns": 241683,
+                "cache_prepare_ns": 33342,
+                "sqlite_open_ns": 218039,
+                "sqlite_schema_ns": 305744,
+                "lookup_key_ns": 11482,
+                "sqlite_query_ns": 537487,
+                "record_decode_ns": 626515,
+                "guard_validation_ns": 5648134,
+                "cas_restore_ns": 2741112,
+                "stdio_replay_ns": 33733,
+                "decision_persist_ns": 2361018,
+                "present_ns": 35236
+              },
+              {
+                "process_startup_ns": 4605085,
+                "cli_parse_ns": 117420,
+                "identity_prepare_ns": 204353,
+                "cache_prepare_ns": 27272,
+                "sqlite_open_ns": 158658,
+                "sqlite_schema_ns": 258916,
+                "lookup_key_ns": 9478,
+                "sqlite_query_ns": 500479,
+                "record_decode_ns": 593904,
+                "guard_validation_ns": 5461123,
+                "cas_restore_ns": 2250501,
+                "stdio_replay_ns": 26931,
+                "decision_persist_ns": 2472428,
+                "present_ns": 39424
+              },
+              {
+                "process_startup_ns": 2448802,
+                "cli_parse_ns": 93556,
+                "identity_prepare_ns": 159719,
+                "cache_prepare_ns": 18565,
+                "sqlite_open_ns": 147778,
+                "sqlite_schema_ns": 222387,
+                "lookup_key_ns": 8456,
+                "sqlite_query_ns": 408887,
+                "record_decode_ns": 529493,
+                "guard_validation_ns": 5843841,
+                "cas_restore_ns": 2346060,
+                "stdio_replay_ns": 29676,
+                "decision_persist_ns": 2602261,
+                "present_ns": 27151
+              }
+            ],
+            "cache_bytes": 1774929,
+            "outputs": {
+              "app.js": {
+                "sha256": "f6ed261e6b72e1a9372c29d09e662a062b91a08216b58124c549807dca131d04",
+                "size": 368892,
+                "mode": "0o644",
+                "mtime_ns": 1794346203000000000
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346203000000000
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346203000000000
+              }
+            }
+          },
+          {
+            "scenario": "4_one_input_modified",
+            "jobs": 1,
+            "ms": 274.03,
+            "decisions": [
+              {
+                "decision": "Deoptimized",
+                "reason": "cached execution deoptimized",
+                "guard_failure": null
+              },
+              {
+                "decision": "Reused",
+                "reason": "all guards passed and cached outputs were restored",
+                "guard_failure": null
+              },
+              {
+                "decision": "Reused",
+                "reason": "all guards passed and cached outputs were restored",
+                "guard_failure": null
+              }
+            ],
+            "correct": true,
+            "output_metadata_matches_native": true,
+            "artifact_failures": [],
+            "tracejit_phases": [
+              {
+                "process_startup_ns": 2650394,
+                "cli_parse_ns": 171852,
+                "identity_prepare_ns": 209232,
+                "cache_prepare_ns": 29225,
+                "sqlite_open_ns": 178375,
+                "sqlite_schema_ns": 277300,
+                "lookup_key_ns": 9578,
+                "sqlite_query_ns": 638297,
+                "record_decode_ns": 579307,
+                "guard_validation_ns": 5903843,
+                "cas_restore_ns": 2566073,
+                "stdio_replay_ns": 28534,
+                "decision_persist_ns": 2821102,
+                "present_ns": 31990
+              },
+              {
+                "process_startup_ns": 2455010,
+                "cli_parse_ns": 118723,
+                "identity_prepare_ns": 238397,
+                "cache_prepare_ns": 24466,
+                "sqlite_open_ns": 186650,
+                "sqlite_schema_ns": 296997,
+                "lookup_key_ns": 9798,
+                "sqlite_query_ns": 611627,
+                "record_decode_ns": 742633,
+                "guard_validation_ns": 6742216,
+                "cas_restore_ns": 2793228,
+                "stdio_replay_ns": 31068,
+                "decision_persist_ns": 2915859,
+                "present_ns": 41117
+              }
+            ],
+            "cache_bytes": 2237990,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346206000000000
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346203000000000
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346203000000000
+              }
+            }
+          },
+          {
+            "scenario": "5_unrelated_file_modified",
+            "jobs": 1,
+            "ms": 244.41,
+            "decisions": [
+              {
+                "decision": "Deoptimized",
+                "reason": "cached execution deoptimized",
+                "guard_failure": null
+              },
+              {
+                "decision": "Reused",
+                "reason": "all guards passed and cached outputs were restored",
+                "guard_failure": null
+              },
+              {
+                "decision": "Reused",
+                "reason": "all guards passed and cached outputs were restored",
+                "guard_failure": null
+              }
+            ],
+            "correct": true,
+            "output_metadata_matches_native": true,
+            "artifact_failures": [],
+            "tracejit_phases": [
+              {
+                "process_startup_ns": 2266127,
+                "cli_parse_ns": 94948,
+                "identity_prepare_ns": 170349,
+                "cache_prepare_ns": 23003,
+                "sqlite_open_ns": 138691,
+                "sqlite_schema_ns": 263524,
+                "lookup_key_ns": 7884,
+                "sqlite_query_ns": 393077,
+                "record_decode_ns": 496591,
+                "guard_validation_ns": 4958460,
+                "cas_restore_ns": 2089780,
+                "stdio_replay_ns": 22722,
+                "decision_persist_ns": 0,
+                "present_ns": 23935
+              },
+              {
+                "process_startup_ns": 3347812,
+                "cli_parse_ns": 104577,
+                "identity_prepare_ns": 198091,
+                "cache_prepare_ns": 27251,
+                "sqlite_open_ns": 177212,
+                "sqlite_schema_ns": 242816,
+                "lookup_key_ns": 9547,
+                "sqlite_query_ns": 491141,
+                "record_decode_ns": 606628,
+                "guard_validation_ns": 5813895,
+                "cas_restore_ns": 2675949,
+                "stdio_replay_ns": 27211,
+                "decision_persist_ns": 0,
+                "present_ns": 29375
+              }
+            ],
+            "cache_bytes": 2289351,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346206000000000
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346203000000000
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346203000000000
+              }
+            }
+          },
+          {
+            "scenario": "6_input_changed_mtime_preserved",
+            "jobs": 1,
+            "ms": 230.24,
+            "decisions": [
+              {
+                "decision": "Reused",
+                "reason": "all guards passed and cached outputs were restored",
+                "guard_failure": null
+              },
+              {
+                "decision": "Deoptimized",
+                "reason": "cached execution deoptimized",
+                "guard_failure": null
+              },
+              {
+                "decision": "Reused",
+                "reason": "all guards passed and cached outputs were restored",
+                "guard_failure": null
+              }
+            ],
+            "correct": true,
+            "output_metadata_matches_native": true,
+            "artifact_failures": [],
+            "tracejit_phases": [
+              {
+                "process_startup_ns": 3336468,
+                "cli_parse_ns": 120266,
+                "identity_prepare_ns": 184055,
+                "cache_prepare_ns": 22111,
+                "sqlite_open_ns": 177473,
+                "sqlite_schema_ns": 342592,
+                "lookup_key_ns": 10048,
+                "sqlite_query_ns": 701155,
+                "record_decode_ns": 880050,
+                "guard_validation_ns": 5019365,
+                "cas_restore_ns": 4958550,
+                "stdio_replay_ns": 23804,
+                "decision_persist_ns": 2330431,
+                "present_ns": 29415
+              },
+              {
+                "process_startup_ns": 10472200,
+                "cli_parse_ns": 118041,
+                "identity_prepare_ns": 235612,
+                "cache_prepare_ns": 28113,
+                "sqlite_open_ns": 175019,
+                "sqlite_schema_ns": 279244,
+                "lookup_key_ns": 9067,
+                "sqlite_query_ns": 509094,
+                "record_decode_ns": 590658,
+                "guard_validation_ns": 6010734,
+                "cas_restore_ns": 2369725,
+                "stdio_replay_ns": 29686,
+                "decision_persist_ns": 0,
+                "present_ns": 32391
+              }
+            ],
+            "cache_bytes": 2768069,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346206000000000
+              },
+              "vendor.js": {
+                "sha256": "f95ef752da8908723909755a4ef46b44f2710e245fc6d29bd05aa70b1ee70154",
+                "size": 381778,
+                "mode": "0o644",
+                "mtime_ns": 1794346203000000000
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346203000000000
+              }
+            }
+          },
+          {
+            "scenario": "7_output_corrupted_no_input_change",
+            "jobs": 1,
+            "ms": 433.57,
+            "decisions": [
+              {
+                "decision": "Reused",
+                "reason": "all guards passed and cached outputs were restored",
+                "guard_failure": null
+              },
+              {
+                "decision": "Deoptimized",
+                "reason": "cached execution deoptimized",
+                "guard_failure": null
+              },
+              {
+                "decision": "Deoptimized",
+                "reason": "cached execution deoptimized",
+                "guard_failure": null
+              }
+            ],
+            "correct": true,
+            "output_metadata_matches_native": true,
+            "artifact_failures": [],
+            "tracejit_phases": [
+              {
+                "process_startup_ns": 2900053,
+                "cli_parse_ns": 131076,
+                "identity_prepare_ns": 216726,
+                "cache_prepare_ns": 25879,
+                "sqlite_open_ns": 195867,
+                "sqlite_schema_ns": 356589,
+                "lookup_key_ns": 11601,
+                "sqlite_query_ns": 873318,
+                "record_decode_ns": 1133395,
+                "guard_validation_ns": 6097397,
+                "cas_restore_ns": 3245137,
+                "stdio_replay_ns": 27481,
+                "decision_persist_ns": 0,
+                "present_ns": 39995
+              }
+            ],
+            "cache_bytes": 2962497,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346206000000000
+              },
+              "vendor.js": {
+                "sha256": "f95ef752da8908723909755a4ef46b44f2710e245fc6d29bd05aa70b1ee70154",
+                "size": 381778,
+                "mode": "0o644",
+                "mtime_ns": 1794346203000000000
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346203000000000
+              }
+            }
+          },
+          {
+            "scenario": "8_build_directory_relocated",
+            "jobs": 1,
+            "ms": 619.38,
+            "decisions": [
+              {
+                "decision": "Executed",
+                "reason": "no eligible cached execution matched the pre-execution identity",
+                "guard_failure": null
+              },
+              {
+                "decision": "Executed",
+                "reason": "no eligible cached execution matched the pre-execution identity",
+                "guard_failure": null
+              },
+              {
+                "decision": "Executed",
+                "reason": "no eligible cached execution matched the pre-execution identity",
+                "guard_failure": null
+              }
+            ],
+            "correct": true,
+            "output_metadata_matches_native": true,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 3255733,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346206000000000
+              },
+              "vendor.js": {
+                "sha256": "f95ef752da8908723909755a4ef46b44f2710e245fc6d29bd05aa70b1ee70154",
+                "size": 381778,
+                "mode": "0o644",
+                "mtime_ns": 1794346203000000000
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346203000000000
+              }
+            }
+          },
+          {
+            "scenario": "9_parallel_transformations",
+            "jobs": 3,
+            "ms": 222.99,
+            "decisions": [
+              "Deoptimized",
+              "Deoptimized",
+              "Deoptimized"
+            ],
+            "correct": true,
+            "output_metadata_matches_native": true,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 3549562,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346206000000000
+              },
+              "vendor.js": {
+                "sha256": "f95ef752da8908723909755a4ef46b44f2710e245fc6d29bd05aa70b1ee70154",
+                "size": 381778,
+                "mode": "0o644",
+                "mtime_ns": 1794346203000000000
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346203000000000
+              }
+            }
+          },
+          {
+            "scenario": "10_five_development_sessions",
+            "jobs": 1,
+            "ms": 2171.11,
+            "decisions": [],
+            "correct": true,
+            "output_metadata_matches_native": true,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 6359005,
+            "outputs": {
+              "app.js": {
+                "sha256": "156ae275be8669a632c010fb74d7557069c071e987c0774781dec25dbd68e0ab",
+                "size": 368919,
+                "mode": "0o644",
+                "mtime_ns": 1794346212000000000
+              },
+              "vendor.js": {
+                "sha256": "1094c8b1931e00d376449f43a52925e90a18ae3f8fafcbb1d7cd6ab82bd37edc",
+                "size": 381828,
+                "mode": "0o644",
+                "mtime_ns": 1794346213000000000
+              },
+              "worker.js": {
+                "sha256": "505010a50cffe23ff1d6bbfb07eafc82bd5f538d12559dba21f4f63fc2d0fde2",
+                "size": 377524,
+                "mode": "0o644",
+                "mtime_ns": 1794346212000000000
+              }
+            }
+          }
+        ],
+        "make": [
+          {
+            "scenario": "1_first_build_no_outputs",
+            "jobs": 1,
+            "ms": 443.83,
+            "decisions": [
+              "make-exit-0"
+            ],
+            "correct": true,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "f6ed261e6b72e1a9372c29d09e662a062b91a08216b58124c549807dca131d04",
+                "size": 368892,
+                "mode": "0o644",
+                "mtime_ns": 1794346214681989741
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346214821989741
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346214977989741
+              }
+            }
+          },
+          {
+            "scenario": "2_identical_rerun_outputs_present",
+            "jobs": 1,
+            "ms": 2.61,
+            "decisions": [
+              "make-exit-0"
+            ],
+            "correct": true,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "f6ed261e6b72e1a9372c29d09e662a062b91a08216b58124c549807dca131d04",
+                "size": 368892,
+                "mode": "0o644",
+                "mtime_ns": 1794346214681989741
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346214821989741
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346214977989741
+              }
+            }
+          },
+          {
+            "scenario": "3_outputs_deleted",
+            "jobs": 1,
+            "ms": 428.26,
+            "decisions": [
+              "make-exit-0"
+            ],
+            "correct": true,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "f6ed261e6b72e1a9372c29d09e662a062b91a08216b58124c549807dca131d04",
+                "size": 368892,
+                "mode": "0o644",
+                "mtime_ns": 1794346216005989741
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346216137989741
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346216281989741
+              }
+            }
+          },
+          {
+            "scenario": "4_one_input_modified",
+            "jobs": 1,
+            "ms": 146.76,
+            "decisions": [
+              "make-exit-0"
+            ],
+            "correct": true,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346216881989741
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346216137989741
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346216281989741
+              }
+            }
+          },
+          {
+            "scenario": "5_unrelated_file_modified",
+            "jobs": 1,
+            "ms": 2.77,
+            "decisions": [
+              "make-exit-0"
+            ],
+            "correct": true,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346216881989741
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346216137989741
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346216281989741
+              }
+            }
+          },
+          {
+            "scenario": "6_input_changed_mtime_preserved",
+            "jobs": 1,
+            "ms": 2.62,
+            "decisions": [
+              "make-exit-0"
+            ],
+            "correct": false,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [
+              "vendor.js: content differs"
+            ],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346216881989741
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346216137989741
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346216281989741
+              }
+            }
+          },
+          {
+            "scenario": "7_output_corrupted_no_input_change",
+            "jobs": 1,
+            "ms": 2.4,
+            "decisions": [
+              "make-exit-0"
+            ],
+            "correct": false,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [
+              "vendor.js: content differs",
+              "worker.js: content differs"
+            ],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346216881989741
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346216137989741
+              },
+              "worker.js": {
+                "sha256": "cd03d92d6648bd94a6028d8dc72571288e73ea89934640e1f34ba3c3e3d86da5",
+                "size": 41,
+                "mode": "0o644",
+                "mtime_ns": 1794346216089989741
+              }
+            }
+          },
+          {
+            "scenario": "8_build_directory_relocated",
+            "jobs": 1,
+            "ms": 2.8,
+            "decisions": [
+              "make-exit-0"
+            ],
+            "correct": false,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [
+              "vendor.js: content differs",
+              "worker.js: content differs"
+            ],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346216881989741
+              },
+              "vendor.js": {
+                "sha256": "b5e07acd7c2c8265a02a364983c0f6cabb3684c956a7a75798e79bac2a5c86e9",
+                "size": 381745,
+                "mode": "0o644",
+                "mtime_ns": 1794346216137989741
+              },
+              "worker.js": {
+                "sha256": "cd03d92d6648bd94a6028d8dc72571288e73ea89934640e1f34ba3c3e3d86da5",
+                "size": 41,
+                "mode": "0o644",
+                "mtime_ns": 1794346216089989741
+              }
+            }
+          },
+          {
+            "scenario": "9_parallel_transformations",
+            "jobs": 3,
+            "ms": 152.98,
+            "decisions": [
+              "make-exit-0"
+            ],
+            "correct": true,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "9a0c33445cdd495ea48fc89104e6414d0ca499abcb0497f83c8eaef94809a6b3",
+                "size": 369323,
+                "mode": "0o644",
+                "mtime_ns": 1794346219225996595
+              },
+              "vendor.js": {
+                "sha256": "f95ef752da8908723909755a4ef46b44f2710e245fc6d29bd05aa70b1ee70154",
+                "size": 381778,
+                "mode": "0o644",
+                "mtime_ns": 1794346219221996595
+              },
+              "worker.js": {
+                "sha256": "57f19cae80e4051d21060574f9bb3313c1f8d80a797354e03a4e1ff6d6765352",
+                "size": 377233,
+                "mode": "0o644",
+                "mtime_ns": 1794346219221996595
+              }
+            }
+          },
+          {
+            "scenario": "10_five_development_sessions",
+            "jobs": 1,
+            "ms": 764.52,
+            "decisions": [],
+            "correct": true,
+            "output_metadata_matches_native": false,
+            "artifact_failures": [],
+            "tracejit_phases": [],
+            "cache_bytes": 0,
+            "outputs": {
+              "app.js": {
+                "sha256": "156ae275be8669a632c010fb74d7557069c071e987c0774781dec25dbd68e0ab",
+                "size": 368919,
+                "mode": "0o644",
+                "mtime_ns": 1794346219837996595
+              },
+              "vendor.js": {
+                "sha256": "1094c8b1931e00d376449f43a52925e90a18ae3f8fafcbb1d7cd6ab82bd37edc",
+                "size": 381828,
+                "mode": "0o644",
+                "mtime_ns": 1794346219993996595
+              },
+              "worker.js": {
+                "sha256": "505010a50cffe23ff1d6bbfb07eafc82bd5f538d12559dba21f4f63fc2d0fde2",
+                "size": 377524,
+                "mode": "0o644",
+                "mtime_ns": 1794346219681996595
+              }
+            }
+          }
+        ]
+      },
+      "configuration": {
+        "native": {
+          "lines": 0,
+          "declared_edges": 0,
+          "build_file": false
+        },
+        "ninja": {
+          "lines": 9,
+          "declared_edges": 3,
+          "build_file": true
+        },
+        "hashcache": {
+          "lines": 25,
+          "declared_edges": 3,
+          "build_file": false
+        },
+        "tracejit": {
+          "lines": 0,
+          "declared_edges": 0,
+          "build_file": false
+        },
+        "make": {
+          "lines": 15,
+          "declared_edges": 3,
+          "build_file": true
+        }
+      }
+    }
+  ],
+  "summary": {
+    "1_first_build_no_outputs": {
+      "native": {
+        "median_ms": 412.88,
+        "samples_ms": [
+          412.88
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": true,
+        "incorrect_sessions": [],
+        "vs_native": 1.0
+      },
+      "tracejit": {
+        "median_ms": 643.52,
+        "samples_ms": [
+          643.52
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": true,
+        "incorrect_sessions": [],
+        "vs_native": 0.642
+      },
+      "make": {
+        "median_ms": 443.83,
+        "samples_ms": [
+          443.83
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [],
+        "vs_native": 0.93
+      },
+      "ninja": {
+        "median_ms": 445.14,
+        "samples_ms": [
+          445.14
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [],
+        "vs_native": 0.928
+      },
+      "hashcache": {
+        "median_ms": 487.01,
+        "samples_ms": [
+          487.01
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [],
+        "vs_native": 0.848
+      }
+    },
+    "2_identical_rerun_outputs_present": {
+      "native": {
+        "median_ms": 431.54,
+        "samples_ms": [
+          431.54
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": true,
+        "incorrect_sessions": [],
+        "vs_native": 1.0
+      },
+      "tracejit": {
+        "median_ms": 603.29,
+        "samples_ms": [
+          603.29
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": true,
+        "incorrect_sessions": [],
+        "vs_native": 0.715
+      },
+      "make": {
+        "median_ms": 2.61,
+        "samples_ms": [
+          2.61
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [],
+        "vs_native": 165.341
+      },
+      "ninja": {
+        "median_ms": 3.34,
+        "samples_ms": [
+          3.34
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [],
+        "vs_native": 129.204
+      },
+      "hashcache": {
+        "median_ms": 47.67,
+        "samples_ms": [
+          47.67
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [],
+        "vs_native": 9.053
+      }
+    },
+    "3_outputs_deleted": {
+      "native": {
+        "median_ms": 403.13,
+        "samples_ms": [
+          403.13
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": true,
+        "incorrect_sessions": [],
+        "vs_native": 1.0
+      },
+      "tracejit": {
+        "median_ms": 54.87,
+        "samples_ms": [
+          54.87
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": true,
+        "incorrect_sessions": [],
+        "vs_native": 7.347
+      },
+      "make": {
+        "median_ms": 428.26,
+        "samples_ms": [
+          428.26
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [],
+        "vs_native": 0.941
+      },
+      "ninja": {
+        "median_ms": 466.18,
+        "samples_ms": [
+          466.18
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [],
+        "vs_native": 0.865
+      },
+      "hashcache": {
+        "median_ms": 48.82,
+        "samples_ms": [
+          48.82
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [],
+        "vs_native": 8.257
+      }
+    },
+    "4_one_input_modified": {
+      "native": {
+        "median_ms": 420.3,
+        "samples_ms": [
+          420.3
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": true,
+        "incorrect_sessions": [],
+        "vs_native": 1.0
+      },
+      "tracejit": {
+        "median_ms": 274.03,
+        "samples_ms": [
+          274.03
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": true,
+        "incorrect_sessions": [],
+        "vs_native": 1.534
+      },
+      "make": {
+        "median_ms": 146.76,
+        "samples_ms": [
+          146.76
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [],
+        "vs_native": 2.864
+      },
+      "ninja": {
+        "median_ms": 150.22,
+        "samples_ms": [
+          150.22
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [],
+        "vs_native": 2.798
+      },
+      "hashcache": {
+        "median_ms": 211.76,
+        "samples_ms": [
+          211.76
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [],
+        "vs_native": 1.985
+      }
+    },
+    "5_unrelated_file_modified": {
+      "native": {
+        "median_ms": 422.29,
+        "samples_ms": [
+          422.29
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": true,
+        "incorrect_sessions": [],
+        "vs_native": 1.0
+      },
+      "tracejit": {
+        "median_ms": 244.41,
+        "samples_ms": [
+          244.41
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": true,
+        "incorrect_sessions": [],
+        "vs_native": 1.728
+      },
+      "make": {
+        "median_ms": 2.77,
+        "samples_ms": [
+          2.77
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [],
+        "vs_native": 152.451
+      },
+      "ninja": {
+        "median_ms": 2.89,
+        "samples_ms": [
+          2.89
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [],
+        "vs_native": 146.121
+      },
+      "hashcache": {
+        "median_ms": 56.43,
+        "samples_ms": [
+          56.43
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [],
+        "vs_native": 7.483
+      }
+    },
+    "6_input_changed_mtime_preserved": {
+      "native": {
+        "median_ms": 411.63,
+        "samples_ms": [
+          411.63
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": true,
+        "incorrect_sessions": [],
+        "vs_native": 1.0
+      },
+      "tracejit": {
+        "median_ms": 230.24,
+        "samples_ms": [
+          230.24
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": true,
+        "incorrect_sessions": [],
+        "vs_native": 1.788
+      },
+      "make": {
+        "median_ms": 2.62,
+        "samples_ms": [
+          2.62
+        ],
+        "all_correct": false,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [
+          1
+        ],
+        "vs_native": 157.111
+      },
+      "ninja": {
+        "median_ms": 3.0,
+        "samples_ms": [
+          3.0
+        ],
+        "all_correct": false,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [
+          1
+        ],
+        "vs_native": 137.21
+      },
+      "hashcache": {
+        "median_ms": 192.45,
+        "samples_ms": [
+          192.45
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [],
+        "vs_native": 2.139
+      }
+    },
+    "7_output_corrupted_no_input_change": {
+      "native": {
+        "median_ms": 418.82,
+        "samples_ms": [
+          418.82
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": true,
+        "incorrect_sessions": [],
+        "vs_native": 1.0
+      },
+      "tracejit": {
+        "median_ms": 433.57,
+        "samples_ms": [
+          433.57
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": true,
+        "incorrect_sessions": [],
+        "vs_native": 0.966
+      },
+      "make": {
+        "median_ms": 2.4,
+        "samples_ms": [
+          2.4
+        ],
+        "all_correct": false,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [
+          1
+        ],
+        "vs_native": 174.508
+      },
+      "ninja": {
+        "median_ms": 2.5,
+        "samples_ms": [
+          2.5
+        ],
+        "all_correct": false,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [
+          1
+        ],
+        "vs_native": 167.528
+      },
+      "hashcache": {
+        "median_ms": 65.02,
+        "samples_ms": [
+          65.02
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [],
+        "vs_native": 6.441
+      }
+    },
+    "8_build_directory_relocated": {
+      "native": {
+        "median_ms": 424.31,
+        "samples_ms": [
+          424.31
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": true,
+        "incorrect_sessions": [],
+        "vs_native": 1.0
+      },
+      "tracejit": {
+        "median_ms": 619.38,
+        "samples_ms": [
+          619.38
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": true,
+        "incorrect_sessions": [],
+        "vs_native": 0.685
+      },
+      "make": {
+        "median_ms": 2.8,
+        "samples_ms": [
+          2.8
+        ],
+        "all_correct": false,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [
+          1
+        ],
+        "vs_native": 151.539
+      },
+      "ninja": {
+        "median_ms": 2.79,
+        "samples_ms": [
+          2.79
+        ],
+        "all_correct": false,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [
+          1
+        ],
+        "vs_native": 152.082
+      },
+      "hashcache": {
+        "median_ms": 48.74,
+        "samples_ms": [
+          48.74
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [],
+        "vs_native": 8.706
+      }
+    },
+    "9_parallel_transformations": {
+      "native": {
+        "median_ms": 420.46,
+        "samples_ms": [
+          420.46
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": true,
+        "incorrect_sessions": [],
+        "vs_native": 1.0
+      },
+      "tracejit": {
+        "median_ms": 222.99,
+        "samples_ms": [
+          222.99
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": true,
+        "incorrect_sessions": [],
+        "vs_native": 1.886
+      },
+      "make": {
+        "median_ms": 152.98,
+        "samples_ms": [
+          152.98
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [],
+        "vs_native": 2.748
+      },
+      "ninja": {
+        "median_ms": 162.09,
+        "samples_ms": [
+          162.09
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [],
+        "vs_native": 2.594
+      },
+      "hashcache": {
+        "median_ms": 47.86,
+        "samples_ms": [
+          47.86
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [],
+        "vs_native": 8.785
+      }
+    },
+    "10_five_development_sessions": {
+      "native": {
+        "median_ms": 2206.32,
+        "samples_ms": [
+          2206.32
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": true,
+        "incorrect_sessions": [],
+        "vs_native": 1.0
+      },
+      "tracejit": {
+        "median_ms": 2171.11,
+        "samples_ms": [
+          2171.11
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": true,
+        "incorrect_sessions": [],
+        "vs_native": 1.016
+      },
+      "make": {
+        "median_ms": 764.52,
+        "samples_ms": [
+          764.52
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [],
+        "vs_native": 2.886
+      },
+      "ninja": {
+        "median_ms": 806.73,
+        "samples_ms": [
+          806.73
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [],
+        "vs_native": 2.735
+      },
+      "hashcache": {
+        "median_ms": 1069.58,
+        "samples_ms": [
+          1069.58
+        ],
+        "all_correct": true,
+        "all_output_metadata_matches_native": false,
+        "incorrect_sessions": [],
+        "vs_native": 2.063
+      }
+    }
+  },
+  "method": {
+    "timing": "complete wall time of each build invocation, including process startup and output writes",
+    "cold": "session 1 includes TraceJIT's cold traces; each session has an isolated cache",
+    "references": "native output bytes for the current inputs, generated untimed before each scenario",
+    "order": "arm order randomized per session; scenario order fixed because each state depends on the previous one"
+  }
+}

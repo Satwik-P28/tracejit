@@ -402,6 +402,26 @@ int main(int argc, char **argv) {
     return write(STDOUT_FILENO, "stdout fixture\n", 15) != 15;
   if (!strcmp(name, "stderr_only"))
     return write(STDERR_FILENO, "stderr fixture\n", 15) != 15;
+  if (!strcmp(name, "output_presence_stdout") ||
+      !strcmp(name, "output_presence_stderr")) {
+    /* The output's pre-state steers the bytes this program writes. A cache hit with a
+       different pre-state is therefore a false hit, and a corrupted stream must be rejected
+       before the recorded output is restored. */
+    struct stat metadata;
+    int present = stat(output, &metadata) == 0;
+    int fd = open(output, O_WRONLY | O_CREAT | O_TRUNC, 0600);
+    if (fd < 0) return 1;
+    const char *payload = present ? "PRESENT\n" : "ABSENT\n";
+    size_t length = strlen(payload);
+    if (write(fd, payload, length) != (ssize_t)length) {
+      close(fd);
+      return 2;
+    }
+    close(fd);
+    if (!strcmp(name, "output_presence_stdout"))
+      return write(STDOUT_FILENO, "stream fixture\n", 15) != 15;
+    return write(STDERR_FILENO, "stream fixture\n", 15) != 15;
+  }
   if (!strcmp(name, "file_mtime_changed")) {
     struct stat metadata;
     return stat(input, &metadata);

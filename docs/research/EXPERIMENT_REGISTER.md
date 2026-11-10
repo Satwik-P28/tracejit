@@ -94,3 +94,57 @@ The prior comparison remains authoritative for the claim boundary. Three session
 
 Raw: `benchmarks/results/phase2t/incremental.json`. The result is a valid negative for whole-workflow
 speed. Do not overwrite it with a more favorable definition.
+
+## E-3B-01 — bzip2 transition and stable rerun
+
+**Question:** Why did all three Phase 2T commands deoptimize on the identical rerun?
+
+**Fixture:** three 2.8 MB assets compressed with `bzip2 -9 -k -f`; absent-output build, present-output
+transition, stable third run, deleted outputs, edited input.
+
+**Arms:** current `5c829977a78bff07b4905a7c575e16b9c805c3d0e97041991717f5f0422c2db4`; pre-Phase-3A
+`3ea020aadd082d2aa01becb319c30c11334c755ee870e24983b0bee3bbe17981`.
+
+**Result:** transition is a `FileMetadata` failure on the command's own `.bz2` output. Current
+833.464 / 793.821 / 231.120 / 261.146 / 474.566 ms; old 809.446 / 811.263 / 242.411 / 807.075 /
+831.204 ms. The invalidation is necessary; stable reruns reuse.
+
+**Raw:** `benchmarks/results/phase3b/identical-rerun-current.json`, `...-old.json`.
+
+## E-3B-02 — candidate scaling
+
+**Question:** What does retaining 1–32 candidates cost, and does newest-first remain viable?
+
+**Result:** 1 candidate 9.133 ms, 8 17.726 ms, 32 41.087 ms for the oldest target; worst-case miss
+13.943–41.655 ms; SQLite query 0.24–2.07 ms; decode 0.22–4.87 ms; guard validation ~0.94–1.07 ms.
+Eviction with 16 states and bound 8 retained 8. Eight concurrent read-only readers all reused.
+The default stays 8; no unsound ranking shortcut was added.
+
+**Raw:** `benchmarks/results/phase3b/candidate-scaling.json`.
+
+## E-3B-03 — corrupt stream before output mutation
+
+**Question:** Can a corrupt stream object be rejected before any output restoration?
+
+**Result:** `corrupt_stream_is_rejected_before_output_restoration` passes for both stdout and stderr
+using fixtures that branch on output presence. The output remains `ABSENT\n` after the corrupt hit
+and the retrace emits the correct stream.
+
+## E-3B-04 — strict dependency hashing
+
+**Result:** guard validation 1.130 ms at 1 KiB, 9.886 ms at 16 MiB, 99.400 ms at 256 MiB; about
+2575 MiB/s at the largest size. No fs-verity or fanotify implementation was added.
+
+**Raw:** `benchmarks/results/phase3b/hash-profile.json`.
+
+## E-3B-05 — native compatibility census
+
+**Result:** 9 attempted, 0 reused, 9 refused; `clock` and `randomness` each block 2; `lseek` blocks
+3 and is the narrowest next candidate. Raw: `benchmarks/results/phase3b/census-native/`.
+
+## E-3B-06 — old/current Phase 2T one-session check
+
+**Result:** current 643.52 / 603.29 / 54.87 / 2171.11 ms for cold, transition, deleted outputs and
+five sessions; old 611.64 / 615.12 / 610.16 / 2470.50 ms. One session, not a replacement for the
+three-session historical table. Raw: `benchmarks/results/phase3b/phase2t-current-1session.json` and
+`...-old-1session.json`.

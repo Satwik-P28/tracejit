@@ -1,0 +1,260 @@
+{
+  "phase": "3B",
+  "experiment": "strict dependency hashing",
+  "repository": {
+    "commit": "58c39a7927e6d25b9f9cdde711f29d7f3b9fbf5d",
+    "dirty": true
+  },
+  "binary": {
+    "sha256": "5c829977a78bff07b4905a7c575e16b9c805c3d0e97041991717f5f0422c2db4",
+    "size": 6826232
+  },
+  "host": {
+    "platform": "Linux-6.1.102-x86_64-with-glibc2.39",
+    "kernel": "6.1.102",
+    "cpus": 8,
+    "memory": "MemTotal:       16376832 kB"
+  },
+  "method": {
+    "fixture": "plain_file_read copies one input to one output",
+    "sizes": [
+      1024,
+      65536,
+      1048576,
+      16777216,
+      67108864,
+      268435456
+    ],
+    "cold": "first observed execution, including tracing and output capture",
+    "warm": "guarded reuse, including metadata and content validation",
+    "phase": "TRACEJIT_PHASE_TIMING guard_validation_ns",
+    "disk": "input and restored output are resident in /tmp"
+  },
+  "rows": [
+    {
+      "input_bytes": 1024,
+      "cold_ms": 18.025,
+      "cold_phases": {},
+      "warm_ms_samples": [
+        7.777,
+        6.171,
+        8.221
+      ],
+      "warm_ms_median": 7.777,
+      "guard_ns_samples": [
+        908905,
+        1129839,
+        1732480
+      ],
+      "guard_ns_median": 1129839,
+      "guard_mib_per_second": 0.86,
+      "restore_ns_samples": [
+        905629,
+        1035653,
+        1699297
+      ],
+      "restore_ns_median": 1035653,
+      "hits": 3
+    },
+    {
+      "input_bytes": 65536,
+      "cold_ms": 22.633,
+      "cold_phases": {
+        "process_startup_ns": 11178775,
+        "cli_parse_ns": 143058,
+        "identity_prepare_ns": 224491,
+        "cache_prepare_ns": 27682,
+        "sqlite_open_ns": 264335,
+        "sqlite_schema_ns": 411773,
+        "lookup_key_ns": 12834,
+        "sqlite_query_ns": 478768,
+        "record_decode_ns": 312355,
+        "guard_validation_ns": 1732480,
+        "cas_restore_ns": 1699297,
+        "stdio_replay_ns": 39975,
+        "decision_persist_ns": 0,
+        "present_ns": 54683
+      },
+      "warm_ms_samples": [
+        9.661,
+        6.668,
+        9.125
+      ],
+      "warm_ms_median": 9.125,
+      "guard_ns_samples": [
+        1243523,
+        1076308,
+        1781512
+      ],
+      "guard_ns_median": 1243523,
+      "guard_mib_per_second": 50.26,
+      "restore_ns_samples": [
+        1269762,
+        1410105,
+        2059463
+      ],
+      "restore_ns_median": 1410105,
+      "hits": 3
+    },
+    {
+      "input_bytes": 1048576,
+      "cold_ms": 52.436,
+      "cold_phases": {
+        "process_startup_ns": 9995637,
+        "cli_parse_ns": 205425,
+        "identity_prepare_ns": 272040,
+        "cache_prepare_ns": 34966,
+        "sqlite_open_ns": 281447,
+        "sqlite_schema_ns": 426339,
+        "lookup_key_ns": 16180,
+        "sqlite_query_ns": 439805,
+        "record_decode_ns": 360095,
+        "guard_validation_ns": 1781512,
+        "cas_restore_ns": 2059463,
+        "stdio_replay_ns": 37981,
+        "decision_persist_ns": 0,
+        "present_ns": 33172
+      },
+      "warm_ms_samples": [
+        15.742,
+        11.269,
+        11.64
+      ],
+      "warm_ms_median": 11.64,
+      "guard_ns_samples": [
+        1408772,
+        1544497,
+        1523638
+      ],
+      "guard_ns_median": 1523638,
+      "guard_mib_per_second": 656.32,
+      "restore_ns_samples": [
+        6603296,
+        5933850,
+        6320415
+      ],
+      "restore_ns_median": 6320415,
+      "hits": 3
+    },
+    {
+      "input_bytes": 16777216,
+      "cold_ms": 628.097,
+      "cold_phases": {
+        "process_startup_ns": 10091742,
+        "cli_parse_ns": 110918,
+        "identity_prepare_ns": 161603,
+        "cache_prepare_ns": 20758,
+        "sqlite_open_ns": 154360,
+        "sqlite_schema_ns": 309580,
+        "lookup_key_ns": 9147,
+        "sqlite_query_ns": 434115,
+        "record_decode_ns": 354465,
+        "guard_validation_ns": 1523638,
+        "cas_restore_ns": 6320415,
+        "stdio_replay_ns": 22121,
+        "decision_persist_ns": 0,
+        "present_ns": 44413
+      },
+      "warm_ms_samples": [
+        118.221,
+        109.299,
+        105.538
+      ],
+      "warm_ms_median": 109.299,
+      "guard_ns_samples": [
+        9885591,
+        9873800,
+        10788796
+      ],
+      "guard_ns_median": 9885591,
+      "guard_mib_per_second": 1618.52,
+      "restore_ns_samples": [
+        83033649,
+        85978842,
+        82311113
+      ],
+      "restore_ns_median": 83033649,
+      "hits": 3
+    },
+    {
+      "input_bytes": 67108864,
+      "cold_ms": 2433.226,
+      "cold_phases": {
+        "process_startup_ns": 5792654,
+        "cli_parse_ns": 139522,
+        "identity_prepare_ns": 209323,
+        "cache_prepare_ns": 26199,
+        "sqlite_open_ns": 197059,
+        "sqlite_schema_ns": 354455,
+        "lookup_key_ns": 13175,
+        "sqlite_query_ns": 3470169,
+        "record_decode_ns": 4752253,
+        "guard_validation_ns": 10788796,
+        "cas_restore_ns": 82311113,
+        "stdio_replay_ns": 32752,
+        "decision_persist_ns": 0,
+        "present_ns": 40546
+      },
+      "warm_ms_samples": [
+        469.421,
+        361.462,
+        358.083
+      ],
+      "warm_ms_median": 361.462,
+      "guard_ns_samples": [
+        27973387,
+        28209991,
+        27542208
+      ],
+      "guard_ns_median": 27973387,
+      "guard_mib_per_second": 2287.89,
+      "restore_ns_samples": [
+        350684798,
+        303759836,
+        302755773
+      ],
+      "restore_ns_median": 303759836,
+      "hits": 3
+    },
+    {
+      "input_bytes": 268435456,
+      "cold_ms": 10184.423,
+      "cold_phases": {
+        "process_startup_ns": 6002448,
+        "cli_parse_ns": 107972,
+        "identity_prepare_ns": 146215,
+        "cache_prepare_ns": 22452,
+        "sqlite_open_ns": 141996,
+        "sqlite_schema_ns": 272471,
+        "lookup_key_ns": 10990,
+        "sqlite_query_ns": 11506722,
+        "record_decode_ns": 11506482,
+        "guard_validation_ns": 27542208,
+        "cas_restore_ns": 302755773,
+        "stdio_replay_ns": 28363,
+        "decision_persist_ns": 0,
+        "present_ns": 41097
+      },
+      "warm_ms_samples": [
+        1817.822,
+        1358.766,
+        1422.897
+      ],
+      "warm_ms_median": 1422.897,
+      "guard_ns_samples": [
+        98436038,
+        99844579,
+        99400226
+      ],
+      "guard_ns_median": 99400226,
+      "guard_mib_per_second": 2575.45,
+      "restore_ns_samples": [
+        1423452774,
+        1146721453,
+        1215540570
+      ],
+      "restore_ns_median": 1215540570,
+      "hits": 3
+    }
+  ]
+}

@@ -583,3 +583,31 @@ closed for a missing interpreter. Hosted run `42896870132` at `3e7f820` passed e
 including Doctor, Linux integration and Demo; this is hosted evidence, and `PROVEN` remains a local
 SKIP (`landlock no`). Restoration is still pathname-visible, not atomic across a hard kill or
 inode-preserving. See `docs/audits/PHASE3A_CANDIDATE_AND_REPLAY_ORDERING.md` and `docs/research/`.
+
+## Phase 3B (base `58c39a7`)
+
+The Phase 2T identical-rerun failure is now explained rather than hand-waved. `bzip2` stats its
+absent `.bz2` destination before creating it, so the first record contains a negative `FileMetadata`
+guard on the command's own output. The next run sees the file and deoptimizes. Converting that guard
+to an output-pre-state class for arbitrary programs would be unsound because output presence can
+steer the written bytes; the existing `un_audited_program_does_not_reuse_across_its_output_presence_change`
+regression covers that case. This is a necessary one-time transition: a third, stable run reused all
+three commands in 231.120 ms, and the deleted-output state dropped from 807.075 ms on the pre-Phase-3A
+binary to 261.146 ms on the current one. Raw data is under `benchmarks/results/phase3b/`.
+
+The candidate bound is now experiment-configurable (`TRACEJIT_CANDIDATE_BOUND`, default 8). A
+1–32 scaling run retained exactly the requested count; selector wall time rose from 9.133 ms at one
+candidate to 41.087 ms at 32, with record decode becoming the first growing cost. A 16-state run at
+bound 8 retained 8, evicted the oldest state, and reused the newest. The default remains 8; no
+unsound index or shortcut was added.
+
+The corrupt-stream ordering now has an independent branch-on-output-presence regression for both
+stdout and stderr; it passes before any output mutation. Strict hashing was profiled from 1 KiB to
+256 MiB: 99.4 ms guard validation at 256 MiB, about 2.58 GiB/s on this host, with the complete warm
+fixture path at 1.42 s because it also copies the output. fs-verity and fanotify were evaluated but
+not implemented; their assumptions and recovery obligations remain open.
+
+The native real-command census still refuses all nine workloads. `clock` and `randomness` are tied at
+two workloads; `lseek`, pipe `fstat`, `getrusage` and an unrestorable lint output remain the ranked
+next targets. No workload was accepted by weakening a guard. See
+`docs/audits/PHASE3B_CANDIDATE_SCALING_AND_RERUN.md` for the full evidence and limitations.

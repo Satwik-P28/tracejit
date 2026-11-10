@@ -213,6 +213,39 @@ this host has no Landlock. Release binary:
 `3e7f820` passed every CI step, including Doctor, Linux integration and Demo. That is hosted evidence,
 not a local reproduction.
 
+## Phase 3B addendum: necessary rerun invalidation and scaling costs
+
+The Phase 2T identical-rerun failure has a concrete cause: `bzip2` stats its absent destination
+before creating it, and that negative `FileMetadata` observation is recorded as an ordinary input
+guard. On the next run the destination exists, so the candidate is rejected. This is not a missing
+output-pre-state optimization that can safely be generalized: an arbitrary program may branch on
+presence and write different bytes, and the existing adversarial fixture does exactly that. The
+invalidation is retained.
+
+The transition is one-time. The current binary records 833.464 ms for the absent-output build,
+793.821 ms for the first present-output rerun, and 231.120 ms for the stable third rerun; all three
+commands reuse in the stable round. The old binary is 809.446 / 811.263 / 242.411 ms. The meaningful
+current improvement is the deleted-output state, 261.146 ms versus 807.075 ms, from retained
+alternate candidates. This remains a valid negative against Make/Ninja on the first post-build
+rerun; the historical three-session Phase 2T result is unchanged.
+
+Candidate scaling from 1 to 32 retained records (oldest target, newest-first evaluation) raised
+selector wall time from 9.133 to 41.087 ms; SQLite query and record decode grew while guard
+validation stayed near 1 ms for the small fixture. The retention bound remains eight, now with an
+experimental `TRACEJIT_CANDIDATE_BOUND` override clamped to 1–32. At bound 8, 16 distinct input
+states retained 8 records; the evicted state deoptimized and the surviving state reused.
+
+The corrupt-stream ordering has an independent regression using fixtures that branch on output
+presence and emit stdout or stderr. Both cases pass: the corrupt stream is rejected before the
+recorded output is restored. Strict hashing measured 1.13 ms at 1 KiB, 9.89 ms at 16 MiB and
+99.40 ms at 256 MiB (about 2.58 GiB/s); the complete warm fixture path at 256 MiB is 1.42 s because
+it also copies the output. No fs-verity or event-assisted invalidation was implemented: the former
+only covers immutable storage, and the latter requires explicit lost-event recovery.
+
+The native census still refuses all nine workloads. Clock and randomness are tied at two workloads;
+unmodeled `lseek`, pipe `fstat`, `getrusage`, and an unrestorable lint output are documented rather
+than papered over. No guard was weakened to improve the hit rate.
+
 ## Conclusion
 
 TraceJIT demonstrates a coherent approach to conservatively reusing certain unmodified Linux processes by combining observed effects with explicit synchronous guards. Its measured advantage is strong for a controlled, CPU-heavy repeated command; its fixed overhead and refusal rate limit the broader usefulness. The engineering and failure analysis are substantively more informative than the maximum speedup. The current evidence supports **a promising systems prototype with bounded claims**, not a general-purpose production accelerator or a formally proved method.

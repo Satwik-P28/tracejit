@@ -1,0 +1,357 @@
+{
+  "phase": "3B",
+  "experiment": "bzip2 identical-rerun transition",
+  "label": "current",
+  "repository": {
+    "commit": "58c39a7927e6d25b9f9cdde711f29d7f3b9fbf5d"
+  },
+  "binary": {
+    "path": "/workspace/chats/3ead97f7907244943d2638d7/target/release/tracejit",
+    "sha256": "5c829977a78bff07b4905a7c575e16b9c805c3d0e97041991717f5f0422c2db4",
+    "size": 6826232
+  },
+  "host": {
+    "platform": "Linux-6.1.102-x86_64-with-glibc2.39",
+    "kernel": "6.1.102",
+    "cpus": 8,
+    "memory": "MemTotal:       16376832 kB"
+  },
+  "contract": "allocator-entropy-v1",
+  "workload": "three 2.8 MB JavaScript assets compressed with bzip2 -9 -k -f",
+  "rounds": [
+    {
+      "label": "first_build_outputs_absent",
+      "ms": 833.464,
+      "decisions": [
+        {
+          "asset": "app.js",
+          "decision": "Executed",
+          "reason": "no eligible cached execution matched the pre-execution identity",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        },
+        {
+          "asset": "vendor.js",
+          "decision": "Executed",
+          "reason": "no eligible cached execution matched the pre-execution identity",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        },
+        {
+          "asset": "worker.js",
+          "decision": "Executed",
+          "reason": "no eligible cached execution matched the pre-execution identity",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        }
+      ],
+      "phases": {},
+      "failures": []
+    },
+    {
+      "label": "identical_rerun_transition",
+      "ms": 793.821,
+      "decisions": [
+        {
+          "asset": "app.js",
+          "decision": "Deoptimized",
+          "reason": "cached execution deoptimized",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        },
+        {
+          "asset": "vendor.js",
+          "decision": "Deoptimized",
+          "reason": "cached execution deoptimized",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        },
+        {
+          "asset": "worker.js",
+          "decision": "Deoptimized",
+          "reason": "cached execution deoptimized",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        }
+      ],
+      "phases": {},
+      "failures": [
+        {
+          "file": "ce3bb753aec0d5cc.json",
+          "decision": "Deoptimized",
+          "reason": "metadata changed; no content hash was recorded",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/worker.js.bz2",
+              "expected": {
+                "device": 18446744073709551615,
+                "inode": 18446744073709551615,
+                "size": 18446744073709551615,
+                "blocks": 18446744073709551615,
+                "block_size": 18446744073709551615,
+                "accessed_ns": -170141183460469231731687303715884105728,
+                "modified_ns": -170141183460469231731687303715884105728,
+                "changed_ns": -170141183460469231731687303715884105728,
+                "mode": 4294967295,
+                "link_count": 18446744073709551615,
+                "uid": 4294967295,
+                "gid": 4294967295,
+                "device_id": 18446744073709551615
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }",
+          "actual": "FileFingerprint { device: 65024, inode: 656629, size: 377233, blocks: 744, block_size: 4096, accessed_ns: 1794346083732357655, modified_ns: 1794346082000000000, changed_ns: 1794346083720357655, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }"
+        },
+        {
+          "file": "ed15b3e754a2e36b.json",
+          "decision": "Deoptimized",
+          "reason": "metadata changed; no content hash was recorded",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/vendor.js.bz2",
+              "expected": {
+                "device": 18446744073709551615,
+                "inode": 18446744073709551615,
+                "size": 18446744073709551615,
+                "blocks": 18446744073709551615,
+                "block_size": 18446744073709551615,
+                "accessed_ns": -170141183460469231731687303715884105728,
+                "modified_ns": -170141183460469231731687303715884105728,
+                "changed_ns": -170141183460469231731687303715884105728,
+                "mode": 4294967295,
+                "link_count": 18446744073709551615,
+                "uid": 4294967295,
+                "gid": 4294967295,
+                "device_id": 18446744073709551615
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }",
+          "actual": "FileFingerprint { device: 65024, inode: 656626, size: 381745, blocks: 752, block_size: 4096, accessed_ns: 1794346083464357655, modified_ns: 1794346082000000000, changed_ns: 1794346083448357655, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }"
+        },
+        {
+          "file": "fe163cfe8c26a8e0.json",
+          "decision": "Deoptimized",
+          "reason": "metadata changed; no content hash was recorded",
+          "guard": {
+            "FileMetadata": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/app.js.bz2",
+              "expected": {
+                "device": 18446744073709551615,
+                "inode": 18446744073709551615,
+                "size": 18446744073709551615,
+                "blocks": 18446744073709551615,
+                "block_size": 18446744073709551615,
+                "accessed_ns": -170141183460469231731687303715884105728,
+                "modified_ns": -170141183460469231731687303715884105728,
+                "changed_ns": -170141183460469231731687303715884105728,
+                "mode": 4294967295,
+                "link_count": 18446744073709551615,
+                "uid": 4294967295,
+                "gid": 4294967295,
+                "device_id": 18446744073709551615
+              }
+            }
+          },
+          "expected": "FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }",
+          "actual": "FileFingerprint { device: 65024, inode: 656622, size: 368892, blocks: 728, block_size: 4096, accessed_ns: 1794346083182042599, modified_ns: 1794346082000000000, changed_ns: 1794346083170042599, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }"
+        }
+      ]
+    },
+    {
+      "label": "identical_rerun_stable",
+      "ms": 231.12,
+      "decisions": [
+        {
+          "asset": "app.js",
+          "decision": "Reused",
+          "reason": "all guards passed and cached outputs were restored",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        },
+        {
+          "asset": "vendor.js",
+          "decision": "Reused",
+          "reason": "all guards passed and cached outputs were restored",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        },
+        {
+          "asset": "worker.js",
+          "decision": "Reused",
+          "reason": "all guards passed and cached outputs were restored",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        }
+      ],
+      "phases": {
+        "process_startup_ns": 5188749,
+        "cli_parse_ns": 124574,
+        "identity_prepare_ns": 178465,
+        "cache_prepare_ns": 27361,
+        "sqlite_open_ns": 179497,
+        "sqlite_schema_ns": 336271,
+        "lookup_key_ns": 12263,
+        "sqlite_query_ns": 463249,
+        "record_decode_ns": 547437,
+        "guard_validation_ns": 4934024,
+        "cas_restore_ns": 2819148,
+        "stdio_replay_ns": 24326,
+        "decision_persist_ns": 2876325,
+        "present_ns": 36368
+      },
+      "failures": []
+    },
+    {
+      "label": "outputs_deleted",
+      "ms": 261.146,
+      "decisions": [
+        {
+          "asset": "app.js",
+          "decision": "Reused",
+          "reason": "all guards passed and cached outputs were restored",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        },
+        {
+          "asset": "vendor.js",
+          "decision": "Reused",
+          "reason": "all guards passed and cached outputs were restored",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        },
+        {
+          "asset": "worker.js",
+          "decision": "Reused",
+          "reason": "all guards passed and cached outputs were restored",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        }
+      ],
+      "phases": {
+        "process_startup_ns": 10862413,
+        "cli_parse_ns": 126297,
+        "identity_prepare_ns": 180278,
+        "cache_prepare_ns": 22462,
+        "sqlite_open_ns": 187231,
+        "sqlite_schema_ns": 281067,
+        "lookup_key_ns": 11461,
+        "sqlite_query_ns": 489107,
+        "record_decode_ns": 558879,
+        "guard_validation_ns": 4596612,
+        "cas_restore_ns": 2557146,
+        "stdio_replay_ns": 25538,
+        "decision_persist_ns": 3140009,
+        "present_ns": 39404
+      },
+      "failures": []
+    },
+    {
+      "label": "one_input_modified",
+      "ms": 474.566,
+      "decisions": [
+        {
+          "asset": "app.js",
+          "decision": "Deoptimized",
+          "reason": "cached execution deoptimized",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        },
+        {
+          "asset": "vendor.js",
+          "decision": "Reused",
+          "reason": "all guards passed and cached outputs were restored",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        },
+        {
+          "asset": "worker.js",
+          "decision": "Reused",
+          "reason": "all guards passed and cached outputs were restored",
+          "guard_failure": null,
+          "exit": 0,
+          "correct": true
+        }
+      ],
+      "phases": {
+        "process_startup_ns": 10452487,
+        "cli_parse_ns": 139471,
+        "identity_prepare_ns": 223319,
+        "cache_prepare_ns": 45836,
+        "sqlite_open_ns": 190368,
+        "sqlite_schema_ns": 383008,
+        "lookup_key_ns": 13726,
+        "sqlite_query_ns": 645600,
+        "record_decode_ns": 580088,
+        "guard_validation_ns": 6044908,
+        "cas_restore_ns": 3080377,
+        "stdio_replay_ns": 27943,
+        "decision_persist_ns": 0,
+        "present_ns": 37912
+      },
+      "failures": [
+        {
+          "file": "87d62fb11fc4c95a.json",
+          "decision": "Deoptimized",
+          "reason": "file content changed",
+          "guard": {
+            "FileHash": {
+              "path": "/tmp/tracejit-phase3b-rerun/work/assets/app.js",
+              "expected": [
+                221,
+                178,
+                47,
+                250,
+                69,
+                22,
+                194,
+                57,
+                36,
+                80,
+                235,
+                181,
+                4,
+                243,
+                21,
+                56,
+                221,
+                161,
+                136,
+                62,
+                90,
+                67,
+                10,
+                92,
+                50,
+                54,
+                138,
+                113,
+                161,
+                9,
+                107,
+                102
+              ]
+            }
+          },
+          "expected": "ddb22ffa4516c2392450ebb504f31538dda1883e5a430a5c32368a71a1096b66",
+          "actual": "a69aa678c6fa3c1ca32373874feec50f7b7d96917d8c56c81599b9565de7e9aa"
+        }
+      ]
+    }
+  ]
+}
