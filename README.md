@@ -50,6 +50,8 @@ Both numbers came from the harness on GitHub-hosted Ubuntu 24.04 x86_64, with 5 
 
 The later duration sweep, on the same class of runner after a hit-path change, lost at a 1.796 ms command and won at a 5.274 ms command (hit 4.100 ms, 1.286x). Cache hits in that run sat near 4 ms. A command that finishes sooner than the guard and cache work does not get faster.
 
+A formal, evidence-scoped design and benchmark analysis is in the [TraceJIT technical report](docs/research/TRACEJIT_TECHNICAL_REPORT.md). It is a non-peer-reviewed report and clearly separates historical measurements from the inspected public code.
+
 Full tables, machine details, and the phase breakdown: [benchmarks/results/break-even.md](benchmarks/results/break-even.md) and [benchmarks/results/latest.md](benchmarks/results/latest.md). Reproduce with `./scripts/benchmark.sh` and `python3 benchmarks/harness/break_even.py --runs 30 --warmups 5` on Linux x86_64. Do not paste a new number into this file unless that harness wrote it for the stated commit.
 
 ## Why TraceJIT?
