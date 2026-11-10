@@ -34,8 +34,8 @@ jobs:
             python3 - <<'PY'
           from pathlib import Path
           log = Path('/tmp/tracejit-tests.log').read_text(errors='replace')
-          marker = log.rfind('\nfailures:')
-          body = log[marker:] if marker != -1 else log
+          marker = log.rfind('panicked at')
+          body = log[max(0, marker - 500):] if marker != -1 else log[-6000:]
           body = body[-6000:]
           escaped = body.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
           print('::error title=workspace test failure::' + escaped)
@@ -52,8 +52,8 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           log = Path('/tmp/tracejit-tests.log').read_text(errors='replace')
-          marker = log.rfind('\nfailures:')
-          body = log[marker:] if marker != -1 else log[-6000:]
+          marker = log.rfind('panicked at')
+          body = log[max(0, marker - 500):] if marker != -1 else log[-12000:]
           body = body[-12000:]
           escaped = body.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
           print('::error title=workspace test failure::' + escaped)
