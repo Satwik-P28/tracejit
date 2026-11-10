@@ -26,7 +26,19 @@ jobs:
       - name: Clippy
         run: cargo clippy --workspace --all-targets --all-features -- -D warnings
       - name: Tests
-        run: cargo test --workspace
+        run: |
+          set -u
+          log=$(mktemp)
+          set +e
+          cargo test --workspace --no-fail-fast -- --nocapture >"$log" 2>&1
+          status=$?
+          set -e
+          cat "$log"
+          if [ "$status" -ne 0 ]; then
+            summary=$(tail -n 120 "$log" | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')
+            echo "::error title=Tests failed::${summary}"
+            exit "$status"
+          fi
       - name: Release build
         run: cargo build --workspace --release
       - name: Doctor and kernel capabilities
