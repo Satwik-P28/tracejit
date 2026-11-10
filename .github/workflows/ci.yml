@@ -26,7 +26,22 @@ jobs:
       - name: Clippy
         run: cargo clippy --workspace --all-targets --all-features -- -D warnings
       - name: Tests
-        run: cargo test --workspace
+        run: |
+          set -o pipefail
+          cargo test --workspace 2>&1 | tee /tmp/tracejit-tests.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            python3 - <<'PY'
+          from pathlib import Path
+          log = Path('/tmp/tracejit-tests.log').read_text(errors='replace')
+          marker = log.rfind('\nfailures:')
+          body = log[marker:] if marker != -1 else log
+          body = body[-6000:]
+          escaped = body.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+          print('::error title=workspace test failure::' + escaped)
+          PY
+            exit "$status"
+          fi
       - name: Release build
         run: cargo build --workspace --release
       - name: Doctor and kernel capabilities
