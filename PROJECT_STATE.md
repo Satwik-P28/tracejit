@@ -554,3 +554,22 @@ metadata replay and inherited/duplicate descriptor limits in
 inode-equivalent; no new effect engine was justified. Gates: fmt and Clippy pass, **126 tests**,
 120 differential cases with 0 incorrect hits. See
 `docs/audits/PHASE2T_INCREMENTAL_AND_ENFORCEMENT.md`.
+
+## Phase 3A (base `a11ae4b`, implementation `5a065a4`)
+
+Candidate retention and replay ordering are now explicit. `executions` is keyed by `execution_id`
+(schema v2) with an index on `(lookup_key, updated_unix_ms)`; up to eight guarded records survive per
+identity. A hit validates candidates in newest-first order and reuses the first whose guards pass. The
+v1 cache migrates in one transaction. Cached stdout and stderr are BLAKE3-verified before output
+restoration, and inherited-stream seekability is probed without leaving the descriptor moved.
+
+The A/B/A fixture (`tests/fixtures/fixture_driver.c:plain_file_read`, five sessions, alternating arm
+order) changed the third invocation from `Executed` on the pre-change binary to `Reused` on the new one:
+13.841662 ms versus 20.572657 ms median wall. Raw data: `benchmarks/results/phase3a/candidate-reuse.json`.
+This is a small candidate-retention measurement, not a general workflow speedup.
+
+Local gates: fmt pass, Clippy `-D warnings` pass, **128 workspace tests**, **42 Linux integration
+tests**, demo pass; release `79ee6501d7b09e8e0f4c02cb4cc32e0f4243b7525377f596e40c550cfafc084c`.
+`PROVEN` remains a local SKIP (`landlock no`); hosted CI for the Phase 3A commit has not been observed.
+Restoration is still pathname-visible, not atomic across a hard kill or inode-preserving. See
+`docs/audits/PHASE3A_CANDIDATE_AND_REPLAY_ORDERING.md` and `docs/research/`.
