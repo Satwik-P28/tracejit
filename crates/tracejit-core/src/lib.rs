@@ -1165,6 +1165,16 @@ fn policy_from_record(record: &StoredExecution) -> Option<SandboxPolicy> {
         return None;
     }
     let mut readable = BTreeSet::from([record.executable.clone()]);
+    // `execve` also executes the ELF interpreter named by PT_INTERP. The trace starts after the
+    // initial `execve`, so that interpreter is not an observed file dependency and must be added
+    // explicitly; otherwise Landlock denies the interpreter and the target never starts.
+    if let Some(interpreter) = elf_interpreter(&record.executable) {
+        if !interpreter.exists() {
+            eprintln!("POLICY_REFUSAL missing ELF interpreter {interpreter:?}");
+            return None;
+        }
+        readable.insert(interpreter);
+    }
     for dependency in &record.identity.input_dependencies {
         match dependency {
             // A path that must be opened, executed or traversed has to exist for the candidate's
@@ -1237,6 +1247,50 @@ fn policy_from_record(record: &StoredExecution) -> Option<SandboxPolicy> {
         writable_paths: writable.into_iter().collect(),
         allow_network: false,
     })
+}
+
+/// Reads the ELF64 little-endian `PT_INTERP` path, if the executable is dynamically linked.
+fn elf_interpreter(path: &Path) -> Option<PathBuf> {
+    let bytes = fs::read(path).ok()?;
+    if bytes.len() < 64 || &bytes[..4] != b"\x7fELF" || bytes[4] != 2 || bytes[5] != 1 {
+        return None;
+    }
+    let u16_at = |at: usize| {
+        bytes
+            .get(at..at + 2)
+            .map(|slice| u16::from_le_bytes([slice[0], slice[1]]))
+    };
+    let u32_at = |at: usize| {
+        bytes
+            .get(at..at + 4)
+            .map(|slice| u32::from_le_bytes([slice[0], slice[1], slice[2], slice[3]]))
+    };
+    let u64_at = |at: usize| -> Option<u64> {
+        bytes.get(at..at + 8).map(|slice| {
+            u64::from_le_bytes([
+                slice[0], slice[1], slice[2], slice[3], slice[4], slice[5], slice[6], slice[7],
+            ])
+        })
+    };
+    let program_offset = u64_at(0x20)? as usize;
+    let entry_size = u16_at(0x36)? as usize;
+    let entry_count = u16_at(0x38)? as usize;
+    if entry_size < 56 {
+        return None;
+    }
+    for index in 0..entry_count {
+        let at = program_offset.checked_add(index.checked_mul(entry_size)?)?;
+        if u32_at(at)? != 3 {
+            continue;
+        }
+        let offset = u64_at(at + 8)? as usize;
+        let size = u64_at(at + 32)? as usize;
+        let raw = bytes.get(offset..offset.checked_add(size)?)?;
+        let end = raw.iter().position(|&byte| byte == 0).unwrap_or(raw.len());
+        let path = PathBuf::from(String::from_utf8_lossy(&raw[..end]).into_owned());
+        return path.is_absolute().then_some(path);
+    }
+    None
 }
 
 fn report_from_record(

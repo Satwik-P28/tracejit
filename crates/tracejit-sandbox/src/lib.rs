@@ -148,10 +148,12 @@ mod linux {
                     .unwrap_or_else(|| "kernel capabilities unavailable".into()),
             ));
         }
+        diag("apply: start");
         // Install seccomp first: the filter does not restrict filesystem writes, so a Landlock
         // failure can still be reported, and Landlock does not need the filter to be absent.
         apply_seccomp(policy.allow_network)?;
         verify_seccomp_installed()?;
+        diag("apply: seccomp installed");
         apply_landlock(policy, capabilities.landlock_abi.unwrap_or(1))?;
         Ok(EnforcementResult {
             seccomp_applied: true,
@@ -194,6 +196,7 @@ mod linux {
             for path in &policy.writable_paths {
                 add_path_rule(ruleset_fd, path, supported_access, supported_access, abi)?;
             }
+            diag("apply: landlock rules added; restricting");
             // SAFETY: prctl is called with the documented scalar arguments.
             if unsafe { libc::prctl(libc::PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) } != 0 {
                 return Err(last_error("set no_new_privs"));
