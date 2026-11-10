@@ -568,14 +568,18 @@ order) changed the third invocation from `Executed` on the pre-change binary to 
 13.841662 ms versus 20.572657 ms median wall. Raw data: `benchmarks/results/phase3a/candidate-reuse.json`.
 This is a small candidate-retention measurement, not a general workflow speedup.
 
-Local gates after the enforcement fix: fmt pass, Clippy `-D warnings` pass, **128 workspace tests**,
-**42 Linux integration tests**, demo pass; release
-`b2769dc418daee84715feb4807021d49749b7afeb3d6921f4b8d4b8623e4b230`. Hosted CI at `2aa662d` failed the
+Local gates after the final enforcement fixes: fmt pass, Clippy `-D warnings` pass, **128 workspace tests**,
+**42 Linux integration tests**, release build and demo pass; release
+`ce80ac96ef38159b7044c90642d8f1f83233db2ddf268827eec09a2a73573354`. Hosted CI at `2aa662d` failed the
 Landlock-only `enforced_execution_is_proven_reused_and_invalidated` test: the second `--enforce` run
 returned `Guarded` because `policy_from_record` treated an absent `/etc/ld.so.preload` `Metadata`
 dependency as a missing input. `7358720` omits absent stat-only dependencies from the readable policy
 (`Metadata`, `FilesystemStats`, `SymlinkMetadata`) while still failing closed for missing files,
-executables, directories, symlinks and inherited streams. The hosted run for the combined fix/docs tree
-is pending at the time of this update; `PROVEN` remains a local SKIP (`landlock no`). Restoration is
-still pathname-visible, not atomic across a hard kill or inode-preserving. See
-`docs/audits/PHASE3A_CANDIDATE_AND_REPLAY_ORDERING.md` and `docs/research/`.
+executables, directories, symlinks and inherited streams. The next hosted run (`e77e03f`, run
+`42891829903`) built the policy but still fell back to `Guarded` with `Permission denied`: the
+dynamically linked target's ELF interpreter is executed before tracing begins and was absent from the
+policy. `3e7f820` reads and verifies `PT_INTERP` and adds it to the readable policy, still failing
+closed for a missing interpreter. Hosted run `42896870132` at `3e7f820` passed every CI step,
+including Doctor, Linux integration and Demo; this is hosted evidence, and `PROVEN` remains a local
+SKIP (`landlock no`). Restoration is still pathname-visible, not atomic across a hard kill or
+inode-preserving. See `docs/audits/PHASE3A_CANDIDATE_AND_REPLAY_ORDERING.md` and `docs/research/`.

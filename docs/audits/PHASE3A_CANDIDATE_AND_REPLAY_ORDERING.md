@@ -1,6 +1,6 @@
 # Phase 3A: Candidate Retention and Replay Ordering
 
-Status: locally verified after the hosted-CI enforcement fix; hosted CI pending for the combined tree; no `PROVEN` claim added.
+Status: locally verified and hosted-verified at `3e7f820` (run `42896870132`); no local `PROVEN` claim added.
 
 Starting development tip: `a11ae4b`. The implementation branch is the existing development branch plus
 the preceding Phase 2T audit commit and this change. No pushed commit existed for this work at the time
@@ -56,6 +56,16 @@ Fix (`7358720`): stat-only dependencies (`Metadata`, `FilesystemStats`, `Symlink
 negative observations and are omitted from the sandbox's readable paths when absent. Dependencies that
 the child must actually open or execute still require existence and fail closed otherwise.
 
+### F7 (high, found by hosted CI): the ELF interpreter was missing from the sandbox policy
+
+After F6, hosted run `42891829903` at `e77e03f` built the policy but still returned `Guarded` with
+`Permission denied` from `execve`. The target is dynamically linked, and the kernel executes its
+`PT_INTERP` interpreter before tracing begins, so the interpreter was absent from the recorded
+dependencies and Landlock denied the execution.
+
+Fix (`3e7f820`): `policy_from_record` reads `PT_INTERP`, verifies the interpreter exists, and adds it
+to the readable paths. A missing interpreter still refuses enforcement.
+
 ### F4 (residual, not fixed): restoration is not a single atomic multi-file transaction
 
 `restore_outputs` validates, stages, backs up, and renames in phases. A normal error in a later rename
@@ -68,8 +78,10 @@ add an inode-preserving or crash-recovery storage engine.
 
 This host has seccomp but no Landlock. `doctor` reports `landlock no` and `proven no`; the new
 `enforced_execution_is_proven_reused_and_invalidated` test reports `SKIP` locally. Hosted CI passed at
-`a11ae4b` with Landlock ABI 8, but the first Phase 3A run at `2aa662d` failed the test for the reason in
-F6. Do not report a new `PROVEN` result until a hosted run of the fixed tree is observed.
+`a11ae4b` with Landlock ABI 8. The first Phase 3A run at `2aa662d` failed for F6, and the next run at
+`e77e03f` failed for F7. The final run `42896870132` at `3e7f820` passed every step, including Doctor,
+Linux integration and Demo. That is hosted evidence, not a local reproduction; the local test remains
+`SKIP`.
 
 ## Changed behavior
 
@@ -80,6 +92,7 @@ F6. Do not report a new `PROVEN` result until a hosted run of the fixed tree is 
 - Inherited-stream seek reproducibility is probed before restoration; the probe restores the recorded
   start offset on failure.
 - Cache schema is now version 2. Existing v1 databases migrate; no record bytes are dropped.
+- Enforcement adds the executable's verified ELF `PT_INTERP` to the readable policy.
 
 ## Verification
 
@@ -104,7 +117,7 @@ Results:
 - Clippy with `-D warnings`: pass
 - workspace tests: 128 passed, 0 failed
 - Linux integration: 42 passed, 0 failed; `PROVEN` test SKIP locally
-- release binary: `b2769dc418daee84715feb4807021d49749b7afeb3d6921f4b8d4b8623e4b230`
+- release binary: `ce80ac96ef38159b7044c90642d8f1f83233db2ddf268827eec09a2a73573354`
 - A/B/A, five sessions, using the pre-change binary `3ea020aadd082d2aa01becb319c30c11334c755ee870e24983b0bee3bbe17981`:
   - new binary third invocation: `Reused` in 5/5 sessions, 13.841662 ms median wall
   - pre-change binary third invocation: `Executed` in 5/5 sessions, 20.572657 ms median wall
@@ -115,13 +128,14 @@ This is a small A/B/A fixture, not a general workflow benchmark. It measures the
 decision and wall time for one guarded file copy; it does not establish that TraceJIT beats a build
 system or a content cache.
 
+Hosted verification: run `42896870132` at `3e7f820` passed all steps; the Linux integration step
+includes the enforced `PROVEN` reuse test. This is a hosted result, not a local reproduction.
+
 ## Remaining obligations
 
-1. Observe a hosted CI run for the pushed combined tree, including `RESULT proven-reuse PASS`, after
-the F6 enforcement fix.
-2. Measure candidate lookup and guard-validation cost with larger candidate sets; the current bound of
+1. Measure candidate lookup and guard-validation cost with larger candidate sets; the current bound of
    eight is a policy choice, not a measured optimum.
-3. Add an independent test for a corrupt stdout object with a workspace state that would reveal the
+2. Add an independent test for a corrupt stdout object with a workspace state that would reveal the
    old late-restore ordering. The current regression proves the behavior at the cache level and in the
    integration suite, but it does not isolate that transient state.
-4. Do not describe pathname restoration as atomic or inode-equivalent.
+3. Do not describe pathname restoration as atomic or inode-equivalent.

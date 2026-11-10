@@ -198,12 +198,20 @@ therefore refused to build the sandbox policy.
 `7358720` separates stat-only dependencies (`Metadata`, `FilesystemStats`, `SymlinkMetadata`) from
 inputs that must be opened or executed. An absent stat-only path is a valid negative observation and is
 omitted from the readable policy; a missing executable, file read, directory, symlink or inherited
-stream still fails closed. Local verification after the fix: formatting, Clippy, **128 workspace
-tests**, **42 Linux integration tests** and the demo pass; the local `PROVEN` test remains SKIP because
+stream still fails closed.
+
+A second hosted run (`e77e03f`, run `42891829903`) built the policy but still returned `Guarded` with
+`Permission denied` from `execve`. A dynamically linked target's ELF interpreter is executed by the
+kernel before tracing begins, so it was absent from the recorded dependencies and Landlock denied the
+interpreter. `3e7f820` reads `PT_INTERP`, verifies the interpreter exists and adds it to the readable
+policy; a missing interpreter still refuses enforcement.
+
+Local verification after the final fix: formatting, Clippy, **128 workspace tests**, **42 Linux
+integration tests**, the release build and the demo pass. The local `PROVEN` test remains SKIP because
 this host has no Landlock. Release binary:
-`b2769dc418daee84715feb4807021d49749b7afeb3d6921f4b8d4b8623e4b230`. The hosted run covering this
-addendum is pending at the time of the merge and must be observed before claiming end-to-end `PROVEN`
-reuse.
+`ce80ac96ef38159b7044c90642d8f1f83233db2ddf268827eec09a2a73573354`. Hosted run `42896870132` at
+`3e7f820` passed every CI step, including Doctor, Linux integration and Demo. That is hosted evidence,
+not a local reproduction.
 
 ## Conclusion
 
