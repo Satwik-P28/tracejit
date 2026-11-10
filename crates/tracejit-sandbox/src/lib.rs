@@ -148,9 +148,11 @@ mod linux {
                     .unwrap_or_else(|| "kernel capabilities unavailable".into()),
             ));
         }
-        apply_landlock(policy, capabilities.landlock_abi.unwrap_or(1))?;
+        // Install seccomp first: the filter does not restrict filesystem writes, so a Landlock
+        // failure can still be reported, and Landlock does not need the filter to be absent.
         apply_seccomp(policy.allow_network)?;
         verify_seccomp_installed()?;
+        apply_landlock(policy, capabilities.landlock_abi.unwrap_or(1))?;
         Ok(EnforcementResult {
             seccomp_applied: true,
             landlock_applied: true,
@@ -283,12 +285,16 @@ mod linux {
         // SAFETY: prctl is called with the documented scalar arguments.
         let mode = unsafe { libc::prctl(libc::PR_GET_SECCOMP, 0, 0, 0, 0) };
         if mode != libc::SECCOMP_MODE_FILTER as i32 {
+            diag(&format!(
+                "seccomp filter is not installed in the confined process (mode {mode})"
+            ));
             return Err(SandboxError::Setup(format!(
                 "seccomp filter is not installed in the confined process (mode {mode})"
             )));
         }
         // SAFETY: prctl is called with the documented scalar arguments.
         if unsafe { libc::prctl(libc::PR_GET_NO_NEW_PRIVS, 0, 0, 0, 0) } != 1 {
+            diag("no_new_privs is not set in the confined process");
             return Err(SandboxError::Setup(
                 "no_new_privs is not set in the confined process".into(),
             ));
