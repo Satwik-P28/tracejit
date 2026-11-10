@@ -1161,7 +1161,6 @@ fn has_symlink_ancestor(path: &Path) -> bool {
 
 fn policy_from_record(record: &StoredExecution) -> Option<SandboxPolicy> {
     if !capabilities().can_prove() {
-        eprintln!("POLICY_REFUSAL capabilities cannot prove");
         return None;
     }
     let mut readable = BTreeSet::from([record.executable.clone()]);
@@ -1170,7 +1169,6 @@ fn policy_from_record(record: &StoredExecution) -> Option<SandboxPolicy> {
     // explicitly; otherwise Landlock denies the interpreter and the target never starts.
     if let Some(interpreter) = elf_interpreter(&record.executable) {
         if !interpreter.exists() {
-            eprintln!("POLICY_REFUSAL missing ELF interpreter {interpreter:?}");
             return None;
         }
         readable.insert(interpreter);
@@ -1186,7 +1184,6 @@ fn policy_from_record(record: &StoredExecution) -> Option<SandboxPolicy> {
             | InputDependency::InheritedStream { path, .. }
             | InputDependency::Symlink { path, .. } => {
                 if !path.exists() {
-                    eprintln!("POLICY_REFUSAL missing required dependency {path:?}");
                     return None;
                 }
                 readable.insert(path.clone());
@@ -1222,7 +1219,6 @@ fn policy_from_record(record: &StoredExecution) -> Option<SandboxPolicy> {
             // the child map it; an absent binary cannot be guarded.
             InputDependency::ControlledRuntime { executable, .. } => {
                 if !executable.exists() {
-                    eprintln!("POLICY_REFUSAL missing controlled runtime {executable:?}");
                     return None;
                 }
                 readable.insert(executable.clone());
@@ -1232,12 +1228,6 @@ fn policy_from_record(record: &StoredExecution) -> Option<SandboxPolicy> {
     let mut writable = BTreeSet::new();
     for output in &record.outputs {
         if output.kind == OutputKind::Deleted || !output.path.exists() {
-            eprintln!(
-                "POLICY_REFUSAL output {:?} kind={:?} exists={}",
-                output.path,
-                output.kind,
-                output.path.exists()
-            );
             return None;
         }
         writable.insert(output.path.clone());

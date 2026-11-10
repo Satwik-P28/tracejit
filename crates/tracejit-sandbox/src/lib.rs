@@ -46,7 +46,6 @@ mod linux {
     use super::*;
     use std::ffi::CString;
     use std::io;
-    use std::io::Write;
     use std::os::unix::ffi::OsStrExt;
     use std::path::Path;
 
@@ -148,13 +147,9 @@ mod linux {
                     .unwrap_or_else(|| "kernel capabilities unavailable".into()),
             ));
         }
-        diag("apply: start");
-        // Install seccomp first: the filter does not restrict filesystem writes, so a Landlock
-        // failure can still be reported, and Landlock does not need the filter to be absent.
+        apply_landlock(policy, capabilities.landlock_abi.unwrap_or(1))?;
         apply_seccomp(policy.allow_network)?;
         verify_seccomp_installed()?;
-        diag("apply: seccomp installed");
-        apply_landlock(policy, capabilities.landlock_abi.unwrap_or(1))?;
         Ok(EnforcementResult {
             seccomp_applied: true,
             landlock_applied: true,
@@ -196,7 +191,6 @@ mod linux {
             for path in &policy.writable_paths {
                 add_path_rule(ruleset_fd, path, supported_access, supported_access, abi)?;
             }
-            diag("apply: landlock rules added; restricting");
             // SAFETY: prctl is called with the documented scalar arguments.
             if unsafe { libc::prctl(libc::PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) } != 0 {
                 return Err(last_error("set no_new_privs"));
@@ -219,20 +213,19 @@ mod linux {
         supported_access: u64,
         abi: i32,
     ) -> Result<(), SandboxError> {
-        let display = path.display().to_string();
         let path = CString::new(path.as_os_str().as_bytes())
-            .map_err(|_| SandboxError::Setup(format!("path contains NUL: {display}")))?;
+            .map_err(|_| SandboxError::Setup(format!("path contains NUL: {}", path.display())))?;
         // SAFETY: path is NUL terminated and flags contain no mode argument.
         let path_fd = unsafe { libc::open(path.as_ptr(), libc::O_PATH | libc::O_CLOEXEC) };
         if path_fd < 0 {
-            return Err(last_error(&format!("open Landlock path {display}")));
+            return Err(last_error("open Landlock path"));
         }
         let mut stat = std::mem::MaybeUninit::<libc::stat>::uninit();
         // SAFETY: path_fd is valid and stat points to writable storage for fstat.
         if unsafe { libc::fstat(path_fd, stat.as_mut_ptr()) } != 0 {
             // SAFETY: path_fd was opened above and has not been closed.
             unsafe { libc::close(path_fd) };
-            return Err(last_error(&format!("inspect Landlock path {display}")));
+            return Err(last_error("inspect Landlock path"));
         }
         // SAFETY: fstat initialized stat after returning success.
         let stat = unsafe { stat.assume_init() };
@@ -253,7 +246,8 @@ mod linux {
             // SAFETY: path_fd was opened above and has not been closed.
             unsafe { libc::close(path_fd) };
             return Err(SandboxError::Setup(format!(
-                "no supported Landlock access rights for {display}"
+                "no supported Landlock access rights for {}",
+                path.to_string_lossy()
             )));
         }
         let attr = LandlockPathBeneathAttr {
@@ -273,7 +267,7 @@ mod linux {
         // SAFETY: path_fd was opened above and has not been closed.
         unsafe { libc::close(path_fd) };
         if result != 0 {
-            return Err(last_error(&format!("add Landlock path rule {display}")));
+            return Err(last_error("add Landlock path rule"));
         }
         Ok(())
     }
@@ -288,16 +282,12 @@ mod linux {
         // SAFETY: prctl is called with the documented scalar arguments.
         let mode = unsafe { libc::prctl(libc::PR_GET_SECCOMP, 0, 0, 0, 0) };
         if mode != libc::SECCOMP_MODE_FILTER as i32 {
-            diag(&format!(
-                "seccomp filter is not installed in the confined process (mode {mode})"
-            ));
             return Err(SandboxError::Setup(format!(
                 "seccomp filter is not installed in the confined process (mode {mode})"
             )));
         }
         // SAFETY: prctl is called with the documented scalar arguments.
         if unsafe { libc::prctl(libc::PR_GET_NO_NEW_PRIVS, 0, 0, 0, 0) } != 1 {
-            diag("no_new_privs is not set in the confined process");
             return Err(SandboxError::Setup(
                 "no_new_privs is not set in the confined process".into(),
             ));
@@ -398,22 +388,7 @@ mod linux {
     }
 
     fn last_error(action: &str) -> SandboxError {
-        let error = io::Error::last_os_error();
-        diag(&format!("{action}: {error}"));
-        SandboxError::Setup(format!("{action}: {error}"))
-    }
-
-    fn diag(message: &str) {
-        let Some(path) = std::env::var_os("TRACEJIT_SANDBOX_DIAG") else {
-            return;
-        };
-        if let Ok(mut file) = std::fs::OpenOptions::new()
-            .create(true)
-            .append(true)
-            .open(path)
-        {
-            let _ = writeln!(file, "{message}");
-        }
+        SandboxError::Setup(format!("{action}: {}", io::Error::last_os_error()))
     }
 }
 

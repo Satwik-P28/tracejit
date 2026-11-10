@@ -27,37 +27,22 @@ jobs:
         run: cargo clippy --workspace --all-targets --all-features -- -D warnings
       - name: Tests
         run: |
-          set -o pipefail
-          cargo test --workspace 2>&1 | tee /tmp/tracejit-tests.log
-          status=${PIPESTATUS[0]}
+          set -u
+          log=$(mktemp)
+          set +e
+          cargo test --workspace --no-fail-fast -- --nocapture >"$log" 2>&1
+          status=$?
+          set -e
+          cat "$log"
           if [ "$status" -ne 0 ]; then
-            python3 - <<'PY'
-          from pathlib import Path
-          log = Path('/tmp/tracejit-tests.log').read_text(errors='replace')
-          marker = log.rfind('panicked at')
-          body = log[max(0, marker - 500):] if marker != -1 else log[-6000:]
-          body = body[-6000:]
-          escaped = body.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
-          print('::error title=workspace test failure::' + escaped)
-          PY
+            summary=$(grep -n -E -A 25 '^---- .* stdout ----|^thread .* panicked|^test .* FAILED$|^failures:$' "$log" 2>/dev/null | tail -c 3900 || true)
+            if [ -z "$summary" ]; then
+              summary=$(tail -c 3900 "$log")
+            fi
+            summary=$(printf '%s' "$summary" | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')
+            echo "::error title=Tests failed::${summary}"
             exit "$status"
           fi
-      - name: Annotate test failures
-        if: failure()
-        run: |
-          if [ ! -f /tmp/tracejit-tests.log ]; then
-            echo 'No workspace test log was written.'
-            exit 0
-          fi
-          python3 - <<'PY'
-          from pathlib import Path
-          log = Path('/tmp/tracejit-tests.log').read_text(errors='replace')
-          marker = log.rfind('panicked at')
-          body = log[max(0, marker - 500):] if marker != -1 else log[-12000:]
-          body = body[-12000:]
-          escaped = body.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
-          print('::error title=workspace test failure::' + escaped)
-          PY
       - name: Release build
         run: cargo build --workspace --release
       - name: Doctor and kernel capabilities

@@ -827,47 +827,21 @@ fn enforced_execution_is_proven_reused_and_invalidated() {
     ];
     let input = temporary.path().join("input.txt");
     let output = temporary.path().join("output.txt");
-    let sandbox_diag = temporary.path().join("sandbox-diag");
-    let sandbox_diag_env = sandbox_diag.to_str().unwrap();
 
-    let discovery = invoke(
-        &cache,
-        &args,
-        Some(("TRACEJIT_SANDBOX_DIAG", sandbox_diag_env)),
-    );
+    let discovery = invoke(&cache, &args, None);
     assert!(discovery.status.success());
     let discovery: Value = serde_json::from_slice(&discovery.stdout).unwrap();
     assert_eq!(discovery["kind"], "Executed", "{discovery}");
     assert_eq!(discovery["classification"], "Guarded", "{discovery}");
     assert_eq!(fs::read(&output).unwrap(), b"input one\n");
 
-    let enforced = invoke(
-        &cache,
-        &args,
-        Some(("TRACEJIT_SANDBOX_DIAG", sandbox_diag_env)),
-    );
+    let enforced = invoke(&cache, &args, None);
     assert!(enforced.status.success());
-    let enforced_stderr = enforced.stderr.clone();
     let enforced: Value = serde_json::from_slice(&enforced.stdout).unwrap();
-    let detail = if enforced["classification"] != "Proven" {
-        let sandbox_diag = fs::read_to_string(&sandbox_diag).unwrap_or_default();
-        let detail = format!(
-            "{}; sandbox diagnostics: {sandbox_diag}",
-            String::from_utf8_lossy(&enforced_stderr)
-        );
-        eprintln!("PROVEN_REUSE_STDERR {detail}");
-        eprintln!(
-            "::error title=proven-reuse::{} {detail}",
-            enforced["decision_reason"]
-        );
-        detail
-    } else {
-        String::new()
-    };
     assert_eq!(enforced["kind"], "Executed", "{enforced}");
     assert_eq!(
         enforced["classification"], "Proven",
-        "the execution did not receive an enforced policy: {enforced}; {detail}"
+        "the execution did not receive an enforced policy: {enforced}"
     );
     assert_eq!(fs::read(&output).unwrap(), b"input one\n");
 
