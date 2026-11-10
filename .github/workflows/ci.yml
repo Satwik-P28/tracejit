@@ -60,6 +60,7 @@ jobs:
           grep -q 'RESULT guarded_hit PASS' "$log"
           grep -q 'RESULT mutation DEOPT' "$log"
           grep -q 'RESULT sandbox PASS' "$log"
+          grep -q 'RESULT proven-reuse PASS' "$log"
           grep -q 'vdso_clock' "$log"
           grep -q 'mmap_shared_write' "$log"
           grep -q 'mmap_shared_mprotect' "$log"

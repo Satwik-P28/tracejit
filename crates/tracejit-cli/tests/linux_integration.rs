@@ -730,6 +730,74 @@ fn sandbox_declared_path_succeeds_and_other_effects_are_denied() {
     assert!(status.success());
 }
 
+/// The enforcement path must produce and then reuse a `PROVEN` record end to end.
+///
+/// A capability report only says the kernel supports the mechanisms. This test requires the
+/// executable itself to receive the policy: the first (discovery) run is `Guarded`, the second
+/// run installs the policy and is classified `PROVEN`, and a third run reuses that same record.
+/// The input is then changed, which must reject the cached result and produce the new bytes.
+#[test]
+fn enforced_execution_is_proven_reused_and_invalidated() {
+    if !tracejit_sandbox::capabilities().can_prove() {
+        let reason = "seccomp or Landlock ABI 3+ is unavailable";
+        if std::env::var_os("TRACEJIT_REQUIRE_PROVEN").is_some() {
+            panic!("RESULT proven-reuse FAIL: {reason}");
+        }
+        eprintln!("RESULT proven-reuse SKIP: {reason}");
+        return;
+    }
+
+    let temporary = tempfile::tempdir().unwrap();
+    workspace(temporary.path());
+    let binary = compile_fixture(temporary.path());
+    let cache = temporary.path().join("cache");
+    let args = [
+        "run",
+        "--enforce",
+        "--json",
+        "--",
+        binary.to_str().unwrap(),
+        "plain_file_read",
+        temporary.path().to_str().unwrap(),
+    ];
+    let input = temporary.path().join("input.txt");
+    let output = temporary.path().join("output.txt");
+
+    let discovery = invoke(&cache, &args, None);
+    assert!(discovery.status.success());
+    let discovery: Value = serde_json::from_slice(&discovery.stdout).unwrap();
+    assert_eq!(discovery["kind"], "Executed", "{discovery}");
+    assert_eq!(discovery["classification"], "Guarded", "{discovery}");
+    assert_eq!(fs::read(&output).unwrap(), b"input one\n");
+
+    let enforced = invoke(&cache, &args, None);
+    assert!(enforced.status.success());
+    let enforced: Value = serde_json::from_slice(&enforced.stdout).unwrap();
+    assert_eq!(enforced["kind"], "Executed", "{enforced}");
+    assert_eq!(
+        enforced["classification"], "Proven",
+        "the execution did not receive an enforced policy: {enforced}"
+    );
+    assert_eq!(fs::read(&output).unwrap(), b"input one\n");
+
+    fs::remove_file(&output).unwrap();
+    let reused = invoke(&cache, &args, None);
+    assert!(reused.status.success());
+    let reused: Value = serde_json::from_slice(&reused.stdout).unwrap();
+    assert_eq!(reused["kind"], "Reused", "{reused}");
+    assert_eq!(reused["classification"], "Proven", "{reused}");
+    assert_eq!(reused["cache_decision"], "Reused", "{reused}");
+    assert_eq!(fs::read(&output).unwrap(), b"input one\n");
+
+    fs::write(&input, b"input two\n").unwrap();
+    let changed = invoke(&cache, &args, None);
+    assert!(changed.status.success());
+    let changed: Value = serde_json::from_slice(&changed.stdout).unwrap();
+    assert_ne!(changed["kind"], "Reused", "{changed}");
+    assert_eq!(fs::read(&output).unwrap(), b"input two\n");
+    eprintln!("RESULT proven-reuse PASS");
+}
+
 #[test]
 fn sandbox_child() {
     if std::env::var_os("TRACEJIT_SANDBOX_CHILD").is_none() {

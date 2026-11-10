@@ -149,6 +149,7 @@ mod linux {
         }
         apply_landlock(policy, capabilities.landlock_abi.unwrap_or(1))?;
         apply_seccomp(policy.allow_network)?;
+        verify_seccomp_installed()?;
         Ok(EnforcementResult {
             seccomp_applied: true,
             landlock_applied: true,
@@ -267,6 +268,29 @@ mod linux {
         unsafe { libc::close(path_fd) };
         if result != 0 {
             return Err(last_error("add Landlock path rule"));
+        }
+        Ok(())
+    }
+
+    /// Confirms the filter is installed in this process, not merely supported by the kernel.
+    ///
+    /// `SECCOMP_GET_ACTION_AVAIL` is a capability probe; it does not prove that the calling
+    /// execution received a policy. `PR_GET_SECCOMP` reports the caller's actual mode, so this
+    /// check ties the `PROVEN` promotion to an installed filter. `apply_seccomp` also requires
+    /// `no_new_privs`, and the filter itself denies the syscalls checked by the sandbox tests.
+    fn verify_seccomp_installed() -> Result<(), SandboxError> {
+        // SAFETY: prctl is called with the documented scalar arguments.
+        let mode = unsafe { libc::prctl(libc::PR_GET_SECCOMP, 0, 0, 0, 0) };
+        if mode != libc::SECCOMP_MODE_FILTER as i32 {
+            return Err(SandboxError::Setup(format!(
+                "seccomp filter is not installed in the confined process (mode {mode})"
+            )));
+        }
+        // SAFETY: prctl is called with the documented scalar arguments.
+        if unsafe { libc::prctl(libc::PR_GET_NO_NEW_PRIVS, 0, 0, 0, 0) } != 1 {
+            return Err(SandboxError::Setup(
+                "no_new_privs is not set in the confined process".into(),
+            ));
         }
         Ok(())
     }

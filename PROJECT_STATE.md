@@ -524,3 +524,33 @@ one reusable of seventeen; xz/gcc/Python/jq remain blocked by clocks, `sysinfo`,
 so session-scoped executable validation was rejected. Local gates: fmt, Clippy, 125 tests, 120
 differential cases with zero incorrect hits. `PROVEN` remains blocked by unavailable Landlock;
 developer preview is limited to explicit stable bzip2 and static-asset workloads.
+
+## Phase 2T (base `a11ae4b`)
+
+GitHub Actions run 42724119434 passed all steps at `a11ae4b`; the runner reported Landlock ABI 8,
+`proven yes`, seccomp/proven/sandbox/integration PASS. Those logs are not anonymously retrievable,
+so they remain CI evidence, not locally reproduced facts. This host has no Landlock. The new
+`enforced_execution_is_proven_reused_and_invalidated` test requires a Guarded discovery, a Proven
+enforced execution, a reused Proven record and an input-edit rejection. It is wired into CI but
+has only run locally as SKIP; end-to-end PROVEN reuse on the new tree is unverified until push.
+Seccomp installation now verifies `PR_GET_SECCOMP == FILTER` and `no_new_privs` in the confined
+process instead of relying on the capability report.
+
+Three-session five-arm comparison (`benchmarks/repos/phase2t_incremental.py`, 2.8 MB × 3 assets,
+output written inside every arm): identical rerun medians are Make **2.63 ms**, Ninja **2.82 ms**,
+content-cache **60.22 ms**, TraceJIT **678.59 ms**; five development sessions are 800.41 / 835.88 /
+1071.34 / 2445.11 ms, with native 2142.60 ms. This is a **valid negative** against a correctly
+configured incremental baseline. Make/Ninja return stale bytes for a preserved-mtime edit and a
+corrupted output; TraceJIT and the content cache stay correct. TraceJIT also preserves native output
+metadata where the baselines' `touch`/write path does not. The defensible difference is automatic
+dependency discovery plus suspect/missing-output recovery, not speed.
+
+Real installed-project recurrence: jQuery 28.68→10.63 ms (2.70x), Expat 8.45→7.29 ms (1.16x),
+Socat 15.15→8.41 ms (1.80x), all bytes correct. Fresh workspaces and changed environments execute
+rather than reuse; no cross-workspace cache was added. The output-effect audit records O_EXCL
+creation, O_TRUNC/pwrite/ftruncate/truncate inode mutation, rename/unlink, hard-link refusal,
+metadata replay and inherited/duplicate descriptor limits in
+`benchmarks/results/phase2t/effect-sequence.txt`. CAS-and-rename remains pathname-equivalent, not
+inode-equivalent; no new effect engine was justified. Gates: fmt and Clippy pass, **126 tests**,
+120 differential cases with 0 incorrect hits. See
+`docs/audits/PHASE2T_INCREMENTAL_AND_ENFORCEMENT.md`.

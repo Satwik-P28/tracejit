@@ -1,0 +1,20 @@
+openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+openat(AT_FDCWD, "/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+openat(AT_FDCWD, "new.bin", O_WRONLY|O_CREAT|O_EXCL, 0600) = 3
+write(3, "new", 3)                      = 3
+openat(AT_FDCWD, "existing.bin", O_WRONLY|O_CREAT|O_TRUNC, 0600) = 3
+write(3, "trunc", 5)                    = 5
+openat(AT_FDCWD, "existing.bin", O_WRONLY) = 3
+pwrite64(3, "P", 1, 0)                  = 1
+ftruncate(3, 4)                         = 0
+truncate("existing.bin", 3)             = 0
+rename("new.bin", "renamed.bin")        = 0
+link("renamed.bin", "hard.bin")         = 0
+chmod("renamed.bin", 0640)              = 0
+utimensat(AT_FDCWD, "renamed.bin", [{tv_sec=1000000, tv_nsec=0} /* 1970-01-12T13:46:40+0000 */, {tv_sec=1000000, tv_nsec=0} /* 1970-01-12T13:46:40+0000 */], 0) = 0
+openat(AT_FDCWD, "dup.bin", O_WRONLY|O_CREAT|O_TRUNC, 0600) = 3
+write(4, "dup", 3)                      = 3
+unlink("hard.bin")                      = 0
+unlink("dup.bin")                       = 0
+unlink("renamed.bin")                   = 0
+unlink("existing.bin")                  = 0
