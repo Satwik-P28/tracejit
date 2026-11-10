@@ -46,6 +46,7 @@ mod linux {
     use super::*;
     use std::ffi::CString;
     use std::io;
+    use std::io::Write;
     use std::os::unix::ffi::OsStrExt;
     use std::path::Path;
 
@@ -213,19 +214,20 @@ mod linux {
         supported_access: u64,
         abi: i32,
     ) -> Result<(), SandboxError> {
+        let display = path.display().to_string();
         let path = CString::new(path.as_os_str().as_bytes())
-            .map_err(|_| SandboxError::Setup(format!("path contains NUL: {}", path.display())))?;
+            .map_err(|_| SandboxError::Setup(format!("path contains NUL: {display}")))?;
         // SAFETY: path is NUL terminated and flags contain no mode argument.
         let path_fd = unsafe { libc::open(path.as_ptr(), libc::O_PATH | libc::O_CLOEXEC) };
         if path_fd < 0 {
-            return Err(last_error("open Landlock path"));
+            return Err(last_error(&format!("open Landlock path {display}")));
         }
         let mut stat = std::mem::MaybeUninit::<libc::stat>::uninit();
         // SAFETY: path_fd is valid and stat points to writable storage for fstat.
         if unsafe { libc::fstat(path_fd, stat.as_mut_ptr()) } != 0 {
             // SAFETY: path_fd was opened above and has not been closed.
             unsafe { libc::close(path_fd) };
-            return Err(last_error("inspect Landlock path"));
+            return Err(last_error(&format!("inspect Landlock path {display}")));
         }
         // SAFETY: fstat initialized stat after returning success.
         let stat = unsafe { stat.assume_init() };
@@ -246,8 +248,7 @@ mod linux {
             // SAFETY: path_fd was opened above and has not been closed.
             unsafe { libc::close(path_fd) };
             return Err(SandboxError::Setup(format!(
-                "no supported Landlock access rights for {}",
-                path.to_string_lossy()
+                "no supported Landlock access rights for {display}"
             )));
         }
         let attr = LandlockPathBeneathAttr {
@@ -267,7 +268,7 @@ mod linux {
         // SAFETY: path_fd was opened above and has not been closed.
         unsafe { libc::close(path_fd) };
         if result != 0 {
-            return Err(last_error("add Landlock path rule"));
+            return Err(last_error(&format!("add Landlock path rule {display}")));
         }
         Ok(())
     }
@@ -388,7 +389,22 @@ mod linux {
     }
 
     fn last_error(action: &str) -> SandboxError {
-        SandboxError::Setup(format!("{action}: {}", io::Error::last_os_error()))
+        let error = io::Error::last_os_error();
+        diag(&format!("{action}: {error}"));
+        SandboxError::Setup(format!("{action}: {error}"))
+    }
+
+    fn diag(message: &str) {
+        let Some(path) = std::env::var_os("TRACEJIT_SANDBOX_DIAG") else {
+            return;
+        };
+        if let Ok(mut file) = std::fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(path)
+        {
+            let _ = writeln!(file, "{message}");
+        }
     }
 }
 

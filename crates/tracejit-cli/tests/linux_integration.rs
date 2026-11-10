@@ -835,22 +835,34 @@ fn enforced_execution_is_proven_reused_and_invalidated() {
     assert_eq!(discovery["classification"], "Guarded", "{discovery}");
     assert_eq!(fs::read(&output).unwrap(), b"input one\n");
 
-    let enforced = invoke(&cache, &args, None);
+    let sandbox_diag = temporary.path().join("sandbox-diag");
+    let enforced = invoke(
+        &cache,
+        &args,
+        Some(("TRACEJIT_SANDBOX_DIAG", sandbox_diag.to_str().unwrap())),
+    );
     assert!(enforced.status.success());
     let enforced_stderr = enforced.stderr.clone();
     let enforced: Value = serde_json::from_slice(&enforced.stdout).unwrap();
-    if enforced["classification"] != "Proven" {
-        let detail = String::from_utf8_lossy(&enforced_stderr);
+    let detail = if enforced["classification"] != "Proven" {
+        let sandbox_diag = fs::read_to_string(&sandbox_diag).unwrap_or_default();
+        let detail = format!(
+            "{}; sandbox diagnostics: {sandbox_diag}",
+            String::from_utf8_lossy(&enforced_stderr)
+        );
         eprintln!("PROVEN_REUSE_STDERR {detail}");
         eprintln!(
             "::error title=proven-reuse::{} {detail}",
             enforced["decision_reason"]
         );
-    }
+        detail
+    } else {
+        String::new()
+    };
     assert_eq!(enforced["kind"], "Executed", "{enforced}");
     assert_eq!(
         enforced["classification"], "Proven",
-        "the execution did not receive an enforced policy: {enforced}"
+        "the execution did not receive an enforced policy: {enforced}; {detail}"
     );
     assert_eq!(fs::read(&output).unwrap(), b"input one\n");
 
