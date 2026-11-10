@@ -827,19 +827,24 @@ fn enforced_execution_is_proven_reused_and_invalidated() {
     ];
     let input = temporary.path().join("input.txt");
     let output = temporary.path().join("output.txt");
+    let sandbox_diag = temporary.path().join("sandbox-diag");
+    let sandbox_diag_env = sandbox_diag.to_str().unwrap();
 
-    let discovery = invoke(&cache, &args, None);
+    let discovery = invoke(
+        &cache,
+        &args,
+        Some(("TRACEJIT_SANDBOX_DIAG", sandbox_diag_env)),
+    );
     assert!(discovery.status.success());
     let discovery: Value = serde_json::from_slice(&discovery.stdout).unwrap();
     assert_eq!(discovery["kind"], "Executed", "{discovery}");
     assert_eq!(discovery["classification"], "Guarded", "{discovery}");
     assert_eq!(fs::read(&output).unwrap(), b"input one\n");
 
-    let sandbox_diag = temporary.path().join("sandbox-diag");
     let enforced = invoke(
         &cache,
         &args,
-        Some(("TRACEJIT_SANDBOX_DIAG", sandbox_diag.to_str().unwrap())),
+        Some(("TRACEJIT_SANDBOX_DIAG", sandbox_diag_env)),
     );
     assert!(enforced.status.success());
     let enforced_stderr = enforced.stderr.clone();
