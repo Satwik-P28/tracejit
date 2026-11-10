@@ -42,6 +42,22 @@ jobs:
           PY
             exit "$status"
           fi
+      - name: Annotate test failures
+        if: failure()
+        run: |
+          if [ ! -f /tmp/tracejit-tests.log ]; then
+            echo 'No workspace test log was written.'
+            exit 0
+          fi
+          python3 - <<'PY'
+          from pathlib import Path
+          log = Path('/tmp/tracejit-tests.log').read_text(errors='replace')
+          marker = log.rfind('\nfailures:')
+          body = log[marker:] if marker != -1 else log[-6000:]
+          body = body[-12000:]
+          escaped = body.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+          print('::error title=workspace test failure::' + escaped)
+          PY
       - name: Release build
         run: cargo build --workspace --release
       - name: Doctor and kernel capabilities
