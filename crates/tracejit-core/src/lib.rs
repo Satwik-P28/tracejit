@@ -1166,19 +1166,29 @@ fn policy_from_record(record: &StoredExecution) -> Option<SandboxPolicy> {
     let mut readable = BTreeSet::from([record.executable.clone()]);
     for dependency in &record.identity.input_dependencies {
         match dependency {
+            // A path that must be opened, executed or traversed has to exist for the candidate's
+            // guards to pass; if it disappeared, enforcement cannot be assembled.
             InputDependency::Executable { path, .. }
             | InputDependency::File { path, .. }
-            | InputDependency::Metadata { path, .. }
             | InputDependency::DirectoryOpened { path, .. }
             | InputDependency::DirectoryEnumerated { path, .. }
-            | InputDependency::FilesystemStats { path, .. }
             | InputDependency::InheritedStream { path, .. }
-            | InputDependency::SymlinkMetadata { path, .. }
             | InputDependency::Symlink { path, .. } => {
                 if !path.exists() {
                     return None;
                 }
                 readable.insert(path.clone());
+            }
+            // A stat observation can be negative. `/etc/ld.so.preload` is normally absent, and
+            // the dependency's guard is what proves it stayed absent; the sandbox does not need
+            // read access to a path the child never opens. Treating that absence as a missing
+            // input refused enforcement for every otherwise valid discovery record.
+            InputDependency::Metadata { path, .. }
+            | InputDependency::FilesystemStats { path, .. }
+            | InputDependency::SymlinkMetadata { path, .. } => {
+                if path.exists() {
+                    readable.insert(path.clone());
+                }
             }
             // An access check may legitimately refer to a path that is absent: the recorded
             // answer is then "denied", and the guard re-checks exactly that answer. The path is
