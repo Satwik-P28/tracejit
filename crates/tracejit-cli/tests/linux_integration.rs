@@ -837,7 +837,16 @@ fn enforced_execution_is_proven_reused_and_invalidated() {
 
     let enforced = invoke(&cache, &args, None);
     assert!(enforced.status.success());
+    let enforced_stderr = enforced.stderr.clone();
     let enforced: Value = serde_json::from_slice(&enforced.stdout).unwrap();
+    if enforced["classification"] != "Proven" {
+        let detail = String::from_utf8_lossy(&enforced_stderr);
+        eprintln!("PROVEN_REUSE_STDERR {detail}");
+        eprintln!(
+            "::error title=proven-reuse::{} {detail}",
+            enforced["decision_reason"]
+        );
+    }
     assert_eq!(enforced["kind"], "Executed", "{enforced}");
     assert_eq!(
         enforced["classification"], "Proven",
