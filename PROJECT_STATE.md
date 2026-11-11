@@ -650,7 +650,8 @@ prime, 8.57 ms hit, 16.69 ms invalidation, and 11.05 ms for a nondeterministic r
 
 ## Phase 3E (base `62425a9` / PR #6 head `a86b8e2`, branch `phase3e/epoll-and-effect-frontier`)
 
-PR #6 review found `.ok()` silently discarded SQLite errors during automatic admission. The fix
+PR #6 review found `.ok()` silently discarded SQLite errors during automatic admission; hosted CI
+runs #77 and #78 for the fix commit both completed successfully. The fix
 propagates the error, treats a concurrently pruned row as a miss, skips malformed payloads, and
 keeps full guards. The retrieval prototype remains experimental: oldest-target medians are still
 worse at four of seven bounds, so it is not merged.

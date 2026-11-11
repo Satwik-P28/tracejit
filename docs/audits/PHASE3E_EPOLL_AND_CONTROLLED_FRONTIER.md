@@ -15,10 +15,10 @@ PR #6 is still a **draft**, based on `phase3d/compatibility-retrieval`, with two
 - `1cc5912` — Phase 3D retrieval prototype and census evidence.
 - `a86b8e2` — review fix: propagate candidate lookup errors during admission.
 
-GitHub created CI runs `43094044134` (push) and `43094052744` (pull request) for `a86b8e2`, but the
-unauthenticated check page did not expose their conclusions. **Hosted success is not claimed.**
-Local gates after the review fix pass; the PR remains draft and unmerged because the retrieval
-change has no established benefit and review is not complete.
+GitHub CI run `43094044134` (push, job `130778199626`) and run `43094052744` (pull request, job
+`130778215433`) both completed **successfully** for `a86b8e2`. Local gates after the review fix also
+pass. The PR remains draft and unmerged because the retrieval change has no established performance
+benefit and the broader review is not complete.
 
 ### Correctness findings
 
@@ -206,7 +206,8 @@ implemented type system.
 
 Limitations:
 
-- PR #6 hosted check conclusions were not readable without authentication; they are not claimed.
+- PR #6 hosted checks are confirmed for `a86b8e2`; Phase 3E’s branch is separate and its hosted
+  checks were not available when this audit was written.
 - No controlled Python contract was implemented, so the controlled track is an inventory and a
   falsification, not a compatibility result.
 - Leaked epoll descriptors, explicit `RLIMIT_NOFILE` exhaustion, and fork/exec inheritance lack
