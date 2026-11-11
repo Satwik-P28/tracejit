@@ -115,6 +115,17 @@ pub struct StoredExecution {
     pub last_decision: DecisionRecord,
 }
 
+/// One retained candidate's encoded JSON. `decode` is the only step that pays deserialization
+/// cost, so a newest-first stable hit does not decode every older candidate first.
+#[derive(Clone, Debug)]
+pub struct CandidateBytes(Vec<u8>);
+
+impl CandidateBytes {
+    pub fn decode(&self) -> Option<StoredExecution> {
+        serde_json::from_slice(&self.0).ok()
+    }
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct CacheStats {
     pub executions: u64,
@@ -158,15 +169,16 @@ const CACHE_SCHEMA_VERSION: i64 = 2;
 /// from growing the database without limit; the newest records win.
 const DEFAULT_MAX_CANDIDATES_PER_IDENTITY: usize = 8;
 const MAX_CANDIDATES_ENV: &str = "TRACEJIT_CANDIDATE_BOUND";
+const MAX_CANDIDATES_LIMIT: usize = 64;
 
 /// The retention bound is a policy choice, not an execution identity. An experimental override
-/// lets the scaling benchmark exercise 1, 2, 4, 8, 16 and 32 candidates without changing the
+/// lets the scaling benchmark exercise 1, 2, 4, 8, 16, 32 and 64 candidates without changing the
 /// default or making the bound part of a recorded command's key. Invalid values keep the default.
 fn max_candidates_per_identity() -> usize {
     std::env::var(MAX_CANDIDATES_ENV)
         .ok()
         .and_then(|value| value.parse::<usize>().ok())
-        .filter(|bound| (1..=32).contains(bound))
+        .filter(|bound| (1..=MAX_CANDIDATES_LIMIT).contains(bound))
         .unwrap_or(DEFAULT_MAX_CANDIDATES_PER_IDENTITY)
 }
 
@@ -339,9 +351,9 @@ impl Cache {
                     others.push(id);
                 }
             }
-            // Keep the record just written plus the newest seven alternates. The query is
-            // newest-first, so the tail is oldest and the current record is never pruned even
-            // when several writes share a millisecond timestamp.
+            // Keep the record just written plus the newest alternates allowed by the policy.
+            // The query is newest-first, so the tail is oldest and the current record is never
+            // pruned even when several writes share a millisecond timestamp.
             stale.extend(others.into_iter().skip(max_candidates_per_identity() - 1));
         }
         for id in &stale {
@@ -379,12 +391,12 @@ impl Cache {
         Ok(record)
     }
 
-    /// All retained guarded candidates for one command identity, newest first.
+    /// Raw retained candidates for one identity, newest first.
     ///
-    /// A malformed candidate is skipped because each record is independent; a valid sibling can
-    /// still be verified by its own guards. If every record is malformed this returns an empty
-    /// list, which the caller treats as a miss and retraces.
-    pub fn find_candidates(&self, lookup_key: Hash) -> Result<Vec<StoredExecution>, CacheError> {
+    /// Decoding is deliberately deferred: the common stable hit only needs the newest record.
+    /// The caller must decode each candidate and run its guards before reuse; this API is not a
+    /// substitute for validation. A malformed record is skipped by `decode`.
+    pub fn find_candidates(&self, lookup_key: Hash) -> Result<Vec<CandidateBytes>, CacheError> {
         let started = Instant::now();
         let mut statement = self.connection.prepare(
             "SELECT record_json FROM executions WHERE lookup_key = ?1
@@ -393,17 +405,11 @@ impl Cache {
         let rows = statement
             .query_map([lookup_key.to_string()], |row| row.get::<_, Vec<u8>>(0))?
             .collect::<Result<Vec<_>, _>>()?;
-        let query_ns = u64_nanos(started);
-        let started = Instant::now();
-        let records = rows
-            .into_iter()
-            .filter_map(|bytes| serde_json::from_slice(&bytes).ok())
-            .collect();
         self.last_query.set(QueryTimings {
-            query_ns,
-            decode_ns: u64_nanos(started),
+            query_ns: u64_nanos(started),
+            decode_ns: 0,
         });
-        Ok(records)
+        Ok(rows.into_iter().map(CandidateBytes).collect())
     }
 
     pub fn find_by_id(&self, id: &str) -> Result<Option<StoredExecution>, CacheError> {

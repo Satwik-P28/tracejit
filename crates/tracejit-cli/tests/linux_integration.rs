@@ -1476,6 +1476,24 @@ fn a_corrupted_cached_output_fails_closed() {
 /// retrace observe `PRESENT` and produce different bytes than a run against the original
 /// `ABSENT` state. Corrupting the recorded stream object makes the two orders distinguishable.
 #[test]
+fn dev_null_seek_is_reusable() {
+    let fixture = Fixture::new();
+    let first = fixture.run("dev_null_lseek");
+    assert!(first.status.success(), "{}", stderr_of(&first));
+    assert_eq!(
+        fs::read(fixture.input("output.txt")).unwrap(),
+        b"input one\n"
+    );
+    let second = fixture.run("dev_null_lseek");
+    assert!(hit(&second), "{}", stderr_of(&second));
+    assert_eq!(
+        fs::read(fixture.input("output.txt")).unwrap(),
+        b"input one\n"
+    );
+    eprintln!("RESULT dev-null-lseek PASS");
+}
+
+#[test]
 fn corrupt_stream_is_rejected_before_output_restoration() {
     for (case, record_field, report_field, expected_stream) in [
         (

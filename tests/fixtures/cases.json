@@ -46,6 +46,7 @@
   {"case":"script_dependency","expected":"Guarded","eligible":true},
   {"case":"nonzero_exit","expected":"Guarded","eligible":true},
   {"case":"stdout_only","expected":"Guarded","eligible":true},  {"case":"stderr_only","expected":"Guarded","eligible":true},
+  {"case":"dev_null_lseek","expected":"Guarded","eligible":true},
   {"case":"output_presence_stdout","expected":"Guarded","eligible":true},
   {"case":"output_presence_stderr","expected":"Guarded","eligible":true},
   {"case":"access_check","expected":"Guarded","eligible":true},

@@ -1,0 +1,2959 @@
+{
+  "phase": "3C",
+  "experiment": "stable bzip2 workflow latency attribution",
+  "repository": {
+    "commit": "df6cc86243972f7200be9dfb2cc4a3c52db9cf2b",
+    "dirty": true
+  },
+  "binary": {
+    "sha256": "2d70c766bc169e3d25990563d900e6f46aeb3607b662997c6ea7e5223946e711",
+    "size": 6811128
+  },
+  "host": {
+    "platform": "Linux-6.1.102-x86_64-with-glibc2.39",
+    "kernel": "6.1.102",
+    "cpus": 8,
+    "memory": "MemTotal:       16376832 kB"
+  },
+  "workload": "three 2.8 MB JavaScript assets, bzip2 -9 -k -f",
+  "method": {
+    "cold": "first trace, outputs absent",
+    "transition": "first rerun, outputs present; expected deoptimization",
+    "stable": "repeated reuse with all outputs present",
+    "batch": "one /bin/sh process invokes three TraceJIT processes; no in-process batch mode",
+    "unaccounted": "parent wall minus every TraceJIT phase; includes subprocess setup, JSON parse and scheduling"
+  },
+  "cold": {
+    "mode": "independent",
+    "label": "cold",
+    "wall_ms": 774.0688960184343,
+    "verification_ms": 165.74841100373305,
+    "rows": [
+      {
+        "asset": "app.js",
+        "exit": 0,
+        "wall_ms": 266.312519001076,
+        "report": {
+          "baseline_runtime_ns": 240303880,
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "contract": "tracejit.allocator-entropy.v1",
+          "decision_reason": "no eligible cached execution matched the pre-execution identity",
+          "dependency_count": 12,
+          "effect_counts": {
+            "controls": 1,
+            "reads": 27,
+            "unknown": 0,
+            "writes": 95
+          },
+          "eligible_for_reuse": true,
+          "execution_id": "b20cb5389a320f15",
+          "exit_code": 0,
+          "guards": null,
+          "irreversible_effect_count": 0,
+          "kind": "Executed",
+          "output_count": 1,
+          "process_count": 1,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "runtime_ns": 240303880,
+          "stderr_bytes": [],
+          "stdout_bytes": []
+        },
+        "phases_ns": {
+          "process_startup_ns": 0,
+          "cli_parse_ns": 0,
+          "identity_prepare_ns": 0,
+          "cache_prepare_ns": 0,
+          "sqlite_open_ns": 0,
+          "sqlite_schema_ns": 0,
+          "lookup_key_ns": 0,
+          "sqlite_query_ns": 0,
+          "record_decode_ns": 0,
+          "guard_validation_ns": 0,
+          "cas_restore_ns": 0,
+          "stdio_replay_ns": 0,
+          "decision_persist_ns": 0,
+          "present_ns": 0
+        },
+        "accounted_ms": 0.0,
+        "unaccounted_ms": 266.312519001076,
+        "correct": true
+      },
+      {
+        "asset": "vendor.js",
+        "exit": 0,
+        "wall_ms": 268.4502390038688,
+        "report": {
+          "baseline_runtime_ns": 251787227,
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "contract": "tracejit.allocator-entropy.v1",
+          "decision_reason": "no eligible cached execution matched the pre-execution identity",
+          "dependency_count": 12,
+          "effect_counts": {
+            "controls": 1,
+            "reads": 27,
+            "unknown": 0,
+            "writes": 98
+          },
+          "eligible_for_reuse": true,
+          "execution_id": "e39b69d0af5205e9",
+          "exit_code": 0,
+          "guards": null,
+          "irreversible_effect_count": 0,
+          "kind": "Executed",
+          "output_count": 1,
+          "process_count": 1,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "runtime_ns": 251787227,
+          "stderr_bytes": [],
+          "stdout_bytes": []
+        },
+        "phases_ns": {
+          "process_startup_ns": 0,
+          "cli_parse_ns": 0,
+          "identity_prepare_ns": 0,
+          "cache_prepare_ns": 0,
+          "sqlite_open_ns": 0,
+          "sqlite_schema_ns": 0,
+          "lookup_key_ns": 0,
+          "sqlite_query_ns": 0,
+          "record_decode_ns": 0,
+          "guard_validation_ns": 0,
+          "cas_restore_ns": 0,
+          "stdio_replay_ns": 0,
+          "decision_persist_ns": 0,
+          "present_ns": 0
+        },
+        "accounted_ms": 0.0,
+        "unaccounted_ms": 268.4502390038688,
+        "correct": true
+      },
+      {
+        "asset": "worker.js",
+        "exit": 0,
+        "wall_ms": 238.6082299926784,
+        "report": {
+          "baseline_runtime_ns": 221687165,
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "contract": "tracejit.allocator-entropy.v1",
+          "decision_reason": "no eligible cached execution matched the pre-execution identity",
+          "dependency_count": 12,
+          "effect_counts": {
+            "controls": 1,
+            "reads": 27,
+            "unknown": 0,
+            "writes": 97
+          },
+          "eligible_for_reuse": true,
+          "execution_id": "607393d7f4fdbfb4",
+          "exit_code": 0,
+          "guards": null,
+          "irreversible_effect_count": 0,
+          "kind": "Executed",
+          "output_count": 1,
+          "process_count": 1,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "runtime_ns": 221687165,
+          "stderr_bytes": [],
+          "stdout_bytes": []
+        },
+        "phases_ns": {
+          "process_startup_ns": 0,
+          "cli_parse_ns": 0,
+          "identity_prepare_ns": 0,
+          "cache_prepare_ns": 0,
+          "sqlite_open_ns": 0,
+          "sqlite_schema_ns": 0,
+          "lookup_key_ns": 0,
+          "sqlite_query_ns": 0,
+          "record_decode_ns": 0,
+          "guard_validation_ns": 0,
+          "cas_restore_ns": 0,
+          "stdio_replay_ns": 0,
+          "decision_persist_ns": 0,
+          "present_ns": 0
+        },
+        "accounted_ms": 0.0,
+        "unaccounted_ms": 238.6082299926784,
+        "correct": true
+      }
+    ]
+  },
+  "transition": {
+    "mode": "independent",
+    "label": "transition",
+    "wall_ms": 754.4406429806259,
+    "verification_ms": 193.23169597191736,
+    "rows": [
+      {
+        "asset": "app.js",
+        "exit": 0,
+        "wall_ms": 245.69734500255436,
+        "report": {
+          "baseline_runtime_ns": 227712244,
+          "cache_decision": "Deoptimized",
+          "classification": "Guarded",
+          "contract": "tracejit.allocator-entropy.v1",
+          "decision_reason": "cached execution deoptimized",
+          "dependency_count": 12,
+          "effect_counts": {
+            "controls": 1,
+            "reads": 28,
+            "unknown": 0,
+            "writes": 96
+          },
+          "eligible_for_reuse": true,
+          "execution_id": "538b477437989dbc",
+          "exit_code": 0,
+          "guards": "Some(GuardReport { checked: 30, passed: 29, failure: Some(GuardFailure { guard: FileMetadata { path: \"/tmp/tracejit-phase3c-latency/work/assets/app.js.bz2\", expected: FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 } }, reason: \"metadata changed; no content hash was recorded\", expected: \"FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }\", actual: \"FileFingerprint { device: 65024, inode: 552434, size: 368892, blocks: 728, block_size: 4096, accessed_ns: 1794424123104357176, modified_ns: 1794424122000000000, changed_ns: 1794424122584177092, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }\" }) })",
+          "irreversible_effect_count": 0,
+          "kind": "Executed",
+          "output_count": 1,
+          "process_count": 1,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "runtime_ns": 227712244,
+          "stderr_bytes": [],
+          "stdout_bytes": []
+        },
+        "phases_ns": {
+          "process_startup_ns": 0,
+          "cli_parse_ns": 0,
+          "identity_prepare_ns": 0,
+          "cache_prepare_ns": 0,
+          "sqlite_open_ns": 0,
+          "sqlite_schema_ns": 0,
+          "lookup_key_ns": 0,
+          "sqlite_query_ns": 0,
+          "record_decode_ns": 0,
+          "guard_validation_ns": 0,
+          "cas_restore_ns": 0,
+          "stdio_replay_ns": 0,
+          "decision_persist_ns": 0,
+          "present_ns": 0
+        },
+        "accounted_ms": 0.0,
+        "unaccounted_ms": 245.69734500255436,
+        "correct": true
+      },
+      {
+        "asset": "vendor.js",
+        "exit": 0,
+        "wall_ms": 237.90784599259496,
+        "report": {
+          "baseline_runtime_ns": 219802410,
+          "cache_decision": "Deoptimized",
+          "classification": "Guarded",
+          "contract": "tracejit.allocator-entropy.v1",
+          "decision_reason": "cached execution deoptimized",
+          "dependency_count": 12,
+          "effect_counts": {
+            "controls": 1,
+            "reads": 28,
+            "unknown": 0,
+            "writes": 99
+          },
+          "eligible_for_reuse": true,
+          "execution_id": "3904893660259924",
+          "exit_code": 0,
+          "guards": "Some(GuardReport { checked: 30, passed: 29, failure: Some(GuardFailure { guard: FileMetadata { path: \"/tmp/tracejit-phase3c-latency/work/assets/vendor.js.bz2\", expected: FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 } }, reason: \"metadata changed; no content hash was recorded\", expected: \"FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }\", actual: \"FileFingerprint { device: 65024, inode: 552440, size: 381745, blocks: 752, block_size: 4096, accessed_ns: 1794424123160357176, modified_ns: 1794424122000000000, changed_ns: 1794424122852087999, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }\" }) })",
+          "irreversible_effect_count": 0,
+          "kind": "Executed",
+          "output_count": 1,
+          "process_count": 1,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "runtime_ns": 219802410,
+          "stderr_bytes": [],
+          "stdout_bytes": []
+        },
+        "phases_ns": {
+          "process_startup_ns": 0,
+          "cli_parse_ns": 0,
+          "identity_prepare_ns": 0,
+          "cache_prepare_ns": 0,
+          "sqlite_open_ns": 0,
+          "sqlite_schema_ns": 0,
+          "lookup_key_ns": 0,
+          "sqlite_query_ns": 0,
+          "record_decode_ns": 0,
+          "guard_validation_ns": 0,
+          "cas_restore_ns": 0,
+          "stdio_replay_ns": 0,
+          "decision_persist_ns": 0,
+          "present_ns": 0
+        },
+        "accounted_ms": 0.0,
+        "unaccounted_ms": 237.90784599259496,
+        "correct": true
+      },
+      {
+        "asset": "worker.js",
+        "exit": 0,
+        "wall_ms": 270.0054250017274,
+        "report": {
+          "baseline_runtime_ns": 252318363,
+          "cache_decision": "Deoptimized",
+          "classification": "Guarded",
+          "contract": "tracejit.allocator-entropy.v1",
+          "decision_reason": "cached execution deoptimized",
+          "dependency_count": 12,
+          "effect_counts": {
+            "controls": 1,
+            "reads": 28,
+            "unknown": 0,
+            "writes": 98
+          },
+          "eligible_for_reuse": true,
+          "execution_id": "908e7786232ebbaf",
+          "exit_code": 0,
+          "guards": "Some(GuardReport { checked: 30, passed: 29, failure: Some(GuardFailure { guard: FileMetadata { path: \"/tmp/tracejit-phase3c-latency/work/assets/worker.js.bz2\", expected: FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 } }, reason: \"metadata changed; no content hash was recorded\", expected: \"FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }\", actual: \"FileFingerprint { device: 65024, inode: 552443, size: 377233, blocks: 744, block_size: 4096, accessed_ns: 1794424123216357176, modified_ns: 1794424122000000000, changed_ns: 1794424123088357176, mode: 33188, link_count: 1, uid: 65822751, gid: 1001, device_id: 0 }\" }) })",
+          "irreversible_effect_count": 0,
+          "kind": "Executed",
+          "output_count": 1,
+          "process_count": 1,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "runtime_ns": 252318363,
+          "stderr_bytes": [],
+          "stdout_bytes": []
+        },
+        "phases_ns": {
+          "process_startup_ns": 0,
+          "cli_parse_ns": 0,
+          "identity_prepare_ns": 0,
+          "cache_prepare_ns": 0,
+          "sqlite_open_ns": 0,
+          "sqlite_schema_ns": 0,
+          "lookup_key_ns": 0,
+          "sqlite_query_ns": 0,
+          "record_decode_ns": 0,
+          "guard_validation_ns": 0,
+          "cas_restore_ns": 0,
+          "stdio_replay_ns": 0,
+          "decision_persist_ns": 0,
+          "present_ns": 0
+        },
+        "accounted_ms": 0.0,
+        "unaccounted_ms": 270.0054250017274,
+        "correct": true
+      }
+    ]
+  },
+  "stable": [
+    {
+      "mode": "independent",
+      "label": "stable-0",
+      "wall_ms": 78.96961801452562,
+      "verification_ms": 166.9272619765252,
+      "rows": [
+        {
+          "asset": "app.js",
+          "exit": 0,
+          "wall_ms": 26.78173899766989,
+          "report": {
+            "baseline_runtime_ns": 227712244,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 28,
+              "unknown": 0,
+              "writes": 96
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "538b477437989dbc",
+            "exit_code": 0,
+            "guards": {
+              "checked": 33,
+              "failure": null,
+              "passed": 33
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 13424378,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "phases_ns": {
+            "process_startup_ns": 12177043,
+            "cli_parse_ns": 154891,
+            "identity_prepare_ns": 321052,
+            "cache_prepare_ns": 26400,
+            "sqlite_open_ns": 227787,
+            "sqlite_schema_ns": 759144,
+            "lookup_key_ns": 11862,
+            "sqlite_query_ns": 636914,
+            "record_decode_ns": 366978,
+            "guard_validation_ns": 8432656,
+            "cas_restore_ns": 4591772,
+            "stdio_replay_ns": 30698,
+            "decision_persist_ns": 4962136,
+            "present_ns": 39243
+          },
+          "accounted_ms": 32.738576,
+          "unaccounted_ms": -5.956837002330111,
+          "correct": true
+        },
+        {
+          "asset": "vendor.js",
+          "exit": 0,
+          "wall_ms": 20.768390997545794,
+          "report": {
+            "baseline_runtime_ns": 219802410,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 28,
+              "unknown": 0,
+              "writes": 99
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "3904893660259924",
+            "exit_code": 0,
+            "guards": {
+              "checked": 33,
+              "failure": null,
+              "passed": 33
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 10234044,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "phases_ns": {
+            "process_startup_ns": 7957193,
+            "cli_parse_ns": 165160,
+            "identity_prepare_ns": 219371,
+            "cache_prepare_ns": 25088,
+            "sqlite_open_ns": 242845,
+            "sqlite_schema_ns": 368571,
+            "lookup_key_ns": 11592,
+            "sqlite_query_ns": 597741,
+            "record_decode_ns": 356188,
+            "guard_validation_ns": 6276812,
+            "cas_restore_ns": 3569354,
+            "stdio_replay_ns": 29345,
+            "decision_persist_ns": 4657445,
+            "present_ns": 30938
+          },
+          "accounted_ms": 24.507643,
+          "unaccounted_ms": -3.739252002454208,
+          "correct": true
+        },
+        {
+          "asset": "worker.js",
+          "exit": 0,
+          "wall_ms": 29.69535399461165,
+          "report": {
+            "baseline_runtime_ns": 252318363,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 28,
+              "unknown": 0,
+              "writes": 98
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "908e7786232ebbaf",
+            "exit_code": 0,
+            "guards": {
+              "checked": 33,
+              "failure": null,
+              "passed": 33
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 14401279,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "phases_ns": {
+            "process_startup_ns": 8938604,
+            "cli_parse_ns": 121358,
+            "identity_prepare_ns": 215103,
+            "cache_prepare_ns": 22072,
+            "sqlite_open_ns": 208651,
+            "sqlite_schema_ns": 307216,
+            "lookup_key_ns": 16541,
+            "sqlite_query_ns": 590057,
+            "record_decode_ns": 364774,
+            "guard_validation_ns": 6440429,
+            "cas_restore_ns": 7562985,
+            "stdio_replay_ns": 31028,
+            "decision_persist_ns": 8561047,
+            "present_ns": 68919
+          },
+          "accounted_ms": 33.448784,
+          "unaccounted_ms": -3.7534300053883527,
+          "correct": true
+        }
+      ]
+    },
+    {
+      "mode": "independent",
+      "label": "stable-1",
+      "wall_ms": 104.51614001067355,
+      "verification_ms": 160.95552197657526,
+      "rows": [
+        {
+          "asset": "app.js",
+          "exit": 0,
+          "wall_ms": 51.55507099698298,
+          "report": {
+            "baseline_runtime_ns": 227712244,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 28,
+              "unknown": 0,
+              "writes": 96
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "538b477437989dbc",
+            "exit_code": 0,
+            "guards": {
+              "checked": 33,
+              "failure": null,
+              "passed": 33
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 47335397,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "phases_ns": {
+            "process_startup_ns": 6313120,
+            "cli_parse_ns": 127439,
+            "identity_prepare_ns": 188012,
+            "cache_prepare_ns": 22563,
+            "sqlite_open_ns": 186400,
+            "sqlite_schema_ns": 301154,
+            "lookup_key_ns": 9548,
+            "sqlite_query_ns": 591018,
+            "record_decode_ns": 416180,
+            "guard_validation_ns": 5501478,
+            "cas_restore_ns": 41390097,
+            "stdio_replay_ns": 25608,
+            "decision_persist_ns": 0,
+            "present_ns": 36619
+          },
+          "accounted_ms": 55.109236,
+          "unaccounted_ms": -3.554165003017026,
+          "correct": true
+        },
+        {
+          "asset": "vendor.js",
+          "exit": 0,
+          "wall_ms": 33.594426000490785,
+          "report": {
+            "baseline_runtime_ns": 219802410,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 28,
+              "unknown": 0,
+              "writes": 99
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "3904893660259924",
+            "exit_code": 0,
+            "guards": {
+              "checked": 33,
+              "failure": null,
+              "passed": 33
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 30281393,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "phases_ns": {
+            "process_startup_ns": 8041857,
+            "cli_parse_ns": 110878,
+            "identity_prepare_ns": 165090,
+            "cache_prepare_ns": 19958,
+            "sqlite_open_ns": 168867,
+            "sqlite_schema_ns": 273573,
+            "lookup_key_ns": 9238,
+            "sqlite_query_ns": 445075,
+            "record_decode_ns": 289373,
+            "guard_validation_ns": 5146112,
+            "cas_restore_ns": 24820301,
+            "stdio_replay_ns": 23965,
+            "decision_persist_ns": 0,
+            "present_ns": 32261
+          },
+          "accounted_ms": 39.546548,
+          "unaccounted_ms": -5.952121999509217,
+          "correct": true
+        },
+        {
+          "asset": "worker.js",
+          "exit": 0,
+          "wall_ms": 17.75319699663669,
+          "report": {
+            "baseline_runtime_ns": 252318363,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 28,
+              "unknown": 0,
+              "writes": 98
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "908e7786232ebbaf",
+            "exit_code": 0,
+            "guards": {
+              "checked": 33,
+              "failure": null,
+              "passed": 33
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 13767932,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "phases_ns": {
+            "process_startup_ns": 2462904,
+            "cli_parse_ns": 127008,
+            "identity_prepare_ns": 185057,
+            "cache_prepare_ns": 21540,
+            "sqlite_open_ns": 183914,
+            "sqlite_schema_ns": 319198,
+            "lookup_key_ns": 9978,
+            "sqlite_query_ns": 499166,
+            "record_decode_ns": 298180,
+            "guard_validation_ns": 5235409,
+            "cas_restore_ns": 8203235,
+            "stdio_replay_ns": 29235,
+            "decision_persist_ns": 0,
+            "present_ns": 35457
+          },
+          "accounted_ms": 17.610281,
+          "unaccounted_ms": 0.1429159966366882,
+          "correct": true
+        }
+      ]
+    },
+    {
+      "mode": "independent",
+      "label": "stable-2",
+      "wall_ms": 122.49902699841186,
+      "verification_ms": 162.6241320045665,
+      "rows": [
+        {
+          "asset": "app.js",
+          "exit": 0,
+          "wall_ms": 74.3560749979224,
+          "report": {
+            "baseline_runtime_ns": 227712244,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 28,
+              "unknown": 0,
+              "writes": 96
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "538b477437989dbc",
+            "exit_code": 0,
+            "guards": {
+              "checked": 33,
+              "failure": null,
+              "passed": 33
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 70055058,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "phases_ns": {
+            "process_startup_ns": 1732033,
+            "cli_parse_ns": 123632,
+            "identity_prepare_ns": 221395,
+            "cache_prepare_ns": 23284,
+            "sqlite_open_ns": 196088,
+            "sqlite_schema_ns": 321674,
+            "lookup_key_ns": 10440,
+            "sqlite_query_ns": 514625,
+            "record_decode_ns": 349325,
+            "guard_validation_ns": 5394537,
+            "cas_restore_ns": 64279706,
+            "stdio_replay_ns": 27021,
+            "decision_persist_ns": 0,
+            "present_ns": 57909
+          },
+          "accounted_ms": 73.251669,
+          "unaccounted_ms": 1.1044059979223988,
+          "correct": true
+        },
+        {
+          "asset": "vendor.js",
+          "exit": 0,
+          "wall_ms": 14.87483800156042,
+          "report": {
+            "baseline_runtime_ns": 219802410,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 28,
+              "unknown": 0,
+              "writes": 99
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "3904893660259924",
+            "exit_code": 0,
+            "guards": {
+              "checked": 33,
+              "failure": null,
+              "passed": 33
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 10978200,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "phases_ns": {
+            "process_startup_ns": 6629844,
+            "cli_parse_ns": 135114,
+            "identity_prepare_ns": 189385,
+            "cache_prepare_ns": 21551,
+            "sqlite_open_ns": 190668,
+            "sqlite_schema_ns": 341761,
+            "lookup_key_ns": 10861,
+            "sqlite_query_ns": 505989,
+            "record_decode_ns": 332924,
+            "guard_validation_ns": 5586708,
+            "cas_restore_ns": 5019604,
+            "stdio_replay_ns": 36328,
+            "decision_persist_ns": 0,
+            "present_ns": 32791
+          },
+          "accounted_ms": 19.033528,
+          "unaccounted_ms": -4.158689998439581,
+          "correct": true
+        },
+        {
+          "asset": "worker.js",
+          "exit": 0,
+          "wall_ms": 31.57445800025016,
+          "report": {
+            "baseline_runtime_ns": 252318363,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 28,
+              "unknown": 0,
+              "writes": 98
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "908e7786232ebbaf",
+            "exit_code": 0,
+            "guards": {
+              "checked": 33,
+              "failure": null,
+              "passed": 33
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 27665035,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "phases_ns": {
+            "process_startup_ns": 1961348,
+            "cli_parse_ns": 118622,
+            "identity_prepare_ns": 201377,
+            "cache_prepare_ns": 27732,
+            "sqlite_open_ns": 199995,
+            "sqlite_schema_ns": 283823,
+            "lookup_key_ns": 10490,
+            "sqlite_query_ns": 568537,
+            "record_decode_ns": 335329,
+            "guard_validation_ns": 5400619,
+            "cas_restore_ns": 21901607,
+            "stdio_replay_ns": 24957,
+            "decision_persist_ns": 0,
+            "present_ns": 35707
+          },
+          "accounted_ms": 31.070143,
+          "unaccounted_ms": 0.5043150002501591,
+          "correct": true
+        }
+      ]
+    },
+    {
+      "mode": "independent",
+      "label": "stable-3",
+      "wall_ms": 106.80771799525246,
+      "verification_ms": 171.1857189948205,
+      "rows": [
+        {
+          "asset": "app.js",
+          "exit": 0,
+          "wall_ms": 43.467242998303846,
+          "report": {
+            "baseline_runtime_ns": 227712244,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 28,
+              "unknown": 0,
+              "writes": 96
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "538b477437989dbc",
+            "exit_code": 0,
+            "guards": {
+              "checked": 33,
+              "failure": null,
+              "passed": 33
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 39031223,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "phases_ns": {
+            "process_startup_ns": 7051309,
+            "cli_parse_ns": 124864,
+            "identity_prepare_ns": 197179,
+            "cache_prepare_ns": 42660,
+            "sqlite_open_ns": 226755,
+            "sqlite_schema_ns": 331892,
+            "lookup_key_ns": 10760,
+            "sqlite_query_ns": 519425,
+            "record_decode_ns": 328646,
+            "guard_validation_ns": 5656218,
+            "cas_restore_ns": 33011242,
+            "stdio_replay_ns": 31760,
+            "decision_persist_ns": 0,
+            "present_ns": 42359
+          },
+          "accounted_ms": 47.575069,
+          "unaccounted_ms": -4.107826001696154,
+          "correct": true
+        },
+        {
+          "asset": "vendor.js",
+          "exit": 0,
+          "wall_ms": 23.757827002555132,
+          "report": {
+            "baseline_runtime_ns": 219802410,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 28,
+              "unknown": 0,
+              "writes": 99
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "3904893660259924",
+            "exit_code": 0,
+            "guards": {
+              "checked": 33,
+              "failure": null,
+              "passed": 33
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 19922284,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "phases_ns": {
+            "process_startup_ns": 10791664,
+            "cli_parse_ns": 121007,
+            "identity_prepare_ns": 193202,
+            "cache_prepare_ns": 21640,
+            "sqlite_open_ns": 175469,
+            "sqlite_schema_ns": 312005,
+            "lookup_key_ns": 10860,
+            "sqlite_query_ns": 463990,
+            "record_decode_ns": 338294,
+            "guard_validation_ns": 5358710,
+            "cas_restore_ns": 14198630,
+            "stdio_replay_ns": 24496,
+            "decision_persist_ns": 0,
+            "present_ns": 66806
+          },
+          "accounted_ms": 32.076773,
+          "unaccounted_ms": -8.318945997444871,
+          "correct": true
+        },
+        {
+          "asset": "worker.js",
+          "exit": 0,
+          "wall_ms": 37.97609399771318,
+          "report": {
+            "baseline_runtime_ns": 252318363,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 28,
+              "unknown": 0,
+              "writes": 98
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "908e7786232ebbaf",
+            "exit_code": 0,
+            "guards": {
+              "checked": 33,
+              "failure": null,
+              "passed": 33
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 34227513,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "phases_ns": {
+            "process_startup_ns": 4975942,
+            "cli_parse_ns": 116879,
+            "identity_prepare_ns": 183935,
+            "cache_prepare_ns": 20268,
+            "sqlite_open_ns": 199394,
+            "sqlite_schema_ns": 264076,
+            "lookup_key_ns": 10790,
+            "sqlite_query_ns": 468539,
+            "record_decode_ns": 336972,
+            "guard_validation_ns": 5392394,
+            "cas_restore_ns": 28446892,
+            "stdio_replay_ns": 48361,
+            "decision_persist_ns": 0,
+            "present_ns": 37560
+          },
+          "accounted_ms": 40.502002,
+          "unaccounted_ms": -2.525908002286819,
+          "correct": true
+        }
+      ]
+    },
+    {
+      "mode": "independent",
+      "label": "stable-4",
+      "wall_ms": 148.61247298540547,
+      "verification_ms": 174.58265900495462,
+      "rows": [
+        {
+          "asset": "app.js",
+          "exit": 0,
+          "wall_ms": 58.964227995602414,
+          "report": {
+            "baseline_runtime_ns": 227712244,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 28,
+              "unknown": 0,
+              "writes": 96
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "538b477437989dbc",
+            "exit_code": 0,
+            "guards": {
+              "checked": 33,
+              "failure": null,
+              "passed": 33
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 54865671,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "phases_ns": {
+            "process_startup_ns": 4886118,
+            "cli_parse_ns": 114745,
+            "identity_prepare_ns": 185117,
+            "cache_prepare_ns": 27922,
+            "sqlite_open_ns": 166202,
+            "sqlite_schema_ns": 329568,
+            "lookup_key_ns": 10940,
+            "sqlite_query_ns": 509546,
+            "record_decode_ns": 351118,
+            "guard_validation_ns": 5945431,
+            "cas_restore_ns": 48534766,
+            "stdio_replay_ns": 31029,
+            "decision_persist_ns": 0,
+            "present_ns": 39194
+          },
+          "accounted_ms": 61.131696,
+          "unaccounted_ms": -2.167468004397584,
+          "correct": true
+        },
+        {
+          "asset": "vendor.js",
+          "exit": 0,
+          "wall_ms": 19.06206100829877,
+          "report": {
+            "baseline_runtime_ns": 219802410,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 28,
+              "unknown": 0,
+              "writes": 99
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "3904893660259924",
+            "exit_code": 0,
+            "guards": {
+              "checked": 33,
+              "failure": null,
+              "passed": 33
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 14943928,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "phases_ns": {
+            "process_startup_ns": 4484505,
+            "cli_parse_ns": 117811,
+            "identity_prepare_ns": 207059,
+            "cache_prepare_ns": 37090,
+            "sqlite_open_ns": 210855,
+            "sqlite_schema_ns": 300173,
+            "lookup_key_ns": 11652,
+            "sqlite_query_ns": 544872,
+            "record_decode_ns": 367860,
+            "guard_validation_ns": 6360258,
+            "cas_restore_ns": 8182626,
+            "stdio_replay_ns": 30717,
+            "decision_persist_ns": 0,
+            "present_ns": 36007
+          },
+          "accounted_ms": 20.891485,
+          "unaccounted_ms": -1.8294239917012298,
+          "correct": true
+        },
+        {
+          "asset": "worker.js",
+          "exit": 0,
+          "wall_ms": 68.68102101725526,
+          "report": {
+            "baseline_runtime_ns": 252318363,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 28,
+              "unknown": 0,
+              "writes": 98
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "908e7786232ebbaf",
+            "exit_code": 0,
+            "guards": {
+              "checked": 33,
+              "failure": null,
+              "passed": 33
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 64614063,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "phases_ns": {
+            "process_startup_ns": 4043398,
+            "cli_parse_ns": 112701,
+            "identity_prepare_ns": 187421,
+            "cache_prepare_ns": 22061,
+            "sqlite_open_ns": 195667,
+            "sqlite_schema_ns": 293530,
+            "lookup_key_ns": 10079,
+            "sqlite_query_ns": 545212,
+            "record_decode_ns": 329227,
+            "guard_validation_ns": 6166876,
+            "cas_restore_ns": 58044352,
+            "stdio_replay_ns": 29535,
+            "decision_persist_ns": 0,
+            "present_ns": 46487
+          },
+          "accounted_ms": 70.026546,
+          "unaccounted_ms": -1.3455249827447346,
+          "correct": true
+        }
+      ]
+    },
+    {
+      "mode": "independent",
+      "label": "stable-5",
+      "wall_ms": 103.20454998873174,
+      "verification_ms": 205.55801401496865,
+      "rows": [
+        {
+          "asset": "app.js",
+          "exit": 0,
+          "wall_ms": 48.00254901056178,
+          "report": {
+            "baseline_runtime_ns": 227712244,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 28,
+              "unknown": 0,
+              "writes": 96
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "538b477437989dbc",
+            "exit_code": 0,
+            "guards": {
+              "checked": 33,
+              "failure": null,
+              "passed": 33
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 43420485,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "phases_ns": {
+            "process_startup_ns": 8234769,
+            "cli_parse_ns": 129242,
+            "identity_prepare_ns": 232486,
+            "cache_prepare_ns": 31649,
+            "sqlite_open_ns": 186550,
+            "sqlite_schema_ns": 334307,
+            "lookup_key_ns": 11562,
+            "sqlite_query_ns": 614723,
+            "record_decode_ns": 389130,
+            "guard_validation_ns": 6138724,
+            "cas_restore_ns": 36860071,
+            "stdio_replay_ns": 30257,
+            "decision_persist_ns": 0,
+            "present_ns": 43952
+          },
+          "accounted_ms": 53.237422,
+          "unaccounted_ms": -5.234872989438223,
+          "correct": true
+        },
+        {
+          "asset": "vendor.js",
+          "exit": 0,
+          "wall_ms": 24.378261005040258,
+          "report": {
+            "baseline_runtime_ns": 219802410,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 28,
+              "unknown": 0,
+              "writes": 99
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "3904893660259924",
+            "exit_code": 0,
+            "guards": {
+              "checked": 33,
+              "failure": null,
+              "passed": 33
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 20019907,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "phases_ns": {
+            "process_startup_ns": 6786728,
+            "cli_parse_ns": 137047,
+            "identity_prepare_ns": 218890,
+            "cache_prepare_ns": 25869,
+            "sqlite_open_ns": 204023,
+            "sqlite_schema_ns": 365776,
+            "lookup_key_ns": 11562,
+            "sqlite_query_ns": 580118,
+            "record_decode_ns": 371046,
+            "guard_validation_ns": 6258468,
+            "cas_restore_ns": 13359345,
+            "stdio_replay_ns": 29155,
+            "decision_persist_ns": 0,
+            "present_ns": 38863
+          },
+          "accounted_ms": 28.38689,
+          "unaccounted_ms": -4.008628994959743,
+          "correct": true
+        },
+        {
+          "asset": "worker.js",
+          "exit": 0,
+          "wall_ms": 28.91814601025544,
+          "report": {
+            "baseline_runtime_ns": 252318363,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 28,
+              "unknown": 0,
+              "writes": 98
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "908e7786232ebbaf",
+            "exit_code": 0,
+            "guards": {
+              "checked": 33,
+              "failure": null,
+              "passed": 33
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 24554732,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "phases_ns": {
+            "process_startup_ns": 1643396,
+            "cli_parse_ns": 159289,
+            "identity_prepare_ns": 261240,
+            "cache_prepare_ns": 25408,
+            "sqlite_open_ns": 201298,
+            "sqlite_schema_ns": 341660,
+            "lookup_key_ns": 11742,
+            "sqlite_query_ns": 545924,
+            "record_decode_ns": 363552,
+            "guard_validation_ns": 5892091,
+            "cas_restore_ns": 18271668,
+            "stdio_replay_ns": 25347,
+            "decision_persist_ns": 0,
+            "present_ns": 39885
+          },
+          "accounted_ms": 27.7825,
+          "unaccounted_ms": 1.1356460102554422,
+          "correct": true
+        }
+      ]
+    },
+    {
+      "mode": "independent",
+      "label": "stable-6",
+      "wall_ms": 165.04957099095918,
+      "verification_ms": 167.9200639773626,
+      "rows": [
+        {
+          "asset": "app.js",
+          "exit": 0,
+          "wall_ms": 98.00258398172446,
+          "report": {
+            "baseline_runtime_ns": 227712244,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 28,
+              "unknown": 0,
+              "writes": 96
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "538b477437989dbc",
+            "exit_code": 0,
+            "guards": {
+              "checked": 33,
+              "failure": null,
+              "passed": 33
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 92453366,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "phases_ns": {
+            "process_startup_ns": 7593120,
+            "cli_parse_ns": 144831,
+            "identity_prepare_ns": 247755,
+            "cache_prepare_ns": 71454,
+            "sqlite_open_ns": 231314,
+            "sqlite_schema_ns": 481904,
+            "lookup_key_ns": 12414,
+            "sqlite_query_ns": 707236,
+            "record_decode_ns": 429416,
+            "guard_validation_ns": 7157654,
+            "cas_restore_ns": 84832223,
+            "stdio_replay_ns": 30537,
+            "decision_persist_ns": 0,
+            "present_ns": 56276
+          },
+          "accounted_ms": 101.996134,
+          "unaccounted_ms": -3.993550018275542,
+          "correct": true
+        },
+        {
+          "asset": "vendor.js",
+          "exit": 0,
+          "wall_ms": 25.57882299879566,
+          "report": {
+            "baseline_runtime_ns": 219802410,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 28,
+              "unknown": 0,
+              "writes": 99
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "3904893660259924",
+            "exit_code": 0,
+            "guards": {
+              "checked": 33,
+              "failure": null,
+              "passed": 33
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 20919144,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "phases_ns": {
+            "process_startup_ns": 5810577,
+            "cli_parse_ns": 133601,
+            "identity_prepare_ns": 281218,
+            "cache_prepare_ns": 26760,
+            "sqlite_open_ns": 262051,
+            "sqlite_schema_ns": 359074,
+            "lookup_key_ns": 15539,
+            "sqlite_query_ns": 634480,
+            "record_decode_ns": 447980,
+            "guard_validation_ns": 6593436,
+            "cas_restore_ns": 13843283,
+            "stdio_replay_ns": 31659,
+            "decision_persist_ns": 0,
+            "present_ns": 35226
+          },
+          "accounted_ms": 28.474884,
+          "unaccounted_ms": -2.896061001204341,
+          "correct": true
+        },
+        {
+          "asset": "worker.js",
+          "exit": 0,
+          "wall_ms": 39.68450901447795,
+          "report": {
+            "baseline_runtime_ns": 252318363,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 28,
+              "unknown": 0,
+              "writes": 98
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "908e7786232ebbaf",
+            "exit_code": 0,
+            "guards": {
+              "checked": 33,
+              "failure": null,
+              "passed": 33
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 35015612,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "phases_ns": {
+            "process_startup_ns": 1929643,
+            "cli_parse_ns": 177542,
+            "identity_prepare_ns": 231855,
+            "cache_prepare_ns": 24626,
+            "sqlite_open_ns": 236764,
+            "sqlite_schema_ns": 387497,
+            "lookup_key_ns": 12203,
+            "sqlite_query_ns": 601017,
+            "record_decode_ns": 421260,
+            "guard_validation_ns": 6813879,
+            "cas_restore_ns": 27748111,
+            "stdio_replay_ns": 30097,
+            "decision_persist_ns": 0,
+            "present_ns": 43892
+          },
+          "accounted_ms": 38.658386,
+          "unaccounted_ms": 1.0261230144779532,
+          "correct": true
+        }
+      ]
+    }
+  ],
+  "batch": [
+    {
+      "mode": "shell-batch",
+      "label": "batch-0",
+      "exit": 0,
+      "wall_ms": 777.3905860085506,
+      "rows": [
+        {
+          "asset": "app.js",
+          "exit": 0,
+          "phases_ns": {
+            "process_startup_ns": 1929643,
+            "cli_parse_ns": 177542,
+            "identity_prepare_ns": 231855,
+            "cache_prepare_ns": 24626,
+            "sqlite_open_ns": 236764,
+            "sqlite_schema_ns": 387497,
+            "lookup_key_ns": 12203,
+            "sqlite_query_ns": 601017,
+            "record_decode_ns": 421260,
+            "guard_validation_ns": 6813879,
+            "cas_restore_ns": 27748111,
+            "stdio_replay_ns": 30097,
+            "decision_persist_ns": 0,
+            "present_ns": 43892
+          },
+          "accounted_ms": 38.658386,
+          "unaccounted_ms": null,
+          "report": {
+            "baseline_runtime_ns": 245481410,
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "no eligible cached execution matched the pre-execution identity",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 29,
+              "unknown": 0,
+              "writes": 96
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "3ec2f47af7491c9a",
+            "exit_code": 0,
+            "guards": null,
+            "irreversible_effect_count": 0,
+            "kind": "Executed",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 245481410,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "correct": true
+        },
+        {
+          "asset": "vendor.js",
+          "exit": 0,
+          "phases_ns": {
+            "process_startup_ns": 1929643,
+            "cli_parse_ns": 177542,
+            "identity_prepare_ns": 231855,
+            "cache_prepare_ns": 24626,
+            "sqlite_open_ns": 236764,
+            "sqlite_schema_ns": 387497,
+            "lookup_key_ns": 12203,
+            "sqlite_query_ns": 601017,
+            "record_decode_ns": 421260,
+            "guard_validation_ns": 6813879,
+            "cas_restore_ns": 27748111,
+            "stdio_replay_ns": 30097,
+            "decision_persist_ns": 0,
+            "present_ns": 43892
+          },
+          "accounted_ms": 38.658386,
+          "unaccounted_ms": null,
+          "report": {
+            "baseline_runtime_ns": 247427200,
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "no eligible cached execution matched the pre-execution identity",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 29,
+              "unknown": 0,
+              "writes": 99
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "2e500dc5dea2778b",
+            "exit_code": 0,
+            "guards": null,
+            "irreversible_effect_count": 0,
+            "kind": "Executed",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 247427200,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "correct": true
+        },
+        {
+          "asset": "worker.js",
+          "exit": 0,
+          "phases_ns": {
+            "process_startup_ns": 1929643,
+            "cli_parse_ns": 177542,
+            "identity_prepare_ns": 231855,
+            "cache_prepare_ns": 24626,
+            "sqlite_open_ns": 236764,
+            "sqlite_schema_ns": 387497,
+            "lookup_key_ns": 12203,
+            "sqlite_query_ns": 601017,
+            "record_decode_ns": 421260,
+            "guard_validation_ns": 6813879,
+            "cas_restore_ns": 27748111,
+            "stdio_replay_ns": 30097,
+            "decision_persist_ns": 0,
+            "present_ns": 43892
+          },
+          "accounted_ms": 38.658386,
+          "unaccounted_ms": null,
+          "report": {
+            "baseline_runtime_ns": 231419377,
+            "cache_decision": "Executed",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "no eligible cached execution matched the pre-execution identity",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 29,
+              "unknown": 0,
+              "writes": 98
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "031174d88f29aa5b",
+            "exit_code": 0,
+            "guards": null,
+            "irreversible_effect_count": 0,
+            "kind": "Executed",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 231419377,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "correct": true
+        }
+      ],
+      "stderr": ""
+    },
+    {
+      "mode": "shell-batch",
+      "label": "batch-1",
+      "exit": 0,
+      "wall_ms": 62.09244398633018,
+      "rows": [
+        {
+          "asset": "app.js",
+          "exit": 0,
+          "phases_ns": {
+            "process_startup_ns": 5674241,
+            "cli_parse_ns": 163798,
+            "identity_prepare_ns": 226465,
+            "cache_prepare_ns": 23705,
+            "sqlite_open_ns": 223669,
+            "sqlite_schema_ns": 347942,
+            "lookup_key_ns": 10690,
+            "sqlite_query_ns": 434675,
+            "record_decode_ns": 367399,
+            "guard_validation_ns": 5654616,
+            "cas_restore_ns": 3399636,
+            "stdio_replay_ns": 26730,
+            "decision_persist_ns": 4535376,
+            "present_ns": 42911
+          },
+          "accounted_ms": 21.131853,
+          "unaccounted_ms": null,
+          "report": {
+            "baseline_runtime_ns": 245481410,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 29,
+              "unknown": 0,
+              "writes": 96
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "3ec2f47af7491c9a",
+            "exit_code": 0,
+            "guards": {
+              "checked": 34,
+              "failure": null,
+              "passed": 34
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 9450644,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "correct": true
+        },
+        {
+          "asset": "vendor.js",
+          "exit": 0,
+          "phases_ns": {
+            "process_startup_ns": 6354948,
+            "cli_parse_ns": 153548,
+            "identity_prepare_ns": 199064,
+            "cache_prepare_ns": 21540,
+            "sqlite_open_ns": 183094,
+            "sqlite_schema_ns": 283732,
+            "lookup_key_ns": 10940,
+            "sqlite_query_ns": 441498,
+            "record_decode_ns": 332304,
+            "guard_validation_ns": 5622896,
+            "cas_restore_ns": 2995728,
+            "stdio_replay_ns": 27472,
+            "decision_persist_ns": 3982319,
+            "present_ns": 32872
+          },
+          "accounted_ms": 20.641955,
+          "unaccounted_ms": null,
+          "report": {
+            "baseline_runtime_ns": 247427200,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 29,
+              "unknown": 0,
+              "writes": 99
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "2e500dc5dea2778b",
+            "exit_code": 0,
+            "guards": {
+              "checked": 34,
+              "failure": null,
+              "passed": 34
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 8980373,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "correct": true
+        },
+        {
+          "asset": "worker.js",
+          "exit": 0,
+          "phases_ns": {
+            "process_startup_ns": 5555829,
+            "cli_parse_ns": 115296,
+            "identity_prepare_ns": 202429,
+            "cache_prepare_ns": 27621,
+            "sqlite_open_ns": 192521,
+            "sqlite_schema_ns": 415359,
+            "lookup_key_ns": 13205,
+            "sqlite_query_ns": 419667,
+            "record_decode_ns": 379161,
+            "guard_validation_ns": 6205899,
+            "cas_restore_ns": 3033961,
+            "stdio_replay_ns": 33092,
+            "decision_persist_ns": 4495912,
+            "present_ns": 55615
+          },
+          "accounted_ms": 21.145567,
+          "unaccounted_ms": null,
+          "report": {
+            "baseline_runtime_ns": 231419377,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 29,
+              "unknown": 0,
+              "writes": 98
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "031174d88f29aa5b",
+            "exit_code": 0,
+            "guards": {
+              "checked": 34,
+              "failure": null,
+              "passed": 34
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 9654246,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "correct": true
+        }
+      ],
+      "stderr": ""
+    },
+    {
+      "mode": "shell-batch",
+      "label": "batch-2",
+      "exit": 0,
+      "wall_ms": 42.209854000248015,
+      "rows": [
+        {
+          "asset": "app.js",
+          "exit": 0,
+          "phases_ns": {
+            "process_startup_ns": 3144902,
+            "cli_parse_ns": 123602,
+            "identity_prepare_ns": 234941,
+            "cache_prepare_ns": 23734,
+            "sqlite_open_ns": 190687,
+            "sqlite_schema_ns": 329559,
+            "lookup_key_ns": 10891,
+            "sqlite_query_ns": 391134,
+            "record_decode_ns": 352010,
+            "guard_validation_ns": 5355754,
+            "cas_restore_ns": 3017729,
+            "stdio_replay_ns": 27481,
+            "decision_persist_ns": 0,
+            "present_ns": 86493
+          },
+          "accounted_ms": 13.288917,
+          "unaccounted_ms": null,
+          "report": {
+            "baseline_runtime_ns": 245481410,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 29,
+              "unknown": 0,
+              "writes": 96
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "3ec2f47af7491c9a",
+            "exit_code": 0,
+            "guards": {
+              "checked": 34,
+              "failure": null,
+              "passed": 34
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 8755100,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "correct": true
+        },
+        {
+          "asset": "vendor.js",
+          "exit": 0,
+          "phases_ns": {
+            "process_startup_ns": 6957808,
+            "cli_parse_ns": 98355,
+            "identity_prepare_ns": 173946,
+            "cache_prepare_ns": 19447,
+            "sqlite_open_ns": 167524,
+            "sqlite_schema_ns": 323887,
+            "lookup_key_ns": 10480,
+            "sqlite_query_ns": 453551,
+            "record_decode_ns": 375604,
+            "guard_validation_ns": 6030630,
+            "cas_restore_ns": 3095185,
+            "stdio_replay_ns": 34174,
+            "decision_persist_ns": 0,
+            "present_ns": 32791
+          },
+          "accounted_ms": 17.773382,
+          "unaccounted_ms": null,
+          "report": {
+            "baseline_runtime_ns": 247427200,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 29,
+              "unknown": 0,
+              "writes": 99
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "2e500dc5dea2778b",
+            "exit_code": 0,
+            "guards": {
+              "checked": 34,
+              "failure": null,
+              "passed": 34
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 9537778,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "correct": true
+        },
+        {
+          "asset": "worker.js",
+          "exit": 0,
+          "phases_ns": {
+            "process_startup_ns": 10942166,
+            "cli_parse_ns": 107992,
+            "identity_prepare_ns": 194354,
+            "cache_prepare_ns": 18544,
+            "sqlite_open_ns": 190467,
+            "sqlite_schema_ns": 230563,
+            "lookup_key_ns": 8526,
+            "sqlite_query_ns": 380123,
+            "record_decode_ns": 275056,
+            "guard_validation_ns": 5496168,
+            "cas_restore_ns": 2872478,
+            "stdio_replay_ns": 24586,
+            "decision_persist_ns": 0,
+            "present_ns": 27662
+          },
+          "accounted_ms": 20.768685,
+          "unaccounted_ms": null,
+          "report": {
+            "baseline_runtime_ns": 231419377,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 29,
+              "unknown": 0,
+              "writes": 98
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "031174d88f29aa5b",
+            "exit_code": 0,
+            "guards": {
+              "checked": 34,
+              "failure": null,
+              "passed": 34
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 8670231,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "correct": true
+        }
+      ],
+      "stderr": ""
+    },
+    {
+      "mode": "shell-batch",
+      "label": "batch-3",
+      "exit": 0,
+      "wall_ms": 44.217410002602264,
+      "rows": [
+        {
+          "asset": "app.js",
+          "exit": 0,
+          "phases_ns": {
+            "process_startup_ns": 7153315,
+            "cli_parse_ns": 178925,
+            "identity_prepare_ns": 285806,
+            "cache_prepare_ns": 34565,
+            "sqlite_open_ns": 216666,
+            "sqlite_schema_ns": 435497,
+            "lookup_key_ns": 13355,
+            "sqlite_query_ns": 508664,
+            "record_decode_ns": 476654,
+            "guard_validation_ns": 6675018,
+            "cas_restore_ns": 3529931,
+            "stdio_replay_ns": 43922,
+            "decision_persist_ns": 0,
+            "present_ns": 32801
+          },
+          "accounted_ms": 19.585119,
+          "unaccounted_ms": null,
+          "report": {
+            "baseline_runtime_ns": 245481410,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 29,
+              "unknown": 0,
+              "writes": 96
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "3ec2f47af7491c9a",
+            "exit_code": 0,
+            "guards": {
+              "checked": 34,
+              "failure": null,
+              "passed": 34
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 10727489,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "correct": true
+        },
+        {
+          "asset": "vendor.js",
+          "exit": 0,
+          "phases_ns": {
+            "process_startup_ns": 2894347,
+            "cli_parse_ns": 100438,
+            "identity_prepare_ns": 169608,
+            "cache_prepare_ns": 18144,
+            "sqlite_open_ns": 146505,
+            "sqlite_schema_ns": 268784,
+            "lookup_key_ns": 8536,
+            "sqlite_query_ns": 346149,
+            "record_decode_ns": 348093,
+            "guard_validation_ns": 5193480,
+            "cas_restore_ns": 2818266,
+            "stdio_replay_ns": 26600,
+            "decision_persist_ns": 0,
+            "present_ns": 29926
+          },
+          "accounted_ms": 12.368876,
+          "unaccounted_ms": null,
+          "report": {
+            "baseline_runtime_ns": 247427200,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 29,
+              "unknown": 0,
+              "writes": 99
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "2e500dc5dea2778b",
+            "exit_code": 0,
+            "guards": {
+              "checked": 34,
+              "failure": null,
+              "passed": 34
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 8387992,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "correct": true
+        },
+        {
+          "asset": "worker.js",
+          "exit": 0,
+          "phases_ns": {
+            "process_startup_ns": 5790143,
+            "cli_parse_ns": 127610,
+            "identity_prepare_ns": 242485,
+            "cache_prepare_ns": 23745,
+            "sqlite_open_ns": 197661,
+            "sqlite_schema_ns": 317586,
+            "lookup_key_ns": 10640,
+            "sqlite_query_ns": 439404,
+            "record_decode_ns": 364464,
+            "guard_validation_ns": 5628977,
+            "cas_restore_ns": 3029331,
+            "stdio_replay_ns": 27421,
+            "decision_persist_ns": 0,
+            "present_ns": 34144
+          },
+          "accounted_ms": 16.233611,
+          "unaccounted_ms": null,
+          "report": {
+            "baseline_runtime_ns": 231419377,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 29,
+              "unknown": 0,
+              "writes": 98
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "031174d88f29aa5b",
+            "exit_code": 0,
+            "guards": {
+              "checked": 34,
+              "failure": null,
+              "passed": 34
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 9052408,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "correct": true
+        }
+      ],
+      "stderr": ""
+    },
+    {
+      "mode": "shell-batch",
+      "label": "batch-4",
+      "exit": 0,
+      "wall_ms": 40.69708698079921,
+      "rows": [
+        {
+          "asset": "app.js",
+          "exit": 0,
+          "phases_ns": {
+            "process_startup_ns": 6589988,
+            "cli_parse_ns": 125696,
+            "identity_prepare_ns": 182201,
+            "cache_prepare_ns": 20559,
+            "sqlite_open_ns": 160621,
+            "sqlite_schema_ns": 248617,
+            "lookup_key_ns": 10420,
+            "sqlite_query_ns": 378280,
+            "record_decode_ns": 398067,
+            "guard_validation_ns": 5290943,
+            "cas_restore_ns": 3116725,
+            "stdio_replay_ns": 27962,
+            "decision_persist_ns": 0,
+            "present_ns": 30638
+          },
+          "accounted_ms": 16.580717,
+          "unaccounted_ms": null,
+          "report": {
+            "baseline_runtime_ns": 245481410,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 29,
+              "unknown": 0,
+              "writes": 96
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "3ec2f47af7491c9a",
+            "exit_code": 0,
+            "guards": {
+              "checked": 34,
+              "failure": null,
+              "passed": 34
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 8835962,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "correct": true
+        },
+        {
+          "asset": "vendor.js",
+          "exit": 0,
+          "phases_ns": {
+            "process_startup_ns": 9875135,
+            "cli_parse_ns": 91282,
+            "identity_prepare_ns": 188223,
+            "cache_prepare_ns": 18525,
+            "sqlite_open_ns": 139562,
+            "sqlite_schema_ns": 241914,
+            "lookup_key_ns": 8155,
+            "sqlite_query_ns": 320381,
+            "record_decode_ns": 282319,
+            "guard_validation_ns": 5221624,
+            "cas_restore_ns": 2699833,
+            "stdio_replay_ns": 26189,
+            "decision_persist_ns": 0,
+            "present_ns": 24516
+          },
+          "accounted_ms": 19.137658,
+          "unaccounted_ms": null,
+          "report": {
+            "baseline_runtime_ns": 247427200,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 29,
+              "unknown": 0,
+              "writes": 99
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "2e500dc5dea2778b",
+            "exit_code": 0,
+            "guards": {
+              "checked": 34,
+              "failure": null,
+              "passed": 34
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 8231528,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "correct": true
+        },
+        {
+          "asset": "worker.js",
+          "exit": 0,
+          "phases_ns": {
+            "process_startup_ns": 2559003,
+            "cli_parse_ns": 113312,
+            "identity_prepare_ns": 256151,
+            "cache_prepare_ns": 23955,
+            "sqlite_open_ns": 184526,
+            "sqlite_schema_ns": 340750,
+            "lookup_key_ns": 10049,
+            "sqlite_query_ns": 386535,
+            "record_decode_ns": 357500,
+            "guard_validation_ns": 5484656,
+            "cas_restore_ns": 2929013,
+            "stdio_replay_ns": 25699,
+            "decision_persist_ns": 0,
+            "present_ns": 33523
+          },
+          "accounted_ms": 12.704672,
+          "unaccounted_ms": null,
+          "report": {
+            "baseline_runtime_ns": 231419377,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 29,
+              "unknown": 0,
+              "writes": 98
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "031174d88f29aa5b",
+            "exit_code": 0,
+            "guards": {
+              "checked": 34,
+              "failure": null,
+              "passed": 34
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 8799052,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "correct": true
+        }
+      ],
+      "stderr": ""
+    },
+    {
+      "mode": "shell-batch",
+      "label": "batch-5",
+      "exit": 0,
+      "wall_ms": 44.94972398970276,
+      "rows": [
+        {
+          "asset": "app.js",
+          "exit": 0,
+          "phases_ns": {
+            "process_startup_ns": 1903694,
+            "cli_parse_ns": 147487,
+            "identity_prepare_ns": 235141,
+            "cache_prepare_ns": 22893,
+            "sqlite_open_ns": 240321,
+            "sqlite_schema_ns": 284374,
+            "lookup_key_ns": 10931,
+            "sqlite_query_ns": 436428,
+            "record_decode_ns": 384020,
+            "guard_validation_ns": 5878315,
+            "cas_restore_ns": 3375721,
+            "stdio_replay_ns": 34986,
+            "decision_persist_ns": 0,
+            "present_ns": 36468
+          },
+          "accounted_ms": 12.990779,
+          "unaccounted_ms": null,
+          "report": {
+            "baseline_runtime_ns": 245481410,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 29,
+              "unknown": 0,
+              "writes": 96
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "3ec2f47af7491c9a",
+            "exit_code": 0,
+            "guards": {
+              "checked": 34,
+              "failure": null,
+              "passed": 34
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 9675697,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "correct": true
+        },
+        {
+          "asset": "vendor.js",
+          "exit": 0,
+          "phases_ns": {
+            "process_startup_ns": 6552899,
+            "cli_parse_ns": 98625,
+            "identity_prepare_ns": 182612,
+            "cache_prepare_ns": 19306,
+            "sqlite_open_ns": 147016,
+            "sqlite_schema_ns": 246432,
+            "lookup_key_ns": 8486,
+            "sqlite_query_ns": 416411,
+            "record_decode_ns": 306044,
+            "guard_validation_ns": 5411639,
+            "cas_restore_ns": 2853040,
+            "stdio_replay_ns": 24646,
+            "decision_persist_ns": 0,
+            "present_ns": 25718
+          },
+          "accounted_ms": 16.292874,
+          "unaccounted_ms": null,
+          "report": {
+            "baseline_runtime_ns": 247427200,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 29,
+              "unknown": 0,
+              "writes": 99
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "2e500dc5dea2778b",
+            "exit_code": 0,
+            "guards": {
+              "checked": 34,
+              "failure": null,
+              "passed": 34
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 8597014,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "correct": true
+        },
+        {
+          "asset": "worker.js",
+          "exit": 0,
+          "phases_ns": {
+            "process_startup_ns": 9376379,
+            "cli_parse_ns": 88486,
+            "identity_prepare_ns": 161302,
+            "cache_prepare_ns": 18094,
+            "sqlite_open_ns": 180809,
+            "sqlite_schema_ns": 233818,
+            "lookup_key_ns": 8846,
+            "sqlite_query_ns": 337643,
+            "record_decode_ns": 282260,
+            "guard_validation_ns": 7876472,
+            "cas_restore_ns": 3355553,
+            "stdio_replay_ns": 25417,
+            "decision_persist_ns": 0,
+            "present_ns": 24907
+          },
+          "accounted_ms": 21.969986,
+          "unaccounted_ms": null,
+          "report": {
+            "baseline_runtime_ns": 231419377,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 29,
+              "unknown": 0,
+              "writes": 98
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "031174d88f29aa5b",
+            "exit_code": 0,
+            "guards": {
+              "checked": 34,
+              "failure": null,
+              "passed": 34
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 11542258,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "correct": true
+        }
+      ],
+      "stderr": ""
+    },
+    {
+      "mode": "shell-batch",
+      "label": "batch-6",
+      "exit": 0,
+      "wall_ms": 46.3339590060059,
+      "rows": [
+        {
+          "asset": "app.js",
+          "exit": 0,
+          "phases_ns": {
+            "process_startup_ns": 2173956,
+            "cli_parse_ns": 139622,
+            "identity_prepare_ns": 230413,
+            "cache_prepare_ns": 24266,
+            "sqlite_open_ns": 186109,
+            "sqlite_schema_ns": 328617,
+            "lookup_key_ns": 11933,
+            "sqlite_query_ns": 445125,
+            "record_decode_ns": 346039,
+            "guard_validation_ns": 6293493,
+            "cas_restore_ns": 3538477,
+            "stdio_replay_ns": 29485,
+            "decision_persist_ns": 0,
+            "present_ns": 35837
+          },
+          "accounted_ms": 13.783372,
+          "unaccounted_ms": null,
+          "report": {
+            "baseline_runtime_ns": 245481410,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 29,
+              "unknown": 0,
+              "writes": 96
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "3ec2f47af7491c9a",
+            "exit_code": 0,
+            "guards": {
+              "checked": 34,
+              "failure": null,
+              "passed": 34
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 10209778,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "correct": true
+        },
+        {
+          "asset": "vendor.js",
+          "exit": 0,
+          "phases_ns": {
+            "process_startup_ns": 7691218,
+            "cli_parse_ns": 107171,
+            "identity_prepare_ns": 185007,
+            "cache_prepare_ns": 21992,
+            "sqlite_open_ns": 161142,
+            "sqlite_schema_ns": 295575,
+            "lookup_key_ns": 10029,
+            "sqlite_query_ns": 381967,
+            "record_decode_ns": 327043,
+            "guard_validation_ns": 6085543,
+            "cas_restore_ns": 3290341,
+            "stdio_replay_ns": 30287,
+            "decision_persist_ns": 0,
+            "present_ns": 30758
+          },
+          "accounted_ms": 18.618073,
+          "unaccounted_ms": null,
+          "report": {
+            "baseline_runtime_ns": 247427200,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 29,
+              "unknown": 0,
+              "writes": 99
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "2e500dc5dea2778b",
+            "exit_code": 0,
+            "guards": {
+              "checked": 34,
+              "failure": null,
+              "passed": 34
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 9735048,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "correct": true
+        },
+        {
+          "asset": "worker.js",
+          "exit": 0,
+          "phases_ns": {
+            "process_startup_ns": 2735574,
+            "cli_parse_ns": 300744,
+            "identity_prepare_ns": 183494,
+            "cache_prepare_ns": 21831,
+            "sqlite_open_ns": 206707,
+            "sqlite_schema_ns": 264657,
+            "lookup_key_ns": 10410,
+            "sqlite_query_ns": 367809,
+            "record_decode_ns": 331511,
+            "guard_validation_ns": 5246109,
+            "cas_restore_ns": 3174133,
+            "stdio_replay_ns": 25408,
+            "decision_persist_ns": 0,
+            "present_ns": 45225
+          },
+          "accounted_ms": 12.913612,
+          "unaccounted_ms": null,
+          "report": {
+            "baseline_runtime_ns": 231419377,
+            "cache_decision": "Reused",
+            "classification": "Guarded",
+            "contract": "tracejit.allocator-entropy.v1",
+            "decision_reason": "all guards passed and cached outputs were restored",
+            "dependency_count": 12,
+            "effect_counts": {
+              "controls": 1,
+              "reads": 29,
+              "unknown": 0,
+              "writes": 98
+            },
+            "eligible_for_reuse": true,
+            "execution_id": "031174d88f29aa5b",
+            "exit_code": 0,
+            "guards": {
+              "checked": 34,
+              "failure": null,
+              "passed": 34
+            },
+            "irreversible_effect_count": 0,
+            "kind": "Reused",
+            "output_count": 1,
+            "process_count": 1,
+            "reasons": [
+              "all observed dependencies are guardable or captured outputs",
+              "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+            ],
+            "runtime_ns": 8779076,
+            "stderr_bytes": [],
+            "stdout_bytes": []
+          },
+          "correct": true
+        }
+      ],
+      "stderr": ""
+    }
+  ],
+  "summary": {
+    "cold": {
+      "commands": 3,
+      "all_correct": true,
+      "decisions": [
+        "Executed"
+      ],
+      "wall_ms_median": 266.312519001076,
+      "wall_ms_p95": 270.160415006103,
+      "wall_ms_worst": 268.4502390038688,
+      "unaccounted_ms_median": 266.312519001076,
+      "phase_medians_ns": {
+        "process_startup_ns": 0,
+        "cli_parse_ns": 0,
+        "identity_prepare_ns": 0,
+        "cache_prepare_ns": 0,
+        "sqlite_open_ns": 0,
+        "sqlite_schema_ns": 0,
+        "lookup_key_ns": 0,
+        "sqlite_query_ns": 0,
+        "record_decode_ns": 0,
+        "guard_validation_ns": 0,
+        "cas_restore_ns": 0,
+        "stdio_replay_ns": 0,
+        "decision_persist_ns": 0,
+        "present_ns": 0
+      },
+      "accounted_ms_median": 0.0
+    },
+    "transition": {
+      "commands": 3,
+      "all_correct": true,
+      "decisions": [
+        "Deoptimized"
+      ],
+      "wall_ms_median": 245.69734500255436,
+      "wall_ms_p95": 289.45188900106587,
+      "wall_ms_worst": 270.0054250017274,
+      "unaccounted_ms_median": 245.69734500255436,
+      "phase_medians_ns": {
+        "process_startup_ns": 0,
+        "cli_parse_ns": 0,
+        "identity_prepare_ns": 0,
+        "cache_prepare_ns": 0,
+        "sqlite_open_ns": 0,
+        "sqlite_schema_ns": 0,
+        "lookup_key_ns": 0,
+        "sqlite_query_ns": 0,
+        "record_decode_ns": 0,
+        "guard_validation_ns": 0,
+        "cas_restore_ns": 0,
+        "stdio_replay_ns": 0,
+        "decision_persist_ns": 0,
+        "present_ns": 0
+      },
+      "accounted_ms_median": 0.0
+    },
+    "stable_independent": {
+      "commands": 21,
+      "all_correct": true,
+      "decisions": [
+        "Reused"
+      ],
+      "wall_ms_median": 31.57445800025016,
+      "wall_ms_p95": 95.63793308334425,
+      "wall_ms_worst": 98.00258398172446,
+      "unaccounted_ms_median": -3.554165003017026,
+      "phase_medians_ns": {
+        "process_startup_ns": 6313120,
+        "cli_parse_ns": 127008,
+        "identity_prepare_ns": 207059,
+        "cache_prepare_ns": 25088,
+        "sqlite_open_ns": 199995,
+        "sqlite_schema_ns": 329568,
+        "lookup_key_ns": 10940,
+        "sqlite_query_ns": 545924,
+        "record_decode_ns": 356188,
+        "guard_validation_ns": 5945431,
+        "cas_restore_ns": 21901607,
+        "stdio_replay_ns": 30097,
+        "decision_persist_ns": 0,
+        "present_ns": 39194
+      },
+      "accounted_ms_median": 33.448784
+    },
+    "stable_shell_batch": {
+      "commands": 21,
+      "all_correct": true,
+      "decisions": [
+        "Executed",
+        "Reused"
+      ],
+      "wall_ms_median": null,
+      "wall_ms_p95": null,
+      "wall_ms_worst": null,
+      "unaccounted_ms_median": null,
+      "phase_medians_ns": {
+        "process_startup_ns": 5674241,
+        "cli_parse_ns": 125696,
+        "identity_prepare_ns": 202429,
+        "cache_prepare_ns": 22893,
+        "sqlite_open_ns": 190467,
+        "sqlite_schema_ns": 317586,
+        "lookup_key_ns": 10640,
+        "sqlite_query_ns": 419667,
+        "record_decode_ns": 357500,
+        "guard_validation_ns": 5654616,
+        "cas_restore_ns": 3116725,
+        "stdio_replay_ns": 27481,
+        "decision_persist_ns": 0,
+        "present_ns": 33523
+      },
+      "accounted_ms_median": 18.618073
+    }
+  }
+}

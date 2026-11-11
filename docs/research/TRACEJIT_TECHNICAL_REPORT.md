@@ -246,6 +246,29 @@ The native census still refuses all nine workloads. Clock and randomness are tie
 unmodeled `lseek`, pipe `fstat`, `getrusage`, and an unrestorable lint output are documented rather
 than papered over. No guard was weakened to improve the hit rate.
 
+## Phase 3C addendum: measured replay cost and candidate selection
+
+Phase 3B's 231 ms stable-workflow figure was a measurement error: its harness decompressed each
+bzip2 output after every command. Separating verification from the command loop gives a direct
+three-command replay workflow of 46.5-106.8 ms across two sessions, with 15.4-31.6 ms per command.
+The dominant phases are process startup, guard validation, and CAS restoration; output restore has
+a large host-writeback tail (3.4-21.9 ms). The shell-batch comparison (45.0-57.7 ms) is harness
+overhead, not an in-process batch feature. File-descriptor shape is part of the execution identity:
+redirecting batch stdout to a file correctly causes a miss.
+
+Repeated fresh-cache scaling at 1, 2, 4, 8, 16, 32 and 64 candidates separates the common newest
+hit from the oldest-target worst case. Newest-hit medians stay at 11.5-14.5 ms even at 64 retained
+records; oldest-target medians rise to 82.2 ms and a miss is 77.2 ms. A lazy `CandidateBytes` path
+now defers JSON decoding until the candidate is validated, preserving full guard checks. It is a
+two-stage lookup prototype, not a fingerprint that can replace validation. The default bound stays
+8 and the experimental ceiling is 64.
+
+The `lseek` census blocker was the exact inherited `/dev/null`, whose seek result is constant zero.
+That path is now admitted; arbitrary inherited character devices and directory seeks remain refused.
+The native census is still 9 attempted, 0 reused, 9 refused, so this is blocker reduction rather
+than a compatibility claim. No unchanged-output fast path was added: avoiding a rewrite would
+change inode, ctime, ownership and hard-link semantics absent a managed-workspace contract.
+
 ## Conclusion
 
 TraceJIT demonstrates a coherent approach to conservatively reusing certain unmodified Linux processes by combining observed effects with explicit synchronous guards. Its measured advantage is strong for a controlled, CPU-heavy repeated command; its fixed overhead and refusal rate limit the broader usefulness. The engineering and failure analysis are substantively more informative than the maximum speedup. The current evidence supports **a promising systems prototype with bounded claims**, not a general-purpose production accelerator or a formally proved method.

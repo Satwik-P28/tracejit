@@ -1688,6 +1688,9 @@ fn decode_entry(
             // A forked child shares the open file description but not this model's consumption
             // accounting, and an inherited alias can move the same description. Both are refused
             // rather than treated as a process-internal seek.
+            Some(FdState::InheritedFile(path)) if path == Path::new("/dev/null") => {
+                PendingSyscall::None
+            }
             Some(FdState::InheritedFile(path)) => PendingSyscall::Unknown {
                 number,
                 detail: format!(

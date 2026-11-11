@@ -217,8 +217,20 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
 
     // Cost-aware admission. `Always` keeps the historical behaviour. `Auto` learns the direct
     // runtime before it pays for a trace, so a command that cannot repay a hit never pays for one.
+    // Admission needs to inspect classifications. Keep the fast `always` path lazy: a stable
+    // newest-first hit can stop after decoding one candidate, while `auto` pays for the complete
+    // view it actually uses.
+    let decoded_for_admission = if options.admission != Admission::Always {
+        candidates
+            .iter()
+            .filter_map(|candidate| candidate.decode())
+            .collect::<Vec<_>>()
+    } else {
+        Vec::new()
+    };
+
     if options.admission != Admission::Always {
-        let reusable = candidates.iter().any(|candidate| {
+        let reusable = decoded_for_admission.iter().any(|candidate| {
             candidate.classification.cache_eligible()
                 && candidate.contract.as_deref() == options.contract.map(|contract| contract.id())
         });
@@ -228,8 +240,8 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
         if measuring && !reusable {
             // A record that was classified ineligible has already answered the question: tracing
             // this identity again cannot produce a reusable entry, so pay for it once, not forever.
-            if !candidates.is_empty()
-                && candidates
+            if !decoded_for_admission.is_empty()
+                && decoded_for_admission
                     .iter()
                     .all(|candidate| !candidate.classification.cache_eligible())
             {
@@ -269,7 +281,14 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
     let mut last_deopt_reason = None;
     let mut enforcement_candidate = None;
 
-    for mut candidate in candidates {
+    for encoded in candidates {
+        let mark = Instant::now();
+        let Some(mut candidate) = encoded.decode() else {
+            continue;
+        };
+        phases.record_decode_ns = phases
+            .record_decode_ns
+            .saturating_add(phase_elapsed(timing, mark));
         if candidate.contract.as_deref() != options.contract.map(|contract| contract.id()) {
             continue;
         }

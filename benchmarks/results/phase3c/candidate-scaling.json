@@ -1,0 +1,2769 @@
+{
+  "phase": "3C",
+  "experiment": "repeated candidate scaling",
+  "repository": {
+    "commit": "df6cc86243972f7200be9dfb2cc4a3c52db9cf2b",
+    "dirty": true
+  },
+  "binary": {
+    "sha256": "2d70c766bc169e3d25990563d900e6f46aeb3607b662997c6ea7e5223946e711",
+    "size": 6811128
+  },
+  "host": {
+    "platform": "Linux-6.1.102-x86_64-with-glibc2.39",
+    "kernel": "6.1.102",
+    "cpus": 8,
+    "memory": "MemTotal:       16376832 kB"
+  },
+  "method": {
+    "bounds": [
+      1,
+      2,
+      4,
+      8,
+      16,
+      32,
+      64
+    ],
+    "sessions": 3,
+    "target": "oldest of N retained input states, forcing newest-first evaluation",
+    "selection": "lazy decode + full guards; first candidate whose guards pass wins",
+    "fresh_cache": true
+  },
+  "sessions": [
+    [
+      {
+        "bound": 1,
+        "build_decisions": [
+          "Executed"
+        ],
+        "retained_candidates": 1,
+        "retained_after_miss": 1,
+        "cache_bytes": 165211,
+        "newest_decision": "Reused",
+        "newest_wall_ms": 12.861,
+        "newest_phases": {
+          "process_startup_ns": 5905603,
+          "cli_parse_ns": 124483,
+          "identity_prepare_ns": 216226,
+          "cache_prepare_ns": 30848,
+          "sqlite_open_ns": 211546,
+          "sqlite_schema_ns": 306215,
+          "lookup_key_ns": 12633,
+          "sqlite_query_ns": 305483,
+          "record_decode_ns": 349155,
+          "guard_validation_ns": 1199820,
+          "cas_restore_ns": 1624867,
+          "stdio_replay_ns": 31359,
+          "decision_persist_ns": 4422714,
+          "present_ns": 34294
+        },
+        "target_decision": "Reused",
+        "target_wall_ms": 7.831,
+        "target_phases": {
+          "process_startup_ns": 9509858,
+          "cli_parse_ns": 182713,
+          "identity_prepare_ns": 207409,
+          "cache_prepare_ns": 21791,
+          "sqlite_open_ns": 249598,
+          "sqlite_schema_ns": 313388,
+          "lookup_key_ns": 9809,
+          "sqlite_query_ns": 324298,
+          "record_decode_ns": 419267,
+          "guard_validation_ns": 1406237,
+          "cas_restore_ns": 1825725,
+          "stdio_replay_ns": 23134,
+          "decision_persist_ns": 0,
+          "present_ns": 31549
+        },
+        "repeated_decision": "Reused",
+        "repeated_wall_ms": 7.284,
+        "miss_decision": "Deoptimized",
+        "miss_wall_ms": 18.287,
+        "concurrent": [
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          }
+        ],
+        "concurrent_all_reused": true
+      },
+      {
+        "bound": 2,
+        "build_decisions": [
+          "Executed",
+          "Deoptimized"
+        ],
+        "retained_candidates": 2,
+        "retained_after_miss": 2,
+        "cache_bytes": 161466,
+        "newest_decision": "Reused",
+        "newest_wall_ms": 12.558,
+        "newest_phases": {
+          "process_startup_ns": 4906139,
+          "cli_parse_ns": 114835,
+          "identity_prepare_ns": 176631,
+          "cache_prepare_ns": 22722,
+          "sqlite_open_ns": 187211,
+          "sqlite_schema_ns": 306114,
+          "lookup_key_ns": 10079,
+          "sqlite_query_ns": 329147,
+          "record_decode_ns": 259156,
+          "guard_validation_ns": 1169854,
+          "cas_restore_ns": 1602495,
+          "stdio_replay_ns": 23474,
+          "decision_persist_ns": 4436832,
+          "present_ns": 32851
+        },
+        "target_decision": "Reused",
+        "target_wall_ms": 13.154,
+        "target_phases": {
+          "process_startup_ns": 7766288,
+          "cli_parse_ns": 110077,
+          "identity_prepare_ns": 162675,
+          "cache_prepare_ns": 21370,
+          "sqlite_open_ns": 154770,
+          "sqlite_schema_ns": 277340,
+          "lookup_key_ns": 9508,
+          "sqlite_query_ns": 334387,
+          "record_decode_ns": 370115,
+          "guard_validation_ns": 1121613,
+          "cas_restore_ns": 1499422,
+          "stdio_replay_ns": 22362,
+          "decision_persist_ns": 4279105,
+          "present_ns": 34434
+        },
+        "repeated_decision": "Reused",
+        "repeated_wall_ms": 9.117,
+        "miss_decision": "Deoptimized",
+        "miss_wall_ms": 23.136,
+        "concurrent": [
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          }
+        ],
+        "concurrent_all_reused": true
+      },
+      {
+        "bound": 4,
+        "build_decisions": [
+          "Executed",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized"
+        ],
+        "retained_candidates": 4,
+        "retained_after_miss": 4,
+        "cache_bytes": 302784,
+        "newest_decision": "Reused",
+        "newest_wall_ms": 14.111,
+        "newest_phases": {
+          "process_startup_ns": 5541185,
+          "cli_parse_ns": 149460,
+          "identity_prepare_ns": 239610,
+          "cache_prepare_ns": 26880,
+          "sqlite_open_ns": 227607,
+          "sqlite_schema_ns": 313808,
+          "lookup_key_ns": 9488,
+          "sqlite_query_ns": 675878,
+          "record_decode_ns": 209624,
+          "guard_validation_ns": 1069506,
+          "cas_restore_ns": 1609228,
+          "stdio_replay_ns": 23063,
+          "decision_persist_ns": 4583416,
+          "present_ns": 45466
+        },
+        "target_decision": "Reused",
+        "target_wall_ms": 17.039,
+        "target_phases": {
+          "process_startup_ns": 9966680,
+          "cli_parse_ns": 160030,
+          "identity_prepare_ns": 246012,
+          "cache_prepare_ns": 21120,
+          "sqlite_open_ns": 232366,
+          "sqlite_schema_ns": 320762,
+          "lookup_key_ns": 9818,
+          "sqlite_query_ns": 616827,
+          "record_decode_ns": 683653,
+          "guard_validation_ns": 1096667,
+          "cas_restore_ns": 1626601,
+          "stdio_replay_ns": 35807,
+          "decision_persist_ns": 4669668,
+          "present_ns": 30387
+        },
+        "repeated_decision": "Reused",
+        "repeated_wall_ms": 6.227,
+        "miss_decision": "Deoptimized",
+        "miss_wall_ms": 23.025,
+        "concurrent": [
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          }
+        ],
+        "concurrent_all_reused": true
+      },
+      {
+        "bound": 8,
+        "build_decisions": [
+          "Executed",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized"
+        ],
+        "retained_candidates": 8,
+        "retained_after_miss": 8,
+        "cache_bytes": 474907,
+        "newest_decision": "Reused",
+        "newest_wall_ms": 13.128,
+        "newest_phases": {
+          "process_startup_ns": 5213215,
+          "cli_parse_ns": 123642,
+          "identity_prepare_ns": 220844,
+          "cache_prepare_ns": 27501,
+          "sqlite_open_ns": 221946,
+          "sqlite_schema_ns": 300594,
+          "lookup_key_ns": 12463,
+          "sqlite_query_ns": 982853,
+          "record_decode_ns": 246372,
+          "guard_validation_ns": 1182167,
+          "cas_restore_ns": 1403462,
+          "stdio_replay_ns": 37631,
+          "decision_persist_ns": 4065054,
+          "present_ns": 40446
+        },
+        "target_decision": "Reused",
+        "target_wall_ms": 21.415,
+        "target_phases": {
+          "process_startup_ns": 8760412,
+          "cli_parse_ns": 130354,
+          "identity_prepare_ns": 214162,
+          "cache_prepare_ns": 27121,
+          "sqlite_open_ns": 214362,
+          "sqlite_schema_ns": 325460,
+          "lookup_key_ns": 12022,
+          "sqlite_query_ns": 995597,
+          "record_decode_ns": 1399975,
+          "guard_validation_ns": 990899,
+          "cas_restore_ns": 1752977,
+          "stdio_replay_ns": 23404,
+          "decision_persist_ns": 4069432,
+          "present_ns": 35817
+        },
+        "repeated_decision": "Reused",
+        "repeated_wall_ms": 7.079,
+        "miss_decision": "Deoptimized",
+        "miss_wall_ms": 26.838,
+        "concurrent": [
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          }
+        ],
+        "concurrent_all_reused": true
+      },
+      {
+        "bound": 16,
+        "build_decisions": [
+          "Executed",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized"
+        ],
+        "retained_candidates": 16,
+        "retained_after_miss": 16,
+        "cache_bytes": 823611,
+        "newest_decision": "Reused",
+        "newest_wall_ms": 14.114,
+        "newest_phases": {
+          "process_startup_ns": 7382483,
+          "cli_parse_ns": 139782,
+          "identity_prepare_ns": 232756,
+          "cache_prepare_ns": 34444,
+          "sqlite_open_ns": 272581,
+          "sqlite_schema_ns": 325010,
+          "lookup_key_ns": 11532,
+          "sqlite_query_ns": 1523667,
+          "record_decode_ns": 234931,
+          "guard_validation_ns": 1181215,
+          "cas_restore_ns": 1546661,
+          "stdio_replay_ns": 23695,
+          "decision_persist_ns": 4253668,
+          "present_ns": 36668
+        },
+        "target_decision": "Reused",
+        "target_wall_ms": 58.953,
+        "target_phases": {
+          "process_startup_ns": 1536038,
+          "cli_parse_ns": 144621,
+          "identity_prepare_ns": 189195,
+          "cache_prepare_ns": 20769,
+          "sqlite_open_ns": 199745,
+          "sqlite_schema_ns": 269706,
+          "lookup_key_ns": 10270,
+          "sqlite_query_ns": 986841,
+          "record_decode_ns": 2225845,
+          "guard_validation_ns": 800180,
+          "cas_restore_ns": 1642911,
+          "stdio_replay_ns": 20459,
+          "decision_persist_ns": 4009500,
+          "present_ns": 38963
+        },
+        "repeated_decision": "Reused",
+        "repeated_wall_ms": 6.018,
+        "miss_decision": "Deoptimized",
+        "miss_wall_ms": 34.874,
+        "concurrent": [
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          }
+        ],
+        "concurrent_all_reused": true
+      },
+      {
+        "bound": 32,
+        "build_decisions": [
+          "Executed",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized"
+        ],
+        "retained_candidates": 32,
+        "retained_after_miss": 32,
+        "cache_bytes": 1516324,
+        "newest_decision": "Reused",
+        "newest_wall_ms": 13.465,
+        "newest_phases": {
+          "process_startup_ns": 2363024,
+          "cli_parse_ns": 107561,
+          "identity_prepare_ns": 220444,
+          "cache_prepare_ns": 22342,
+          "sqlite_open_ns": 179467,
+          "sqlite_schema_ns": 233888,
+          "lookup_key_ns": 10049,
+          "sqlite_query_ns": 1687255,
+          "record_decode_ns": 224371,
+          "guard_validation_ns": 1017068,
+          "cas_restore_ns": 1341406,
+          "stdio_replay_ns": 20468,
+          "decision_persist_ns": 4509557,
+          "present_ns": 28854
+        },
+        "target_decision": "Reused",
+        "target_wall_ms": 41.248,
+        "target_phases": {
+          "process_startup_ns": 6075732,
+          "cli_parse_ns": 102993,
+          "identity_prepare_ns": 154380,
+          "cache_prepare_ns": 22673,
+          "sqlite_open_ns": 144992,
+          "sqlite_schema_ns": 229310,
+          "lookup_key_ns": 7854,
+          "sqlite_query_ns": 1734202,
+          "record_decode_ns": 4082186,
+          "guard_validation_ns": 800702,
+          "cas_restore_ns": 1953744,
+          "stdio_replay_ns": 19406,
+          "decision_persist_ns": 4048283,
+          "present_ns": 28203
+        },
+        "repeated_decision": "Reused",
+        "repeated_wall_ms": 7.744,
+        "miss_decision": "Deoptimized",
+        "miss_wall_ms": 45.508,
+        "concurrent": [
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          }
+        ],
+        "concurrent_all_reused": true
+      },
+      {
+        "bound": 64,
+        "build_decisions": [
+          "Executed",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized"
+        ],
+        "retained_candidates": 64,
+        "retained_after_miss": 64,
+        "cache_bytes": 2918543,
+        "newest_decision": "Reused",
+        "newest_wall_ms": 16.134,
+        "newest_phases": {
+          "process_startup_ns": 11386276,
+          "cli_parse_ns": 145133,
+          "identity_prepare_ns": 206117,
+          "cache_prepare_ns": 26159,
+          "sqlite_open_ns": 210325,
+          "sqlite_schema_ns": 296125,
+          "lookup_key_ns": 11722,
+          "sqlite_query_ns": 4023737,
+          "record_decode_ns": 259797,
+          "guard_validation_ns": 1200853,
+          "cas_restore_ns": 1481148,
+          "stdio_replay_ns": 24806,
+          "decision_persist_ns": 3911626,
+          "present_ns": 35357
+        },
+        "target_decision": "Reused",
+        "target_wall_ms": 80.783,
+        "target_phases": {
+          "process_startup_ns": 7683261,
+          "cli_parse_ns": 135554,
+          "identity_prepare_ns": 186199,
+          "cache_prepare_ns": 30888,
+          "sqlite_open_ns": 215244,
+          "sqlite_schema_ns": 304291,
+          "lookup_key_ns": 11562,
+          "sqlite_query_ns": 3818411,
+          "record_decode_ns": 8774685,
+          "guard_validation_ns": 821371,
+          "cas_restore_ns": 1618907,
+          "stdio_replay_ns": 21250,
+          "decision_persist_ns": 3984884,
+          "present_ns": 37531
+        },
+        "repeated_decision": "Reused",
+        "repeated_wall_ms": 10.548,
+        "miss_decision": "Deoptimized",
+        "miss_wall_ms": 77.21,
+        "concurrent": [
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          }
+        ],
+        "concurrent_all_reused": true
+      }
+    ],
+    [
+      {
+        "bound": 1,
+        "build_decisions": [
+          "Executed"
+        ],
+        "retained_candidates": 1,
+        "retained_after_miss": 1,
+        "cache_bytes": 165211,
+        "newest_decision": "Reused",
+        "newest_wall_ms": 11.489,
+        "newest_phases": {
+          "process_startup_ns": 4850172,
+          "cli_parse_ns": 98335,
+          "identity_prepare_ns": 164959,
+          "cache_prepare_ns": 21500,
+          "sqlite_open_ns": 167975,
+          "sqlite_schema_ns": 301706,
+          "lookup_key_ns": 9438,
+          "sqlite_query_ns": 255048,
+          "record_decode_ns": 234941,
+          "guard_validation_ns": 1219938,
+          "cas_restore_ns": 1426625,
+          "stdio_replay_ns": 28354,
+          "decision_persist_ns": 3724946,
+          "present_ns": 32611
+        },
+        "target_decision": "Reused",
+        "target_wall_ms": 6.304,
+        "target_phases": {
+          "process_startup_ns": 6730404,
+          "cli_parse_ns": 103224,
+          "identity_prepare_ns": 173164,
+          "cache_prepare_ns": 21650,
+          "sqlite_open_ns": 168626,
+          "sqlite_schema_ns": 244218,
+          "lookup_key_ns": 9718,
+          "sqlite_query_ns": 252835,
+          "record_decode_ns": 250950,
+          "guard_validation_ns": 1224036,
+          "cas_restore_ns": 1358158,
+          "stdio_replay_ns": 23294,
+          "decision_persist_ns": 0,
+          "present_ns": 35246
+        },
+        "repeated_decision": "Reused",
+        "repeated_wall_ms": 6.808,
+        "miss_decision": "Deoptimized",
+        "miss_wall_ms": 14.754,
+        "concurrent": [
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          }
+        ],
+        "concurrent_all_reused": true
+      },
+      {
+        "bound": 2,
+        "build_decisions": [
+          "Executed",
+          "Deoptimized"
+        ],
+        "retained_candidates": 2,
+        "retained_after_miss": 2,
+        "cache_bytes": 206818,
+        "newest_decision": "Reused",
+        "newest_wall_ms": 11.456,
+        "newest_phases": {
+          "process_startup_ns": 8615660,
+          "cli_parse_ns": 110327,
+          "identity_prepare_ns": 349165,
+          "cache_prepare_ns": 23494,
+          "sqlite_open_ns": 186459,
+          "sqlite_schema_ns": 269366,
+          "lookup_key_ns": 9688,
+          "sqlite_query_ns": 329528,
+          "record_decode_ns": 322905,
+          "guard_validation_ns": 1166699,
+          "cas_restore_ns": 1344732,
+          "stdio_replay_ns": 24125,
+          "decision_persist_ns": 3484314,
+          "present_ns": 30096
+        },
+        "target_decision": "Reused",
+        "target_wall_ms": 10.959,
+        "target_phases": {
+          "process_startup_ns": 9899973,
+          "cli_parse_ns": 87865,
+          "identity_prepare_ns": 148839,
+          "cache_prepare_ns": 18355,
+          "sqlite_open_ns": 148198,
+          "sqlite_schema_ns": 254257,
+          "lookup_key_ns": 7795,
+          "sqlite_query_ns": 257583,
+          "record_decode_ns": 304983,
+          "guard_validation_ns": 827662,
+          "cas_restore_ns": 1313323,
+          "stdio_replay_ns": 18244,
+          "decision_persist_ns": 3598018,
+          "present_ns": 27201
+        },
+        "repeated_decision": "Reused",
+        "repeated_wall_ms": 4.826,
+        "miss_decision": "Deoptimized",
+        "miss_wall_ms": 16.6,
+        "concurrent": [
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          }
+        ],
+        "concurrent_all_reused": true
+      },
+      {
+        "bound": 4,
+        "build_decisions": [
+          "Executed",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized"
+        ],
+        "retained_candidates": 4,
+        "retained_after_miss": 4,
+        "cache_bytes": 302783,
+        "newest_decision": "Reused",
+        "newest_wall_ms": 11.327,
+        "newest_phases": {
+          "process_startup_ns": 4416674,
+          "cli_parse_ns": 114956,
+          "identity_prepare_ns": 162996,
+          "cache_prepare_ns": 21170,
+          "sqlite_open_ns": 170069,
+          "sqlite_schema_ns": 286468,
+          "lookup_key_ns": 9398,
+          "sqlite_query_ns": 419296,
+          "record_decode_ns": 250851,
+          "guard_validation_ns": 1177709,
+          "cas_restore_ns": 1316559,
+          "stdio_replay_ns": 23775,
+          "decision_persist_ns": 3551070,
+          "present_ns": 61184
+        },
+        "target_decision": "Reused",
+        "target_wall_ms": 14.044,
+        "target_phases": {
+          "process_startup_ns": 5999788,
+          "cli_parse_ns": 103114,
+          "identity_prepare_ns": 175439,
+          "cache_prepare_ns": 20319,
+          "sqlite_open_ns": 150903,
+          "sqlite_schema_ns": 261501,
+          "lookup_key_ns": 9468,
+          "sqlite_query_ns": 394370,
+          "record_decode_ns": 696275,
+          "guard_validation_ns": 997882,
+          "cas_restore_ns": 1379998,
+          "stdio_replay_ns": 22181,
+          "decision_persist_ns": 3388535,
+          "present_ns": 30156
+        },
+        "repeated_decision": "Reused",
+        "repeated_wall_ms": 7.985,
+        "miss_decision": "Deoptimized",
+        "miss_wall_ms": 20.035,
+        "concurrent": [
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          }
+        ],
+        "concurrent_all_reused": true
+      },
+      {
+        "bound": 8,
+        "build_decisions": [
+          "Executed",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized"
+        ],
+        "retained_candidates": 8,
+        "retained_after_miss": 8,
+        "cache_bytes": 474907,
+        "newest_decision": "Reused",
+        "newest_wall_ms": 11.44,
+        "newest_phases": {
+          "process_startup_ns": 4431357,
+          "cli_parse_ns": 127559,
+          "identity_prepare_ns": 179697,
+          "cache_prepare_ns": 22663,
+          "sqlite_open_ns": 198923,
+          "sqlite_schema_ns": 261601,
+          "lookup_key_ns": 10579,
+          "sqlite_query_ns": 640070,
+          "record_decode_ns": 216736,
+          "guard_validation_ns": 989215,
+          "cas_restore_ns": 1379818,
+          "stdio_replay_ns": 20548,
+          "decision_persist_ns": 3672889,
+          "present_ns": 34094
+        },
+        "target_decision": "Reused",
+        "target_wall_ms": 20.979,
+        "target_phases": {
+          "process_startup_ns": 6212372,
+          "cli_parse_ns": 123121,
+          "identity_prepare_ns": 201919,
+          "cache_prepare_ns": 31038,
+          "sqlite_open_ns": 195016,
+          "sqlite_schema_ns": 270227,
+          "lookup_key_ns": 10159,
+          "sqlite_query_ns": 707858,
+          "record_decode_ns": 1627463,
+          "guard_validation_ns": 1109050,
+          "cas_restore_ns": 1380139,
+          "stdio_replay_ns": 24967,
+          "decision_persist_ns": 3998199,
+          "present_ns": 31099
+        },
+        "repeated_decision": "Reused",
+        "repeated_wall_ms": 5.36,
+        "miss_decision": "Deoptimized",
+        "miss_wall_ms": 20.014,
+        "concurrent": [
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          }
+        ],
+        "concurrent_all_reused": true
+      },
+      {
+        "bound": 16,
+        "build_decisions": [
+          "Executed",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized"
+        ],
+        "retained_candidates": 16,
+        "retained_after_miss": 16,
+        "cache_bytes": 823611,
+        "newest_decision": "Reused",
+        "newest_wall_ms": 12.289,
+        "newest_phases": {
+          "process_startup_ns": 10793183,
+          "cli_parse_ns": 125426,
+          "identity_prepare_ns": 190848,
+          "cache_prepare_ns": 24336,
+          "sqlite_open_ns": 202861,
+          "sqlite_schema_ns": 283472,
+          "lookup_key_ns": 10840,
+          "sqlite_query_ns": 1135791,
+          "record_decode_ns": 284053,
+          "guard_validation_ns": 1275342,
+          "cas_restore_ns": 1210861,
+          "stdio_replay_ns": 24746,
+          "decision_persist_ns": 3748290,
+          "present_ns": 31859
+        },
+        "target_decision": "Reused",
+        "target_wall_ms": 25.057,
+        "target_phases": {
+          "process_startup_ns": 3051303,
+          "cli_parse_ns": 88737,
+          "identity_prepare_ns": 142327,
+          "cache_prepare_ns": 18274,
+          "sqlite_open_ns": 141064,
+          "sqlite_schema_ns": 220314,
+          "lookup_key_ns": 8015,
+          "sqlite_query_ns": 902533,
+          "record_decode_ns": 2143107,
+          "guard_validation_ns": 798958,
+          "cas_restore_ns": 1200922,
+          "stdio_replay_ns": 19417,
+          "decision_persist_ns": 3401239,
+          "present_ns": 26490
+        },
+        "repeated_decision": "Reused",
+        "repeated_wall_ms": 5.884,
+        "miss_decision": "Deoptimized",
+        "miss_wall_ms": 31.063,
+        "concurrent": [
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          }
+        ],
+        "concurrent_all_reused": true
+      },
+      {
+        "bound": 32,
+        "build_decisions": [
+          "Executed",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized"
+        ],
+        "retained_candidates": 32,
+        "retained_after_miss": 32,
+        "cache_bytes": 1516324,
+        "newest_decision": "Reused",
+        "newest_wall_ms": 12.02,
+        "newest_phases": {
+          "process_startup_ns": 9247514,
+          "cli_parse_ns": 118182,
+          "identity_prepare_ns": 178004,
+          "cache_prepare_ns": 21510,
+          "sqlite_open_ns": 183084,
+          "sqlite_schema_ns": 295274,
+          "lookup_key_ns": 9758,
+          "sqlite_query_ns": 1721909,
+          "record_decode_ns": 223810,
+          "guard_validation_ns": 984025,
+          "cas_restore_ns": 1256276,
+          "stdio_replay_ns": 19667,
+          "decision_persist_ns": 3435033,
+          "present_ns": 28664
+        },
+        "target_decision": "Reused",
+        "target_wall_ms": 42.281,
+        "target_phases": {
+          "process_startup_ns": 1559956,
+          "cli_parse_ns": 101580,
+          "identity_prepare_ns": 166041,
+          "cache_prepare_ns": 26469,
+          "sqlite_open_ns": 204543,
+          "sqlite_schema_ns": 237857,
+          "lookup_key_ns": 9378,
+          "sqlite_query_ns": 1720116,
+          "record_decode_ns": 4417546,
+          "guard_validation_ns": 817714,
+          "cas_restore_ns": 1659452,
+          "stdio_replay_ns": 22803,
+          "decision_persist_ns": 4055376,
+          "present_ns": 34535
+        },
+        "repeated_decision": "Reused",
+        "repeated_wall_ms": 6.476,
+        "miss_decision": "Deoptimized",
+        "miss_wall_ms": 46.372,
+        "concurrent": [
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          }
+        ],
+        "concurrent_all_reused": true
+      },
+      {
+        "bound": 64,
+        "build_decisions": [
+          "Executed",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized"
+        ],
+        "retained_candidates": 64,
+        "retained_after_miss": 64,
+        "cache_bytes": 2918543,
+        "newest_decision": "Reused",
+        "newest_wall_ms": 14.272,
+        "newest_phases": {
+          "process_startup_ns": 5065069,
+          "cli_parse_ns": 110156,
+          "identity_prepare_ns": 162865,
+          "cache_prepare_ns": 42830,
+          "sqlite_open_ns": 174527,
+          "sqlite_schema_ns": 232937,
+          "lookup_key_ns": 10069,
+          "sqlite_query_ns": 3133286,
+          "record_decode_ns": 205175,
+          "guard_validation_ns": 1010125,
+          "cas_restore_ns": 1327880,
+          "stdio_replay_ns": 20378,
+          "decision_persist_ns": 4008428,
+          "present_ns": 31409
+        },
+        "target_decision": "Reused",
+        "target_wall_ms": 82.21,
+        "target_phases": {
+          "process_startup_ns": 10131346,
+          "cli_parse_ns": 146264,
+          "identity_prepare_ns": 219542,
+          "cache_prepare_ns": 25888,
+          "sqlite_open_ns": 200586,
+          "sqlite_schema_ns": 285806,
+          "lookup_key_ns": 10840,
+          "sqlite_query_ns": 3569545,
+          "record_decode_ns": 9114061,
+          "guard_validation_ns": 839775,
+          "cas_restore_ns": 1819022,
+          "stdio_replay_ns": 23524,
+          "decision_persist_ns": 4223381,
+          "present_ns": 35156
+        },
+        "repeated_decision": "Reused",
+        "repeated_wall_ms": 8.968,
+        "miss_decision": "Deoptimized",
+        "miss_wall_ms": 79.216,
+        "concurrent": [
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          }
+        ],
+        "concurrent_all_reused": true
+      }
+    ],
+    [
+      {
+        "bound": 1,
+        "build_decisions": [
+          "Executed"
+        ],
+        "retained_candidates": 1,
+        "retained_after_miss": 1,
+        "cache_bytes": 165211,
+        "newest_decision": "Reused",
+        "newest_wall_ms": 11.421,
+        "newest_phases": {
+          "process_startup_ns": 9359423,
+          "cli_parse_ns": 129462,
+          "identity_prepare_ns": 182031,
+          "cache_prepare_ns": 28584,
+          "sqlite_open_ns": 177774,
+          "sqlite_schema_ns": 316924,
+          "lookup_key_ns": 10440,
+          "sqlite_query_ns": 284413,
+          "record_decode_ns": 218771,
+          "guard_validation_ns": 1017248,
+          "cas_restore_ns": 1334273,
+          "stdio_replay_ns": 26329,
+          "decision_persist_ns": 3863395,
+          "present_ns": 34494
+        },
+        "target_decision": "Reused",
+        "target_wall_ms": 5.581,
+        "target_phases": {
+          "process_startup_ns": 10819296,
+          "cli_parse_ns": 94878,
+          "identity_prepare_ns": 157055,
+          "cache_prepare_ns": 23955,
+          "sqlite_open_ns": 173065,
+          "sqlite_schema_ns": 249658,
+          "lookup_key_ns": 8185,
+          "sqlite_query_ns": 221385,
+          "record_decode_ns": 204524,
+          "guard_validation_ns": 943550,
+          "cas_restore_ns": 1267878,
+          "stdio_replay_ns": 19196,
+          "decision_persist_ns": 0,
+          "present_ns": 40336
+        },
+        "repeated_decision": "Reused",
+        "repeated_wall_ms": 4.795,
+        "miss_decision": "Deoptimized",
+        "miss_wall_ms": 16.755,
+        "concurrent": [
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          }
+        ],
+        "concurrent_all_reused": true
+      },
+      {
+        "bound": 2,
+        "build_decisions": [
+          "Executed",
+          "Deoptimized"
+        ],
+        "retained_candidates": 2,
+        "retained_after_miss": 2,
+        "cache_bytes": 206818,
+        "newest_decision": "Reused",
+        "newest_wall_ms": 13.011,
+        "newest_phases": {
+          "process_startup_ns": 2405290,
+          "cli_parse_ns": 106008,
+          "identity_prepare_ns": 189716,
+          "cache_prepare_ns": 28694,
+          "sqlite_open_ns": 181932,
+          "sqlite_schema_ns": 273322,
+          "lookup_key_ns": 9578,
+          "sqlite_query_ns": 325891,
+          "record_decode_ns": 252594,
+          "guard_validation_ns": 1184171,
+          "cas_restore_ns": 1515062,
+          "stdio_replay_ns": 22663,
+          "decision_persist_ns": 4718229,
+          "present_ns": 34766
+        },
+        "target_decision": "Reused",
+        "target_wall_ms": 12.181,
+        "target_phases": {
+          "process_startup_ns": 5902835,
+          "cli_parse_ns": 119264,
+          "identity_prepare_ns": 164358,
+          "cache_prepare_ns": 24085,
+          "sqlite_open_ns": 213801,
+          "sqlite_schema_ns": 258585,
+          "lookup_key_ns": 10340,
+          "sqlite_query_ns": 319991,
+          "record_decode_ns": 366276,
+          "guard_validation_ns": 940174,
+          "cas_restore_ns": 1315357,
+          "stdio_replay_ns": 32711,
+          "decision_persist_ns": 3707373,
+          "present_ns": 34084
+        },
+        "repeated_decision": "Reused",
+        "repeated_wall_ms": 6.407,
+        "miss_decision": "Deoptimized",
+        "miss_wall_ms": 15.126,
+        "concurrent": [
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          }
+        ],
+        "concurrent_all_reused": true
+      },
+      {
+        "bound": 4,
+        "build_decisions": [
+          "Executed",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized"
+        ],
+        "retained_candidates": 4,
+        "retained_after_miss": 4,
+        "cache_bytes": 302783,
+        "newest_decision": "Reused",
+        "newest_wall_ms": 10.205,
+        "newest_phases": {
+          "process_startup_ns": 6282547,
+          "cli_parse_ns": 117070,
+          "identity_prepare_ns": 154039,
+          "cache_prepare_ns": 17834,
+          "sqlite_open_ns": 135895,
+          "sqlite_schema_ns": 235452,
+          "lookup_key_ns": 8015,
+          "sqlite_query_ns": 344216,
+          "record_decode_ns": 207109,
+          "guard_validation_ns": 965801,
+          "cas_restore_ns": 1211212,
+          "stdio_replay_ns": 18625,
+          "decision_persist_ns": 3354652,
+          "present_ns": 26280
+        },
+        "target_decision": "Reused",
+        "target_wall_ms": 14.605,
+        "target_phases": {
+          "process_startup_ns": 6726665,
+          "cli_parse_ns": 84940,
+          "identity_prepare_ns": 135975,
+          "cache_prepare_ns": 17242,
+          "sqlite_open_ns": 128080,
+          "sqlite_schema_ns": 225673,
+          "lookup_key_ns": 7774,
+          "sqlite_query_ns": 463298,
+          "record_decode_ns": 793690,
+          "guard_validation_ns": 1206282,
+          "cas_restore_ns": 1465017,
+          "stdio_replay_ns": 24145,
+          "decision_persist_ns": 3908280,
+          "present_ns": 30047
+        },
+        "repeated_decision": "Reused",
+        "repeated_wall_ms": 6.816,
+        "miss_decision": "Deoptimized",
+        "miss_wall_ms": 18.675,
+        "concurrent": [
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          }
+        ],
+        "concurrent_all_reused": true
+      },
+      {
+        "bound": 8,
+        "build_decisions": [
+          "Executed",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized"
+        ],
+        "retained_candidates": 8,
+        "retained_after_miss": 8,
+        "cache_bytes": 474907,
+        "newest_decision": "Reused",
+        "newest_wall_ms": 12.195,
+        "newest_phases": {
+          "process_startup_ns": 10546935,
+          "cli_parse_ns": 117049,
+          "identity_prepare_ns": 166302,
+          "cache_prepare_ns": 31218,
+          "sqlite_open_ns": 175349,
+          "sqlite_schema_ns": 262452,
+          "lookup_key_ns": 11090,
+          "sqlite_query_ns": 664456,
+          "record_decode_ns": 302317,
+          "guard_validation_ns": 1079435,
+          "cas_restore_ns": 1278949,
+          "stdio_replay_ns": 22582,
+          "decision_persist_ns": 3778627,
+          "present_ns": 34164
+        },
+        "target_decision": "Reused",
+        "target_wall_ms": 17.733,
+        "target_phases": {
+          "process_startup_ns": 3073579,
+          "cli_parse_ns": 124233,
+          "identity_prepare_ns": 185377,
+          "cache_prepare_ns": 22753,
+          "sqlite_open_ns": 174688,
+          "sqlite_schema_ns": 230662,
+          "lookup_key_ns": 10690,
+          "sqlite_query_ns": 655840,
+          "record_decode_ns": 1200701,
+          "guard_validation_ns": 834686,
+          "cas_restore_ns": 1244695,
+          "stdio_replay_ns": 20068,
+          "decision_persist_ns": 3478273,
+          "present_ns": 29776
+        },
+        "repeated_decision": "Reused",
+        "repeated_wall_ms": 5.981,
+        "miss_decision": "Deoptimized",
+        "miss_wall_ms": 19.828,
+        "concurrent": [
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          }
+        ],
+        "concurrent_all_reused": true
+      },
+      {
+        "bound": 16,
+        "build_decisions": [
+          "Executed",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized"
+        ],
+        "retained_candidates": 16,
+        "retained_after_miss": 16,
+        "cache_bytes": 823611,
+        "newest_decision": "Reused",
+        "newest_wall_ms": 10.543,
+        "newest_phases": {
+          "process_startup_ns": 5195418,
+          "cli_parse_ns": 113262,
+          "identity_prepare_ns": 175248,
+          "cache_prepare_ns": 18424,
+          "sqlite_open_ns": 145132,
+          "sqlite_schema_ns": 236534,
+          "lookup_key_ns": 8015,
+          "sqlite_query_ns": 885250,
+          "record_decode_ns": 220714,
+          "guard_validation_ns": 887684,
+          "cas_restore_ns": 1181666,
+          "stdio_replay_ns": 19366,
+          "decision_persist_ns": 3297535,
+          "present_ns": 28474
+        },
+        "target_decision": "Reused",
+        "target_wall_ms": 24.801,
+        "target_phases": {
+          "process_startup_ns": 5985435,
+          "cli_parse_ns": 113312,
+          "identity_prepare_ns": 142808,
+          "cache_prepare_ns": 18295,
+          "sqlite_open_ns": 171191,
+          "sqlite_schema_ns": 233839,
+          "lookup_key_ns": 8366,
+          "sqlite_query_ns": 1033589,
+          "record_decode_ns": 2054763,
+          "guard_validation_ns": 819497,
+          "cas_restore_ns": 1381171,
+          "stdio_replay_ns": 19246,
+          "decision_persist_ns": 3523588,
+          "present_ns": 31269
+        },
+        "repeated_decision": "Reused",
+        "repeated_wall_ms": 6.146,
+        "miss_decision": "Deoptimized",
+        "miss_wall_ms": 35.821,
+        "concurrent": [
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          }
+        ],
+        "concurrent_all_reused": true
+      },
+      {
+        "bound": 32,
+        "build_decisions": [
+          "Executed",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized"
+        ],
+        "retained_candidates": 32,
+        "retained_after_miss": 32,
+        "cache_bytes": 1516324,
+        "newest_decision": "Reused",
+        "newest_wall_ms": 16.186,
+        "newest_phases": {
+          "process_startup_ns": 3994450,
+          "cli_parse_ns": 127479,
+          "identity_prepare_ns": 191990,
+          "cache_prepare_ns": 55474,
+          "sqlite_open_ns": 216446,
+          "sqlite_schema_ns": 320491,
+          "lookup_key_ns": 13325,
+          "sqlite_query_ns": 2173297,
+          "record_decode_ns": 264456,
+          "guard_validation_ns": 1380980,
+          "cas_restore_ns": 1662458,
+          "stdio_replay_ns": 24225,
+          "decision_persist_ns": 5319938,
+          "present_ns": 37150
+        },
+        "target_decision": "Reused",
+        "target_wall_ms": 53.159,
+        "target_phases": {
+          "process_startup_ns": 10433893,
+          "cli_parse_ns": 141575,
+          "identity_prepare_ns": 191279,
+          "cache_prepare_ns": 25017,
+          "sqlite_open_ns": 208972,
+          "sqlite_schema_ns": 291697,
+          "lookup_key_ns": 11501,
+          "sqlite_query_ns": 2075733,
+          "record_decode_ns": 5187898,
+          "guard_validation_ns": 996498,
+          "cas_restore_ns": 2389842,
+          "stdio_replay_ns": 25898,
+          "decision_persist_ns": 5408443,
+          "present_ns": 44744
+        },
+        "repeated_decision": "Reused",
+        "repeated_wall_ms": 9.326,
+        "miss_decision": "Deoptimized",
+        "miss_wall_ms": 53.897,
+        "concurrent": [
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          }
+        ],
+        "concurrent_all_reused": true
+      },
+      {
+        "bound": 64,
+        "build_decisions": [
+          "Executed",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized",
+          "Deoptimized"
+        ],
+        "retained_candidates": 64,
+        "retained_after_miss": 64,
+        "cache_bytes": 2864951,
+        "newest_decision": "Reused",
+        "newest_wall_ms": 14.52,
+        "newest_phases": {
+          "process_startup_ns": 3201973,
+          "cli_parse_ns": 138750,
+          "identity_prepare_ns": 143980,
+          "cache_prepare_ns": 18935,
+          "sqlite_open_ns": 159098,
+          "sqlite_schema_ns": 219111,
+          "lookup_key_ns": 8766,
+          "sqlite_query_ns": 2922791,
+          "record_decode_ns": 190517,
+          "guard_validation_ns": 935425,
+          "cas_restore_ns": 1540389,
+          "stdio_replay_ns": 19176,
+          "decision_persist_ns": 4298552,
+          "present_ns": 32140
+        },
+        "target_decision": "Reused",
+        "target_wall_ms": 85.44,
+        "target_phases": {
+          "process_startup_ns": 9063552,
+          "cli_parse_ns": 169518,
+          "identity_prepare_ns": 306305,
+          "cache_prepare_ns": 31319,
+          "sqlite_open_ns": 229951,
+          "sqlite_schema_ns": 330400,
+          "lookup_key_ns": 13445,
+          "sqlite_query_ns": 3939869,
+          "record_decode_ns": 9947789,
+          "guard_validation_ns": 819637,
+          "cas_restore_ns": 1666596,
+          "stdio_replay_ns": 22863,
+          "decision_persist_ns": 3999891,
+          "present_ns": 34084
+        },
+        "repeated_decision": "Reused",
+        "repeated_wall_ms": 8.301,
+        "miss_decision": "Deoptimized",
+        "miss_wall_ms": 77.088,
+        "concurrent": [
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          },
+          {
+            "status": 0,
+            "decision": "Reused",
+            "reason": "all guards passed and cached outputs were restored",
+            "stderr": ""
+          }
+        ],
+        "concurrent_all_reused": true
+      }
+    ]
+  ],
+  "bounds": [
+    {
+      "bound": 1,
+      "sessions": 3,
+      "retained_candidates": [
+        1,
+        1,
+        1
+      ],
+      "newest_ms_samples": [
+        12.861,
+        11.489,
+        11.421
+      ],
+      "newest_ms_median": 11.489,
+      "newest_ms_p95": 13.9586,
+      "newest_ms_worst": 12.861,
+      "target_ms_samples": [
+        7.831,
+        6.304,
+        5.581
+      ],
+      "target_ms_median": 6.304,
+      "target_ms_p95": 9.0526,
+      "target_ms_worst": 7.831,
+      "miss_ms_samples": [
+        18.287,
+        14.754,
+        16.755
+      ],
+      "miss_ms_median": 16.755,
+      "miss_ms_p95": 19.5126,
+      "miss_ms_worst": 18.287,
+      "cache_bytes": 165211,
+      "concurrent_all_reused": true,
+      "target_decisions": [
+        "Reused"
+      ]
+    },
+    {
+      "bound": 2,
+      "sessions": 3,
+      "retained_candidates": [
+        2,
+        2,
+        2
+      ],
+      "newest_ms_samples": [
+        12.558,
+        11.456,
+        13.011
+      ],
+      "newest_ms_median": 12.558,
+      "newest_ms_p95": 13.373399999999998,
+      "newest_ms_worst": 13.011,
+      "target_ms_samples": [
+        13.154,
+        10.959,
+        12.181
+      ],
+      "target_ms_median": 12.181,
+      "target_ms_p95": 13.932400000000001,
+      "target_ms_worst": 13.154,
+      "miss_ms_samples": [
+        23.136,
+        16.6,
+        15.126
+      ],
+      "miss_ms_median": 16.6,
+      "miss_ms_p95": 28.364799999999995,
+      "miss_ms_worst": 23.136,
+      "cache_bytes": 206818,
+      "concurrent_all_reused": true,
+      "target_decisions": [
+        "Reused"
+      ]
+    },
+    {
+      "bound": 4,
+      "sessions": 3,
+      "retained_candidates": [
+        4,
+        4,
+        4
+      ],
+      "newest_ms_samples": [
+        14.111,
+        11.327,
+        10.205
+      ],
+      "newest_ms_median": 11.327,
+      "newest_ms_p95": 16.3382,
+      "newest_ms_worst": 14.111,
+      "target_ms_samples": [
+        17.039,
+        14.044,
+        14.605
+      ],
+      "target_ms_median": 14.605,
+      "target_ms_p95": 18.9862,
+      "target_ms_worst": 17.039,
+      "miss_ms_samples": [
+        23.025,
+        20.035,
+        18.675
+      ],
+      "miss_ms_median": 20.035,
+      "miss_ms_p95": 25.416999999999998,
+      "miss_ms_worst": 23.025,
+      "cache_bytes": 302784,
+      "concurrent_all_reused": true,
+      "target_decisions": [
+        "Reused"
+      ]
+    },
+    {
+      "bound": 8,
+      "sessions": 3,
+      "retained_candidates": [
+        8,
+        8,
+        8
+      ],
+      "newest_ms_samples": [
+        13.128,
+        11.44,
+        12.195
+      ],
+      "newest_ms_median": 12.195,
+      "newest_ms_p95": 13.8744,
+      "newest_ms_worst": 13.128,
+      "target_ms_samples": [
+        21.415,
+        20.979,
+        17.733
+      ],
+      "target_ms_median": 20.979,
+      "target_ms_p95": 21.763799999999996,
+      "target_ms_worst": 21.415,
+      "miss_ms_samples": [
+        26.838,
+        20.014,
+        19.828
+      ],
+      "miss_ms_median": 20.014,
+      "miss_ms_p95": 32.2972,
+      "miss_ms_worst": 26.838,
+      "cache_bytes": 474907,
+      "concurrent_all_reused": true,
+      "target_decisions": [
+        "Reused"
+      ]
+    },
+    {
+      "bound": 16,
+      "sessions": 3,
+      "retained_candidates": [
+        16,
+        16,
+        16
+      ],
+      "newest_ms_samples": [
+        14.114,
+        12.289,
+        10.543
+      ],
+      "newest_ms_median": 12.289,
+      "newest_ms_p95": 15.574000000000002,
+      "newest_ms_worst": 14.114,
+      "target_ms_samples": [
+        58.953,
+        25.057,
+        24.801
+      ],
+      "target_ms_median": 25.057,
+      "target_ms_p95": 86.0698,
+      "target_ms_worst": 58.953,
+      "miss_ms_samples": [
+        34.874,
+        31.063,
+        35.821
+      ],
+      "miss_ms_median": 34.874,
+      "miss_ms_p95": 36.5786,
+      "miss_ms_worst": 35.821,
+      "cache_bytes": 823611,
+      "concurrent_all_reused": true,
+      "target_decisions": [
+        "Reused"
+      ]
+    },
+    {
+      "bound": 32,
+      "sessions": 3,
+      "retained_candidates": [
+        32,
+        32,
+        32
+      ],
+      "newest_ms_samples": [
+        13.465,
+        12.02,
+        16.186
+      ],
+      "newest_ms_median": 13.465,
+      "newest_ms_p95": 18.3628,
+      "newest_ms_worst": 16.186,
+      "target_ms_samples": [
+        41.248,
+        42.281,
+        53.159
+      ],
+      "target_ms_median": 42.281,
+      "target_ms_p95": 61.8614,
+      "target_ms_worst": 53.159,
+      "miss_ms_samples": [
+        45.508,
+        46.372,
+        53.897
+      ],
+      "miss_ms_median": 46.372,
+      "miss_ms_p95": 59.916999999999994,
+      "miss_ms_worst": 53.897,
+      "cache_bytes": 1516324,
+      "concurrent_all_reused": true,
+      "target_decisions": [
+        "Reused"
+      ]
+    },
+    {
+      "bound": 64,
+      "sessions": 3,
+      "retained_candidates": [
+        64,
+        64,
+        64
+      ],
+      "newest_ms_samples": [
+        16.134,
+        14.272,
+        14.52
+      ],
+      "newest_ms_median": 14.52,
+      "newest_ms_p95": 17.425200000000004,
+      "newest_ms_worst": 16.134,
+      "target_ms_samples": [
+        80.783,
+        82.21,
+        85.44
+      ],
+      "target_ms_median": 82.21,
+      "target_ms_p95": 88.02400000000002,
+      "target_ms_worst": 85.44,
+      "miss_ms_samples": [
+        77.21,
+        79.216,
+        77.088
+      ],
+      "miss_ms_median": 77.21,
+      "miss_ms_p95": 80.82079999999999,
+      "miss_ms_worst": 79.216,
+      "cache_bytes": 2918543,
+      "concurrent_all_reused": true,
+      "target_decisions": [
+        "Reused"
+      ]
+    }
+  ]
+}

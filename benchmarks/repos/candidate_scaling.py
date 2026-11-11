@@ -174,6 +174,14 @@ def measure(binary: Path, work: Path, bound: int) -> dict:
         assert row["output"] == payload, (bound, index, row["output"])
         build.append(row["report"].get("cache_decision"))
 
+    # The newest state is the common stable hit. Lazy decoding should only deserialize this
+    # record before its guards pass.
+    newest_payload = f"candidate-state-{bound - 1}\n".encode()
+    newest = run_once(binary, work, cache, bound, phase_path, newest_payload)
+    assert newest["status"] == 0, newest
+    assert newest["output"] == newest_payload, newest
+    assert newest["report"].get("cache_decision") == "Reused", newest
+
     target = b"candidate-state-0\n"
     selected = run_once(binary, work, cache, bound, phase_path, target)
     assert selected["status"] == 0, selected
@@ -200,6 +208,9 @@ def measure(binary: Path, work: Path, bound: int) -> dict:
         "retained_candidates": retained,
         "retained_after_miss": after_miss,
         "cache_bytes": cache_bytes(cache),
+        "newest_decision": newest["report"].get("cache_decision"),
+        "newest_wall_ms": round(newest["wall_ms"], 3),
+        "newest_phases": newest["phases"],
         "target_decision": selected["report"].get("cache_decision"),
         "target_wall_ms": round(selected["wall_ms"], 3),
         "target_phases": selected["phases"],

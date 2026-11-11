@@ -148,3 +148,40 @@ and the retrace emits the correct stream.
 five sessions; old 611.64 / 615.12 / 610.16 / 2470.50 ms. One session, not a replacement for the
 three-session historical table. Raw: `benchmarks/results/phase3b/phase2t-current-1session.json` and
 `...-old-1session.json`.
+
+
+## E-3C-01 — stable-workflow latency attribution
+
+**Question:** What is actually spent in the three-asset bzip2 stable rerun?
+
+**Result:** the Phase 3B 231 ms figure included 165-215 ms of post-command bzip2 output
+decompression. The replay command loop is in the tens of milliseconds: 46.5-106.8 ms across two
+sessions, with 15.4-31.6 ms per command. Dominant phases are process startup (6.3-6.9 ms), guard
+validation (5.9-6.2 ms), and CAS restore (3.4-21.9 ms, writeback dependent). Shell-batch workflow
+was 45.0-57.7 ms; there is no in-process batch mode.
+
+**Raw:** `benchmarks/results/phase3c/latency.json`.
+
+## E-3C-02 — repeated 1-64 candidate scaling and lazy decode
+
+**Result:** three fresh-cache sessions per bound. Newest-hit medians were 11.5, 12.6, 11.3, 12.2,
+12.3, 13.5 and 14.5 ms for 1, 2, 4, 8, 16, 32 and 64 candidates. Oldest-target medians were 6.3,
+12.2, 14.6, 21.0, 25.1, 42.3 and 82.2 ms; misses were 16.8-77.2 ms. At 64, an oldest hit is more
+expensive than a miss. Lazy `CandidateBytes` decoding is used in the `always` path; full guards
+remain mandatory and non-always admission still decodes the full set.
+
+**Raw:** `benchmarks/results/phase3c/candidate-scaling.json`.
+
+## E-3C-03 — `/dev/null` inherited seek
+
+**Result:** exact-path `/dev/null` `lseek` is constant-zero and now admitted; arbitrary inherited
+character devices and directory seeks remain refused. `dev_null_seek_is_reusable` passes. Census
+remains 9 attempted, 0 reused, 9 refused; `lseek` is no longer in the unmodeled ranking.
+
+**Raw:** `benchmarks/results/phase3c/census-native/`.
+
+## E-3C-04 — output restoration unchanged-file branch
+
+**Result:** not implemented. Restore is 3.4 ms in the clean session and 21.9 ms under a writeback
+tail. Skipping a matching output would change inode/ctime/ownership and hard-link semantics; a
+managed contract and crash journal are prerequisites.

@@ -402,6 +402,13 @@ int main(int argc, char **argv) {
     return write(STDOUT_FILENO, "stdout fixture\n", 15) != 15;
   if (!strcmp(name, "stderr_only"))
     return write(STDERR_FILENO, "stderr fixture\n", 15) != 15;
+  if (!strcmp(name, "dev_null_lseek")) {
+    if (lseek(STDIN_FILENO, 0, SEEK_CUR) != 0) return 1;
+    if (lseek(STDIN_FILENO, 7, SEEK_SET) != 0) return 2;
+    if (lseek(STDIN_FILENO, 0, SEEK_END) != 0) return 3;
+    copy_file(input, output);
+    return 0;
+  }
   if (!strcmp(name, "output_presence_stdout") ||
       !strcmp(name, "output_presence_stderr")) {
     /* The output's pre-state steers the bytes this program writes. A cache hit with a

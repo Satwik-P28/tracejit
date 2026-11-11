@@ -1,6 +1,6 @@
 # TraceJIT Research Graph
 
-Status: Phase 3B. This is a working record, not a claim map.
+Status: Phase 3C. This is a working record, not a claim map.
 
 ## Legend
 
@@ -223,14 +223,36 @@ new `output_presence_stdout`/`_stderr` cases. Status: `enforced`.
 Every retained candidate still validates fully. The bound may change hit rate and cost, never the
 requirement that a candidate's guards pass. Status: `enforced`.
 
+### P10 — Verification time was attributed to replay
+
+Phase 3B's stable-workflow harness decompressed the three bzip2 outputs after each command and counted that work in the round wall time. The 231 ms figure was therefore not TraceJIT replay latency.
+
+Status: `rejected measurement`, corrected by E-3C-01. Evidence: `benchmarks/results/phase3c/latency.json`.
+
+### P11 — `/dev/null` seek was caught by the inherited-fd blanket refusal
+
+The census's `lseek` blocker was an inherited `/dev/null`, not a regular file. Every admitted seek on `/dev/null` returns zero and cannot affect a later read.
+
+Status: `fixed narrowly`; exact path only, E-3C-03 and `dev_null_seek_is_reusable`. Other inherited character devices and directory seeks remain refused.
+
+### H9 — Lazy candidate decoding preserves full validation
+
+SQLite can return encoded candidate records newest-first; decode only the candidate currently being validated. A newest hit pays one decode, while an oldest target still decodes all candidates.
+
+Status: `prototype verified`; E-3C-02. This is not a fingerprint shortcut and cannot skip guards.
+
+### H10 — Frequency-aware candidate ordering
+
+A safe frequency index could reduce oldest-target cost, but it needs a persisted hit count or preferred candidate and must fall back to all candidates when the preferred one fails. Status: `open`; no frequency index was added.
+
+### H11 — Leave already-matching outputs unchanged
+
+Skipping a rewrite saves restore time, but changes inode replacement, ctime, hard-link and ownership semantics. Status: `rejected for native equivalence`; only a managed-workspace contract with crash recovery could reconsider it.
+
 ## Next experiments
 
-1. Observe the Phase 3B review branch in hosted CI; local Landlock `PROVEN` remains a SKIP.
-2. Model regular-file `lseek` offset state behind an adversarial seek/replay fixture. This is the
-   narrowest census refusal and affects three Python/Pillow workloads.
-3. Test a cheap dependency signature against E-3B-02's record-decode cost, with a counterexample
-   where two candidates share a signature but only one passes.
-4. Re-run the multi-user concurrent candidate test under a writer that evicts the selected record
-   between lookup and restore.
-5. Only after process-level validation is cheap enough, prototype a workflow-level graph on one
-   realistic multi-command recipe.
+1. Test a frequency-aware candidate header index against the 64-candidate oldest-target case, with a fallback that validates every candidate when the preferred header misses.
+2. Re-run the latency harness under a controlled writeback policy to separate CAS restore from host fsync variance.
+3. Model a managed-workspace unchanged-output contract, including inode, ctime, hard-link, ownership and crash-recovery obligations, before implementing it.
+4. Re-run the native census after a second narrow model (not a global syscall exemption) and require an actual workload reuse before claiming compatibility progress.
+5. Only after process-level validation is cheap enough, prototype a workflow-level graph on one realistic multi-command recipe.

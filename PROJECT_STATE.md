@@ -611,3 +611,22 @@ The native real-command census still refuses all nine workloads. `clock` and `ra
 two workloads; `lseek`, pipe `fstat`, `getrusage` and an unrestorable lint output remain the ranked
 next targets. No workload was accepted by weakening a guard. See
 `docs/audits/PHASE3B_CANDIDATE_SCALING_AND_RERUN.md` for the full evidence and limitations.
+
+
+## Phase 3C (base `df6cc86`, branch `phase3c/latency-candidates-lseek`)
+
+Phase 3B is integrated on `main` by fast-forward to `df6cc86`; PR #4 is still an open draft because
+the workspace has no authenticated GitHub PR API session. Phase 3B's 231 ms stable-workflow number
+was corrected: it included 165-215 ms of verifier decompression. The measured replay workflow is
+46.5-106.8 ms across two sessions, 15.4-31.6 ms per command, dominated by process startup
+(6.3-6.9 ms), guards (5.9-6.2 ms) and CAS restore (3.4-21.9 ms, writeback dependent).
+
+Repeated 1-64 candidate scaling uses three fresh-cache sessions per bound. Newest-hit medians stay
+near 11.5-14.5 ms even at 64 candidates; oldest-target medians reach 82.2 ms and misses 77.2 ms.
+`CandidateBytes` defers JSON decoding until full guard validation, a lazy two-stage prototype; the
+default bound remains 8 and the experimental ceiling is 64. Native `/dev/null` `lseek` is narrowly
+admitted with `dev_null_seek_is_reusable`; arbitrary inherited character devices remain refused.
+The native census is still 0/9 reused after the change. No unchanged-output shortcut was added.
+Gates: fmt, Clippy, **130 workspace tests**, **44 Linux integration tests**, release build pass.
+`PROVEN` remains a local SKIP (no Landlock). See
+`docs/audits/PHASE3C_LATENCY_AND_COMPATIBILITY.md`.
