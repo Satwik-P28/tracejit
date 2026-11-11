@@ -1655,6 +1655,41 @@ mod tests {
     }
 
     #[test]
+    fn candidate_id_fetch_handles_pruning_and_malformed_payloads() {
+        let directory = tempfile::tempdir().unwrap();
+        let cache = Cache::open(directory.path().join("cache")).unwrap();
+        let key = Hash::from(blake3::hash(b"candidate lookup"));
+        for (id, payload, updated) in [
+            ("new", b"{\"marker\":2}".to_vec(), "2"),
+            ("old", b"{\"marker\":1}".to_vec(), "1"),
+            ("bad", b"{\"marker\":".to_vec(), "3"),
+        ] {
+            cache
+                .connection
+                .execute(
+                    "INSERT INTO executions (lookup_key, execution_id, record_json, updated_unix_ms)
+                     VALUES (?1, ?2, ?3, ?4)",
+                    params![key.to_string(), id, payload, updated],
+                )
+                .unwrap();
+        }
+        let ids = cache.find_candidate_ids(key).unwrap();
+        assert_eq!(ids, vec!["bad", "new", "old"]);
+        assert!(cache
+            .find_candidate_by_id("bad")
+            .unwrap()
+            .unwrap()
+            .decode()
+            .is_none());
+        cache
+            .connection
+            .execute("DELETE FROM executions WHERE execution_id = 'new'", [])
+            .unwrap();
+        assert!(cache.find_candidate_by_id("new").unwrap().is_none());
+        assert!(cache.find_candidate_by_id("old").unwrap().is_some());
+    }
+
+    #[test]
     fn a_marker_written_by_a_peer_is_not_unrelated_content() {
         // Regression for the first-initialization race in `prepare_root`: the marker is our own
         // file, so a root that already carries one must never be refused as unsafe. A dangling

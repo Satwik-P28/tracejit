@@ -221,16 +221,20 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
     // newest-first hit can stop after decoding one candidate, while `auto` pays for the complete
     // view it actually uses.
     let decoded_for_admission = if options.admission != Admission::Always {
-        candidate_ids
-            .iter()
-            .filter_map(|id| {
-                cache
-                    .find_candidate_by_id(id)
-                    .ok()
-                    .flatten()
-                    .and_then(|candidate| candidate.decode())
-            })
-            .collect::<Vec<_>>()
+        let mut decoded = Vec::new();
+        for id in &candidate_ids {
+            let Some(encoded) = cache.find_candidate_by_id(id)? else {
+                // Concurrent pruning between the ID query and this fetch is a miss, not a
+                // database failure. The record may be gone; it cannot be reused.
+                continue;
+            };
+            if let Some(candidate) = encoded.decode() {
+                decoded.push(candidate);
+            }
+            // A malformed payload is deliberately skipped. The remaining candidates still run
+            // their full guards; this path never turns a decode failure into a hit.
+        }
+        decoded
     } else {
         Vec::new()
     };
