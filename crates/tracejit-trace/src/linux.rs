@@ -9,6 +9,7 @@ use std::ffi::OsString;
 use std::fs;
 use std::io::{Read, Seek, SeekFrom, Write};
 use std::os::unix::ffi::OsStringExt;
+use std::os::unix::fs::{FileTypeExt, MetadataExt};
 use std::os::unix::process::CommandExt;
 use std::path::{Component, Path, PathBuf};
 use std::process::{Command, Stdio};
@@ -1688,7 +1689,10 @@ fn decode_entry(
             // A forked child shares the open file description but not this model's consumption
             // accounting, and an inherited alias can move the same description. Both are refused
             // rather than treated as a process-internal seek.
-            Some(FdState::InheritedFile(path)) if path == Path::new("/dev/null") => {
+            Some(FdState::InheritedFile(path))
+                if path == Path::new("/dev/null")
+                    && is_null_device_fd(pid, args[0] as i32) =>
+            {
                 PendingSyscall::None
             }
             Some(FdState::InheritedFile(path)) => PendingSyscall::Unknown {
@@ -1713,6 +1717,20 @@ fn decode_entry(
         },
     };
     Ok(pending)
+}
+
+/// Returns true only when the inherited descriptor currently names the kernel null device.
+///
+/// The pathname alone is not enough: a bind mount or substituted node can make `/dev/null`
+/// resolve to a regular file, and an inherited descriptor can be replaced. `fstat` through
+/// `/proc/<pid>/fd/<fd>` inspects the actual open object. Any failure is a refusal, not an
+/// assumption that the descriptor is null.
+fn is_null_device_fd(pid: Pid, fd: i32) -> bool {
+    let path = format!("/proc/{}/fd/{}", pid.as_raw(), fd);
+    let Ok(metadata) = fs::metadata(path) else {
+        return false;
+    };
+    metadata.file_type().is_char_device() && metadata.rdev() == libc::makedev(1, 3) as u64
 }
 
 fn system_information(syscall: &str) -> PendingSyscall {
@@ -4269,5 +4287,19 @@ mod tests {
 
     fn write_u64(image: &mut [u8], offset: usize, value: u64) {
         image[offset..offset + 8].copy_from_slice(&value.to_le_bytes());
+    }
+}
+
+#[cfg(test)]
+mod phase3d_tests {
+    use super::*;
+    use std::os::unix::io::AsRawFd;
+
+    #[test]
+    fn null_device_identity_is_not_path_only() {
+        let null = fs::File::open("/dev/null").unwrap();
+        assert!(is_null_device_fd(Pid::this(), null.as_raw_fd()));
+        let regular = fs::File::open("/etc/hosts").unwrap();
+        assert!(!is_null_device_fd(Pid::this(), regular.as_raw_fd()));
     }
 }

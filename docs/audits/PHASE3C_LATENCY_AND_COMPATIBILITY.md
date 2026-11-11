@@ -78,9 +78,15 @@ records remain skippable, and no fingerprint is allowed to replace a guard.
 
 The native census refusal was not a regular-file seek. It was
 `lseek(0, ..., SEEK_CUR/SET/END)` on an inherited `/dev/null`. Every admitted whence returns zero
-for `/dev/null`, and a read still returns EOF, so the offset cannot affect later reads. The tracer
-now admits exactly the path `/dev/null`; arbitrary inherited character devices and directory seeks
-remain refused. No global nondeterministic-syscall exemption was added.
+for `/dev/null`, and a read still returns EOF, so the offset cannot affect later reads.
+
+Phase 3C originally admitted the recorded pathname `/dev/null`. Phase 3D review found that this is
+not descriptor identity: the name can be replaced by a bind mount or another mount namespace. The
+guard now `fstat`s the actual inherited descriptor through `/proc/<pid>/fd/<fd>` and requires a
+character device with `rdev == makedev(1, 3)`; any metadata failure or mismatch is refused. This
+replaces the path-only claim. Arbitrary inherited character devices and directory seeks remain
+refused, and no global nondeterministic-syscall exemption was added. The direct descriptor-identity
+test and the regular-file-stdin regression are in the Phase 3D audit.
 
 Regression: `dev_null_seek_is_reusable` runs `dev_null_lseek` twice and requires a second-run
 `Reused` with the correct output. `RESULT dev-null-lseek PASS`.
@@ -119,8 +125,8 @@ replacement, ownership, timestamps, aliases, and crash recovery; that remains op
 
 - `cargo fmt --all -- --check`: pass.
 - Clippy `--workspace --all-targets --all-features -- -D warnings`: pass.
-- `cargo test --workspace`: **130 passed**.
-- Linux integration: **44 passed**, 0 failed; `PROVEN` skips locally (no Landlock).
+- `cargo test --workspace`: **132 passed**.
+- Linux integration: **45 passed**, 0 failed; `PROVEN` skips locally (no Landlock).
 - Release build: pass.
 - Native census after the change: 9 refused, 0 reused, 0 execution failures.
 

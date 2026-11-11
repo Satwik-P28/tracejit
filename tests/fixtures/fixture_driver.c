@@ -409,6 +409,13 @@ int main(int argc, char **argv) {
     copy_file(input, output);
     return 0;
   }
+  if (!strcmp(name, "inherited_seek_probe")) {
+    lseek(STDIN_FILENO, 0, SEEK_CUR);
+    lseek(STDIN_FILENO, 7, SEEK_SET);
+    lseek(STDIN_FILENO, 0, SEEK_END);
+    copy_file(input, output);
+    return 0;
+  }
   if (!strcmp(name, "output_presence_stdout") ||
       !strcmp(name, "output_presence_stderr")) {
     /* The output's pre-state steers the bytes this program writes. A cache hit with a

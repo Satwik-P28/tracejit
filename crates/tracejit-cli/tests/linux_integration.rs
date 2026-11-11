@@ -2,9 +2,10 @@
 
 use serde_json::Value;
 use std::fs;
+use std::fs::File;
 use std::io::{Seek, SeekFrom};
 use std::path::{Path, PathBuf};
-use std::process::{Command, Output};
+use std::process::{Command, Output, Stdio};
 
 fn tracejit() -> PathBuf {
     PathBuf::from(env!("CARGO_BIN_EXE_tracejit"))
@@ -1491,6 +1492,43 @@ fn dev_null_seek_is_reusable() {
         b"input one\n"
     );
     eprintln!("RESULT dev-null-lseek PASS");
+}
+
+#[test]
+fn regular_file_stdin_seek_is_reused_as_an_offset_stream() {
+    let fixture = Fixture::new();
+    let substitute = fixture.input("not-null");
+    fs::write(&substitute, b"regular file\n").unwrap();
+    let run = || {
+        Command::new(tracejit())
+            .args([
+                "run",
+                "--json",
+                "--",
+                fixture.binary_arg(),
+                "inherited_seek_probe",
+                fixture.root(),
+            ])
+            .env("TRACEJIT_CACHE_DIR", &fixture.cache)
+            .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0")
+            .stdin(Stdio::from(File::open(&substitute).unwrap()))
+            .output()
+            .unwrap()
+    };
+    let first = run();
+    assert!(first.status.success(), "{}", stderr_of(&first));
+    let second = run();
+    assert!(second.status.success(), "{}", stderr_of(&second));
+    let report: Value = serde_json::from_slice(&second.stdout).unwrap();
+    assert_eq!(
+        report["kind"], "Reused",
+        "a regular stdin has a modelled offset stream and may reuse: {report}"
+    );
+    assert_eq!(
+        fs::read(fixture.input("output.txt")).unwrap(),
+        b"input one\n"
+    );
+    eprintln!("RESULT substituted-dev-null PASS");
 }
 
 #[test]
