@@ -185,3 +185,48 @@ remains 9 attempted, 0 reused, 9 refused; `lseek` is no longer in the unmodeled 
 **Result:** not implemented. Restore is 3.4 ms in the clean session and 21.9 ms under a writeback
 tail. Skipping a matching output would change inode/ctime/ownership and hard-link semantics; a
 managed contract and crash journal are prerequisites.
+
+
+## E-3D-01 — Descriptor identity for inherited `/dev/null`
+
+**Question:** Does the seek guard identify the actual open device rather than a pathname that can be
+substituted?
+
+**Test:** `linux::phase3d_tests::null_device_identity_is_not_path_only` stats a real `/dev/null` fd
+and a regular-file fd through `/proc/<pid>/fd`. It requires a character device with major/minor 1:3.
+`dev_null_seek_is_reusable` and `regular_file_stdin_seek_is_reused_as_an_offset_stream` cover the
+end-to-end paths.
+
+**Result:** real null accepted; regular descriptor rejected; regular stdin uses the tracked offset
+stream and remains safe. A true bind-mount substitution was not run without mount privileges, and
+that limitation is explicit.
+
+## E-3D-02 — ID-first incremental candidate retrieval
+
+**Question:** Does fetching only ordered IDs and one record per validation step reduce oldest-target
+cost?
+
+**Method:** same three fresh-cache sessions and 1-64 bounds as Phase 3C; three sessions for the new
+code.
+
+**Result:** newest hits improved 0.6-3.4 ms, but oldest-target hits were worse at four of seven
+bounds (64: 80.397 ms versus 82.210 ms). The hypothesis of a general performance win is **rejected**.
+The retrieval is genuinely incremental and full guards remain; the default bound stays 8.
+
+**Raw:** `benchmarks/results/phase3d/candidate-retrieval.json`.
+
+## E-3D-03 — Native census after descriptor correction
+
+**Result:** **9 attempted, 0 reused, 9 refused, 0 execution failures**. `lseek` is gone from the
+unmodeled ranking. Blockers: `getrusage` (both C builds), pipe `fstat`/scheduling and `TCGETS`
+(shell/groff), clock/randomness/PID (Python/awk), `epoll_create1` (Pillow), and unrestorable output
+(cc lint). Raw: `benchmarks/results/phase3d/census-native/`.
+
+## E-3D-04 — Complete-session hit/miss/refusal
+
+**Method:** three fresh-cache sessions; prime a guarded copy, rerun unchanged, change the input,
+then run a randomness workload.
+
+**Result:** prime 19.04 ms `Executed`; hit 8.57 ms `Reused`; invalidation 16.69 ms `Executed`;
+randomness 11.05 ms `Executed`, classification `Nondeterministic`, never reused. Outputs were correct
+in all three sessions. Raw: `benchmarks/results/phase3d/complete-session.json`.

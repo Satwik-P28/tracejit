@@ -1,0 +1,195 @@
+{
+  "sessions": [
+    {
+      "session": 0,
+      "prime": {
+        "mode": "plain_file_read",
+        "exit": 0,
+        "kind": "Executed",
+        "classification": "Guarded",
+        "wall_ms": 19.322449
+      },
+      "hit": {
+        "mode": "plain_file_read",
+        "exit": 0,
+        "kind": "Reused",
+        "classification": "Guarded",
+        "wall_ms": 7.871563
+      },
+      "invalidation": {
+        "mode": "plain_file_read",
+        "exit": 0,
+        "kind": "Executed",
+        "classification": "Guarded",
+        "wall_ms": 16.692367
+      },
+      "refusal": {
+        "mode": "getrandom",
+        "exit": 0,
+        "kind": "Executed",
+        "classification": "Nondeterministic",
+        "wall_ms": 10.846423
+      },
+      "output": "input two\n"
+    },
+    {
+      "session": 1,
+      "prime": {
+        "mode": "plain_file_read",
+        "exit": 0,
+        "kind": "Executed",
+        "classification": "Guarded",
+        "wall_ms": 15.095281
+      },
+      "hit": {
+        "mode": "plain_file_read",
+        "exit": 0,
+        "kind": "Reused",
+        "classification": "Guarded",
+        "wall_ms": 8.56856
+      },
+      "invalidation": {
+        "mode": "plain_file_read",
+        "exit": 0,
+        "kind": "Executed",
+        "classification": "Guarded",
+        "wall_ms": 16.815347
+      },
+      "refusal": {
+        "mode": "getrandom",
+        "exit": 0,
+        "kind": "Executed",
+        "classification": "Nondeterministic",
+        "wall_ms": 13.540815
+      },
+      "output": "input two\n"
+    },
+    {
+      "session": 2,
+      "prime": {
+        "mode": "plain_file_read",
+        "exit": 0,
+        "kind": "Executed",
+        "classification": "Guarded",
+        "wall_ms": 19.036092
+      },
+      "hit": {
+        "mode": "plain_file_read",
+        "exit": 0,
+        "kind": "Reused",
+        "classification": "Guarded",
+        "wall_ms": 8.603827
+      },
+      "invalidation": {
+        "mode": "plain_file_read",
+        "exit": 0,
+        "kind": "Executed",
+        "classification": "Guarded",
+        "wall_ms": 15.974099
+      },
+      "refusal": {
+        "mode": "getrandom",
+        "exit": 0,
+        "kind": "Executed",
+        "classification": "Nondeterministic",
+        "wall_ms": 11.04782
+      },
+      "output": "input two\n"
+    }
+  ],
+  "summary": {
+    "prime": {
+      "kind": [
+        "Executed",
+        "Executed",
+        "Executed"
+      ],
+      "wall_ms_median": 19.036092,
+      "wall_ms": [
+        19.322,
+        15.095,
+        19.036
+      ],
+      "classification": [
+        "Guarded",
+        "Guarded",
+        "Guarded"
+      ],
+      "exit": [
+        0,
+        0,
+        0
+      ]
+    },
+    "hit": {
+      "kind": [
+        "Reused",
+        "Reused",
+        "Reused"
+      ],
+      "wall_ms_median": 8.56856,
+      "wall_ms": [
+        7.872,
+        8.569,
+        8.604
+      ],
+      "classification": [
+        "Guarded",
+        "Guarded",
+        "Guarded"
+      ],
+      "exit": [
+        0,
+        0,
+        0
+      ]
+    },
+    "invalidation": {
+      "kind": [
+        "Executed",
+        "Executed",
+        "Executed"
+      ],
+      "wall_ms_median": 16.692367,
+      "wall_ms": [
+        16.692,
+        16.815,
+        15.974
+      ],
+      "classification": [
+        "Guarded",
+        "Guarded",
+        "Guarded"
+      ],
+      "exit": [
+        0,
+        0,
+        0
+      ]
+    },
+    "refusal": {
+      "kind": [
+        "Executed",
+        "Executed",
+        "Executed"
+      ],
+      "wall_ms_median": 11.04782,
+      "wall_ms": [
+        10.846,
+        13.541,
+        11.048
+      ],
+      "classification": [
+        "Nondeterministic",
+        "Nondeterministic",
+        "Nondeterministic"
+      ],
+      "exit": [
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "denominator": "3 fresh-cache sessions; each prime, hit, content invalidation, refused workload"
+}

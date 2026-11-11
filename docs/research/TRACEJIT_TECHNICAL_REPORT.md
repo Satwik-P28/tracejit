@@ -269,6 +269,29 @@ The native census is still 9 attempted, 0 reused, 9 refused, so this is blocker 
 than a compatibility claim. No unchanged-output fast path was added: avoiding a rewrite would
 change inode, ctime, ownership and hard-link semantics absent a managed-workspace contract.
 
+## Phase 3D addendum: descriptor identity and the compatibility frontier
+
+Phase 3C's narrow `/dev/null` admission used the recorded pathname. That is not sufficient: a bind
+mount or namespace can make the same name resolve to another object. The guard now stats the actual
+inherited descriptor through `/proc/<pid>/fd/<fd>` and requires a 1:3 character device; any failure
+refuses. Direct tests accept real null and reject a regular descriptor, while regular-file stdin
+continues through the separate offset-stream model.
+
+The Phase 3C "lazy" path was lazy deserialization only: one SQLite query still fetched every record
+payload. Phase 3D selects ordered execution IDs and fetches one record when its candidate is
+validated. Three fresh-cache sessions show that this is not a performance win: newest hits improve
+0.6-3.4 ms, but oldest-target hits are worse at four of seven bounds (64 candidates: 80.4 ms versus
+82.2 ms). The default bound remains 8, and no metadata predicate is allowed to replace a full guard.
+
+The native census remains **0/9 reused**. The corrected descriptor model removed the `lseek` blocker
+but did not create a reusable workload. The remaining blockers are causal rather than cosmetic:
+`getrusage` is execution-produced state; pipe `fstat` and short reads expose scheduling; clocks,
+entropy and process IDs are unstable observations; `epoll_create1` is an unmodeled object lifetime;
+and one output is unrestorable. A sound guard can represent an external, stable condition. It cannot
+represent a value produced by the execution being predicted or a schedule that is only observed
+after the fact. Those workloads require controlled execution under an explicit contract, not a
+weaker guard. This is the central negative result of Phase 3D and the basis for the next experiments.
+
 ## Conclusion
 
 TraceJIT demonstrates a coherent approach to conservatively reusing certain unmodified Linux processes by combining observed effects with explicit synchronous guards. Its measured advantage is strong for a controlled, CPU-heavy repeated command; its fixed overhead and refusal rate limit the broader usefulness. The engineering and failure analysis are substantively more informative than the maximum speedup. The current evidence supports **a promising systems prototype with bounded claims**, not a general-purpose production accelerator or a formally proved method.

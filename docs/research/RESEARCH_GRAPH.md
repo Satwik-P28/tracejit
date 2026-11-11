@@ -1,6 +1,6 @@
 # TraceJIT Research Graph
 
-Status: Phase 3C. This is a working record, not a claim map.
+Status: Phase 3D. This is a working record, not a claim map.
 
 ## Legend
 
@@ -248,6 +248,53 @@ A safe frequency index could reduce oldest-target cost, but it needs a persisted
 ### H11 — Leave already-matching outputs unchanged
 
 Skipping a rewrite saves restore time, but changes inode replacement, ctime, hard-link and ownership semantics. Status: `rejected for native equivalence`; only a managed-workspace contract with crash recovery could reconsider it.
+
+### P12 — Descriptor pathname is not descriptor identity
+
+`/proc/<pid>/fd/<fd>` is a magic link to the open object, but its textual target is not proof that the object is `/dev/null`; bind mounts and namespaces can substitute another object. The Phase 3C path-only guard was unsound in principle.
+
+Status: `fixed` by `fstat` of the inherited descriptor with `S_ISCHR` and `st_rdev == makedev(1, 3)`. Evidence: E-3D-01; `null_device_identity_is_not_path_only`.
+
+### P13 — Eager SQLite payload fetch looked lazy
+
+Phase 3C deferred JSON decoding, but `find_candidates` still fetched every `record_json` in one query. Decoding one-at-a-time is not incremental retrieval.
+
+Status: `fixed experimentally` by ID-first retrieval plus one-record fetches. Evidence: E-3D-02. No performance win was measured; the default bound is unchanged.
+
+### P14 — Native census blockers are different information sources
+
+The nine workloads fail for distinct reasons: `getrusage` is execution-produced state; pipe `fstat` and short reads expose scheduling; clocks, randomness and PIDs are unstable observations; `epoll_create1` is an unmodeled object lifetime; output restoration needs a contract.
+
+Status: `measured`, not fixed. Evidence: E-3D-03; `benchmarks/results/phase3d/census-native/`.
+
+### H12 — Controlled execution is required for unstable observations
+
+A guard can only pin an external state that is stable before the command runs. Clocks, entropy, process identity, `getrusage`, and pipe scheduling are not such states. Hermit-style record/replay or an explicit virtual clock/entropy/PID contract is required; an ordinary guard cannot soundly represent them.
+
+Status: `supported by causal inspection`; no controlled runtime was implemented. Evidence: E-3D-03 and the census reason stream.
+
+### H13 — Compact headers can reduce I/O but never validate
+
+A candidate-header table could return identity, generation, and a preferred-candidate hint without payloads. A stale or missing header must fall back to all candidates and every candidate must still pass full guards.
+
+Status: `open`; the ID-first prototype is a necessary precursor, not evidence of a win. See P13/E-3D-02.
+
+### H14 — Effect types need object kind and information source
+
+A syscall name alone is not enough: `fstat` on a regular file is guardable, `fstat` on a pipe exposes buffered bytes, and `lseek` on null is constant-zero. Effect typing should include the object kind, observation source, and whether the value is execution-produced.
+
+Status: `open` research direction; this is the common explanation for P11, P12 and P14.
+
+### M12 — Competing incremental/dependency systems
+
+- Hermit: deterministic record/replay of scheduling and nondeterministic sources; a competitor to native reuse for P14.
+- Firebuild: observed process dependencies; useful for coverage, not a substitute for guards.
+- Salsa and Adapton: revisioned queries and demand-driven invalidation; useful for candidate metadata, not OS-level proof.
+- ccache/sccache: manifest and direct-mode indexing; the closest model for compact candidate headers.
+- CEGAR: counterexample-guided refinement of a sound abstraction; it can add object-kind predicates, never delete a failing guard.
+- Linux `statx`, `fs-verity`, `fanotify`, `openat2`/`RESOLVE_*`: stronger identity and change detection than path strings, but no help for clocks, entropy or pipe scheduling.
+
+Status: `source map`; these are competing approaches, not claims of equivalence.
 
 ## Next experiments
 

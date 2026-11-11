@@ -201,7 +201,7 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
     let mark = Instant::now();
     let lookup_key = prepared.lookup_key()?;
     let lookup_key_ns = phase_elapsed(timing, mark);
-    let candidates = cache.find_candidates(lookup_key)?;
+    let candidate_ids = cache.find_candidate_ids(lookup_key)?;
     let query = cache.last_query();
     let started = Instant::now();
     let mut phases = PhaseTimings {
@@ -221,9 +221,15 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
     // newest-first hit can stop after decoding one candidate, while `auto` pays for the complete
     // view it actually uses.
     let decoded_for_admission = if options.admission != Admission::Always {
-        candidates
+        candidate_ids
             .iter()
-            .filter_map(|candidate| candidate.decode())
+            .filter_map(|id| {
+                cache
+                    .find_candidate_by_id(id)
+                    .ok()
+                    .flatten()
+                    .and_then(|candidate| candidate.decode())
+            })
             .collect::<Vec<_>>()
     } else {
         Vec::new()
@@ -281,8 +287,11 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
     let mut last_deopt_reason = None;
     let mut enforcement_candidate = None;
 
-    for encoded in candidates {
+    for id in candidate_ids {
         let mark = Instant::now();
+        let Some(encoded) = cache.find_candidate_by_id(&id)? else {
+            continue;
+        };
         let Some(mut candidate) = encoded.decode() else {
             continue;
         };

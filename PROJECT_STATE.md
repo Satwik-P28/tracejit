@@ -630,3 +630,19 @@ The native census is still 0/9 reused after the change. No unchanged-output shor
 Gates: fmt, Clippy, **130 workspace tests**, **44 Linux integration tests**, release build pass.
 `PROVEN` remains a local SKIP (no Landlock). See
 `docs/audits/PHASE3C_LATENCY_AND_COMPATIBILITY.md`.
+
+## Phase 3D (base `62425a9`, branch `phase3d/compatibility-retrieval`)
+
+Phase 3C is on `main` at `62425a9` after fixing the `/dev/null` guard: the inherited descriptor is
+now `fstat`ed and must be a 1:3 character device, rather than trusting its recorded pathname.
+PR #5 remains an open draft with no human review because the workspace has no GitHub PR API session;
+its hosted `validate` checks succeeded. Phase 3D is deliberately unmerged.
+
+Candidate retrieval is now genuinely two-stage: select ordered IDs, then fetch one encoded record
+when its candidate is validated. Repeated 1-64 comparison shows no general speedup: newest hits
+improve 0.6-3.4 ms, while oldest-target hits are worse at four of seven bounds (64 candidates 80.4 ms
+versus 82.2 ms). The default bound remains 8. The native census is still **9 attempted, 0 reused,
+9 refused**; the exact blockers are `getrusage`, pipe `fstat`/scheduling, clock/randomness/PID,
+`epoll_create1`, and unrestorable output. A three-session complete-session run measured 19.04 ms
+prime, 8.57 ms hit, 16.69 ms invalidation, and 11.05 ms for a nondeterministic refusal. See
+`docs/audits/PHASE3D_COMPATIBILITY_AND_RETRIEVAL.md`.

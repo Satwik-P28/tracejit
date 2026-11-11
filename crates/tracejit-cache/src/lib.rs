@@ -412,6 +412,36 @@ impl Cache {
         Ok(rows.into_iter().map(CandidateBytes).collect())
     }
 
+    /// Candidate IDs only, newest first. This is the metadata step: no record JSON is fetched.
+    pub fn find_candidate_ids(&self, lookup_key: Hash) -> Result<Vec<String>, CacheError> {
+        let started = Instant::now();
+        let mut statement = self.connection.prepare(
+            "SELECT execution_id FROM executions WHERE lookup_key = ?1
+             ORDER BY CAST(updated_unix_ms AS INTEGER) DESC, execution_id DESC",
+        )?;
+        let ids = statement
+            .query_map([lookup_key.to_string()], |row| row.get::<_, String>(0))?
+            .collect::<Result<Vec<_>, _>>()?;
+        self.last_query.set(QueryTimings {
+            query_ns: u64_nanos(started),
+            decode_ns: 0,
+        });
+        Ok(ids)
+    }
+
+    /// One candidate's encoded JSON, fetched only when the caller reaches that candidate.
+    pub fn find_candidate_by_id(&self, id: &str) -> Result<Option<CandidateBytes>, CacheError> {
+        let bytes: Option<Vec<u8>> = self
+            .connection
+            .query_row(
+                "SELECT record_json FROM executions WHERE execution_id = ?1",
+                [id],
+                |row| row.get(0),
+            )
+            .optional()?;
+        Ok(bytes.map(CandidateBytes))
+    }
+
     pub fn find_by_id(&self, id: &str) -> Result<Option<StoredExecution>, CacheError> {
         let json: Option<Vec<u8>> = self
             .connection
