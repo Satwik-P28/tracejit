@@ -292,6 +292,26 @@ represent a value produced by the execution being predicted or a schedule that i
 after the fact. Those workloads require controlled execution under an explicit contract, not a
 weaker guard. This is the central negative result of Phase 3D and the basis for the next experiments.
 
+## Phase 3E addendum: epoll, admission errors, and the controlled frontier
+
+The Phase 3D review found that automatic admission used `.ok()` on per-candidate record fetches,
+turning a database error into an empty admission set. The fix propagates the error, treats a
+concurrently pruned row as a miss, skips malformed payloads, and keeps full guards. The retrieval
+prototype remains experimental: at 64 candidates the oldest-target median is still about 80 ms, not
+a demonstrated win.
+
+The Pillow workload's epoll blocker was not an event loop. Its exact sequence was
+`epoll_create1(EPOLL_CLOEXEC) = 3; close(3) = 0`, with no registration or wait. A narrow model now
+admits create/dup/close while refusing `epoll_ctl` and `epoll_wait`; this removes the epoll refusal
+but not the workload's incompatibility. The census remains **0/9 reused**. Pillow now exposes the
+same Python-runtime wall as the CSV workloads: `getrandom`, monotonic/realtime clocks, and process
+identity. Those observations are execution-produced or environment-dependent. A guard cannot pin
+them, and the existing controlled contracts are audited to exact binaries and call sites. Enabling
+a broad Python contract without an audited interpreter profile would be a semantic change dressed
+up as compatibility. The evidence therefore supports a typed distinction between external stable
+inputs, virtualizable contract inputs, and execution-produced or schedule-dependent observations;
+it does not support a claim of broader native compatibility.
+
 ## Conclusion
 
 TraceJIT demonstrates a coherent approach to conservatively reusing certain unmodified Linux processes by combining observed effects with explicit synchronous guards. Its measured advantage is strong for a controlled, CPU-heavy repeated command; its fixed overhead and refusal rate limit the broader usefulness. The engineering and failure analysis are substantively more informative than the maximum speedup. The current evidence supports **a promising systems prototype with bounded claims**, not a general-purpose production accelerator or a formally proved method.

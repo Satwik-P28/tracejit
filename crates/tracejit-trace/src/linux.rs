@@ -110,6 +110,10 @@ enum FdState {
         readable: bool,
         writable: bool,
     },
+    /// An epoll instance created by this process. Creation and close are process-internal only
+    /// when no operation observes or waits on the instance. Any epoll operation that could expose
+    /// readiness remains unclassified and refuses.
+    Epoll,
     Other,
 }
 
@@ -206,6 +210,9 @@ enum PendingSyscall {
     },
     Pipe {
         address: u64,
+        close_on_exec: bool,
+    },
+    EpollCreate {
         close_on_exec: bool,
     },
     Network {
@@ -1398,6 +1405,9 @@ fn decode_entry(
             fd: args[0] as i32,
             count: None,
         },
+        libc::SYS_epoll_create1 => PendingSyscall::EpollCreate {
+            close_on_exec: args[0] as i32 & libc::EPOLL_CLOEXEC != 0,
+        },
         libc::SYS_pipe | libc::SYS_pipe2 => PendingSyscall::Pipe {
             address: args[0],
             close_on_exec: number == libc::SYS_pipe2 && args[1] as i32 & libc::O_CLOEXEC != 0,
@@ -2176,6 +2186,15 @@ fn complete_syscall(
                 }),
             ),
         },
+        PendingSyscall::EpollCreate { close_on_exec } => {
+            let fd = result as i32;
+            state.fds.insert(fd, FdState::Epoll);
+            if close_on_exec {
+                state.close_on_exec.insert(fd);
+            } else {
+                state.close_on_exec.remove(&fd);
+            }
+        }
         PendingSyscall::Chdir { path } => {
             state.cwd = path.clone();
             collector.push(pid, Effect::Control(ControlEffect::Chdir(path)));
@@ -2424,6 +2443,13 @@ fn complete_syscall(
                 Effect::Unknown(UnknownEffect {
                     syscall: Some(libc::SYS_read),
                     detail: format!("read from the write end of internal pipe {pipe}"),
+                }),
+            ),
+            Some(FdState::Epoll) => collector.push(
+                pid,
+                Effect::Unknown(UnknownEffect {
+                    syscall: Some(libc::SYS_read),
+                    detail: format!("read from epoll descriptor {fd} is not modeled"),
                 }),
             ),
             Some(FdState::InheritedFile(path)) if path == Path::new("/dev/null") => {}
@@ -2752,6 +2778,15 @@ fn complete_failed_syscall(
         }
         PendingSyscall::TerminalProbe { path } => record_metadata(pid, path, collector),
         PendingSyscall::InheritedTerminalProbe => {}
+        PendingSyscall::EpollCreate { .. } => collector.push(
+            pid,
+            Effect::Unknown(UnknownEffect {
+                syscall: Some(libc::SYS_epoll_create1),
+                detail: format!(
+                    "epoll_create1 failed (errno {errno}); descriptor state is not replayable"
+                ),
+            }),
+        ),
         PendingSyscall::Open { path, .. }
         | PendingSyscall::Metadata { path }
         | PendingSyscall::SymlinkMetadata { path }
@@ -3967,6 +4002,7 @@ fn pending_description(pending: &PendingSyscall) -> String {
         PendingSyscall::Seek { fd } => format!("seek on fd {fd}"),
         PendingSyscall::Write { fd, .. } => format!("write to fd {fd}"),
         PendingSyscall::Pipe { .. } => "pipe creation".into(),
+        PendingSyscall::EpollCreate { .. } => "epoll creation".into(),
         PendingSyscall::Signal { signal, target } => {
             format!("signal {signal} to process {target}")
         }

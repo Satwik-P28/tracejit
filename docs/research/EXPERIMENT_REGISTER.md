@@ -230,3 +230,25 @@ then run a randomness workload.
 **Result:** prime 19.04 ms `Executed`; hit 8.57 ms `Reused`; invalidation 16.69 ms `Executed`;
 randomness 11.05 ms `Executed`, classification `Nondeterministic`, never reused. Outputs were correct
 in all three sessions. Raw: `benchmarks/results/phase3d/complete-session.json`.
+
+
+## E-3E-01 — Admission error propagation
+
+**Question:** Does automatic admission fail closed when a candidate record fetch fails?
+
+**Test:** `candidate_id_fetch_handles_pruning_and_malformed_payloads` covers ordered IDs, a malformed payload, and a row deleted between lookup and fetch. The core loop now propagates `CacheError` with `?`; `None` remains a concurrent-prune miss.
+
+**Result:** pass. Retrieval remains experimental because the 1–64 data show no general speedup.
+
+## E-3E-02 — Create/dup/close-only epoll lifecycle
+
+**Trace:** `epoll_create1(EPOLL_CLOEXEC) = 3; close(3) = 0`; no `epoll_ctl`/wait.
+**Tests:** `epoll_create_and_close_is_reusable`, `epoll_duplicate_and_close_is_reusable`, `epoll_control_use_is_refused`.
+**Result:** create/dup/close reuse; a successful `epoll_ctl` refuses. Census is still 0/9; Pillow moves from `Unknown` epoll to `Nondeterministic` Python observations.
+**Raw:** `benchmarks/results/phase3e/census-native/`.
+
+## E-3E-03 — Python observed-effect inventory
+
+**Method:** exact census ETL command under `strace` with hash seed unset and `PYTHONHASHSEED=0`; TraceJIT report for the same commands.
+**Result:** 3/2 `getrandom`, realtime and monotonic clocks, `getpid`/`getppid`/`gettid`, 189–190 dependencies, one process, no application thread/subprocess. Both seeded and unseeded outputs were byte-identical, but neither is eligible. No controlled contract was enabled because the existing contracts are exact audited-binary profiles and a Python contract would change application-visible semantics.
+**Raw:** local inventory in the Phase 3E audit; no reusable hit exists to benchmark.

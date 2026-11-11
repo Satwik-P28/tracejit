@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/epoll.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/random.h>
@@ -402,6 +403,37 @@ int main(int argc, char **argv) {
     return write(STDOUT_FILENO, "stdout fixture\n", 15) != 15;
   if (!strcmp(name, "stderr_only"))
     return write(STDERR_FILENO, "stderr fixture\n", 15) != 15;
+  if (!strcmp(name, "epoll_create_only")) {
+    int fd = epoll_create1(EPOLL_CLOEXEC);
+    if (fd < 0) return 1;
+    if (close(fd) != 0) return 2;
+    copy_file(input, output);
+    return 0;
+  }
+  if (!strcmp(name, "epoll_dup_close")) {
+    int fd = epoll_create1(EPOLL_CLOEXEC);
+    if (fd < 0) return 1;
+    int duplicate = dup(fd);
+    if (duplicate < 0) return 2;
+    if (close(fd) != 0) return 3;
+    if (close(duplicate) != 0) return 4;
+    copy_file(input, output);
+    return 0;
+  }
+  if (!strcmp(name, "epoll_ctl_use")) {
+    int fd = epoll_create1(EPOLL_CLOEXEC);
+    if (fd < 0) return 1;
+    int pipe_fds[2];
+    if (pipe(pipe_fds) != 0) return 2;
+    struct epoll_event event = {.events = EPOLLIN, .data.fd = pipe_fds[0]};
+    int control = epoll_ctl(fd, EPOLL_CTL_ADD, pipe_fds[0], &event);
+    if (close(pipe_fds[0]) != 0) return 3;
+    if (close(pipe_fds[1]) != 0) return 4;
+    if (close(fd) != 0) return 5;
+    if (control != 0) return 6;
+    copy_file(input, output);
+    return 0;
+  }
   if (!strcmp(name, "dev_null_lseek")) {
     if (lseek(STDIN_FILENO, 0, SEEK_CUR) != 0) return 1;
     if (lseek(STDIN_FILENO, 7, SEEK_SET) != 0) return 2;

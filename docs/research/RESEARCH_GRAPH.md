@@ -1,6 +1,6 @@
 # TraceJIT Research Graph
 
-Status: Phase 3D. This is a working record, not a claim map.
+Status: Phase 3E. This is a working record, not a claim map.
 
 ## Legend
 
@@ -295,6 +295,42 @@ Status: `open` research direction; this is the common explanation for P11, P12 a
 - Linux `statx`, `fs-verity`, `fanotify`, `openat2`/`RESOLVE_*`: stronger identity and change detection than path strings, but no help for clocks, entropy or pipe scheduling.
 
 Status: `source map`; these are competing approaches, not claims of equivalence.
+
+### P15 — Automatic admission swallowed cache errors
+
+`find_candidate_by_id(...).ok()` converted SQLite failures into an empty admission set. A missing row from concurrent pruning is a legitimate miss; a database error is not.
+
+Status: `fixed` on PR #6 (`a86b8e2`) with a cache regression. Evidence: E-3E-01.
+
+### P16 — Epoll creation is not event-loop compatibility
+
+The Pillow trace creates an epoll instance with `EPOLL_CLOEXEC` and immediately closes it; it never registers or waits. Creation/close are process-internal, but `epoll_ctl`/`epoll_wait` observe readiness and scheduling.
+
+Status: `measured and narrowly fixed`; create/dup/close admitted, control/wait refused. Evidence: E-3E-02. Census remains 0/9.
+
+### P17 — Python's remaining wall is controlled execution
+
+After epoll, both Python workloads refuse on `getrandom`, monotonic/realtime clocks, and `getpid`/`getppid`/`gettid`. These are runtime observations, not guardable external inputs. Identical output does not make them deterministic.
+
+Status: `measured`, no contract enabled. Evidence: E-3E-03.
+
+### H15 — Restricted internal-descriptor lifecycle
+
+A descriptor whose create/close operations have no observable effect may be modeled without modeling its readiness. Duplication and `CLOEXEC` preserve the object, but any operation that can observe readiness must fall back to refusal.
+
+Status: `verified` for create/dup/close; open for leaks, fd exhaustion, and fork/exec tests.
+
+### H16 — Controlled Python requires an audited contract
+
+A Python contract must fix clocks, entropy and identity per exact interpreter build/call site, and must keep native and controlled records separate. A broad syscall rewrite is not justified by the current evidence.
+
+Status: `open`; no controlled record produced. The existing compiler/allocator contracts are too narrow to reuse.
+
+### M13 — Object × operation × provenance
+
+The Phase 3D/3E results fit one typed distinction: object identity and operation semantics determine whether an observation is external, execution-produced, or schedule-dependent. Only external stable observations are guardable; virtualizable ones need a contract; execution-produced/schedule observations need controlled execution or refusal.
+
+Status: `design direction`; no common type system implemented. Sources: Hermit, rr, Firebuild, Salsa, Adapton, CEGAR, epoll(7).
 
 ## Next experiments
 

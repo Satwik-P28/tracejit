@@ -646,3 +646,21 @@ versus 82.2 ms). The default bound remains 8. The native census is still **9 att
 `epoll_create1`, and unrestorable output. A three-session complete-session run measured 19.04 ms
 prime, 8.57 ms hit, 16.69 ms invalidation, and 11.05 ms for a nondeterministic refusal. See
 `docs/audits/PHASE3D_COMPATIBILITY_AND_RETRIEVAL.md`.
+
+
+## Phase 3E (base `62425a9` / PR #6 head `a86b8e2`, branch `phase3e/epoll-and-effect-frontier`)
+
+PR #6 review found `.ok()` silently discarded SQLite errors during automatic admission. The fix
+propagates the error, treats a concurrently pruned row as a miss, skips malformed payloads, and
+keeps full guards. The retrieval prototype remains experimental: oldest-target medians are still
+worse at four of seven bounds, so it is not merged.
+
+The epoll work adds a deliberately narrow create/dup/close lifecycle. The exact Pillow trace was
+`epoll_create1(EPOLL_CLOEXEC) = 3; close(3) = 0`, with no registration or wait. `epoll_ctl` and
+`epoll_wait` still refuse. The census remains **9 attempted, 0 reused, 9 refused**; `epoll_create1`
+disappears from the ranking, but Pillow now blocks on Python's entropy, clocks, and `gettid`. The
+Python inventory covers 189-190 dependencies, one process, `getrandom`, realtime/monotonic clocks,
+and `getpid`/`getppid`/`gettid`. No controlled Python contract was enabled: the existing contracts
+are exact audited-binary profiles, and virtualising application-visible time/entropy/PID requires a
+separate contract and cache identity. Gates: fmt, Clippy, **136 workspace tests**, **48 Linux
+integration tests**, release build. See `docs/audits/PHASE3E_EPOLL_AND_CONTROLLED_FRONTIER.md`.

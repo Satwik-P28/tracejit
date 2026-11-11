@@ -1531,6 +1531,58 @@ fn regular_file_stdin_seek_is_reused_as_an_offset_stream() {
     eprintln!("RESULT substituted-dev-null PASS");
 }
 
+fn epoll_run(fixture: &Fixture, case: &str) -> Output {
+    Command::new(tracejit())
+        .args([
+            "run",
+            "--json",
+            "--",
+            fixture.binary_arg(),
+            case,
+            fixture.root(),
+        ])
+        .env("TRACEJIT_CACHE_DIR", &fixture.cache)
+        .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0")
+        .output()
+        .unwrap()
+}
+
+#[test]
+fn epoll_create_and_close_is_reusable() {
+    let fixture = Fixture::new();
+    let first = epoll_run(&fixture, "epoll_create_only");
+    assert!(first.status.success(), "{}", stderr_of(&first));
+    let second = epoll_run(&fixture, "epoll_create_only");
+    assert!(second.status.success(), "{}", stderr_of(&second));
+    let report: Value = serde_json::from_slice(&second.stdout).unwrap();
+    assert_eq!(report["kind"], "Reused", "{report}");
+    assert_eq!(
+        fs::read(fixture.input("output.txt")).unwrap(),
+        b"input one\n"
+    );
+}
+
+#[test]
+fn epoll_duplicate_and_close_is_reusable() {
+    let fixture = Fixture::new();
+    assert!(epoll_run(&fixture, "epoll_dup_close").status.success());
+    let second = epoll_run(&fixture, "epoll_dup_close");
+    assert!(second.status.success(), "{}", stderr_of(&second));
+    let report: Value = serde_json::from_slice(&second.stdout).unwrap();
+    assert_eq!(report["kind"], "Reused", "{report}");
+}
+
+#[test]
+fn epoll_control_use_is_refused() {
+    let fixture = Fixture::new();
+    let output = epoll_run(&fixture, "epoll_ctl_use");
+    assert!(output.status.success(), "{}", stderr_of(&output));
+    let report: Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(report["eligible_for_reuse"], false, "{report}");
+    assert_ne!(report["kind"], "Reused", "{report}");
+    eprintln!("RESULT epoll-control-refused PASS");
+}
+
 #[test]
 fn corrupt_stream_is_rejected_before_output_restoration() {
     for (case, record_field, report_field, expected_stream) in [

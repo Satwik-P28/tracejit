@@ -30,6 +30,12 @@ path-based. It is now descriptor-based. Full gates after that fix: fmt, Clippy w
 **132 workspace tests**, **45 Linux integration tests**, and release build all pass. `PROVEN` is a
 local SKIP because Landlock is unavailable; hosted CI is the enforcement evidence for that path.
 
+**Follow-up (Phase 3E).** PR #6 tracks this branch. Its head is `a86b8e2`, which adds the
+review fix for `.ok()` error suppression and a cache regression for pruning/malformed records.
+PR #6 remains a draft. Its hosted CI runs exist, but their conclusions were not readable without
+authentication in this workspace, so no hosted-success claim is made. The retrieval prototype stays
+experimental because it has no established performance benefit.
+
 ## 2. `/dev/null` descriptor identity
 
 ### Why the pathname was insufficient
