@@ -1476,6 +1476,81 @@ fn a_corrupted_cached_output_fails_closed() {
 /// The fixture branches on whether its output path exists, so restoring first would make the
 /// retrace observe `PRESENT` and produce different bytes than a run against the original
 /// `ABSENT` state. Corrupting the recorded stream object makes the two orders distinguishable.
+fn run_with_stdin(fixture: &Fixture, case: &str, stdin: &Path) -> Output {
+    Command::new(tracejit())
+        .args([
+            "run",
+            "--json",
+            "--",
+            fixture.binary_arg(),
+            case,
+            fixture.root(),
+        ])
+        .env("TRACEJIT_CACHE_DIR", &fixture.cache)
+        .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0")
+        .stdin(Stdio::from(File::open(stdin).unwrap()))
+        .output()
+        .unwrap()
+}
+
+#[test]
+fn dev_null_read_family_is_reusable() {
+    for case in ["dev_null_read", "dev_null_reads", "dev_null_alias_read"] {
+        let fixture = Fixture::new();
+        let null = Path::new("/dev/null");
+        let first = run_with_stdin(&fixture, case, null);
+        assert!(first.status.success(), "{}: {}", case, stderr_of(&first));
+        let second = run_with_stdin(&fixture, case, null);
+        assert!(second.status.success(), "{}: {}", case, stderr_of(&second));
+        let report: Value = serde_json::from_slice(&second.stdout).unwrap();
+        assert_eq!(report["kind"], "Reused", "{case}: {report}");
+        assert_eq!(
+            fs::read(fixture.input("output.txt")).unwrap(),
+            b"input one\n",
+            "{case}"
+        );
+    }
+    eprintln!("RESULT dev-null-read-family PASS");
+}
+
+#[test]
+fn regular_file_stdin_read_uses_the_offset_stream_model() {
+    let fixture = Fixture::new();
+    let substitute = fixture.input("not-null");
+    fs::write(&substitute, b"regular file\n").unwrap();
+    let run = || run_with_stdin(&fixture, "inherited_read_probe", &substitute);
+    let first = run();
+    assert!(first.status.success(), "{}", stderr_of(&first));
+    let second = run();
+    assert!(second.status.success(), "{}", stderr_of(&second));
+    let report: Value = serde_json::from_slice(&second.stdout).unwrap();
+    assert_eq!(report["kind"], "Reused", "{report}");
+    assert_eq!(
+        fs::read(fixture.input("output.txt")).unwrap(),
+        b"input one\n"
+    );
+}
+
+#[test]
+fn changing_stdin_from_null_to_regular_is_not_reused() {
+    let fixture = Fixture::new();
+    let substitute = fixture.input("not-null");
+    fs::write(&substitute, b"regular file\n").unwrap();
+    let first = run_with_stdin(&fixture, "inherited_read_probe", Path::new("/dev/null"));
+    assert!(first.status.success(), "{}", stderr_of(&first));
+    let second = run_with_stdin(&fixture, "inherited_read_probe", &substitute);
+    assert!(second.status.success(), "{}", stderr_of(&second));
+    let report: Value = serde_json::from_slice(&second.stdout).unwrap();
+    assert_ne!(
+        report["kind"], "Reused",
+        "a changed descriptor identity must not reuse the null-read record: {report}"
+    );
+    assert_eq!(
+        fs::read(fixture.input("output.txt")).unwrap(),
+        b"input one\n"
+    );
+}
+
 #[test]
 fn dev_null_seek_is_reusable() {
     let fixture = Fixture::new();

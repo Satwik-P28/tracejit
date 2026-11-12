@@ -2426,7 +2426,8 @@ fn complete_syscall(
                     detail: format!("read from the write end of internal pipe {pipe}"),
                 }),
             ),
-            Some(FdState::InheritedFile(path)) if path == Path::new("/dev/null") => {}
+            Some(FdState::InheritedFile(path))
+                if path == Path::new("/dev/null") && is_null_device_fd(pid, fd) => {}
             // A read from an inherited regular file is guarded as its content plus the offset
             // contract of the shared open file description. The effect is pushed on the first
             // read so its sequence stays before any later write, then updated in place.
@@ -4301,5 +4302,9 @@ mod phase3d_tests {
         assert!(is_null_device_fd(Pid::this(), null.as_raw_fd()));
         let regular = fs::File::open("/etc/hosts").unwrap();
         assert!(!is_null_device_fd(Pid::this(), regular.as_raw_fd()));
+        assert!(
+            !is_null_device_fd(Pid::this(), 1_000_000),
+            "an uninspectable descriptor must fail closed"
+        );
     }
 }
