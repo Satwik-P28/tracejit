@@ -213,3 +213,70 @@ the Phase 3F audit.
 equivalence check passed. Blockers: clock 4 workloads, randomness 4, process identity 3,
 `getrusage` 2, scheduling-dependent pipe reads 2, `ioctl`/failed fd 1, unmodeled `epoll_create1` 1,
 unrestorable `/dev/null` output 1. Raw: `benchmarks/results/phase3f/census-native/`.
+
+
+## E-3G-01 — independently inherited descriptor cache hit
+
+**Question:** Can an fd above stderr change identity between recording and replay without changing
+the lookup key?
+
+**Result:** yes. With fd 9 inherited from `/dev/null`, the first run was `Executed`/`Guarded`; with
+the identical command and fd 9 from `/dev/zero`, a regular file or a pipe, the second run was
+`Reused` with cached `EOF`. A closed fd 9 also reused `EOF` instead of the direct `ERR`/exit 3.
+The child was confirmed to inherit fd 9 and it was not `CLOEXEC`-closed. Fixture:
+`tests/fixtures/fixture_driver.c::inherited_fd9_read`.
+
+## E-3G-02 — inherited-descriptor preflight hotfix
+
+**Result:** any descriptor above stderr captured before `Cache::open` now sends the invocation to the
+direct path with the reason `inherited descriptor N beyond stdin is not modelled; reuse refused`.
+No candidate is decoded and no reusable record is written. Trace retains an `Unknown` effect for the
+same descriptors. Regressions cover `/dev/zero`, regular file, pipe, closed fd, two concurrent
+replacements, a close-on-exec fd that must not block reuse, and the existing stdin-seek model (where
+an externally inherited fd-3 alias is now refused). Local gates: **138 workspace tests**, **51 Linux
+integration tests**, fmt, Clippy, release SHA-256
+`cd51fe6e903adc8b6f85cbcf7917b3d915edadbd9018bbf89febaa0c22045402`.
+
+**Hosted CI:** run `43301867797` failed in Tests before the test-harness descriptor cleanup; run
+`43302318004` passed Tests, Clippy, Linux integration and release build but failed Demo because the
+preflight counted the shell's close-on-exec script descriptor. Commit `ee32d6e` skips `FD_CLOEXEC`
+descriptors. The demo also needed a clean environment identity (`b78726b`): its `_` variable changed
+between the two runs. Hosted run `43304278963` passed every step at `b78726b`, and `main` was
+fast-forwarded to it.
+
+## E-3G-03 — CPython `PYTHONHASHSEED` differential
+
+**Build:** CPython 3.12.3, ELF build ID `337d65cf00021797985cc9f77c0cc334a9fbeb38`, SHA-256
+`e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f`.
+
+**Result:** `python-csv-json` with `PYTHONHASHSEED` unset, `0`, or `1` was `Nondeterministic` and
+`Ineligible` on both runs. Direct and traced outputs were byte-identical
+(`28bc8fa9e7c25a10aa121654b5df07381a78fd5d45873ef077c4132cf51054e8`). Unset traces had two
+`getrandom` calls (8 and 24 bytes); `PYTHONHASHSEED=0` had only the 8-byte call. Clocks and `gettid`
+remained in all arms. Raw: `benchmarks/results/phase3g/python-differential.json` and
+`python-strace-*.strace`.
+
+## E-3G-04 — allocator contract plus fixed Python hash seed
+
+**Result:** with `--contract allocator-entropy-v1`, the 8-byte glibc probe is controlled. With
+`PYTHONHASHSEED=0`, the controlled report no longer lists randomness; monotonic clock, realtime clock
+and `gettid` remain and the workload is still `Nondeterministic`/`Ineligible`. With `PYTHONHASHSEED`
+unset, the uncontrolled 24-byte hash-secret call leaves a randomness blocker. No reuse occurred.
+Raw: `benchmarks/results/phase3g/python-controlled-differential.json`.
+
+## E-3G-05 — CPython 3.12.3 call-site study
+
+**Result:** `Python/bootstrap_hash.c::_Py_HashRandomization_Init` requests the 24-byte
+`_Py_HashSecret_t` from `pyurandom` when `use_hash_seed == 0`; `Python/initconfig.c` parses
+`PYTHONHASHSEED` and maps `0` to a zeroed secret. `Python/pystate.c::bind_tstate` calls
+`PyThread_get_thread_native_id`, implemented as `syscall(SYS_gettid)` in
+`Python/thread_pthread.h`. `Python/pytime.c` implements the system and monotonic clocks through
+`clock_gettime`/`gettimeofday`; TraceJIT sees them only after disarming the vDSO. The Phase 3F
+attribution of the 24-byte call to `_PyTime_AsNanoseconds` is corrected.
+
+## E-3G-06 — PR retention decision
+
+**Result:** do not merge PR #6 (Phase 3D retrieval) or PR #7 (stacked epoll prototype). Preserve
+`phase3d/compatibility-retrieval` and `phase3e/epoll-and-effect-frontier` plus their audit evidence.
+Lift only the independent SQLite error-propagation fix if desired. Recommend closing both PRs; no
+authenticated PR API session is available here.
