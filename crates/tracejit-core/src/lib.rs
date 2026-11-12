@@ -15,7 +15,8 @@ use tracejit_effects::{
 };
 use tracejit_guards::{
     apply_inherited_stream_offsets, canonical_hash, compile_guards, current_runtime_identity,
-    hash_file, validate_all, verify_inherited_stream_offsets, GuardError, GuardMode, GuardReport,
+    hash_file, inherited_descriptor_beyond_stdin, validate_all, verify_inherited_stream_offsets,
+    GuardError, GuardMode, GuardReport,
 };
 use tracejit_sandbox::{capabilities, SandboxPolicy};
 pub use tracejit_trace::Contract;
@@ -201,6 +202,15 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
     let mark = Instant::now();
     let lookup_key = prepared.lookup_key()?;
     let lookup_key_ns = phase_elapsed(timing, mark);
+    if let Some(fd) = prepared.inherited_descriptor {
+        // The traced child would inherit this descriptor, but its open-description state and
+        // offset are not part of the cache identity. Even if the recorded run observed EOF, a
+        // later run could substitute a readable source at the same number. Refuse before lookup
+        // so no existing record can be used and no new record is written.
+        let reason =
+            format!("inherited descriptor {fd} beyond stdin is not modelled; reuse refused");
+        return run_direct(&prepared, &cache, lookup_key, &reason, options.contract);
+    }
     let candidates = cache.find_candidates(lookup_key)?;
     let query = cache.last_query();
     let started = Instant::now();
@@ -981,6 +991,7 @@ struct PreparedExecution {
     cwd: PathBuf,
     environment: BTreeMap<OsString, OsString>,
     runtime_identity: RuntimeIdentity,
+    inherited_descriptor: Option<i32>,
     contract: Option<tracejit_trace::Contract>,
 }
 
@@ -997,6 +1008,7 @@ impl PreparedExecution {
             .ok_or_else(|| CoreError::TargetNotFound(program.clone()))?;
         let executable_hash = hash_file(&executable)?;
         let runtime_identity = current_runtime_identity()?;
+        let inherited_descriptor = inherited_descriptor_beyond_stdin();
         Ok(Self {
             command: command.to_vec(),
             executable,
@@ -1004,6 +1016,7 @@ impl PreparedExecution {
             cwd,
             environment,
             runtime_identity,
+            inherited_descriptor,
             contract,
         })
     }

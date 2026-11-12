@@ -3,7 +3,9 @@
 use serde_json::Value;
 use std::fs;
 use std::fs::File;
-use std::io::{Seek, SeekFrom};
+use std::io::{Seek, SeekFrom, Write};
+use std::os::fd::{AsRawFd, FromRawFd};
+use std::os::unix::process::CommandExt;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output, Stdio};
 
@@ -54,6 +56,29 @@ fn workspace(directory: &Path) {
     std::os::unix::fs::symlink("input.txt", directory.join("input-link")).unwrap();
 }
 
+/// Test processes can carry descriptors opened by the harness. TraceJIT correctly refuses to
+/// reuse when those descriptors are present, so ordinary tests close them before spawning the
+/// binary; the inherited-FD test below deliberately adds descriptor 9 afterward.
+fn close_descriptors_above_stderr(except: i32) {
+    for fd in 3..1024 {
+        if fd != except {
+            // SAFETY: closing an unused descriptor is async-signal-safe; EBADF is ignored.
+            unsafe {
+                libc::close(fd);
+            }
+        }
+    }
+}
+
+fn set_cloexec(file: &File) {
+    // SAFETY: fcntl operates on a live descriptor owned by `file`.
+    let flags = unsafe { libc::fcntl(file.as_raw_fd(), libc::F_GETFD) };
+    assert!(flags >= 0, "F_GETFD failed");
+    // SAFETY: the same live descriptor accepts F_SETFD with the existing flags plus CLOEXEC.
+    let result = unsafe { libc::fcntl(file.as_raw_fd(), libc::F_SETFD, flags | libc::FD_CLOEXEC) };
+    assert_eq!(result, 0, "F_SETFD failed");
+}
+
 fn invoke(cache: &Path, args: &[&str], extra_env: Option<(&str, &str)>) -> Output {
     let mut command = Command::new(tracejit());
     command
@@ -64,6 +89,13 @@ fn invoke(cache: &Path, args: &[&str], extra_env: Option<(&str, &str)>) -> Outpu
         .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0");
     if let Some((key, value)) = extra_env {
         command.env(key, value);
+    }
+    // SAFETY: pre_exec runs between fork and exec; close is async-signal-safe.
+    unsafe {
+        command.pre_exec(|| {
+            close_descriptors_above_stderr(-1);
+            Ok(())
+        });
     }
     command.output().unwrap()
 }
@@ -1477,7 +1509,8 @@ fn a_corrupted_cached_output_fails_closed() {
 /// retrace observe `PRESENT` and produce different bytes than a run against the original
 /// `ABSENT` state. Corrupting the recorded stream object makes the two orders distinguishable.
 fn run_with_stdin(fixture: &Fixture, case: &str, stdin: &Path) -> Output {
-    Command::new(tracejit())
+    let mut command = Command::new(tracejit());
+    command
         .args([
             "run",
             "--json",
@@ -1488,9 +1521,161 @@ fn run_with_stdin(fixture: &Fixture, case: &str, stdin: &Path) -> Output {
         ])
         .env("TRACEJIT_CACHE_DIR", &fixture.cache)
         .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0")
-        .stdin(Stdio::from(File::open(stdin).unwrap()))
-        .output()
-        .unwrap()
+        .stdin(Stdio::from(File::open(stdin).unwrap()));
+    // SAFETY: pre_exec runs between fork and exec; close is async-signal-safe.
+    unsafe {
+        command.pre_exec(|| {
+            close_descriptors_above_stderr(-1);
+            Ok(())
+        });
+    }
+    command.output().unwrap()
+}
+
+/// Runs the fixture with descriptor 9 independently supplied from `source`, or closed. `traced`
+/// selects TraceJIT with a shared cache; the direct arm uses the same descriptor setup so the
+/// output comparison is against native execution.
+fn run_with_fd9(fixture: &Fixture, case: &str, source: Option<&File>, traced: bool) -> Output {
+    let source_fd = source.map_or(-1, AsRawFd::as_raw_fd);
+    let mut command = if traced {
+        let mut command = Command::new(tracejit());
+        command.args([
+            "run",
+            "--json",
+            "--",
+            fixture.binary_arg(),
+            case,
+            fixture.root(),
+        ]);
+        command.env("TRACEJIT_CACHE_DIR", &fixture.cache);
+        command.env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0");
+        command
+    } else {
+        let mut command = Command::new(fixture.binary_arg());
+        command.args([case, fixture.root()]);
+        command
+    };
+    command.stdin(Stdio::null());
+    // SAFETY: pre_exec runs between fork and exec; dup2/close are async-signal-safe and the source
+    // descriptor remains open in the parent until the child has exec'd.
+    unsafe {
+        command.pre_exec(move || {
+            close_descriptors_above_stderr(source_fd);
+            if source_fd >= 0 {
+                if libc::dup2(source_fd, 9) < 0 {
+                    return Err(std::io::Error::last_os_error());
+                }
+                if source_fd != 9 {
+                    libc::close(source_fd);
+                }
+            }
+            Ok(())
+        });
+    }
+    command.output().unwrap()
+}
+
+fn pipe_with_data() -> File {
+    let mut descriptors = [-1; 2];
+    // SAFETY: the array has room for both descriptors; successful pipe initializes them.
+    assert_eq!(unsafe { libc::pipe(descriptors.as_mut_ptr()) }, 0);
+    // SAFETY: ownership of each successful pipe descriptor is transferred exactly once.
+    let read_end = unsafe { File::from_raw_fd(descriptors[0]) };
+    // SAFETY: ownership of each successful pipe descriptor is transferred exactly once.
+    let mut write_end = unsafe { File::from_raw_fd(descriptors[1]) };
+    write_end.write_all(b"pipe bytes\n").unwrap();
+    drop(write_end);
+    read_end
+}
+
+#[test]
+fn inherited_descriptor_beyond_stdin_is_never_reused() {
+    let fixture = Fixture::new();
+    let null = File::open("/dev/null").unwrap();
+    let zero = File::open("/dev/zero").unwrap();
+    let regular_path = fixture.input("fd9-regular");
+    fs::write(&regular_path, b"regular payload\n").unwrap();
+    let regular = File::open(&regular_path).unwrap();
+    let pipe = pipe_with_data();
+
+    for (label, source) in [
+        ("zero", Some(&zero)),
+        ("regular", Some(&regular)),
+        ("pipe", Some(&pipe)),
+        ("closed", None),
+    ] {
+        let first = run_with_fd9(&fixture, "inherited_fd9_read", Some(&null), true);
+        assert!(
+            first.status.success(),
+            "{label} baseline: {}",
+            stderr_of(&first)
+        );
+        let second = run_with_fd9(&fixture, "inherited_fd9_read", Some(&null), true);
+        assert!(
+            second.status.success(),
+            "{label} baseline: {}",
+            stderr_of(&second)
+        );
+        let second_report: Value = serde_json::from_slice(&second.stdout).unwrap();
+        assert_ne!(second_report["kind"], "Reused", "{label}: {second_report}");
+        assert!(
+            second_report["reasons"]
+                .to_string()
+                .contains("inherited descriptor 9"),
+            "{label}: the refusal should name descriptor 9: {second_report}"
+        );
+
+        let direct = run_with_fd9(&fixture, "inherited_fd9_read", source, false);
+        let traced = run_with_fd9(&fixture, "inherited_fd9_read", source, true);
+        let report: Value = serde_json::from_slice(&traced.stdout).unwrap();
+        assert_ne!(report["kind"], "Reused", "{label}: {report}");
+        let traced_stdout = report["stdout_bytes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|byte| byte.as_u64().unwrap() as u8)
+            .collect::<Vec<_>>();
+        assert_eq!(
+            report["exit_code"].as_i64(),
+            direct.status.code().map(i64::from),
+            "{label}: exit status"
+        );
+        assert_eq!(traced_stdout, direct.stdout, "{label}: stdout");
+    }
+    eprintln!("RESULT inherited-descriptor-beyond-stdin PASS");
+}
+
+#[test]
+fn concurrent_inherited_descriptor_replacements_are_refused() {
+    let null = File::open("/dev/null").unwrap();
+    let zero = File::open("/dev/zero").unwrap();
+    let (null_output, zero_output) = std::thread::scope(|scope| {
+        let null_run = scope.spawn(|| {
+            let fixture = Fixture::new();
+            run_with_fd9(&fixture, "inherited_fd9_read", Some(&null), true)
+        });
+        let zero_run = scope.spawn(|| {
+            let fixture = Fixture::new();
+            run_with_fd9(&fixture, "inherited_fd9_read", Some(&zero), true)
+        });
+        (null_run.join().unwrap(), zero_run.join().unwrap())
+    });
+    for (label, output, expected) in [
+        ("null", null_output, b"EOF\n".as_slice()),
+        ("zero", zero_output, b"DATA\n".as_slice()),
+    ] {
+        assert!(output.status.success(), "{label}: {}", stderr_of(&output));
+        let report: Value = serde_json::from_slice(&output.stdout).unwrap();
+        assert_ne!(report["kind"], "Reused", "{label}: {report}");
+        let bytes = report["stdout_bytes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|byte| byte.as_u64().unwrap() as u8)
+            .collect::<Vec<_>>();
+        assert_eq!(bytes, expected, "{label}: {report}");
+    }
+    eprintln!("RESULT concurrent-inherited-descriptor PASS");
 }
 
 #[test]
@@ -1933,12 +2118,22 @@ fn inherited_stdin_reuse_is_stable_across_fresh_sessions() {
             "A-Z",
         ];
         let traced = |cache: &Path, stdin: &Path| {
-            let output = Command::new(tracejit())
+            let source = fs::File::open(stdin).unwrap();
+            set_cloexec(&source);
+            let mut command = Command::new(tracejit());
+            command
                 .args(args)
                 .env("TRACEJIT_CACHE_DIR", cache)
-                .stdin(std::process::Stdio::from(fs::File::open(stdin).unwrap()))
-                .output()
-                .unwrap();
+                .stdin(std::process::Stdio::from(source));
+            // SAFETY: stdio is installed before pre_exec; closing the parent's copy of the
+            // stdin source prevents it from appearing as an unmodelled inherited descriptor.
+            unsafe {
+                command.pre_exec(|| {
+                    close_descriptors_above_stderr(-1);
+                    Ok(())
+                });
+            }
+            let output = command.output().unwrap();
             serde_json::from_slice::<Value>(&output.stdout).unwrap()
         };
 
@@ -2123,7 +2318,10 @@ fn inherited_stdin_seek_model_reproduces_offsets_and_refuses_unsound_cases() {
             stdin.seek(SeekFrom::Start(start)).unwrap();
         }
         let duplicate = stdin.try_clone().unwrap();
-        let output = Command::new(tracejit())
+        set_cloexec(&stdin);
+        let source_fd = duplicate.as_raw_fd();
+        let mut command = Command::new(tracejit());
+        command
             .args([
                 "run",
                 "--json",
@@ -2134,9 +2332,16 @@ fn inherited_stdin_seek_model_reproduces_offsets_and_refuses_unsound_cases() {
                 mode,
             ])
             .env("TRACEJIT_CACHE_DIR", cache)
-            .stdin(std::process::Stdio::from(duplicate))
-            .output()
-            .unwrap();
+            .stdin(std::process::Stdio::from(duplicate));
+        // SAFETY: pre_exec runs before stdio is installed; keep the stdin source and close every
+        // other parent descriptor so only the intended stdin reaches TraceJIT.
+        unsafe {
+            command.pre_exec(move || {
+                close_descriptors_above_stderr(source_fd);
+                Ok(())
+            });
+        }
+        let output = command.output().unwrap();
         assert!(
             output.status.success(),
             "traced {mode} failed: {}",
@@ -2270,8 +2475,9 @@ fn inherited_stdin_seek_model_reproduces_offsets_and_refuses_unsound_cases() {
         "{second}"
     );
 
-    // An alias inherited across exec (fd 3 duplicated from fd 0 by the caller) is detected before
-    // the program runs, so neither the alias's seek nor the shared offset can be replayed.
+    // An alias inherited across exec (fd 3 duplicated from fd 0 by the caller) is an unmodelled
+    // inherited descriptor. It is refused before the program runs, so neither the alias's seek nor
+    // the caller-visible shared offset can be replayed.
     let alias_input = fs::File::open(&input).unwrap();
     let inherited = Command::new("sh")
         .args([
@@ -2296,9 +2502,10 @@ fn inherited_stdin_seek_model_reproduces_offsets_and_refuses_unsound_cases() {
     let report: Value = serde_json::from_slice(&inherited.stdout).unwrap();
     assert_ne!(report["classification"], "Guarded", "{report}");
     assert!(
-        report["reasons"]
-            .to_string()
-            .contains("shares its open file description"),
+        report["decision_reason"]
+            .as_str()
+            .unwrap_or_default()
+            .contains("inherited descriptor 3"),
         "{report}"
     );
 

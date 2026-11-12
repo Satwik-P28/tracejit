@@ -403,6 +403,16 @@ int main(int argc, char **argv) {
     return write(STDOUT_FILENO, "stdout fixture\n", 15) != 15;
   if (!strcmp(name, "stderr_only"))
     return write(STDERR_FILENO, "stderr fixture\n", 15) != 15;
+  if (!strcmp(name, "inherited_fd9_read")) {
+    char buffer[8];
+    ssize_t count = read(9, buffer, sizeof(buffer));
+    if (count < 0) {
+      if (write(STDOUT_FILENO, "ERR\n", 4) != 4) return 4;
+      return 3;
+    }
+    if (count == 0) return write(STDOUT_FILENO, "EOF\n", 4) != 4;
+    return write(STDOUT_FILENO, "DATA\n", 5) != 5;
+  }
   if (!strcmp(name, "dev_null_read") || !strcmp(name, "dev_null_reads") ||
       !strcmp(name, "dev_null_alias_read")) {
     char buffer[8];

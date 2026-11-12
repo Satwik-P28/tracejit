@@ -676,6 +676,15 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
         .map_err(|error| ptrace_operation("resume initial process", root_pid, error))?;
 
     let initial_fds = initial_descriptor_table(root_pid);
+    // Descriptors above stderr are inherited state, not effects created by this execution. The
+    // stdin offset model does not cover their offsets, flags or shared open descriptions, so no
+    // record containing one may become reusable. Core refuses these invocations before lookup;
+    // this effect is a second line of defence for any trace path that reaches here.
+    let extra_inherited_fds = initial_fds
+        .keys()
+        .copied()
+        .filter(|fd| *fd > 2)
+        .collect::<Vec<_>>();
     let stdin_alias = stdin_descriptor_alias(root_pid);
     let stdin_refusal = stdin_alias.map(|fd| {
         format!(
@@ -715,6 +724,17 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
         pipes: HashMap::new(),
         next_pipe: 0,
     };
+    for fd in extra_inherited_fds {
+        collector.push(
+            root_pid,
+            Effect::Unknown(UnknownEffect {
+                syscall: None,
+                detail: format!(
+                    "inherited descriptor {fd} beyond stdin is not modelled; its identity, offset, flags and shared open description cannot be guarded"
+                ),
+            }),
+        );
+    }
     if let Some(detail) = stdin_refusal {
         collector.push(
             root_pid,

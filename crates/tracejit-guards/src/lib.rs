@@ -294,6 +294,48 @@ pub fn symlink_fingerprint(path: &Path) -> Result<FileFingerprint, GuardError> {
     fingerprint(path)
 }
 
+/// Detects any descriptor above stderr in this process, returning the first descriptor number.
+///
+/// TraceJIT checks this before cache lookup, so `/proc/self/fd` is the inherited descriptor table
+/// that the traced child will receive. The `opendir` handle itself is excluded by `dirfd`;
+/// otherwise merely asking the question would report an extra descriptor. Enumeration failure
+/// returns `-1`, which the caller treats as an unmodelled descriptor and refuses reuse.
+pub fn inherited_descriptor_beyond_stdin() -> Option<i32> {
+    let path = b"/proc/self/fd\0";
+    // SAFETY: `path` is a NUL-terminated pathname. `opendir` returns null on failure, which is
+    // handled below; the returned stream is closed on every exit path.
+    let directory = unsafe { libc::opendir(path.as_ptr().cast()) };
+    if directory.is_null() {
+        return Some(-1);
+    }
+    // SAFETY: `directory` is a live DIR pointer for the duration of this function.
+    let directory_fd = unsafe { libc::dirfd(directory) };
+    if directory_fd < 0 {
+        // SAFETY: `directory` was returned by opendir and is still live.
+        unsafe { libc::closedir(directory) };
+        return Some(-1);
+    }
+    let mut found = None;
+    loop {
+        // SAFETY: `directory` remains live; readdir returns null at end of stream.
+        let entry = unsafe { libc::readdir(directory) };
+        if entry.is_null() {
+            break;
+        }
+        // SAFETY: a non-null dirent has a NUL-terminated d_name.
+        let name = unsafe { CStr::from_ptr((*entry).d_name.as_ptr()) };
+        if let Some(fd) = name.to_str().ok().and_then(|name| name.parse::<i32>().ok()) {
+            if fd >= 3 && fd != directory_fd {
+                found = Some(fd);
+                break;
+            }
+        }
+    }
+    // SAFETY: `directory` was returned by opendir and has not been closed yet.
+    unsafe { libc::closedir(directory) };
+    found
+}
+
 pub fn current_runtime_identity() -> Result<RuntimeIdentity, GuardError> {
     #[cfg(unix)]
     {
