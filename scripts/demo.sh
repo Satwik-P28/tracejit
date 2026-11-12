@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # One real Linux x86_64 run: cold trace, guarded hit, explain, then deopt.
 # Timings here are a single execution. Medians are in benchmarks/results/break-even.md.
 set -eu
@@ -71,6 +71,22 @@ require() {
   fi
 }
 
+# The demo is a cache-hit smoke test, not a descriptor test. Run TraceJIT from a
+# subshell with every descriptor above stderr closed, so an inherited shell or
+# CI-runner descriptor cannot (correctly) force the conservative direct path.
+tracejit_run() (
+  for entry in /proc/self/fd/*; do
+    fd=${entry##*/}
+    case "$fd" in
+      0|1|2) ;;
+      *) eval "exec ${fd}>&-" 2>/dev/null || true ;;
+    esac
+  done
+  # `_` is the shell's last-command variable; it changes between demo steps.
+  # Remove it so both runs have the same environment identity.
+  exec env -u _ "$tracejit" "$@"
+)
+
 epoch_ns() {
   value=$(date +%s%N) || {
     echo "date +%s%N failed" >&2
@@ -105,7 +121,7 @@ fi
 echo "direct runtime $(( (end_ns - start_ns) / 1000000 )) ms (one run, not a median)"
 echo "RESULT direct PASS"
 
-show_run "first traced run" "$tracejit" run -- "$command"
+show_run "first traced run" tracejit_run run -- "$command"
 require "cache          MISS" "$logdir/err" "first run"
 require "classified     GUARDED" "$logdir/err" "first run"
 require "next run is eligible for guarded reuse" "$logdir/err" "first run"
@@ -113,7 +129,7 @@ cmp "$logdir/direct.out" "$logdir/out"
 echo "RESULT miss PASS"
 
 cp "$logdir/out" "$logdir/first.out"
-show_run "second guarded hit" "$tracejit" run -- "$command"
+show_run "second guarded hit" tracejit_run run -- "$command"
 require "cache          HIT" "$logdir/err" "second run"
 require "speedup        " "$logdir/err" "second run"
 require "saved          " "$logdir/err" "second run"
@@ -121,7 +137,7 @@ cmp "$logdir/first.out" "$logdir/out"
 echo "RESULT hit PASS"
 
 echo "=== explain ==="
-"$tracejit" explain >"$logdir/explain"
+tracejit_run explain >"$logdir/explain"
 awk 'BEGIN { show = 1 } /^effect detail$/ { show = 0 } show' "$logdir/explain"
 require "TraceJIT explanation" "$logdir/explain" "explain"
 require "classification GUARDED" "$logdir/explain" "explain"
@@ -137,7 +153,7 @@ if cmp -s "$saved" "$input"; then
   echo "mutation did not change the input" >&2
   exit 1
 fi
-show_run "run after mutation" "$tracejit" run -- "$command"
+show_run "run after mutation" tracejit_run run -- "$command"
 require "cache          DEOPT" "$logdir/err" "mutated run"
 if grep -q "cache          HIT" "$logdir/err"; then
   echo "mutated run reused a stale result" >&2
