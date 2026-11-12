@@ -271,6 +271,70 @@ A safe frequency index could reduce oldest-target cost, but it needs a persisted
 
 Skipping a rewrite saves restore time, but changes inode replacement, ctime, hard-link and ownership semantics. Status: `rejected for native equivalence`; only a managed-workspace contract with crash recovery could reconsider it.
 
+## Phase 3G nodes
+
+### P14 — Independently inherited descriptors were outside the runtime identity
+
+`current_runtime_identity()` modelled stdin but not descriptors above stderr. A child could read fd 9
+from `/dev/null` while recording and receive `/dev/zero`, a regular file, a pipe, or a closed
+descriptor during replay. The recorded EOF was then served as a hit. Status: `fixed by refusal`;
+E-3G-01, E-3G-02.
+
+### H13 — Refuse unmodelled inherited descriptors before cache lookup
+
+A preflight over `/proc/self/fd`, captured before `Cache::open`, sends any execution with an fd above
+2 to the direct path without reading or writing a reusable record. A trace-layer `Unknown` effect is
+a second line of defence. This is smaller and more stable than adding a descriptor table to the
+lookup key. Status: `verified`; E-3G-02.
+
+### C7 — No cached record may contain an unmodelled inherited descriptor
+
+Descriptor identity, offset, flags, shared open-description state and fork/exec inheritance are not
+guarded by the current stdin model. Any record that would depend on them must remain ineligible.
+Evidence: P14; `inherited_descriptor_beyond_stdin_is_never_reused`,
+`concurrent_inherited_descriptor_replacements_are_refused`. Status: `enforced`.
+
+### P15 — CPython's 24-byte startup entropy is the hash secret, not time
+
+`PYTHONHASHSEED=0` removes the 24-byte `getrandom` while leaving the 8-byte allocator probe, clocks
+and `gettid`. CPython 3.12.3 source places the 24-byte request in
+`Python/bootstrap_hash.c::_Py_HashRandomization_Init`; `_PyTime_AsNanoseconds` is a pure conversion.
+The Phase 3F stack attribution was unreliable. Status: `corrected`; E-3G-03, E-3G-04, E-3G-05.
+
+### H14 — Versioned CPython hash-secret contract
+
+A contract could fix the exact `_Py_HashRandomization_Init` call site for one ELF build, but it would
+change hash randomization for every `str`/`bytes` hash and must enumerate application-visible
+ordering effects. It would not by itself remove clocks or `gettid`. Status: `open`; E-3G-04.
+
+### H15 — Virtualized single-process CPython clocks and identity
+
+A contract could supply monotonic values that advance consistently with timeouts and a fixed
+pid/tid, but must cover vDSO entries, all clock APIs, signals, threads, subprocesses and extension
+modules. A non-advancing clock changes liveness; a fixed pid changes lock and cache naming. Status:
+`unverified`; no implementation.
+
+### H16 — Causal noninterference for CPython observations
+
+Some nondeterministic reads may be provably irrelevant to external effects. Repeated identical
+output is not such a proof: a rare branch, file name or timeout can still depend on the value.
+Status: `open`; rejected as a shortcut.
+
+### C8 — Native and controlled Python identities remain separate
+
+A controlled Python record cannot validate against native execution. The contract identifier is part
+of the lookup key; no Python controlled record has been admitted. Status: `enforced`.
+
+### Edges
+
+- P14 -> H13 -> C7
+- P14 -> C7
+- P15 -> H14, H15, H16
+- H14 -> C8
+- H15 -> C8
+- H16 -> C8
+- P15 -> E-3G-03, E-3G-04, E-3G-05
+
 ## Next experiments
 
 1. Test a frequency-aware candidate header index against the 64-candidate oldest-target case, with a fallback that validates every candidate when the preferred header misses.

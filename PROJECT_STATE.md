@@ -651,3 +651,29 @@ untested. The Phase 3F census is still **9 attempted, 0 reused, 9 refused**; clo
 process identity block four workloads, `getrusage` blocks both compiler workloads, pipe scheduling
 blocks shell/groff, unmodeled `epoll_create1` blocks Pillow, and the lint workload has an
 unrestorable `/dev/null` output. Raw: `benchmarks/results/phase3f/census-native/`.
+
+
+## Phase 3G (base `1c214f7`, branch `hotfix/inherited-descriptors`)
+
+Independently inherited descriptors above stderr were outside the runtime identity. A child could
+read fd 9 from `/dev/null` while recording and receive `/dev/zero`, a regular file, a pipe, or a
+closed descriptor during replay; the cached `EOF` was then an incorrect hit. The fix refuses any
+invocation with an inherited fd above 2 at the pre-cache preflight and executes it directly without
+writing a reusable record. A trace-layer `Unknown` effect remains as a second defence. Regressions
+cover all four substitutions, a closed descriptor, concurrent replacements and the existing stdin
+seek model. Local gates: fmt and Clippy clean, **137 workspace tests**, **50 Linux integration
+tests**, release SHA-256 `00acc5e24e24b8a4b787eaff4425069fda05de0932c61647ab5c5237790b0f16`.
+Hosted run `43301867797` failed before the test-harness descriptor cleanup; `b3c5e1f` is the
+corrected gate.
+
+PR #6 and PR #7 remain unmerged and recommended for closure after archiving. The Phase 3D retrieval
+adds SQLite round trips for a narrow benefit; the Phase 3E epoll prototype lacks fork/exec,
+`RLIMIT_NOFILE`, descriptor-transfer and stale-number tests. The independent SQLite error-propagation
+fix is worth lifting separately.
+
+CPython 3.12.3 (`337d65cf...`, SHA-256 `e50d468e...`) was tested with `PYTHONHASHSEED` unset, 0 and
+1. The 24-byte startup `getrandom` is the hash secret and disappears at seed 0; the 8-byte glibc
+allocator probe, monotonic/realtime clocks and `gettid` remain. Under `allocator-entropy-v1` plus
+seed 0 randomness disappears, but the workload is still `Nondeterministic`/`Ineligible`; there is no
+Python cache hit. Raw results are in `benchmarks/results/phase3g/`. See
+`docs/audits/PHASE3G_INHERITED_DESCRIPTOR_AND_CONTROLLED_PYTHON.md`.

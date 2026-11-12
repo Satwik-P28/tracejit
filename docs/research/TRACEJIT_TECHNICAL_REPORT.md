@@ -303,6 +303,30 @@ blocks three; `getrusage` blocks both compiler workloads; shell and groff remain
 Pillow still reaches unmodeled `epoll_create1`; and the lint workload has an unrestorable `/dev/null`
 output. This is blocker reduction, not a compatibility claim.
 
+## Phase 3G addendum: independent inherited descriptors and Python's controlled frontier
+
+The runtime identity covered stdin but not independently inherited descriptors above stderr. This
+was a real unsoundness: fd 9 inherited from `/dev/null` could record an EOF read, then fd 9 from
+`/dev/zero`, a regular file, a pipe, or a closed descriptor could reuse that EOF. The demonstrable
+fix is an entry preflight: any fd above 2 captured before `Cache::open` sends the command to ordinary
+direct execution with no cache lookup or record. A comprehensive descriptor-identity model would
+also need offsets, flags, shared open-description state, fork/exec and concurrent replacement; it was
+not attempted. The trace layer keeps an `Unknown` effect for these descriptors as a second defence.
+The regression covers the four substitutions and two concurrent runs.
+
+Hosted CI is the remaining P0 gate: the first run failed in Tests before the test harness was made
+to close runner-opened descriptors; the cleanup commit is `b3c5e1f` and its CI run is recorded in the
+Phase 3G audit. Local gates at that tree are 137 workspace tests and 50 Linux integration tests.
+
+For CPython 3.12.3, the Phase 3F symbol attribution was corrected. The 24-byte `getrandom` is the
+hash secret in `_Py_HashRandomization_Init`, not a time conversion; `PYTHONHASHSEED=0` removes it
+while the 8-byte glibc allocator probe, `gettid` and both clocks remain. Under the existing
+`allocator-entropy-v1` contract with `PYTHONHASHSEED=0`, randomness disappears but clocks and process
+identity still make `python-csv-json` `Nondeterministic` and ineligible. The correct conclusion is a
+controlled **observation** milestone, not a Python cache hit. A Python contract would have to bind
+the exact ELF and call site, state the semantic changes (fixed hash seed, virtual clocks, pid/tid),
+and prove complete effects; none of those conditions hold.
+
 ## Conclusion
 
 TraceJIT demonstrates a coherent approach to conservatively reusing certain unmodified Linux processes by combining observed effects with explicit synchronous guards. Its measured advantage is strong for a controlled, CPU-heavy repeated command; its fixed overhead and refusal rate limit the broader usefulness. The engineering and failure analysis are substantively more informative than the maximum speedup. The current evidence supports **a promising systems prototype with bounded claims**, not a general-purpose production accelerator or a formally proved method.
