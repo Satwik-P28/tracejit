@@ -79,6 +79,18 @@ fn set_cloexec(file: &File) {
     assert_eq!(result, 0, "F_SETFD failed");
 }
 
+fn tracejit_command() -> Command {
+    let mut command = Command::new(tracejit());
+    // SAFETY: pre_exec runs between fork and exec; close is async-signal-safe.
+    unsafe {
+        command.pre_exec(|| {
+            close_descriptors_above_stderr(-1);
+            Ok(())
+        });
+    }
+    command
+}
+
 fn invoke(cache: &Path, args: &[&str], extra_env: Option<(&str, &str)>) -> Output {
     let mut command = Command::new(tracejit());
     command
@@ -1388,7 +1400,7 @@ fn working_directory_change_is_a_miss() {
     let fixture = Fixture::new();
     fixture.acquire("plain_file_read");
     let other = tempfile::tempdir().unwrap();
-    let output = Command::new(tracejit())
+    let output = tracejit_command()
         .args([
             "run",
             "--",
@@ -1760,7 +1772,9 @@ fn regular_file_stdin_seek_is_reused_as_an_offset_stream() {
     let substitute = fixture.input("not-null");
     fs::write(&substitute, b"regular file\n").unwrap();
     let run = || {
-        Command::new(tracejit())
+        let source = File::open(&substitute).unwrap();
+        set_cloexec(&source);
+        tracejit_command()
             .args([
                 "run",
                 "--json",
@@ -1771,7 +1785,7 @@ fn regular_file_stdin_seek_is_reused_as_an_offset_stream() {
             ])
             .env("TRACEJIT_CACHE_DIR", &fixture.cache)
             .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0")
-            .stdin(Stdio::from(File::open(&substitute).unwrap()))
+            .stdin(Stdio::from(source))
             .output()
             .unwrap()
     };
@@ -1984,7 +1998,7 @@ fn a_traced_script_sees_the_callers_script_path() {
     });
     assert!(direct.status.success(), "the direct run itself failed");
     let traced = run_with_etxtbsy_retry(|| {
-        let mut command = Command::new(tracejit());
+        let mut command = tracejit_command();
         command
             .args(["run", "--", "./echo-zero.sh"])
             .current_dir(temporary.path())
