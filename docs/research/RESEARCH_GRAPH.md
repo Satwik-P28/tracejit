@@ -282,10 +282,11 @@ E-3G-01, E-3G-02.
 
 ### H13 — Refuse unmodelled inherited descriptors before cache lookup
 
-A preflight over `/proc/self/fd`, captured before `Cache::open`, sends any execution with an fd above
-2 to the direct path without reading or writing a reusable record. A trace-layer `Unknown` effect is
-a second line of defence. This is smaller and more stable than adding a descriptor table to the
-lookup key. Status: `verified`; E-3G-02.
+A preflight over `/proc/self/fd`, captured before `Cache::open`, sends any execution with a surviving
+fd above 2 to the direct path without reading or writing a reusable record. Descriptors marked
+`FD_CLOEXEC` are skipped because they cannot reach the child. A trace-layer `Unknown` effect is a
+second line of defence. This is smaller and more stable than adding a descriptor table to the lookup
+key. Status: `verified`; E-3G-02.
 
 ### C7 — No cached record may contain an unmodelled inherited descriptor
 

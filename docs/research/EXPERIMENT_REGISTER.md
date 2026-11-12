@@ -232,12 +232,17 @@ The child was confirmed to inherit fd 9 and it was not `CLOEXEC`-closed. Fixture
 direct path with the reason `inherited descriptor N beyond stdin is not modelled; reuse refused`.
 No candidate is decoded and no reusable record is written. Trace retains an `Unknown` effect for the
 same descriptors. Regressions cover `/dev/zero`, regular file, pipe, closed fd, two concurrent
-replacements and the existing stdin-seek model (where an externally inherited fd-3 alias is now
-refused). Local gates: **137 workspace tests**, **50 Linux integration tests**, fmt, Clippy, release
-SHA-256 `00acc5e24e24b8a4b787eaff4425069fda05de0932c61647ab5c5237790b0f16`.
+replacements, a close-on-exec fd that must not block reuse, and the existing stdin-seek model (where
+an externally inherited fd-3 alias is now refused). Local gates: **138 workspace tests**, **51 Linux
+integration tests**, fmt, Clippy, release SHA-256
+`cd51fe6e903adc8b6f85cbcf7917b3d915edadbd9018bbf89febaa0c22045402`.
 
 **Hosted CI:** run `43301867797` failed in Tests before the test-harness descriptor cleanup; run
-`43302318004` at `b3c5e1f` is the gate to consult before fast-forwarding `main`.
+`43302318004` passed Tests, Clippy, Linux integration and release build but failed Demo because the
+preflight counted the shell's close-on-exec script descriptor. Commit `ee32d6e` skips `FD_CLOEXEC`
+descriptors. The demo also needed a clean environment identity (`b78726b`): its `_` variable changed
+between the two runs. Hosted run `43304278963` passed every step at `b78726b`, and `main` was
+fast-forwarded to it.
 
 ## E-3G-03 — CPython `PYTHONHASHSEED` differential
 

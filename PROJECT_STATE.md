@@ -661,10 +661,13 @@ closed descriptor during replay; the cached `EOF` was then an incorrect hit. The
 invocation with an inherited fd above 2 at the pre-cache preflight and executes it directly without
 writing a reusable record. A trace-layer `Unknown` effect remains as a second defence. Regressions
 cover all four substitutions, a closed descriptor, concurrent replacements and the existing stdin
-seek model. Local gates: fmt and Clippy clean, **137 workspace tests**, **50 Linux integration
-tests**, release SHA-256 `00acc5e24e24b8a4b787eaff4425069fda05de0932c61647ab5c5237790b0f16`.
-Hosted run `43301867797` failed before the test-harness descriptor cleanup; `b3c5e1f` is the
-corrected gate.
+seek model and a close-on-exec descriptor that must not block reuse. Local gates: fmt and Clippy
+clean, **138 workspace tests**, **51 Linux integration tests**, release SHA-256
+`cd51fe6e903adc8b6f85cbcf7917b3d915edadbd9018bbf89febaa0c22045402`. Hosted run `43301867797`
+failed before the test-harness descriptor cleanup; `43302318004` passed Tests but failed Demo because
+the preflight counted the shell's close-on-exec script descriptor. `ee32d6e` skips `FD_CLOEXEC`
+descriptors; `b78726b` gives the demo a clean descriptor table and stable environment identity.
+Hosted run `43304278963` passed every step, including Demo, and `main` is at `b78726b`.
 
 PR #6 and PR #7 remain unmerged and recommended for closure after archiving. The Phase 3D retrieval
 adds SQLite round trips for a narrow benefit; the Phase 3E epoll prototype lacks fork/exec,

@@ -98,6 +98,9 @@ shell creates fd 3 from fd 0) is now refused at entry rather than analysed as an
   name descriptor 9 in the refusal reason, and match direct stdout and exit status.
 - `concurrent_inherited_descriptor_replacements_are_refused`: two independent fixtures run fd 9
   `/dev/null` and `/dev/zero` concurrently; both produce their native bytes and neither reuses.
+- `close_on_exec_descriptor_is_not_an_inherited_boundary`: a CLOEXEC fd 9 is skipped by the
+  preflight and a normal fixture still reaches a guarded reuse, because that descriptor cannot reach
+  the child.
 - `inherited_stdin_seek_model_reproduces_offsets_and_refuses_unsound_cases`: updated so an
   externally inherited fd-3 alias is expected to be refused at entry, while the fd-0 seek model
   remains tested.
@@ -113,16 +116,21 @@ Local, at hotfix commits `e099abd` plus the test-harness cleanup `b3c5e1f`:
 
 - `cargo fmt --all -- --check`: pass
 - `cargo clippy --workspace --all-targets -- -D warnings`: pass
-- `cargo test --workspace`: **137 passed**, including **50 Linux integration tests**
+- `cargo test --workspace`: **138 passed**, including **51 Linux integration tests**
 - `cargo build --release --workspace`: pass; release SHA-256
-  `00acc5e24e24b8a4b787eaff4425069fda05de0932c61647ab5c5237790b0f16`
+  `cd51fe6e903adc8b6f85cbcf7917b3d915edadbd9018bbf89febaa0c22045402`
 - `PROVEN` remains a local SKIP because this host has no Landlock; hosted CI is the enforcement
   evidence.
 
 Hosted CI run `43301867797` on `e099abd` failed in the Tests step. Unauthenticated GitHub API access
-cannot download job logs; the local suite passed at the same commit, and the likely difference was
-runner-opened descriptors. The test-harness cleanup commit `b3c5e1f` closes that gap. Its run
-`43302318004` is the authoritative hosted gate; do not fast-forward `main` until it succeeds.
+cannot download job logs; the local suite passed at the same commit, and runner-opened descriptors
+were the likely difference. The test-harness cleanup commit `b3c5e1f` made Tests, Clippy, Linux
+integration and the release build pass in run `43302318004`, but its Demo step then failed because
+the preflight counted the shell's close-on-exec script descriptor. Commit `ee32d6e` excludes
+`FD_CLOEXEC` descriptors and adds the close-on-exec regression. That run still exposed the demo's
+`_` environment variable changing between its two invocations, so `b78726b` runs the demo with a
+clean descriptor table and a stable environment identity. Hosted run `43304278963` at `b78726b`
+passed every step, including Demo. `main` was fast-forwarded to `b78726b`.
 
 ## 2. P1 — PR review
 
@@ -280,7 +288,7 @@ is a milestone in **observability**, not a controlled cache hit.
 
 ## 4. Outcome and next actions
 
-1. Wait for and report hosted CI run `43302318004`; fast-forward `main` only if it succeeds. Do not
+1. Hosted run `43304278963` passed at `b78726b`; `main` was fast-forwarded to that commit. Do not
    merge PR #6 or PR #7; archive their findings and recommend closure.
 2. Keep entry refusal for inherited descriptors above stderr. Revisit a full descriptor identity
    only with explicit offset/shared-description/fork/exec and concurrent-replacement tests.

@@ -315,8 +315,12 @@ not attempted. The trace layer keeps an `Unknown` effect for these descriptors a
 The regression covers the four substitutions and two concurrent runs.
 
 Hosted CI is the remaining P0 gate: the first run failed in Tests before the test harness was made
-to close runner-opened descriptors; the cleanup commit is `b3c5e1f` and its CI run is recorded in the
-Phase 3G audit. Local gates at that tree are 137 workspace tests and 50 Linux integration tests.
+to close runner-opened descriptors; the next run passed Tests but failed Demo because the preflight
+counted the shell's close-on-exec script descriptor. Commit `ee32d6e` skips `FD_CLOEXEC`
+descriptors and adds a close-on-exec regression. The demo then needed a clean descriptor table and a
+stable environment identity (`b78726b`). Hosted run `43304278963` passed every step, including Demo;
+`main` is at `b78726b`. Local gates at that tree are 138 workspace tests and 51 Linux integration
+tests.
 
 For CPython 3.12.3, the Phase 3F symbol attribution was corrected. The 24-byte `getrandom` is the
 hash secret in `_Py_HashRandomization_Init`, not a time conversion; `PYTHONHASHSEED=0` removes it
