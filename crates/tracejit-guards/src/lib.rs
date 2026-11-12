@@ -326,8 +326,21 @@ pub fn inherited_descriptor_beyond_stdin() -> Option<i32> {
         let name = unsafe { CStr::from_ptr((*entry).d_name.as_ptr()) };
         if let Some(fd) = name.to_str().ok().and_then(|name| name.parse::<i32>().ok()) {
             if fd >= 3 && fd != directory_fd {
-                found = Some(fd);
-                break;
+                // A close-on-exec descriptor is removed before the target runs, so it cannot
+                // change the child's observations. The traced command may still see a different
+                // descriptor at this number if it opens one later; the tracer's own descriptor
+                // table is not the child's post-exec table. Exclude only descriptors that the
+                // kernel will close on exec.
+                // SAFETY: fcntl reads flags from a live descriptor in this process.
+                let flags = unsafe { libc::fcntl(fd, libc::F_GETFD) };
+                if flags < 0 {
+                    found = Some(fd);
+                    break;
+                }
+                if flags & libc::FD_CLOEXEC == 0 {
+                    found = Some(fd);
+                    break;
+                }
             }
         }
     }

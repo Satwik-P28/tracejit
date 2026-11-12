@@ -1658,6 +1658,54 @@ fn inherited_descriptor_beyond_stdin_is_never_reused() {
 }
 
 #[test]
+fn close_on_exec_descriptor_is_not_an_inherited_boundary() {
+    let fixture = Fixture::new();
+    fixture.acquire("plain_file_read");
+    let source = File::open("/dev/null").unwrap();
+    let source_fd = source.as_raw_fd();
+    let run = || {
+        let mut command = Command::new(tracejit());
+        command.args([
+            "run",
+            "--json",
+            "--",
+            fixture.binary_arg(),
+            "plain_file_read",
+            fixture.root(),
+        ]);
+        command.env("TRACEJIT_CACHE_DIR", &fixture.cache);
+        command.env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0");
+        // SAFETY: pre_exec runs between fork and exec; dup2/fcntl/close are async-signal-safe.
+        unsafe {
+            command.pre_exec(move || {
+                close_descriptors_above_stderr(source_fd);
+                if libc::dup2(source_fd, 9) < 0 {
+                    return Err(std::io::Error::last_os_error());
+                }
+                if libc::fcntl(9, libc::F_SETFD, libc::FD_CLOEXEC) < 0 {
+                    return Err(std::io::Error::last_os_error());
+                }
+                if source_fd != 9 {
+                    libc::close(source_fd);
+                }
+                Ok(())
+            });
+        }
+        command.output().unwrap()
+    };
+    let first = run();
+    assert!(first.status.success(), "{}", stderr_of(&first));
+    let second = run();
+    assert!(second.status.success(), "{}", stderr_of(&second));
+    let report: Value = serde_json::from_slice(&second.stdout).unwrap();
+    assert_eq!(
+        report["kind"], "Reused",
+        "a close-on-exec descriptor cannot change the child: {report}"
+    );
+    eprintln!("RESULT close-on-exec PASS");
+}
+
+#[test]
 fn concurrent_inherited_descriptor_replacements_are_refused() {
     let null = File::open("/dev/null").unwrap();
     let zero = File::open("/dev/zero").unwrap();
