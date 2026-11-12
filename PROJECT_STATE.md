@@ -630,3 +630,24 @@ The native census is still 0/9 reused after the change. No unchanged-output shor
 Gates: fmt, Clippy, **130 workspace tests**, **44 Linux integration tests**, release build pass.
 `PROVEN` remains a local SKIP (no Landlock). See
 `docs/audits/PHASE3C_LATENCY_AND_COMPATIBILITY.md`.
+
+## Phase 3F (base `62425a9`, branch `hotfix/dev-null-read`)
+
+The inherited-descriptor read path still admitted an `InheritedFile("/dev/null")` by pathname alone,
+even though the inherited `lseek` path already used `is_null_device_fd`. The read branch now requires
+the same `fstat` character-device 1:3 check for `read`, `pread64` and `readv`; a failed check falls
+through to the guarded regular-file stdin stream model or refuses. The hotfix is based directly on
+`main`, not on the Phase 3D/3E branches. Regressions cover actual null reads, `dup2` aliasing, regular
+stdin, a null-to-regular identity change and an uninspectable descriptor. Bind-mount substitution is
+unavailable on this host (`unshare -m` is EPERM). Local gates: fmt, Clippy `-D warnings`, **135
+workspace tests**, **48 Linux integration tests**, release build. See
+`docs/audits/PHASE3F_CORRECTNESS_AND_CONTROLLED_PYTHON.md`.
+
+PR #6 (Phase 3D retrieval) remains experimental and should not merge: the retrieval prototype has no
+general performance benefit and adds SQLite/candidate-fetch complexity; its SQLite error-propagation
+fix is independently useful. PR #7 (epoll) remains stacked and draft; the covered create/dup/close
+subset passes, but fork/exec, `RLIMIT_NOFILE`, descriptor transfer and stale-number obligations are
+untested. The Phase 3F census is still **9 attempted, 0 reused, 9 refused**; clock, randomness and
+process identity block four workloads, `getrusage` blocks both compiler workloads, pipe scheduling
+blocks shell/groff, unmodeled `epoll_create1` blocks Pillow, and the lint workload has an
+unrestorable `/dev/null` output. Raw: `benchmarks/results/phase3f/census-native/`.

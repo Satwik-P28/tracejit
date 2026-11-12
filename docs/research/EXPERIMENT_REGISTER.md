@@ -185,3 +185,31 @@ remains 9 attempted, 0 reused, 9 refused; `lseek` is no longer in the unmodeled 
 **Result:** not implemented. Restore is 3.4 ms in the clean session and 21.9 ms under a writeback
 tail. Skipping a matching output would change inode/ctime/ownership and hard-link semantics; a
 managed contract and crash journal are prerequisites.
+
+## E-3F-01 — inherited `/dev/null` read identity
+
+**Question:** Did the read path admit `/dev/null` by pathname without proving the open object?
+
+**Result:** yes. `read`, `pread64` and `readv` now require `is_null_device_fd(pid, fd)`; otherwise the
+regular-file offset-stream model applies or reuse is refused. Commit `bb29414`; tests cover actual
+null reads, `dup2` alias, regular stdin, changed identity and an uninspectable descriptor. Local gates:
+135 workspace tests, 48 Linux integration tests, fmt, Clippy, release. Bind mount unavailable.
+
+## E-3F-02 — exact CPython build and call-site inventory
+
+**Build:** CPython 3.12.3, `/usr/bin/python3.12`, ELF build ID
+`337d65cf00021797985cc9f77c0cc334a9fbeb38`, SHA-256
+`e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f`.
+
+**Observed:** one process; `getpid`/`getppid` during libc startup; three `getrandom` calls (8, 8 and
+24 bytes; the 24-byte call at `Py_InitializeFromConfig+0x198`); `gettid` at
+`_PyThreadState_Bind`; no visible `clock_gettime` syscalls because CPython uses the vDSO. No
+controlled contract was enabled; three competing hypotheses and their counterexamples are recorded in
+the Phase 3F audit.
+
+## E-3F-03 — Phase 3F native census
+
+**Result:** 9 attempted, 0 reused, 9 refused, 0 workload failures, 0 missing tools; every output
+equivalence check passed. Blockers: clock 4 workloads, randomness 4, process identity 3,
+`getrusage` 2, scheduling-dependent pipe reads 2, `ioctl`/failed fd 1, unmodeled `epoll_create1` 1,
+unrestorable `/dev/null` output 1. Raw: `benchmarks/results/phase3f/census-native/`.

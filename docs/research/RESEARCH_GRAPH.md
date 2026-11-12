@@ -211,6 +211,8 @@ rather than serving partial data. A corrupt object is never exposed.
 - M6 -> P6 (workflow model only)
 - M7 -> C2
 - M8 -> P5 (refinement method only)
+- P12 -> C4, C2
+- P13 -> H12, C2
 
 ### C5 — Do not generalize negative output metadata
 
@@ -235,6 +237,26 @@ The census's `lseek` blocker was an inherited `/dev/null`, not a regular file. E
 
 Status: `fixed narrowly`; exact path only, E-3C-03 and `dev_null_seek_is_reusable`. Other inherited character devices and directory seeks remain refused.
 
+### P12 — Inherited `/dev/null` read was classified by pathname
+
+The read path admitted a descriptor recorded as `/dev/null` without checking the open object. The
+fix requires `fstat` character device 1:3 for `read`, `pread64` and `readv`; otherwise the guarded
+regular-file stream model applies or reuse is refused. Status: `fixed narrowly`; E-3F-01. Bind-mount
+substitution was not testable on this host.
+
+### P13 — CPython's controlled frontier is call-site specific
+
+The exact host build (CPython 3.12.3, ELF build ID `337d65cf00021797985cc9f77c0cc334a9fbeb38`)
+issues `getrandom`, `getpid`/`getppid`, `gettid` and vDSO clock observations during startup, while
+application-level calls share the same interfaces. A broad Python exemption is therefore unsound; an
+audited runtime-only contract or conservative refusal is required. Status: `open`; E-3F-02.
+
+### H12 — Audited initialization-only CPython observations
+
+Permit only enumerated call sites in one exact build, beginning with the 24-byte `getrandom` at
+`Py_InitializeFromConfig+0x198`, and keep application-level observations refused. Status: `open`;
+requires multiple equivalent controlled cold runs and a separate controlled identity.
+
 ### H9 — Lazy candidate decoding preserves full validation
 
 SQLite can return encoded candidate records newest-first; decode only the candidate currently being validated. A newest hit pays one decode, while an oldest target still decodes all candidates.
@@ -255,4 +277,6 @@ Skipping a rewrite saves restore time, but changes inode replacement, ctime, har
 2. Re-run the latency harness under a controlled writeback policy to separate CAS restore from host fsync variance.
 3. Model a managed-workspace unchanged-output contract, including inode, ctime, hard-link, ownership and crash-recovery obligations, before implementing it.
 4. Re-run the native census after a second narrow model (not a global syscall exemption) and require an actual workload reuse before claiming compatibility progress.
-5. Only after process-level validation is cheap enough, prototype a workflow-level graph on one realistic multi-command recipe.
+5. Audit the exact CPython build application-level call sites before enabling any controlled contract; require multiple equivalent cold runs.
+6. Recreate the epoll commit on `main` only after adding fork/exec, `RLIMIT_NOFILE` and descriptor-transfer regressions.
+7. Only after process-level validation is cheap enough, prototype a workflow-level graph on one realistic multi-command recipe.

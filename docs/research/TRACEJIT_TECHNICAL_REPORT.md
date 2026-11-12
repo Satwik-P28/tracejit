@@ -269,6 +269,40 @@ The native census is still 9 attempted, 0 reused, 9 refused, so this is blocker 
 than a compatibility claim. No unchanged-output fast path was added: avoiding a rewrite would
 change inode, ctime, ownership and hard-link semantics absent a managed-workspace contract.
 
+## Phase 3F addendum: read identity and the controlled Python frontier
+
+The inherited `/dev/null` read path was unsound: it trusted the recorded pathname rather than the
+open file description. A descriptor recorded as `/dev/null` could be replaced by a regular file or
+another device, and a successful read would then be treated as process-internal. The fix applies the
+existing `fstat` character-device 1:3 check to the common `read`/`pread64`/`readv` branch. If the
+check fails, a tracked regular stdin still uses the guarded offset-stream model; other inherited
+descriptors are refused. Regressions cover actual null reads, a `dup2` alias, regular stdin, a
+null-to-regular change and an uninspectable descriptor. A true bind-mount substitution could not be
+run because this host denies `unshare -m`.
+
+The Phase 3D retrieval prototype should not merge. It improved newest hits by roughly 0.6-3.4 ms but
+worsened the oldest target at four of seven bounds and adds SQLite round trips; the useful part is its
+SQLite error-propagation fix, not the retrieval design. The Phase 3E epoll change is likewise not
+ready: create/dup/close works, but fork/exec inheritance, `RLIMIT_NOFILE`, `fcntl`/`SCM_RIGHTS`
+transfer and stale descriptor numbers are untested, and the PR is still stacked on the experimental
+retrieval branch.
+
+For CPython, the exact host build is 3.12.3 with ELF build ID
+`337d65cf00021797985cc9f77c0cc334a9fbeb38`. Startup issues `getpid`/`getppid`, three `getrandom`
+calls (8, 8 and 24 bytes), `gettid`, and vDSO clock observations; the 24-byte call is at
+`Py_InitializeFromConfig+0x198`. Those interfaces are shared with application code, so a broad
+Python exemption is not defensible. Three hypotheses remain: an audited runtime-internal contract
+bound to the exact build and call sites, a virtualized single-process environment, and conservative
+causal refusal. The smallest starting class is the initialization-only `getrandom`; even admitting
+it would not make the measured ETL workload reusable because clock and `gettid` remain unverified.
+No controlled identity was enabled.
+
+The Phase 3F native census is still a negative: 9 attempted, 0 reused, 9 refused, with all direct/traced
+output equivalence checks passing. Clock and randomness each block four workloads; process identity
+blocks three; `getrusage` blocks both compiler workloads; shell and groff remain scheduling-dependent;
+Pillow still reaches unmodeled `epoll_create1`; and the lint workload has an unrestorable `/dev/null`
+output. This is blocker reduction, not a compatibility claim.
+
 ## Conclusion
 
 TraceJIT demonstrates a coherent approach to conservatively reusing certain unmodified Linux processes by combining observed effects with explicit synchronous guards. Its measured advantage is strong for a controlled, CPU-heavy repeated command; its fixed overhead and refusal rate limit the broader usefulness. The engineering and failure analysis are substantively more informative than the maximum speedup. The current evidence supports **a promising systems prototype with bounded claims**, not a general-purpose production accelerator or a formally proved method.
