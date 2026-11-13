@@ -747,8 +747,9 @@ outlier). No speedup is claimed. Raw: `benchmarks/results/phase3i/`. See
 `docs/audits/PHASE3I_DUP2_AND_CONTROLLED_DIRECTORY_REPLAY.md`. Research release SHA-256 at the
 evidence commit is `0d03877d72d7fac7838ba4b8e9eed3a07ff76590ffe2afba18ac6cac5f3218b4`.
 
-Neither PR is merged. Hosted CI is not available from this host because there is no authenticated
-GitHub session; record it after pushing both branches. The preflight-to-`exec` atomicity limitation
+Neither PR is merged. Hosted CI passed for both: PR #8 run `43377588697` at `77c8715` and PR #9 run
+`43377574220` at `182e9bb`; all steps succeeded, including Tests, Clippy, Linux integration, Release
+build and Demo. The preflight-to-`exec` atomicity limitation
 remains, although the earlier "concurrent parent" wording is corrected: the current scan/spawn path
 is single-threaded and the parent cannot mutate the table. A future non-CLOEXEC open between scan and
 spawn would still invalidate the scan.

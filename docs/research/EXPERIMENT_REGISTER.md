@@ -366,7 +366,7 @@ directory enumeration, pipe, and ordinary `dup`/distinct `dup2`/`dup3`/`fcntl` b
 integration fixture covers file, directory and pipe self-duplication; it fails with the early return
 removed and passes with it restored. Commits: `7f15832` (failing test), `e74f9ee` (fix), `c2f1e9c`
 (integration). P0 gates at `77c8715`: **150 workspace tests**, **53 Linux integration tests**, fmt
-and Clippy clean, release build.
+and Clippy clean, release build. Hosted CI run `43377588697` passed every step, including Demo.
 
 ## E-3I-02 — directory-entry padding hypotheses A/B/C
 

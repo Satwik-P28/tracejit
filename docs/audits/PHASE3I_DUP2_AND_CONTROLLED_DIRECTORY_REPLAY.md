@@ -11,7 +11,10 @@ still the default and still refuses the target.
 
 Branches: `hotfix/descriptor-dup-noop` (four commits on top of PR #8's P0 fix) and
 `research/phase3i` (experimental contract plus Phase 3I evidence). Neither PR is merged. Hosted CI
-must be recorded after the branches are pushed; this host has no authenticated GitHub session.
+passed for both: PR #8 run `43377588697` at `77c8715`, and PR #9 run `43377574220` at `182e9bb`.
+Both completed every CI step successfully, including Tests, Clippy, Linux integration, Release build
+and Demo. The runs were read from the public Actions pages because this host has no authenticated
+GitHub API session.
 
 ## 1. P0 — `dup2(fd, fd)` is a successful no-op
 
@@ -266,8 +269,8 @@ slower than direct execution. A hit exists, but there is no performance claim fo
 - The target's directory reader was audited for this build. A different reader or a trace of a
   different Python build needs its own audit.
 - The preflight-to-`exec` atomicity limitation remains.
-- Hosted CI has not been run from this host because there is no GitHub authentication. The local P0
-  gates are in Section 5.
+- Hosted CI passed at the code/evidence commits (`43377588697` for `77c8715`,
+  `43377574220` for `182e9bb`). The local P0 gates are in Section 5.
 
 ## 5. Gates and raw evidence
 
@@ -303,12 +306,11 @@ semantic projection; the raw trace is not reduced to a name list.
 
 ## 6. Unresolved
 
-1. Push both branches and record hosted CI. No authenticated GitHub session is available here.
-2. Do not merge PR #8 until its hosted checks pass and the `dup2` review is accepted.
-3. Do not merge PR #9's Python contract merely because the target now hits. It remains experimental,
+1. Do not merge PR #8 until its hosted checks pass and the `dup2` review is accepted.
+2. Do not merge PR #9's Python contract merely because the target now hits. It remains experimental,
    is bound to one build, and has a constant clock.
-4. Decide whether a typed reader projection can be made a production guard with an executable reader
+3. Decide whether a typed reader projection can be made a production guard with an executable reader
    identity; until then keep `Native` byte-exact by default.
-5. Keep `VirtualZero` opt-in and contract-separated. It changes bytes the target can observe.
-6. Maintain the descriptor-table invariant that the preflight scan assumes; do not add a
+4. Keep `VirtualZero` opt-in and contract-separated. It changes bytes the target can observe.
+5. Maintain the descriptor-table invariant that the preflight scan assumes; do not add a
    non-CLOEXEC descriptor between scan and spawn.

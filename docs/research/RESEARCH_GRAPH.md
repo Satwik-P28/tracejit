@@ -488,7 +488,7 @@ invalidate it; no atomic handoff exists. Status: `behavior tested, invariant ope
 
 ## Phase 3I next experiments
 
-1. Push `hotfix/descriptor-dup-noop` and `research/phase3i`; record hosted CI for both.
+1. Hosted CI passed for PR #8 (`43377588697`, `77c8715`) and PR #9 (`43377574220`, `182e9bb`).
 2. Do not merge PR #8 before its hosted checks pass; do not merge PR #9's experimental contract.
 3. Decide whether a typed reader identity can be made executable and auditable; otherwise keep
    `Native` byte-exact.
