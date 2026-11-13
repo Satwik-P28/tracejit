@@ -1,0 +1,20 @@
+{
+  "changed_record_indices": [
+    0,
+    1
+  ],
+  "native_byte_exact_equal": false,
+  "note": "The typed projection is sound only for the audited CPython/glibc reader. Native byte-exact guarding remains the default.",
+  "padding_bytes_changed": 5,
+  "phase": "3I",
+  "prototype": "benchmark-side typed directory projection",
+  "records": 2,
+  "typed_fields": [
+    "d_ino",
+    "d_off",
+    "d_reclen",
+    "d_type",
+    "d_name"
+  ],
+  "typed_fields_equal": true
+}

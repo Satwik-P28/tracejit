@@ -308,8 +308,9 @@ output. This is blocker reduction, not a compatibility claim.
 The runtime identity covered stdin but not independently inherited descriptors above stderr. This
 was a real unsoundness: fd 9 inherited from `/dev/null` could record an EOF read, then fd 9 from
 `/dev/zero`, a regular file, a pipe, or a closed descriptor could reuse that EOF. The demonstrable
-fix is an entry preflight: any fd above 2 captured before `Cache::open` sends the command to ordinary
-direct execution with no cache lookup or record. A comprehensive descriptor-identity model would
+fix is an entry preflight: any surviving fd above 2 is captured before `Cache::open`; after cache
+initialization, but before candidate lookup, it sends the command to ordinary direct execution with
+no cache lookup or record. `FD_CLOEXEC` descriptors are skipped. A comprehensive descriptor-identity model would
 also need offsets, flags, shared open-description state, fork/exec and concurrent replacement; it was
 not attempted. The trace layer keeps an `Unknown` effect for these descriptors as a second defence.
 The regression covers the four substitutions and two concurrent runs.
@@ -331,6 +332,44 @@ controlled **observation** milestone, not a Python cache hit. A Python contract 
 the exact ELF and call site, state the semantic changes (fixed hash seed, virtual clocks, pid/tid),
 and prove complete effects; none of those conditions hold.
 
+## Phase 3H addendum: descriptor failure paths and controlled Python's real boundary
+
+The inherited-descriptor preflight had a fail-open edge: `readdir()` returns `NULL` at EOF and on
+error, and the old loop treated both as an empty table. The scan now returns
+`Result<Option<i32>, GuardError>`, clears `errno` before each call, and fails closed for `opendir`,
+`dirfd`, `readdir`, `fcntl(F_GETFD)` and `closedir`. CLOEXEC descriptors are skipped, not refused;
+the scan happens before `Cache::open`, while the refusal happens after cache initialization and
+before candidate lookup. Seven unit tests and an `LD_PRELOAD` fault-injection integration test cover
+the paths. The preflight-to-`exec` TOCTOU window remains open and is documented rather than claimed
+fixed.
+
+The controlled Python run exposed a second descriptor-lifecycle defect: directory enumeration state
+was keyed by fd and survived close/reuse, so a new directory at the same number could append to the
+old record and make the guard replay a concatenation no open file description produced. A
+`forget_descriptor` helper now clears fd, CLOEXEC and enumeration state on close, dup/dup2, open,
+pipe and socket creation.
+
+CPython's clock and identity observations cannot be separated by syscall class. `Python/pytime.c`
+maps both runtime and application clocks to `clock_gettime`; `Python/pystate.c::bind_tstate` stores
+`syscall(SYS_gettid)`, exposed by `threading.get_native_id`. An `LD_PRELOAD` prototype can replace
+symbol clocks and `getpid`, but not the direct `gettid`; it therefore cannot establish symbol-level
+identity equivalence.
+
+A review-branch `tracejit.python-runtime.v1` watchpoint contract was implemented for the exact
+CPython ELF build, with executable hash/build ID guards, controlled realtime/monotonic clocks,
+`getpid`/`getppid`/`gettid`, clone/fork refusal, and contract-separated cache identity. It removes
+the target's observation blockers, but `python-csv-json` still does not reuse: the second run
+deoptimizes because `linux_dirent64` padding after `.` differs (`sl.` versus zeroes). Names, order,
+inode and offsets match; the padding is an ABI byte a program can read. Canonicalising it would
+require a reader call-site proof, which is not available. The target is a negative result.
+
+A separate `python -S smoke.py` exercises the watchpoints without directory enumeration: 10/10 warm
+`Reused`, cached stdout equal to direct stdout, and a changed script deoptimizes to its direct
+output. It is a mechanism check, not a performance claim; the controlled path is slower than direct
+on this tiny script (35.2 ms warm median versus 15.7 ms direct). The native census remains
+9 attempted, 0 reused, 9 refused. The Python contract is not merged and does not satisfy the
+call-site, clock-progression or repeated-cold obligations for general Python reuse.
+
 ## Conclusion
 
 TraceJIT demonstrates a coherent approach to conservatively reusing certain unmodified Linux processes by combining observed effects with explicit synchronous guards. Its measured advantage is strong for a controlled, CPU-heavy repeated command; its fixed overhead and refusal rate limit the broader usefulness. The engineering and failure analysis are substantively more informative than the maximum speedup. The current evidence supports **a promising systems prototype with bounded claims**, not a general-purpose production accelerator or a formally proved method.
@@ -338,3 +377,34 @@ TraceJIT demonstrates a coherent approach to conservatively reusing certain unmo
 ---
 
 **Evidence index:** [README](../../README.md) | [benchmark methodology](../../BENCHMARKS.md) | [historical sweep](../../benchmarks/results/break-even.md) | [historical short-command result](../../benchmarks/results/latest.md) | [safety](../../SAFETY.md) | [source architecture](../../ARCHITECTURE.md) | [tests](../../crates/tracejit-cli/tests/linux_integration.rs)
+
+## Phase 3I addendum: a second P0 defect and a controlled target hit
+
+The Phase 3I review found that the successful Linux `dup2(fd, fd)` no-op was modelled as a
+replacement. Forgetting the destination and then looking up the same descriptor erased the fd
+classification, `FD_CLOEXEC` and any in-progress directory enumeration. The correction returns before
+mutation when source and destination are equal; `dup3(fd, fd)` is rejected by the kernel with
+`EINVAL` and does not use the successful path. Unit tests cover file, directory, pipe, CLOEXEC,
+ordinary `dup`, distinct `dup2`/`dup3` and `fcntl`; an end-to-end fixture covers a file with CLOEXEC,
+a directory read across the duplicate and an internal pipe. The fixture fails with the early return
+removed and passes with it restored. Separately, a descriptor-preflight enumeration error exits with
+status 1 and never falls back to direct execution.
+
+The `python-csv-json` directory blocker is resolved as an observation boundary, not a stream-model
+bug. Linux writes `linux_dirent64` fields, name and terminator but leaves alignment padding; a probe
+with `0xaa`/`0x55` fill preserves those bytes while all semantic fields match. In glibc 2.39 the
+reader returns a pointer into its `DIR` buffer, and CPython 3.12.3's `_posix_listdir` consumes only
+`d_name`. The target's non-zero bytes are therefore preexisting buffer content outside the audited
+reader's fields.
+
+An explicit `VirtualZero` policy now zeros those bytes in the target after `getdents64` and on guard
+replay, but only under the exact `python-runtime-v1` contract. Native records and the native guard
+remain byte-exact; a typed-name projection is only a benchmark prototype because an arbitrary reader
+can observe padding. With `VirtualZero`, the original `python-csv-json` workload produced three
+independent cold `Guarded` traces, ten warm `Reused` runs, a `Deoptimized` changed-input run and
+matching 249-byte filesystem effects. Entropy was never reused; time and PID were controlled fixed
+values. The measured session was slower than direct execution (730.76 ms versus 408.61 ms, with a
+2.06 s first-cold outlier), so this is a controlled hit, not a performance result. The full audit,
+timings and raw evidence are in
+[`PHASE3I_DUP2_AND_CONTROLLED_DIRECTORY_REPLAY.md`](../audits/PHASE3I_DUP2_AND_CONTROLLED_DIRECTORY_REPLAY.md)
+and `benchmarks/results/phase3i/`.

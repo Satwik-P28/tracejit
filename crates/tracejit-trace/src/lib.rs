@@ -37,6 +37,10 @@ pub enum Contract {
     /// step's own CPU time and the compiler's available-memory picture. Application buffers,
     /// other toolchain builds and every other call site stay ordinary effects.
     CompilerRuntimeV1,
+    /// Experimental CPython single-process contract. It fixes the audited startup clock reads
+    /// and process/thread identity syscalls for `/usr/bin/python3.12` only. It does not claim
+    /// native equivalence and does not admit application clock or random reads.
+    PythonRuntimeV1,
 }
 
 impl Contract {
@@ -44,6 +48,7 @@ impl Contract {
         match self {
             Self::AllocatorEntropyV1 => tracejit_effects::ALLOCATOR_ENTROPY_CONTRACT,
             Self::CompilerRuntimeV1 => tracejit_effects::COMPILER_RUNTIME_CONTRACT,
+            Self::PythonRuntimeV1 => tracejit_effects::PYTHON_RUNTIME_CONTRACT,
         }
     }
 
@@ -51,6 +56,7 @@ impl Contract {
         match self {
             Self::AllocatorEntropyV1 => tracejit_effects::ALLOCATOR_ENTROPY_VALUE,
             Self::CompilerRuntimeV1 => tracejit_effects::COMPILER_RUNTIME_SYSINFO_TOTALRAM,
+            Self::PythonRuntimeV1 => 0,
         }
     }
 }

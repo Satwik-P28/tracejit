@@ -48,8 +48,11 @@ parent-inherited descriptors from internal aliases.
 
 ### 1.3 Chosen correction: entry preflight refusal
 
-`PreparedExecution::new` captures the first descriptor above stderr before `Cache::open` and before
-any cache lookup. `run` checks that captured value immediately after constructing the lookup key:
+`PreparedExecution::new` captures the first surviving descriptor above stderr before `Cache::open`.
+`run` still opens the cache and then checks the captured value immediately after constructing the
+lookup key; the refusal is therefore **after cache initialization but before any candidate lookup
+or record write**. The distinction matters: the descriptor scan is early, while the refusal is
+pre-lookup, not pre-initialization.
 
 ```rust
 if let Some(fd) = prepared.inherited_descriptor {
@@ -66,10 +69,10 @@ invocation. The trace layer still pushes an `Unknown` effect for every inherited
 second line of defence if another trace path reaches it.
 
 The descriptor detector enumerates `/proc/self/fd`, excludes the `opendir` handle through `dirfd`,
-and returns the first fd greater than 2. Enumeration failure returns `-1`, which the caller treats as
-unmodelled and refuses. A `CLOEXEC` descriptor that cannot reach the child also causes a refusal;
-that is conservative but loses a valid reuse opportunity. No unsafe or unstable descriptor metadata
-was added to the cache identity.
+and returns the first fd greater than 2. Descriptors marked `FD_CLOEXEC` are skipped because the
+kernel closes them before the target runs; they do not cause a refusal. Enumeration is fail-closed:
+`opendir`, `readdir`, `fcntl(F_GETFD)` and `closedir` failures are returned as errors, not treated as
+an empty table. No unsafe or unstable descriptor metadata was added to the cache identity.
 
 ### 1.4 Comprehensive identity model versus refusal
 

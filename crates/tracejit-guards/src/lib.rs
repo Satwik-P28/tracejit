@@ -5,9 +5,9 @@ use std::io::{self, Read};
 use std::os::unix::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 use tracejit_effects::{
-    DirectoryEnumerationRequest, ExecutionIdentity, FileDescriptorIdentity, FileFingerprint,
-    FilesystemStats, FilesystemStatsSource, Hash, InputDependency, NamespaceIdentity,
-    RuntimeIdentity,
+    DirectoryEnumerationRequest, DirectoryPaddingPolicy, ExecutionIdentity, FileDescriptorIdentity,
+    FileFingerprint, FilesystemStats, FilesystemStatsSource, Hash, InputDependency,
+    NamespaceIdentity, RuntimeIdentity,
 };
 
 /// Whether a fresh run could open this path for writing at all.
@@ -635,34 +635,63 @@ impl Guard {
                 value,
                 contract,
             } => {
-                if contract != tracejit_effects::COMPILER_RUNTIME_CONTRACT {
-                    return Err(GuardFailure {
-                        guard: Box::new(self.clone()),
-                        reason: "unknown controlled-execution contract".into(),
-                        expected: tracejit_effects::COMPILER_RUNTIME_CONTRACT.into(),
-                        actual: contract.clone(),
-                    });
-                }
-                let Some(profile) =
-                    tracejit_effects::compiler_runtime_profile(executable, build_id)
-                else {
-                    return Err(GuardFailure {
-                        guard: Box::new(self.clone()),
-                        reason: "controlled observation names an unaudited compiler profile".into(),
-                        expected: format!(
-                            "one of {} audited compiler binaries",
-                            tracejit_effects::COMPILER_RUNTIME_PROFILES.len()
-                        ),
-                        actual: format!("{} ({})", executable.display(), build_id),
-                    });
-                };
-                if !profile.allows(*observation) {
-                    return Err(GuardFailure {
-                        guard: Box::new(self.clone()),
-                        reason: "compiler profile does not admit this observation".into(),
-                        expected: profile.executable.into(),
-                        actual: observation.name().into(),
-                    });
+                if contract == tracejit_effects::PYTHON_RUNTIME_CONTRACT {
+                    if !tracejit_effects::python_runtime_profile(executable, build_id) {
+                        return Err(GuardFailure {
+                            guard: Box::new(self.clone()),
+                            reason: "controlled observation names an unaudited Python profile"
+                                .into(),
+                            expected: tracejit_effects::PYTHON_RUNTIME_EXECUTABLE.into(),
+                            actual: format!("{} ({})", executable.display(), build_id),
+                        });
+                    }
+                    if !matches!(
+                        observation,
+                        tracejit_effects::ControlledRuntimeObservation::ClockMonotonic
+                            | tracejit_effects::ControlledRuntimeObservation::ClockRealtime
+                            | tracejit_effects::ControlledRuntimeObservation::PythonThreadId
+                            | tracejit_effects::ControlledRuntimeObservation::PythonProcessId
+                            | tracejit_effects::ControlledRuntimeObservation::PythonParentProcessId
+                            | tracejit_effects::ControlledRuntimeObservation::PythonTimeSeconds
+                    ) {
+                        return Err(GuardFailure {
+                            guard: Box::new(self.clone()),
+                            reason: "python profile does not admit this observation".into(),
+                            expected: "audited CPython clock or identity observation".into(),
+                            actual: observation.name().into(),
+                        });
+                    }
+                } else {
+                    if contract != tracejit_effects::COMPILER_RUNTIME_CONTRACT {
+                        return Err(GuardFailure {
+                            guard: Box::new(self.clone()),
+                            reason: "unknown controlled-execution contract".into(),
+                            expected: tracejit_effects::COMPILER_RUNTIME_CONTRACT.into(),
+                            actual: contract.clone(),
+                        });
+                    }
+                    let Some(profile) =
+                        tracejit_effects::compiler_runtime_profile(executable, build_id)
+                    else {
+                        return Err(GuardFailure {
+                            guard: Box::new(self.clone()),
+                            reason: "controlled observation names an unaudited compiler profile"
+                                .into(),
+                            expected: format!(
+                                "one of {} audited compiler binaries",
+                                tracejit_effects::COMPILER_RUNTIME_PROFILES.len()
+                            ),
+                            actual: format!("{} ({})", executable.display(), build_id),
+                        });
+                    };
+                    if !profile.allows(*observation) {
+                        return Err(GuardFailure {
+                            guard: Box::new(self.clone()),
+                            reason: "compiler profile does not admit this observation".into(),
+                            expected: profile.executable.into(),
+                            actual: observation.name().into(),
+                        });
+                    }
                 }
                 if *length != observation.length() {
                     return Err(GuardFailure {
@@ -1435,6 +1464,13 @@ fn replay_directory_enumeration(
             return Err(error);
         }
         buffer.truncate(read as usize);
+        if request.padding == DirectoryPaddingPolicy::VirtualZero {
+            if let Err(reason) = tracejit_effects::zero_directory_entry_padding(&mut buffer) {
+                // SAFETY: fd was opened above and is not used afterwards.
+                unsafe { libc::close(fd) };
+                return Err(reason);
+            }
+        }
         if buffer != request.returned {
             // SAFETY: fd was opened above and is not used afterwards.
             unsafe { libc::close(fd) };
@@ -2538,6 +2574,7 @@ mod tests {
             requests.push(DirectoryEnumerationRequest {
                 requested,
                 returned: buffer,
+                padding: DirectoryPaddingPolicy::Native,
             });
             if eof {
                 break;
@@ -2571,6 +2608,29 @@ mod tests {
             failure.reason.contains("entry stream changed"),
             "{failure:?}"
         );
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn controlled_directory_guard_replays_zeroed_padding() {
+        let directory = tempfile::tempdir().unwrap();
+        fs::write(directory.path().join("a"), b"a").unwrap();
+        let requests = enumerate(directory.path())
+            .into_iter()
+            .map(|mut request| {
+                tracejit_effects::zero_directory_entry_padding(&mut request.returned).unwrap();
+                request.padding = DirectoryPaddingPolicy::VirtualZero;
+                request
+            })
+            .collect();
+        let guard = Guard::DirectoryEnumerated {
+            path: directory.path().to_path_buf(),
+            requests,
+            expected: fingerprint(directory.path()).unwrap(),
+            credential: credential_identity(0),
+            mount_namespace: namespace_identity(0),
+        };
+        assert!(guard.validate(GuardMode::Strict).is_ok());
     }
 
     #[cfg(target_os = "linux")]

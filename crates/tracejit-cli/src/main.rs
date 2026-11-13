@@ -140,6 +140,8 @@ enum ContractArg {
     AllocatorEntropyV1,
     /// Fix the audited GCC 13.3.0 toolchain's incidental runtime observations.
     CompilerRuntimeV1,
+    /// Experimental CPython 3.12.3 single-process clock/identity contract.
+    PythonRuntimeV1,
 }
 
 impl From<ContractArg> for Contract {
@@ -147,6 +149,7 @@ impl From<ContractArg> for Contract {
         match value {
             ContractArg::AllocatorEntropyV1 => Self::AllocatorEntropyV1,
             ContractArg::CompilerRuntimeV1 => Self::CompilerRuntimeV1,
+            ContractArg::PythonRuntimeV1 => Self::PythonRuntimeV1,
         }
     }
 }
