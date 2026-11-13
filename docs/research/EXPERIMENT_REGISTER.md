@@ -228,9 +228,10 @@ The child was confirmed to inherit fd 9 and it was not `CLOEXEC`-closed. Fixture
 
 ## E-3G-02 — inherited-descriptor preflight hotfix
 
-**Result:** any descriptor above stderr captured before `Cache::open` now sends the invocation to the
-direct path with the reason `inherited descriptor N beyond stdin is not modelled; reuse refused`.
-No candidate is decoded and no reusable record is written. Trace retains an `Unknown` effect for the
+**Result:** any surviving descriptor above stderr is captured before `Cache::open`; the cache is then
+initialized, and the invocation is sent to the direct path before candidate lookup with the reason
+`inherited descriptor N beyond stdin is not modelled; reuse refused`. `FD_CLOEXEC` descriptors are
+skipped. No candidate is decoded and no reusable record is written. Trace retains an `Unknown` effect for the
 same descriptors. Regressions cover `/dev/zero`, regular file, pipe, closed fd, two concurrent
 replacements, a close-on-exec fd that must not block reuse, and the existing stdin-seek model (where
 an externally inherited fd-3 alias is now refused). Local gates: **138 workspace tests**, **51 Linux
@@ -280,3 +281,244 @@ attribution of the 24-byte call to `_PyTime_AsNanoseconds` is corrected.
 `phase3d/compatibility-retrieval` and `phase3e/epoll-and-effect-frontier` plus their audit evidence.
 Lift only the independent SQLite error-propagation fix if desired. Recommend closing both PRs; no
 authenticated PR API session is available here.
+
+## E-3H-01 — `/proc/self/fd` enumeration failure paths
+
+**Question:** Can `readdir()` failure be mistaken for an empty inherited-descriptor table?
+
+**Result:** yes in the old loop, which treated every `NULL` as EOF without checking `errno`. The
+guard now returns `Result<Option<i32>, GuardError>` and fails closed for `opendir`, `dirfd`,
+`readdir`, `fcntl(F_GETFD)` and `closedir`. Seven unit tests cover first-entry, after-entry,
+`fcntl`, `dirfd`, `closedir`, CLOEXEC and complete scans. The Linux integration test
+`descriptor_enumeration_failure_is_fail_closed` uses an `LD_PRELOAD` shim to fail the real
+`/proc/self/fd` `readdir` before and after one entry; the invocation is non-successful and reports no
+`HIT` or `MISS`. The preflight-to-`exec` race remains open and is documented, not claimed fixed.
+
+**Raw:** `crates/tracejit-guards/src/lib.rs`, `crates/tracejit-cli/tests/linux_integration.rs`.
+
+## E-3H-02 — descriptor-number reuse during directory enumeration
+
+**Question:** Does closing a directory and reusing its descriptor number append a second stream to
+the first enumeration record?
+
+**Result:** yes. `ProcessState.enumerations` was keyed by fd and was not cleared on `close`, `dup`,
+`open`, `pipe` or socket creation, so a guard could replay a concatenation that no single open file
+description produced. A `forget_descriptor` helper now clears the fd state, CLOEXEC bit and
+enumeration record together; unit test
+`reusing_a_descriptor_forgets_its_directory_enumeration` covers it. This was found by the controlled
+Python run, whose target then exposed a separate byte-padding difference (E-3H-03).
+
+**Raw:** `crates/tracejit-trace/src/linux.rs`.
+
+## E-3H-03 — controlled CPython target rejection
+
+**Question:** Does the experimental Python-runtime watchpoint produce a `python-csv-json` hit?
+
+**Result:** no. With exact CPython 3.12.3, `PYTHONHASHSEED=0` and
+`tracejit.python-runtime.v1`, the first run is `Guarded`/`Executed` and the second is
+`Guarded`/`Deoptimized`. The failing guard is `DirectoryEnumerated`: recorded `linux_dirent64`
+padding after `.` was `sl.` and the fresh replay returned zeroes. Names, order, inode and offsets
+were equal. The target output remained byte-identical
+(`28bc8fa9...`). Canonicalising padding was rejected because a program can read the whole returned
+buffer; a reader call-site proof is required first. Native census remains 9 attempted, 0 reused,
+9 refused.
+
+**Raw:** `benchmarks/results/phase3h/python-observations.json`.
+
+## E-3H-04 — CPython clock and `gettid` call-site provenance
+
+**Question:** Can a startup-only clock or identity exemption be justified from syscall class alone?
+
+**Result:** no. `Python/pytime.c::py_get_system_clock` (line 919) and
+`py_get_monotonic_clock` (1150) use `clock_gettime`; the application APIs in
+`Modules/timemodule.c` (151, 168, 1179, 1194) reach the same effects. Plain `strace` sees no clock
+syscalls because CPython uses the vDSO, while TraceJIT records both classes after disarming it.
+`Python/pystate.c::bind_tstate` (241) stores `PyThread_get_thread_native_id` (257), implemented as
+`syscall(SYS_gettid)` in `Python/thread_pthread.h` (328/337). The syscall is application-visible via
+`threading.get_native_id`. The `LD_PRELOAD` prototype can replace symbol clocks and `getpid`, but not
+`gettid`, so symbol-level identity virtualisation is insufficient.
+
+**Raw:** `benchmarks/results/phase3h/strace/`.
+
+## E-3H-05 — controlled Python smoke and invalidation
+
+**Question:** Do the experimental watchpoints work when the program does not enumerate a directory or
+print nondeterministic values?
+
+**Result:** yes for the smoke mechanism, but it is not a target-workload or performance claim.
+`python -S smoke.py` is `Reused` 10/10 after a cold `Executed`; cached stdout equals direct stdout.
+Changing the script deoptimizes and the traced output equals the new direct stdout. Measured wall:
+direct roughly 11-16 ms, cold 88-105 ms, warm 32-35 ms; the controlled path is slower on this tiny
+script. The target workload had no hit at Phase 3H; Phase 3I supersedes that specific result with a
+controlled `VirtualZero` hit (E-3I-03), without making it a native or performance claim.
+
+**Raw:** `benchmarks/results/phase3h/contract-smoke.json`.
+
+## E-3I-01 — `dup2(fd, fd)` state loss and P0 correction
+
+**Question:** Does the successful same-descriptor `dup2` no-op preserve descriptor classification,
+`FD_CLOEXEC` and in-progress directory enumeration?
+
+**Result:** no, before the fix. `PendingSyscall::Dup` forgot the destination and then looked up the
+same descriptor as the source, erasing its state. Linux returns success without changing anything for
+`dup2(fd, fd)`; `dup3(fd, fd)` returns `EINVAL` and never reaches the successful path. The duplicate
+handler now returns before mutation when source == destination. Unit tests cover file+CLOEXEC,
+directory enumeration, pipe, and ordinary `dup`/distinct `dup2`/`dup3`/`fcntl` behavior. The
+integration fixture covers file, directory and pipe self-duplication; it fails with the early return
+removed and passes with it restored. Commits: `7f15832` (failing test), `e74f9ee` (fix), `c2f1e9c`
+(integration), `77c8715` (preflight failure status/output), `c1c5c4e` (descriptor reuse through
+close/open/socket/pipe). P0 gates at `c1c5c4e`: **151 workspace tests**, **53 Linux integration tests**,
+fmt and Clippy clean, release build. Hosted CI run `43378765278` passed every step, including Demo.
+
+## E-3I-02 — directory-entry padding hypotheses A/B/C
+
+**Question:** Are the differing `linux_dirent64` bytes uninitialised padding, a descriptor-generation
+defect, or semantic-field stability with unobserved padding?
+
+**Result:** A at the syscall boundary and C for the audited reader; B is not supported. The kernel's
+`filldir64` writes fixed fields, the name and terminator but not alignment padding. The probe at
+`benchmarks/phase3i/getdents_probe.c` preserves fill bytes `0xaa`/`0x55` in the 48-byte
+`dist-packages` records while every semantic field remains equal. P0 descriptor-generation handling
+is independent: two cold target observations have the same request boundary, names, inode, offsets,
+`d_reclen` and `d_type`. CPython 3.12.3 `_posix_listdir`/`FileFinder._fill_cache` reads `d_name`;
+glibc 2.39 returns a pointer into the `DIR` buffer. Raw: `benchmarks/results/phase3i/directory-records.json`,
+`getdents-probe.txt`, `strace/target-getdents.strace`.
+
+## E-3I-03 — explicit `VirtualZero` padding contract on `python-csv-json`
+
+**Build:** CPython 3.12.3 ELF `337d65cf...`, SHA-256 `e50d468e...`; glibc 2.39 build ID
+`a4a7992a...`, SHA-256 `3a15d668...`; Linux 6.1.102.
+
+**Result:** target hit. Three fresh-cache cold runs were `Executed`/`Guarded`; ten warm runs were
+`Reused`; changed input was `Deoptimized` and matched direct output. Original output SHA-256
+`28bc8fa9...`; changed-input SHA-256 `c348fbdc...`; 249 bytes, mode `0644`, `nlink=1` in every arm.
+Entropy probe was never reused. Timings (one load-sensitive run): direct median 36.88 ms, cold median
+214.07 ms (first cold 2063.19 ms outlier), warm median 51.09 ms, invalidation 192.02 ms, complete
+session 730.76 ms versus 408.61 ms direct. The controlled session is slower than direct; no speedup
+is claimed. Raw: `benchmarks/results/phase3i/acceptance.json`.
+
+## E-3I-04 — typed directory projection prototype
+
+**Result:** the benchmark-side typed projection excludes only `padding` and compares `d_ino`, `d_off`,
+`d_reclen`, `d_type`, name and call boundaries. On the two probe fills, byte-exact equality is false
+(5 padding bytes differ) while typed equality is true. This demonstrates the design but is not a
+production guard: an arbitrary reader can observe padding. `benchmarks/phase3i/compare_directory_policies.py`
+and `benchmarks/results/phase3i/policy-comparison.json`.
+
+## E-3I-05 — preflight failure behavior and race reassessment
+
+**Result:** `PreparedExecution::new` propagates `GuardError::DescriptorEnumeration`; the CLI exits 1
+before lookup and does not execute the target directly. `77c8715` asserts status 1 and the absence of
+the target output. The earlier "concurrent parent" race description was corrected: the parent cannot
+mutate TraceJIT's table after fork/exec, and the current scan/spawn path is single-threaded with
+CLOEXEC cache descriptors. A future in-process thread, signal handler or constructor opening a
+non-CLOEXEC descriptor would invalidate the scan; no atomic handoff exists. This remains an invariant
+and limitation, not an observed hit.
+
+## Phase 3J — controlled Python boundary and amortization
+
+All Phase 3J results are on `research/phase3j`, based on `main` at `29718cf`. They are local
+measurements on a shared VM, not hosted-CI results and not native-equivalence evidence. Release
+binary SHA-256: `dcbaf5d715da6a8c46cb134165298643ee532109245281152b53ec37c75cdb6d`.
+
+### E-3J-01 — reconciliation and gates
+
+**Question:** Can the experimental Python contract and Phase 3H/3I artifacts be reviewed from the
+merged correctness branch without losing the `dup2(fd, fd)`, directory-generation or descriptor
+preflight fixes?
+
+**Arm:** `research/phase3j` at `29718cf`, commits `e19aca8`, `b9a54fb`, `dcee712`.
+
+**Result:** cherry-picks clean; the `dup2` early return remains. fmt pass, Clippy `-D warnings`
+pass, **155 workspace tests**, **53 Linux integration tests**, release build and demo pass. Phase 3I's
+five acceptance assertions pass on the reconciled branch. Hosted CI run `43489814814` at `a369fb4`
+passed every step, including Tests, Linux integration, census and Demo. Raw:
+`benchmarks/results/phase3j/reproduced-acceptance.json`.
+
+### E-3J-02 — adversarial semantic probes
+
+**Question:** What does `python-runtime-v1` actually change, and does a logical clock repair the
+timeout-loop failure?
+
+**Method:** native/control/control for monotonic and realtime clocks, `getpid`/`getppid`/`gettid`,
+direct `ctypes` syscalls, `os.urandom`, threads, fork, directory padding and self-signals. Raw:
+`benchmarks/results/phase3j/semantic-probes.json`.
+
+**Result:**
+
+- v1 returns fixed `0 0 1000 0` for the bounded 1 ms loop: **1000 iterations**.
+- v2 returns an advancing logical sequence; the loop exits at **0 iterations**.
+- v1/v2 identity is `4242 1 4243`; direct identity differs.
+- `os.kill(os.getpid(), SIGUSR1)` raises `ProcessLookupError` under both contracts. It is a
+  correctness counterexample, not merely a virtualized output.
+- entropy, thread creation and fork remain `Executed`/not reused.
+- controlled directory padding is all zeroes and reuses; native padding is unchanged and remains
+  the default.
+- `gettimeofday` is not virtualized under v2 because its ABI is a `timeval`, not the logical
+  `timespec` payload.
+
+### E-3J-03 — canonical ETL phase profile
+
+**Question:** Where does the warm `python-csv-json` hit spend its time?
+
+**Method:** 10 independent cold caches and 15 steady warm hits per contract; 12 direct runs.
+Raw: `benchmarks/results/phase3j/profile.json`.
+
+**Result (v1 medians):** warm `runtime_ns` 21.3 ms; guard validation 12.0 ms (hash 10.2 ms,
+directory 0.78 ms, metadata 1.03 ms); SQLite query 4.4 ms; record decode 4.8 ms; identity
+preparation 3.7 ms; CAS restore 1.8 ms. Top three: hashing, candidate query/decode, identity/startup.
+The original ETL remains a short-session loss: the ten-warm complete session is 625.9 ms versus
+579.5 ms direct.
+
+### E-3J-04 — metadata-keyed hash reuse
+
+**Question:** Can repeated `ControlledRuntime` guards share one executable hash without dropping a
+guard?
+
+**Change:** one hash cache per validation pass, keyed by path and guarded by the current metadata
+fingerprint. A changed generation rehashes. Unit test
+`hash_cache_rehashes_after_a_metadata_generation_change` covers this.
+
+**Result:** the v2 clock probe fell from roughly 0.8 s to 13.1-13.5 ms; ETL warm `runtime_ns` fell
+from about 29 ms to 21.3 ms. The guarantee is per pass and per metadata generation; same-metadata
+content mutation inside a pass is a documented limitation. No guard was removed.
+
+### E-3J-05 — CPU-heavy amortization
+
+**Question:** Which realistic deterministic Python workloads repay the controlled path?
+
+**Fixtures:** `heavy_transform.py` (120,000 CSV rows) and `image_convolution.py` (320x240 PPM,
+5x5 Gaussian + edge pass, pure Python). Raw:
+`benchmarks/results/phase3j/cpu-workloads.json`.
+
+**Result (latest run, shared VM):**
+
+| Workload | Direct | Contract | Cold | Warm wall | Output | Break-even |
+| --- | ---: | --- | ---: | ---: | --- | ---: |
+| heavy | 1022.7 ms | v1 | 2692.5 ms | 39.2 ms | equal | 4 |
+| heavy | 1022.7 ms | v2 | 1498.2 ms | 87.0 ms | equal | 3 |
+| image | 5116.3 ms | v1 | 5097.2 ms | 44.7 ms | equal | 3 |
+| image | 5116.3 ms | v2 | 4887.3 ms | 50.3 ms | equal | 2 |
+
+Every warm run reused; changed inputs retraced and matched direct output. A less-loaded run measured
+heavy direct 664 ms/warm 29.7 ms and image direct 2880 ms/warm 26.7 ms, break-even 3. This is
+byte-identical controlled reuse, not native equivalence.
+
+### E-3J-06 — competing mechanisms
+
+**A (persistent connection/batch):** startup 5.3 ms, SQLite open/schema ~0.6 ms, query 4.4 ms. Not
+implemented; a daemon adds lifecycle, IPC and crash-recovery costs without evidence of a net win.
+
+**B (compact dependency metadata):** a heavy candidate is 927 KB with 160 KB of guards; decode is
+4.8-9.5 ms. No sound compact representation was demonstrated, so it was not wired in.
+
+**C (directory projections):** directory guards cost <1 ms. Rejected for now because a typed
+projection can hide padding from a reader that can observe it; native byte-exact remains default.
+
+**D (guard hashing):** implemented and measured in E-3J-04.
+
+**E (output restoration):** CAS restore is 1.4-1.8 ms; inode, metadata, hard-link and crash-recovery
+obligations dominate the plausible gain, so no optimization was attempted.
+
+**Retained negative:** typed directory projection and `VirtualZero` are not native defaults. The
+signal counterexample remains unresolved for fixed identity.

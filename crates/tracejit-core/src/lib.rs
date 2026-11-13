@@ -145,6 +145,10 @@ pub struct PhaseTimings {
     pub sqlite_query_ns: u64,
     pub record_decode_ns: u64,
     pub guard_validation_ns: u64,
+    pub guard_metadata_ns: u64,
+    pub guard_hash_ns: u64,
+    pub guard_directory_ns: u64,
+    pub guard_other_ns: u64,
     pub cas_restore_ns: u64,
     pub stdio_replay_ns: u64,
     pub decision_persist_ns: u64,
@@ -317,6 +321,10 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
         let mark = Instant::now();
         let guards = validate_all(&candidate.guards, options.guard_mode);
         phases.guard_validation_ns = phase_elapsed(timing, mark);
+        phases.guard_metadata_ns = guards.metadata_ns;
+        phases.guard_hash_ns = guards.hash_ns;
+        phases.guard_directory_ns = guards.directory_ns;
+        phases.guard_other_ns = guards.other_ns;
         if guards.failure.is_some() {
             if last_guard_report.is_none() {
                 last_guard_report = Some(guards);

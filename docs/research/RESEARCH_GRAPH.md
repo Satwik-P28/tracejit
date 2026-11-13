@@ -282,8 +282,9 @@ E-3G-01, E-3G-02.
 
 ### H13 — Refuse unmodelled inherited descriptors before cache lookup
 
-A preflight over `/proc/self/fd`, captured before `Cache::open`, sends any execution with a surviving
-fd above 2 to the direct path without reading or writing a reusable record. Descriptors marked
+A preflight over `/proc/self/fd` is captured before `Cache::open`; after cache initialization but
+before candidate lookup it sends any execution with a surviving fd above 2 to the direct path without
+reading or writing a reusable record. Descriptors marked
 `FD_CLOEXEC` are skipped because they cannot reach the child. A trace-layer `Unknown` effect is a
 second line of defence. This is smaller and more stable than adding a descriptor table to the lookup
 key. Status: `verified`; E-3G-02.
@@ -324,7 +325,9 @@ Status: `open`; rejected as a shortcut.
 ### C8 — Native and controlled Python identities remain separate
 
 A controlled Python record cannot validate against native execution. The contract identifier is part
-of the lookup key; no Python controlled record has been admitted. Status: `enforced`.
+of the lookup key. No native Python record had been admitted at Phase 3G; Phase 3I admits controlled
+records only under `python-runtime-v1`, and they remain separate from native records. Status:
+`enforced`.
 
 ### Edges
 
@@ -345,3 +348,211 @@ of the lookup key; no Python controlled record has been admitted. Status: `enfor
 5. Audit the exact CPython build application-level call sites before enabling any controlled contract; require multiple equivalent cold runs.
 6. Recreate the epoll commit on `main` only after adding fork/exec, `RLIMIT_NOFILE` and descriptor-transfer regressions.
 7. Only after process-level validation is cheap enough, prototype a workflow-level graph on one realistic multi-command recipe.
+
+## Phase 3H nodes
+
+### P16 — `readdir()` failure was silently treated as an empty descriptor table
+
+The inherited-descriptor preflight used every `NULL` from `readdir()` as end-of-directory and never
+consulted `errno`. An interrupted or failed enumeration could therefore look empty and let an
+execution with an inherited descriptor reach lookup. The guard now returns an explicit result and
+fails closed for `opendir`, `dirfd`, `readdir`, `fcntl(F_GETFD)` and `closedir`; CLOEXEC descriptors
+are skipped because the kernel closes them before the target runs. Status: `fixed`; E-3H-01.
+
+### H17 — Preflight-to-exec descriptor race
+
+The scan captures one value, not a stable table. A concurrent parent can change the inherited
+descriptor set between the scan and `execve`; a helper that scans and execs without an intervening
+window, or a parent invariant, is required. Status: `open`; no exploit claimed. This is separate from
+the enumeration error fix.
+
+### P17 — Descriptor-number reuse leaked a directory enumeration record
+
+`ProcessState.enumerations` was keyed by descriptor number and survived `close` and reuse. A new
+directory at the same number could append to the old record, making the guard replay a concatenation
+that no open file description produced. `forget_descriptor` now clears fd, CLOEXEC and enumeration
+state on close, dup/dup2, open, pipe and socket creation. Status: `fixed`; E-3H-02.
+
+### P18 — Directory-entry padding is observable and prevents byte-exact reuse
+
+The controlled Python target reached a candidate and deoptimized because `linux_dirent64` padding
+after `.` differed (`sl.` versus zeroes), while names, inode, order and offsets matched. The kernel
+does not define padding, but a program can read the whole returned buffer. Canonicalising it would
+assume a reader call-site; that proof does not exist. Status: `open`; byte-exact refusal retained;
+E-3H-03.
+
+### H18 — Versioned CPython clock/identity watchpoints
+
+A branch-only `tracejit.python-runtime.v1` contract controls CPython's realtime/monotonic
+`clock_gettime`, `gettimeofday`, seconds `time`, `getpid`, `getppid` and `gettid` for the exact
+build `337d65cf...`, records executable hash/build ID, refuses clone/fork and keeps the contract in
+the cache identity. It removes the target's clock, identity and randomness blockers but does not
+produce a target hit because P18 fails. It is a watchpoint prototype, not a claim of native
+equivalence. Status: `prototype`; E-3H-03, E-3H-05.
+
+### H19 — Startup-only clock admission from a syscall class
+
+`Python/pytime.c` and `Modules/timemodule.c` map application and runtime clock calls to the same
+`clock_gettime` effects. TraceJIT records no caller or instruction pointer for ordinary `Clock`
+effects, so a startup-only whitelist cannot be implemented soundly from the syscall class.
+Status: `rejected`; requires per-instance call-site/instruction signatures; E-3H-04.
+
+### C9 — A controlled Python record requires the full effect sequence
+
+An executable/build-ID match and fixed clock/identity values are insufficient. The record must also
+have verified call sites, consistent clock progression, single-process/thread semantics, complete
+output and filesystem effects, repeated independent cold runs and explicit mismatch rejection. The
+smoke hit does not satisfy these obligations; no general Python reuse is admitted. Status:
+`enforced as experimental`; H18.
+
+### H20 — Symbol-level identity virtualisation
+
+`LD_PRELOAD` can replace `clock_gettime`, `gettimeofday`, `time`, `getpid` and `getppid`, but CPython
+issues `gettid` with a direct syscall. A symbol-only contract therefore cannot cover the thread
+identity that `threading.get_native_id()` exposes. Status: `rejected as sufficient`; E-3H-04.
+
+### Edges
+
+- P16 -> H17
+- P16 -> C7
+- P17 -> P18
+- P18 -> C9
+- P15 (Phase 3G) -> H18 -> H19
+- H18 -> H20
+- H18 -> C9
+- H19 -> C9
+- E-3H-01 -> P16, H17
+- E-3H-02 -> P17
+- E-3H-03 -> P18, H18, C9
+- E-3H-04 -> H19, H20
+- E-3H-05 -> H18
+
+## Phase 3H next experiments
+
+1. Add instruction-pointer/caller identity to ordinary clock and `gettid` effects, then retest
+   startup-only admission against an application clock counterexample.
+2. Decide whether a directory reader's call-site can prove that ABI padding is unobserved; otherwise
+   keep the byte-exact guard and report the deopt.
+3. Run at least three independent controlled cold executions and a filesystem-effect differential
+   before promoting any Python contract.
+4. Close the preflight-to-`exec` race with an atomic scan/exec handoff, or keep the refusal bounded
+   and state the concurrent-parent limitation.
+
+## Phase 3I nodes
+
+### P16 — `dup2(fd, fd)` erased descriptor state
+
+The Linux same-descriptor `dup2` is a successful no-op. The tracer forgot the destination before
+looking up the source, so it lost fd classification, `FD_CLOEXEC` and directory enumeration state.
+`dup3(fd, fd)` is `EINVAL` and does not reach the successful path. Status: `fixed`; E-3I-01.
+Regression: `7f15832`, `e74f9ee`, `c2f1e9c`.
+
+### P17 — directory padding is uninitialised buffer content, not a stream-boundary defect
+
+`linux_dirent64` alignment padding is not written by the kernel. A user buffer prefilled with
+`0xaa`/`0x55` keeps that byte after `getdents64`, while fields and names stay identical. The target's
+`sl.`/`ux` bytes are consistent with glibc's `DIR` buffer contents. The audited CPython reader uses
+`d_name` only. Status: `A at syscall boundary, C for audited reader`; E-3I-02, E-3I-03.
+
+### H17 — explicit `VirtualZero` contract
+
+Zero alignment padding after `getdents64` and on replay only under the exact `python-runtime-v1`
+contract, recording the policy in every request. Native bytes and native guards are unchanged.
+Status: `prototyped and controlled hit verified`; target `Reused` 10/10 with correct effects, but no
+performance gain. E-3I-03.
+
+### H18 — typed directory-entry guard for an audited reader
+
+Compare semantic fields and call boundaries, excluding padding. It passes the two-fill probe while
+byte-exact comparison fails, but it makes padding invisible to a reader that can observe it. Status:
+`prototype only, not wired`; would require executable reader identity. E-3I-04.
+
+### C9 — byte-exact native directory guard remains the default
+
+Arbitrary programs can copy or hash all `d_reclen` bytes. Native `DirectoryPaddingPolicy` therefore
+stays byte-exact; `VirtualZero` is opt-in and contract-separated. Status: `enforced`.
+
+### C10 — descriptor preflight is fail-closed, with an invariant
+
+Enumeration errors fail the command with status 1 before lookup; there is no direct fallback. The
+scan/spawn path is single-threaded and the parent cannot mutate the table, so the earlier
+"concurrent parent" race was misstated. A future non-CLOEXEC open between scan and spawn would still
+invalidate it; no atomic handoff exists. Status: `behavior tested, invariant open`; E-3I-05.
+
+### Edges
+
+- P16 -> E-3I-01
+- P17 -> H17, H18, C9
+- H17 -> E-3I-03
+- H18 -> E-3I-04
+- E-3I-05 -> C10
+- E-3I-02 -> P17
+
+## Phase 3I next experiments
+
+1. Hosted CI passed for PR #8 (`43378765278`, `c1c5c4e`) and PR #9 (`43377574220`, `182e9bb`).
+2. Do not merge PR #8 before its hosted checks pass; do not merge PR #9's experimental contract.
+3. Decide whether a typed reader identity can be made executable and auditable; otherwise keep
+   `Native` byte-exact.
+4. If clock progression is required, implement an advancing controlled clock with timeout/liveness
+   tests instead of the current fixed zero.
+
+## Phase 3J nodes
+
+### H21 — `python-runtime-v2` logical clock
+
+V2 keeps the audited CPython ELF/build-ID and fixed identity but advances realtime and monotonic
+clocks by 1 ms per admitted observation. The bounded 1 ms timeout loop goes from 1000 iterations
+under v1 to 0 under v2. This is virtual time: sleep, blocking syscalls and scheduler order are not
+remapped, and `gettimeofday` is refused because its `timeval` ABI is not the logical `timespec`
+payload. Status: `experimental, unmerged`; E-3J-02, E-3J-03.
+
+### P18 — fixed identity is not a process contract
+
+`os.kill(os.getpid(), SIGUSR1)` targets the virtual PID 4242 under both Python contracts and raises
+`ProcessLookupError`; direct execution delivers `SIGUSR1`. The attempt is not reusable, but the
+first controlled run already differs. Fixed identity is therefore a narrow display/watchpoint, not
+general process semantics. Status: `open counterexample`; E-3J-02.
+
+### P19 — repeated virtual observations create guard duplication
+
+A v2 clock probe records 414 `ControlledRuntime` guards naming the same executable. Rehashing the
+executable per guard made a warm hit ~0.8 s. A per-validation metadata-generation hash cache keeps
+every guard and cuts the same hit to 13.1-13.5 ms. Status: `implemented, soundness boundary
+documented`; E-3J-04.
+
+### P20 — controlled reuse has a fixed floor, not a universal speedup
+
+The original ETL's warm report is 21.3 ms (v1) but its cold trace is 181.9-301.0 ms; a ten-warm
+complete session remains slower than direct. The 120k-row CSV and 320x240 image workloads have
+byte-identical warm outputs and amortize at 2-4 complete runs. Incremental value is workload
+duration relative to the ~20-50 ms validation floor, not a property of the contract alone. Status:
+`measured`; E-3J-03, E-3J-05.
+
+### C11 — native byte-exact directory guarding remains default
+
+`VirtualZero` is contract-separated; typed projections and cached directory fields are not wired
+because a reader can observe padding and the measured directory guard cost is below 1 ms. Status:
+`enforced`; E-3J-06.
+
+### Edges
+
+- H21 -> P19
+- P18 -> H21 (the identity limitation bounds what v2 may claim)
+- P19 -> P20
+- P20 -> C11
+- E-3J-02 -> H21, P18
+- E-3J-03 -> P20
+- E-3J-04 -> P19
+- E-3J-05 -> P20
+- E-3J-06 -> C11
+
+### Graph-of-thoughts chain
+
+`runtime virtualization -> observable effects -> effect provenance -> dependency validation ->
+incremental computation -> filesystem replay obligations`
+
+The chain is not a proof of native equivalence. It explains why v1's fixed clock and identity are
+insufficient, why v2's logical clock needs sequence-aware guards, why repeated guards should share
+an immutable runtime hash, why the original ETL cannot amortize, and why byte-exact filesystem
+guarding remains the default.

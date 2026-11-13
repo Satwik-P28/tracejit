@@ -19,8 +19,8 @@ use std::time::{Instant, SystemTime, UNIX_EPOCH};
 use tracejit_effects::{
     ClockKind, ControlEffect, ControlledEntropyRead, ControlledRuntimeObservation,
     ControlledRuntimeRead, DependencyEdge, DependencyKind, DirectoryEnumerationRead,
-    DirectoryEnumerationRequest, DirectoryOpen, Effect, EffectRecord, ExecutionMetadata,
-    FileMetadataRead, FileRead, FileWrite, FileWriteKind, FilesystemStatsRead,
+    DirectoryEnumerationRequest, DirectoryOpen, DirectoryPaddingPolicy, Effect, EffectRecord,
+    ExecutionMetadata, FileMetadataRead, FileRead, FileWrite, FileWriteKind, FilesystemStatsRead,
     FilesystemStatsSource, InheritedStreamRead, IpcWrite, KernelStateRead, NetworkRead,
     NetworkWrite, ProcessExec, ProcessNode, ProcessSpawn, RandomSource, ReadEffect, SignalEffect,
     SymlinkRead, Trace, UnknownEffect, WriteEffect,
@@ -51,6 +51,9 @@ struct ProcessState {
     stdin_stream: Option<InheritedStreamState>,
     /// False after exec until vDSO time entry points are redirected to syscalls.
     vdso_disarmed: bool,
+    /// One-millisecond logical clock ordinals under `python-runtime-v2`.
+    realtime_ordinal: u64,
+    monotonic_ordinal: u64,
 }
 
 /// Records one directory's entry stream while the program reads it.
@@ -186,6 +189,7 @@ enum PendingSyscall {
         fd: i32,
         buffer: u64,
         requested: u64,
+        padding: DirectoryPaddingPolicy,
     },
     Read {
         fd: i32,
@@ -240,6 +244,7 @@ enum PendingSyscall {
         buffer: u64,
         length: u32,
         value: u64,
+        contract: Contract,
     },
     Signal {
         signal: i32,
@@ -713,6 +718,8 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
             enumerations: HashMap::new(),
             stdin_stream,
             vdso_disarmed: true,
+            realtime_ordinal: 0,
+            monotonic_ordinal: 0,
         },
     )]);
     let mut processes = vec![ProcessNode {
@@ -1077,18 +1084,35 @@ fn handle_syscall(
             buffer,
             length,
             value,
+            contract,
         } = pending
         {
-            let payload = controlled_runtime_payload(observation, value, length)?;
-            write_process_bytes(pid, buffer, &payload).map_err(|error| {
-                TraceError::Ptrace(format!(
-                    "{} buffer {buffer:#x} (length {length}): {error}",
-                    observation.name()
-                ))
-            })?;
+            if observation.is_python_scalar() {
+                if buffer != 0 {
+                    let payload = controlled_runtime_payload(observation, value, length, contract)?;
+                    write_process_bytes(pid, buffer, &payload).map_err(|error| {
+                        TraceError::Ptrace(format!(
+                            "{} buffer {buffer:#x} (length {length}): {error}",
+                            observation.name()
+                        ))
+                    })?;
+                }
+            } else {
+                let payload = controlled_runtime_payload(observation, value, length, contract)?;
+                write_process_bytes(pid, buffer, &payload).map_err(|error| {
+                    TraceError::Ptrace(format!(
+                        "{} buffer {buffer:#x} (length {length}): {error}",
+                        observation.name()
+                    ))
+                })?;
+            }
             let mut resumed = ptrace::getregs(pid)
                 .map_err(|error| ptrace_operation("read registers", pid, error))?;
-            resumed.rax = 0;
+            resumed.rax = if observation.is_python_scalar() {
+                value
+            } else {
+                0
+            };
             ptrace::setregs(pid, resumed)
                 .map_err(|error| ptrace_operation("finish controlled observation", pid, error))?;
             collector.push(
@@ -1100,7 +1124,7 @@ fn handle_syscall(
                     build_id,
                     length,
                     value,
-                    contract: Contract::CompilerRuntimeV1.id().to_string(),
+                    contract: contract.id().to_string(),
                 })),
             );
             state.entering = true;
@@ -1133,7 +1157,7 @@ fn handle_syscall(
 
 fn decode_entry(
     pid: Pid,
-    state: &ProcessState,
+    state: &mut ProcessState,
     registers: &libc::user_regs_struct,
     contract: Option<Contract>,
 ) -> Result<PendingSyscall, TraceError> {
@@ -1269,6 +1293,14 @@ fn decode_entry(
                         fd,
                         buffer: args[1],
                         requested: args[2],
+                        padding: if matches!(
+                            contract,
+                            Some(Contract::PythonRuntimeV1 | Contract::PythonRuntimeV2)
+                        ) {
+                            DirectoryPaddingPolicy::VirtualZero
+                        } else {
+                            DirectoryPaddingPolicy::Native
+                        },
                     }
                 }
             }
@@ -1468,9 +1500,45 @@ fn decode_entry(
                 ClockKind::Other(_) => None,
             };
             match (contract, observation) {
-                (Some(Contract::CompilerRuntimeV1), Some(observation)) => {
-                    match compiler_observation(pid, observation) {
+                (Some(contract @ Contract::CompilerRuntimeV1), Some(observation))
+                | (Some(contract @ Contract::PythonRuntimeV1), Some(observation))
+                | (Some(contract @ Contract::PythonRuntimeV2), Some(observation)) => {
+                    match runtime_observation(pid, observation, contract) {
+                        Some((_executable, _executable_hash, _build_id))
+                            if contract == Contract::PythonRuntimeV2
+                                && number == libc::SYS_gettimeofday =>
+                        {
+                            // `gettimeofday` writes a timeval (seconds, microseconds);
+                            // v2's logical payload is a timespec (nanoseconds). Do not
+                            // give a caller a value with an out-of-range usec field.
+                            PendingSyscall::Clock { kind }
+                        }
                         Some((executable, executable_hash, build_id)) => {
+                            let value = if contract == Contract::PythonRuntimeV2 {
+                                let ordinal = match observation {
+                                    ControlledRuntimeObservation::ClockRealtime => {
+                                        state.realtime_ordinal
+                                    }
+                                    ControlledRuntimeObservation::ClockMonotonic => {
+                                        state.monotonic_ordinal
+                                    }
+                                    _ => 0,
+                                };
+                                match observation {
+                                    ControlledRuntimeObservation::ClockRealtime => {
+                                        state.realtime_ordinal =
+                                            state.realtime_ordinal.saturating_add(1);
+                                    }
+                                    ControlledRuntimeObservation::ClockMonotonic => {
+                                        state.monotonic_ordinal =
+                                            state.monotonic_ordinal.saturating_add(1);
+                                    }
+                                    _ => {}
+                                }
+                                observation.logical_value(ordinal)
+                            } else {
+                                observation.value()
+                            };
                             PendingSyscall::ControlledRuntime {
                                 observation,
                                 executable,
@@ -1482,7 +1550,8 @@ fn decode_entry(
                                     args[0]
                                 },
                                 length: observation.length(),
-                                value: observation.value(),
+                                value,
+                                contract,
                             }
                         }
                         None => PendingSyscall::Clock { kind },
@@ -1490,6 +1559,14 @@ fn decode_entry(
                 }
                 _ => PendingSyscall::Clock { kind },
             }
+        }
+        libc::SYS_time
+            if matches!(
+                contract,
+                Some(Contract::PythonRuntimeV1 | Contract::PythonRuntimeV2)
+            ) =>
+        {
+            python_time(state, pid, args[0], contract.unwrap())
         }
         libc::SYS_time => PendingSyscall::Clock {
             kind: ClockKind::Realtime,
@@ -1591,6 +1668,7 @@ fn decode_entry(
                         buffer: args[1],
                         length: ControlledRuntimeObservation::GetrusageSelf.length(),
                         value: ControlledRuntimeObservation::GetrusageSelf.value(),
+                        contract: Contract::CompilerRuntimeV1,
                     }
                 }
                 None => PendingSyscall::Unknown {
@@ -1611,6 +1689,7 @@ fn decode_entry(
                             buffer: args[0],
                             length: ControlledRuntimeObservation::SysinfoMemory.length(),
                             value: ControlledRuntimeObservation::SysinfoMemory.value(),
+                            contract: Contract::CompilerRuntimeV1,
                         }
                     }
                     None => system_information("sysinfo"),
@@ -1620,6 +1699,53 @@ fn decode_entry(
         },
         libc::SYS_sched_getaffinity => system_information("sched_getaffinity"),
         libc::SYS_prlimit64 => system_information("prlimit64"),
+        libc::SYS_getpid
+            if matches!(
+                contract,
+                Some(Contract::PythonRuntimeV1 | Contract::PythonRuntimeV2)
+            ) =>
+        {
+            python_identity(
+                pid,
+                ControlledRuntimeObservation::PythonProcessId,
+                contract.unwrap(),
+            )
+        }
+        libc::SYS_getppid
+            if matches!(
+                contract,
+                Some(Contract::PythonRuntimeV1 | Contract::PythonRuntimeV2)
+            ) =>
+        {
+            python_identity(
+                pid,
+                ControlledRuntimeObservation::PythonParentProcessId,
+                contract.unwrap(),
+            )
+        }
+        libc::SYS_gettid
+            if matches!(
+                contract,
+                Some(Contract::PythonRuntimeV1 | Contract::PythonRuntimeV2)
+            ) =>
+        {
+            python_identity(
+                pid,
+                ControlledRuntimeObservation::PythonThreadId,
+                contract.unwrap(),
+            )
+        }
+        libc::SYS_clone | libc::SYS_clone3 | libc::SYS_fork | libc::SYS_vfork
+            if matches!(
+                contract,
+                Some(Contract::PythonRuntimeV1 | Contract::PythonRuntimeV2)
+            ) =>
+        {
+            PendingSyscall::Unknown {
+                number,
+                detail: "python-runtime contract rejects process or thread creation".into(),
+            }
+        }
         libc::SYS_getpid => process_identity("getpid"),
         libc::SYS_getppid => process_identity("getppid"),
         libc::SYS_gettid => process_identity("gettid"),
@@ -2366,6 +2492,7 @@ fn complete_syscall(
             fd,
             buffer,
             requested,
+            padding,
         } => {
             let length = result as usize;
             if length > requested as usize {
@@ -2382,9 +2509,33 @@ fn complete_syscall(
                 let mut bytes = vec![0_u8; length];
                 match read_remote(pid, buffer, &mut bytes) {
                     Ok(()) => {
+                        let bytes = match padding {
+                            DirectoryPaddingPolicy::Native => Some(bytes),
+                            DirectoryPaddingPolicy::VirtualZero => {
+                                match virtualize_directory_padding(pid, buffer, &bytes) {
+                                    Ok(bytes) => Some(bytes),
+                                    Err(detail) => {
+                                        collector.push(
+                                            pid,
+                                            Effect::Unknown(UnknownEffect {
+                                                syscall: Some(libc::SYS_getdents64),
+                                                detail: format!(
+                                                    "controlled directory padding could not be applied: {detail}"
+                                                ),
+                                            }),
+                                        );
+                                        None
+                                    }
+                                }
+                            }
+                        };
+                        let Some(bytes) = bytes else {
+                            return;
+                        };
                         let request = DirectoryEnumerationRequest {
                             requested,
                             returned: bytes,
+                            padding,
                         };
                         let entry =
                             state
@@ -3180,11 +3331,43 @@ fn controlled_runtime_payload(
     observation: ControlledRuntimeObservation,
     value: u64,
     length: u32,
+    contract: Contract,
 ) -> Result<Vec<u8>, TraceError> {
     match observation {
+        ControlledRuntimeObservation::ClockMonotonic
+        | ControlledRuntimeObservation::ClockRealtime
+            if contract == Contract::PythonRuntimeV2 =>
+        {
+            if length as usize != 16 {
+                return Err(TraceError::Ptrace(format!(
+                    "logical clock payload is 16 bytes, contract records {length}"
+                )));
+            }
+            let seconds = i64::try_from(value / 1_000_000_000)
+                .map_err(|_| TraceError::Ptrace("logical clock seconds overflow".into()))?;
+            let nanoseconds = i64::try_from(value % 1_000_000_000)
+                .map_err(|_| TraceError::Ptrace("logical clock nanoseconds overflow".into()))?;
+            let mut bytes = vec![0_u8; 16];
+            bytes[..8].copy_from_slice(&seconds.to_ne_bytes());
+            bytes[8..].copy_from_slice(&nanoseconds.to_ne_bytes());
+            Ok(bytes)
+        }
         ControlledRuntimeObservation::GetrusageSelf
         | ControlledRuntimeObservation::ClockMonotonic
-        | ControlledRuntimeObservation::ClockRealtime => Ok(vec![0_u8; length as usize]),
+        | ControlledRuntimeObservation::ClockRealtime
+        | ControlledRuntimeObservation::PythonThreadId
+        | ControlledRuntimeObservation::PythonProcessId
+        | ControlledRuntimeObservation::PythonParentProcessId => Ok(vec![0_u8; length as usize]),
+        ControlledRuntimeObservation::PythonTimeSeconds => {
+            let bytes = value.to_ne_bytes();
+            if length as usize != bytes.len() {
+                return Err(TraceError::Ptrace(format!(
+                    "time payload is {} bytes, contract records {length}",
+                    bytes.len()
+                )));
+            }
+            Ok(bytes.to_vec())
+        }
         ControlledRuntimeObservation::SysinfoMemory => {
             // SAFETY: an all-zero `struct sysinfo` is valid; every field is an integer. The
             // contract fixes the fields `cc1` consults and leaves the rest zero.
@@ -3225,6 +3408,107 @@ fn compiler_observation(
     }
     let executable_hash = cached_executable_hash(&executable)?;
     Some((executable, executable_hash, build_id))
+}
+
+/// Returns the audited identity of a process executable, or `None` to fail closed.
+fn python_observation(
+    pid: Pid,
+    observation: ControlledRuntimeObservation,
+) -> Option<(PathBuf, tracejit_effects::Hash, String)> {
+    if !matches!(
+        observation,
+        ControlledRuntimeObservation::ClockRealtime
+            | ControlledRuntimeObservation::ClockMonotonic
+            | ControlledRuntimeObservation::PythonThreadId
+            | ControlledRuntimeObservation::PythonProcessId
+            | ControlledRuntimeObservation::PythonParentProcessId
+            | ControlledRuntimeObservation::PythonTimeSeconds
+    ) {
+        return None;
+    }
+    let executable = fs::read_link(format!("/proc/{}/exe", pid.as_raw())).ok()?;
+    let build_id = cached_build_id(&executable)?;
+    if !tracejit_effects::python_runtime_profile(&executable, &build_id) {
+        return None;
+    }
+    let executable_hash = cached_executable_hash(&executable)?;
+    Some((executable, executable_hash, build_id))
+}
+
+fn runtime_observation(
+    pid: Pid,
+    observation: ControlledRuntimeObservation,
+    contract: Contract,
+) -> Option<(PathBuf, tracejit_effects::Hash, String)> {
+    match contract {
+        Contract::CompilerRuntimeV1 => compiler_observation(pid, observation),
+        Contract::PythonRuntimeV1 | Contract::PythonRuntimeV2 => {
+            python_observation(pid, observation)
+        }
+        Contract::AllocatorEntropyV1 => None,
+    }
+}
+
+fn python_time(
+    state: &mut ProcessState,
+    pid: Pid,
+    buffer: u64,
+    contract: Contract,
+) -> PendingSyscall {
+    let observation = ControlledRuntimeObservation::PythonTimeSeconds;
+    match python_observation(pid, observation) {
+        Some((executable, executable_hash, build_id)) => {
+            let value = if contract == Contract::PythonRuntimeV2 {
+                let ordinal = state.realtime_ordinal;
+                state.realtime_ordinal = state.realtime_ordinal.saturating_add(1);
+                observation.logical_seconds(ordinal)
+            } else {
+                observation.value()
+            };
+            PendingSyscall::ControlledRuntime {
+                observation,
+                executable,
+                executable_hash,
+                build_id,
+                buffer,
+                length: observation.length(),
+                value,
+                contract,
+            }
+        }
+        None => PendingSyscall::Unknown {
+            number: libc::SYS_time,
+            detail: "python time outside the audited CPython profile".into(),
+        },
+    }
+}
+
+fn python_identity(
+    pid: Pid,
+    observation: ControlledRuntimeObservation,
+    contract: Contract,
+) -> PendingSyscall {
+    match python_observation(pid, observation) {
+        Some((executable, executable_hash, build_id)) => PendingSyscall::ControlledRuntime {
+            observation,
+            executable,
+            executable_hash,
+            build_id,
+            buffer: 0,
+            length: 0,
+            value: observation.value(),
+            contract,
+        },
+        None => PendingSyscall::Unknown {
+            number: match observation {
+                ControlledRuntimeObservation::PythonThreadId => libc::SYS_gettid,
+                ControlledRuntimeObservation::PythonProcessId => libc::SYS_getpid,
+                ControlledRuntimeObservation::PythonParentProcessId => libc::SYS_getppid,
+                _ => 0,
+            },
+            detail: "python identity outside the audited CPython profile".into(),
+        },
+    }
 }
 
 fn audited_toolchain(pid: Pid) -> Option<(PathBuf, String)> {
@@ -3718,6 +4002,18 @@ fn read_u64(pid: Pid, address: u64) -> Result<u64, String> {
     Ok(u64::from_le_bytes(bytes))
 }
 
+/// Applies the explicit controlled directory-padding policy to the buffer the tracee just
+/// received and returns the bytes the program will now observe.
+///
+/// The write happens at the syscall-exit stop, before the tracee resumes. Only bytes after a
+/// name terminator are changed; every semantic field remains exactly what the kernel returned.
+fn virtualize_directory_padding(pid: Pid, address: u64, bytes: &[u8]) -> Result<Vec<u8>, String> {
+    let mut bytes = bytes.to_vec();
+    tracejit_effects::zero_directory_entry_padding(&mut bytes)?;
+    write_remote(pid, address, &bytes)?;
+    Ok(bytes)
+}
+
 fn read_remote(pid: Pid, address: u64, buffer: &mut [u8]) -> Result<(), String> {
     let mut memory = fs::File::open(format!("/proc/{}/mem", pid.as_raw()))
         .map_err(|error| format!("could not open process memory: {error}"))?;
@@ -4135,6 +4431,8 @@ mod tests {
             enumerations: HashMap::new(),
             stdin_stream: None,
             vdso_disarmed: false,
+            realtime_ordinal: 0,
+            monotonic_ordinal: 0,
         };
         state.fds.insert(7, FdState::File(PathBuf::from("/tmp")));
         state.close_on_exec.insert(7);
@@ -4170,6 +4468,8 @@ mod tests {
                 enumerations: HashMap::new(),
                 stdin_stream: None,
                 vdso_disarmed: false,
+                realtime_ordinal: 0,
+                monotonic_ordinal: 0,
             };
             state.fds.insert(7, FdState::File(PathBuf::from("/tmp")));
             state.enumerations.insert(
@@ -4252,6 +4552,8 @@ mod tests {
             enumerations: HashMap::new(),
             stdin_stream: None,
             vdso_disarmed: false,
+            realtime_ordinal: 0,
+            monotonic_ordinal: 0,
         };
         file.fds
             .insert(7, FdState::File(PathBuf::from("/tmp/file")));
@@ -4284,6 +4586,8 @@ mod tests {
             enumerations: HashMap::new(),
             stdin_stream: None,
             vdso_disarmed: false,
+            realtime_ordinal: 0,
+            monotonic_ordinal: 0,
         };
         directory
             .fds
@@ -4324,6 +4628,8 @@ mod tests {
             enumerations: HashMap::new(),
             stdin_stream: None,
             vdso_disarmed: false,
+            realtime_ordinal: 0,
+            monotonic_ordinal: 0,
         };
         pipe.fds.insert(
             7,
@@ -4374,6 +4680,8 @@ mod tests {
                 enumerations: HashMap::new(),
                 stdin_stream: None,
                 vdso_disarmed: false,
+                realtime_ordinal: 0,
+                monotonic_ordinal: 0,
             };
             state.fds.insert(7, FdState::File(PathBuf::from("/source")));
             let reused = destination.unwrap_or(result as i32);

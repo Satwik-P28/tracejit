@@ -658,8 +658,9 @@ unrestorable `/dev/null` output. Raw: `benchmarks/results/phase3f/census-native/
 Independently inherited descriptors above stderr were outside the runtime identity. A child could
 read fd 9 from `/dev/null` while recording and receive `/dev/zero`, a regular file, a pipe, or a
 closed descriptor during replay; the cached `EOF` was then an incorrect hit. The fix refuses any
-invocation with an inherited fd above 2 at the pre-cache preflight and executes it directly without
-writing a reusable record. A trace-layer `Unknown` effect remains as a second defence. Regressions
+invocation with a surviving inherited fd above 2: the descriptor is captured before `Cache::open`,
+then refusal occurs after cache initialization but before lookup, and the command executes directly
+without writing a reusable record. A trace-layer `Unknown` effect remains as a second defence. Regressions
 cover all four substitutions, a closed descriptor, concurrent replacements and the existing stdin
 seek model and a close-on-exec descriptor that must not block reuse. Local gates: fmt and Clippy
 clean, **138 workspace tests**, **51 Linux integration tests**, release SHA-256
@@ -680,3 +681,104 @@ allocator probe, monotonic/realtime clocks and `gettid` remain. Under `allocator
 seed 0 randomness disappears, but the workload is still `Nondeterministic`/`Ineligible`; there is no
 Python cache hit. Raw results are in `benchmarks/results/phase3g/`. See
 `docs/audits/PHASE3G_INHERITED_DESCRIPTOR_AND_CONTROLLED_PYTHON.md`.
+
+## Phase 3H (base `e474b54`, P0 fix `fc7feef`)
+
+`readdir()` in the inherited-descriptor preflight now distinguishes EOF from error: it clears
+`errno`, returns `Result<Option<i32>, GuardError>`, and fails closed for `opendir`, `dirfd`,
+`readdir`, `fcntl(F_GETFD)` and `closedir`. `FD_CLOEXEC` descriptors are skipped, and the scan runs
+before `Cache::open` while refusal occurs after cache initialization and before lookup or record
+write. Seven unit tests plus an `LD_PRELOAD` integration fault test cover first-entry, after-entry,
+`fcntl`, `dirfd`, `closedir`, CLOEXEC and complete scans. The preflight-to-`exec` race remains open.
+
+A descriptor-number reuse defect in directory enumeration was found: `enumerations` was keyed by fd
+and survived close/reuse, allowing a new directory stream to append to an old record. A
+`forget_descriptor` helper now clears fd, CLOEXEC and enumeration state on close, dup/dup2, open,
+pipe and socket creation; unit test `reusing_a_descriptor_forgets_its_directory_enumeration` covers
+it.
+
+The exact CPython 3.12.3 ELF (`337d65cf...`, SHA-256 `e50d468e...`) and glibc 2.39
+(`a4a7992a...`) were studied with source, strace and probes. Application and startup clocks share
+`clock_gettime` effects; `gettid` is a direct `syscall(SYS_gettid)` and cannot be replaced by
+`LD_PRELOAD`. An experimental `tracejit.python-runtime.v1` contract was implemented on a review
+branch with exact ELF/build-ID guards, controlled realtime/monotonic clocks, `getpid`/`getppid`/
+`gettid`, clone/fork refusal and contract-separated cache identity. It is **not merged**.
+
+`python-csv-json` under that contract is `Guarded`/`Executed` then `Guarded`/**`Deoptimized`**: the
+`DirectoryEnumerated` guard sees a `linux_dirent64` padding difference (`sl.` vs zeroes) while names,
+order, inode and offsets match. At Phase 3H the target had **no controlled hit**; Phase 3I
+supersedes that with an opt-in `VirtualZero` hit, while the native census remains **9 attempted, 0
+reused, 9 refused**, outputs equivalent. A separate `python -S smoke.py` reaches 10/10
+`Reused` with cached stdout equal to direct stdout, but it is slower than direct (roughly 32-35 ms
+warm vs 11-16 ms direct) and is only a mechanism check. Raw:
+`benchmarks/results/phase3h/`. See `docs/audits/PHASE3H_DESCRIPTOR_PREFLIGHT_AND_CONTROLLED_PYTHON.md`.
+
+P0 branch gates at `e2a2f60`: fmt pass, Clippy `-D warnings` pass, **147 workspace tests**,
+**52 Linux integration tests**, release build pass, release SHA-256
+`20d3165f03b5ed6583e636d8081102eddee291523739e23c833c624b6304fbc0`. The experimental
+`research/phase3h` branch adds the CPython contract and has its own release build SHA-256
+`97cbc9556ebd11e61284b8c2547e781718d1a1a382cba1d9efcd8715ca4bf6c7`; it is not merged.
+
+## Phase 3I (PR #8 review follow-up; branches `hotfix/descriptor-dup-noop`, `research/phase3i`)
+
+PR #8's P0 review found a second descriptor-lifecycle defect: `PendingSyscall::Dup` forgot the
+destination before looking up the source, so the successful Linux `dup2(fd, fd)` no-op erased the
+fd classification, `FD_CLOEXEC` and any directory enumeration state. `dup3(fd, fd)` is `EINVAL` and
+does not use the successful path. The handler now returns before mutation when source == destination.
+Commits: `7f15832` failing unit regression, `e74f9ee` fix, `c2f1e9c` file/directory/pipe integration
+fixture, `77c8715` exact preflight failure-status/output assertions, and `c1c5c4e` descriptor reuse
+through close/open/socket/pipe. The integration regression was confirmed failing with the early
+return removed. P0 local gates: fmt and Clippy clean, **151 workspace tests**, **53 Linux integration
+tests**, release build pass, release SHA-256
+`06c40bc74dc9b9f50da84361f87edf41f8c03e73c21433132bf454c8cccf23db`. Descriptor-preflight errors
+exit 1 before lookup and do not fall back to direct execution.
+
+The `python-csv-json` directory deoptimization is resolved as uninitialised `linux_dirent64`
+alignment padding: the kernel writes fields/name but not padding, a probe preserves `0xaa`/`0x55`
+there, glibc 2.39 returns a pointer into its `DIR` buffer, and CPython 3.12.3's audited reader uses
+`d_name` only. A descriptor-generation defect is not supported after the P0 lifecycle correction.
+The explicit `VirtualZero` policy zeroes only those padding bytes under `python-runtime-v1`; native
+records and the native guard remain byte-exact. The typed-name projection is benchmark-side only.
+
+With `VirtualZero`, the original workload has a controlled hit: 3/3 independent cold
+`Executed`/`Guarded`, 10/10 warm `Reused`, changed input `Deoptimized` with matching direct output,
+entropy never reused, and matching 249-byte `0644` output effects. Output SHA-256
+`28bc8fa9...`; changed-input SHA-256 `c348fbdc...`. It is slower than direct (session 730.76 ms vs
+408.61 ms; warm 51.09 ms vs direct 36.88 ms; cold median 214.07 ms with a 2063.19 ms first-cold
+outlier). No speedup is claimed. Raw: `benchmarks/results/phase3i/`. See
+`docs/audits/PHASE3I_DUP2_AND_CONTROLLED_DIRECTORY_REPLAY.md`. Research release SHA-256 at the
+evidence commit is `0d03877d72d7fac7838ba4b8e9eed3a07ff76590ffe2afba18ac6cac5f3218b4`.
+
+Neither PR is merged. Hosted CI passed for both: PR #8 run `43378765278` at `c1c5c4e` and PR #9 run
+`43377574220` at `182e9bb`; all steps succeeded, including Tests, Clippy, Linux integration, Release
+build and Demo. The preflight-to-`exec` atomicity limitation
+remains, although the earlier "concurrent parent" wording is corrected: the current scan/spawn path
+is single-threaded and the parent cannot mutate the table. A future non-CLOEXEC open between scan and
+spawn would still invalidate the scan.
+
+## Phase 3J (research branch, base `29718cf`)
+
+Branch `research/phase3j` reconciles the experimental Python contract onto merged `main` without
+merging PR #9. The `dup2(fd, fd)` early return and the descriptor-preflight/directory fixes are
+retained. Local gates: fmt pass, Clippy `-D warnings` pass, **155 workspace tests**, **53 Linux
+integration tests**, release build and demo pass. Release SHA-256
+`dcbaf5d715da6a8c46cb134165298643ee532109245281152b53ec37c75cdb6d`.
+
+`python-runtime-v1` is not a general clock/identity contract. A bounded 1 ms timeout loop runs 1000
+iterations under its fixed clock; `os.kill(os.getpid(), SIGUSR1)` raises `ProcessLookupError`
+because the pid is virtual (4242). Entropy, threads and fork remain refused. A new
+`python-runtime-v2` logical clock advances 1 ms per admitted observation, exits the timeout loop
+immediately, and keeps the same identity limitation; `gettimeofday` is refused because its ABI is a
+timeval. Native byte-exact directory guarding remains the default; controlled padding is explicit.
+
+The canonical ETL warm v1 report is 21.3 ms (hash 10.2 ms, directory 0.78 ms, SQLite query 4.4 ms,
+decode 4.8 ms, identity 3.7 ms, CAS 1.8 ms). A per-validation metadata-keyed hash cache reduced a
+414-guard v2 clock hit from ~0.8 s to 13.1-13.5 ms. The original ETL still loses over a ten-warm
+complete session (625.9 ms vs 579.5 ms direct). Deterministic CPU-heavy workloads do amortize:
+120k-row CSV 1022.7 ms direct vs 39.2 ms warm (break-even 4; v2 3), 320x240 pure-Python convolution
+5116.3 ms direct vs 44.7 ms warm (break-even 3; v2 2), outputs byte-identical and invalidation
+retraced. An earlier less-loaded run measured break-even 3 for both. This is controlled reuse, not
+native equivalence. Full audit:
+`docs/audits/PHASE3J_CONTROLLED_PYTHON_CORRECTNESS_AND_PERFORMANCE.md`; raw:
+`benchmarks/results/phase3j/`. The branch is unmerged. Hosted CI run `43489814814` at `a369fb4`
+passed every step, including Tests, Linux integration, census and Demo.

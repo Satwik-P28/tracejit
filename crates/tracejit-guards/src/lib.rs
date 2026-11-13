@@ -1,13 +1,15 @@
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::ffi::{CStr, OsString};
 use std::fs::{self, File};
 use std::io::{self, Read};
 use std::os::unix::fs::MetadataExt;
 use std::path::{Path, PathBuf};
+use std::time::Instant;
 use tracejit_effects::{
-    DirectoryEnumerationRequest, ExecutionIdentity, FileDescriptorIdentity, FileFingerprint,
-    FilesystemStats, FilesystemStatsSource, Hash, InputDependency, NamespaceIdentity,
-    RuntimeIdentity,
+    DirectoryEnumerationRequest, DirectoryPaddingPolicy, ExecutionIdentity, FileDescriptorIdentity,
+    FileFingerprint, FilesystemStats, FilesystemStatsSource, Hash, InputDependency,
+    NamespaceIdentity, RuntimeIdentity,
 };
 
 /// Whether a fresh run could open this path for writing at all.
@@ -182,11 +184,61 @@ pub struct GuardFailure {
     pub actual: String,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
 pub struct GuardReport {
     pub checked: usize,
     pub passed: usize,
     pub failure: Option<GuardFailure>,
+    #[serde(default)]
+    pub metadata_ns: u64,
+    #[serde(default)]
+    pub hash_ns: u64,
+    #[serde(default)]
+    pub directory_ns: u64,
+    #[serde(default)]
+    pub other_ns: u64,
+}
+
+#[derive(Clone, Debug, Default)]
+struct GuardTimings {
+    metadata_ns: u64,
+    hash_ns: u64,
+    directory_ns: u64,
+    other_ns: u64,
+}
+
+fn timed_validate(
+    guard: &Guard,
+    mode: GuardMode,
+    hash_cache: &mut HashMap<PathBuf, (FileFingerprint, Hash)>,
+    timings: &mut GuardTimings,
+) -> Result<(), GuardFailure> {
+    let started = Instant::now();
+    let result = guard.validate_with_cache(mode, hash_cache);
+    let elapsed = u64::try_from(started.elapsed().as_nanos()).unwrap_or(u64::MAX);
+    if matches!(
+        guard,
+        Guard::ExecutableHash { .. }
+            | Guard::FileHash { .. }
+            | Guard::ControlledEntropy { .. }
+            | Guard::ControlledRuntime { .. }
+            | Guard::InheritedStream { .. }
+    ) {
+        timings.hash_ns = timings.hash_ns.saturating_add(elapsed);
+    } else if matches!(guard, Guard::DirectoryEnumerated { .. }) {
+        timings.directory_ns = timings.directory_ns.saturating_add(elapsed);
+    } else if matches!(
+        guard,
+        Guard::FileMetadata { .. }
+            | Guard::DirectoryOpened { .. }
+            | Guard::SymlinkMetadata { .. }
+            | Guard::FilesystemStats { .. }
+    ) {
+        timings.metadata_ns = timings.metadata_ns.saturating_add(elapsed);
+    } else {
+        timings.other_ns = timings.other_ns.saturating_add(elapsed);
+    }
+    result
 }
 
 pub fn hash_reader(mut reader: impl Read) -> Result<Hash, io::Error> {
@@ -211,6 +263,28 @@ pub fn hash_file(path: &Path) -> Result<Hash, GuardError> {
         path: path.to_path_buf(),
         source,
     })
+}
+
+/// Hashes a path once per unchanged metadata generation during one validation pass.
+///
+/// A repeated `ControlledRuntime` guard names the same Python executable hundreds of times.
+/// Reopening and hashing it for every observation made a logical-clock hit cost ~0.8 s. The
+/// cache key is the path, and the value is the metadata fingerprint observed immediately before
+/// the hash. A metadata change (including ctime) forces a fresh hash; content mutation that
+/// preserves every fingerprint field is outside the guarantees of a single stat-and-hash pass.
+fn hash_file_cached(
+    path: &Path,
+    cache: &mut HashMap<PathBuf, (FileFingerprint, Hash)>,
+) -> Result<Hash, GuardError> {
+    let observed = fingerprint(path)?;
+    if let Some((cached_fingerprint, hash)) = cache.get(path) {
+        if cached_fingerprint == &observed {
+            return Ok(*hash);
+        }
+    }
+    let hash = hash_file(path)?;
+    cache.insert(path.to_path_buf(), (observed, hash));
+    Ok(hash)
 }
 
 pub fn canonical_hash<T: Serialize>(value: &T) -> Result<Hash, GuardError> {
@@ -522,6 +596,14 @@ pub fn current_runtime_identity() -> Result<RuntimeIdentity, GuardError> {
 
 impl Guard {
     pub fn validate(&self, mode: GuardMode) -> Result<(), GuardFailure> {
+        self.validate_with_cache(mode, &mut HashMap::new())
+    }
+
+    fn validate_with_cache(
+        &self,
+        mode: GuardMode,
+        hash_cache: &mut HashMap<PathBuf, (FileFingerprint, Hash)>,
+    ) -> Result<(), GuardFailure> {
         match self {
             Self::ExecutableHash { path, expected } => {
                 validate_executable(path).map_err(|actual| GuardFailure {
@@ -530,7 +612,7 @@ impl Guard {
                     expected: "executable access".into(),
                     actual,
                 })?;
-                let actual = hash_file(path).map_err(|error| GuardFailure {
+                let actual = hash_file_cached(path, hash_cache).map_err(|error| GuardFailure {
                     guard: Box::new(self.clone()),
                     reason: "executable could not be hashed".into(),
                     expected: expected.to_string(),
@@ -548,7 +630,7 @@ impl Guard {
                 }
             }
             Self::FileHash { path, expected } => {
-                let actual = hash_file(path).map_err(|error| GuardFailure {
+                let actual = hash_file_cached(path, hash_cache).map_err(|error| GuardFailure {
                     guard: Box::new(self.clone()),
                     reason: "file could not be hashed".into(),
                     expected: expected.to_string(),
@@ -635,34 +717,65 @@ impl Guard {
                 value,
                 contract,
             } => {
-                if contract != tracejit_effects::COMPILER_RUNTIME_CONTRACT {
-                    return Err(GuardFailure {
-                        guard: Box::new(self.clone()),
-                        reason: "unknown controlled-execution contract".into(),
-                        expected: tracejit_effects::COMPILER_RUNTIME_CONTRACT.into(),
-                        actual: contract.clone(),
-                    });
-                }
-                let Some(profile) =
-                    tracejit_effects::compiler_runtime_profile(executable, build_id)
-                else {
-                    return Err(GuardFailure {
-                        guard: Box::new(self.clone()),
-                        reason: "controlled observation names an unaudited compiler profile".into(),
-                        expected: format!(
-                            "one of {} audited compiler binaries",
-                            tracejit_effects::COMPILER_RUNTIME_PROFILES.len()
-                        ),
-                        actual: format!("{} ({})", executable.display(), build_id),
-                    });
-                };
-                if !profile.allows(*observation) {
-                    return Err(GuardFailure {
-                        guard: Box::new(self.clone()),
-                        reason: "compiler profile does not admit this observation".into(),
-                        expected: profile.executable.into(),
-                        actual: observation.name().into(),
-                    });
+                if contract == tracejit_effects::PYTHON_RUNTIME_CONTRACT
+                    || contract == tracejit_effects::PYTHON_RUNTIME_V2_CONTRACT
+                {
+                    if !tracejit_effects::python_runtime_profile(executable, build_id) {
+                        return Err(GuardFailure {
+                            guard: Box::new(self.clone()),
+                            reason: "controlled observation names an unaudited Python profile"
+                                .into(),
+                            expected: tracejit_effects::PYTHON_RUNTIME_EXECUTABLE.into(),
+                            actual: format!("{} ({})", executable.display(), build_id),
+                        });
+                    }
+                    if !matches!(
+                        observation,
+                        tracejit_effects::ControlledRuntimeObservation::ClockMonotonic
+                            | tracejit_effects::ControlledRuntimeObservation::ClockRealtime
+                            | tracejit_effects::ControlledRuntimeObservation::PythonThreadId
+                            | tracejit_effects::ControlledRuntimeObservation::PythonProcessId
+                            | tracejit_effects::ControlledRuntimeObservation::PythonParentProcessId
+                            | tracejit_effects::ControlledRuntimeObservation::PythonTimeSeconds
+                    ) {
+                        return Err(GuardFailure {
+                            guard: Box::new(self.clone()),
+                            reason: "python profile does not admit this observation".into(),
+                            expected: "audited CPython clock or identity observation".into(),
+                            actual: observation.name().into(),
+                        });
+                    }
+                } else {
+                    if contract != tracejit_effects::COMPILER_RUNTIME_CONTRACT {
+                        return Err(GuardFailure {
+                            guard: Box::new(self.clone()),
+                            reason: "unknown controlled-execution contract".into(),
+                            expected: tracejit_effects::COMPILER_RUNTIME_CONTRACT.into(),
+                            actual: contract.clone(),
+                        });
+                    }
+                    let Some(profile) =
+                        tracejit_effects::compiler_runtime_profile(executable, build_id)
+                    else {
+                        return Err(GuardFailure {
+                            guard: Box::new(self.clone()),
+                            reason: "controlled observation names an unaudited compiler profile"
+                                .into(),
+                            expected: format!(
+                                "one of {} audited compiler binaries",
+                                tracejit_effects::COMPILER_RUNTIME_PROFILES.len()
+                            ),
+                            actual: format!("{} ({})", executable.display(), build_id),
+                        });
+                    };
+                    if !profile.allows(*observation) {
+                        return Err(GuardFailure {
+                            guard: Box::new(self.clone()),
+                            reason: "compiler profile does not admit this observation".into(),
+                            expected: profile.executable.into(),
+                            actual: observation.name().into(),
+                        });
+                    }
                 }
                 if *length != observation.length() {
                     return Err(GuardFailure {
@@ -672,7 +785,32 @@ impl Guard {
                         actual: length.to_string(),
                     });
                 }
-                if *value != observation.value() {
+                if contract == tracejit_effects::PYTHON_RUNTIME_V2_CONTRACT
+                    && observation.is_python_clock()
+                {
+                    let base = observation.logical_value(0);
+                    let step = tracejit_effects::PYTHON_LOGICAL_STEP_NS;
+                    if *value < base || (*value - base) % step != 0 {
+                        return Err(GuardFailure {
+                            guard: Box::new(self.clone()),
+                            reason: "logical clock value is outside the v2 sequence".into(),
+                            expected: format!("{base} + n*{step}"),
+                            actual: value.to_string(),
+                        });
+                    }
+                } else if contract == tracejit_effects::PYTHON_RUNTIME_V2_CONTRACT
+                    && *observation
+                        == tracejit_effects::ControlledRuntimeObservation::PythonTimeSeconds
+                {
+                    if *value < observation.logical_seconds(0) {
+                        return Err(GuardFailure {
+                            guard: Box::new(self.clone()),
+                            reason: "logical time() value is before the v2 epoch".into(),
+                            expected: observation.logical_seconds(0).to_string(),
+                            actual: value.to_string(),
+                        });
+                    }
+                } else if *value != observation.value() {
                     return Err(GuardFailure {
                         guard: Box::new(self.clone()),
                         reason: "controlled observation value is not the contract value".into(),
@@ -680,12 +818,13 @@ impl Guard {
                         actual: value.to_string(),
                     });
                 }
-                let actual = hash_file(executable).map_err(|error| GuardFailure {
-                    guard: Box::new(self.clone()),
-                    reason: "compiler binary could not be hashed".into(),
-                    expected: expected.to_string(),
-                    actual: error.to_string(),
-                })?;
+                let actual =
+                    hash_file_cached(executable, hash_cache).map_err(|error| GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "compiler binary could not be hashed".into(),
+                        expected: expected.to_string(),
+                        actual: error.to_string(),
+                    })?;
                 if &actual != expected {
                     return Err(GuardFailure {
                         guard: Box::new(self.clone()),
@@ -780,12 +919,13 @@ impl Guard {
                         actual: format!("{value:#x}"),
                     });
                 }
-                let actual = hash_file(library).map_err(|error| GuardFailure {
-                    guard: Box::new(self.clone()),
-                    reason: "runtime library could not be hashed".into(),
-                    expected: expected.to_string(),
-                    actual: error.to_string(),
-                })?;
+                let actual =
+                    hash_file_cached(library, hash_cache).map_err(|error| GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "runtime library could not be hashed".into(),
+                        expected: expected.to_string(),
+                        actual: error.to_string(),
+                    })?;
                 if &actual != expected {
                     return Err(GuardFailure {
                         guard: Box::new(self.clone()),
@@ -1038,12 +1178,13 @@ impl Guard {
                 }
                 match expected_hash {
                     Some(expected_hash) => {
-                        let actual = hash_file(path).map_err(|error| GuardFailure {
-                            guard: Box::new(self.clone()),
-                            reason: "inherited stdin could not be hashed".into(),
-                            expected: expected_hash.to_string(),
-                            actual: error.to_string(),
-                        })?;
+                        let actual =
+                            hash_file_cached(path, hash_cache).map_err(|error| GuardFailure {
+                                guard: Box::new(self.clone()),
+                                reason: "inherited stdin could not be hashed".into(),
+                                expected: expected_hash.to_string(),
+                                actual: error.to_string(),
+                            })?;
                         if &actual != expected_hash {
                             return Err(GuardFailure {
                                 guard: Box::new(self.clone()),
@@ -1435,6 +1576,13 @@ fn replay_directory_enumeration(
             return Err(error);
         }
         buffer.truncate(read as usize);
+        if request.padding == DirectoryPaddingPolicy::VirtualZero {
+            if let Err(reason) = tracejit_effects::zero_directory_entry_padding(&mut buffer) {
+                // SAFETY: fd was opened above and is not used afterwards.
+                unsafe { libc::close(fd) };
+                return Err(reason);
+            }
+        }
         if buffer != request.returned {
             // SAFETY: fd was opened above and is not used afterwards.
             unsafe { libc::close(fd) };
@@ -1633,69 +1781,87 @@ fn describe_access(result: Option<i32>) -> String {
 }
 
 pub fn validate_all(guards: &[Guard], mode: GuardMode) -> GuardReport {
+    let mut hash_cache = HashMap::new();
+    let mut timings = GuardTimings::default();
+    let mut report = GuardReport::default();
     let mut index = 0;
-    let mut passed = 0;
     while index < guards.len() {
         if let Guard::FileMetadata { path, expected } = &guards[index] {
             if let Some(hash_path) = guards.get(index + 1).and_then(content_hash_path) {
                 if path == hash_path {
-                    match guards[index].validate(mode) {
+                    match timed_validate(&guards[index], mode, &mut hash_cache, &mut timings) {
                         Ok(()) if mode == GuardMode::Fast => {
-                            passed += 2;
+                            report.passed += 2;
+                            report.checked = index + 2;
                             index += 2;
                             continue;
                         }
                         Ok(()) => {
-                            passed += 1;
+                            report.passed += 1;
+                            report.checked = index + 1;
                             index += 1;
                             continue;
                         }
                         Err(_metadata_failure)
                             if metadata_change_allows_hash_fallback(path, expected) =>
                         {
-                            match guards[index + 1].validate(mode) {
+                            match timed_validate(
+                                &guards[index + 1],
+                                mode,
+                                &mut hash_cache,
+                                &mut timings,
+                            ) {
                                 Ok(()) => {
-                                    passed += 2;
+                                    report.passed += 2;
+                                    report.checked = index + 2;
                                     index += 2;
                                     continue;
                                 }
                                 Err(hash_failure) => {
-                                    return GuardReport {
-                                        checked: index + 2,
-                                        passed,
-                                        failure: Some(hash_failure),
-                                    };
+                                    report.checked = index + 2;
+                                    report.failure = Some(hash_failure);
+                                    report.metadata_ns = timings.metadata_ns;
+                                    report.hash_ns = timings.hash_ns;
+                                    report.directory_ns = timings.directory_ns;
+                                    report.other_ns = timings.other_ns;
+                                    return report;
                                 }
                             }
                         }
                         Err(failure) => {
-                            return GuardReport {
-                                checked: index + 1,
-                                passed,
-                                failure: Some(failure),
-                            };
+                            report.checked = index + 1;
+                            report.failure = Some(failure);
+                            report.metadata_ns = timings.metadata_ns;
+                            report.hash_ns = timings.hash_ns;
+                            report.directory_ns = timings.directory_ns;
+                            report.other_ns = timings.other_ns;
+                            return report;
                         }
                     }
                 }
             }
         }
-        match guards[index].validate(mode) {
-            Ok(()) => passed += 1,
+        match timed_validate(&guards[index], mode, &mut hash_cache, &mut timings) {
+            Ok(()) => report.passed += 1,
             Err(failure) => {
-                return GuardReport {
-                    checked: index + 1,
-                    passed,
-                    failure: Some(failure),
-                };
+                report.checked = index + 1;
+                report.failure = Some(failure);
+                report.metadata_ns = timings.metadata_ns;
+                report.hash_ns = timings.hash_ns;
+                report.directory_ns = timings.directory_ns;
+                report.other_ns = timings.other_ns;
+                return report;
             }
         }
+        report.checked = index + 1;
         index += 1;
     }
-    GuardReport {
-        checked: guards.len(),
-        passed,
-        failure: None,
-    }
+    report.checked = guards.len();
+    report.metadata_ns = timings.metadata_ns;
+    report.hash_ns = timings.hash_ns;
+    report.directory_ns = timings.directory_ns;
+    report.other_ns = timings.other_ns;
+    report
 }
 
 fn metadata_change_allows_hash_fallback(path: &Path, expected: &FileFingerprint) -> bool {
@@ -1912,6 +2078,19 @@ pub fn compile_guards(executable: PathBuf, identity: &ExecutionIdentity) -> Vec<
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn hash_cache_rehashes_after_a_metadata_generation_change() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("input");
+        std::fs::write(&path, b"first").unwrap();
+        let mut cache = std::collections::HashMap::new();
+        let first = super::hash_file_cached(&path, &mut cache).unwrap();
+        assert_eq!(first, super::hash_file_cached(&path, &mut cache).unwrap());
+        std::fs::write(&path, b"second generation").unwrap();
+        let second = super::hash_file_cached(&path, &mut cache).unwrap();
+        assert_ne!(first, second);
+    }
+
     use super::*;
     use std::io::Write;
 
@@ -2538,6 +2717,7 @@ mod tests {
             requests.push(DirectoryEnumerationRequest {
                 requested,
                 returned: buffer,
+                padding: DirectoryPaddingPolicy::Native,
             });
             if eof {
                 break;
@@ -2571,6 +2751,29 @@ mod tests {
             failure.reason.contains("entry stream changed"),
             "{failure:?}"
         );
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn controlled_directory_guard_replays_zeroed_padding() {
+        let directory = tempfile::tempdir().unwrap();
+        fs::write(directory.path().join("a"), b"a").unwrap();
+        let requests = enumerate(directory.path())
+            .into_iter()
+            .map(|mut request| {
+                tracejit_effects::zero_directory_entry_padding(&mut request.returned).unwrap();
+                request.padding = DirectoryPaddingPolicy::VirtualZero;
+                request
+            })
+            .collect();
+        let guard = Guard::DirectoryEnumerated {
+            path: directory.path().to_path_buf(),
+            requests,
+            expected: fingerprint(directory.path()).unwrap(),
+            credential: credential_identity(0),
+            mount_namespace: namespace_identity(0),
+        };
+        assert!(guard.validate(GuardMode::Strict).is_ok());
     }
 
     #[cfg(target_os = "linux")]

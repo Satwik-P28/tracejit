@@ -245,6 +245,29 @@ pub const COMPILER_RUNTIME_CONTRACT: &str = "tracejit.compiler-runtime.v1";
 pub const COMPILER_RUNTIME_SYSINFO_TOTALRAM: u64 = 16 * 1024 * 1024 * 1024;
 pub const COMPILER_RUNTIME_SYSINFO_FREERAM: u64 = 8 * 1024 * 1024 * 1024;
 
+/// Experimental Python-runtime contract. It is deliberately separate from the native and
+/// compiler contracts. It fixes only the three observation classes audited in Phase 3H:
+/// realtime/monotonic clocks and the process/thread identity values used by CPython startup.
+pub const PYTHON_RUNTIME_CONTRACT: &str = "tracejit.python-runtime.v1";
+/// Explicit logical-time variant. Realtime and monotonic values start at fixed bases and advance
+/// by one millisecond per observation. This makes timeout loops progress, but it is virtual time,
+/// not wall-clock or scheduler equivalence.
+pub const PYTHON_RUNTIME_V2_CONTRACT: &str = "tracejit.python-runtime.v2";
+pub const PYTHON_RUNTIME_EXECUTABLE: &str = "/usr/bin/python3.12";
+pub const PYTHON_RUNTIME_BUILD_ID: &str = "337d65cf00021797985cc9f77c0cc334a9fbeb38";
+pub const PYTHON_VIRTUAL_PID: u64 = 4242;
+pub const PYTHON_VIRTUAL_PPID: u64 = 1;
+pub const PYTHON_VIRTUAL_TID: u64 = 4243;
+pub const PYTHON_LOGICAL_STEP_NS: u64 = 1_000_000;
+pub const PYTHON_LOGICAL_MONOTONIC_BASE_NS: u64 = 1_000_000_000_000;
+pub const PYTHON_LOGICAL_REALTIME_BASE_NS: u64 = 1_700_000_000_000_000_000;
+
+/// The exact CPython ELF audited for the Python-runtime experiment.
+pub fn python_runtime_profile(executable: &std::path::Path, build_id: &str) -> bool {
+    executable == std::path::Path::new(PYTHON_RUNTIME_EXECUTABLE)
+        && build_id == PYTHON_RUNTIME_BUILD_ID
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum ControlledRuntimeObservation {
     /// `getrusage(RUSAGE_SELF, ...)`, which binutils `as` reads for its own timing.
@@ -255,6 +278,14 @@ pub enum ControlledRuntimeObservation {
     ClockMonotonic,
     /// `clock_gettime(CLOCK_REALTIME)`/`gettimeofday`, which can feed `__DATE__`/`__TIME__`.
     ClockRealtime,
+    /// `syscall(SYS_gettid)` from CPython thread-state binding.
+    PythonThreadId,
+    /// `getpid()` from CPython's process-identity API.
+    PythonProcessId,
+    /// `getppid()` from CPython's process-identity API.
+    PythonParentProcessId,
+    /// The seconds-resolution `time()` syscall used by CPython's fallback path.
+    PythonTimeSeconds,
 }
 
 impl ControlledRuntimeObservation {
@@ -263,6 +294,10 @@ impl ControlledRuntimeObservation {
         match self {
             Self::GetrusageSelf | Self::ClockMonotonic | Self::ClockRealtime => 0,
             Self::SysinfoMemory => COMPILER_RUNTIME_SYSINFO_TOTALRAM,
+            Self::PythonThreadId => PYTHON_VIRTUAL_TID,
+            Self::PythonProcessId => PYTHON_VIRTUAL_PID,
+            Self::PythonParentProcessId => PYTHON_VIRTUAL_PPID,
+            Self::PythonTimeSeconds => 1_700_000_000,
         }
     }
 
@@ -272,6 +307,8 @@ impl ControlledRuntimeObservation {
             Self::GetrusageSelf => 144,
             Self::SysinfoMemory => 112,
             Self::ClockMonotonic | Self::ClockRealtime => 16,
+            Self::PythonThreadId | Self::PythonProcessId | Self::PythonParentProcessId => 0,
+            Self::PythonTimeSeconds => 8,
         }
     }
 
@@ -281,6 +318,44 @@ impl ControlledRuntimeObservation {
             Self::SysinfoMemory => "sysinfo-memory",
             Self::ClockMonotonic => "clock-monotonic",
             Self::ClockRealtime => "clock-realtime",
+            Self::PythonThreadId => "python-thread-id",
+            Self::PythonProcessId => "python-process-id",
+            Self::PythonParentProcessId => "python-parent-process-id",
+            Self::PythonTimeSeconds => "python-time-seconds",
+        }
+    }
+
+    pub const fn is_python_identity(self) -> bool {
+        matches!(
+            self,
+            Self::PythonThreadId | Self::PythonProcessId | Self::PythonParentProcessId
+        )
+    }
+
+    pub const fn is_python_scalar(self) -> bool {
+        self.is_python_identity() || matches!(self, Self::PythonTimeSeconds)
+    }
+
+    pub const fn is_python_clock(self) -> bool {
+        matches!(self, Self::ClockMonotonic | Self::ClockRealtime)
+    }
+
+    /// Logical nanoseconds for a clock observation in `python-runtime-v2`.
+    pub const fn logical_value(self, ordinal: u64) -> u64 {
+        let base = match self {
+            Self::ClockRealtime => PYTHON_LOGICAL_REALTIME_BASE_NS,
+            Self::ClockMonotonic => PYTHON_LOGICAL_MONOTONIC_BASE_NS,
+            _ => 0,
+        };
+        base.saturating_add(ordinal.saturating_mul(PYTHON_LOGICAL_STEP_NS))
+    }
+
+    /// Seconds returned by `time()` in `python-runtime-v2`; advances one second per 1000
+    /// realtime observations.
+    pub const fn logical_seconds(self, ordinal: u64) -> u64 {
+        match self {
+            Self::PythonTimeSeconds => 1_700_000_000_u64.saturating_add(ordinal / 1_000),
+            _ => self.value(),
         }
     }
 }
@@ -339,6 +414,10 @@ impl CompilerRuntimeProfile {
             ControlledRuntimeObservation::SysinfoMemory => self.sysinfo,
             ControlledRuntimeObservation::ClockMonotonic
             | ControlledRuntimeObservation::ClockRealtime => self.clocks,
+            ControlledRuntimeObservation::PythonThreadId
+            | ControlledRuntimeObservation::PythonProcessId
+            | ControlledRuntimeObservation::PythonParentProcessId
+            | ControlledRuntimeObservation::PythonTimeSeconds => false,
         }
     }
 }
@@ -611,16 +690,63 @@ pub struct SymlinkRead {
     pub target: Option<PathBuf>,
 }
 
+/// What a controlled contract does with the bytes between a `linux_dirent64` name terminator
+/// and the end of its record.
+///
+/// The kernel does not initialize those alignment bytes. `Native` keeps them byte-exact, which is
+/// the only correct policy when the reader may observe the whole buffer. `VirtualZero` is an
+/// explicit contract: the tracer zeroes the padding before the program resumes, and replay does
+/// the same before comparison. It is not native equivalence for a reader that inspects padding.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
+pub enum DirectoryPaddingPolicy {
+    #[default]
+    Native,
+    VirtualZero,
+}
+
+/// Zeroes only `linux_dirent64` alignment padding, preserving `d_ino`, `d_off`, `d_reclen`,
+/// `d_type` and the name including its terminator.
+///
+/// The kernel's `filldir64` writes the fixed fields and `d_name` but leaves the bytes after the
+/// NUL and before the next record untouched. This parser is intentionally strict: a malformed
+/// record is an error rather than a reason to normalise bytes at an unknown offset.
+pub fn zero_directory_entry_padding(bytes: &mut [u8]) -> Result<(), String> {
+    let mut offset = 0_usize;
+    while offset < bytes.len() {
+        let header = bytes
+            .get(offset..offset + 19)
+            .ok_or_else(|| "truncated linux_dirent64 header".to_string())?;
+        let record_length = u16::from_ne_bytes([header[16], header[17]]) as usize;
+        if record_length < 20 || record_length > bytes.len() - offset {
+            return Err(format!(
+                "invalid linux_dirent64 record length {record_length} at offset {offset}"
+            ));
+        }
+        let record = &mut bytes[offset..offset + record_length];
+        let name = &record[19..];
+        let terminator = name
+            .iter()
+            .position(|byte| *byte == 0)
+            .ok_or_else(|| format!("unterminated linux_dirent64 name at offset {offset}"))?;
+        record[19 + terminator + 1..].fill(0);
+        offset += record_length;
+    }
+    Ok(())
+}
+
 /// The exact bytes one `getdents64` call returned, with the buffer size that was requested.
 ///
 /// Replaying a directory enumeration means asking the kernel for the same number of bytes at
 /// the same stream position and requiring the same bytes back. Recording only a sorted set of
 /// names would discard the order, the per-call boundaries, `d_off` cookies, `d_type`, `d_ino`
-/// and the point at which a short read returned, all of which the program can observe.
+/// and the point at which a short read returned, all of which the program can observe. The
+/// padding policy is part of the request so native and controlled records cannot be conflated.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct DirectoryEnumerationRequest {
     pub requested: u64,
     pub returned: Vec<u8>,
+    #[serde(default)]
+    pub padding: DirectoryPaddingPolicy,
 }
 
 /// A directory enumeration the program performed, as a replayable byte-stream contract.
@@ -1448,6 +1574,45 @@ pub fn classify(effects: &[EffectRecord]) -> Classification {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn controlled_directory_padding_is_zeroed_without_touching_fields() {
+        let mut first = vec![0_u8; 24];
+        first[0..8].copy_from_slice(&0x122b5_u64.to_ne_bytes());
+        first[8..16].copy_from_slice(&0x3fcc_0000_0000_0000_u64.to_ne_bytes());
+        first[16..18].copy_from_slice(&24_u16.to_ne_bytes());
+        first[18] = 4;
+        first[19] = b'.';
+        first[20] = 0;
+        first[21..24].copy_from_slice(b"sl.");
+        let mut bytes = first.clone();
+        zero_directory_entry_padding(&mut bytes).unwrap();
+        assert_eq!(&bytes[..21], &first[..21]);
+        assert_eq!(&bytes[21..], &[0, 0, 0]);
+
+        let mut second = vec![0_u8; 24];
+        second[16..18].copy_from_slice(&24_u16.to_ne_bytes());
+        second[18] = 4;
+        second[19..21].copy_from_slice(b"..");
+        second[21] = 0;
+        second[22..24].copy_from_slice(b"ux");
+        bytes.extend_from_slice(&second);
+        zero_directory_entry_padding(&mut bytes).unwrap();
+        assert_eq!(&bytes[43..46], b"..\0");
+        assert_eq!(&bytes[46..48], &[0, 0]);
+    }
+
+    #[test]
+    fn controlled_directory_padding_rejects_malformed_records() {
+        let mut bytes = vec![0_u8; 24];
+        bytes[16..18].copy_from_slice(&4096_u16.to_ne_bytes());
+        assert!(zero_directory_entry_padding(&mut bytes).is_err());
+
+        let mut no_name = vec![0_u8; 24];
+        no_name[16..18].copy_from_slice(&24_u16.to_ne_bytes());
+        no_name[19..].fill(b'x');
+        assert!(zero_directory_entry_padding(&mut no_name).is_err());
+    }
+
     use super::*;
 
     #[test]

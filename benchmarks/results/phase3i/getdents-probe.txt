@@ -1,0 +1,9 @@
+[fill aa] status 0
+path=/usr/local/lib/python3.12/dist-packages fill=aa returned=48
+record ino=74421 off=4597307610467072313 reclen=24 type=4 name=2e padding=aaaaaa
+record ino=74420 off=9223372036854775807 reclen=24 type=4 name=2e2e padding=aaaa
+
+[fill 55] status 0
+path=/usr/local/lib/python3.12/dist-packages fill=55 returned=48
+record ino=74421 off=4597307610467072313 reclen=24 type=4 name=2e padding=555555
+record ino=74420 off=9223372036854775807 reclen=24 type=4 name=2e2e padding=5555
