@@ -660,16 +660,63 @@ pub struct SymlinkRead {
     pub target: Option<PathBuf>,
 }
 
+/// What a controlled contract does with the bytes between a `linux_dirent64` name terminator
+/// and the end of its record.
+///
+/// The kernel does not initialize those alignment bytes. `Native` keeps them byte-exact, which is
+/// the only correct policy when the reader may observe the whole buffer. `VirtualZero` is an
+/// explicit contract: the tracer zeroes the padding before the program resumes, and replay does
+/// the same before comparison. It is not native equivalence for a reader that inspects padding.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
+pub enum DirectoryPaddingPolicy {
+    #[default]
+    Native,
+    VirtualZero,
+}
+
+/// Zeroes only `linux_dirent64` alignment padding, preserving `d_ino`, `d_off`, `d_reclen`,
+/// `d_type` and the name including its terminator.
+///
+/// The kernel's `filldir64` writes the fixed fields and `d_name` but leaves the bytes after the
+/// NUL and before the next record untouched. This parser is intentionally strict: a malformed
+/// record is an error rather than a reason to normalise bytes at an unknown offset.
+pub fn zero_directory_entry_padding(bytes: &mut [u8]) -> Result<(), String> {
+    let mut offset = 0_usize;
+    while offset < bytes.len() {
+        let header = bytes
+            .get(offset..offset + 19)
+            .ok_or_else(|| "truncated linux_dirent64 header".to_string())?;
+        let record_length = u16::from_ne_bytes([header[16], header[17]]) as usize;
+        if record_length < 20 || record_length > bytes.len() - offset {
+            return Err(format!(
+                "invalid linux_dirent64 record length {record_length} at offset {offset}"
+            ));
+        }
+        let record = &mut bytes[offset..offset + record_length];
+        let name = &record[19..];
+        let terminator = name
+            .iter()
+            .position(|byte| *byte == 0)
+            .ok_or_else(|| format!("unterminated linux_dirent64 name at offset {offset}"))?;
+        record[19 + terminator + 1..].fill(0);
+        offset += record_length;
+    }
+    Ok(())
+}
+
 /// The exact bytes one `getdents64` call returned, with the buffer size that was requested.
 ///
 /// Replaying a directory enumeration means asking the kernel for the same number of bytes at
 /// the same stream position and requiring the same bytes back. Recording only a sorted set of
 /// names would discard the order, the per-call boundaries, `d_off` cookies, `d_type`, `d_ino`
-/// and the point at which a short read returned, all of which the program can observe.
+/// and the point at which a short read returned, all of which the program can observe. The
+/// padding policy is part of the request so native and controlled records cannot be conflated.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct DirectoryEnumerationRequest {
     pub requested: u64,
     pub returned: Vec<u8>,
+    #[serde(default)]
+    pub padding: DirectoryPaddingPolicy,
 }
 
 /// A directory enumeration the program performed, as a replayable byte-stream contract.
@@ -1497,6 +1544,45 @@ pub fn classify(effects: &[EffectRecord]) -> Classification {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn controlled_directory_padding_is_zeroed_without_touching_fields() {
+        let mut first = vec![0_u8; 24];
+        first[0..8].copy_from_slice(&0x122b5_u64.to_ne_bytes());
+        first[8..16].copy_from_slice(&0x3fcc_0000_0000_0000_u64.to_ne_bytes());
+        first[16..18].copy_from_slice(&24_u16.to_ne_bytes());
+        first[18] = 4;
+        first[19] = b'.';
+        first[20] = 0;
+        first[21..24].copy_from_slice(b"sl.");
+        let mut bytes = first.clone();
+        zero_directory_entry_padding(&mut bytes).unwrap();
+        assert_eq!(&bytes[..21], &first[..21]);
+        assert_eq!(&bytes[21..], &[0, 0, 0]);
+
+        let mut second = vec![0_u8; 24];
+        second[16..18].copy_from_slice(&24_u16.to_ne_bytes());
+        second[18] = 4;
+        second[19..21].copy_from_slice(b"..");
+        second[21] = 0;
+        second[22..24].copy_from_slice(b"ux");
+        bytes.extend_from_slice(&second);
+        zero_directory_entry_padding(&mut bytes).unwrap();
+        assert_eq!(&bytes[43..46], b"..\0");
+        assert_eq!(&bytes[46..48], &[0, 0]);
+    }
+
+    #[test]
+    fn controlled_directory_padding_rejects_malformed_records() {
+        let mut bytes = vec![0_u8; 24];
+        bytes[16..18].copy_from_slice(&4096_u16.to_ne_bytes());
+        assert!(zero_directory_entry_padding(&mut bytes).is_err());
+
+        let mut no_name = vec![0_u8; 24];
+        no_name[16..18].copy_from_slice(&24_u16.to_ne_bytes());
+        no_name[19..].fill(b'x');
+        assert!(zero_directory_entry_padding(&mut no_name).is_err());
+    }
+
     use super::*;
 
     #[test]
