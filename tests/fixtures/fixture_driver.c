@@ -403,6 +403,45 @@ int main(int argc, char **argv) {
     return write(STDOUT_FILENO, "stdout fixture\n", 15) != 15;
   if (!strcmp(name, "stderr_only"))
     return write(STDERR_FILENO, "stderr fixture\n", 15) != 15;
+  if (!strcmp(name, "dup2_same_file")) {
+    int fd = open(input, O_RDONLY);
+    if (fd < 0) return 1;
+    int flags = fcntl(fd, F_GETFD);
+    if (flags < 0 || fcntl(fd, F_SETFD, flags | FD_CLOEXEC) != 0) return 2;
+    if (dup2(fd, fd) != fd) return 3;
+    if ((fcntl(fd, F_GETFD) & FD_CLOEXEC) == 0) return 4;
+    char byte;
+    if (read(fd, &byte, 1) != 1) return 5;
+    close(fd);
+    copy_file(input, output);
+    return 0;
+  }
+  if (!strcmp(name, "dup2_same_pipe")) {
+    int fds[2];
+    char buffer[16] = {0};
+    if (pipe(fds) != 0) return 1;
+    if (write(fds[1], "tracejit\n", 9) != 9) return 2;
+    if (close(fds[1]) != 0) return 3;
+    if (dup2(fds[0], fds[0]) != fds[0]) return 4;
+    if (read(fds[0], buffer, sizeof(buffer)) != 9) return 5;
+    if (close(fds[0]) != 0) return 6;
+    copy_file(input, output);
+    return 0;
+  }
+  if (!strcmp(name, "dup2_same_directory")) {
+    char directory[4096];
+    char first[4096] = {0};
+    char second[4096] = {0};
+    join_path(directory, sizeof(directory), root, "enumdir");
+    int fd = open(directory, O_RDONLY | O_DIRECTORY);
+    if (fd < 0) return 1;
+    if (syscall(SYS_getdents64, fd, first, sizeof(first)) < 0) return 2;
+    if (dup2(fd, fd) != fd) return 3;
+    if (syscall(SYS_getdents64, fd, second, sizeof(second)) < 0) return 4;
+    if (close(fd) != 0) return 5;
+    copy_file(input, output);
+    return 0;
+  }
   if (!strcmp(name, "inherited_fd9_read")) {
     char buffer[8];
     ssize_t count = read(9, buffer, sizeof(buffer));

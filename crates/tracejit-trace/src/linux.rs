@@ -675,7 +675,11 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
     ptrace::syscall(root_pid, None)
         .map_err(|error| ptrace_operation("resume initial process", root_pid, error))?;
 
-    let initial_fds = initial_descriptor_table(root_pid);
+    let initial_fds = initial_descriptor_table(root_pid).map_err(|error| {
+        TraceError::Ptrace(format!(
+            "could not enumerate the target descriptor table: {error}"
+        ))
+    })?;
     // Descriptors above stderr are inherited state, not effects created by this execution. The
     // stdin offset model does not cover their offsets, flags or shared open descriptions, so no
     // record containing one may become reusable. Core refuses these invocations before lookup;
@@ -1991,6 +1995,47 @@ fn readlink_pending(
     })
 }
 
+fn forget_descriptor(state: &mut ProcessState, fd: i32) {
+    state.fds.remove(&fd);
+    state.close_on_exec.remove(&fd);
+    // An enumeration record is about one open file description. Reusing the descriptor number
+    // must not append a new directory's stream to the previous record: the guard would replay a
+    // concatenation that no single descriptor ever produced.
+    state.enumerations.remove(&fd);
+}
+
+fn record_pipe(
+    state: &mut ProcessState,
+    read_fd: i32,
+    write_fd: i32,
+    close_on_exec: bool,
+    collector: &mut Collector,
+) {
+    let pipe = collector.open_pipe();
+    forget_descriptor(state, read_fd);
+    forget_descriptor(state, write_fd);
+    state.fds.insert(
+        read_fd,
+        FdState::InternalPipe {
+            pipe,
+            readable: true,
+            writable: false,
+        },
+    );
+    state.fds.insert(
+        write_fd,
+        FdState::InternalPipe {
+            pipe,
+            readable: false,
+            writable: true,
+        },
+    );
+    if close_on_exec {
+        state.close_on_exec.insert(read_fd);
+        state.close_on_exec.insert(write_fd);
+    }
+}
+
 fn complete_syscall(
     pid: Pid,
     state: &mut ProcessState,
@@ -2006,6 +2051,7 @@ fn complete_syscall(
             before_fingerprint,
         } => {
             let fd = result as i32;
+            state.enumerations.remove(&fd);
             if is_random_device(&path) {
                 state.fds.insert(fd, FdState::File(path.clone()));
                 collector.push(
@@ -2166,27 +2212,7 @@ fn complete_syscall(
                 // `pipe` writes two adjacent `int`s; the first occupies the low half of the word.
                 let read_fd = (word & 0xffff_ffff) as u32 as i32;
                 let write_fd = (word >> 32) as u32 as i32;
-                let pipe = collector.open_pipe();
-                state.fds.insert(
-                    read_fd,
-                    FdState::InternalPipe {
-                        pipe,
-                        readable: true,
-                        writable: false,
-                    },
-                );
-                state.fds.insert(
-                    write_fd,
-                    FdState::InternalPipe {
-                        pipe,
-                        readable: false,
-                        writable: true,
-                    },
-                );
-                if close_on_exec {
-                    state.close_on_exec.insert(read_fd);
-                    state.close_on_exec.insert(write_fd);
-                }
+                record_pipe(state, read_fd, write_fd, close_on_exec, collector);
             }
             Err(_) => collector.push(
                 pid,
@@ -2223,6 +2249,17 @@ fn complete_syscall(
             close_on_exec,
         } => {
             let destination = destination.unwrap_or(result as i32);
+            // dup2(fd, fd) is a successful Linux no-op and keeps FD_CLOEXEC. dup3(fd, fd)
+            // fails with EINVAL, so only dup2 reaches this path. Forgetting this destination
+            // would erase the fd classification, CLOEXEC bit and enumeration record.
+            if destination == source {
+                return;
+            }
+            // A duplicate shares the directory offset but not a separately recorded stream.
+            // Refuse to extend either record rather than guess which descriptor consumed which
+            // bytes; a later getdents64 on a non-zero offset is refused by the trace.
+            state.enumerations.remove(&source);
+            forget_descriptor(state, destination);
             if let Some(fd) = state.fds.get(&source).cloned() {
                 state.fds.insert(destination, fd);
             }
@@ -2232,10 +2269,7 @@ fn complete_syscall(
                 state.close_on_exec.remove(&destination);
             }
         }
-        PendingSyscall::Close { fd } => {
-            state.fds.remove(&fd);
-            state.close_on_exec.remove(&fd);
-        }
+        PendingSyscall::Close { fd } => forget_descriptor(state, fd),
         PendingSyscall::SetCloseOnExec { fd, enabled } => {
             if enabled {
                 state.close_on_exec.insert(fd);
@@ -2563,6 +2597,7 @@ fn complete_syscall(
         },
         PendingSyscall::Network { kind } => match kind {
             NetworkOperation::Socket => {
+                forget_descriptor(state, result as i32);
                 state.fds.insert(result as i32, FdState::Network);
             }
             NetworkOperation::Read(operation) => collector.push(
@@ -3826,25 +3861,26 @@ fn fd_position(pid: Pid, fd: i32) -> Option<u64> {
 /// An inherited regular file on any descriptor is `InheritedFile`, and a read from one is refused
 /// unless its offset contract is modelled. Only stdin is modelled, so classifying all descriptors
 /// makes an inherited file on fd 3 fail closed instead of being treated as an ordinary open read.
-fn initial_descriptor_table(pid: Pid) -> HashMap<i32, FdState> {
+fn initial_descriptor_table(pid: Pid) -> std::io::Result<HashMap<i32, FdState>> {
     let mut fds = HashMap::new();
-    if let Ok(entries) = fs::read_dir(format!("/proc/{}/fd", pid.as_raw())) {
-        for entry in entries.flatten() {
-            if let Some(fd) = entry
-                .file_name()
-                .to_str()
-                .and_then(|name| name.parse::<i32>().ok())
-            {
-                if fd >= 0 {
-                    fds.insert(fd, inherited_fd_state(pid, fd));
-                }
+    // An incomplete table cannot establish that no extra descriptor was inherited. Return the
+    // error instead of silently modelling only stdin/stdout/stderr.
+    for entry in fs::read_dir(format!("/proc/{}/fd", pid.as_raw()))? {
+        let entry = entry?;
+        if let Some(fd) = entry
+            .file_name()
+            .to_str()
+            .and_then(|name| name.parse::<i32>().ok())
+        {
+            if fd >= 0 {
+                fds.insert(fd, inherited_fd_state(pid, fd));
             }
         }
     }
     for fd in 0..=2 {
         fds.entry(fd).or_insert_with(|| inherited_fd_state(pid, fd));
     }
-    fds
+    Ok(fds)
 }
 
 /// Finds another descriptor of the same process that refers to the same open file description as
@@ -4083,6 +4119,321 @@ mod tests {
             dependencies: Vec::new(),
             pipes: HashMap::new(),
             next_pipe: 0,
+        }
+    }
+
+    #[test]
+    fn reusing_a_descriptor_forgets_its_directory_enumeration() {
+        let mut state = ProcessState {
+            cwd: PathBuf::from("/"),
+            fds: HashMap::new(),
+            close_on_exec: HashSet::new(),
+            entering: false,
+            synchronize_on_next_syscall: false,
+            pending: None,
+            file_mappings: Vec::new(),
+            enumerations: HashMap::new(),
+            stdin_stream: None,
+            vdso_disarmed: false,
+        };
+        state.fds.insert(7, FdState::File(PathBuf::from("/tmp")));
+        state.close_on_exec.insert(7);
+        state.enumerations.insert(
+            7,
+            EnumerationState {
+                fingerprint: tracejit_effects::FileFingerprint::absent(),
+                credential: None,
+                mount_namespace: None,
+                bytes: 48,
+                effect_index: Some(3),
+                refused: false,
+            },
+        );
+        forget_descriptor(&mut state, 7);
+        assert!(!state.fds.contains_key(&7));
+        assert!(!state.close_on_exec.contains(&7));
+        assert!(!state.enumerations.contains_key(&7));
+    }
+
+    #[test]
+    fn descriptor_reuse_through_close_open_socket_and_pipe_forgets_enumeration() {
+        let pid = Pid::from_raw(1);
+        let make_state = || {
+            let mut state = ProcessState {
+                cwd: PathBuf::from("/"),
+                fds: HashMap::new(),
+                close_on_exec: HashSet::new(),
+                entering: false,
+                synchronize_on_next_syscall: false,
+                pending: None,
+                file_mappings: Vec::new(),
+                enumerations: HashMap::new(),
+                stdin_stream: None,
+                vdso_disarmed: false,
+            };
+            state.fds.insert(7, FdState::File(PathBuf::from("/tmp")));
+            state.enumerations.insert(
+                7,
+                EnumerationState {
+                    fingerprint: tracejit_effects::FileFingerprint::absent(),
+                    credential: None,
+                    mount_namespace: None,
+                    bytes: 48,
+                    effect_index: Some(3),
+                    refused: false,
+                },
+            );
+            state
+        };
+
+        let mut close = make_state();
+        complete_syscall(
+            pid,
+            &mut close,
+            PendingSyscall::Close { fd: 7 },
+            0,
+            &mut collector(),
+        );
+        assert!(!close.enumerations.contains_key(&7));
+
+        let mut open = make_state();
+        complete_syscall(
+            pid,
+            &mut open,
+            PendingSyscall::Open {
+                path: PathBuf::from("/tmp/file"),
+                flags: libc::O_RDONLY,
+                before_hash: None,
+                before_fingerprint: None,
+            },
+            7,
+            &mut collector(),
+        );
+        assert!(!open.enumerations.contains_key(&7));
+
+        let mut socket = make_state();
+        complete_syscall(
+            pid,
+            &mut socket,
+            PendingSyscall::Network {
+                kind: NetworkOperation::Socket,
+            },
+            7,
+            &mut collector(),
+        );
+        assert!(!socket.enumerations.contains_key(&7));
+
+        let mut pipe = make_state();
+        record_pipe(&mut pipe, 7, 8, false, &mut collector());
+        assert!(!pipe.enumerations.contains_key(&7));
+        assert!(!pipe.enumerations.contains_key(&8));
+        assert!(matches!(
+            pipe.fds.get(&7),
+            Some(FdState::InternalPipe { .. })
+        ));
+        assert!(matches!(
+            pipe.fds.get(&8),
+            Some(FdState::InternalPipe { .. })
+        ));
+    }
+
+    #[test]
+    fn dup2_same_descriptor_preserves_file_directory_pipe_and_cloexec_state() {
+        let pid = Pid::from_raw(1);
+
+        let mut file = ProcessState {
+            cwd: PathBuf::from("/"),
+            fds: HashMap::new(),
+            close_on_exec: HashSet::new(),
+            entering: false,
+            synchronize_on_next_syscall: false,
+            pending: None,
+            file_mappings: Vec::new(),
+            enumerations: HashMap::new(),
+            stdin_stream: None,
+            vdso_disarmed: false,
+        };
+        file.fds
+            .insert(7, FdState::File(PathBuf::from("/tmp/file")));
+        file.close_on_exec.insert(7);
+        complete_syscall(
+            pid,
+            &mut file,
+            PendingSyscall::Dup {
+                source: 7,
+                destination: Some(7),
+                close_on_exec: false,
+            },
+            7,
+            &mut collector(),
+        );
+        assert!(matches!(
+            file.fds.get(&7),
+            Some(FdState::File(path)) if path == Path::new("/tmp/file")
+        ));
+        assert!(file.close_on_exec.contains(&7));
+
+        let mut directory = ProcessState {
+            cwd: PathBuf::from("/"),
+            fds: HashMap::new(),
+            close_on_exec: HashSet::new(),
+            entering: false,
+            synchronize_on_next_syscall: false,
+            pending: None,
+            file_mappings: Vec::new(),
+            enumerations: HashMap::new(),
+            stdin_stream: None,
+            vdso_disarmed: false,
+        };
+        directory
+            .fds
+            .insert(7, FdState::File(PathBuf::from("/tmp")));
+        directory.enumerations.insert(
+            7,
+            EnumerationState {
+                fingerprint: tracejit_effects::FileFingerprint::absent(),
+                credential: None,
+                mount_namespace: None,
+                bytes: 48,
+                effect_index: Some(3),
+                refused: false,
+            },
+        );
+        complete_syscall(
+            pid,
+            &mut directory,
+            PendingSyscall::Dup {
+                source: 7,
+                destination: Some(7),
+                close_on_exec: false,
+            },
+            7,
+            &mut collector(),
+        );
+        assert!(directory.fds.contains_key(&7));
+        assert_eq!(directory.enumerations.get(&7).unwrap().bytes, 48);
+
+        let mut pipe = ProcessState {
+            cwd: PathBuf::from("/"),
+            fds: HashMap::new(),
+            close_on_exec: HashSet::new(),
+            entering: false,
+            synchronize_on_next_syscall: false,
+            pending: None,
+            file_mappings: Vec::new(),
+            enumerations: HashMap::new(),
+            stdin_stream: None,
+            vdso_disarmed: false,
+        };
+        pipe.fds.insert(
+            7,
+            FdState::InternalPipe {
+                pipe: 3,
+                readable: true,
+                writable: false,
+            },
+        );
+        complete_syscall(
+            pid,
+            &mut pipe,
+            PendingSyscall::Dup {
+                source: 7,
+                destination: Some(7),
+                close_on_exec: false,
+            },
+            7,
+            &mut collector(),
+        );
+        assert!(matches!(
+            pipe.fds.get(&7),
+            Some(FdState::InternalPipe {
+                pipe: 3,
+                readable: true,
+                writable: false
+            })
+        ));
+    }
+
+    #[test]
+    fn ordinary_duplicates_still_replace_destination_and_reset_cloexec() {
+        let pid = Pid::from_raw(1);
+        for (label, destination, result, close_on_exec) in [
+            ("dup", None, 9, false),
+            ("dup2", Some(8), 8, false),
+            ("dup3", Some(8), 8, true),
+            ("fcntl", None, 9, true),
+        ] {
+            let mut state = ProcessState {
+                cwd: PathBuf::from("/"),
+                fds: HashMap::new(),
+                close_on_exec: HashSet::new(),
+                entering: false,
+                synchronize_on_next_syscall: false,
+                pending: None,
+                file_mappings: Vec::new(),
+                enumerations: HashMap::new(),
+                stdin_stream: None,
+                vdso_disarmed: false,
+            };
+            state.fds.insert(7, FdState::File(PathBuf::from("/source")));
+            let reused = destination.unwrap_or(result as i32);
+            state
+                .fds
+                .insert(reused, FdState::File(PathBuf::from("/destination")));
+            state.close_on_exec.insert(reused);
+            state.enumerations.insert(
+                7,
+                EnumerationState {
+                    fingerprint: tracejit_effects::FileFingerprint::absent(),
+                    credential: None,
+                    mount_namespace: None,
+                    bytes: 16,
+                    effect_index: None,
+                    refused: false,
+                },
+            );
+            state.enumerations.insert(
+                reused,
+                EnumerationState {
+                    fingerprint: tracejit_effects::FileFingerprint::absent(),
+                    credential: None,
+                    mount_namespace: None,
+                    bytes: 16,
+                    effect_index: None,
+                    refused: false,
+                },
+            );
+            complete_syscall(
+                pid,
+                &mut state,
+                PendingSyscall::Dup {
+                    source: 7,
+                    destination,
+                    close_on_exec,
+                },
+                result,
+                &mut collector(),
+            );
+            assert!(
+                matches!(
+                    state.fds.get(&reused),
+                    Some(FdState::File(path)) if path == Path::new("/source")
+                ),
+                "{label}: destination was not replaced"
+            );
+            assert_eq!(
+                state.close_on_exec.contains(&reused),
+                close_on_exec,
+                "{label}: destination CLOEXEC"
+            );
+            assert!(
+                !state.enumerations.contains_key(&7),
+                "{label}: source enumeration survived the duplicate"
+            );
+            assert!(
+                !state.enumerations.contains_key(&reused),
+                "{label}: destination enumeration survived the duplicate"
+            );
         }
     }
 
