@@ -19,8 +19,8 @@ use std::time::{Instant, SystemTime, UNIX_EPOCH};
 use tracejit_effects::{
     ClockKind, ControlEffect, ControlledEntropyRead, ControlledRuntimeObservation,
     ControlledRuntimeRead, DependencyEdge, DependencyKind, DirectoryEnumerationRead,
-    DirectoryEnumerationRequest, DirectoryOpen, Effect, EffectRecord, ExecutionMetadata,
-    FileMetadataRead, FileRead, FileWrite, FileWriteKind, FilesystemStatsRead,
+    DirectoryEnumerationRequest, DirectoryOpen, DirectoryPaddingPolicy, Effect, EffectRecord,
+    ExecutionMetadata, FileMetadataRead, FileRead, FileWrite, FileWriteKind, FilesystemStatsRead,
     FilesystemStatsSource, InheritedStreamRead, IpcWrite, KernelStateRead, NetworkRead,
     NetworkWrite, ProcessExec, ProcessNode, ProcessSpawn, RandomSource, ReadEffect, SignalEffect,
     SymlinkRead, Trace, UnknownEffect, WriteEffect,
@@ -186,6 +186,7 @@ enum PendingSyscall {
         fd: i32,
         buffer: u64,
         requested: u64,
+        padding: DirectoryPaddingPolicy,
     },
     Read {
         fd: i32,
@@ -1287,6 +1288,11 @@ fn decode_entry(
                         fd,
                         buffer: args[1],
                         requested: args[2],
+                        padding: if contract == Some(Contract::PythonRuntimeV1) {
+                            DirectoryPaddingPolicy::VirtualZero
+                        } else {
+                            DirectoryPaddingPolicy::Native
+                        },
                     }
                 }
             }
@@ -2392,6 +2398,7 @@ fn complete_syscall(
             fd,
             buffer,
             requested,
+            padding,
         } => {
             let length = result as usize;
             if length > requested as usize {
@@ -2408,9 +2415,33 @@ fn complete_syscall(
                 let mut bytes = vec![0_u8; length];
                 match read_remote(pid, buffer, &mut bytes) {
                     Ok(()) => {
+                        let bytes = match padding {
+                            DirectoryPaddingPolicy::Native => Some(bytes),
+                            DirectoryPaddingPolicy::VirtualZero => {
+                                match virtualize_directory_padding(pid, buffer, &bytes) {
+                                    Ok(bytes) => Some(bytes),
+                                    Err(detail) => {
+                                        collector.push(
+                                            pid,
+                                            Effect::Unknown(UnknownEffect {
+                                                syscall: Some(libc::SYS_getdents64),
+                                                detail: format!(
+                                                    "controlled directory padding could not be applied: {detail}"
+                                                ),
+                                            }),
+                                        );
+                                        None
+                                    }
+                                }
+                            }
+                        };
+                        let Some(bytes) = bytes else {
+                            return;
+                        };
                         let request = DirectoryEnumerationRequest {
                             requested,
                             returned: bytes,
+                            padding,
                         };
                         let entry =
                             state
@@ -3836,6 +3867,18 @@ fn read_u64(pid: Pid, address: u64) -> Result<u64, String> {
     let mut bytes = [0u8; 8];
     read_remote(pid, address, &mut bytes)?;
     Ok(u64::from_le_bytes(bytes))
+}
+
+/// Applies the explicit controlled directory-padding policy to the buffer the tracee just
+/// received and returns the bytes the program will now observe.
+///
+/// The write happens at the syscall-exit stop, before the tracee resumes. Only bytes after a
+/// name terminator are changed; every semantic field remains exactly what the kernel returned.
+fn virtualize_directory_padding(pid: Pid, address: u64, bytes: &[u8]) -> Result<Vec<u8>, String> {
+    let mut bytes = bytes.to_vec();
+    tracejit_effects::zero_directory_entry_padding(&mut bytes)?;
+    write_remote(pid, address, &bytes)?;
+    Ok(bytes)
 }
 
 fn read_remote(pid: Pid, address: u64, buffer: &mut [u8]) -> Result<(), String> {
