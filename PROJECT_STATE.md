@@ -706,8 +706,9 @@ branch with exact ELF/build-ID guards, controlled realtime/monotonic clocks, `ge
 
 `python-csv-json` under that contract is `Guarded`/`Executed` then `Guarded`/**`Deoptimized`**: the
 `DirectoryEnumerated` guard sees a `linux_dirent64` padding difference (`sl.` vs zeroes) while names,
-order, inode and offsets match. The target has **no controlled hit**; native census remains **9
-attempted, 0 reused, 9 refused**, outputs equivalent. A separate `python -S smoke.py` reaches 10/10
+order, inode and offsets match. At Phase 3H the target had **no controlled hit**; Phase 3I
+supersedes that with an opt-in `VirtualZero` hit, while the native census remains **9 attempted, 0
+reused, 9 refused**, outputs equivalent. A separate `python -S smoke.py` reaches 10/10
 `Reused` with cached stdout equal to direct stdout, but it is slower than direct (roughly 32-35 ms
 warm vs 11-16 ms direct) and is only a mechanism check. Raw:
 `benchmarks/results/phase3h/`. See `docs/audits/PHASE3H_DESCRIPTOR_PREFLIGHT_AND_CONTROLLED_PYTHON.md`.

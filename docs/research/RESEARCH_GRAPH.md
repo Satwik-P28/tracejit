@@ -325,7 +325,9 @@ Status: `open`; rejected as a shortcut.
 ### C8 — Native and controlled Python identities remain separate
 
 A controlled Python record cannot validate against native execution. The contract identifier is part
-of the lookup key; no Python controlled record has been admitted. Status: `enforced`.
+of the lookup key. No native Python record had been admitted at Phase 3G; Phase 3I admits controlled
+records only under `python-runtime-v1`, and they remain separate from native records. Status:
+`enforced`.
 
 ### Edges
 

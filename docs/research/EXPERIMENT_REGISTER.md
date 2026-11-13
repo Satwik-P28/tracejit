@@ -349,7 +349,8 @@ print nondeterministic values?
 `python -S smoke.py` is `Reused` 10/10 after a cold `Executed`; cached stdout equals direct stdout.
 Changing the script deoptimizes and the traced output equals the new direct stdout. Measured wall:
 direct roughly 11-16 ms, cold 88-105 ms, warm 32-35 ms; the controlled path is slower on this tiny
-script. The target workload has no hit.
+script. The target workload had no hit at Phase 3H; Phase 3I supersedes that specific result with a
+controlled `VirtualZero` hit (E-3I-03), without making it a native or performance claim.
 
 **Raw:** `benchmarks/results/phase3h/contract-smoke.json`.
 
