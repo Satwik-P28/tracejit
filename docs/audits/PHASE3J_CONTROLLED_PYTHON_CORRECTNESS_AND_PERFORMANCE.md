@@ -35,7 +35,10 @@ reconciled branch before the performance changes:
 | `./scripts/demo.sh` | pass |
 
 Release binary SHA-256 after the final build: `dcbaf5d715da6a8c46cb134165298643ee532109245281152b53ec37c75cdb6d`.
-Hosted CI is not claimed in this audit; the branch has not been pushed in this session.
+Hosted CI on the pushed branch: run `43489814814` at `a369fb4` completed **success**. All 13 steps
+passed: Formatting, Clippy, Tests, Release build, Doctor/kernel capabilities, Linux integration,
+real-world compatibility census and Demo. The run was read from the public Actions API; the host has
+no authenticated GitHub session.
 
 The Phase 3I acceptance assertions remained true: cold `Executed`, warm `Reused`, invalidation
 retraced, entropy never reused, output effects equal. Raw copy:
@@ -294,8 +297,7 @@ Negative results retained:
 5. The hash cache's guarantee is per validation pass and metadata generation. A same-metadata
    content mutation is outside that snapshot guarantee; a future design should either accept this
    documented boundary or add a stronger generation mechanism.
-6. The Phase 3J branch has not been pushed or run through hosted CI in this session. Local gates are
-   listed above.
+6. Hosted CI passed at `a369fb4`; the branch remains unmerged and no PR was opened in this session.
 7. No Landlock, so `PROVEN` remains unavailable.
 
 ## 9. Reproduction

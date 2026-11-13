@@ -431,7 +431,8 @@ preflight fixes?
 
 **Result:** cherry-picks clean; the `dup2` early return remains. fmt pass, Clippy `-D warnings`
 pass, **155 workspace tests**, **53 Linux integration tests**, release build and demo pass. Phase 3I's
-five acceptance assertions pass on the reconciled branch. Raw:
+five acceptance assertions pass on the reconciled branch. Hosted CI run `43489814814` at `a369fb4`
+passed every step, including Tests, Linux integration, census and Demo. Raw:
 `benchmarks/results/phase3j/reproduced-acceptance.json`.
 
 ### E-3J-02 — adversarial semantic probes

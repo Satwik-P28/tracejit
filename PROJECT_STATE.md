@@ -780,4 +780,5 @@ complete session (625.9 ms vs 579.5 ms direct). Deterministic CPU-heavy workload
 retraced. An earlier less-loaded run measured break-even 3 for both. This is controlled reuse, not
 native equivalence. Full audit:
 `docs/audits/PHASE3J_CONTROLLED_PYTHON_CORRECTNESS_AND_PERFORMANCE.md`; raw:
-`benchmarks/results/phase3j/`. The branch is unmerged; hosted CI is not claimed.
+`benchmarks/results/phase3j/`. The branch is unmerged. Hosted CI run `43489814814` at `a369fb4`
+passed every step, including Tests, Linux integration, census and Demo.
