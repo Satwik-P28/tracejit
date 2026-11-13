@@ -2004,6 +2004,38 @@ fn forget_descriptor(state: &mut ProcessState, fd: i32) {
     state.enumerations.remove(&fd);
 }
 
+fn record_pipe(
+    state: &mut ProcessState,
+    read_fd: i32,
+    write_fd: i32,
+    close_on_exec: bool,
+    collector: &mut Collector,
+) {
+    let pipe = collector.open_pipe();
+    forget_descriptor(state, read_fd);
+    forget_descriptor(state, write_fd);
+    state.fds.insert(
+        read_fd,
+        FdState::InternalPipe {
+            pipe,
+            readable: true,
+            writable: false,
+        },
+    );
+    state.fds.insert(
+        write_fd,
+        FdState::InternalPipe {
+            pipe,
+            readable: false,
+            writable: true,
+        },
+    );
+    if close_on_exec {
+        state.close_on_exec.insert(read_fd);
+        state.close_on_exec.insert(write_fd);
+    }
+}
+
 fn complete_syscall(
     pid: Pid,
     state: &mut ProcessState,
@@ -2180,29 +2212,7 @@ fn complete_syscall(
                 // `pipe` writes two adjacent `int`s; the first occupies the low half of the word.
                 let read_fd = (word & 0xffff_ffff) as u32 as i32;
                 let write_fd = (word >> 32) as u32 as i32;
-                let pipe = collector.open_pipe();
-                forget_descriptor(state, read_fd);
-                forget_descriptor(state, write_fd);
-                state.fds.insert(
-                    read_fd,
-                    FdState::InternalPipe {
-                        pipe,
-                        readable: true,
-                        writable: false,
-                    },
-                );
-                state.fds.insert(
-                    write_fd,
-                    FdState::InternalPipe {
-                        pipe,
-                        readable: false,
-                        writable: true,
-                    },
-                );
-                if close_on_exec {
-                    state.close_on_exec.insert(read_fd);
-                    state.close_on_exec.insert(write_fd);
-                }
+                record_pipe(state, read_fd, write_fd, close_on_exec, collector);
             }
             Err(_) => collector.push(
                 pid,
@@ -4143,6 +4153,88 @@ mod tests {
         assert!(!state.fds.contains_key(&7));
         assert!(!state.close_on_exec.contains(&7));
         assert!(!state.enumerations.contains_key(&7));
+    }
+
+    #[test]
+    fn descriptor_reuse_through_close_open_socket_and_pipe_forgets_enumeration() {
+        let pid = Pid::from_raw(1);
+        let make_state = || {
+            let mut state = ProcessState {
+                cwd: PathBuf::from("/"),
+                fds: HashMap::new(),
+                close_on_exec: HashSet::new(),
+                entering: false,
+                synchronize_on_next_syscall: false,
+                pending: None,
+                file_mappings: Vec::new(),
+                enumerations: HashMap::new(),
+                stdin_stream: None,
+                vdso_disarmed: false,
+            };
+            state.fds.insert(7, FdState::File(PathBuf::from("/tmp")));
+            state.enumerations.insert(
+                7,
+                EnumerationState {
+                    fingerprint: tracejit_effects::FileFingerprint::absent(),
+                    credential: None,
+                    mount_namespace: None,
+                    bytes: 48,
+                    effect_index: Some(3),
+                    refused: false,
+                },
+            );
+            state
+        };
+
+        let mut close = make_state();
+        complete_syscall(
+            pid,
+            &mut close,
+            PendingSyscall::Close { fd: 7 },
+            0,
+            &mut collector(),
+        );
+        assert!(!close.enumerations.contains_key(&7));
+
+        let mut open = make_state();
+        complete_syscall(
+            pid,
+            &mut open,
+            PendingSyscall::Open {
+                path: PathBuf::from("/tmp/file"),
+                flags: libc::O_RDONLY,
+                before_hash: None,
+                before_fingerprint: None,
+            },
+            7,
+            &mut collector(),
+        );
+        assert!(!open.enumerations.contains_key(&7));
+
+        let mut socket = make_state();
+        complete_syscall(
+            pid,
+            &mut socket,
+            PendingSyscall::Network {
+                kind: NetworkOperation::Socket,
+            },
+            7,
+            &mut collector(),
+        );
+        assert!(!socket.enumerations.contains_key(&7));
+
+        let mut pipe = make_state();
+        record_pipe(&mut pipe, 7, 8, false, &mut collector());
+        assert!(!pipe.enumerations.contains_key(&7));
+        assert!(!pipe.enumerations.contains_key(&8));
+        assert!(matches!(
+            pipe.fds.get(&7),
+            Some(FdState::InternalPipe { .. })
+        ));
+        assert!(matches!(
+            pipe.fds.get(&8),
+            Some(FdState::InternalPipe { .. })
+        ));
     }
 
     #[test]
