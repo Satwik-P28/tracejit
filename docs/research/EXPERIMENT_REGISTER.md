@@ -352,3 +352,63 @@ direct roughly 11-16 ms, cold 88-105 ms, warm 32-35 ms; the controlled path is s
 script. The target workload has no hit.
 
 **Raw:** `benchmarks/results/phase3h/contract-smoke.json`.
+
+## E-3I-01 — `dup2(fd, fd)` state loss and P0 correction
+
+**Question:** Does the successful same-descriptor `dup2` no-op preserve descriptor classification,
+`FD_CLOEXEC` and in-progress directory enumeration?
+
+**Result:** no, before the fix. `PendingSyscall::Dup` forgot the destination and then looked up the
+same descriptor as the source, erasing its state. Linux returns success without changing anything for
+`dup2(fd, fd)`; `dup3(fd, fd)` returns `EINVAL` and never reaches the successful path. The duplicate
+handler now returns before mutation when source == destination. Unit tests cover file+CLOEXEC,
+directory enumeration, pipe, and ordinary `dup`/distinct `dup2`/`dup3`/`fcntl` behavior. The
+integration fixture covers file, directory and pipe self-duplication; it fails with the early return
+removed and passes with it restored. Commits: `7f15832` (failing test), `e74f9ee` (fix), `c2f1e9c`
+(integration). P0 gates at `77c8715`: **150 workspace tests**, **53 Linux integration tests**, fmt
+and Clippy clean, release build.
+
+## E-3I-02 — directory-entry padding hypotheses A/B/C
+
+**Question:** Are the differing `linux_dirent64` bytes uninitialised padding, a descriptor-generation
+defect, or semantic-field stability with unobserved padding?
+
+**Result:** A at the syscall boundary and C for the audited reader; B is not supported. The kernel's
+`filldir64` writes fixed fields, the name and terminator but not alignment padding. The probe at
+`benchmarks/phase3i/getdents_probe.c` preserves fill bytes `0xaa`/`0x55` in the 48-byte
+`dist-packages` records while every semantic field remains equal. P0 descriptor-generation handling
+is independent: two cold target observations have the same request boundary, names, inode, offsets,
+`d_reclen` and `d_type`. CPython 3.12.3 `_posix_listdir`/`FileFinder._fill_cache` reads `d_name`;
+glibc 2.39 returns a pointer into the `DIR` buffer. Raw: `benchmarks/results/phase3i/directory-records.json`,
+`getdents-probe.txt`, `strace/target-getdents.strace`.
+
+## E-3I-03 — explicit `VirtualZero` padding contract on `python-csv-json`
+
+**Build:** CPython 3.12.3 ELF `337d65cf...`, SHA-256 `e50d468e...`; glibc 2.39 build ID
+`a4a7992a...`, SHA-256 `3a15d668...`; Linux 6.1.102.
+
+**Result:** target hit. Three fresh-cache cold runs were `Executed`/`Guarded`; ten warm runs were
+`Reused`; changed input was `Deoptimized` and matched direct output. Original output SHA-256
+`28bc8fa9...`; changed-input SHA-256 `c348fbdc...`; 249 bytes, mode `0644`, `nlink=1` in every arm.
+Entropy probe was never reused. Timings (one load-sensitive run): direct median 36.88 ms, cold median
+214.07 ms (first cold 2063.19 ms outlier), warm median 51.09 ms, invalidation 192.02 ms, complete
+session 730.76 ms versus 408.61 ms direct. The controlled session is slower than direct; no speedup
+is claimed. Raw: `benchmarks/results/phase3i/acceptance.json`.
+
+## E-3I-04 — typed directory projection prototype
+
+**Result:** the benchmark-side typed projection excludes only `padding` and compares `d_ino`, `d_off`,
+`d_reclen`, `d_type`, name and call boundaries. On the two probe fills, byte-exact equality is false
+(5 padding bytes differ) while typed equality is true. This demonstrates the design but is not a
+production guard: an arbitrary reader can observe padding. `benchmarks/phase3i/compare_directory_policies.py`
+and `benchmarks/results/phase3i/policy-comparison.json`.
+
+## E-3I-05 — preflight failure behavior and race reassessment
+
+**Result:** `PreparedExecution::new` propagates `GuardError::DescriptorEnumeration`; the CLI exits 1
+before lookup and does not execute the target directly. `77c8715` asserts status 1 and the absence of
+the target output. The earlier "concurrent parent" race description was corrected: the parent cannot
+mutate TraceJIT's table after fork/exec, and the current scan/spawn path is single-threaded with
+CLOEXEC cache descriptors. A future in-process thread, signal handler or constructor opening a
+non-CLOEXEC descriptor would invalidate the scan; no atomic handoff exists. This remains an invariant
+and limitation, not an observed hit.

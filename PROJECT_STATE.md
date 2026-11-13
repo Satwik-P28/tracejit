@@ -717,3 +717,37 @@ P0 branch gates at `e2a2f60`: fmt pass, Clippy `-D warnings` pass, **147 workspa
 `20d3165f03b5ed6583e636d8081102eddee291523739e23c833c624b6304fbc0`. The experimental
 `research/phase3h` branch adds the CPython contract and has its own release build SHA-256
 `97cbc9556ebd11e61284b8c2547e781718d1a1a382cba1d9efcd8715ca4bf6c7`; it is not merged.
+
+## Phase 3I (PR #8 review follow-up; branches `hotfix/descriptor-dup-noop`, `research/phase3i`)
+
+PR #8's P0 review found a second descriptor-lifecycle defect: `PendingSyscall::Dup` forgot the
+destination before looking up the source, so the successful Linux `dup2(fd, fd)` no-op erased the
+fd classification, `FD_CLOEXEC` and any directory enumeration state. `dup3(fd, fd)` is `EINVAL` and
+does not use the successful path. The handler now returns before mutation when source == destination.
+Commits: `7f15832` failing unit regression, `e74f9ee` fix, `c2f1e9c` file/directory/pipe integration
+fixture, `77c8715` exact preflight failure-status/output assertions. The integration regression was
+confirmed failing with the early return removed. P0 local gates: fmt and Clippy clean, **150
+workspace tests**, **53 Linux integration tests**, release build pass. Descriptor-preflight errors
+exit 1 before lookup and do not fall back to direct execution.
+
+The `python-csv-json` directory deoptimization is resolved as uninitialised `linux_dirent64`
+alignment padding: the kernel writes fields/name but not padding, a probe preserves `0xaa`/`0x55`
+there, glibc 2.39 returns a pointer into its `DIR` buffer, and CPython 3.12.3's audited reader uses
+`d_name` only. A descriptor-generation defect is not supported after the P0 lifecycle correction.
+The explicit `VirtualZero` policy zeroes only those padding bytes under `python-runtime-v1`; native
+records and the native guard remain byte-exact. The typed-name projection is benchmark-side only.
+
+With `VirtualZero`, the original workload has a controlled hit: 3/3 independent cold
+`Executed`/`Guarded`, 10/10 warm `Reused`, changed input `Deoptimized` with matching direct output,
+entropy never reused, and matching 249-byte `0644` output effects. Output SHA-256
+`28bc8fa9...`; changed-input SHA-256 `c348fbdc...`. It is slower than direct (session 730.76 ms vs
+408.61 ms; warm 51.09 ms vs direct 36.88 ms; cold median 214.07 ms with a 2063.19 ms first-cold
+outlier). No speedup is claimed. Raw: `benchmarks/results/phase3i/`. See
+`docs/audits/PHASE3I_DUP2_AND_CONTROLLED_DIRECTORY_REPLAY.md`. Research release SHA-256 at the
+evidence commit is `0d03877d72d7fac7838ba4b8e9eed3a07ff76590ffe2afba18ac6cac5f3218b4`.
+
+Neither PR is merged. Hosted CI is not available from this host because there is no authenticated
+GitHub session; record it after pushing both branches. The preflight-to-`exec` atomicity limitation
+remains, although the earlier "concurrent parent" wording is corrected: the current scan/spawn path
+is single-threaded and the parent cannot mutate the table. A future non-CLOEXEC open between scan and
+spawn would still invalidate the scan.

@@ -3,10 +3,19 @@
 Date: 13 November 2026
 
 Status: P0 descriptor failure paths are fail-closed and tested; a descriptor-number reuse defect in
-directory enumeration was found and fixed. The experimental `tracejit.python-runtime.v1` contract
-reuses a controlled smoke script but **does not** reuse `python-csv-json`: the target deoptimizes on
-a directory-entry stream difference. Experimental Python-runtime code is on a review branch and is
-not merged. The native nine-workload census is unchanged and reported separately.
+directory enumeration was found and fixed. At the end of Phase 3H the experimental
+`tracejit.python-runtime.v1` contract reused a controlled smoke script but **did not** reuse
+`python-csv-json`: the target deoptimized on a directory-entry stream difference. Experimental
+Python-runtime code is on a review branch and is not merged. The native nine-workload census is
+unchanged and reported separately.
+
+**Phase 3I addendum (13 November 2026):** the PR #8 review found a second P0 defect,
+`dup2(fd, fd)` erasing descriptor state. It is fixed on `hotfix/descriptor-dup-noop` with unit and
+end-to-end regressions. The target padding question is resolved as uninitialised buffer content
+outside the fields read by the audited CPython/glibc reader; an explicit opt-in `VirtualZero`
+contract now obtains a controlled target hit. The target result is **not** native and has no
+performance benefit. See
+[`PHASE3I_DUP2_AND_CONTROLLED_DIRECTORY_REPLAY.md`](PHASE3I_DUP2_AND_CONTROLLED_DIRECTORY_REPLAY.md).
 
 Base: `e474b544c7351278be55a180479c67b02bc4ea70` (`main`). P0 fail-closed fix: `fc7feef`;
 P0 descriptor-lifecycle follow-up: `e2a2f60` on `hotfix/descriptor-enumeration-p0`. Experimental
@@ -78,16 +87,19 @@ controlled library fault, not a kernel or exploit reproduction.
 
 ### 1.4 Remaining preflight-to-exec race
 
-The preflight captures one value, not a stable descriptor table. Between the scan and `execve`, the
-parent or another process can close an already-inherited descriptor or arrange a new one. The child
-that finally executes can therefore differ from the table the preflight observed. Closing that
-window needs an atomic handoff: for example, a helper that performs the scan and `execve` without an
-intervening user-space window, or a parent-side invariant that no thread can mutate the table.
-Neither is implemented.
+The preflight captures one value, not a stable descriptor table. The original Phase 3H wording said
+that "the parent or another process" could change the table between the scan and `execve`. That is
+wrong for this architecture: the scan and the `Command` spawn both run in the single-threaded
+TraceJIT process, the parent cannot mutate this process's descriptor table after fork/exec, and an
+unrelated process cannot either. Cache initialization follows the scan, and its descriptors are
+close-on-exec.
 
-The risk is not reachable by the target program alone, because it has not run yet. It is a real
-TOCTOU window against a concurrent parent and is a limitation of the refusal, not evidence that the
-fault-injection fix is incomplete. No exploit is claimed.
+The remaining window is a future TraceJIT thread, a signal handler, or a preloaded constructor that
+opens a non-CLOEXEC descriptor between the scan and spawn. None exists on the current path. The code
+does not have an atomic handoff, so this is an invariant to maintain, not a proof. Closing it
+completely needs a scan-and-exec helper without an intervening user-space window or a proven
+prohibition on descriptor-table mutation. This is a limitation of the refusal, not evidence that the
+fault-injection fix is incomplete. No exploit is claimed; Phase 3I reassesses it.
 
 ### 1.5 Second defect found by the CPython experiment: descriptor-number reuse
 

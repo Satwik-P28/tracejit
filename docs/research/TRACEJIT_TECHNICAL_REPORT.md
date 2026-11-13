@@ -377,3 +377,34 @@ TraceJIT demonstrates a coherent approach to conservatively reusing certain unmo
 ---
 
 **Evidence index:** [README](../../README.md) | [benchmark methodology](../../BENCHMARKS.md) | [historical sweep](../../benchmarks/results/break-even.md) | [historical short-command result](../../benchmarks/results/latest.md) | [safety](../../SAFETY.md) | [source architecture](../../ARCHITECTURE.md) | [tests](../../crates/tracejit-cli/tests/linux_integration.rs)
+
+## Phase 3I addendum: a second P0 defect and a controlled target hit
+
+The Phase 3I review found that the successful Linux `dup2(fd, fd)` no-op was modelled as a
+replacement. Forgetting the destination and then looking up the same descriptor erased the fd
+classification, `FD_CLOEXEC` and any in-progress directory enumeration. The correction returns before
+mutation when source and destination are equal; `dup3(fd, fd)` is rejected by the kernel with
+`EINVAL` and does not use the successful path. Unit tests cover file, directory, pipe, CLOEXEC,
+ordinary `dup`, distinct `dup2`/`dup3` and `fcntl`; an end-to-end fixture covers a file with CLOEXEC,
+a directory read across the duplicate and an internal pipe. The fixture fails with the early return
+removed and passes with it restored. Separately, a descriptor-preflight enumeration error exits with
+status 1 and never falls back to direct execution.
+
+The `python-csv-json` directory blocker is resolved as an observation boundary, not a stream-model
+bug. Linux writes `linux_dirent64` fields, name and terminator but leaves alignment padding; a probe
+with `0xaa`/`0x55` fill preserves those bytes while all semantic fields match. In glibc 2.39 the
+reader returns a pointer into its `DIR` buffer, and CPython 3.12.3's `_posix_listdir` consumes only
+`d_name`. The target's non-zero bytes are therefore preexisting buffer content outside the audited
+reader's fields.
+
+An explicit `VirtualZero` policy now zeros those bytes in the target after `getdents64` and on guard
+replay, but only under the exact `python-runtime-v1` contract. Native records and the native guard
+remain byte-exact; a typed-name projection is only a benchmark prototype because an arbitrary reader
+can observe padding. With `VirtualZero`, the original `python-csv-json` workload produced three
+independent cold `Guarded` traces, ten warm `Reused` runs, a `Deoptimized` changed-input run and
+matching 249-byte filesystem effects. Entropy was never reused; time and PID were controlled fixed
+values. The measured session was slower than direct execution (730.76 ms versus 408.61 ms, with a
+2.06 s first-cold outlier), so this is a controlled hit, not a performance result. The full audit,
+timings and raw evidence are in
+[`PHASE3I_DUP2_AND_CONTROLLED_DIRECTORY_REPLAY.md`](../audits/PHASE3I_DUP2_AND_CONTROLLED_DIRECTORY_REPLAY.md)
+and `benchmarks/results/phase3i/`.

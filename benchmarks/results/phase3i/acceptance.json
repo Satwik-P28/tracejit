@@ -2,9 +2,9 @@
   "adversarial": {
     "entropy": {
       "direct_stderr": "",
-      "direct_stdout": "8f8dd00b34d9fb69\n",
+      "direct_stdout": "81a0835f5889eee3\n",
       "first": {
-        "baseline_runtime_ns": 66978283,
+        "baseline_runtime_ns": 68135035,
         "cache_decision": "Ineligible",
         "classification": "Nondeterministic",
         "contract": "tracejit.python-runtime.v1",
@@ -17,7 +17,7 @@
           "writes": 0
         },
         "eligible_for_reuse": false,
-        "execution_id": "8d6995001973e73b",
+        "execution_id": "22433c1557d69c78",
         "exit_code": 0,
         "guards": null,
         "irreversible_effect_count": 1,
@@ -28,30 +28,30 @@
           "process read randomness via getrandom",
           "executed under the tracejit.python-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
         ],
-        "runtime_ns": 66978283,
+        "runtime_ns": 68135035,
         "stderr_bytes": [],
         "stdout_bytes": [
-          52,
-          51,
-          53,
-          102,
-          54,
-          101,
+          55,
           50,
-          56,
-          48,
-          56,
-          99,
-          52,
-          99,
-          53,
           57,
+          99,
+          55,
+          98,
+          100,
+          56,
+          54,
+          56,
           48,
+          98,
+          49,
+          102,
+          100,
+          100,
           10
         ]
       },
       "second": {
-        "baseline_runtime_ns": 71346955,
+        "baseline_runtime_ns": 66613058,
         "cache_decision": "Ineligible",
         "classification": "Nondeterministic",
         "contract": "tracejit.python-runtime.v1",
@@ -64,7 +64,7 @@
           "writes": 0
         },
         "eligible_for_reuse": false,
-        "execution_id": "dba6232af6164a42",
+        "execution_id": "b0a0769d283f95af",
         "exit_code": 0,
         "guards": null,
         "irreversible_effect_count": 1,
@@ -75,34 +75,34 @@
           "process read randomness via getrandom",
           "executed under the tracejit.python-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
         ],
-        "runtime_ns": 71346955,
+        "runtime_ns": 66613058,
         "stderr_bytes": [],
         "stdout_bytes": [
-          51,
-          49,
-          100,
-          56,
-          101,
-          100,
-          49,
-          98,
-          97,
-          56,
-          51,
-          100,
-          56,
-          98,
-          99,
+          52,
+          52,
           48,
+          57,
+          55,
+          52,
+          102,
+          102,
+          50,
+          98,
+          101,
+          52,
+          55,
+          53,
+          54,
+          97,
           10
         ]
       }
     },
     "identity": {
       "direct_stderr": "",
-      "direct_stdout": "61214 61138 61214\n",
+      "direct_stdout": "68454 68156 68454\n",
       "first": {
-        "baseline_runtime_ns": 85540188,
+        "baseline_runtime_ns": 96940690,
         "cache_decision": "Executed",
         "classification": "Guarded",
         "contract": "tracejit.python-runtime.v1",
@@ -115,7 +115,7 @@
           "writes": 0
         },
         "eligible_for_reuse": true,
-        "execution_id": "b26de1f9fd525a77",
+        "execution_id": "6ec246f4c945d8f8",
         "exit_code": 0,
         "guards": null,
         "irreversible_effect_count": 0,
@@ -126,7 +126,7 @@
           "all observed dependencies are guardable or captured outputs",
           "executed under the tracejit.python-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
         ],
-        "runtime_ns": 85540188,
+        "runtime_ns": 96940690,
         "stderr_bytes": [],
         "stdout_bytes": [
           52,
@@ -144,7 +144,7 @@
         ]
       },
       "second": {
-        "baseline_runtime_ns": 85540188,
+        "baseline_runtime_ns": 96940690,
         "cache_decision": "Reused",
         "classification": "Guarded",
         "contract": "tracejit.python-runtime.v1",
@@ -157,7 +157,7 @@
           "writes": 0
         },
         "eligible_for_reuse": true,
-        "execution_id": "b26de1f9fd525a77",
+        "execution_id": "6ec246f4c945d8f8",
         "exit_code": 0,
         "guards": {
           "checked": 136,
@@ -172,7 +172,7 @@
           "all observed dependencies are guardable or captured outputs",
           "executed under the tracejit.python-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
         ],
-        "runtime_ns": 32461818,
+        "runtime_ns": 36921541,
         "stderr_bytes": [],
         "stdout_bytes": [
           52,
@@ -192,9 +192,9 @@
     },
     "time": {
       "direct_stderr": "",
-      "direct_stdout": "1794549974335265276\n",
+      "direct_stdout": "1794550247605784565\n",
       "first": {
-        "baseline_runtime_ns": 62680926,
+        "baseline_runtime_ns": 55050813,
         "cache_decision": "Executed",
         "classification": "Guarded",
         "contract": "tracejit.python-runtime.v1",
@@ -207,7 +207,7 @@
           "writes": 0
         },
         "eligible_for_reuse": true,
-        "execution_id": "b2e9bf9ddc1b9080",
+        "execution_id": "a68c1cbd15981eee",
         "exit_code": 0,
         "guards": null,
         "irreversible_effect_count": 0,
@@ -218,7 +218,7 @@
           "all observed dependencies are guardable or captured outputs",
           "executed under the tracejit.python-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
         ],
-        "runtime_ns": 62680926,
+        "runtime_ns": 55050813,
         "stderr_bytes": [],
         "stdout_bytes": [
           48,
@@ -226,7 +226,7 @@
         ]
       },
       "second": {
-        "baseline_runtime_ns": 62680926,
+        "baseline_runtime_ns": 55050813,
         "cache_decision": "Reused",
         "classification": "Guarded",
         "contract": "tracejit.python-runtime.v1",
@@ -239,7 +239,7 @@
           "writes": 0
         },
         "eligible_for_reuse": true,
-        "execution_id": "b2e9bf9ddc1b9080",
+        "execution_id": "a68c1cbd15981eee",
         "exit_code": 0,
         "guards": {
           "checked": 97,
@@ -254,7 +254,7 @@
           "all observed dependencies are guardable or captured outputs",
           "executed under the tracejit.python-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
         ],
-        "runtime_ns": 28217901,
+        "runtime_ns": 27481048,
         "stderr_bytes": [],
         "stdout_bytes": [
           48,
@@ -267,7 +267,9 @@
     "cold_executed": true,
     "effects_match": true,
     "entropy_not_reused": true,
+    "identity_controlled": true,
     "invalidated": true,
+    "time_controlled": true,
     "warm_reused": true
   },
   "cold": [
@@ -283,7 +285,7 @@
       },
       "kind": "Executed",
       "stderr": "",
-      "wall_ns": 258158532
+      "wall_ns": 2063191959
     },
     {
       "cache_decision": "Executed",
@@ -297,7 +299,7 @@
       },
       "kind": "Executed",
       "stderr": "",
-      "wall_ns": 444150542
+      "wall_ns": 206754435
     },
     {
       "cache_decision": "Executed",
@@ -311,7 +313,7 @@
       },
       "kind": "Executed",
       "stderr": "",
-      "wall_ns": 474231280
+      "wall_ns": 214066572
     }
   ],
   "controlled_policy": "zero linux_dirent64 padding after getdents64 under python-runtime-v1",
@@ -323,19 +325,19 @@
       "sha256": "28bc8fa9e7c25a10aa121654b5df07381a78fd5d45873ef077c4132cf51054e8",
       "size": 249
     },
-    "median_wall_ns": 44459811,
+    "median_wall_ns": 36884871,
     "runs_ns": [
-      45232722,
-      46805414,
-      45931223,
-      49357154,
-      41260315,
-      44459811,
-      41135150,
-      48645339,
-      34387974,
-      33222026,
-      32474281
+      36288862,
+      39672745,
+      38980325,
+      36884871,
+      36907805,
+      35637980,
+      36209383,
+      39724953,
+      34772837,
+      37660457,
+      35874554
     ],
     "status": 0
   },
@@ -8040,7 +8042,7 @@
       "size": 249
     },
     "report": {
-      "baseline_runtime_ns": 162471085,
+      "baseline_runtime_ns": 140081615,
       "cache_decision": "Deoptimized",
       "classification": "Guarded",
       "contract": "tracejit.python-runtime.v1",
@@ -8053,7 +8055,7 @@
         "writes": 2
       },
       "eligible_for_reuse": true,
-      "execution_id": "a218f0c4c33cbc79",
+      "execution_id": "f2d1f81edd69039a",
       "exit_code": 0,
       "guards": {
         "checked": 37,
@@ -8096,7 +8098,7 @@
                 6,
                 121
               ],
-              "path": "/tmp/tracejit-phase3i-ll25iwvo/data/sales.csv"
+              "path": "/tmp/tracejit-phase3i-fomllid1/data/sales.csv"
             }
           },
           "reason": "file content changed"
@@ -8111,7 +8113,7 @@
         "all observed dependencies are guardable or captured outputs",
         "executed under the tracejit.python-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
       ],
-      "runtime_ns": 162471085,
+      "runtime_ns": 140081615,
       "stderr_bytes": [],
       "stdout_bytes": [
         47,
@@ -8136,14 +8138,14 @@
         51,
         105,
         45,
-        108,
-        108,
-        50,
-        53,
-        105,
-        119,
-        118,
+        102,
         111,
+        109,
+        108,
+        108,
+        105,
+        100,
+        49,
         47,
         111,
         117,
@@ -8164,7 +8166,7 @@
       ]
     },
     "reusable_after": {
-      "baseline_runtime_ns": 162471085,
+      "baseline_runtime_ns": 140081615,
       "cache_decision": "Reused",
       "classification": "Guarded",
       "contract": "tracejit.python-runtime.v1",
@@ -8177,7 +8179,7 @@
         "writes": 2
       },
       "eligible_for_reuse": true,
-      "execution_id": "a218f0c4c33cbc79",
+      "execution_id": "f2d1f81edd69039a",
       "exit_code": 0,
       "guards": {
         "checked": 260,
@@ -8192,7 +8194,7 @@
         "all observed dependencies are guardable or captured outputs",
         "executed under the tracejit.python-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
       ],
-      "runtime_ns": 42313422,
+      "runtime_ns": 30204751,
       "stderr_bytes": [],
       "stdout_bytes": [
         47,
@@ -8217,14 +8219,14 @@
         51,
         105,
         45,
-        108,
-        108,
-        50,
-        53,
-        105,
-        119,
-        118,
+        102,
         111,
+        109,
+        108,
+        108,
+        105,
+        100,
+        49,
         47,
         111,
         117,
@@ -8243,44 +8245,45 @@
         110,
         10
       ]
-    }
+    },
+    "wall_ns": 192022460
   },
   "phase": "3I",
   "strace": {
     "lines": [
-      "61207 getdents64(3, 0x2100ab0 /* 203 entries */, 32768) = 6784",
-      "61207 getdents64(3, 0x2100ab0 /* 0 entries */, 32768) = 0",
-      "61207 getdents64(3, 0x210a270 /* 125 entries */, 32768) = 4224",
-      "61207 getdents64(3, 0x210a270 /* 0 entries */, 32768) = 0",
-      "61207 getdents64(3, 0x2130b30 /* 2 entries */, 32768) = 48",
-      "61207 getdents64(3, 0x2130b30 /* 0 entries */, 32768) = 0",
-      "61207 getdents64(3, 0x2130b30 /* 42 entries */, 32768) = 1768",
-      "61207 getdents64(3, 0x2130b30 /* 0 entries */, 32768) = 0",
-      "61207 getdents64(4, 0x2139ff0 /* 48 entries */, 32768) = 3040",
-      "61207 getdents64(4, 0x2139ff0 /* 0 entries */, 32768) = 0",
-      "61207 getdents64(4, 0x2139ff0 /* 2 entries */, 32768) = 48",
-      "61207 getdents64(4, 0x2139ff0 /* 0 entries */, 32768) = 0",
-      "61207 getdents64(4, 0x2139ff0 /* 42 entries */, 32768) = 1768",
-      "61207 getdents64(4, 0x2139ff0 /* 0 entries */, 32768) = 0",
-      "61207 getdents64(3, 0x215dfb0 /* 5 entries */, 32768) = 152",
-      "61207 getdents64(3, 0x215dfb0 /* 0 entries */, 32768) = 0",
-      "61207 getdents64(3, 0x21875b0 /* 8 entries */, 32768) = 248",
-      "61207 getdents64(3, 0x21875b0 /* 0 entries */, 32768) = 0",
-      "61207 getdents64(3, 0x21a8df0 /* 8 entries */, 32768) = 240",
-      "61207 getdents64(3, 0x21a8df0 /* 0 entries */, 32768) = 0",
-      "61207 getdents64(3, 0x21c8de0 /* 9 entries */, 32768) = 280",
-      "61207 getdents64(3, 0x21c8de0 /* 0 entries */, 32768) = 0"
+      "68447 getdents64(3, 0xf15ab0 /* 203 entries */, 32768) = 6784",
+      "68447 getdents64(3, 0xf15ab0 /* 0 entries */, 32768) = 0",
+      "68447 getdents64(3, 0xf1f270 /* 125 entries */, 32768) = 4224",
+      "68447 getdents64(3, 0xf1f270 /* 0 entries */, 32768) = 0",
+      "68447 getdents64(3, 0xf45b30 /* 2 entries */, 32768) = 48",
+      "68447 getdents64(3, 0xf45b30 /* 0 entries */, 32768) = 0",
+      "68447 getdents64(3, 0xf45b30 /* 42 entries */, 32768) = 1768",
+      "68447 getdents64(3, 0xf45b30 /* 0 entries */, 32768) = 0",
+      "68447 getdents64(4, 0xf4eff0 /* 48 entries */, 32768) = 3040",
+      "68447 getdents64(4, 0xf4eff0 /* 0 entries */, 32768) = 0",
+      "68447 getdents64(4, 0xf4eff0 /* 2 entries */, 32768) = 48",
+      "68447 getdents64(4, 0xf4eff0 /* 0 entries */, 32768) = 0",
+      "68447 getdents64(4, 0xf4eff0 /* 42 entries */, 32768) = 1768",
+      "68447 getdents64(4, 0xf4eff0 /* 0 entries */, 32768) = 0",
+      "68447 getdents64(3, 0xf72fb0 /* 5 entries */, 32768) = 152",
+      "68447 getdents64(3, 0xf72fb0 /* 0 entries */, 32768) = 0",
+      "68447 getdents64(3, 0xf9c5b0 /* 8 entries */, 32768) = 248",
+      "68447 getdents64(3, 0xf9c5b0 /* 0 entries */, 32768) = 0",
+      "68447 getdents64(3, 0xfbddf0 /* 8 entries */, 32768) = 240",
+      "68447 getdents64(3, 0xfbddf0 /* 0 entries */, 32768) = 0",
+      "68447 getdents64(3, 0xfddde0 /* 9 entries */, 32768) = 280",
+      "68447 getdents64(3, 0xfddde0 /* 0 entries */, 32768) = 0"
     ],
     "path": "benchmarks/results/phase3i/strace/target-getdents.strace",
     "status": 0
   },
   "target": "original python-csv-json",
   "timing": {
-    "cold_median_ns": 444150542,
-    "complete_session_ns": 1028068568,
-    "direct_complete_session_ns": 462911409,
-    "direct_median_ns": 44459811,
-    "warm_median_ns": 53398456.0
+    "cold_median_ns": 214066572,
+    "complete_session_ns": 730763618,
+    "direct_complete_session_ns": 408614772,
+    "direct_median_ns": 36884871,
+    "warm_median_ns": 51088744.5
   },
   "warm": [
     {
@@ -8293,7 +8296,7 @@
         "size": 249
       },
       "kind": "Reused",
-      "wall_ns": 82631538
+      "wall_ns": 66983233
     },
     {
       "cache_decision": "Reused",
@@ -8305,7 +8308,7 @@
         "size": 249
       },
       "kind": "Reused",
-      "wall_ns": 53013048
+      "wall_ns": 42939667
     },
     {
       "cache_decision": "Reused",
@@ -8317,7 +8320,7 @@
         "size": 249
       },
       "kind": "Reused",
-      "wall_ns": 53783864
+      "wall_ns": 50366689
     },
     {
       "cache_decision": "Reused",
@@ -8329,7 +8332,7 @@
         "size": 249
       },
       "kind": "Reused",
-      "wall_ns": 54240422
+      "wall_ns": 48711072
     },
     {
       "cache_decision": "Reused",
@@ -8341,7 +8344,7 @@
         "size": 249
       },
       "kind": "Reused",
-      "wall_ns": 54361108
+      "wall_ns": 51894287
     },
     {
       "cache_decision": "Reused",
@@ -8353,7 +8356,7 @@
         "size": 249
       },
       "kind": "Reused",
-      "wall_ns": 53927715
+      "wall_ns": 53295347
     },
     {
       "cache_decision": "Reused",
@@ -8365,7 +8368,7 @@
         "size": 249
       },
       "kind": "Reused",
-      "wall_ns": 51359483
+      "wall_ns": 61870936
     },
     {
       "cache_decision": "Reused",
@@ -8377,7 +8380,7 @@
         "size": 249
       },
       "kind": "Reused",
-      "wall_ns": 51477364
+      "wall_ns": 51810800
     },
     {
       "cache_decision": "Reused",
@@ -8389,7 +8392,7 @@
         "size": 249
       },
       "kind": "Reused",
-      "wall_ns": 49591194
+      "wall_ns": 46091364
     },
     {
       "cache_decision": "Reused",
@@ -8401,7 +8404,7 @@
         "size": 249
       },
       "kind": "Reused",
-      "wall_ns": 49451552
+      "wall_ns": 42733651
     }
   ]
 }

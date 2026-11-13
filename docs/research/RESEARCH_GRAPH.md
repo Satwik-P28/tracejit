@@ -435,3 +435,62 @@ identity that `threading.get_native_id()` exposes. Status: `rejected as sufficie
    before promoting any Python contract.
 4. Close the preflight-to-`exec` race with an atomic scan/exec handoff, or keep the refusal bounded
    and state the concurrent-parent limitation.
+
+## Phase 3I nodes
+
+### P16 — `dup2(fd, fd)` erased descriptor state
+
+The Linux same-descriptor `dup2` is a successful no-op. The tracer forgot the destination before
+looking up the source, so it lost fd classification, `FD_CLOEXEC` and directory enumeration state.
+`dup3(fd, fd)` is `EINVAL` and does not reach the successful path. Status: `fixed`; E-3I-01.
+Regression: `7f15832`, `e74f9ee`, `c2f1e9c`.
+
+### P17 — directory padding is uninitialised buffer content, not a stream-boundary defect
+
+`linux_dirent64` alignment padding is not written by the kernel. A user buffer prefilled with
+`0xaa`/`0x55` keeps that byte after `getdents64`, while fields and names stay identical. The target's
+`sl.`/`ux` bytes are consistent with glibc's `DIR` buffer contents. The audited CPython reader uses
+`d_name` only. Status: `A at syscall boundary, C for audited reader`; E-3I-02, E-3I-03.
+
+### H17 — explicit `VirtualZero` contract
+
+Zero alignment padding after `getdents64` and on replay only under the exact `python-runtime-v1`
+contract, recording the policy in every request. Native bytes and native guards are unchanged.
+Status: `prototyped and controlled hit verified`; target `Reused` 10/10 with correct effects, but no
+performance gain. E-3I-03.
+
+### H18 — typed directory-entry guard for an audited reader
+
+Compare semantic fields and call boundaries, excluding padding. It passes the two-fill probe while
+byte-exact comparison fails, but it makes padding invisible to a reader that can observe it. Status:
+`prototype only, not wired`; would require executable reader identity. E-3I-04.
+
+### C9 — byte-exact native directory guard remains the default
+
+Arbitrary programs can copy or hash all `d_reclen` bytes. Native `DirectoryPaddingPolicy` therefore
+stays byte-exact; `VirtualZero` is opt-in and contract-separated. Status: `enforced`.
+
+### C10 — descriptor preflight is fail-closed, with an invariant
+
+Enumeration errors fail the command with status 1 before lookup; there is no direct fallback. The
+scan/spawn path is single-threaded and the parent cannot mutate the table, so the earlier
+"concurrent parent" race was misstated. A future non-CLOEXEC open between scan and spawn would still
+invalidate it; no atomic handoff exists. Status: `behavior tested, invariant open`; E-3I-05.
+
+### Edges
+
+- P16 -> E-3I-01
+- P17 -> H17, H18, C9
+- H17 -> E-3I-03
+- H18 -> E-3I-04
+- E-3I-05 -> C10
+- E-3I-02 -> P17
+
+## Phase 3I next experiments
+
+1. Push `hotfix/descriptor-dup-noop` and `research/phase3i`; record hosted CI for both.
+2. Do not merge PR #8 before its hosted checks pass; do not merge PR #9's experimental contract.
+3. Decide whether a typed reader identity can be made executable and auditable; otherwise keep
+   `Native` byte-exact.
+4. If clock progression is required, implement an advancing controlled clock with timeout/liveness
+   tests instead of the current fixed zero.

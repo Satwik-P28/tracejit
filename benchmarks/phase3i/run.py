@@ -395,6 +395,7 @@ def main() -> int:
     invalidated = target_run(warm_cache, output, sales, customers, "python-runtime-v1")
     invalidated_fx = output_effect(output) if output.exists() else None
     invalidated_report = report(invalidated.stdout)
+    invalidated_wall_ns = invalidated.wall_ns
     reusable_after = target_run(warm_cache, output, sales, customers, "python-runtime-v1")
     reusable_after_report = report(reusable_after.stdout)
 
@@ -485,6 +486,7 @@ def main() -> int:
         ],
         "invalidation": {
             "report": invalidated_report,
+            "wall_ns": invalidated_wall_ns,
             "effect": invalidated_fx,
             "expected_direct": changed_direct_fx,
             "reusable_after": reusable_after_report,
@@ -534,7 +536,16 @@ def main() -> int:
             ),
             "invalidated": invalidated_report.get("cache_decision") == "Deoptimized",
             "entropy_not_reused": (
-                adversarial["entropy"]["second"].get("kind") != "Reused"
+                adversarial["entropy"]["first"].get("kind") != "Reused"
+                and adversarial["entropy"]["second"].get("kind") != "Reused"
+            ),
+            "identity_controlled": (
+                adversarial["identity"]["first"].get("cache_decision") == "Executed"
+                and adversarial["identity"]["second"].get("kind") == "Reused"
+            ),
+            "time_controlled": (
+                adversarial["time"]["first"].get("cache_decision") == "Executed"
+                and adversarial["time"]["second"].get("kind") == "Reused"
             ),
             "effects_match": effects_match,
         },
