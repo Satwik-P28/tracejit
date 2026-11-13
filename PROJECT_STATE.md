@@ -711,3 +711,9 @@ attempted, 0 reused, 9 refused**, outputs equivalent. A separate `python -S smok
 `Reused` with cached stdout equal to direct stdout, but it is slower than direct (roughly 32-35 ms
 warm vs 11-16 ms direct) and is only a mechanism check. Raw:
 `benchmarks/results/phase3h/`. See `docs/audits/PHASE3H_DESCRIPTOR_PREFLIGHT_AND_CONTROLLED_PYTHON.md`.
+
+P0 branch gates at `e2a2f60`: fmt pass, Clippy `-D warnings` pass, **147 workspace tests**,
+**52 Linux integration tests**, release build pass, release SHA-256
+`20d3165f03b5ed6583e636d8081102eddee291523739e23c833c624b6304fbc0`. The experimental
+`research/phase3h` branch adds the CPython contract and has its own release build SHA-256
+`97cbc9556ebd11e61284b8c2547e781718d1a1a382cba1d9efcd8715ca4bf6c7`; it is not merged.
