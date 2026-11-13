@@ -658,8 +658,9 @@ unrestorable `/dev/null` output. Raw: `benchmarks/results/phase3f/census-native/
 Independently inherited descriptors above stderr were outside the runtime identity. A child could
 read fd 9 from `/dev/null` while recording and receive `/dev/zero`, a regular file, a pipe, or a
 closed descriptor during replay; the cached `EOF` was then an incorrect hit. The fix refuses any
-invocation with an inherited fd above 2 at the pre-cache preflight and executes it directly without
-writing a reusable record. A trace-layer `Unknown` effect remains as a second defence. Regressions
+invocation with a surviving inherited fd above 2: the descriptor is captured before `Cache::open`,
+then refusal occurs after cache initialization but before lookup, and the command executes directly
+without writing a reusable record. A trace-layer `Unknown` effect remains as a second defence. Regressions
 cover all four substitutions, a closed descriptor, concurrent replacements and the existing stdin
 seek model and a close-on-exec descriptor that must not block reuse. Local gates: fmt and Clippy
 clean, **138 workspace tests**, **51 Linux integration tests**, release SHA-256
@@ -680,3 +681,33 @@ allocator probe, monotonic/realtime clocks and `gettid` remain. Under `allocator
 seed 0 randomness disappears, but the workload is still `Nondeterministic`/`Ineligible`; there is no
 Python cache hit. Raw results are in `benchmarks/results/phase3g/`. See
 `docs/audits/PHASE3G_INHERITED_DESCRIPTOR_AND_CONTROLLED_PYTHON.md`.
+
+## Phase 3H (base `e474b54`, P0 fix `fc7feef`)
+
+`readdir()` in the inherited-descriptor preflight now distinguishes EOF from error: it clears
+`errno`, returns `Result<Option<i32>, GuardError>`, and fails closed for `opendir`, `dirfd`,
+`readdir`, `fcntl(F_GETFD)` and `closedir`. `FD_CLOEXEC` descriptors are skipped, and the scan runs
+before `Cache::open` while refusal occurs after cache initialization and before lookup or record
+write. Seven unit tests plus an `LD_PRELOAD` integration fault test cover first-entry, after-entry,
+`fcntl`, `dirfd`, `closedir`, CLOEXEC and complete scans. The preflight-to-`exec` race remains open.
+
+A descriptor-number reuse defect in directory enumeration was found: `enumerations` was keyed by fd
+and survived close/reuse, allowing a new directory stream to append to an old record. A
+`forget_descriptor` helper now clears fd, CLOEXEC and enumeration state on close, dup/dup2, open,
+pipe and socket creation; unit test `reusing_a_descriptor_forgets_its_directory_enumeration` covers
+it.
+
+The exact CPython 3.12.3 ELF (`337d65cf...`, SHA-256 `e50d468e...`) and glibc 2.39
+(`a4a7992a...`) were studied with source, strace and probes. Application and startup clocks share
+`clock_gettime` effects; `gettid` is a direct `syscall(SYS_gettid)` and cannot be replaced by
+`LD_PRELOAD`. An experimental `tracejit.python-runtime.v1` contract was implemented on a review
+branch with exact ELF/build-ID guards, controlled realtime/monotonic clocks, `getpid`/`getppid`/
+`gettid`, clone/fork refusal and contract-separated cache identity. It is **not merged**.
+
+`python-csv-json` under that contract is `Guarded`/`Executed` then `Guarded`/**`Deoptimized`**: the
+`DirectoryEnumerated` guard sees a `linux_dirent64` padding difference (`sl.` vs zeroes) while names,
+order, inode and offsets match. The target has **no controlled hit**; native census remains **9
+attempted, 0 reused, 9 refused**, outputs equivalent. A separate `python -S smoke.py` reaches 10/10
+`Reused` with cached stdout equal to direct stdout, but it is slower than direct (roughly 32-35 ms
+warm vs 11-16 ms direct) and is only a mechanism check. Raw:
+`benchmarks/results/phase3h/`. See `docs/audits/PHASE3H_DESCRIPTOR_PREFLIGHT_AND_CONTROLLED_PYTHON.md`.

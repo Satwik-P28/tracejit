@@ -282,8 +282,9 @@ E-3G-01, E-3G-02.
 
 ### H13 — Refuse unmodelled inherited descriptors before cache lookup
 
-A preflight over `/proc/self/fd`, captured before `Cache::open`, sends any execution with a surviving
-fd above 2 to the direct path without reading or writing a reusable record. Descriptors marked
+A preflight over `/proc/self/fd` is captured before `Cache::open`; after cache initialization but
+before candidate lookup it sends any execution with a surviving fd above 2 to the direct path without
+reading or writing a reusable record. Descriptors marked
 `FD_CLOEXEC` are skipped because they cannot reach the child. A trace-layer `Unknown` effect is a
 second line of defence. This is smaller and more stable than adding a descriptor table to the lookup
 key. Status: `verified`; E-3G-02.
@@ -345,3 +346,92 @@ of the lookup key; no Python controlled record has been admitted. Status: `enfor
 5. Audit the exact CPython build application-level call sites before enabling any controlled contract; require multiple equivalent cold runs.
 6. Recreate the epoll commit on `main` only after adding fork/exec, `RLIMIT_NOFILE` and descriptor-transfer regressions.
 7. Only after process-level validation is cheap enough, prototype a workflow-level graph on one realistic multi-command recipe.
+
+## Phase 3H nodes
+
+### P16 — `readdir()` failure was silently treated as an empty descriptor table
+
+The inherited-descriptor preflight used every `NULL` from `readdir()` as end-of-directory and never
+consulted `errno`. An interrupted or failed enumeration could therefore look empty and let an
+execution with an inherited descriptor reach lookup. The guard now returns an explicit result and
+fails closed for `opendir`, `dirfd`, `readdir`, `fcntl(F_GETFD)` and `closedir`; CLOEXEC descriptors
+are skipped because the kernel closes them before the target runs. Status: `fixed`; E-3H-01.
+
+### H17 — Preflight-to-exec descriptor race
+
+The scan captures one value, not a stable table. A concurrent parent can change the inherited
+descriptor set between the scan and `execve`; a helper that scans and execs without an intervening
+window, or a parent invariant, is required. Status: `open`; no exploit claimed. This is separate from
+the enumeration error fix.
+
+### P17 — Descriptor-number reuse leaked a directory enumeration record
+
+`ProcessState.enumerations` was keyed by descriptor number and survived `close` and reuse. A new
+directory at the same number could append to the old record, making the guard replay a concatenation
+that no open file description produced. `forget_descriptor` now clears fd, CLOEXEC and enumeration
+state on close, dup/dup2, open, pipe and socket creation. Status: `fixed`; E-3H-02.
+
+### P18 — Directory-entry padding is observable and prevents byte-exact reuse
+
+The controlled Python target reached a candidate and deoptimized because `linux_dirent64` padding
+after `.` differed (`sl.` versus zeroes), while names, inode, order and offsets matched. The kernel
+does not define padding, but a program can read the whole returned buffer. Canonicalising it would
+assume a reader call-site; that proof does not exist. Status: `open`; byte-exact refusal retained;
+E-3H-03.
+
+### H18 — Versioned CPython clock/identity watchpoints
+
+A branch-only `tracejit.python-runtime.v1` contract controls CPython's realtime/monotonic
+`clock_gettime`, `gettimeofday`, seconds `time`, `getpid`, `getppid` and `gettid` for the exact
+build `337d65cf...`, records executable hash/build ID, refuses clone/fork and keeps the contract in
+the cache identity. It removes the target's clock, identity and randomness blockers but does not
+produce a target hit because P18 fails. It is a watchpoint prototype, not a claim of native
+equivalence. Status: `prototype`; E-3H-03, E-3H-05.
+
+### H19 — Startup-only clock admission from a syscall class
+
+`Python/pytime.c` and `Modules/timemodule.c` map application and runtime clock calls to the same
+`clock_gettime` effects. TraceJIT records no caller or instruction pointer for ordinary `Clock`
+effects, so a startup-only whitelist cannot be implemented soundly from the syscall class.
+Status: `rejected`; requires per-instance call-site/instruction signatures; E-3H-04.
+
+### C9 — A controlled Python record requires the full effect sequence
+
+An executable/build-ID match and fixed clock/identity values are insufficient. The record must also
+have verified call sites, consistent clock progression, single-process/thread semantics, complete
+output and filesystem effects, repeated independent cold runs and explicit mismatch rejection. The
+smoke hit does not satisfy these obligations; no general Python reuse is admitted. Status:
+`enforced as experimental`; H18.
+
+### H20 — Symbol-level identity virtualisation
+
+`LD_PRELOAD` can replace `clock_gettime`, `gettimeofday`, `time`, `getpid` and `getppid`, but CPython
+issues `gettid` with a direct syscall. A symbol-only contract therefore cannot cover the thread
+identity that `threading.get_native_id()` exposes. Status: `rejected as sufficient`; E-3H-04.
+
+### Edges
+
+- P16 -> H17
+- P16 -> C7
+- P17 -> P18
+- P18 -> C9
+- P15 (Phase 3G) -> H18 -> H19
+- H18 -> H20
+- H18 -> C9
+- H19 -> C9
+- E-3H-01 -> P16, H17
+- E-3H-02 -> P17
+- E-3H-03 -> P18, H18, C9
+- E-3H-04 -> H19, H20
+- E-3H-05 -> H18
+
+## Phase 3H next experiments
+
+1. Add instruction-pointer/caller identity to ordinary clock and `gettid` effects, then retest
+   startup-only admission against an application clock counterexample.
+2. Decide whether a directory reader's call-site can prove that ABI padding is unobserved; otherwise
+   keep the byte-exact guard and report the deopt.
+3. Run at least three independent controlled cold executions and a filesystem-effect differential
+   before promoting any Python contract.
+4. Close the preflight-to-`exec` race with an atomic scan/exec handoff, or keep the refusal bounded
+   and state the concurrent-parent limitation.

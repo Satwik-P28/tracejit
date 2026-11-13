@@ -228,9 +228,10 @@ The child was confirmed to inherit fd 9 and it was not `CLOEXEC`-closed. Fixture
 
 ## E-3G-02 — inherited-descriptor preflight hotfix
 
-**Result:** any descriptor above stderr captured before `Cache::open` now sends the invocation to the
-direct path with the reason `inherited descriptor N beyond stdin is not modelled; reuse refused`.
-No candidate is decoded and no reusable record is written. Trace retains an `Unknown` effect for the
+**Result:** any surviving descriptor above stderr is captured before `Cache::open`; the cache is then
+initialized, and the invocation is sent to the direct path before candidate lookup with the reason
+`inherited descriptor N beyond stdin is not modelled; reuse refused`. `FD_CLOEXEC` descriptors are
+skipped. No candidate is decoded and no reusable record is written. Trace retains an `Unknown` effect for the
 same descriptors. Regressions cover `/dev/zero`, regular file, pipe, closed fd, two concurrent
 replacements, a close-on-exec fd that must not block reuse, and the existing stdin-seek model (where
 an externally inherited fd-3 alias is now refused). Local gates: **138 workspace tests**, **51 Linux
@@ -280,3 +281,74 @@ attribution of the 24-byte call to `_PyTime_AsNanoseconds` is corrected.
 `phase3d/compatibility-retrieval` and `phase3e/epoll-and-effect-frontier` plus their audit evidence.
 Lift only the independent SQLite error-propagation fix if desired. Recommend closing both PRs; no
 authenticated PR API session is available here.
+
+## E-3H-01 — `/proc/self/fd` enumeration failure paths
+
+**Question:** Can `readdir()` failure be mistaken for an empty inherited-descriptor table?
+
+**Result:** yes in the old loop, which treated every `NULL` as EOF without checking `errno`. The
+guard now returns `Result<Option<i32>, GuardError>` and fails closed for `opendir`, `dirfd`,
+`readdir`, `fcntl(F_GETFD)` and `closedir`. Seven unit tests cover first-entry, after-entry,
+`fcntl`, `dirfd`, `closedir`, CLOEXEC and complete scans. The Linux integration test
+`descriptor_enumeration_failure_is_fail_closed` uses an `LD_PRELOAD` shim to fail the real
+`/proc/self/fd` `readdir` before and after one entry; the invocation is non-successful and reports no
+`HIT` or `MISS`. The preflight-to-`exec` race remains open and is documented, not claimed fixed.
+
+**Raw:** `crates/tracejit-guards/src/lib.rs`, `crates/tracejit-cli/tests/linux_integration.rs`.
+
+## E-3H-02 — descriptor-number reuse during directory enumeration
+
+**Question:** Does closing a directory and reusing its descriptor number append a second stream to
+the first enumeration record?
+
+**Result:** yes. `ProcessState.enumerations` was keyed by fd and was not cleared on `close`, `dup`,
+`open`, `pipe` or socket creation, so a guard could replay a concatenation that no single open file
+description produced. A `forget_descriptor` helper now clears the fd state, CLOEXEC bit and
+enumeration record together; unit test
+`reusing_a_descriptor_forgets_its_directory_enumeration` covers it. This was found by the controlled
+Python run, whose target then exposed a separate byte-padding difference (E-3H-03).
+
+**Raw:** `crates/tracejit-trace/src/linux.rs`.
+
+## E-3H-03 — controlled CPython target rejection
+
+**Question:** Does the experimental Python-runtime watchpoint produce a `python-csv-json` hit?
+
+**Result:** no. With exact CPython 3.12.3, `PYTHONHASHSEED=0` and
+`tracejit.python-runtime.v1`, the first run is `Guarded`/`Executed` and the second is
+`Guarded`/`Deoptimized`. The failing guard is `DirectoryEnumerated`: recorded `linux_dirent64`
+padding after `.` was `sl.` and the fresh replay returned zeroes. Names, order, inode and offsets
+were equal. The target output remained byte-identical
+(`28bc8fa9...`). Canonicalising padding was rejected because a program can read the whole returned
+buffer; a reader call-site proof is required first. Native census remains 9 attempted, 0 reused,
+9 refused.
+
+**Raw:** `benchmarks/results/phase3h/python-observations.json`.
+
+## E-3H-04 — CPython clock and `gettid` call-site provenance
+
+**Question:** Can a startup-only clock or identity exemption be justified from syscall class alone?
+
+**Result:** no. `Python/pytime.c::py_get_system_clock` (line 919) and
+`py_get_monotonic_clock` (1150) use `clock_gettime`; the application APIs in
+`Modules/timemodule.c` (151, 168, 1179, 1194) reach the same effects. Plain `strace` sees no clock
+syscalls because CPython uses the vDSO, while TraceJIT records both classes after disarming it.
+`Python/pystate.c::bind_tstate` (241) stores `PyThread_get_thread_native_id` (257), implemented as
+`syscall(SYS_gettid)` in `Python/thread_pthread.h` (328/337). The syscall is application-visible via
+`threading.get_native_id`. The `LD_PRELOAD` prototype can replace symbol clocks and `getpid`, but not
+`gettid`, so symbol-level identity virtualisation is insufficient.
+
+**Raw:** `benchmarks/results/phase3h/strace/`.
+
+## E-3H-05 — controlled Python smoke and invalidation
+
+**Question:** Do the experimental watchpoints work when the program does not enumerate a directory or
+print nondeterministic values?
+
+**Result:** yes for the smoke mechanism, but it is not a target-workload or performance claim.
+`python -S smoke.py` is `Reused` 10/10 after a cold `Executed`; cached stdout equals direct stdout.
+Changing the script deoptimizes and the traced output equals the new direct stdout. Measured wall:
+direct roughly 11-16 ms, cold 88-105 ms, warm 32-35 ms; the controlled path is slower on this tiny
+script. The target workload has no hit.
+
+**Raw:** `benchmarks/results/phase3h/contract-smoke.json`.
