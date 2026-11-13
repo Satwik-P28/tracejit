@@ -727,8 +727,9 @@ does not use the successful path. The handler now returns before mutation when s
 Commits: `7f15832` failing unit regression, `e74f9ee` fix, `c2f1e9c` file/directory/pipe integration
 fixture, `77c8715` exact preflight failure-status/output assertions. The integration regression was
 confirmed failing with the early return removed. P0 local gates: fmt and Clippy clean, **150
-workspace tests**, **53 Linux integration tests**, release build pass. Descriptor-preflight errors
-exit 1 before lookup and do not fall back to direct execution.
+workspace tests**, **53 Linux integration tests**, fmt and Clippy clean, release build pass, release
+SHA-256 `0e47cfd34d4f14798cc82cf555067b23f58b6cfece454cd7eca62823e147293a`. Descriptor-preflight
+errors exit 1 before lookup and do not fall back to direct execution.
 
 The `python-csv-json` directory deoptimization is resolved as uninitialised `linux_dirent64`
 alignment padding: the kernel writes fields/name but not padding, a probe preserves `0xaa`/`0x55`

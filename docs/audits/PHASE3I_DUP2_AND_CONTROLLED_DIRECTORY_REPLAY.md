@@ -282,7 +282,8 @@ cargo build --workspace --release
 ```
 
 At `77c8715`: **150 workspace tests**, **53 Linux integration tests**, fmt and Clippy clean, release
-build pass. The release SHA-256 is recorded in `PROJECT_STATE.md` after the final build. The
+build pass, release SHA-256
+`0e47cfd34d4f14798cc82cf555067b23f58b6cfece454cd7eca62823e147293a`. The
 `dup2` unit regression was confirmed failing at `7f15832` and the end-to-end regression was confirmed
 failing with the early return removed.
 
