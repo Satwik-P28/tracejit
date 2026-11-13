@@ -41,6 +41,10 @@ pub enum Contract {
     /// and process/thread identity syscalls for `/usr/bin/python3.12` only. It does not claim
     /// native equivalence and does not admit application clock or random reads.
     PythonRuntimeV1,
+    /// Same audited executable/profile as V1, but clock observations advance through an explicit
+    /// one-millisecond logical sequence instead of a constant zero. This is virtual time, not
+    /// native wall-clock or scheduler semantics.
+    PythonRuntimeV2,
 }
 
 impl Contract {
@@ -49,6 +53,7 @@ impl Contract {
             Self::AllocatorEntropyV1 => tracejit_effects::ALLOCATOR_ENTROPY_CONTRACT,
             Self::CompilerRuntimeV1 => tracejit_effects::COMPILER_RUNTIME_CONTRACT,
             Self::PythonRuntimeV1 => tracejit_effects::PYTHON_RUNTIME_CONTRACT,
+            Self::PythonRuntimeV2 => tracejit_effects::PYTHON_RUNTIME_V2_CONTRACT,
         }
     }
 
@@ -56,7 +61,7 @@ impl Contract {
         match self {
             Self::AllocatorEntropyV1 => tracejit_effects::ALLOCATOR_ENTROPY_VALUE,
             Self::CompilerRuntimeV1 => tracejit_effects::COMPILER_RUNTIME_SYSINFO_TOTALRAM,
-            Self::PythonRuntimeV1 => 0,
+            Self::PythonRuntimeV1 | Self::PythonRuntimeV2 => 0,
         }
     }
 }

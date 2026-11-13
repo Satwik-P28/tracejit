@@ -249,11 +249,18 @@ pub const COMPILER_RUNTIME_SYSINFO_FREERAM: u64 = 8 * 1024 * 1024 * 1024;
 /// compiler contracts. It fixes only the three observation classes audited in Phase 3H:
 /// realtime/monotonic clocks and the process/thread identity values used by CPython startup.
 pub const PYTHON_RUNTIME_CONTRACT: &str = "tracejit.python-runtime.v1";
+/// Explicit logical-time variant. Realtime and monotonic values start at fixed bases and advance
+/// by one millisecond per observation. This makes timeout loops progress, but it is virtual time,
+/// not wall-clock or scheduler equivalence.
+pub const PYTHON_RUNTIME_V2_CONTRACT: &str = "tracejit.python-runtime.v2";
 pub const PYTHON_RUNTIME_EXECUTABLE: &str = "/usr/bin/python3.12";
 pub const PYTHON_RUNTIME_BUILD_ID: &str = "337d65cf00021797985cc9f77c0cc334a9fbeb38";
 pub const PYTHON_VIRTUAL_PID: u64 = 4242;
 pub const PYTHON_VIRTUAL_PPID: u64 = 1;
 pub const PYTHON_VIRTUAL_TID: u64 = 4243;
+pub const PYTHON_LOGICAL_STEP_NS: u64 = 1_000_000;
+pub const PYTHON_LOGICAL_MONOTONIC_BASE_NS: u64 = 1_000_000_000_000;
+pub const PYTHON_LOGICAL_REALTIME_BASE_NS: u64 = 1_700_000_000_000_000_000;
 
 /// The exact CPython ELF audited for the Python-runtime experiment.
 pub fn python_runtime_profile(executable: &std::path::Path, build_id: &str) -> bool {
@@ -327,6 +334,29 @@ impl ControlledRuntimeObservation {
 
     pub const fn is_python_scalar(self) -> bool {
         self.is_python_identity() || matches!(self, Self::PythonTimeSeconds)
+    }
+
+    pub const fn is_python_clock(self) -> bool {
+        matches!(self, Self::ClockMonotonic | Self::ClockRealtime)
+    }
+
+    /// Logical nanoseconds for a clock observation in `python-runtime-v2`.
+    pub const fn logical_value(self, ordinal: u64) -> u64 {
+        let base = match self {
+            Self::ClockRealtime => PYTHON_LOGICAL_REALTIME_BASE_NS,
+            Self::ClockMonotonic => PYTHON_LOGICAL_MONOTONIC_BASE_NS,
+            _ => 0,
+        };
+        base.saturating_add(ordinal.saturating_mul(PYTHON_LOGICAL_STEP_NS))
+    }
+
+    /// Seconds returned by `time()` in `python-runtime-v2`; advances one second per 1000
+    /// realtime observations.
+    pub const fn logical_seconds(self, ordinal: u64) -> u64 {
+        match self {
+            Self::PythonTimeSeconds => 1_700_000_000_u64.saturating_add(ordinal / 1_000),
+            _ => self.value(),
+        }
     }
 }
 

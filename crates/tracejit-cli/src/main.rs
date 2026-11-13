@@ -142,6 +142,8 @@ enum ContractArg {
     CompilerRuntimeV1,
     /// Experimental CPython 3.12.3 single-process clock/identity contract.
     PythonRuntimeV1,
+    /// The same CPython profile with a one-millisecond logical clock sequence.
+    PythonRuntimeV2,
 }
 
 impl From<ContractArg> for Contract {
@@ -150,6 +152,7 @@ impl From<ContractArg> for Contract {
             ContractArg::AllocatorEntropyV1 => Self::AllocatorEntropyV1,
             ContractArg::CompilerRuntimeV1 => Self::CompilerRuntimeV1,
             ContractArg::PythonRuntimeV1 => Self::PythonRuntimeV1,
+            ContractArg::PythonRuntimeV2 => Self::PythonRuntimeV2,
         }
     }
 }
