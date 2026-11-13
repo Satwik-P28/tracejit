@@ -2239,6 +2239,12 @@ fn complete_syscall(
             close_on_exec,
         } => {
             let destination = destination.unwrap_or(result as i32);
+            // dup2(fd, fd) is a successful Linux no-op and keeps FD_CLOEXEC. dup3(fd, fd)
+            // fails with EINVAL, so only dup2 reaches this path. Forgetting this destination
+            // would erase the fd classification, CLOEXEC bit and enumeration record.
+            if destination == source {
+                return;
+            }
             // A duplicate shares the directory offset but not a separately recorded stream.
             // Refuse to extend either record rather than guess which descriptor consumed which
             // bytes; a later getdents64 on a non-zero offset is refused by the trace.
