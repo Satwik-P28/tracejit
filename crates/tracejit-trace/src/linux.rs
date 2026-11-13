@@ -4140,6 +4140,206 @@ mod tests {
     }
 
     #[test]
+    fn dup2_same_descriptor_preserves_file_directory_pipe_and_cloexec_state() {
+        let pid = Pid::from_raw(1);
+
+        let mut file = ProcessState {
+            cwd: PathBuf::from("/"),
+            fds: HashMap::new(),
+            close_on_exec: HashSet::new(),
+            entering: false,
+            synchronize_on_next_syscall: false,
+            pending: None,
+            file_mappings: Vec::new(),
+            enumerations: HashMap::new(),
+            stdin_stream: None,
+            vdso_disarmed: false,
+        };
+        file.fds
+            .insert(7, FdState::File(PathBuf::from("/tmp/file")));
+        file.close_on_exec.insert(7);
+        complete_syscall(
+            pid,
+            &mut file,
+            PendingSyscall::Dup {
+                source: 7,
+                destination: Some(7),
+                close_on_exec: false,
+            },
+            7,
+            &mut collector(),
+        );
+        assert!(matches!(
+            file.fds.get(&7),
+            Some(FdState::File(path)) if path == Path::new("/tmp/file")
+        ));
+        assert!(file.close_on_exec.contains(&7));
+
+        let mut directory = ProcessState {
+            cwd: PathBuf::from("/"),
+            fds: HashMap::new(),
+            close_on_exec: HashSet::new(),
+            entering: false,
+            synchronize_on_next_syscall: false,
+            pending: None,
+            file_mappings: Vec::new(),
+            enumerations: HashMap::new(),
+            stdin_stream: None,
+            vdso_disarmed: false,
+        };
+        directory
+            .fds
+            .insert(7, FdState::File(PathBuf::from("/tmp")));
+        directory.enumerations.insert(
+            7,
+            EnumerationState {
+                fingerprint: tracejit_effects::FileFingerprint::absent(),
+                credential: None,
+                mount_namespace: None,
+                bytes: 48,
+                effect_index: Some(3),
+                refused: false,
+            },
+        );
+        complete_syscall(
+            pid,
+            &mut directory,
+            PendingSyscall::Dup {
+                source: 7,
+                destination: Some(7),
+                close_on_exec: false,
+            },
+            7,
+            &mut collector(),
+        );
+        assert!(directory.fds.contains_key(&7));
+        assert_eq!(directory.enumerations.get(&7).unwrap().bytes, 48);
+
+        let mut pipe = ProcessState {
+            cwd: PathBuf::from("/"),
+            fds: HashMap::new(),
+            close_on_exec: HashSet::new(),
+            entering: false,
+            synchronize_on_next_syscall: false,
+            pending: None,
+            file_mappings: Vec::new(),
+            enumerations: HashMap::new(),
+            stdin_stream: None,
+            vdso_disarmed: false,
+        };
+        pipe.fds.insert(
+            7,
+            FdState::InternalPipe {
+                pipe: 3,
+                readable: true,
+                writable: false,
+            },
+        );
+        complete_syscall(
+            pid,
+            &mut pipe,
+            PendingSyscall::Dup {
+                source: 7,
+                destination: Some(7),
+                close_on_exec: false,
+            },
+            7,
+            &mut collector(),
+        );
+        assert!(matches!(
+            pipe.fds.get(&7),
+            Some(FdState::InternalPipe {
+                pipe: 3,
+                readable: true,
+                writable: false
+            })
+        ));
+    }
+
+    #[test]
+    fn ordinary_duplicates_still_replace_destination_and_reset_cloexec() {
+        let pid = Pid::from_raw(1);
+        for (label, destination, result, close_on_exec) in [
+            ("dup", None, 9, false),
+            ("dup2", Some(8), 8, false),
+            ("dup3", Some(8), 8, true),
+            ("fcntl", None, 9, true),
+        ] {
+            let mut state = ProcessState {
+                cwd: PathBuf::from("/"),
+                fds: HashMap::new(),
+                close_on_exec: HashSet::new(),
+                entering: false,
+                synchronize_on_next_syscall: false,
+                pending: None,
+                file_mappings: Vec::new(),
+                enumerations: HashMap::new(),
+                stdin_stream: None,
+                vdso_disarmed: false,
+            };
+            state.fds.insert(7, FdState::File(PathBuf::from("/source")));
+            let reused = destination.unwrap_or(result as i32);
+            state
+                .fds
+                .insert(reused, FdState::File(PathBuf::from("/destination")));
+            state.close_on_exec.insert(reused);
+            state.enumerations.insert(
+                7,
+                EnumerationState {
+                    fingerprint: tracejit_effects::FileFingerprint::absent(),
+                    credential: None,
+                    mount_namespace: None,
+                    bytes: 16,
+                    effect_index: None,
+                    refused: false,
+                },
+            );
+            state.enumerations.insert(
+                reused,
+                EnumerationState {
+                    fingerprint: tracejit_effects::FileFingerprint::absent(),
+                    credential: None,
+                    mount_namespace: None,
+                    bytes: 16,
+                    effect_index: None,
+                    refused: false,
+                },
+            );
+            complete_syscall(
+                pid,
+                &mut state,
+                PendingSyscall::Dup {
+                    source: 7,
+                    destination,
+                    close_on_exec,
+                },
+                result,
+                &mut collector(),
+            );
+            assert!(
+                matches!(
+                    state.fds.get(&reused),
+                    Some(FdState::File(path)) if path == Path::new("/source")
+                ),
+                "{label}: destination was not replaced"
+            );
+            assert_eq!(
+                state.close_on_exec.contains(&reused),
+                close_on_exec,
+                "{label}: destination CLOEXEC"
+            );
+            assert!(
+                !state.enumerations.contains_key(&7),
+                "{label}: source enumeration survived the duplicate"
+            );
+            assert!(
+                !state.enumerations.contains_key(&reused),
+                "{label}: destination enumeration survived the duplicate"
+            );
+        }
+    }
+
+    #[test]
     fn normalize_keeps_parent_components_so_links_resolve_like_the_kernel() {
         // `..` after a symlink is resolved by the kernel from the link target, so collapsing it
         // lexically would record a different file than the one the process read.
