@@ -11,7 +11,7 @@ still the default and still refuses the target.
 
 Branches: `hotfix/descriptor-dup-noop` (four commits on top of PR #8's P0 fix) and
 `research/phase3i` (experimental contract plus Phase 3I evidence). Neither PR is merged. Hosted CI
-passed for both: PR #8 run `43377588697` at `77c8715`, and PR #9 run `43377574220` at `182e9bb`.
+passed for both: PR #8 run `43378765278` at `c1c5c4e`, and PR #9 run `43377574220` at `182e9bb`.
 Both completed every CI step successfully, including Tests, Clippy, Linux integration, Release build
 and Demo. The runs were read from the public Actions pages because this host has no authenticated
 GitHub API session.
@@ -58,6 +58,11 @@ path: the kernel rejects it with `EINVAL`, so it falls into the existing normal 
 - a directory descriptor with an in-progress enumeration;
 - an internal pipe;
 - ordinary `dup`, distinct `dup2`, distinct `dup3` and `fcntl` duplication/replacement.
+
+`c1c5c4e test: cover descriptor reuse through every creation path` adds a unit test that seeds an
+active directory enumeration, reuses its descriptor through `close`, `open`, `socket` and `pipe`,
+and checks that each completion path removes the enumeration record. The pipe bookkeeping is
+extracted into `record_pipe` so the real handler can be tested without a ptrace-backed fake process.
 
 `c2f1e9c test: exercise dup2 self-duplication end to end` adds fixture cases
 `dup2_same_file`, `dup2_same_directory` and `dup2_same_pipe` to
@@ -269,7 +274,7 @@ slower than direct execution. A hit exists, but there is no performance claim fo
 - The target's directory reader was audited for this build. A different reader or a trace of a
   different Python build needs its own audit.
 - The preflight-to-`exec` atomicity limitation remains.
-- Hosted CI passed at the code/evidence commits (`43377588697` for `77c8715`,
+- Hosted CI passed at the code/evidence commits (`43378765278` for `c1c5c4e`,
   `43377574220` for `182e9bb`). The local P0 gates are in Section 5.
 
 ## 5. Gates and raw evidence
@@ -284,9 +289,9 @@ cargo test -p tracejit-cli --test linux_integration -- --nocapture
 cargo build --workspace --release
 ```
 
-At `77c8715`: **150 workspace tests**, **53 Linux integration tests**, fmt and Clippy clean, release
+At `c1c5c4e`: **151 workspace tests**, **53 Linux integration tests**, fmt and Clippy clean, release
 build pass, release SHA-256
-`0e47cfd34d4f14798cc82cf555067b23f58b6cfece454cd7eca62823e147293a`. The
+`06c40bc74dc9b9f50da84361f87edf41f8c03e73c21433132bf454c8cccf23db`. The
 `dup2` unit regression was confirmed failing at `7f15832` and the end-to-end regression was confirmed
 failing with the early return removed.
 

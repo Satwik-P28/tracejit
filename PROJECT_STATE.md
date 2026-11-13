@@ -725,11 +725,12 @@ destination before looking up the source, so the successful Linux `dup2(fd, fd)`
 fd classification, `FD_CLOEXEC` and any directory enumeration state. `dup3(fd, fd)` is `EINVAL` and
 does not use the successful path. The handler now returns before mutation when source == destination.
 Commits: `7f15832` failing unit regression, `e74f9ee` fix, `c2f1e9c` file/directory/pipe integration
-fixture, `77c8715` exact preflight failure-status/output assertions. The integration regression was
-confirmed failing with the early return removed. P0 local gates: fmt and Clippy clean, **150
-workspace tests**, **53 Linux integration tests**, fmt and Clippy clean, release build pass, release
-SHA-256 `0e47cfd34d4f14798cc82cf555067b23f58b6cfece454cd7eca62823e147293a`. Descriptor-preflight
-errors exit 1 before lookup and do not fall back to direct execution.
+fixture, `77c8715` exact preflight failure-status/output assertions, and `c1c5c4e` descriptor reuse
+through close/open/socket/pipe. The integration regression was confirmed failing with the early
+return removed. P0 local gates: fmt and Clippy clean, **151 workspace tests**, **53 Linux integration
+tests**, release build pass, release SHA-256
+`06c40bc74dc9b9f50da84361f87edf41f8c03e73c21433132bf454c8cccf23db`. Descriptor-preflight errors
+exit 1 before lookup and do not fall back to direct execution.
 
 The `python-csv-json` directory deoptimization is resolved as uninitialised `linux_dirent64`
 alignment padding: the kernel writes fields/name but not padding, a probe preserves `0xaa`/`0x55`
@@ -747,7 +748,7 @@ outlier). No speedup is claimed. Raw: `benchmarks/results/phase3i/`. See
 `docs/audits/PHASE3I_DUP2_AND_CONTROLLED_DIRECTORY_REPLAY.md`. Research release SHA-256 at the
 evidence commit is `0d03877d72d7fac7838ba4b8e9eed3a07ff76590ffe2afba18ac6cac5f3218b4`.
 
-Neither PR is merged. Hosted CI passed for both: PR #8 run `43377588697` at `77c8715` and PR #9 run
+Neither PR is merged. Hosted CI passed for both: PR #8 run `43378765278` at `c1c5c4e` and PR #9 run
 `43377574220` at `182e9bb`; all steps succeeded, including Tests, Clippy, Linux integration, Release
 build and Demo. The preflight-to-`exec` atomicity limitation
 remains, although the earlier "concurrent parent" wording is corrected: the current scan/spawn path

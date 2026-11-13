@@ -365,8 +365,9 @@ handler now returns before mutation when source == destination. Unit tests cover
 directory enumeration, pipe, and ordinary `dup`/distinct `dup2`/`dup3`/`fcntl` behavior. The
 integration fixture covers file, directory and pipe self-duplication; it fails with the early return
 removed and passes with it restored. Commits: `7f15832` (failing test), `e74f9ee` (fix), `c2f1e9c`
-(integration). P0 gates at `77c8715`: **150 workspace tests**, **53 Linux integration tests**, fmt
-and Clippy clean, release build. Hosted CI run `43377588697` passed every step, including Demo.
+(integration), `77c8715` (preflight failure status/output), `c1c5c4e` (descriptor reuse through
+close/open/socket/pipe). P0 gates at `c1c5c4e`: **151 workspace tests**, **53 Linux integration tests**,
+fmt and Clippy clean, release build. Hosted CI run `43378765278` passed every step, including Demo.
 
 ## E-3I-02 — directory-entry padding hypotheses A/B/C
 
