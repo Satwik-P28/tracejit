@@ -635,34 +635,63 @@ impl Guard {
                 value,
                 contract,
             } => {
-                if contract != tracejit_effects::COMPILER_RUNTIME_CONTRACT {
-                    return Err(GuardFailure {
-                        guard: Box::new(self.clone()),
-                        reason: "unknown controlled-execution contract".into(),
-                        expected: tracejit_effects::COMPILER_RUNTIME_CONTRACT.into(),
-                        actual: contract.clone(),
-                    });
-                }
-                let Some(profile) =
-                    tracejit_effects::compiler_runtime_profile(executable, build_id)
-                else {
-                    return Err(GuardFailure {
-                        guard: Box::new(self.clone()),
-                        reason: "controlled observation names an unaudited compiler profile".into(),
-                        expected: format!(
-                            "one of {} audited compiler binaries",
-                            tracejit_effects::COMPILER_RUNTIME_PROFILES.len()
-                        ),
-                        actual: format!("{} ({})", executable.display(), build_id),
-                    });
-                };
-                if !profile.allows(*observation) {
-                    return Err(GuardFailure {
-                        guard: Box::new(self.clone()),
-                        reason: "compiler profile does not admit this observation".into(),
-                        expected: profile.executable.into(),
-                        actual: observation.name().into(),
-                    });
+                if contract == tracejit_effects::PYTHON_RUNTIME_CONTRACT {
+                    if !tracejit_effects::python_runtime_profile(executable, build_id) {
+                        return Err(GuardFailure {
+                            guard: Box::new(self.clone()),
+                            reason: "controlled observation names an unaudited Python profile"
+                                .into(),
+                            expected: tracejit_effects::PYTHON_RUNTIME_EXECUTABLE.into(),
+                            actual: format!("{} ({})", executable.display(), build_id),
+                        });
+                    }
+                    if !matches!(
+                        observation,
+                        tracejit_effects::ControlledRuntimeObservation::ClockMonotonic
+                            | tracejit_effects::ControlledRuntimeObservation::ClockRealtime
+                            | tracejit_effects::ControlledRuntimeObservation::PythonThreadId
+                            | tracejit_effects::ControlledRuntimeObservation::PythonProcessId
+                            | tracejit_effects::ControlledRuntimeObservation::PythonParentProcessId
+                            | tracejit_effects::ControlledRuntimeObservation::PythonTimeSeconds
+                    ) {
+                        return Err(GuardFailure {
+                            guard: Box::new(self.clone()),
+                            reason: "python profile does not admit this observation".into(),
+                            expected: "audited CPython clock or identity observation".into(),
+                            actual: observation.name().into(),
+                        });
+                    }
+                } else {
+                    if contract != tracejit_effects::COMPILER_RUNTIME_CONTRACT {
+                        return Err(GuardFailure {
+                            guard: Box::new(self.clone()),
+                            reason: "unknown controlled-execution contract".into(),
+                            expected: tracejit_effects::COMPILER_RUNTIME_CONTRACT.into(),
+                            actual: contract.clone(),
+                        });
+                    }
+                    let Some(profile) =
+                        tracejit_effects::compiler_runtime_profile(executable, build_id)
+                    else {
+                        return Err(GuardFailure {
+                            guard: Box::new(self.clone()),
+                            reason: "controlled observation names an unaudited compiler profile"
+                                .into(),
+                            expected: format!(
+                                "one of {} audited compiler binaries",
+                                tracejit_effects::COMPILER_RUNTIME_PROFILES.len()
+                            ),
+                            actual: format!("{} ({})", executable.display(), build_id),
+                        });
+                    };
+                    if !profile.allows(*observation) {
+                        return Err(GuardFailure {
+                            guard: Box::new(self.clone()),
+                            reason: "compiler profile does not admit this observation".into(),
+                            expected: profile.executable.into(),
+                            actual: observation.name().into(),
+                        });
+                    }
                 }
                 if *length != observation.length() {
                     return Err(GuardFailure {

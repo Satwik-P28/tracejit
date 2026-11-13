@@ -245,6 +245,22 @@ pub const COMPILER_RUNTIME_CONTRACT: &str = "tracejit.compiler-runtime.v1";
 pub const COMPILER_RUNTIME_SYSINFO_TOTALRAM: u64 = 16 * 1024 * 1024 * 1024;
 pub const COMPILER_RUNTIME_SYSINFO_FREERAM: u64 = 8 * 1024 * 1024 * 1024;
 
+/// Experimental Python-runtime contract. It is deliberately separate from the native and
+/// compiler contracts. It fixes only the three observation classes audited in Phase 3H:
+/// realtime/monotonic clocks and the process/thread identity values used by CPython startup.
+pub const PYTHON_RUNTIME_CONTRACT: &str = "tracejit.python-runtime.v1";
+pub const PYTHON_RUNTIME_EXECUTABLE: &str = "/usr/bin/python3.12";
+pub const PYTHON_RUNTIME_BUILD_ID: &str = "337d65cf00021797985cc9f77c0cc334a9fbeb38";
+pub const PYTHON_VIRTUAL_PID: u64 = 4242;
+pub const PYTHON_VIRTUAL_PPID: u64 = 1;
+pub const PYTHON_VIRTUAL_TID: u64 = 4243;
+
+/// The exact CPython ELF audited for the Python-runtime experiment.
+pub fn python_runtime_profile(executable: &std::path::Path, build_id: &str) -> bool {
+    executable == std::path::Path::new(PYTHON_RUNTIME_EXECUTABLE)
+        && build_id == PYTHON_RUNTIME_BUILD_ID
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum ControlledRuntimeObservation {
     /// `getrusage(RUSAGE_SELF, ...)`, which binutils `as` reads for its own timing.
@@ -255,6 +271,14 @@ pub enum ControlledRuntimeObservation {
     ClockMonotonic,
     /// `clock_gettime(CLOCK_REALTIME)`/`gettimeofday`, which can feed `__DATE__`/`__TIME__`.
     ClockRealtime,
+    /// `syscall(SYS_gettid)` from CPython thread-state binding.
+    PythonThreadId,
+    /// `getpid()` from CPython's process-identity API.
+    PythonProcessId,
+    /// `getppid()` from CPython's process-identity API.
+    PythonParentProcessId,
+    /// The seconds-resolution `time()` syscall used by CPython's fallback path.
+    PythonTimeSeconds,
 }
 
 impl ControlledRuntimeObservation {
@@ -263,6 +287,10 @@ impl ControlledRuntimeObservation {
         match self {
             Self::GetrusageSelf | Self::ClockMonotonic | Self::ClockRealtime => 0,
             Self::SysinfoMemory => COMPILER_RUNTIME_SYSINFO_TOTALRAM,
+            Self::PythonThreadId => PYTHON_VIRTUAL_TID,
+            Self::PythonProcessId => PYTHON_VIRTUAL_PID,
+            Self::PythonParentProcessId => PYTHON_VIRTUAL_PPID,
+            Self::PythonTimeSeconds => 1_700_000_000,
         }
     }
 
@@ -272,6 +300,8 @@ impl ControlledRuntimeObservation {
             Self::GetrusageSelf => 144,
             Self::SysinfoMemory => 112,
             Self::ClockMonotonic | Self::ClockRealtime => 16,
+            Self::PythonThreadId | Self::PythonProcessId | Self::PythonParentProcessId => 0,
+            Self::PythonTimeSeconds => 8,
         }
     }
 
@@ -281,7 +311,22 @@ impl ControlledRuntimeObservation {
             Self::SysinfoMemory => "sysinfo-memory",
             Self::ClockMonotonic => "clock-monotonic",
             Self::ClockRealtime => "clock-realtime",
+            Self::PythonThreadId => "python-thread-id",
+            Self::PythonProcessId => "python-process-id",
+            Self::PythonParentProcessId => "python-parent-process-id",
+            Self::PythonTimeSeconds => "python-time-seconds",
         }
+    }
+
+    pub const fn is_python_identity(self) -> bool {
+        matches!(
+            self,
+            Self::PythonThreadId | Self::PythonProcessId | Self::PythonParentProcessId
+        )
+    }
+
+    pub const fn is_python_scalar(self) -> bool {
+        self.is_python_identity() || matches!(self, Self::PythonTimeSeconds)
     }
 }
 
@@ -339,6 +384,10 @@ impl CompilerRuntimeProfile {
             ControlledRuntimeObservation::SysinfoMemory => self.sysinfo,
             ControlledRuntimeObservation::ClockMonotonic
             | ControlledRuntimeObservation::ClockRealtime => self.clocks,
+            ControlledRuntimeObservation::PythonThreadId
+            | ControlledRuntimeObservation::PythonProcessId
+            | ControlledRuntimeObservation::PythonParentProcessId
+            | ControlledRuntimeObservation::PythonTimeSeconds => false,
         }
     }
 }
