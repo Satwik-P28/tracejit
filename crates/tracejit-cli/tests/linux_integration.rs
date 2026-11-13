@@ -1658,6 +1658,36 @@ fn inherited_descriptor_beyond_stdin_is_never_reused() {
 }
 
 #[test]
+fn dup2_same_descriptor_preserves_directory_and_pipe_tracking() {
+    let fixture = Fixture::new();
+    fs::create_dir(fixture.input("enumdir")).unwrap();
+    fs::write(fixture.input("enumdir/a"), b"a").unwrap();
+    fs::write(fixture.input("enumdir/b"), b"b").unwrap();
+    for case in ["dup2_same_file", "dup2_same_directory", "dup2_same_pipe"] {
+        let first = fixture.run(case);
+        assert!(first.status.success(), "{case}: {}", stderr_of(&first));
+        assert!(
+            !hit(&first),
+            "{case}: the first run must not be a cached hit: {}",
+            stderr_of(&first)
+        );
+        let second = fixture.run(case);
+        assert!(second.status.success(), "{case}: {}", stderr_of(&second));
+        assert!(
+            hit(&second),
+            "{case}: same-descriptor duplicate lost tracking: {}",
+            stderr_of(&second)
+        );
+        assert_eq!(
+            fs::read(fixture.input("output.txt")).unwrap(),
+            b"input one\n",
+            "{case}"
+        );
+    }
+    eprintln!("RESULT dup2-same-descriptor PASS");
+}
+
+#[test]
 fn close_on_exec_descriptor_is_not_an_inherited_boundary() {
     let fixture = Fixture::new();
     fixture.acquire("plain_file_read");
