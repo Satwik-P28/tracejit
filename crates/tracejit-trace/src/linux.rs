@@ -1995,6 +1995,15 @@ fn readlink_pending(
     })
 }
 
+fn forget_descriptor(state: &mut ProcessState, fd: i32) {
+    state.fds.remove(&fd);
+    state.close_on_exec.remove(&fd);
+    // An enumeration record is about one open file description. Reusing the descriptor number
+    // must not append a new directory's stream to the previous record: the guard would replay a
+    // concatenation that no single descriptor ever produced.
+    state.enumerations.remove(&fd);
+}
+
 fn complete_syscall(
     pid: Pid,
     state: &mut ProcessState,
@@ -2010,6 +2019,7 @@ fn complete_syscall(
             before_fingerprint,
         } => {
             let fd = result as i32;
+            state.enumerations.remove(&fd);
             if is_random_device(&path) {
                 state.fds.insert(fd, FdState::File(path.clone()));
                 collector.push(
@@ -2171,6 +2181,8 @@ fn complete_syscall(
                 let read_fd = (word & 0xffff_ffff) as u32 as i32;
                 let write_fd = (word >> 32) as u32 as i32;
                 let pipe = collector.open_pipe();
+                forget_descriptor(state, read_fd);
+                forget_descriptor(state, write_fd);
                 state.fds.insert(
                     read_fd,
                     FdState::InternalPipe {
@@ -2227,6 +2239,11 @@ fn complete_syscall(
             close_on_exec,
         } => {
             let destination = destination.unwrap_or(result as i32);
+            // A duplicate shares the directory offset but not a separately recorded stream.
+            // Refuse to extend either record rather than guess which descriptor consumed which
+            // bytes; a later getdents64 on a non-zero offset is refused by the trace.
+            state.enumerations.remove(&source);
+            forget_descriptor(state, destination);
             if let Some(fd) = state.fds.get(&source).cloned() {
                 state.fds.insert(destination, fd);
             }
@@ -2236,10 +2253,7 @@ fn complete_syscall(
                 state.close_on_exec.remove(&destination);
             }
         }
-        PendingSyscall::Close { fd } => {
-            state.fds.remove(&fd);
-            state.close_on_exec.remove(&fd);
-        }
+        PendingSyscall::Close { fd } => forget_descriptor(state, fd),
         PendingSyscall::SetCloseOnExec { fd, enabled } => {
             if enabled {
                 state.close_on_exec.insert(fd);
@@ -2567,6 +2581,7 @@ fn complete_syscall(
         },
         PendingSyscall::Network { kind } => match kind {
             NetworkOperation::Socket => {
+                forget_descriptor(state, result as i32);
                 state.fds.insert(result as i32, FdState::Network);
             }
             NetworkOperation::Read(operation) => collector.push(
@@ -4089,6 +4104,39 @@ mod tests {
             pipes: HashMap::new(),
             next_pipe: 0,
         }
+    }
+
+    #[test]
+    fn reusing_a_descriptor_forgets_its_directory_enumeration() {
+        let mut state = ProcessState {
+            cwd: PathBuf::from("/"),
+            fds: HashMap::new(),
+            close_on_exec: HashSet::new(),
+            entering: false,
+            synchronize_on_next_syscall: false,
+            pending: None,
+            file_mappings: Vec::new(),
+            enumerations: HashMap::new(),
+            stdin_stream: None,
+            vdso_disarmed: false,
+        };
+        state.fds.insert(7, FdState::File(PathBuf::from("/tmp")));
+        state.close_on_exec.insert(7);
+        state.enumerations.insert(
+            7,
+            EnumerationState {
+                fingerprint: tracejit_effects::FileFingerprint::absent(),
+                credential: None,
+                mount_namespace: None,
+                bytes: 48,
+                effect_index: Some(3),
+                refused: false,
+            },
+        );
+        forget_descriptor(&mut state, 7);
+        assert!(!state.fds.contains_key(&7));
+        assert!(!state.close_on_exec.contains(&7));
+        assert!(!state.enumerations.contains_key(&7));
     }
 
     #[test]
