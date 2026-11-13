@@ -414,3 +414,110 @@ mutate TraceJIT's table after fork/exec, and the current scan/spawn path is sing
 CLOEXEC cache descriptors. A future in-process thread, signal handler or constructor opening a
 non-CLOEXEC descriptor would invalidate the scan; no atomic handoff exists. This remains an invariant
 and limitation, not an observed hit.
+
+## Phase 3J — controlled Python boundary and amortization
+
+All Phase 3J results are on `research/phase3j`, based on `main` at `29718cf`. They are local
+measurements on a shared VM, not hosted-CI results and not native-equivalence evidence. Release
+binary SHA-256: `dcbaf5d715da6a8c46cb134165298643ee532109245281152b53ec37c75cdb6d`.
+
+### E-3J-01 — reconciliation and gates
+
+**Question:** Can the experimental Python contract and Phase 3H/3I artifacts be reviewed from the
+merged correctness branch without losing the `dup2(fd, fd)`, directory-generation or descriptor
+preflight fixes?
+
+**Arm:** `research/phase3j` at `29718cf`, commits `e19aca8`, `b9a54fb`, `dcee712`.
+
+**Result:** cherry-picks clean; the `dup2` early return remains. fmt pass, Clippy `-D warnings`
+pass, **155 workspace tests**, **53 Linux integration tests**, release build and demo pass. Phase 3I's
+five acceptance assertions pass on the reconciled branch. Raw:
+`benchmarks/results/phase3j/reproduced-acceptance.json`.
+
+### E-3J-02 — adversarial semantic probes
+
+**Question:** What does `python-runtime-v1` actually change, and does a logical clock repair the
+timeout-loop failure?
+
+**Method:** native/control/control for monotonic and realtime clocks, `getpid`/`getppid`/`gettid`,
+direct `ctypes` syscalls, `os.urandom`, threads, fork, directory padding and self-signals. Raw:
+`benchmarks/results/phase3j/semantic-probes.json`.
+
+**Result:**
+
+- v1 returns fixed `0 0 1000 0` for the bounded 1 ms loop: **1000 iterations**.
+- v2 returns an advancing logical sequence; the loop exits at **0 iterations**.
+- v1/v2 identity is `4242 1 4243`; direct identity differs.
+- `os.kill(os.getpid(), SIGUSR1)` raises `ProcessLookupError` under both contracts. It is a
+  correctness counterexample, not merely a virtualized output.
+- entropy, thread creation and fork remain `Executed`/not reused.
+- controlled directory padding is all zeroes and reuses; native padding is unchanged and remains
+  the default.
+- `gettimeofday` is not virtualized under v2 because its ABI is a `timeval`, not the logical
+  `timespec` payload.
+
+### E-3J-03 — canonical ETL phase profile
+
+**Question:** Where does the warm `python-csv-json` hit spend its time?
+
+**Method:** 10 independent cold caches and 15 steady warm hits per contract; 12 direct runs.
+Raw: `benchmarks/results/phase3j/profile.json`.
+
+**Result (v1 medians):** warm `runtime_ns` 21.3 ms; guard validation 12.0 ms (hash 10.2 ms,
+directory 0.78 ms, metadata 1.03 ms); SQLite query 4.4 ms; record decode 4.8 ms; identity
+preparation 3.7 ms; CAS restore 1.8 ms. Top three: hashing, candidate query/decode, identity/startup.
+The original ETL remains a short-session loss: the ten-warm complete session is 625.9 ms versus
+579.5 ms direct.
+
+### E-3J-04 — metadata-keyed hash reuse
+
+**Question:** Can repeated `ControlledRuntime` guards share one executable hash without dropping a
+guard?
+
+**Change:** one hash cache per validation pass, keyed by path and guarded by the current metadata
+fingerprint. A changed generation rehashes. Unit test
+`hash_cache_rehashes_after_a_metadata_generation_change` covers this.
+
+**Result:** the v2 clock probe fell from roughly 0.8 s to 13.1-13.5 ms; ETL warm `runtime_ns` fell
+from about 29 ms to 21.3 ms. The guarantee is per pass and per metadata generation; same-metadata
+content mutation inside a pass is a documented limitation. No guard was removed.
+
+### E-3J-05 — CPU-heavy amortization
+
+**Question:** Which realistic deterministic Python workloads repay the controlled path?
+
+**Fixtures:** `heavy_transform.py` (120,000 CSV rows) and `image_convolution.py` (320x240 PPM,
+5x5 Gaussian + edge pass, pure Python). Raw:
+`benchmarks/results/phase3j/cpu-workloads.json`.
+
+**Result (latest run, shared VM):**
+
+| Workload | Direct | Contract | Cold | Warm wall | Output | Break-even |
+| --- | ---: | --- | ---: | ---: | --- | ---: |
+| heavy | 1022.7 ms | v1 | 2692.5 ms | 39.2 ms | equal | 4 |
+| heavy | 1022.7 ms | v2 | 1498.2 ms | 87.0 ms | equal | 3 |
+| image | 5116.3 ms | v1 | 5097.2 ms | 44.7 ms | equal | 3 |
+| image | 5116.3 ms | v2 | 4887.3 ms | 50.3 ms | equal | 2 |
+
+Every warm run reused; changed inputs retraced and matched direct output. A less-loaded run measured
+heavy direct 664 ms/warm 29.7 ms and image direct 2880 ms/warm 26.7 ms, break-even 3. This is
+byte-identical controlled reuse, not native equivalence.
+
+### E-3J-06 — competing mechanisms
+
+**A (persistent connection/batch):** startup 5.3 ms, SQLite open/schema ~0.6 ms, query 4.4 ms. Not
+implemented; a daemon adds lifecycle, IPC and crash-recovery costs without evidence of a net win.
+
+**B (compact dependency metadata):** a heavy candidate is 927 KB with 160 KB of guards; decode is
+4.8-9.5 ms. No sound compact representation was demonstrated, so it was not wired in.
+
+**C (directory projections):** directory guards cost <1 ms. Rejected for now because a typed
+projection can hide padding from a reader that can observe it; native byte-exact remains default.
+
+**D (guard hashing):** implemented and measured in E-3J-04.
+
+**E (output restoration):** CAS restore is 1.4-1.8 ms; inode, metadata, hard-link and crash-recovery
+obligations dominate the plausible gain, so no optimization was attempted.
+
+**Retained negative:** typed directory projection and `VirtualZero` are not native defaults. The
+signal counterexample remains unresolved for fixed identity.

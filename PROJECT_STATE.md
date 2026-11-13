@@ -755,3 +755,29 @@ build and Demo. The preflight-to-`exec` atomicity limitation
 remains, although the earlier "concurrent parent" wording is corrected: the current scan/spawn path
 is single-threaded and the parent cannot mutate the table. A future non-CLOEXEC open between scan and
 spawn would still invalidate the scan.
+
+## Phase 3J (research branch, base `29718cf`)
+
+Branch `research/phase3j` reconciles the experimental Python contract onto merged `main` without
+merging PR #9. The `dup2(fd, fd)` early return and the descriptor-preflight/directory fixes are
+retained. Local gates: fmt pass, Clippy `-D warnings` pass, **155 workspace tests**, **53 Linux
+integration tests**, release build and demo pass. Release SHA-256
+`dcbaf5d715da6a8c46cb134165298643ee532109245281152b53ec37c75cdb6d`.
+
+`python-runtime-v1` is not a general clock/identity contract. A bounded 1 ms timeout loop runs 1000
+iterations under its fixed clock; `os.kill(os.getpid(), SIGUSR1)` raises `ProcessLookupError`
+because the pid is virtual (4242). Entropy, threads and fork remain refused. A new
+`python-runtime-v2` logical clock advances 1 ms per admitted observation, exits the timeout loop
+immediately, and keeps the same identity limitation; `gettimeofday` is refused because its ABI is a
+timeval. Native byte-exact directory guarding remains the default; controlled padding is explicit.
+
+The canonical ETL warm v1 report is 21.3 ms (hash 10.2 ms, directory 0.78 ms, SQLite query 4.4 ms,
+decode 4.8 ms, identity 3.7 ms, CAS 1.8 ms). A per-validation metadata-keyed hash cache reduced a
+414-guard v2 clock hit from ~0.8 s to 13.1-13.5 ms. The original ETL still loses over a ten-warm
+complete session (625.9 ms vs 579.5 ms direct). Deterministic CPU-heavy workloads do amortize:
+120k-row CSV 1022.7 ms direct vs 39.2 ms warm (break-even 4; v2 3), 320x240 pure-Python convolution
+5116.3 ms direct vs 44.7 ms warm (break-even 3; v2 2), outputs byte-identical and invalidation
+retraced. An earlier less-loaded run measured break-even 3 for both. This is controlled reuse, not
+native equivalence. Full audit:
+`docs/audits/PHASE3J_CONTROLLED_PYTHON_CORRECTNESS_AND_PERFORMANCE.md`; raw:
+`benchmarks/results/phase3j/`. The branch is unmerged; hosted CI is not claimed.

@@ -408,3 +408,39 @@ values. The measured session was slower than direct execution (730.76 ms versus 
 timings and raw evidence are in
 [`PHASE3I_DUP2_AND_CONTROLLED_DIRECTORY_REPLAY.md`](../audits/PHASE3I_DUP2_AND_CONTROLLED_DIRECTORY_REPLAY.md)
 and `benchmarks/results/phase3i/`.
+
+## Phase 3J addendum: logical time, identity limits and amortization
+
+Phase 3J reconciled the experimental Python contract onto the merged correctness commit
+`29718cf`, retained the `dup2(fd, fd)` early return and directory-generation/preflight fixes, and
+kept the contract unmerged. The semantic probes show that `python-runtime-v1`'s fixed clock is not a
+clock contract: a bounded 1 ms timeout loop runs all 1000 iterations under v1. A new
+`python-runtime-v2` contract advances realtime and monotonic observations by 1 ms per admitted
+call; the same loop exits immediately. V2 still fixes `getpid`/`getppid`/`gettid`, and
+`os.kill(os.getpid(), SIGUSR1)` raises `ProcessLookupError` under both contracts. That is an open
+correctness counterexample, not a display difference. `gettimeofday` is refused under v2 because a
+timeval is not the logical timespec payload. Entropy, threads and fork remain non-reusable.
+
+The canonical ETL profile separates the warm path: v1 medians are 21.3 ms report runtime, 12.0 ms
+guard validation (10.2 ms hashing, 0.78 ms directories, 1.03 ms metadata), 4.4 ms SQLite query,
+4.8 ms record decode, 3.7 ms identity preparation and 1.8 ms CAS restore. The top three costs are
+hashing, candidate retrieval/decoding and identity/startup. Rehashing the same Python executable for
+414 logical-clock guards made a v2 hit ~0.8 s; a per-validation, metadata-keyed hash cache reduced
+it to 13.1-13.5 ms while retaining every guard. The cache rehashes after any fingerprint generation
+change; its per-pass snapshot limitation is documented.
+
+The original ETL still does not amortize: the ten-warm complete session is 625.9 ms versus 579.5 ms
+direct, even though its warm median is 26.5 ms versus 34.0 ms direct. Two deterministic CPU-heavy
+workloads do amortize with byte-identical output: a 120k-row CSV transform and a 320x240 pure-Python
+convolution. On the final shared-VM run they break even at 3-4 complete runs (2-3 for v2); a less
+loaded run measured break-even 3. The controlled path is therefore economically useful for
+sufficiently long deterministic computations, not a universal Python speedup.
+
+Competing mechanisms were evaluated against the profile. Persistent cache connections could remove
+some of the 4.4 ms query/open cost but add daemon lifecycle, IPC and crash recovery. Compact
+dependency metadata has no demonstrated sound encoding; a heavy candidate remains 927 KB. Cached
+directory projections would save <1 ms and risk hiding observable padding, so native byte-exact
+guarding remains default. Output restoration is 1.4-1.8 ms and its inode/metadata/hard-link/crash
+obligations dominate. No Phase 3D repeated-query change was reintroduced. The full audit is
+`docs/audits/PHASE3J_CONTROLLED_PYTHON_CORRECTNESS_AND_PERFORMANCE.md`; raw data is
+`benchmarks/results/phase3j/`.

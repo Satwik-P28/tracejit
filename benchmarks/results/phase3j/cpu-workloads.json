@@ -1,0 +1,438 @@
+{
+  "contracts": [
+    "python-runtime-v1",
+    "python-runtime-v2"
+  ],
+  "notes": [
+    "direct and target wall times include CPython/TraceJIT process startup",
+    "cold is a fresh cache; warm is a steady hit after one decision-persist hit",
+    "outputs are compared byte-for-byte with native execution for the same input",
+    "break_even is derived from wall medians and is an estimate, not a guarantee"
+  ],
+  "phase": "3J",
+  "python": "/usr/bin/python3.12",
+  "workloads": {
+    "heavy_transform": {
+      "direct": {
+        "median_ns": 1022685513,
+        "output_sha256": "6bdab4b65e00d8476d3270b399ea8c31ef145d2f3222735379e8d28d0fd25ead",
+        "runs_ns": [
+          1360821100,
+          1009099719,
+          887883439,
+          1022685513,
+          1293934939
+        ]
+      },
+      "python-runtime-v1": {
+        "break_even": {
+          "additional_runs_after_cold": 3,
+          "cold_wall_ns": 2692462217,
+          "complete_runs_including_cold": 4,
+          "direct_wall_ns": 1022685513,
+          "warm_wall_ns": 39210983
+        },
+        "cold": [
+          {
+            "exit_code": 0,
+            "kind": "Executed",
+            "output_sha256": "6bdab4b65e00d8476d3270b399ea8c31ef145d2f3222735379e8d28d0fd25ead",
+            "runtime_ns": 1243047252,
+            "wall_ns": 2389049007
+          },
+          {
+            "exit_code": 0,
+            "kind": "Executed",
+            "output_sha256": "6bdab4b65e00d8476d3270b399ea8c31ef145d2f3222735379e8d28d0fd25ead",
+            "runtime_ns": 1315874174,
+            "wall_ns": 2995875428
+          }
+        ],
+        "equivalence": {
+          "direct_output_sha256": "6bdab4b65e00d8476d3270b399ea8c31ef145d2f3222735379e8d28d0fd25ead",
+          "warm_output_matches_direct": true
+        },
+        "first_hit": {
+          "kind": "Reused",
+          "runtime_ns": 24427055,
+          "wall_ns": 85671475
+        },
+        "invalidation": {
+          "direct_output_sha256": "5126f495a95c33aadfbe1fcf777b74ff8e52956e4ede99ca85795a3598b66e79",
+          "kind": "Executed",
+          "output_matches_direct": true,
+          "output_sha256": "5126f495a95c33aadfbe1fcf777b74ff8e52956e4ede99ca85795a3598b66e79",
+          "recovered_kind": "Reused",
+          "recovered_runtime_ns": 44700653,
+          "runtime_ns": 1508622526,
+          "wall_ns": 1609567704
+        },
+        "warm": {
+          "all_reused": true,
+          "runs": [
+            {
+              "kind": "Reused",
+              "output_sha256": "6bdab4b65e00d8476d3270b399ea8c31ef145d2f3222735379e8d28d0fd25ead",
+              "runtime_ns": 18299001,
+              "wall_ns": 29922922
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "6bdab4b65e00d8476d3270b399ea8c31ef145d2f3222735379e8d28d0fd25ead",
+              "runtime_ns": 19782336,
+              "wall_ns": 31573931
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "6bdab4b65e00d8476d3270b399ea8c31ef145d2f3222735379e8d28d0fd25ead",
+              "runtime_ns": 19034793,
+              "wall_ns": 59278279
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "6bdab4b65e00d8476d3270b399ea8c31ef145d2f3222735379e8d28d0fd25ead",
+              "runtime_ns": 24084993,
+              "wall_ns": 43284605
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "6bdab4b65e00d8476d3270b399ea8c31ef145d2f3222735379e8d28d0fd25ead",
+              "runtime_ns": 19874749,
+              "wall_ns": 51938901
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "6bdab4b65e00d8476d3270b399ea8c31ef145d2f3222735379e8d28d0fd25ead",
+              "runtime_ns": 22227997,
+              "wall_ns": 35137361
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "6bdab4b65e00d8476d3270b399ea8c31ef145d2f3222735379e8d28d0fd25ead",
+              "runtime_ns": 18565792,
+              "wall_ns": 61358364
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "6bdab4b65e00d8476d3270b399ea8c31ef145d2f3222735379e8d28d0fd25ead",
+              "runtime_ns": 19362719,
+              "wall_ns": 30372125
+            }
+          ],
+          "runtime_ns": 19572527,
+          "wall_ns": 39210983
+        }
+      },
+      "python-runtime-v2": {
+        "break_even": {
+          "additional_runs_after_cold": 2,
+          "cold_wall_ns": 1498188856,
+          "complete_runs_including_cold": 3,
+          "direct_wall_ns": 1022685513,
+          "warm_wall_ns": 87001566
+        },
+        "cold": [
+          {
+            "exit_code": 0,
+            "kind": "Executed",
+            "output_sha256": "6bdab4b65e00d8476d3270b399ea8c31ef145d2f3222735379e8d28d0fd25ead",
+            "runtime_ns": 1318318212,
+            "wall_ns": 1464331443
+          },
+          {
+            "exit_code": 0,
+            "kind": "Executed",
+            "output_sha256": "6bdab4b65e00d8476d3270b399ea8c31ef145d2f3222735379e8d28d0fd25ead",
+            "runtime_ns": 1426553414,
+            "wall_ns": 1532046269
+          }
+        ],
+        "equivalence": {
+          "direct_output_sha256": "6bdab4b65e00d8476d3270b399ea8c31ef145d2f3222735379e8d28d0fd25ead",
+          "warm_output_matches_direct": true
+        },
+        "first_hit": {
+          "kind": "Reused",
+          "runtime_ns": 28990462,
+          "wall_ns": 171110043
+        },
+        "invalidation": {
+          "direct_output_sha256": "5126f495a95c33aadfbe1fcf777b74ff8e52956e4ede99ca85795a3598b66e79",
+          "kind": "Executed",
+          "output_matches_direct": true,
+          "output_sha256": "5126f495a95c33aadfbe1fcf777b74ff8e52956e4ede99ca85795a3598b66e79",
+          "recovered_kind": "Reused",
+          "recovered_runtime_ns": 74970216,
+          "runtime_ns": 1470541480,
+          "wall_ns": 1599503270
+        },
+        "warm": {
+          "all_reused": true,
+          "runs": [
+            {
+              "kind": "Reused",
+              "output_sha256": "6bdab4b65e00d8476d3270b399ea8c31ef145d2f3222735379e8d28d0fd25ead",
+              "runtime_ns": 30301763,
+              "wall_ns": 48939982
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "6bdab4b65e00d8476d3270b399ea8c31ef145d2f3222735379e8d28d0fd25ead",
+              "runtime_ns": 34518699,
+              "wall_ns": 77657501
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "6bdab4b65e00d8476d3270b399ea8c31ef145d2f3222735379e8d28d0fd25ead",
+              "runtime_ns": 65044153,
+              "wall_ns": 83474130
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "6bdab4b65e00d8476d3270b399ea8c31ef145d2f3222735379e8d28d0fd25ead",
+              "runtime_ns": 73353692,
+              "wall_ns": 92205581
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "6bdab4b65e00d8476d3270b399ea8c31ef145d2f3222735379e8d28d0fd25ead",
+              "runtime_ns": 76145653,
+              "wall_ns": 94821271
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "6bdab4b65e00d8476d3270b399ea8c31ef145d2f3222735379e8d28d0fd25ead",
+              "runtime_ns": 72827544,
+              "wall_ns": 90529003
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "6bdab4b65e00d8476d3270b399ea8c31ef145d2f3222735379e8d28d0fd25ead",
+              "runtime_ns": 34292705,
+              "wall_ns": 91830907
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "6bdab4b65e00d8476d3270b399ea8c31ef145d2f3222735379e8d28d0fd25ead",
+              "runtime_ns": 33365294,
+              "wall_ns": 52734084
+            }
+          ],
+          "runtime_ns": 49781426,
+          "wall_ns": 87001566
+        }
+      }
+    },
+    "image_convolution": {
+      "direct": {
+        "median_ns": 5116272214,
+        "output_sha256": "c651efb5fec65f51faf30c77211a0204b0c28257c954eb1632d63b366b0578a0",
+        "runs_ns": [
+          5526507549,
+          5116272214,
+          4611536200,
+          5027904638,
+          5703007520
+        ]
+      },
+      "python-runtime-v1": {
+        "break_even": {
+          "additional_runs_after_cold": 2,
+          "cold_wall_ns": 5097222878,
+          "complete_runs_including_cold": 3,
+          "direct_wall_ns": 5116272214,
+          "warm_wall_ns": 44654717
+        },
+        "cold": [
+          {
+            "exit_code": 0,
+            "kind": "Executed",
+            "output_sha256": "c651efb5fec65f51faf30c77211a0204b0c28257c954eb1632d63b366b0578a0",
+            "runtime_ns": 5417380743,
+            "wall_ns": 5501336226
+          },
+          {
+            "exit_code": 0,
+            "kind": "Executed",
+            "output_sha256": "c651efb5fec65f51faf30c77211a0204b0c28257c954eb1632d63b366b0578a0",
+            "runtime_ns": 4241112842,
+            "wall_ns": 4693109531
+          }
+        ],
+        "equivalence": {
+          "direct_output_sha256": "c651efb5fec65f51faf30c77211a0204b0c28257c954eb1632d63b366b0578a0",
+          "warm_output_matches_direct": true
+        },
+        "first_hit": {
+          "kind": "Reused",
+          "runtime_ns": 20547553,
+          "wall_ns": 50255080
+        },
+        "invalidation": {
+          "direct_output_sha256": "aaed902c6c090a8648497bbfef9c69f9027a9b4e666aeddc5159ddc001d0be1c",
+          "kind": "Executed",
+          "output_matches_direct": true,
+          "output_sha256": "aaed902c6c090a8648497bbfef9c69f9027a9b4e666aeddc5159ddc001d0be1c",
+          "recovered_kind": "Reused",
+          "recovered_runtime_ns": 30808584,
+          "runtime_ns": 3981913465,
+          "wall_ns": 4801179844
+        },
+        "warm": {
+          "all_reused": true,
+          "runs": [
+            {
+              "kind": "Reused",
+              "output_sha256": "c651efb5fec65f51faf30c77211a0204b0c28257c954eb1632d63b366b0578a0",
+              "runtime_ns": 21994038,
+              "wall_ns": 68297059
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "c651efb5fec65f51faf30c77211a0204b0c28257c954eb1632d63b366b0578a0",
+              "runtime_ns": 21703171,
+              "wall_ns": 33962035
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "c651efb5fec65f51faf30c77211a0204b0c28257c954eb1632d63b366b0578a0",
+              "runtime_ns": 22260849,
+              "wall_ns": 73545131
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "c651efb5fec65f51faf30c77211a0204b0c28257c954eb1632d63b366b0578a0",
+              "runtime_ns": 57652858,
+              "wall_ns": 70349813
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "c651efb5fec65f51faf30c77211a0204b0c28257c954eb1632d63b366b0578a0",
+              "runtime_ns": 22496190,
+              "wall_ns": 35140166
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "c651efb5fec65f51faf30c77211a0204b0c28257c954eb1632d63b366b0578a0",
+              "runtime_ns": 17657077,
+              "wall_ns": 28576324
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "c651efb5fec65f51faf30c77211a0204b0c28257c954eb1632d63b366b0578a0",
+              "runtime_ns": 21405763,
+              "wall_ns": 54169268
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "c651efb5fec65f51faf30c77211a0204b0c28257c954eb1632d63b366b0578a0",
+              "runtime_ns": 19085768,
+              "wall_ns": 30771576
+            }
+          ],
+          "runtime_ns": 21848604,
+          "wall_ns": 44654717
+        }
+      },
+      "python-runtime-v2": {
+        "break_even": {
+          "additional_runs_after_cold": 1,
+          "cold_wall_ns": 4887333068,
+          "complete_runs_including_cold": 2,
+          "direct_wall_ns": 5116272214,
+          "warm_wall_ns": 50290116
+        },
+        "cold": [
+          {
+            "exit_code": 0,
+            "kind": "Executed",
+            "output_sha256": "c651efb5fec65f51faf30c77211a0204b0c28257c954eb1632d63b366b0578a0",
+            "runtime_ns": 4655174208,
+            "wall_ns": 4726276734
+          },
+          {
+            "exit_code": 0,
+            "kind": "Executed",
+            "output_sha256": "c651efb5fec65f51faf30c77211a0204b0c28257c954eb1632d63b366b0578a0",
+            "runtime_ns": 4909003384,
+            "wall_ns": 5048389402
+          }
+        ],
+        "equivalence": {
+          "direct_output_sha256": "c651efb5fec65f51faf30c77211a0204b0c28257c954eb1632d63b366b0578a0",
+          "warm_output_matches_direct": true
+        },
+        "first_hit": {
+          "kind": "Reused",
+          "runtime_ns": 29450655,
+          "wall_ns": 110106235
+        },
+        "invalidation": {
+          "direct_output_sha256": "aaed902c6c090a8648497bbfef9c69f9027a9b4e666aeddc5159ddc001d0be1c",
+          "kind": "Executed",
+          "output_matches_direct": true,
+          "output_sha256": "aaed902c6c090a8648497bbfef9c69f9027a9b4e666aeddc5159ddc001d0be1c",
+          "recovered_kind": "Reused",
+          "recovered_runtime_ns": 38989061,
+          "runtime_ns": 5624976367,
+          "wall_ns": 7179076486
+        },
+        "warm": {
+          "all_reused": true,
+          "runs": [
+            {
+              "kind": "Reused",
+              "output_sha256": "c651efb5fec65f51faf30c77211a0204b0c28257c954eb1632d63b366b0578a0",
+              "runtime_ns": 25641074,
+              "wall_ns": 40970541
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "c651efb5fec65f51faf30c77211a0204b0c28257c954eb1632d63b366b0578a0",
+              "runtime_ns": 42078040,
+              "wall_ns": 55119351
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "c651efb5fec65f51faf30c77211a0204b0c28257c954eb1632d63b366b0578a0",
+              "runtime_ns": 28408369,
+              "wall_ns": 45460881
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "c651efb5fec65f51faf30c77211a0204b0c28257c954eb1632d63b366b0578a0",
+              "runtime_ns": 28625907,
+              "wall_ns": 67753389
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "c651efb5fec65f51faf30c77211a0204b0c28257c954eb1632d63b366b0578a0",
+              "runtime_ns": 57465106,
+              "wall_ns": 73226012
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "c651efb5fec65f51faf30c77211a0204b0c28257c954eb1632d63b366b0578a0",
+              "runtime_ns": 28016634,
+              "wall_ns": 43852942
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "c651efb5fec65f51faf30c77211a0204b0c28257c954eb1632d63b366b0578a0",
+              "runtime_ns": 47229831,
+              "wall_ns": 62771106
+            },
+            {
+              "kind": "Reused",
+              "output_sha256": "c651efb5fec65f51faf30c77211a0204b0c28257c954eb1632d63b366b0578a0",
+              "runtime_ns": 26040774,
+              "wall_ns": 40903475
+            }
+          ],
+          "runtime_ns": 28517138,
+          "wall_ns": 50290116
+        }
+      }
+    }
+  }
+}

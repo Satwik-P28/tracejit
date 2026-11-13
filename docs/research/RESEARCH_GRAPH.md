@@ -496,3 +496,63 @@ invalidate it; no atomic handoff exists. Status: `behavior tested, invariant ope
    `Native` byte-exact.
 4. If clock progression is required, implement an advancing controlled clock with timeout/liveness
    tests instead of the current fixed zero.
+
+## Phase 3J nodes
+
+### H21 — `python-runtime-v2` logical clock
+
+V2 keeps the audited CPython ELF/build-ID and fixed identity but advances realtime and monotonic
+clocks by 1 ms per admitted observation. The bounded 1 ms timeout loop goes from 1000 iterations
+under v1 to 0 under v2. This is virtual time: sleep, blocking syscalls and scheduler order are not
+remapped, and `gettimeofday` is refused because its `timeval` ABI is not the logical `timespec`
+payload. Status: `experimental, unmerged`; E-3J-02, E-3J-03.
+
+### P18 — fixed identity is not a process contract
+
+`os.kill(os.getpid(), SIGUSR1)` targets the virtual PID 4242 under both Python contracts and raises
+`ProcessLookupError`; direct execution delivers `SIGUSR1`. The attempt is not reusable, but the
+first controlled run already differs. Fixed identity is therefore a narrow display/watchpoint, not
+general process semantics. Status: `open counterexample`; E-3J-02.
+
+### P19 — repeated virtual observations create guard duplication
+
+A v2 clock probe records 414 `ControlledRuntime` guards naming the same executable. Rehashing the
+executable per guard made a warm hit ~0.8 s. A per-validation metadata-generation hash cache keeps
+every guard and cuts the same hit to 13.1-13.5 ms. Status: `implemented, soundness boundary
+documented`; E-3J-04.
+
+### P20 — controlled reuse has a fixed floor, not a universal speedup
+
+The original ETL's warm report is 21.3 ms (v1) but its cold trace is 181.9-301.0 ms; a ten-warm
+complete session remains slower than direct. The 120k-row CSV and 320x240 image workloads have
+byte-identical warm outputs and amortize at 2-4 complete runs. Incremental value is workload
+duration relative to the ~20-50 ms validation floor, not a property of the contract alone. Status:
+`measured`; E-3J-03, E-3J-05.
+
+### C11 — native byte-exact directory guarding remains default
+
+`VirtualZero` is contract-separated; typed projections and cached directory fields are not wired
+because a reader can observe padding and the measured directory guard cost is below 1 ms. Status:
+`enforced`; E-3J-06.
+
+### Edges
+
+- H21 -> P19
+- P18 -> H21 (the identity limitation bounds what v2 may claim)
+- P19 -> P20
+- P20 -> C11
+- E-3J-02 -> H21, P18
+- E-3J-03 -> P20
+- E-3J-04 -> P19
+- E-3J-05 -> P20
+- E-3J-06 -> C11
+
+### Graph-of-thoughts chain
+
+`runtime virtualization -> observable effects -> effect provenance -> dependency validation ->
+incremental computation -> filesystem replay obligations`
+
+The chain is not a proof of native equivalence. It explains why v1's fixed clock and identity are
+insufficient, why v2's logical clock needs sequence-aware guards, why repeated guards should share
+an immutable runtime hash, why the original ETL cannot amortize, and why byte-exact filesystem
+guarding remains the default.
