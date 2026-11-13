@@ -1821,6 +1821,15 @@ fn descriptor_enumeration_failure_is_fail_closed() {
             !output.status.success(),
             "{label}: enumeration failure must fail closed, got success: {stderr}"
         );
+        assert_eq!(
+            output.status.code(),
+            Some(1),
+            "{label}: preflight errors must fail the invocation, not fall back to direct execution"
+        );
+        assert!(
+            !fixture.input("output.txt").exists(),
+            "{label}: the target ran despite a failed descriptor preflight"
+        );
         assert!(
             stderr.contains("could not establish the inherited descriptor table"),
             "{label}: missing fail-closed diagnostic: {stderr}"
