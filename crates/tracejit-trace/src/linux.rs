@@ -675,7 +675,11 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
     ptrace::syscall(root_pid, None)
         .map_err(|error| ptrace_operation("resume initial process", root_pid, error))?;
 
-    let initial_fds = initial_descriptor_table(root_pid);
+    let initial_fds = initial_descriptor_table(root_pid).map_err(|error| {
+        TraceError::Ptrace(format!(
+            "could not enumerate the target descriptor table: {error}"
+        ))
+    })?;
     // Descriptors above stderr are inherited state, not effects created by this execution. The
     // stdin offset model does not cover their offsets, flags or shared open descriptions, so no
     // record containing one may become reusable. Core refuses these invocations before lookup;
@@ -3826,25 +3830,26 @@ fn fd_position(pid: Pid, fd: i32) -> Option<u64> {
 /// An inherited regular file on any descriptor is `InheritedFile`, and a read from one is refused
 /// unless its offset contract is modelled. Only stdin is modelled, so classifying all descriptors
 /// makes an inherited file on fd 3 fail closed instead of being treated as an ordinary open read.
-fn initial_descriptor_table(pid: Pid) -> HashMap<i32, FdState> {
+fn initial_descriptor_table(pid: Pid) -> std::io::Result<HashMap<i32, FdState>> {
     let mut fds = HashMap::new();
-    if let Ok(entries) = fs::read_dir(format!("/proc/{}/fd", pid.as_raw())) {
-        for entry in entries.flatten() {
-            if let Some(fd) = entry
-                .file_name()
-                .to_str()
-                .and_then(|name| name.parse::<i32>().ok())
-            {
-                if fd >= 0 {
-                    fds.insert(fd, inherited_fd_state(pid, fd));
-                }
+    // An incomplete table cannot establish that no extra descriptor was inherited. Return the
+    // error instead of silently modelling only stdin/stdout/stderr.
+    for entry in fs::read_dir(format!("/proc/{}/fd", pid.as_raw()))? {
+        let entry = entry?;
+        if let Some(fd) = entry
+            .file_name()
+            .to_str()
+            .and_then(|name| name.parse::<i32>().ok())
+        {
+            if fd >= 0 {
+                fds.insert(fd, inherited_fd_state(pid, fd));
             }
         }
     }
     for fd in 0..=2 {
         fds.entry(fd).or_insert_with(|| inherited_fd_state(pid, fd));
     }
-    fds
+    Ok(fds)
 }
 
 /// Finds another descriptor of the same process that refers to the same open file description as

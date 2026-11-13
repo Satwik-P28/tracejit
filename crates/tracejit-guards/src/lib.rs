@@ -32,6 +32,8 @@ pub enum GuardError {
     Serialization(#[from] serde_json::Error),
     #[error("could not inspect runtime identity: {0}")]
     Runtime(String),
+    #[error("could not establish the inherited descriptor table: {0}")]
+    DescriptorEnumeration(String),
 }
 
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
@@ -294,59 +296,141 @@ pub fn symlink_fingerprint(path: &Path) -> Result<FileFingerprint, GuardError> {
     fingerprint(path)
 }
 
-/// Detects any descriptor above stderr in this process, returning the first descriptor number.
+/// Detects any surviving descriptor above stderr in this process.
 ///
-/// TraceJIT checks this before cache lookup, so `/proc/self/fd` is the inherited descriptor table
-/// that the traced child will receive. The `opendir` handle itself is excluded by `dirfd`;
-/// otherwise merely asking the question would report an extra descriptor. Enumeration failure
-/// returns `-1`, which the caller treats as an unmodelled descriptor and refuses reuse.
-pub fn inherited_descriptor_beyond_stdin() -> Option<i32> {
+/// TraceJIT captures this before `Cache::open`, so `/proc/self/fd` is the inherited descriptor
+/// table that the traced child will receive (cache descriptors opened later cannot be inherited by
+/// a CLOEXEC-aware cache). The `opendir` handle itself is excluded by `dirfd`; otherwise merely
+/// asking the question would report an extra descriptor.
+///
+/// A descriptor marked `FD_CLOEXEC` is skipped because the kernel removes it before the target
+/// runs. Every other descriptor above stderr is returned. Enumeration is fail-closed: `readdir`
+/// returns null both at end-of-directory and on error, so the error is checked explicitly; an
+/// unreadable entry, a failed `fcntl`, or a failed `closedir` returns an error rather than a
+/// successful empty scan. The caller refuses reuse on any error.
+pub fn inherited_descriptor_beyond_stdin() -> Result<Option<i32>, GuardError> {
     let path = b"/proc/self/fd\0";
     // SAFETY: `path` is a NUL-terminated pathname. `opendir` returns null on failure, which is
     // handled below; the returned stream is closed on every exit path.
     let directory = unsafe { libc::opendir(path.as_ptr().cast()) };
     if directory.is_null() {
-        return Some(-1);
+        return Err(enumeration_error("opendir", io::Error::last_os_error()));
     }
-    // SAFETY: `directory` is a live DIR pointer for the duration of this function.
-    let directory_fd = unsafe { libc::dirfd(directory) };
-    if directory_fd < 0 {
-        // SAFETY: `directory` was returned by opendir and is still live.
-        unsafe { libc::closedir(directory) };
-        return Some(-1);
-    }
-    let mut found = None;
-    loop {
-        // SAFETY: `directory` remains live; readdir returns null at end of stream.
-        let entry = unsafe { libc::readdir(directory) };
-        if entry.is_null() {
-            break;
+    let mut directory = LinuxDescriptorDirectory { directory };
+    scan_inherited_descriptors(&mut directory, descriptor_is_cloexec)
+        .map_err(|error| enumeration_error("scan", error))
+}
+
+/// A minimal view of the descriptor directory so the failure paths can be fault-injected in
+/// unit tests. The production implementation is [`LinuxDescriptorDirectory`].
+trait DescriptorDirectory {
+    fn directory_fd(&self) -> Result<i32, io::Error>;
+    fn next_fd(&mut self) -> Result<Option<i32>, io::Error>;
+    fn close(&mut self) -> Result<(), io::Error>;
+}
+
+struct LinuxDescriptorDirectory {
+    directory: *mut libc::DIR,
+}
+
+impl DescriptorDirectory for LinuxDescriptorDirectory {
+    fn directory_fd(&self) -> Result<i32, io::Error> {
+        // SAFETY: `self.directory` is a live DIR pointer for the lifetime of this value.
+        let fd = unsafe { libc::dirfd(self.directory) };
+        if fd < 0 {
+            Err(io::Error::last_os_error())
+        } else {
+            Ok(fd)
         }
-        // SAFETY: a non-null dirent has a NUL-terminated d_name.
-        let name = unsafe { CStr::from_ptr((*entry).d_name.as_ptr()) };
-        if let Some(fd) = name.to_str().ok().and_then(|name| name.parse::<i32>().ok()) {
-            if fd >= 3 && fd != directory_fd {
-                // A close-on-exec descriptor is removed before the target runs, so it cannot
-                // change the child's observations. The traced command may still see a different
-                // descriptor at this number if it opens one later; the tracer's own descriptor
-                // table is not the child's post-exec table. Exclude only descriptors that the
-                // kernel will close on exec.
-                // SAFETY: fcntl reads flags from a live descriptor in this process.
-                let flags = unsafe { libc::fcntl(fd, libc::F_GETFD) };
-                if flags < 0 {
-                    found = Some(fd);
-                    break;
-                }
-                if flags & libc::FD_CLOEXEC == 0 {
-                    found = Some(fd);
-                    break;
-                }
+    }
+
+    fn next_fd(&mut self) -> Result<Option<i32>, io::Error> {
+        loop {
+            // `readdir` uses null for both EOF and error. Clear errno first, then distinguish the
+            // two instead of treating an interrupted or failed enumeration as an empty table.
+            #[cfg(target_os = "linux")]
+            // SAFETY: errno is thread-local and this process is the only writer in this thread.
+            unsafe {
+                *libc::__errno_location() = 0;
+            }
+            // SAFETY: `self.directory` remains live until `close` is called.
+            let entry = unsafe { libc::readdir(self.directory) };
+            if entry.is_null() {
+                let error = io::Error::last_os_error();
+                return if error.raw_os_error() == Some(0) {
+                    Ok(None)
+                } else {
+                    Err(error)
+                };
+            }
+            // SAFETY: a non-null dirent has a NUL-terminated d_name.
+            let name = unsafe { CStr::from_ptr((*entry).d_name.as_ptr()) };
+            if let Some(fd) = name.to_str().ok().and_then(|name| name.parse::<i32>().ok()) {
+                return Ok(Some(fd));
+            }
+            // A non-numeric entry is not a descriptor number; keep scanning. It cannot make the
+            // enumeration incomplete by itself.
+        }
+    }
+
+    fn close(&mut self) -> Result<(), io::Error> {
+        if self.directory.is_null() {
+            return Ok(());
+        }
+        // SAFETY: the pointer came from opendir and is closed exactly once here.
+        let result = unsafe { libc::closedir(self.directory) };
+        self.directory = std::ptr::null_mut();
+        if result == 0 {
+            Ok(())
+        } else {
+            Err(io::Error::last_os_error())
+        }
+    }
+}
+
+fn scan_inherited_descriptors<D, F>(
+    directory: &mut D,
+    mut is_cloexec: F,
+) -> Result<Option<i32>, io::Error>
+where
+    D: DescriptorDirectory,
+    F: FnMut(i32) -> Result<bool, io::Error>,
+{
+    let scan = (|| {
+        let directory_fd = directory.directory_fd()?;
+        loop {
+            let Some(fd) = directory.next_fd()? else {
+                return Ok(None);
+            };
+            if fd < 3 || fd == directory_fd {
+                continue;
+            }
+            if !is_cloexec(fd)? {
+                return Ok(Some(fd));
             }
         }
+    })();
+    let close = directory.close();
+    match (scan, close) {
+        (Err(error), _) => Err(error),
+        (Ok(_), Err(error)) => Err(error),
+        (Ok(found), Ok(())) => Ok(found),
     }
-    // SAFETY: `directory` was returned by opendir and has not been closed yet.
-    unsafe { libc::closedir(directory) };
-    found
+}
+
+fn descriptor_is_cloexec(fd: i32) -> Result<bool, io::Error> {
+    // SAFETY: fcntl reads flags from a live descriptor in this process. A closed or replaced fd
+    // returns an error, which fails the scan closed.
+    let flags = unsafe { libc::fcntl(fd, libc::F_GETFD) };
+    if flags < 0 {
+        Err(io::Error::last_os_error())
+    } else {
+        Ok(flags & libc::FD_CLOEXEC != 0)
+    }
+}
+
+fn enumeration_error(operation: &str, error: io::Error) -> GuardError {
+    GuardError::DescriptorEnumeration(format!("/proc/self/fd {operation}: {error}"))
 }
 
 pub fn current_runtime_identity() -> Result<RuntimeIdentity, GuardError> {
@@ -2506,6 +2590,102 @@ mod tests {
         // reuse output computed from different bytes.
         let failure = guard.validate(GuardMode::Strict).unwrap_err();
         assert!(failure.reason.contains("inherited stdin"), "{failure:?}");
+    }
+
+    struct FakeDescriptorDirectory {
+        directory_fd: Result<i32, i32>,
+        entries: std::collections::VecDeque<Result<i32, i32>>,
+        close: Result<(), i32>,
+        closed: bool,
+    }
+
+    impl FakeDescriptorDirectory {
+        fn new(directory_fd: i32, entries: Vec<Result<i32, i32>>) -> Self {
+            Self {
+                directory_fd: Ok(directory_fd),
+                entries: entries.into(),
+                close: Ok(()),
+                closed: false,
+            }
+        }
+    }
+
+    impl DescriptorDirectory for FakeDescriptorDirectory {
+        fn directory_fd(&self) -> Result<i32, io::Error> {
+            self.directory_fd.map_err(io::Error::from_raw_os_error)
+        }
+
+        fn next_fd(&mut self) -> Result<Option<i32>, io::Error> {
+            match self.entries.pop_front() {
+                Some(entry) => entry.map(Some).map_err(io::Error::from_raw_os_error),
+                None => Ok(None),
+            }
+        }
+
+        fn close(&mut self) -> Result<(), io::Error> {
+            self.closed = true;
+            self.close.map_err(io::Error::from_raw_os_error)
+        }
+    }
+
+    fn scan_fake(
+        entries: Vec<Result<i32, i32>>,
+        mut cloexec: impl FnMut(i32) -> Result<bool, i32>,
+    ) -> Result<Option<i32>, io::Error> {
+        let mut directory = FakeDescriptorDirectory::new(4, entries);
+        scan_inherited_descriptors(&mut directory, |fd| {
+            cloexec(fd).map_err(io::Error::from_raw_os_error)
+        })
+    }
+
+    #[test]
+    fn descriptor_scan_returns_first_surviving_descriptor() {
+        let found = scan_fake(vec![Ok(4), Ok(5), Ok(6)], |fd| Ok(fd == 5)).unwrap();
+        assert_eq!(found, Some(6));
+    }
+
+    #[test]
+    fn descriptor_scan_fails_before_the_first_entry() {
+        let error = scan_fake(vec![Err(libc::EIO)], |_| Ok(false)).unwrap_err();
+        assert_eq!(error.raw_os_error(), Some(libc::EIO));
+    }
+
+    #[test]
+    fn descriptor_scan_fails_after_entries_without_treating_them_as_eof() {
+        let error = scan_fake(vec![Ok(4), Err(libc::EINTR), Ok(5)], |_| Ok(true)).unwrap_err();
+        assert_eq!(error.raw_os_error(), Some(libc::EINTR));
+    }
+
+    #[test]
+    fn descriptor_scan_fails_when_fcntl_cannot_establish_identity() {
+        let error = scan_fake(vec![Ok(5)], |_| Err(libc::EBADF)).unwrap_err();
+        assert_eq!(error.raw_os_error(), Some(libc::EBADF));
+    }
+
+    #[test]
+    fn descriptor_scan_skips_cloexec_and_directory_descriptors() {
+        let mut directory =
+            FakeDescriptorDirectory::new(4, vec![Ok(0), Ok(1), Ok(2), Ok(4), Ok(5)]);
+        let found = scan_inherited_descriptors(&mut directory, |_| Ok(true)).unwrap();
+        assert_eq!(found, None);
+        assert!(directory.closed);
+    }
+
+    #[test]
+    fn descriptor_scan_reports_close_failure_even_when_no_descriptor_was_found() {
+        let mut directory = FakeDescriptorDirectory::new(4, vec![Ok(3)]);
+        directory.close = Err(libc::EIO);
+        let error = scan_inherited_descriptors(&mut directory, |_| Ok(true)).unwrap_err();
+        assert_eq!(error.raw_os_error(), Some(libc::EIO));
+    }
+
+    #[test]
+    fn descriptor_scan_reports_directory_fd_failure_and_closes() {
+        let mut directory = FakeDescriptorDirectory::new(4, vec![]);
+        directory.directory_fd = Err(libc::EIO);
+        let error = scan_inherited_descriptors(&mut directory, |_| Ok(false)).unwrap_err();
+        assert_eq!(error.raw_os_error(), Some(libc::EIO));
+        assert!(directory.closed);
     }
 
     #[cfg(target_os = "linux")]

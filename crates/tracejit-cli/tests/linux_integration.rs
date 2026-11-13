@@ -1705,6 +1705,108 @@ fn close_on_exec_descriptor_is_not_an_inherited_boundary() {
     eprintln!("RESULT close-on-exec PASS");
 }
 
+fn compile_readdir_fault_shim(directory: &Path) -> PathBuf {
+    let source = directory.join("readdir_fault.c");
+    let library = directory.join("libreaddir_fault.so");
+    fs::write(
+        &source,
+        r#"#define _GNU_SOURCE
+#include <dirent.h>
+#include <dlfcn.h>
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+static struct dirent *(*real_readdir)(DIR *);
+static long seen;
+static int failed;
+
+struct dirent *readdir(DIR *directory) {
+    if (real_readdir == NULL) {
+        real_readdir = (struct dirent *(*)(DIR *))dlsym(RTLD_NEXT, "readdir");
+    }
+    if (failed) {
+        errno = EIO;
+        return NULL;
+    }
+    int fd = dirfd(directory);
+    char link[64];
+    char target[256];
+    snprintf(link, sizeof link, "/proc/self/fd/%d", fd);
+    ssize_t length = readlink(link, target, sizeof target - 1);
+    if (length > 0) {
+        target[length] = 0;
+    }
+    if (length > 0 && strncmp(target, "/proc/", 6) == 0 && strstr(target, "/fd") != NULL) {
+        const char *value = getenv("TRACEJIT_TEST_READDIR_FAIL_AFTER");
+        long after = value == NULL ? -1 : strtol(value, NULL, 10);
+        if (after >= 0 && seen++ >= after) {
+            failed = 1;
+            errno = EIO;
+            return NULL;
+        }
+    }
+    return real_readdir(directory);
+}
+"#,
+    )
+    .unwrap();
+    let status = Command::new("cc")
+        .args(["-shared", "-fPIC", "-O2"])
+        .arg(&source)
+        .arg("-o")
+        .arg(&library)
+        .arg("-ldl")
+        .status()
+        .expect("C compiler must be available");
+    assert!(status.success(), "readdir fault shim compilation failed");
+    library
+}
+
+#[test]
+fn descriptor_enumeration_failure_is_fail_closed() {
+    let _serial = COMPILER_TIMING_LOCK.lock().unwrap();
+    let fixture = Fixture::new();
+    let shim = compile_readdir_fault_shim(fixture.directory.path());
+    for (label, after) in [("before-first", "0"), ("after-one-entry", "1")] {
+        let mut command = tracejit_command();
+        command
+            .args([
+                "run",
+                "--json",
+                "--",
+                fixture.binary_arg(),
+                "plain_file_read",
+                fixture.root(),
+            ])
+            .env("TRACEJIT_CACHE_DIR", &fixture.cache)
+            .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0")
+            .env("LD_PRELOAD", &shim)
+            .env("TRACEJIT_TEST_READDIR_FAIL_AFTER", after);
+        let output = command.output().unwrap();
+        let stderr = stderr_of(&output);
+        assert!(
+            !output.status.success(),
+            "{label}: enumeration failure must fail closed, got success: {stderr}"
+        );
+        assert!(
+            stderr.contains("could not establish the inherited descriptor table"),
+            "{label}: missing fail-closed diagnostic: {stderr}"
+        );
+        assert!(
+            !stderr.contains("cache          HIT"),
+            "{label}: failure must not expose a cached hit: {stderr}"
+        );
+        assert!(
+            !stderr.contains("cache          MISS"),
+            "{label}: failure must not record an admission: {stderr}"
+        );
+    }
+    eprintln!("RESULT descriptor-enumeration-failure PASS");
+}
+
 #[test]
 fn concurrent_inherited_descriptor_replacements_are_refused() {
     let null = File::open("/dev/null").unwrap();

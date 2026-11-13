@@ -1008,7 +1008,7 @@ impl PreparedExecution {
             .ok_or_else(|| CoreError::TargetNotFound(program.clone()))?;
         let executable_hash = hash_file(&executable)?;
         let runtime_identity = current_runtime_identity()?;
-        let inherited_descriptor = inherited_descriptor_beyond_stdin();
+        let inherited_descriptor = inherited_descriptor_beyond_stdin()?;
         Ok(Self {
             command: command.to_vec(),
             executable,
