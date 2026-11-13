@@ -240,6 +240,7 @@ enum PendingSyscall {
         buffer: u64,
         length: u32,
         value: u64,
+        contract: Contract,
     },
     Signal {
         signal: i32,
@@ -1077,18 +1078,35 @@ fn handle_syscall(
             buffer,
             length,
             value,
+            contract,
         } = pending
         {
-            let payload = controlled_runtime_payload(observation, value, length)?;
-            write_process_bytes(pid, buffer, &payload).map_err(|error| {
-                TraceError::Ptrace(format!(
-                    "{} buffer {buffer:#x} (length {length}): {error}",
-                    observation.name()
-                ))
-            })?;
+            if observation.is_python_scalar() {
+                if buffer != 0 {
+                    let payload = controlled_runtime_payload(observation, value, length)?;
+                    write_process_bytes(pid, buffer, &payload).map_err(|error| {
+                        TraceError::Ptrace(format!(
+                            "{} buffer {buffer:#x} (length {length}): {error}",
+                            observation.name()
+                        ))
+                    })?;
+                }
+            } else {
+                let payload = controlled_runtime_payload(observation, value, length)?;
+                write_process_bytes(pid, buffer, &payload).map_err(|error| {
+                    TraceError::Ptrace(format!(
+                        "{} buffer {buffer:#x} (length {length}): {error}",
+                        observation.name()
+                    ))
+                })?;
+            }
             let mut resumed = ptrace::getregs(pid)
                 .map_err(|error| ptrace_operation("read registers", pid, error))?;
-            resumed.rax = 0;
+            resumed.rax = if observation.is_python_scalar() {
+                value
+            } else {
+                0
+            };
             ptrace::setregs(pid, resumed)
                 .map_err(|error| ptrace_operation("finish controlled observation", pid, error))?;
             collector.push(
@@ -1100,7 +1118,7 @@ fn handle_syscall(
                     build_id,
                     length,
                     value,
-                    contract: Contract::CompilerRuntimeV1.id().to_string(),
+                    contract: contract.id().to_string(),
                 })),
             );
             state.entering = true;
@@ -1468,8 +1486,9 @@ fn decode_entry(
                 ClockKind::Other(_) => None,
             };
             match (contract, observation) {
-                (Some(Contract::CompilerRuntimeV1), Some(observation)) => {
-                    match compiler_observation(pid, observation) {
+                (Some(contract @ Contract::CompilerRuntimeV1), Some(observation))
+                | (Some(contract @ Contract::PythonRuntimeV1), Some(observation)) => {
+                    match runtime_observation(pid, observation, contract) {
                         Some((executable, executable_hash, build_id)) => {
                             PendingSyscall::ControlledRuntime {
                                 observation,
@@ -1483,6 +1502,7 @@ fn decode_entry(
                                 },
                                 length: observation.length(),
                                 value: observation.value(),
+                                contract,
                             }
                         }
                         None => PendingSyscall::Clock { kind },
@@ -1490,6 +1510,9 @@ fn decode_entry(
                 }
                 _ => PendingSyscall::Clock { kind },
             }
+        }
+        libc::SYS_time if contract == Some(Contract::PythonRuntimeV1) => {
+            python_time(pid, args[0])
         }
         libc::SYS_time => PendingSyscall::Clock {
             kind: ClockKind::Realtime,
@@ -1591,6 +1614,7 @@ fn decode_entry(
                         buffer: args[1],
                         length: ControlledRuntimeObservation::GetrusageSelf.length(),
                         value: ControlledRuntimeObservation::GetrusageSelf.value(),
+                        contract: Contract::CompilerRuntimeV1,
                     }
                 }
                 None => PendingSyscall::Unknown {
@@ -1611,6 +1635,7 @@ fn decode_entry(
                             buffer: args[0],
                             length: ControlledRuntimeObservation::SysinfoMemory.length(),
                             value: ControlledRuntimeObservation::SysinfoMemory.value(),
+                            contract: Contract::CompilerRuntimeV1,
                         }
                     }
                     None => system_information("sysinfo"),
@@ -1620,6 +1645,23 @@ fn decode_entry(
         },
         libc::SYS_sched_getaffinity => system_information("sched_getaffinity"),
         libc::SYS_prlimit64 => system_information("prlimit64"),
+        libc::SYS_getpid if contract == Some(Contract::PythonRuntimeV1) => {
+            python_identity(pid, ControlledRuntimeObservation::PythonProcessId)
+        }
+        libc::SYS_getppid if contract == Some(Contract::PythonRuntimeV1) => {
+            python_identity(pid, ControlledRuntimeObservation::PythonParentProcessId)
+        }
+        libc::SYS_gettid if contract == Some(Contract::PythonRuntimeV1) => {
+            python_identity(pid, ControlledRuntimeObservation::PythonThreadId)
+        }
+        libc::SYS_clone | libc::SYS_clone3 | libc::SYS_fork | libc::SYS_vfork
+            if contract == Some(Contract::PythonRuntimeV1) =>
+        {
+            PendingSyscall::Unknown {
+                number,
+                detail: "python-runtime contract rejects process or thread creation".into(),
+            }
+        }
         libc::SYS_getpid => process_identity("getpid"),
         libc::SYS_getppid => process_identity("getppid"),
         libc::SYS_gettid => process_identity("gettid"),
@@ -3168,7 +3210,20 @@ fn controlled_runtime_payload(
     match observation {
         ControlledRuntimeObservation::GetrusageSelf
         | ControlledRuntimeObservation::ClockMonotonic
-        | ControlledRuntimeObservation::ClockRealtime => Ok(vec![0_u8; length as usize]),
+        | ControlledRuntimeObservation::ClockRealtime
+        | ControlledRuntimeObservation::PythonThreadId
+        | ControlledRuntimeObservation::PythonProcessId
+        | ControlledRuntimeObservation::PythonParentProcessId => Ok(vec![0_u8; length as usize]),
+        ControlledRuntimeObservation::PythonTimeSeconds => {
+            let bytes = value.to_ne_bytes();
+            if length as usize != bytes.len() {
+                return Err(TraceError::Ptrace(format!(
+                    "time payload is {} bytes, contract records {length}",
+                    bytes.len()
+                )));
+            }
+            Ok(bytes.to_vec())
+        }
         ControlledRuntimeObservation::SysinfoMemory => {
             // SAFETY: an all-zero `struct sysinfo` is valid; every field is an integer. The
             // contract fixes the fields `cc1` consults and leaves the rest zero.
@@ -3209,6 +3264,87 @@ fn compiler_observation(
     }
     let executable_hash = cached_executable_hash(&executable)?;
     Some((executable, executable_hash, build_id))
+}
+
+/// Returns the audited identity of a process executable, or `None` to fail closed.
+fn python_observation(
+    pid: Pid,
+    observation: ControlledRuntimeObservation,
+) -> Option<(PathBuf, tracejit_effects::Hash, String)> {
+    if !matches!(
+        observation,
+        ControlledRuntimeObservation::ClockRealtime
+            | ControlledRuntimeObservation::ClockMonotonic
+            | ControlledRuntimeObservation::PythonThreadId
+            | ControlledRuntimeObservation::PythonProcessId
+            | ControlledRuntimeObservation::PythonParentProcessId
+            | ControlledRuntimeObservation::PythonTimeSeconds
+    ) {
+        return None;
+    }
+    let executable = fs::read_link(format!("/proc/{}/exe", pid.as_raw())).ok()?;
+    let build_id = cached_build_id(&executable)?;
+    if !tracejit_effects::python_runtime_profile(&executable, &build_id) {
+        return None;
+    }
+    let executable_hash = cached_executable_hash(&executable)?;
+    Some((executable, executable_hash, build_id))
+}
+
+fn runtime_observation(
+    pid: Pid,
+    observation: ControlledRuntimeObservation,
+    contract: Contract,
+) -> Option<(PathBuf, tracejit_effects::Hash, String)> {
+    match contract {
+        Contract::CompilerRuntimeV1 => compiler_observation(pid, observation),
+        Contract::PythonRuntimeV1 => python_observation(pid, observation),
+        Contract::AllocatorEntropyV1 => None,
+    }
+}
+
+fn python_time(pid: Pid, buffer: u64) -> PendingSyscall {
+    let observation = ControlledRuntimeObservation::PythonTimeSeconds;
+    match python_observation(pid, observation) {
+        Some((executable, executable_hash, build_id)) => PendingSyscall::ControlledRuntime {
+            observation,
+            executable,
+            executable_hash,
+            build_id,
+            buffer,
+            length: observation.length(),
+            value: observation.value(),
+            contract: Contract::PythonRuntimeV1,
+        },
+        None => PendingSyscall::Unknown {
+            number: libc::SYS_time,
+            detail: "python time outside the audited CPython profile".into(),
+        },
+    }
+}
+
+fn python_identity(pid: Pid, observation: ControlledRuntimeObservation) -> PendingSyscall {
+    match python_observation(pid, observation) {
+        Some((executable, executable_hash, build_id)) => PendingSyscall::ControlledRuntime {
+            observation,
+            executable,
+            executable_hash,
+            build_id,
+            buffer: 0,
+            length: 0,
+            value: observation.value(),
+            contract: Contract::PythonRuntimeV1,
+        },
+        None => PendingSyscall::Unknown {
+            number: match observation {
+                ControlledRuntimeObservation::PythonThreadId => libc::SYS_gettid,
+                ControlledRuntimeObservation::PythonProcessId => libc::SYS_getpid,
+                ControlledRuntimeObservation::PythonParentProcessId => libc::SYS_getppid,
+                _ => 0,
+            },
+            detail: "python identity outside the audited CPython profile".into(),
+        },
+    }
 }
 
 fn audited_toolchain(pid: Pid) -> Option<(PathBuf, String)> {
