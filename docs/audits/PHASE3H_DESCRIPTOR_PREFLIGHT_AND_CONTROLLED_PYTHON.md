@@ -10,7 +10,7 @@ not merged. The native nine-workload census is unchanged and reported separately
 
 Base: `e474b544c7351278be55a180479c67b02bc4ea70` (`main`). P0 fail-closed fix: `fc7feef`;
 P0 descriptor-lifecycle follow-up: `e2a2f60` on `hotfix/descriptor-enumeration-p0`. Experimental
-contract code: `c81fa1e`; research evidence/docs: `18e22ae` on `research/phase3h`.
+contract code: `c81fa1e`; research evidence/docs: `5e2427e` on `research/phase3h`.
 
 ## 1. P0 — can an incomplete `/proc/self/fd` enumeration look empty?
 
