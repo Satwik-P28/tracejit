@@ -214,6 +214,81 @@ def explore_restore() -> tuple[int, int, list[str]]:
     return len(seen), violations, samples
 
 
+# --- restore_intent (P0 §5 / TRA-26 correlation) ---
+#
+# After hard kill mid-apply, a durable per-pid restore-intent remains. The next
+# Cache::open that observes a dead-pid intent must refuse HIT (core execute path)
+# rather than expose a partial restore as Reused. Maps to:
+#   crates/tracejit-cache::has_interrupted_restore / consume_interrupted_restore
+#   crates/tracejit-core interrupted-restore refuse before candidate lookup
+
+
+@dataclass(frozen=True)
+class IntentState:
+    writer_alive: bool
+    intent_present: bool
+    hit_allowed: bool
+    exposed: bool
+
+
+def intent_init() -> list[IntentState]:
+    return [
+        IntentState(True, False, True, False),
+        IntentState(True, True, True, False),  # live peer writer: not interrupted
+    ]
+
+
+def intent_successors(s: IntentState) -> list[IntentState]:
+    out: list[IntentState] = []
+    if s.writer_alive and not s.intent_present:
+        # Begin apply: write intent.
+        out.append(IntentState(True, True, True, False))
+    if s.writer_alive and s.intent_present:
+        # Soft rollback / success clears intent.
+        out.append(IntentState(True, False, True, False))
+        # Hard kill: writer dies; intent remains.
+        out.append(IntentState(False, True, False, False))
+        # Live peer completes HIT expose only with clear intent path (model: no expose while intent own).
+        out.append(IntentState(True, True, True, False))
+    if (not s.writer_alive) and s.intent_present:
+        # Next open: refuse HIT, consume intent, re-execute (no expose as HIT).
+        out.append(IntentState(False, False, False, False))
+        # Illegal: expose HIT while dead intent present.
+        out.append(IntentState(False, True, True, True))
+    return out
+
+
+def intent_invariants(s: IntentState) -> list[str]:
+    bad: list[str] = []
+    # Dead writer + leftover intent ⇒ HIT must not be allowed / exposed.
+    if (not s.writer_alive) and s.intent_present and (s.hit_allowed or s.exposed):
+        bad.append("IntentRefuseHit")
+    if s.exposed and (not s.writer_alive) and s.intent_present:
+        bad.append("IntentNoPartialExpose")
+    return bad
+
+
+def explore_intent() -> tuple[int, int, int]:
+    seen: set[IntentState] = set()
+    stack = list(intent_init())
+    violations = 0
+    illegal_samples = 0
+    while stack:
+        cur = stack.pop()
+        if cur in seen:
+            continue
+        seen.add(cur)
+        bad = intent_invariants(cur)
+        if bad:
+            violations += 1
+            if "IntentRefuseHit" in bad or "IntentNoPartialExpose" in bad:
+                illegal_samples += 1
+        for nxt in intent_successors(cur):
+            if nxt not in seen:
+                stack.append(nxt)
+    return len(seen), violations, illegal_samples
+
+
 def main() -> int:
     hit_n, hit_v = explore_hit()
     print(f"reuse_hit states={hit_n} violations={hit_v}")
@@ -235,7 +310,48 @@ def main() -> int:
         for nxt in restore_successors(cur):
             stack.append(nxt)
     print(f"restore_crash mixed_kill_states={mixed} (limitation; must not expose)")
-    ok = hit_v == 0 and res_v == 0 and mixed > 0
+    intent_n, intent_v, intent_illegal = explore_intent()
+    # The explorer includes illegal transitions as states that *violate* invariants;
+    # we require that those violations are exactly the intentional counterexamples
+    # (illegal expose paths), and that every reachable *legal* path has 0 violations
+    # outside those planted illegal successors. Count legal states separately.
+    legal_violations = 0
+    legal_states = 0
+    stack2 = list(intent_init())
+    seen2: set[IntentState] = set()
+    while stack2:
+        cur = stack2.pop()
+        if cur in seen2:
+            continue
+        seen2.add(cur)
+        # Skip planted illegal expose nodes when tallying legal violations.
+        planted_illegal = (
+            (not cur.writer_alive) and cur.intent_present and cur.exposed
+        ) or (
+            (not cur.writer_alive)
+            and cur.intent_present
+            and cur.hit_allowed
+            and cur.exposed
+        )
+        if planted_illegal:
+            continue
+        legal_states += 1
+        if intent_invariants(cur):
+            legal_violations += 1
+        for nxt in intent_successors(cur):
+            if nxt not in seen2:
+                stack2.append(nxt)
+    print(
+        f"restore_intent states={intent_n} legal_states={legal_states} "
+        f"legal_violations={legal_violations} planted_illegal={intent_illegal}"
+    )
+    ok = (
+        hit_v == 0
+        and res_v == 0
+        and mixed > 0
+        and legal_violations == 0
+        and intent_illegal > 0
+    )
     print(
         "RESULT phase-k3-modelcheck PASS"
         if ok

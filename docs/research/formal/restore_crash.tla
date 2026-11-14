@@ -6,6 +6,9 @@
 \* without guards — modeled here as "next_run_safe" when mixed is detected or
 \* destinations are re-validated.
 \*
+\* Product addition (TRA-26): durable per-pid restore-intent refuses the next HIT
+\* when the writer pid is dead (see scripts/modelcheck restore_intent machine).
+\*
 \* NOT a full-system proof. Maps to crates/tracejit-cache restore_outputs.
 
 EXTENDS Naturals, Sequences, TLC

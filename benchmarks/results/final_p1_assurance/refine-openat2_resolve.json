@@ -1,0 +1,26 @@
+{
+  "title": "openat2 RESOLVE_BENEATH",
+  "hole": "UnmodeledSurface",
+  "abstraction": {
+    "model_name": "UnmodeledSurface",
+    "summary": "classified hole UnmodeledSurface from supplied counterexample"
+  },
+  "counterexample": {
+    "description": "openat2 RESOLVE_BENEATH",
+    "observable_divergence": "native=exit=0 | tracejit=UNKNOWN refusal"
+  },
+  "minimized": {
+    "essential_steps": [
+      "openat2 | openat2 resolve flags 0x8 are not modeled | refusal"
+    ],
+    "discarded": []
+  },
+  "action": {
+    "KeepFailClosed": {
+      "rationale": "Surface is not modeled; TraceJIT must keep failing closed until a verified guard/effect model exists. Do not auto-admit."
+    }
+  },
+  "safety_ok": true,
+  "deployment": "BlockedPendingOfflineRetest",
+  "registry_hint": null
+}

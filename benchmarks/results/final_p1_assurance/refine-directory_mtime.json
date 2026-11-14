@@ -1,0 +1,29 @@
+{
+  "title": "sibling create invalidates directory open",
+  "hole": "OverAbstraction",
+  "abstraction": {
+    "model_name": "FileMetadata",
+    "summary": "classified hole OverAbstraction from supplied counterexample"
+  },
+  "counterexample": {
+    "description": "sibling create invalidates directory open",
+    "observable_divergence": "native=stdout identical; inputs unchanged | tracejit=deopt every run after sibling create"
+  },
+  "minimized": {
+    "essential_steps": [
+      "openat(directory) | gzip opens parent directory; FileMetadata includes mtime | ok",
+      "creat | unrelated sibling changes directory mtime | ok",
+      "guard | FileMetadata mtime mismatch | guard_fail"
+    ],
+    "discarded": []
+  },
+  "action": {
+    "ProposeNarrowerModel": {
+      "new_model": "ReadEffect::DirectoryOpened / Guard::DirectoryOpened",
+      "rationale": "Sibling/mtime noise suggests directory identity+creds guard without timestamps. Requires offline retest; not auto-deployed."
+    }
+  },
+  "safety_ok": true,
+  "deployment": "VerifiedOfflineNotDeployed",
+  "registry_hint": "openat(directory) => Guarded"
+}
