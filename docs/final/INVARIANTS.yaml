@@ -1,0 +1,197 @@
+# TraceJIT observable-semantics invariants (§2)
+# Machine-readable map for falsification. Not a full-system proof.
+# Tip measured with: docs/final/BASELINE.md @ 4421f8be60cdd50231e2cf5662130511fdd1c175
+
+version: 1
+date: 2026-11-14
+git_sha: 4421f8be60cdd50231e2cf5662130511fdd1c175
+primary_principle: "A false cache HIT is a critical correctness failure"
+
+obs:
+  definition: >
+    Obs(command, environment, filesystem, inherited_resources, external_actors)
+    is the externally visible result TraceJIT promises to match on a correct HIT:
+    exit status; captured stdout/stderr byte sequences; pathname-visible regular-file
+    outputs (content + v2 metadata when present); recorded deletions restored as absences
+    under documented preconditions.
+  included:
+    - exit_status
+    - stdout_bytes
+    - stderr_bytes
+    - regular_file_output_content
+    - regular_file_output_metadata_v2_when_present
+    - recorded_deletions_as_absences
+  deliberately_excluded:
+    - inode_numbers_after_restore
+    - directory_entry_identity_across_cas_rename
+    - open_file_description_identity_after_restore
+    - concurrent_external_mutation_during_validate_to_restore_window
+    - unmodeled_kernel_effects
+    - performance_scheduling_cgroup_wall_clock
+  assumptions:
+    - executable_not_replaced_between_identity_hash_and_execve
+    - cache_root_not_replaced_by_hostile_symlink_after_open_validation
+    - malicious_local_cache_owner_out_of_threat_model
+    - ordinary_linux_vfs_rename_link_semantics
+  classification_note: >
+    GUARDED and PROVEN are not mathematical full-execution proofs.
+    PROVEN means documented runtime enforcement prerequisites (seccomp + Landlock ABI 3+)
+    were actually installed for that record — not that every kernel effect was modeled.
+  references:
+    - docs/research/EXECUTION_EQUIVALENCE.md
+    - crates/tracejit-effects/src/lib.rs
+    - crates/tracejit-core/src/lib.rs
+
+invariants:
+  - id: I1
+    name: No unmodeled observable effect admitted
+    statement: >
+      If an effect class is unmodeled, nondeterministic, or empirically-stable-only,
+      classification must not be cache-eligible and reuse must refuse.
+    owner_code:
+      - crates/tracejit-effects/src/lib.rs::classify
+      - crates/tracejit-effects/src/lib.rs::DeterminismClass::cache_eligible
+      - crates/tracejit-trace/src/linux.rs
+    tests:
+      - crates/tracejit-effects/src/lib.rs (unit: unknown never eligible)
+      - crates/tracejit-cli/tests/linux_integration.rs::renameat2_exchange_is_unknown_and_never_reused
+      - fixtures under crates/tracejit-cli/tests
+    failure_cases:
+      - silent_omit_of_successful_syscall_with_obs_side_effect
+      - modeling_renameat2_RENAME_EXCHANGE_as_delete_plus_rename
+    checker: classify + cache_eligible gate on hit path
+    coverage_gaps:
+      - full_syscall_surface_inventory_incomplete_until_section_3_suite
+      - io_uring_SCM_RIGHTS_pidfd_getfd_etc_must_remain_UNKNOWN_if_unmodeled
+
+  - id: I2
+    name: Every relevant guard validated before first replayed byte
+    statement: >
+      Cached stdout, stderr, exit status, and output files are exposed only after
+      all compiled guards pass (typestate GuardsPassed before expose).
+    owner_code:
+      - crates/tracejit-core/src/lib.rs::reuse_hit::GuardsPassed
+      - crates/tracejit-core/src/lib.rs::expose_after_restore
+      - crates/tracejit-guards/src/lib.rs
+    tests:
+      - crates/tracejit-cli/tests/linux_integration.rs (guarded_hit / mutation DEOPT)
+      - crates/tracejit-cli/tests/phase_d_verification.rs
+    failure_cases:
+      - expose_cached_stdout_before_validate_all
+      - fast_guard_mode_skipping_content_hash_without_opt_in_label
+    checker: hit typestate + integration hit/deopt
+    coverage_gaps:
+      - validate_to_restore_TOCTOU_external_mutator_not_closed
+
+  - id: I3
+    name: No incompatible runtime or contract record reused
+    statement: >
+      Records under a different execution contract, runtime identity, or incompatible
+      schema must miss or refuse rather than HIT.
+    owner_code:
+      - crates/tracejit-core/src/lib.rs (PreparedExecution / contract match)
+      - crates/tracejit-cache/src/lib.rs (schema / candidate decode)
+      - crates/tracejit-trace/src/lib.rs (contract docs)
+    tests:
+      - linux_integration contract / cwd / argv0 cases
+      - cache schema migration unit tests
+    failure_cases:
+      - cross_contract_hit
+      - mismatched_executable_identity
+    checker: lookup key + decode contract match
+    coverage_gaps:
+      - hostile_cache_metadata_forgery_outside_same_user_model
+
+  - id: I4
+    name: No partial restore reports success
+    statement: >
+      A HIT must not report success if output restoration left a mixed or failed
+      pathname-visible state. Soft failures roll back and retrace; hard-kill mid-restore
+      is outside crash-atomic guarantee and must not be advertised as success.
+    owner_code:
+      - crates/tracejit-cache/src/lib.rs (restore_outputs / staging / rollback)
+      - crates/tracejit-core/src/lib.rs (hit path restore before expose)
+    tests:
+      - crates/tracejit-cache unit: failure_during_a_later_replacement_rolls_the_first_one_back
+      - scripts/phase_k4_restore_fault.sh
+      - docs/research/formal/restore_crash.tla (model, not binary proof)
+    failure_cases:
+      - soft_fail_leaves_partial_outputs_and_Reused
+      - hard_kill_mixed_workspace_claimed_atomic
+    checker: restore rollback + K4 fault harness + modelcheck KillNotExpose
+    coverage_gaps:
+      - no_durable_multi_file_journal
+      - power_loss_durability_not_equivalent_to_SIGKILL_tests
+      - inode_preserving_restore_unsupported
+
+  - id: I5
+    name: No verified CAS mismatch is replayed
+    statement: >
+      Stdout/stderr and output CAS objects must verify before mutation/expose;
+      corrupt or mismatched digests refuse reuse.
+    owner_code:
+      - crates/tracejit-cache/src/lib.rs (CAS get / verify)
+      - crates/tracejit-core/src/lib.rs (ArtifactsVerified)
+      - crates/tracejit-core/src/certificate.rs (StrictCas mode)
+    tests:
+      - phase_d / linux_integration corrupt stream cases
+      - certificate StrictCas tests
+    failure_cases:
+      - corrupt_cas_bytes_served_as_HIT
+      - metadata_only_accept_without_content_hash
+    checker: CAS rehash + certificate verifier
+    coverage_gaps:
+      - certificates_do_not_re_run_guards
+      - FullEquivalenceProof_explicitly_refused
+
+  - id: I6
+    name: Cache bypass executes the original command faithfully
+    statement: >
+      Direct / deopt / admission-skip / ineligible paths must exec the user command
+      without substituting cached Obs.
+    owner_code:
+      - crates/tracejit-core/src/lib.rs (run_direct / miss path)
+      - crates/tracejit-cli/src/main.rs
+    tests:
+      - linux_integration mutation DEOPT
+      - demo.sh mutation DEOPT
+      - execution_fidelity tests
+    failure_cases:
+      - admission_skip_still_serving_cache
+      - deopt_presenting_stale_outputs
+    checker: decision enum + Obs compare vs native
+    coverage_gaps:
+      - none_known_for_bypass_path_on_current_suite
+
+  - id: I7
+    name: No security policy claims stronger isolation than enforced
+    statement: >
+      PROVEN / Landlock / seccomp claims must match actual install success.
+      Failure to install enforcement must not silently upgrade classification.
+    owner_code:
+      - crates/tracejit-sandbox/src/lib.rs
+      - crates/tracejit-core/src/lib.rs (PROVEN promotion)
+    tests:
+      - linux_integration proven-reuse / sandbox RESULT lines
+    failure_cases:
+      - PROVEN_without_landlock_or_seccomp_installed
+      - marketing_claim_of_full_isolation
+    checker: sandbox probe + proven-reuse integration
+    coverage_gaps:
+      - landlock_seccomp_are_not_full_Obs_equivalence
+      - cross_user_adversary_out_of_scope
+
+falsification_priority:
+  - I1
+  - I2
+  - I5
+  - I4
+  - I3
+  - I7
+  - I6
+
+preserved_corrections:
+  - id: PHASE_K1_RENAME_EXCHANGE
+    rule: renameat2 flags != 0 including RENAME_EXCHANGE => UNKNOWN; never HIT
+    regression: crates/tracejit-cli/tests/linux_integration.rs::renameat2_exchange_is_unknown_and_never_reused
+    must_not_regress: true

@@ -2,7 +2,7 @@
 
 Status labels (Part XXII §58): **implemented+verified** | **implemented but not fully verified** | **experimental** | **rejected** | **deferred** | **blocked**.
 
-Inspected tip: `364331b904d41de3feb7defae152ec0e50112e0e` (Phase K7 #24 merged; K8–K14 package in flight). Evidence paths are repository-relative unless noted.
+Inspected tip: `4421f8be60cdd50231e2cf5662130511fdd1c175` (Phase K8–K14 #25 merged; final adversarial baseline in `docs/final/`). Evidence paths are repository-relative unless noted.
 
 | Feature / claim | Status | Evidence |
 | --- | --- | --- |

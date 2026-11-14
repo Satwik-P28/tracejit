@@ -19,7 +19,8 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 
 ## Current main
 
-- Tip: `364331b` — Phase K7 measured perf (PR #24) on K6 (`aa3a186`).
+- Tip: `4421f8b` — Phase K8–K14 research package (PR #25) on K7 (`364331b`).
+- Final adversarial baseline: `docs/final/BASELINE.md` + `docs/final/INVARIANTS.yaml` (live gates on that tip).
 - Releases: `v0.1.0` (`cf0ddb2`), `v0.1.1` (`31c36d1`). Do not move tags.
 - Research PRs #6/#7/#9/#10 stay isolated (not for main).
 
