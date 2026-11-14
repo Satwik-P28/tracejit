@@ -17,6 +17,19 @@ fi
 command -v cc >/dev/null || { echo "cc required" >&2; exit 2; }
 command -v python3 >/dev/null || { echo "python3 required" >&2; exit 2; }
 
+# CI / cargo-test runners inherit many non-CLOEXEC descriptors. Closing them before
+# exec keeps the product's inherited-fd refusal intact while making the harness CI-safe.
+tracejit_run() (
+  for entry in /proc/self/fd/*; do
+    fd=${entry##*/}
+    case "$fd" in
+      0|1|2) ;;
+      *) eval "exec ${fd}>&-" 2>/dev/null || true ;;
+    esac
+  done
+  exec "$tracejit" "$@"
+)
+
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT INT TERM
 
@@ -28,15 +41,15 @@ export TRACEJIT_CACHE_DIR="$work/cache"
 export GLIBC_TUNABLES=glibc.malloc.tcache_count=0
 export MALLOC_ARENA_MAX=1
 
-"$tracejit" run -- "$work/two_outputs" "$work" >/dev/null
-"$tracejit" run -- "$work/two_outputs" "$work" >/dev/null 2>"$work/warm.err"
+tracejit_run run -- "$work/two_outputs" "$work" >/dev/null
+tracejit_run run -- "$work/two_outputs" "$work" >/dev/null 2>"$work/warm.err"
 grep -q 'cache          HIT' "$work/warm.err"
 
 # --- Soft fail: inject failure on second output. Rollback then retrace. ---
 printf 'user-a\n' >"$work/a.txt"
 printf 'user-b\n' >"$work/sub/b.txt"
 TRACEJIT_TEST_RESTORE_FAIL_PATH="$work/sub/b.txt" \
-  "$tracejit" run --json -- "$work/two_outputs" "$work" >"$work/soft.json" 2>"$work/soft.err"
+  tracejit_run run --json -- "$work/two_outputs" "$work" >"$work/soft.json" 2>"$work/soft.err"
 PHASE_K4_WORK="$work" python3 - <<'PY'
 import json, os
 from pathlib import Path
@@ -54,7 +67,7 @@ printf 'user-a\n' >"$work/a.txt"
 printf 'user-b\n' >"$work/sub/b.txt"
 set +e
 TRACEJIT_TEST_RESTORE_PAUSE_PATH="$work/sub/b.txt" \
-  "$tracejit" run -- "$work/two_outputs" "$work" >/dev/null 2>"$work/pause.err" &
+  tracejit_run run -- "$work/two_outputs" "$work" >/dev/null 2>"$work/pause.err" &
 pid=$!
 sleep 0.5
 kill -KILL "$pid" 2>/dev/null
@@ -62,7 +75,7 @@ wait "$pid" 2>/dev/null
 set -e
 echo "after kill a=$(cat "$work/a.txt") b=$(cat "$work/sub/b.txt")"
 # Recovery without hooks.
-"$tracejit" run --json -- "$work/two_outputs" "$work" >"$work/recover.json" 2>"$work/recover.err"
+tracejit_run run --json -- "$work/two_outputs" "$work" >"$work/recover.json" 2>"$work/recover.err"
 PHASE_K4_WORK="$work" python3 - <<'PY'
 import json, os
 from pathlib import Path
