@@ -9,7 +9,9 @@
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 use std::path::PathBuf;
-use tracejit_cache::{CacheDecision, OutputKind, StoredExecution, OUTPUT_ARTIFACT_VERSION};
+use tracejit_cache::{
+    Cache, CacheDecision, CacheError, OutputKind, StoredExecution, OUTPUT_ARTIFACT_VERSION,
+};
 use tracejit_effects::{DeterminismClass, Hash};
 use tracejit_guards::{Guard, GuardReport};
 
@@ -126,9 +128,22 @@ pub struct ContentIdentities {
     pub outputs: Vec<(PathBuf, Option<Hash>)>,
 }
 
+/// How deeply the verifier inspects evidence.
+///
+/// Strict mode still never grants [`ClaimStrength::FullEquivalenceProof`]. It only confirms
+/// content-addressed objects exist in a named cache and match their digests.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub enum VerificationMode {
+    /// Internal field consistency only (Phase E).
+    Structural,
+    /// Structural checks plus live CAS presence and digest match against a cache root.
+    StrictCas,
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct VerificationReport {
     pub ok: bool,
+    pub mode: VerificationMode,
     pub claim_strength: ClaimStrength,
     pub checked: Vec<String>,
     pub rejected: Vec<String>,
@@ -279,6 +294,30 @@ fn digest_record(record: &StoredExecution) -> Result<Hash, CertificateError> {
 /// Checks do **not** re-hash live workspace files. Callers that need live validation must run the
 /// production guard path; that still trusts mutable state at check time.
 pub fn verify_certificate(certificate: &ReuseCertificate) -> VerificationReport {
+    verify_certificate_inner(certificate, None)
+}
+
+/// Strict verifier: structural checks plus CAS object presence/digest against `cache`.
+///
+/// This is stronger than structural verification for **artifact integrity** (missing or corrupt
+/// CAS blobs fail). It does **not** re-validate workspace guards, close TOCTOU, or grant
+/// [`ClaimStrength::FullEquivalenceProof`].
+pub fn verify_certificate_strict(
+    certificate: &ReuseCertificate,
+    cache: &Cache,
+) -> VerificationReport {
+    verify_certificate_inner(certificate, Some(cache))
+}
+
+fn verify_certificate_inner(
+    certificate: &ReuseCertificate,
+    cache: Option<&Cache>,
+) -> VerificationReport {
+    let mode = if cache.is_some() {
+        VerificationMode::StrictCas
+    } else {
+        VerificationMode::Structural
+    };
     let mut checked = Vec::new();
     let mut rejected = Vec::new();
 
@@ -438,6 +477,47 @@ pub fn verify_certificate(certificate: &ReuseCertificate) -> VerificationReport 
         checked.push("limitations section is present".into());
     }
 
+    // Adversarial: a sealed certificate that claims CheckedByVerifier without having been
+    // sealed through this verifier is still only as strong as the JSON attacker can forge.
+    // Structural mode cannot detect forgery; StrictCas at least requires matching CAS blobs.
+    if matches!(certificate.claim_strength, ClaimStrength::CheckedByVerifier) {
+        checked.push(
+            "embedded claim_strength is CheckedByVerifier (not independently authoritative)".into(),
+        );
+    }
+
+    if let Some(cache) = cache {
+        for object in &certificate.cas_objects {
+            match cache.get_bytes(object.hash) {
+                Ok(bytes) => {
+                    let digest = Hash::from(blake3::hash(&bytes));
+                    if digest != object.hash {
+                        rejected.push(format!(
+                            "CAS object {} digest mismatch after read",
+                            object.hash
+                        ));
+                    } else {
+                        checked.push(format!(
+                            "CAS object {} present and digest-matched ({:?})",
+                            object.hash, object.role
+                        ));
+                    }
+                }
+                Err(CacheError::CorruptObject { hash }) => {
+                    rejected.push(format!("CAS object {hash} is corrupt on disk"));
+                }
+                Err(error) => {
+                    rejected.push(format!("CAS object {} unavailable: {error}", object.hash));
+                }
+            }
+        }
+        if certificate.cas_objects.is_empty()
+            && matches!(certificate.decision, CacheDecision::Reused)
+        {
+            rejected.push("StrictCas: Reused certificate has empty cas_objects".into());
+        }
+    }
+
     let ok = rejected.is_empty();
     let claim_strength = if ok {
         ClaimStrength::CheckedByVerifier
@@ -447,6 +527,7 @@ pub fn verify_certificate(certificate: &ReuseCertificate) -> VerificationReport 
 
     VerificationReport {
         ok,
+        mode,
         claim_strength,
         checked,
         rejected,
@@ -692,5 +773,86 @@ mod tests {
         assert!(notes.contains("mutable filesystem"));
         assert!(notes.contains("TOCTOU"));
         assert!(notes.contains("FullEquivalenceProof"));
+    }
+
+    #[test]
+    fn strict_cas_accepts_when_objects_present() {
+        let dir = tempfile::tempdir().unwrap();
+        let cache = Cache::open(dir.path()).unwrap();
+        let stdout = cache.put_bytes(b"out").unwrap();
+        let stderr = cache.put_bytes(b"").unwrap();
+        let content = cache.put_bytes(b"file").unwrap();
+
+        let mut record = sample_record();
+        record.stdout = stdout;
+        record.stderr = stderr;
+        record.outputs[0].content = Some(content);
+        let report = GuardReport {
+            checked: 1,
+            passed: 1,
+            failure: None,
+        };
+        let certificate = issue_certificate(
+            &record,
+            Some(&report),
+            CacheDecision::Reused,
+            "all guards passed",
+        )
+        .unwrap();
+        let verified = verify_certificate_strict(&certificate, &cache);
+        assert!(verified.ok, "{verified:?}");
+        assert_eq!(verified.mode, VerificationMode::StrictCas);
+        assert_eq!(verified.claim_strength, ClaimStrength::CheckedByVerifier);
+        assert!(!matches!(
+            verified.claim_strength,
+            ClaimStrength::FullEquivalenceProof
+        ));
+    }
+
+    #[test]
+    fn strict_cas_rejects_missing_object() {
+        let dir = tempfile::tempdir().unwrap();
+        let cache = Cache::open(dir.path()).unwrap();
+        let record = sample_record();
+        let report = GuardReport {
+            checked: 1,
+            passed: 1,
+            failure: None,
+        };
+        let certificate = issue_certificate(
+            &record,
+            Some(&report),
+            CacheDecision::Reused,
+            "all guards passed",
+        )
+        .unwrap();
+        // sample_record hashes were never put into this empty cache.
+        let verified = verify_certificate_strict(&certificate, &cache);
+        assert!(!verified.ok, "{verified:?}");
+        assert_eq!(verified.mode, VerificationMode::StrictCas);
+        assert!(verified
+            .rejected
+            .iter()
+            .any(|reason| reason.contains("unavailable") || reason.contains("corrupt")));
+    }
+
+    #[test]
+    fn structural_mode_still_ok_without_cache() {
+        let record = sample_record();
+        let report = GuardReport {
+            checked: 1,
+            passed: 1,
+            failure: None,
+        };
+        let certificate = issue_certificate(
+            &record,
+            Some(&report),
+            CacheDecision::Reused,
+            "all guards passed",
+        )
+        .unwrap();
+        let verified = verify_certificate(&certificate);
+        assert!(verified.ok);
+        assert_eq!(verified.mode, VerificationMode::Structural);
     }
 }

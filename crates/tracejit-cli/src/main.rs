@@ -10,8 +10,8 @@ use tracejit_cache::{Cache, CacheDecision, OutputArtifact, OutputKind};
 use tracejit_core::{
     analyze, certificate_from_record, compare_policies, doctor, explain, held_out_matrix,
     parse_certificate, phase_timing_enabled, prefer_simpler, process_startup_ns, run,
-    seal_certificate, verify_certificate, Admission, Contract, PhaseTimings, RunKind, RunOptions,
-    RunReport,
+    seal_certificate, verify_certificate, verify_certificate_strict, Admission, Contract,
+    PhaseTimings, RunKind, RunOptions, RunReport,
 };
 use tracejit_effects::{
     attach_retest, refine, reject_if_unsafe_model, CounterexampleInput, DeploymentStatus, Effect,
@@ -117,6 +117,9 @@ struct CertifyArgs {
 struct VerifyCertificateArgs {
     /// Path to a reuse certificate JSON file.
     path: PathBuf,
+    /// Also require CAS objects to exist and digest-match in the cache (still not a full proof).
+    #[arg(long)]
+    strict: bool,
     #[arg(long)]
     json: bool,
 }
@@ -398,11 +401,17 @@ fn run_cli(cli: Cli, process_startup_ns: u64, cli_parse_ns: u64) -> Result<i32> 
             let bytes = std::fs::read(&args.path)
                 .with_context(|| format!("could not read {}", args.path.display()))?;
             let certificate = parse_certificate(&bytes)?;
-            let report = verify_certificate(&certificate);
+            let report = if args.strict {
+                let cache = Cache::open(Cache::default_root())?;
+                verify_certificate_strict(&certificate, &cache)
+            } else {
+                verify_certificate(&certificate)
+            };
             if args.json {
                 println!("{}", serde_json::to_string_pretty(&report)?);
             } else {
                 println!("ok             {}", report.ok);
+                println!("mode           {:?}", report.mode);
                 println!("claim          {:?}", report.claim_strength);
                 for item in &report.checked {
                     println!("checked        {item}");
