@@ -77,6 +77,30 @@ them as internal (as private anonymous maps are) would miss untracked mutation c
 **Rejected alternatives:** Tracking page-level stores; allowing shared anon maps inside a single-threaded
 tree. Both under-approximate visibility after `clone`/`fork`.
 
+## ADR-E-001: Reuse certificates are structural, not Obs proofs
+
+**Decision:** Emit `tracejit.reuse-certificate.v1` with claim strengths
+`CheckableEvidence` / `CheckedByVerifier` only. Never `FullEquivalenceProof`.
+
+**Reason:** An independent verifier can check internal consistency (eligibility, CAS
+refs, artifact versions, guard-report agreement) but still samples the same mutable
+filesystem as the hit path. Claiming Obs equivalence would oversell the validator.
+
+## ADR-E-002: Keep production admission; compare research policies offline
+
+**Decision:** Production `auto` / `always` / `never` / `auto-v1` stay unchanged.
+EWMA and confidence-bound policies are evaluated offline on a held-out matrix; a
+bandit is not adopted when a simpler policy matches or beats it on regret.
+
+**Reason:** Statistical admission must not weaken correctness; policy choice is only
+whether to pay for a trace.
+
+## ADR-E-003: CEGAR-shaped refinement without claiming CEGAR novelty
+
+**Decision:** Record observe→abstract→CE→minimize→refine→retest cycles in-tree with a
+semantic syscall registry. Accept only proposals that name explicit effect/guard
+types; reject ignore/whitelist shortcuts (e.g. `getrusage`).
+
 ## ADR-C-002: Hard-link creation stays unmodeled
 
 **Decision:** Successful `link`/`linkat` is an explicit `UNKNOWN` effect. Restore remains pathname-visible

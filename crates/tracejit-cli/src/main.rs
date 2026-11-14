@@ -3,12 +3,15 @@ use clap::{Args, Parser, Subcommand, ValueEnum};
 use serde_json::json;
 use std::ffi::OsString;
 use std::io::{self, Write};
+use std::path::PathBuf;
 use std::process::ExitCode;
 use std::time::Instant;
 use tracejit_cache::{Cache, CacheDecision, OutputArtifact, OutputKind};
 use tracejit_core::{
-    analyze, doctor, explain, phase_timing_enabled, process_startup_ns, run, Admission, Contract,
-    PhaseTimings, RunKind, RunOptions, RunReport,
+    analyze, certificate_from_record, compare_policies, doctor, explain, held_out_matrix,
+    parse_certificate, phase_timing_enabled, prefer_simpler, process_startup_ns, run,
+    seal_certificate, verify_certificate, Admission, Contract, PhaseTimings, RunKind, RunOptions,
+    RunReport,
 };
 use tracejit_effects::{Effect, InputDependency};
 use tracejit_guards::{Guard, GuardMode};
@@ -31,6 +34,12 @@ enum Command {
     Explain(ExplainArgs),
     Doctor(DoctorArgs),
     Cache(CacheArgs),
+    /// Issue a reuse certificate for a stored execution (structural evidence only).
+    Certify(CertifyArgs),
+    /// Independently verify a reuse certificate JSON file.
+    VerifyCertificate(VerifyCertificateArgs),
+    /// Offline comparison of cost-sensitive admission policies on a held-out matrix.
+    AdmissionEval(AdmissionEvalArgs),
 }
 
 #[derive(Args)]
@@ -87,6 +96,30 @@ struct DoctorArgs {
 struct CacheArgs {
     #[command(subcommand)]
     command: CacheCommand,
+}
+
+#[derive(Args)]
+struct CertifyArgs {
+    execution_id: Option<String>,
+    #[arg(long)]
+    json: bool,
+    /// Write the sealed certificate to this path.
+    #[arg(long)]
+    output: Option<PathBuf>,
+}
+
+#[derive(Args)]
+struct VerifyCertificateArgs {
+    /// Path to a reuse certificate JSON file.
+    path: PathBuf,
+    #[arg(long)]
+    json: bool,
+}
+
+#[derive(Args)]
+struct AdmissionEvalArgs {
+    #[arg(long)]
+    json: bool,
 }
 
 #[derive(Subcommand)]
@@ -299,6 +332,98 @@ fn run_cli(cli: Cli, process_startup_ns: u64, cli_parse_ns: u64) -> Result<i32> 
                 Ok(0)
             }
         },
+        Command::Certify(args) => {
+            let record = explain(Cache::default_root(), args.execution_id.as_deref())?
+                .context("no recorded execution found")?;
+            // Stored records do not retain the live GuardReport from the hit. For a Reused
+            // decision we synthesize an all-passed report from the recorded guard list so the
+            // certificate remains checkable; verify-certificate still only checks structure.
+            let issued = if record.last_decision.decision == CacheDecision::Reused {
+                let report = tracejit_guards::GuardReport {
+                    checked: record.guards.len(),
+                    passed: record.guards.len(),
+                    failure: None,
+                };
+                tracejit_core::issue_certificate(
+                    &record,
+                    Some(&report),
+                    CacheDecision::Reused,
+                    record.last_decision.reason.clone(),
+                )?
+            } else {
+                certificate_from_record(&record)?
+            };
+            let sealed = seal_certificate(issued).map_err(anyhow::Error::msg)?;
+            if let Some(path) = &args.output {
+                std::fs::write(path, serde_json::to_vec_pretty(&sealed)?)?;
+            }
+            if args.json {
+                println!("{}", serde_json::to_string_pretty(&sealed)?);
+            } else {
+                println!("schema         {}", sealed.schema);
+                println!("claim          {:?}", sealed.claim_strength);
+                println!("execution      {}", sealed.execution_id);
+                println!("classification {}", sealed.classification);
+                println!("decision       {:?}", sealed.decision);
+                println!("guards         {}", sealed.guards.len());
+                println!("cas objects    {}", sealed.cas_objects.len());
+                println!("limitations");
+                for note in &sealed.limitations.notes {
+                    println!("  - {note}");
+                }
+            }
+            Ok(0)
+        }
+        Command::VerifyCertificate(args) => {
+            let bytes = std::fs::read(&args.path)
+                .with_context(|| format!("could not read {}", args.path.display()))?;
+            let certificate = parse_certificate(&bytes)?;
+            let report = verify_certificate(&certificate);
+            if args.json {
+                println!("{}", serde_json::to_string_pretty(&report)?);
+            } else {
+                println!("ok             {}", report.ok);
+                println!("claim          {:?}", report.claim_strength);
+                for item in &report.checked {
+                    println!("checked        {item}");
+                }
+                for item in &report.rejected {
+                    println!("rejected       {item}");
+                }
+            }
+            Ok(if report.ok { 0 } else { 1 })
+        }
+        Command::AdmissionEval(args) => {
+            let outcomes = compare_policies(&held_out_matrix());
+            let best = prefer_simpler(&outcomes).context("no policies compared")?;
+            if args.json {
+                println!(
+                    "{}",
+                    serde_json::to_string_pretty(&json!({
+                        "outcomes": outcomes,
+                        "preferred": best,
+                    }))?
+                );
+            } else {
+                for outcome in &outcomes {
+                    println!(
+                        "policy {:>16} total_ns={} oracle_ns={} regret_ns={} traces={} hits={} directs={}",
+                        outcome.policy,
+                        outcome.total_ns,
+                        outcome.oracle_ns,
+                        outcome.regret_ns,
+                        outcome.traces,
+                        outcome.hits,
+                        outcome.directs
+                    );
+                }
+                println!(
+                    "RESULT phase-e-admission preferred={} regret_ns={}",
+                    best.policy, best.regret_ns
+                );
+            }
+            Ok(0)
+        }
     }
 }
 

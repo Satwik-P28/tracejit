@@ -1,3 +1,13 @@
+mod refinement;
+mod registry;
+
+pub use refinement::{
+    directory_opened_refinement, getrusage_refinement_rejected, proposal_is_safe, run_cycle,
+    Abstraction, Counterexample, MinimizedCounterexample, Observation, RefinementCycle,
+    RefinementDecision, RetestResult,
+};
+pub use registry::{lookup_by_name, phase_e_registry, ModelStatus, SyscallRegistryEntry};
+
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::ffi::OsString;
