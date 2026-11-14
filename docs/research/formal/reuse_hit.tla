@@ -88,6 +88,10 @@ Next ==
   Discover \/ PassGuards \/ FailGuards \/ VerifyStreams \/ FailStreams
   \/ Restore \/ FailRestore \/ Expose
 
+vars == <<state, guards_ok, streams_ok, restore_ok, exposed>>
+
+Spec == Init /\ [][Next]_vars
+
 \* Safety: cached bytes are never exposed unless all three obligations succeeded.
 Safety ==
   exposed => (guards_ok /\ streams_ok /\ restore_ok /\ state = "Exposed")
