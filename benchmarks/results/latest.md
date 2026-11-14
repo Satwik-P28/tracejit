@@ -1,6 +1,6 @@
 # TraceJIT benchmark result
 
-Measured commit: `63e33638709aacfaed896ab587435e64c0ecea62`
+Measured commit: `6202273fd003c1b0b3c8437ad5279f9493b9a52d`
 
 ## Methodology
 
@@ -22,16 +22,16 @@ python3 benchmarks/harness/benchmark.py --runs 30 --warmups 5
 
 | Condition | Median | p95 | Minimum | Maximum | Standard deviation | Runs |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Baseline | 7.396036 ms | 10.619713 ms | 7.344846 ms | 11.731960 ms | 1.036400 ms | 30 |
-| Traced cold | 21.024211 ms | 168.417168 ms | 19.017278 ms | 178.756103 ms | 52.009012 ms | 30 |
-| Guard check | 1.113292 ms | 1.251817 ms | 1.028313 ms | 19.630951 ms | 3.324015 ms | 30 |
-| Cached end-to-end | 7.957282 ms | 18.618426 ms | 7.539442 ms | 25.213143 ms | 3.581329 ms | 30 |
+| Baseline | 1.365688 ms | 1.492300 ms | 1.185363 ms | 1.502026 ms | 0.090213 ms | 30 |
+| Traced cold | 8.358205 ms | 10.577850 ms | 6.991559 ms | 11.383663 ms | 1.133158 ms | 30 |
+| Guard check | 1.717285 ms | 2.380398 ms | 1.047672 ms | 2.561982 ms | 0.399949 ms | 30 |
+| Cached end-to-end | 3.368883 ms | 4.053170 ms | 2.655804 ms | 4.420530 ms | 0.407442 ms | 30 |
 
-Tracing overhead: `184.263232%`
+Tracing overhead: `512.014238%`
 
-Cache-hit speedup: `0.929468x`
+Cache-hit speedup: `0.405383x`
 
-Median time saved: `-0.561246 ms`
+Median time saved: `-2.003195 ms`
 
 ## Correctness
 
@@ -56,7 +56,9 @@ Eligible for reuse: `no`
 Reasons:
 
 - process read randomness via getrandom
+- process read system clock: monotonic
 - process read process identity via gettid
+- process read system clock: realtime
 
 The equivalence check compares workload exit status, captured stdout, captured stderr, output bytes, and output SHA-256 across baseline, traced, and cache-hit execution.
 
@@ -65,7 +67,7 @@ The equivalence check compares workload exit status, captured stdout, captured s
 ### `uname -a`
 
 ```text
-Linux runnervmtr4k5 6.17.0-1022-azure #22-Ubuntu SMP Mon Jul 27 17:24:03 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+Linux cursor 6.12.113+ #1 SMP PREEMPT_DYNAMIC Fri Nov 13 20:22:28 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
 ```
 
 ### `uname -m`
@@ -97,47 +99,45 @@ LOGO=ubuntu-logo
 ```text
 Architecture:                            x86_64
 CPU op-mode(s):                          32-bit, 64-bit
-Address sizes:                           48 bits physical, 48 bits virtual
+Address sizes:                           46 bits physical, 57 bits virtual
 Byte Order:                              Little Endian
 CPU(s):                                  4
 On-line CPU(s) list:                     0-3
-Vendor ID:                               AuthenticAMD
-Model name:                              AMD EPYC 9V74 80-Core Processor
-CPU family:                              25
-Model:                                   17
-Thread(s) per core:                      2
-Core(s) per socket:                      2
+Vendor ID:                               GenuineIntel
+Model name:                              Intel(R) Xeon(R) Processor
+CPU family:                              6
+Model:                                   207
+Thread(s) per core:                      1
+Core(s) per socket:                      4
 Socket(s):                               1
-Stepping:                                1
-BogoMIPS:                                5192.29
-Flags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology tsc_reliable nonstop_tsc cpuid extd_apicid aperfmperf tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy svm cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw topoext vmmcall fsgsbase bmi1 avx2 smep bmi2 erms invpcid avx512f avx512dq rdseed adx smap avx512ifma clflushopt clwb avx512cd sha_ni avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves user_shstk avx512_bf16 clzero xsaveerptr rdpru arat npt nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold v_vmsave_vmload avx512vbmi umip avx512_vbmi2 gfni vaes vpclmulqdq avx512_vnni avx512_bitalg avx512_vpopcntdq rdpid fsrm
-Virtualization:                          AMD-V
-Hypervisor vendor:                       Microsoft
+Stepping:                                2
+BogoMIPS:                                4800.00
+Flags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc pebs bts rep_good nopl xtopology nonstop_tsc cpuid tsc_known_freq pni pclmulqdq dtes64 vmx ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch cpuid_fault ssbd ibrs ibpb stibp ibrs_enhanced tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid avx512f avx512dq rdseed adx smap avx512ifma clflushopt clwb avx512cd sha_ni avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves avx_vnni avx512_bf16 wbnoinvd arat vnmi avx512vbmi umip pku ospke avx512_vbmi2 gfni vaes vpclmulqdq avx512_vnni avx512_bitalg avx512_vpopcntdq rdpid bus_lock_detect cldemote movdiri movdir64b fsrm md_clear serialize tsxldtrk amx_bf16 avx512_fp16 amx_tile amx_int8 flush_l1d arch_capabilities
+Virtualization:                          VT-x
+Hypervisor vendor:                       KVM
 Virtualization type:                     full
-L1d cache:                               64 KiB (2 instances)
-L1i cache:                               64 KiB (2 instances)
-L2 cache:                                2 MiB (2 instances)
-L3 cache:                                32 MiB (1 instance)
+L1d cache:                               192 KiB (4 instances)
+L1i cache:                               128 KiB (4 instances)
+L2 cache:                                8 MiB (4 instances)
+L3 cache:                                320 MiB (1 instance)
 NUMA node(s):                            1
 NUMA node0 CPU(s):                       0-3
 Vulnerability Gather data sampling:      Not affected
-Vulnerability Ghostwrite:                Not affected
 Vulnerability Indirect target selection: Not affected
 Vulnerability Itlb multihit:             Not affected
 Vulnerability L1tf:                      Not affected
 Vulnerability Mds:                       Not affected
 Vulnerability Meltdown:                  Not affected
 Vulnerability Mmio stale data:           Not affected
-Vulnerability Old microcode:             Not affected
 Vulnerability Reg file data sampling:    Not affected
 Vulnerability Retbleed:                  Not affected
-Vulnerability Spec rstack overflow:      Vulnerable: Safe RET, no microcode
-Vulnerability Spec store bypass:         Vulnerable
+Vulnerability Spec rstack overflow:      Not affected
+Vulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl
 Vulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization
-Vulnerability Spectre v2:                Mitigation; Retpolines; STIBP disabled; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected
+Vulnerability Spectre v2:                Mitigation; Enhanced / Automatic IBRS; IBPB conditional; PBRSB-eIBRS SW sequence; BHI BHI_DIS_S
 Vulnerability Srbds:                     Not affected
-Vulnerability Tsa:                       Vulnerable: No microcode
-Vulnerability Tsx async abort:           Not affected
+Vulnerability Tsa:                       Not affected
+Vulnerability Tsx async abort:           Mitigation; TSX disabled
 Vulnerability Vmscape:                   Not affected
 ```
 
@@ -145,15 +145,15 @@ Vulnerability Vmscape:                   Not affected
 
 ```text
 total        used        free      shared  buff/cache   available
-Mem:            15Gi       1.1Gi        11Gi        48Mi       3.8Gi        14Gi
-Swap:          3.0Gi          0B       3.0Gi
+Mem:            15Gi        10Gi       1.5Gi       9.2Mi       3.6Gi       4.8Gi
+Swap:             0B          0B          0B
 ```
 
 ### `df -T .`
 
 ```text
 Filesystem     Type 1K-blocks     Used Available Use% Mounted on
-/dev/root      ext4 151263856 61981764  89265708  41% /
+/dev/vdc       ext4 265591976 10122544 255453048   4% /
 ```
 
 ### `python3 --version`
@@ -165,21 +165,28 @@ Python 3.12.3
 ### `rustc --version`
 
 ```text
-rustc 1.98.1 (48a229cea 2026-09-01)
+rustc 1.100.0 (0ef1bc386 2026-11-09)
 ```
 
 ### `cargo --version`
 
 ```text
-cargo 1.98.1 (797e8a9bc 2026-08-05)
+cargo 1.100.0 (3acc79c0c 2026-11-05)
 ```
 
 ### `git rev-parse HEAD`
 
 ```text
-63e33638709aacfaed896ab587435e64c0ecea62
+6202273fd003c1b0b3c8437ad5279f9493b9a52d
 ```
+
+
+Every condition reports `relative_standard_deviation`, so run-to-run noise is visible next to each median rather than hidden behind it.
+
+## Repository mutation
+
+Tracked or untracked paths that appeared during the run: `['benchmarks/results/explain-cache-hit.txt', 'benchmarks/results/explain-deopt.txt', 'benchmarks/workloads/python-etl/inputs/sales.csv']`. The workload writes only into its own `output/` directory and the compiled binary, both of which are ignored by Git, and the harness restores the input and output files it touched.
 
 ## Limitations
 
-These measurements cover one small deterministic C ETL workload on one ephemeral GitHub-hosted runner. CPython is reported as a refusal, not as a speedup. They are not evidence of universal speedups, production readiness, or performance on other workloads or machines.
+These measurements cover one small deterministic C ETL workload on one Linux x86_64 host. CPython is reported as a refusal, not as a speedup. They are not evidence of universal speedups, production readiness, or performance on other workloads or machines.
