@@ -7,8 +7,8 @@ pub use admission_research::{
 };
 pub use certificate::{
     certificate_from_record, issue_certificate, parse_certificate, seal_certificate,
-    verify_certificate, CertificateError, ClaimStrength, ReuseCertificate, VerificationReport,
-    REUSE_CERTIFICATE_SCHEMA,
+    verify_certificate, verify_certificate_strict, CertificateError, ClaimStrength,
+    ReuseCertificate, VerificationMode, VerificationReport, REUSE_CERTIFICATE_SCHEMA,
 };
 
 use serde::{Deserialize, Serialize};
