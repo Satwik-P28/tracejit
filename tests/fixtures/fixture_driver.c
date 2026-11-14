@@ -366,6 +366,29 @@ int main(int argc, char **argv) {
     close(fd);
     return rename(output, second);
   }
+  if (!strcmp(name, "rename_exchange")) {
+    /* RENAME_EXCHANGE swaps two existing paths. Modeling it as delete(from)+rename(to)
+       would restore the wrong Obs on a cache hit; classification must refuse. */
+#ifndef RENAME_EXCHANGE
+#define RENAME_EXCHANGE (1 << 1)
+#endif
+    int fd = open(output, O_WRONLY | O_CREAT | O_TRUNC, 0600);
+    if (fd < 0) return 1;
+    if (write(fd, "AAA", 3) != 3) {
+      close(fd);
+      return 1;
+    }
+    close(fd);
+    fd = open(second, O_WRONLY | O_CREAT | O_TRUNC, 0600);
+    if (fd < 0) return 1;
+    if (write(fd, "BBB", 3) != 3) {
+      close(fd);
+      return 1;
+    }
+    close(fd);
+    return syscall(SYS_renameat2, AT_FDCWD, output, AT_FDCWD, second,
+                   RENAME_EXCHANGE) != 0;
+  }
   if (!strcmp(name, "delete_output")) {
     int fd = open(output, O_WRONLY | O_CREAT | O_TRUNC, 0600);
     if (fd < 0) return 1;
