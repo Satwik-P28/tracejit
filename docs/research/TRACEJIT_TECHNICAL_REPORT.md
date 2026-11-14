@@ -1,340 +1,218 @@
 # TraceJIT: Conservative Effect-Aware Memoization of Linux Processes
 
-> **Phase 3A addendum (10 November 2026):** The analysis below was written against public
-> `f90b4db` and is preserved as the original evidence-scoped report. Section 9 records the later
-> candidate-retention, replay-ordering and hosted-CI enforcement changes. It does not retroactively
-> change the historical measurements or the original limitations.
+**Technical design and evidence report | 14 November 2026 | Non-peer-reviewed**
 
-**Technical design and reproducibility report | 9 November 2026 | Non-peer-reviewed**
+**Inspected product tip for this rewrite:** `origin/main` `b089d5e774d6481a83ec3f308f479d551ed50ce7` (merge of Phase G PR [#16](https://github.com/Satwik-P28/tracejit/pull/16)). Historical measurements retain their original commits. This document is not a peer-reviewed publication and does not claim production adoption.
 
-**Implementation inspected:** public `main` at `f90b4db15ec066373101692996c822e2c51c67cf` (TraceJIT 0.1.1 series). **Performance evidence:** historical benchmark commits `e9684c1c01a7bbbab4cae50e2389105596d613f1` and `63e33638709aacfaed896ab587435e64c0ecea62`. Measurements below were **not** rerun on the inspected commit. This report evaluates the publicly available implementation, not later experimental branches or unmerged Phase 2 work.
+Status vocabulary (Part XXII §58): **implemented+verified**, **implemented but not fully verified**, **experimental**, **rejected**, **deferred**, **blocked**. Feature table: [CLAIMS_LEDGER.md](CLAIMS_LEDGER.md).
 
-## Abstract
+## 1. Abstract
 
-Repeated execution of an unchanged command can waste computation, but reusing an earlier result is unsafe when hidden inputs or external effects have changed. TraceJIT is a Rust prototype for **whole-process memoization** on Linux x86_64. It observes modeled process and filesystem behavior via `ptrace`, reconstructs dependencies, classifies effects conservatively, and attempts reuse only when pre-execution identity and synchronous guards validate. Output files are retrieved from a BLAKE3-addressed store; SQLite indexes prior execution records. An optional sandbox uses seccomp-BPF and Landlock for an additional enforcement condition. Unknown or nondeterministic effects are refused rather than treated as cacheable.
+TraceJIT is a Linux x86_64 Rust prototype that memoizes whole unmodified commands. It observes modeled syscalls with `ptrace`, classifies effects, and reuses a prior result only when the record is `GUARDED` or `PROVEN` and every synchronous guard passes before any cached stdout, stderr, exit status, or output file is exposed. Uncertainty fails closed.
 
-Historical measurements show a **312.913 ms to 3.972 ms** reduction (78.780x) for one intentionally compute-heavy synthetic C transform, but a **7.396 ms to 7.957 ms** regression (0.929x) for an earlier short C ETL. A duration sweep suggests a cache-hit floor near 4 ms. These results demonstrate a conditional advantage, not general-purpose acceleration or correctness for arbitrary programs. In the public implementation, sequential output restoration, hidden userspace dependencies, and guard-to-restore races remain material limitations.
+On a controlled host (kernel `6.12.113+`), a CPU-heavy C transform warmed from **36.136 ms** direct to **3.116 ms** reused (~11.6×; Phase G session A). The official short C ETL harness on the same lineage remains a net loss (**1.455 ms** baseline vs **3.571 ms** cached, **0.407×**; `benchmarks/results/latest.md` at `94c64c7`). Make can win identical-rerun latency while returning incorrect bytes after mtime-preserved edits or corrupted outputs; TraceJIT recovers correctly on those cases. The contribution is fail-closed observed-dependency reuse with testable refusals, not general-purpose acceleration.
 
-## 1. Problem statement and contributions
+## 2. Motivation
 
-For a previously executed command `C`, the central question is not merely whether the executable path and arguments match. It is whether all relevant inputs still have the same semantics **and** whether reproducing the observable outputs without rerunning the process is safe.
+Build systems and compiler caches reuse work when inputs are declared or toolchain-specific. Many developer commands are already built binaries whose dependencies are not written down. Replaying an earlier stdout/fileset without observing what the process actually depended on is a correctness hazard. TraceJIT asks whether those dependencies can be inferred from kernel crossings and checked before replay, and whether the answer is still useful when clocks, randomness, networks, and unmodeled syscalls force refusal.
 
-TraceJIT explores three engineering ideas:
+## 3. Problem formulation
 
-1. **Effect-aware admission.** Syscalls and process events are normalized into read, write, control, or unknown effects, with explicit `GUARDED`, `PROVEN`, `EMPIRICALLY_STABLE`, `UNKNOWN`, and `NONDETERMINISTIC` classifications. Only the first two are eligible in V1.
-2. **Guarded whole-command reuse.** A pre-execution identity locates candidates; observed file and runtime dependencies become guards checked before output restoration and replay of stdout, stderr, and exit status.
-3. **Conservative enforcement and explanation.** An optional seccomp/Landlock mode provides a stronger *operational* label when both mechanisms are installed. It is not a formal proof of program determinism. The CLI can explain observed inputs and refusal reasons.
+Let command identity \(E\) be the executable content hash, argv, cwd, full inherited environment, runtime identity, and optional contract id. Let \(\mathrm{Exec}(E)\) be native execution and \(\mathrm{Obs}(E)\) the observable result TraceJIT promises to match on a hit: exit status, captured stdout/stderr bytes, and recorded regular-file outputs (pathname-visible). Input file *contents* are guards, not key bits ([EXECUTION_EQUIVALENCE.md](EXECUTION_EQUIVALENCE.md)).
 
-The tracer and effect classifier do not constitute a new theory of caching. Existing systems already perform observed-dependency caching. The contribution assessed here is this prototype's particular combination of effect classes, guard compilation, output replay, refusals, and testable Linux-specific behavior.
+A reuse \(\mathrm{Reuse}(E,R)\) from record \(R\) is admitted only if classification eligibility holds and every compiled guard of \(R\) passes under the current filesystem sample. Formal full-system equivalence is **blocked** / non-goal. The thin TLA+ sketch `docs/research/formal/reuse_hit.tla` is **experimental** (typestate mapping only).
 
-## 2. Design and execution model
+## 4. Execution semantics
 
-~~~text
-command + pre-execution identity
-  -> candidate lookup (SQLite)
-  -> validate all stored guards
-       -> valid: verify cached objects, restore outputs, replay process result
-       -> invalid/missing: trace process tree using ptrace
-             -> normalize and classify effects
-             -> reconstruct input dependencies and output artifacts
-             -> compile guards; persist eligible record and CAS objects
-~~~
+Implemented contract (Phase C, PR [#12](https://github.com/Satwik-P28/tracejit/pull/12), merge `325f8a8`):
 
-The lookup key uses the executable hash, arguments, working directory, inherited environment, and runtime identity. File inputs discovered during observation are checked later by guards. In default strict mode, BLAKE3 hashes validate recorded file contents. Output files and process-result bytes are stored for replay.
+| Class | V1 reuse | Meaning |
+| --- | --- | --- |
+| `PROVEN` | yes | `GUARDED` plus seccomp and Landlock ABI 3+ actually installed |
+| `GUARDED` | yes | Modeled deps have synchronous guards |
+| `EMPIRICALLY_STABLE` | **no** | Not admitted |
+| `UNKNOWN` | **no** | Unmodeled/unsafe effect |
+| `NONDETERMINISTIC` | **no** | Clocks, entropy, process identity, network, similar |
 
-The system follows process-tree events and models selected file-descriptor behavior. It refuses uncertain effects, including the observed clock, randomness, network activity, unsupported syscalls, and writable shared file-backed mappings. Redirecting three common vDSO time functions to syscalls is intended to expose clock reads; inability to do so refuses reuse.
+Hit-path order: eligibility → all guards → verify stdout/stderr CAS → seek probes → restore outputs → apply inherited-stream offsets → then expose cached bytes (typestate `GuardsPassed`). Anonymous `MAP_SHARED` and hard-link creation are `UNKNOWN`. Deleted `/proc/.../fd/n` pathnames are not live `InheritedFile`s. Path guards replay the pathname the process passed (no lexical `..` collapse).
 
-**Safety interpretation:** `GUARDED` means modeled dependencies were observed and can be checked under the stated assumptions. `PROVEN` means a guarded profile additionally executed with the required seccomp and Landlock restrictions installed. Neither class proves that all possible userspace dependencies are observable.
+## 5. Threat model
 
-Relevant implementation: [architecture](../../ARCHITECTURE.md), [effect classifier](../../crates/tracejit-effects/src/lib.rs), [guards](../../crates/tracejit-guards/src/lib.rs), [cache](../../crates/tracejit-cache/src/lib.rs), [safety model](../../SAFETY.md).
+Assumptions: a single trusted operator on local Linux x86_64; the cache may hold secrets (stdout/env/outputs) without encryption; concurrent writers may mutate inputs between validate and restore (TOCTOU); multi-output restore is pathname-visible and not crash-atomic under hard kill; `PROVEN` confines the traced process, not the rest of the machine. Adversarial goals considered in fixtures: stale hits after content/mtime/symlink/hardlink/permission changes, CAS/SQLite corruption, output presence steering, inherited-descriptor substitution, `/dev/null` identity confusion. Bind-mount `/dev/null` substitution remains **blocked** here (`unshare -m` EPERM; defect D-B9).
 
-## 3. Experimental methodology and provenance
+## 6. System architecture
 
-Measurements were collected on GitHub-hosted Ubuntu 24.04 Linux x86_64 runners using the committed Python benchmark harness. The published methodology uses **5 warmups followed by 30 recorded wall-clock runs per stable condition**:
+Crate boundary (unchanged V1): `effects → guards → cache → trace → sandbox → core → cli`. Observation uses `ptrace`; artifacts use BLAKE3 content-addressed storage; metadata uses SQLite schema v2 with bounded candidates per lookup key (default 8). Optional `--enforce` installs seccomp-BPF and Landlock. No daemon. Strict content hashing is default; `--guard-mode fast` is an explicit opt-in.
 
-- **Direct baseline:** execute the compiled workload without TraceJIT.
-- **Traced cold:** execute via TraceJIT with a fresh cache for each cold sample.
-- **Guarded cache hit:** prime a stable cache, then rerun via TraceJIT; the harness requires a reported hit.
-- **Correctness checks:** compare observable output and process results where applicable and test input mutation leading to deoptimization.
+```text
+identity → SQLite candidates → validate guards
+  → hit: verify streams, restore CAS outputs, replay result
+  → miss: ptrace → classify → compile guards → persist if eligible
+```
 
-The harness configures `GLIBC_TUNABLES=glibc.malloc.tcache_count=0` and `MALLOC_ARENA_MAX=1` to suppress allocator entropy/arena queries for these controlled workloads. This is an experimental environment choice, **not** a general compatibility improvement. Python is separately classified, not counted as a cache-hit success. CPU frequency, neighboring runner load, and warm filesystem caches were not tightly controlled. Medians and p95s are descriptive, not confidence intervals.
+## 7. Effect abstraction
 
-Full raw measurements, environment information, and scripts: [duration-sweep JSON](../../benchmarks/results/break-even.json), [duration-sweep report](../../benchmarks/results/break-even.md), [short-command JSON](../../benchmarks/results/latest.json), [short-command report](../../benchmarks/results/latest.md), [sweep harness](../../benchmarks/harness/break_even.py), and [primary harness](../../benchmarks/harness/benchmark.py).
+Syscalls and process events normalize to read/write/control/unknown effects with the five determinism classes above. Writable file-backed `MAP_SHARED` and anonymous `MAP_SHARED` are `UNKNOWN`. vDSO clock entry points are redirected to syscalls or the run is `UNKNOWN`. Descriptor state tracks numeric fds with separate pipe identity; inherited fds above stderr fail closed at preflight (Phase 3G/3H). Semantic registry for touched classes: `crates/tracejit-effects/src/registry.rs` (**implemented+verified**, Phase E).
 
-**Version warning:** the duration sweep and synthetic transform belong to commit `e9684c1`; the earlier short-command regression belongs to `63e3363`. They are deliberately **not** merged into a single same-commit comparison.
+## 8. Guard obligations
 
-## 4. Results
+Guards are compiled from observed dependencies (file metadata/hash, executable hash, absent paths, directory identity, filesystem stats, symlink metadata, inherited streams). Default strict mode re-hashes content. Fast mode may skip content hash after matching metadata fingerprint. Every guard must pass before exposure ([SAFETY.md](../../SAFETY.md), [CORRECTNESS_OBLIGATIONS.md](CORRECTNESS_OBLIGATIONS.md)). `NoUnexpectedEffects` always passes by construction: unmodeled effects never produce a reusable record.
 
-### 4.1 Performance by command duration
+## 9. Reuse certificates
 
-The following values are historical medians from the duration sweep at `e9684c1`. Each target denotes intended workload duration; the **measured direct time** is used for speedup.
+Phase E (**implemented+verified**): `tracejit.reuse-certificate.v1` records contract id, candidate/lookup key, classification, guard evidence, content identities, descriptor obligations, CAS refs, restore preconditions, and explicit limitations ([REUSE_CERTIFICATES.md](REUSE_CERTIFICATES.md); `crates/tracejit-core/src/certificate.rs`). Claim ladder:
 
-| Target | Direct median (ms) | Cold median (ms) | Hit median (ms) | Hit p95 (ms) | Speedup |
-| ---: | ---: | ---: | ---: | ---: | ---: |
-| 1 ms | 1.796 | 11.833 | 4.165 | 4.461 | 0.431x |
-| 5 ms | 5.274 | 15.104 | 4.100 | 4.529 | 1.286x |
-| 10 ms | 9.694 | 19.544 | 4.188 | 4.607 | 2.315x |
-| 25 ms | 22.598 | 32.671 | 4.000 | 4.182 | 5.649x |
-| 50 ms | 43.983 | 54.158 | 4.165 | 4.562 | 10.561x |
-| 100 ms | 86.556 | 96.321 | 3.909 | 4.457 | 22.144x |
-| 250 ms | 214.120 | 224.031 | 3.994 | 4.653 | 53.615x |
-| 500 ms | 426.746 | 436.898 | 4.277 | 4.486 | 99.771x |
-| 1000 ms | 852.097 | 862.205 | 4.163 | 4.481 | 204.665x |
-| 2000 ms | 1702.052 | 1712.741 | 4.072 | 4.667 | 417.991x |
-| 5000 ms | 4253.836 | 4264.170 | 3.958 | 5.265 | 1074.873x |
+| Level | Status |
+| --- | --- |
+| `CheckableEvidence` | structural fields present |
+| `CheckedByVerifier` | `verify_certificate` consistency |
+| `FullEquivalenceProof` | **never** granted |
 
-The fastest measured *losing* direct baseline is 1.796 ms, and the fastest measured *winning* direct baseline is 5.274 ms. **No exact break-even point between them was measured or fitted.** Hit times are roughly constant in this controlled duration sweep, so speedups rise largely because the baseline computation becomes longer.
+Certificates re-sample the same mutable filesystem as the hit path; they do not close TOCTOU.
 
-### 4.2 Representative workloads, including a regression
+## 10. Counterexample-guided refinement
 
-| Workload and benchmark commit | Direct median | Cache-hit median | Ratio | Interpretation |
-| --- | ---: | ---: | ---: | --- |
-| Synthetic C transform, `e9684c1` | 312.913 ms | 3.972 ms | **78.780x** | Controlled demonstration, includes 250 million extra mixing rounds |
-| Short C ETL, `63e3363` | 7.396 ms | 7.957 ms | **0.929x** | TraceJIT is slower; baseline/hit p95s were 10.620/18.618 ms |
+Phase E workflow (**implemented+verified**): observe → abstract → counterexample → minimize → refine → retest (`crates/tracejit-effects/src/refinement.rs`; [CEGAR_REFINEMENT.md](CEGAR_REFINEMENT.md)). Worked cycle: DirectoryOpened over-abstraction → sibling-create CE → identity-only directory guard (historical product fix). **Rejected:** treating `getrusage` as ignorable/whitelistable (`getrusage_refinement_rejected`). No claim that CEGAR itself is novel; no new product syscall admits in Phase E (**deferred**).
 
-For the short C ETL at `63e3363`, the cold traced median was **21.024 ms**, versus **7.396 ms** direct. The historical cold traced p95 was **168.417 ms** on the shared runner. Both first-run overhead and tail variability matter when evaluating whether reuse is worthwhile.
+## 11. Adaptive admission
 
-The synthetic transform is intentionally favorable to whole-command caching because it repeats substantial CPU work while preserving a small, restorable output. Its headline ratio must **not** be described as representative performance on real compilers, production ETL, or interactive commands.
+Policies choose whether to **pay for tracing**; they never skip guards or invent eligibility ([ADMISSION_POLICIES.md](ADMISSION_POLICIES.md)).
 
-### 4.3 Amortized break-even analysis
+Expected benefit for costs \(C = (\mathrm{direct},\mathrm{cold},\mathrm{hit})\) with hit probability \(p\) estimated from measured hits/(hits+deopts), and \(p=0\) when unsampled:
 
-Let `D` be direct execution time, `C` the first traced execution time, `H` a guarded cache-hit time, and `n` the number of identical executions with no invalidation. TraceJIT is faster over the sequence when:
+\[
+\mathbb{E}[B] = p\cdot\max(\mathrm{direct}-\mathrm{hit},0) - (1-p)\cdot\max(\mathrm{cold}-\mathrm{direct},0)
+\]
 
-~~~text
-C + (n - 1)H < nD
+Production `auto` remains the shipped policy. Offline comparison on a held-out synthetic matrix (`tracejit admission-eval`) preferred `CurrentAuto` at regret **49 000 000 ns** vs oracle; `ConfidenceBound` tied and lost on simplicity; bandit-as-default **rejected** (Phase E RESULT lines). Phase G ablation: `auto` skips short ETL reuse while still caching the CPU-heavy transform after measurement.
 
-If D > H, then n > (C - H) / (D - H).
-If D <= H, repeated cache hits do not amortize the initial trace cost.
-~~~
+## 12. Crash recovery
 
-Using **medians as a simplified cost model**, the measured 5 ms target (`D=5.274`, `C=15.104`, `H=4.100` ms) predicts that **10 total executions** are needed to beat direct execution. The 250 ms target (`D=214.120`, `C=224.031`, `H=3.994` ms) predicts **2 total executions**. These are **derived estimates, not separately verified multi-run experiments**. Real performance depends on cache invalidation, output size, guard cost, contention, and runtime variance.
+Normal restore failures roll back staged outputs. There is **no** durable multi-file journal. Hard kill during multi-output restore can leave a mixed pathname-visible workspace; recovery is re-execution. Phase D adds detectability/fail-closed tests and keeps honest wording in `CORRECTNESS_OBLIGATIONS.md`. Inode-preserving CAS rename is **not** claimed.
 
-This is the practically relevant tradeoff: maximizing a best-case speedup is less informative than measuring cache admission rate, invalidation frequency, cost to trace, and amortized savings over realistic repeated invocations.
+## 13. Implementation
 
-## 5. Correctness and refusal evidence
+Rust workspace on Linux x86_64. Releases: `v0.1.0` (`cf0ddb2`), `v0.1.1` (`31c36d1`) — tags must not move. Notable product fixes on `main` through Phase F (`84b07c1`): inherited `/dev/null` read identity (`bb29414`); inherited fd>2 preflight; descriptor enumeration fail-closed + `dup2(fd,fd)` + directory-state forget on reuse (PR [#8](https://github.com/Satwik-P28/tracejit/pull/8)); post-`Cache::open` inherited-fd re-scan (PR [#11](https://github.com/Satwik-P28/tracejit/pull/11)); Phase C semantics; Phase F stream-hash CAS staging, single-fd metadata+hash pairs, candidate `LIMIT`, precomputed runtime-identity JSON. Research branches #6/#7/#9/#10 stay **isolated** (Phase A reconciliation: keep #4/#5/#8 on main; reject #6/#7/#9/#10 for main).
 
-The public [adversarial fixture manifest](../../tests/fixtures/cases.json) contains **47 expected-classification cases**: **30 `Guarded`**, **12 `Nondeterministic`**, and **5 `Unknown`**. Its cases exercise file and metadata changes, environment and working-directory dependence, symlinks, descendants, clock and random reads, process identity, network and Unix sockets, unknown ioctl, and writable shared mappings.
+## 14. Experimental methodology
 
-The Linux [integration tests](../../crates/tracejit-cli/tests/linux_integration.rs) include cache-hit/replay checks, mutation-triggered deoptimization, output restoration, refusal behavior, and conditional sandbox assertions. The public [CI workflow](../../.github/workflows/ci.yml) is configured to run formatting, Clippy, workspace tests, Linux integration tests, capability assertions, and the demo. This report **inspected the test definitions and published results** but did not independently rerun them on a native Linux host.
-
-In the historical short-command result, output equivalence and mutation/deoptimization are recorded as **PASS**. That constitutes evidence for the tested paths, not a proof over all possible Linux executions.
-
-## 6. Limitations and threats to validity
-
-1. **Sequential output restore:** the inspected `restore_outputs` validates preconditions and cached contents before modifying outputs, but then persists/removes multiple outputs in a loop. A failure partway through may leave earlier modifications applied. It is **not** a cross-file transaction.
-2. **Unobservable dependencies:** ptrace sees modeled kernel crossings, not arbitrary shared-memory or other userspace influences. The vDSO patch addresses specific clock entry points, not every potential unobserved input.
-3. **TOCTOU:** other processes may modify an input between guard validation and restoration. Landlock confinement of the traced process does not freeze external writers.
-4. **Conservative compatibility:** CPython, shell pipelines, and `cc -c` were refused in the published runs. A high apparent speedup on a tailored workload does not imply a high hit rate on typical development workloads.
-5. **Security boundaries:** the local cache may contain stdout, stderr, outputs, and environment values, without encryption or multi-user isolation. `PROVEN` is an enforcement status, **not** a formal verification result.
-6. **Experimental design:** one hosted-runner class, synthetic-heavy workload mix, 30 observations per condition, uncontrolled system noise, no independent external replication, and performance figures collected on earlier commits. The current public code has no new same-commit performance result here.
-7. **Prior art:** automatic dependency observation and process-result caching already exist. No head-to-head matching-workload comparison with Firebuild or Rattle is reported, so superiority and research novelty are unestablished.
-
-## 7. Related work
-
-- [Firebuild](https://github.com/firebuild/firebuild) automatically observes command behavior and caches eligible process results. TraceJIT must be evaluated against this close precedent rather than claiming automatic process caching as a new idea.
-- [Build Systems à la Carte](https://doi.org/10.1017/S0956796820000088), Mokhov, Mitchell, and Peyton Jones (2020), provides a formal framework for thinking about task scheduling and rebuild decisions.
-- [Build Scripts with Perfect Dependencies](https://ndmitchell.com/downloads/paper-build_scripts_with_perfect_dependencies-18_nov_2020.pdf) discusses Rattle and tracing-derived build dependencies.
-- [Linux Landlock documentation](https://docs.kernel.org/security/landlock.html) describes scoped access control; it should not be confused with complete observation or whole-system isolation.
-
-TraceJIT is best understood as a systems engineering experiment at the intersection of dynamic dependency discovery, conservative cache eligibility, and guarded replay, not a novel JIT compiler in the conventional machine-code-generation sense.
-
-## 8. Reproduction and next experiments
-
-On supported Linux x86_64 with ptrace permissions and the required toolchain:
-
-~~~bash
-cargo fmt --all -- --check
-cargo clippy --workspace --all-targets --all-features -- -D warnings
-cargo test --workspace
-cargo test -p tracejit-cli --test linux_integration -- --nocapture
-cargo build --workspace --release
-./scripts/demo.sh
-./scripts/benchmark.sh --runs 30 --warmups 5
-python3 benchmarks/harness/break_even.py --runs 30 --warmups 5
-~~~
-
-The scripts generate or refresh benchmark artifacts. Reproduction **should be recorded against the actual checked-out commit** and should not overwrite older results without retaining their provenance.
-
-The most informative follow-up experiments are:
-
-1. A same-commit multi-run study measuring total end-to-end time across 1, 2, 5, 10, and 50 invocations, including the cold run and forced invalidations.
-2. A real-command compatibility census with predeclared commands, eligible/refused counts, refusal reasons, output equivalence, and no selective omission of failures.
-3. Fault injection into multi-output restoration, concurrent writers, CAS corruption, and symlink races, followed by a verified transactional restore strategy.
-4. Repetitions on different kernel/libc versions and hardware, with raw samples, uncertainty intervals, and a baseline against the closest existing tool under matched conditions.
-5. A new benchmark at the latest public commit after the later Phase 2 changes have been integrated and independently validated.
-
-## 9. Phase 3A addendum (10 November 2026)
-
-This section records work on the development branch after the original report's inspected commit. It
-does not replace the historical measurements above.
-
-### Candidate retention and replay ordering
-
-Schema version 2 keys execution rows by `execution_id` and indexes `(lookup_key, updated_unix_ms)`.
-Up to eight guarded candidates are retained for one command identity, so an A/B/A input sequence can
-return to A without losing A's record. A candidate is selected only after its guards pass. Cached
-stdout and stderr are BLAKE3-verified before any output destination is modified; inherited-stream
-seekability is probed and the recorded start offset restored before restoration. The v1 cache
-migrates in one SQLite transaction. Restoration remains pathname-visible, not atomic across a hard kill
-and not inode-preserving.
-
-### Measured A/B/A change
-
-A five-session A/B/A fixture (`plain_file_read`) changed the third invocation from `Executed` on the
-pre-change binary to `Reused` on the new binary. The new median wall time was **13.841662 ms**, versus
-**20.572657 ms** for the pre-change binary; all output bytes were correct in both arms. Raw result:
-[`benchmarks/results/phase3a/candidate-reuse.json`](../../benchmarks/results/phase3a/candidate-reuse.json).
-This is a small fixture measurement of candidate retention, not a general workflow speedup.
-
-### Hosted-CI failure and enforcement fix
-
-The first hosted run of the Phase 3A commit (`2aa662d`) failed the Linux integration target. The public
-check annotation named `enforced_execution_is_proven_reused_and_invalidated`: the second `--enforce`
-run returned `classification: "Guarded"` with the reason `enforcement unavailable for the recorded
-output policy; execution remains guarded`. The discovered dependency profile contained an absent
-`Metadata` observation for `/etc/ld.so.preload`; `policy_from_record` required that path to exist and
-therefore refused to build the sandbox policy.
-
-`7358720` separates stat-only dependencies (`Metadata`, `FilesystemStats`, `SymlinkMetadata`) from
-inputs that must be opened or executed. An absent stat-only path is a valid negative observation and is
-omitted from the readable policy; a missing executable, file read, directory, symlink or inherited
-stream still fails closed.
-
-A second hosted run (`e77e03f`, run `42891829903`) built the policy but still returned `Guarded` with
-`Permission denied` from `execve`. A dynamically linked target's ELF interpreter is executed by the
-kernel before tracing begins, so it was absent from the recorded dependencies and Landlock denied the
-interpreter. `3e7f820` reads `PT_INTERP`, verifies the interpreter exists and adds it to the readable
-policy; a missing interpreter still refuses enforcement.
-
-Local verification after the final fix: formatting, Clippy, **128 workspace tests**, **42 Linux
-integration tests**, the release build and the demo pass. The local `PROVEN` test remains SKIP because
-this host has no Landlock. Release binary:
-`ce80ac96ef38159b7044c90642d8f1f83233db2ddf268827eec09a2a73573354`. Hosted run `42896870132` at
-`3e7f820` passed every CI step, including Doctor, Linux integration and Demo. That is hosted evidence,
-not a local reproduction.
-
-## Phase 3B addendum: necessary rerun invalidation and scaling costs
-
-The Phase 2T identical-rerun failure has a concrete cause: `bzip2` stats its absent destination
-before creating it, and that negative `FileMetadata` observation is recorded as an ordinary input
-guard. On the next run the destination exists, so the candidate is rejected. This is not a missing
-output-pre-state optimization that can safely be generalized: an arbitrary program may branch on
-presence and write different bytes, and the existing adversarial fixture does exactly that. The
-invalidation is retained.
-
-The transition is one-time. The current binary records 833.464 ms for the absent-output build,
-793.821 ms for the first present-output rerun, and 231.120 ms for the stable third rerun; all three
-commands reuse in the stable round. The old binary is 809.446 / 811.263 / 242.411 ms. The meaningful
-current improvement is the deleted-output state, 261.146 ms versus 807.075 ms, from retained
-alternate candidates. This remains a valid negative against Make/Ninja on the first post-build
-rerun; the historical three-session Phase 2T result is unchanged.
-
-Candidate scaling from 1 to 32 retained records (oldest target, newest-first evaluation) raised
-selector wall time from 9.133 to 41.087 ms; SQLite query and record decode grew while guard
-validation stayed near 1 ms for the small fixture. The retention bound remains eight, now with an
-experimental `TRACEJIT_CANDIDATE_BOUND` override clamped to 1–32. At bound 8, 16 distinct input
-states retained 8 records; the evicted state deoptimized and the surviving state reused.
-
-The corrupt-stream ordering has an independent regression using fixtures that branch on output
-presence and emit stdout or stderr. Both cases pass: the corrupt stream is rejected before the
-recorded output is restored. Strict hashing measured 1.13 ms at 1 KiB, 9.89 ms at 16 MiB and
-99.40 ms at 256 MiB (about 2.58 GiB/s); the complete warm fixture path at 256 MiB is 1.42 s because
-it also copies the output. No fs-verity or event-assisted invalidation was implemented: the former
-only covers immutable storage, and the latter requires explicit lost-event recovery.
-
-The native census still refuses all nine workloads. Clock and randomness are tied at two workloads;
-unmodeled `lseek`, pipe `fstat`, `getrusage`, and an unrestorable lint output are documented rather
-than papered over. No guard was weakened to improve the hit rate.
-
-## Phase 3C addendum: measured replay cost and candidate selection
-
-Phase 3B's 231 ms stable-workflow figure was a measurement error: its harness decompressed each
-bzip2 output after every command. Separating verification from the command loop gives a direct
-three-command replay workflow of 46.5-106.8 ms across two sessions, with 15.4-31.6 ms per command.
-The dominant phases are process startup, guard validation, and CAS restoration; output restore has
-a large host-writeback tail (3.4-21.9 ms). The shell-batch comparison (45.0-57.7 ms) is harness
-overhead, not an in-process batch feature. File-descriptor shape is part of the execution identity:
-redirecting batch stdout to a file correctly causes a miss.
-
-Repeated fresh-cache scaling at 1, 2, 4, 8, 16, 32 and 64 candidates separates the common newest
-hit from the oldest-target worst case. Newest-hit medians stay at 11.5-14.5 ms even at 64 retained
-records; oldest-target medians rise to 82.2 ms and a miss is 77.2 ms. A lazy `CandidateBytes` path
-now defers JSON decoding until the candidate is validated, preserving full guard checks. It is a
-two-stage lookup prototype, not a fingerprint that can replace validation. The default bound stays
-8 and the experimental ceiling is 64.
-
-The `lseek` census blocker was the exact inherited `/dev/null`, whose seek result is constant zero.
-That path is now admitted; arbitrary inherited character devices and directory seeks remain refused.
-The native census is still 9 attempted, 0 reused, 9 refused, so this is blocker reduction rather
-than a compatibility claim. No unchanged-output fast path was added: avoiding a rewrite would
-change inode, ctime, ownership and hard-link semantics absent a managed-workspace contract.
-
-## Phase 3F addendum: read identity and the controlled Python frontier
-
-The inherited `/dev/null` read path was unsound: it trusted the recorded pathname rather than the
-open file description. A descriptor recorded as `/dev/null` could be replaced by a regular file or
-another device, and a successful read would then be treated as process-internal. The fix applies the
-existing `fstat` character-device 1:3 check to the common `read`/`pread64`/`readv` branch. If the
-check fails, a tracked regular stdin still uses the guarded offset-stream model; other inherited
-descriptors are refused. Regressions cover actual null reads, a `dup2` alias, regular stdin, a
-null-to-regular change and an uninspectable descriptor. A true bind-mount substitution could not be
-run because this host denies `unshare -m`.
-
-The Phase 3D retrieval prototype should not merge. It improved newest hits by roughly 0.6-3.4 ms but
-worsened the oldest target at four of seven bounds and adds SQLite round trips; the useful part is its
-SQLite error-propagation fix, not the retrieval design. The Phase 3E epoll change is likewise not
-ready: create/dup/close works, but fork/exec inheritance, `RLIMIT_NOFILE`, `fcntl`/`SCM_RIGHTS`
-transfer and stale descriptor numbers are untested, and the PR is still stacked on the experimental
-retrieval branch.
-
-For CPython, the exact host build is 3.12.3 with ELF build ID
-`337d65cf00021797985cc9f77c0cc334a9fbeb38`. Startup issues `getpid`/`getppid`, three `getrandom`
-calls (8, 8 and 24 bytes), `gettid`, and vDSO clock observations; the 24-byte call is at
-`Py_InitializeFromConfig+0x198`. Those interfaces are shared with application code, so a broad
-Python exemption is not defensible. Three hypotheses remain: an audited runtime-internal contract
-bound to the exact build and call sites, a virtualized single-process environment, and conservative
-causal refusal. The smallest starting class is the initialization-only `getrandom`; even admitting
-it would not make the measured ETL workload reusable because clock and `gettid` remain unverified.
-No controlled identity was enabled.
-
-The Phase 3F native census is still a negative: 9 attempted, 0 reused, 9 refused, with all direct/traced
-output equivalence checks passing. Clock and randomness each block four workloads; process identity
-blocks three; `getrusage` blocks both compiler workloads; shell and groff remain scheduling-dependent;
-Pillow still reaches unmodeled `epoll_create1`; and the lint workload has an unrestorable `/dev/null`
-output. This is blocker reduction, not a compatibility claim.
-
-## Phase 3G addendum: independent inherited descriptors and Python's controlled frontier
-
-The runtime identity covered stdin but not independently inherited descriptors above stderr. This
-was a real unsoundness: fd 9 inherited from `/dev/null` could record an EOF read, then fd 9 from
-`/dev/zero`, a regular file, a pipe, or a closed descriptor could reuse that EOF. The demonstrable
-fix is an entry preflight: any fd above 2 captured before `Cache::open` sends the command to ordinary
-direct execution with no cache lookup or record. A comprehensive descriptor-identity model would
-also need offsets, flags, shared open-description state, fork/exec and concurrent replacement; it was
-not attempted. The trace layer keeps an `Unknown` effect for these descriptors as a second defence.
-The regression covers the four substitutions and two concurrent runs.
-
-Hosted CI is the remaining P0 gate: the first run failed in Tests before the test harness was made
-to close runner-opened descriptors; the next run passed Tests but failed Demo because the preflight
-counted the shell's close-on-exec script descriptor. Commit `ee32d6e` skips `FD_CLOEXEC`
-descriptors and adds a close-on-exec regression. The demo then needed a clean descriptor table and a
-stable environment identity (`b78726b`). Hosted run `43304278963` passed every step, including Demo;
-`main` is at `b78726b`. Local gates at that tree are 138 workspace tests and 51 Linux integration
-tests.
-
-For CPython 3.12.3, the Phase 3F symbol attribution was corrected. The 24-byte `getrandom` is the
-hash secret in `_Py_HashRandomization_Init`, not a time conversion; `PYTHONHASHSEED=0` removes it
-while the 8-byte glibc allocator probe, `gettid` and both clocks remain. Under the existing
-`allocator-entropy-v1` contract with `PYTHONHASHSEED=0`, randomness disappears but clocks and process
-identity still make `python-csv-json` `Nondeterministic` and ineligible. The correct conclusion is a
-controlled **observation** milestone, not a Python cache hit. A Python contract would have to bind
-the exact ELF and call site, state the semantic changes (fixed hash seed, virtual clocks, pid/tid),
-and prove complete effects; none of those conditions hold.
-
-## Conclusion
-
-TraceJIT demonstrates a coherent approach to conservatively reusing certain unmodified Linux processes by combining observed effects with explicit synchronous guards. Its measured advantage is strong for a controlled, CPU-heavy repeated command; its fixed overhead and refusal rate limit the broader usefulness. The engineering and failure analysis are substantively more informative than the maximum speedup. The current evidence supports **a promising systems prototype with bounded claims**, not a general-purpose production accelerator or a formally proved method.
+| Suite | Method | Evidence |
+| --- | --- | --- |
+| Official short ETL | 5 warmups + 30 runs; direct / cold / cached | `./scripts/benchmark.sh` → `benchmarks/results/latest.{json,md}` |
+| Duration sweep (historical) | same shape on hosted Ubuntu 24.04 | `e9684c1`; `benchmarks/results/break-even.*` |
+| Phase D differential | seeds 7/11/17; native vs discover vs reuse | `benchmarks/differential/phase_d.py`; `benchmarks/results/phase_d/differential/` |
+| Phase D adversarial | Rust scenarios | `crates/tracejit-cli/tests/phase_d_verification.rs` |
+| Phase F profile | phase timers (no `perf`/CPU PMU on host) | `benchmarks/repos/phase_f_profile.py`; `benchmarks/results/phase_f/` |
+| Phase G evaluation | 5 warmups + 20 runs; two held-out sessions | `benchmarks/repos/phase_g_evaluation.py`; `benchmarks/results/phase_g/` |
+
+Host for Phases F/G: kernel `6.12.113+`, rustc `1.100.0`, ext4, 4 CPUs. Tools absent and **not claimed**: ninja, ccache, sccache, perf, strace. Allocator tunables `GLIBC_TUNABLES=glibc.malloc.tcache_count=0` and `MALLOC_ARENA_MAX=1` are experimental environment choices for controlled C workloads, not general compatibility.
+
+## 15. Correctness results
+
+- Linux integration on Phase G tip: **55** passed, `proven-reuse PASS` (PR #16 body; Landlock available on that host).
+- Phase D differential: seeds 7/11/17 each **0** `incorrect_hits`, **0** `discover_mismatches` (135 executed / 11 skipped per seed).
+- Phase D adversarial: `executed=11 skipped=0 incorrect_hits=0`.
+- Concurrency RESULT lines: cold/warm/reused=8; restore contention `errors=0`.
+- `proptest` properties: no product defect found (one test-only generator assumption fixed).
+- Closed P0s on main: D-A1…D-A5 (defect register). Phase B D-B1 post-open re-scan landed.
+- Controlled Python / epoll / two-stage retrieval / metadata hash-cache: **rejected for main** (research #6/#7/#9/#10).
+
+## 16. Performance results
+
+Numbers below cite committed harness outputs only.
+
+### Wins (Phase G session A medians)
+
+| Scenario | Direct / other | TraceJIT | Evidence |
+| --- | ---: | ---: | --- |
+| CPU `c-transform` | 36.136 ms | **3.116 ms** warm reused | `evaluation-session-a.md` |
+| `bzip2 -9` (contract) | 26.485 ms | **5.333 ms** always-warm | same |
+| A/B/A third run | — | **4/4** Reused | same |
+| Large restore opt (F vs E) | cas_restore 9.116 ms (E tip) | **7.541 ms** (F tip) | Phase G ablation |
+
+### Losses (retained)
+
+| Scenario | Number | Evidence |
+| --- | --- | --- |
+| Official short ETL | 1.455 → 3.571 ms (**0.407×**) | `latest.md` @ `94c64c7` |
+| Phase G short ETL | 1.537 vs 3.421 ms | session A |
+| Large ~8 MiB read | 10.786 vs 21.539 ms | session A |
+| Build identical rerun vs make | TraceJIT 58.467 ms Executed×3 vs make 1.651 ms | session A |
+
+### Historical (do not merge into same-commit comparisons)
+
+| Workload | Commit | Direct | Hit | Ratio |
+| --- | --- | ---: | ---: | ---: |
+| Synthetic transform (250M mixes) | `e9684c1` | 312.913 ms | 3.972 ms | 78.780× |
+| Short C ETL | `63e3363` | 7.396 ms | 7.957 ms | 0.929× |
+
+Duration sweep hit floor ~4 ms (`break-even.md` @ `e9684c1`).
+
+## 17. Ablation studies
+
+| Lever | Finding | Status | Evidence |
+| --- | --- | --- | --- |
+| Stream-hash CAS staging | Large-file warm 14.591 → 9.748 ms; cas_restore 9.980 → 5.947 ms | shipped | Phase F `profile-*.md` |
+| Drop staging `sync_all` | Small-file cas_restore 1.128 → 0.134 ms | **rejected** (durability) | `profile-ablation-no-fsync.md` |
+| Candidate `LIMIT` | Newest-hit ~3 ms across bounds 1–32 | keep | Phase G |
+| Lazy `CandidateBytes` | Decode small on newest hit | keep | Phase G |
+| Strict vs Fast guards (~1.8 MiB) | Fast warm 7.386 / guard 0.032 vs Strict 8.409 / 1.046 ms | Fast **experimental** opt-in | Phase G |
+| Admission `auto` | Skips short ETL; caches transform | keep production | Phase G |
+| Bandit default | Tied/worse than `CurrentAuto` | **rejected** | Phase E |
+| Metadata fingerprint hash cache | Concurrent same-metadata risk | **rejected** | D-B7 / #10 |
+
+## 18. Negative findings
+
+- Native real-world census remains **0/9** reusable (clocks/randomness/identity/`getrusage`/pipes); fail closed, not “fixed” by weakening ([LITERATURE_REVIEW.md](LITERATURE_REVIEW.md), Phase 3F/3G audits).
+- Output-presence guards are **necessary**: bzip2 identical rerun deopts when the destination exists (Phase 3B); treating absence as an optimization would be unsound.
+- Phase 3D two-stage retrieval: no general win; **reject** merge (#6).
+- Controlled CPython contracts change cold-run semantics; counterexamples recorded; **reject** for main (#9/#10).
+- Make/Ninja correctly configured workflows remain faster on identical reruns; TraceJIT’s defensible difference is automatic discovery + correct recovery, not build-graph throughput (Phase G build-edit table).
+- Hardware PMU/`perf` unavailable on evaluation host — **blocked**; wall-clock + phase timers only.
+
+## 19. Related work
+
+Prior art is reviewed in [LITERATURE_REVIEW.md](LITERATURE_REVIEW.md) and [COMPETITIVE_BENCHMARKS.md](COMPETITIVE_BENCHMARKS.md). Attribution, not novelty claims:
+
+| Area | Systems |
+| --- | --- |
+| Automatic process/command caching | Firebuild |
+| Compiler caches | ccache, sccache |
+| Build graphs | Bazel, Buck2, Make, Ninja, Rattle |
+| Incremental computation | Salsa, Adapton |
+| Record/replay & determinism | rr, Hermit |
+| Enforcement | Linux seccomp, Landlock |
+| Content-addressed storage | Nix store ideas; TraceJIT uses BLAKE3 CAS |
+| CEGAR | classical software-model-checking literature; TraceJIT’s loop is an engineering workflow over effect abstractions |
+| Online decisions | TraceJIT’s admission policies are cost models over tracing, not bandits in production |
+
+TraceJIT does **not** claim superiority over Firebuild/ccache/sccache on matched workloads; ninja/ccache/sccache were absent on the Phase G host and were skipped, not invented.
+
+## 20. Limitations
+
+1. Validate→restore TOCTOU remains.
+2. Multi-output restore not crash-atomic / not inode-preserving.
+3. Observation ≠ full userspace dependency capture.
+4. Certificates never claim `FullEquivalenceProof`.
+5. Short-command floor; large restore+hash can lose to direct copy.
+6. Python/shell/`cc -c` typically refused on native census.
+7. Cache not encrypted; single-operator threat model.
+8. TLA+ model not machine-checked against the binary.
+9. No peer-reviewed publication; no production-adoption claim.
+
+## 21. Future research
+
+Deferred or blocked items only — not promises:
+
+- Durable multi-file restore journal with measured fault injection.
+- Privileged mount-namespace tests for bind-mount `/dev/null` (D-B9).
+- Broader syscall modeling only with obligation suites (epoll fork/exec/`RLIMIT_NOFILE`/fd transfer before any merge of #7).
+- Matched competitive runs once ninja/ccache/sccache/Firebuild are installed.
+- Hardware-counter attribution when PMU/`perf` exist.
+- Formal connection from TLA+ typestate to Rust hit path (**blocked** as full-system proof).
 
 ---
 
-**Evidence index:** [README](../../README.md) | [benchmark methodology](../../BENCHMARKS.md) | [historical sweep](../../benchmarks/results/break-even.md) | [historical short-command result](../../benchmarks/results/latest.md) | [safety](../../SAFETY.md) | [source architecture](../../ARCHITECTURE.md) | [tests](../../crates/tracejit-cli/tests/linux_integration.rs)
+**Evidence index:** [README](../../README.md) · [CLAIMS_LEDGER](CLAIMS_LEDGER.md) · [FOCUS materials](../focus/APPLICATION_MATERIALS.md) · [EXECUTION_EQUIVALENCE](EXECUTION_EQUIVALENCE.md) · [benchmarks/results/](../../benchmarks/results/) · [SAFETY](../../SAFETY.md) · [ARCHITECTURE](../../ARCHITECTURE.md)
+
+**Appendix — superseded narrative:** The 9 November 2026 public-`f90b4db` report and Phase 3A–3G addenda remain in git history; this Part XVIII rewrite supersedes them as the living technical report. Historical numbers above keep their original commits.
