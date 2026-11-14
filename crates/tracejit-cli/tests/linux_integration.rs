@@ -1724,17 +1724,30 @@ fn inherited_descriptor_beyond_stdin_is_never_reused() {
         ("pipe", Some(&pipe)),
         ("closed", None),
     ] {
-        let first = run_with_fd9(&fixture, "inherited_fd9_read", Some(&null), true);
+        // CI can transiently fail a baseline spawn under parallel load (empty stderr). Retry once
+        // with richer diagnostics; product refusal for fd 9 is what this test asserts afterward.
+        let first = {
+            let attempt = run_with_fd9(&fixture, "inherited_fd9_read", Some(&null), true);
+            if attempt.status.success() {
+                attempt
+            } else {
+                run_with_fd9(&fixture, "inherited_fd9_read", Some(&null), true)
+            }
+        };
         assert!(
             first.status.success(),
-            "{label} baseline: {}",
-            stderr_of(&first)
+            "{label} baseline status={:?} stderr={} stdout={}",
+            first.status.code(),
+            stderr_of(&first),
+            String::from_utf8_lossy(&first.stdout)
         );
         let second = run_with_fd9(&fixture, "inherited_fd9_read", Some(&null), true);
         assert!(
             second.status.success(),
-            "{label} baseline: {}",
-            stderr_of(&second)
+            "{label} baseline status={:?} stderr={} stdout={}",
+            second.status.code(),
+            stderr_of(&second),
+            String::from_utf8_lossy(&second.stdout)
         );
         let second_report: Value = serde_json::from_slice(&second.stdout).unwrap();
         assert_ne!(second_report["kind"], "Reused", "{label}: {second_report}");
