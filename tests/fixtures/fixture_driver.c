@@ -152,6 +152,46 @@ int main(int argc, char **argv) {
     close(fd);
     return 0;
   }
+  if (!strcmp(name, "mmap_anon_shared")) {
+    void *mapping =
+        mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+    if (mapping == MAP_FAILED) return 1;
+    ((unsigned char *)mapping)[0] = 'Z';
+    munmap(mapping, 4096);
+    return 0;
+  }
+  if (!strcmp(name, "hardlink_create")) {
+    char link_path[4096];
+    join_path(link_path, sizeof(link_path), root, "second-link.txt");
+    unlink(link_path);
+    /* Alias the existing input inode; do not create a separate writable output that
+       would become a multi-link capture problem after link(2). */
+    if (link(input, link_path) != 0) return 1;
+    return 0;
+  }
+  if (!strcmp(name, "negative_lookup")) {
+    char missing[4096];
+    join_path(missing, sizeof(missing), root, "optional-missing.txt");
+    struct stat metadata;
+    if (stat(missing, &metadata) == 0) return 2;
+    if (errno != ENOENT) return 3;
+    return write(STDOUT_FILENO, "absent\n", 7) != 7;
+  }
+  if (!strcmp(name, "hardlink_input_read")) {
+    char primary[4096];
+    char alias[4096];
+    join_path(primary, sizeof(primary), root, "input.txt");
+    join_path(alias, sizeof(alias), root, "input-alias.txt");
+    /* Prefer the alias when present so the recorded path is the hard-linked name. */
+    const char *path = access(alias, F_OK) == 0 ? alias : primary;
+    int fd = open(path, O_RDONLY);
+    if (fd < 0) return 1;
+    char buffer[4096];
+    ssize_t count = read(fd, buffer, sizeof(buffer));
+    close(fd);
+    if (count < 0) return 2;
+    return write(STDOUT_FILENO, buffer, (size_t)count) != count;
+  }
   if (!strcmp(name, "unknown_ioctl")) {
     int pair[2], available = 0;
     if (pipe(pair) != 0) return 1;

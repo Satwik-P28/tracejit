@@ -135,11 +135,13 @@ The inherited environment is part of that key even when the process never calls
 
 ## Effects the tracer does not record
 
-Anonymous `mmap`, `brk`, `madvise`, and `futex` are process-internal. A file-backed
-`MAP_SHARED` mapping that is writable, or that `mprotect` later makes writable,
-is `UNKNOWN` and is not reused. `mremap` of a recorded file mapping is `UNKNOWN`.
-Private and read-only file mappings stay internal; the earlier `open` is the
-content dependency. A private store does not modify the file.
+Anonymous private `mmap`, `brk`, `madvise`, and `futex` are process-internal.
+Anonymous `MAP_SHARED` is `UNKNOWN`: it is untracked shared memory across
+`fork`/`clone` and is not a guarded effect. A file-backed `MAP_SHARED` mapping
+that is writable, or that `mprotect` later makes writable, is `UNKNOWN` and is
+not reused. `mremap` of a recorded file mapping is `UNKNOWN`. Private and
+read-only file mappings stay internal; the earlier `open` is the content
+dependency. A private store does not modify the file.
 
 Before the first instruction of each exec, the tracer rewrites vDSO
 `clock_gettime`, `gettimeofday`, and `time` to `syscall` stubs and clears

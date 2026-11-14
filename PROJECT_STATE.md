@@ -9,8 +9,8 @@ Infer observable dependencies of an unmodified Linux process and reuse computati
 - Reuse only `PROVEN` and `GUARDED`. `UNKNOWN`, `NONDETERMINISTIC`, and `EMPIRICALLY_STABLE` never reuse in V1.
 - `PROVEN` requires seccomp plus Landlock ABI 3+ actually installed.
 - Every guard must pass before cached stdout, stderr, exit status, or files are exposed.
-- Writable file-backed `MAP_SHARED` is `UNKNOWN`. vDSO time is redirected or `UNKNOWN`.
-- Uncertainty fails closed. Do not weaken safety for benchmarks.
+- Writable file-backed `MAP_SHARED` and anonymous `MAP_SHARED` are `UNKNOWN`. vDSO time is redirected or `UNKNOWN`.
+- Path guards replay the pathname the process passed (no lexical `..` collapse). Uncertainty fails closed.
 
 ## Architecture
 
@@ -19,47 +19,42 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 
 ## Current main
 
-- Tip: `29718cf55b7a9c937bd0c9147dfc650fbd2498f2` — Phase 3H/3I descriptor P0 merge (PR #8).
+- Tip: `a32c191` — Phase B post-`Cache::open` inherited-fd re-scan (PR #11).
+- Prior: `29718cf` Phase 3H/3I descriptor P0 (PR #8).
 - Releases: `v0.1.0` (`cf0ddb2`), `v0.1.1` (`31c36d1`). Do not move tags.
-- Hosted CI `validate` on `29718cf`: success (run `43380851411`).
+- Research PRs #6/#7/#9/#10 stay isolated (not for main).
 
-## Reconciliation (2026-11-14)
+## Phase B (landed on main via #11)
 
-| PR | State | Decision |
-| --- | --- | --- |
-| #4 Phase 3B | closed, merged | Keep |
-| #5 Phase 3C | closed, merged | Keep |
-| #6 Phase 3D retrieval | closed draft, **unmerged** | Reject; isolate |
-| #7 Phase 3E epoll | closed draft, **unmerged** | Reject; isolate |
-| #8 descriptor P0 | closed, merged | Keep |
-| #9 controlled Python research | open draft | Reject for main |
-| #10 Python v2 / hash-cache research | open draft | Reject for main |
-
-Landed correctness: `/dev/null` read fstat identity (3F), inherited fd>2 refusal (3G), enumeration fail-closed + `dup2(fd,fd)` + dirent forget-on-reuse (3H/3I).
-
-## Phase B stabilize (branch `cursor/phase-b-stabilize-1841`)
-
-- Post-`Cache::open` inherited-descriptor re-scan so non-CLOEXEC cache fds cannot bypass the preflight.
-- Regression: `cache_open_descriptors_are_close_on_exec`.
+- Post-`Cache::open` inherited-descriptor re-scan; cache-path CLOEXEC regression.
 - Removed unused workspace dependency `tracing`.
-- Phase A artifacts (store): `docs/reconciliation-report.md`, `docs/defect-register.md`, `internal/baseline-report.json`.
+- Concise `PROJECT_STATE.md` reconciliation.
 
-## Local baseline on audit host (ABI 6 Landlock)
+## Phase C (branch `cursor/phase-c-execution-semantics-1daa`)
 
-Mandatory gates passed at `29718cf`: fmt, clippy `-D warnings`, **151** workspace tests, **53** linux_integration (including `proven-reuse PASS`), release build SHA-256 `f0ff68e83927306d35358c38bdb09fc48ab19686033ad92000f43bfe7de797e9`, `./scripts/demo.sh`. Soft-skip: sandbox unit `enforcement_refuses_when_landlock_is_absent` early-returns when Landlock is present (cargo `ok` ≠ proof of the absent-Landlock path).
+- Formal contract: `docs/research/EXECUTION_EQUIVALENCE.md` (Exec/Trace/Reuse, Obs(E), class eligibility, assumptions).
+- Anonymous `MAP_SHARED` refused; `link`/`linkat` explicit `UNKNOWN`; deleted `/proc/fd` pathnames not live paths.
+- Hit-path typestate: guards → verified streams → expose only after restore.
+- Regressions: `mmap_anon_shared`, `hardlink_create`, `negative_lookup`, hardlink path replacement.
+- ADRs: `docs/research/ARCHITECTURE_DECISIONS.md` (ADR-C-001..003).
+- Does **not** duplicate Phase B re-scan; rebased onto `a32c191`.
+
+## Reconciliation snapshot (2026-11-14)
+
+Keep on main: #4, #5, #8, #11. Reject merge of #6/#7/#9/#10. Store: `docs/reconciliation-report.md`, `docs/defect-register.md`.
 
 ## Benchmarks (do not invent)
 
-- Committed short-command loss: `benchmarks/results/latest.md` at `63e33638709aacfaed896ab587435e64c0ecea62` (C ETL 7.396 ms → 7.957 ms, 0.929468x).
-- Known-good transform/sweep commit: `e9684c1c01a7bbbab4cae50e2389105596d613f1`.
-- Native real-workload census remains refuse-heavy; reusable wins are narrow (e.g. guarded gzip / controlled contracts). Research Python speedups are **not** native equivalence.
+- Committed short-command loss: `benchmarks/results/latest.md` at `63e33638709aacfaed896ab587435e64c0ecea62`.
+- Known-good transform/sweep: `e9684c1c01a7bbbab4cae50e2389105596d613f1`.
+- Native census remains refuse-heavy; do not quote research Python numbers as native equivalence.
 
-## Still isolated / not ready for main
+## Known limitations
 
-- Phase 3D two-stage retrieval (no general win).
-- Phase 3E epoll (incomplete fork/exec/`RLIMIT_NOFILE`/transfer obligations).
-- Controlled CPython contracts (semantic counterexamples; keep draft).
-- Multi-output restore remains pathname-visible under hard kill (documented limitation).
+- Multi-output restore is pathname-visible under hard kill (not crash-atomic / not inode-preserving).
+- seccomp+Landlock ≠ full execution equivalence (validate→restore TOCTOU remains).
+- Stdin OFD aliases use device/inode/position when `kcmp` is unavailable (conservative).
+- Bind-mount `/dev/null` substitution may be environment-blocked (`unshare -m` EPERM).
 
 ## Validation
 

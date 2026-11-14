@@ -789,7 +789,14 @@ fn nondeterministic_and_unknown_cases_never_reuse() {
     workspace(temporary.path());
     let binary = compile_fixture(temporary.path());
     let cache = temporary.path().join("cache");
-    for case in ["getrandom", "unknown_ioctl", "network_send", "vdso_clock"] {
+    for case in [
+        "getrandom",
+        "unknown_ioctl",
+        "network_send",
+        "vdso_clock",
+        "mmap_anon_shared",
+        "hardlink_create",
+    ] {
         let args = [
             "run",
             "--",
@@ -2238,6 +2245,42 @@ fn corrupted_objects_are_repaired_and_reuse_resumes() {
         "reuse did not resume after the objects were repaired: {}",
         stderr_of(&again)
     );
+}
+
+/// A negative pathname lookup is a real dependency: creating the missing path must deoptimize.
+#[test]
+fn negative_lookup_deopts_when_the_path_appears() {
+    let fixture = Fixture::new();
+    let reused = fixture.acquire("negative_lookup");
+    assert_eq!(reused.stdout, b"absent\n");
+    fs::write(fixture.input("optional-missing.txt"), b"now present").unwrap();
+    let third = fixture.run("negative_lookup");
+    assert!(
+        deoptimized(&third),
+        "stale reuse after a negative lookup path appeared: {}",
+        stderr_of(&third)
+    );
+    assert_eq!(third.status.code(), Some(2));
+    assert_ne!(third.stdout, b"absent\n");
+}
+
+/// Reading through a hard-linked name still keys the dependency by that pathname. Replacing the
+/// name with a new inode must not return the previous run's bytes.
+#[test]
+fn hardlink_input_path_replacement_is_never_a_stale_hit() {
+    let fixture = Fixture::new();
+    fs::hard_link(fixture.input("input.txt"), fixture.input("input-alias.txt")).unwrap();
+    let reused = fixture.acquire("hardlink_input_read");
+    assert_eq!(reused.stdout, b"input one\n");
+    fs::remove_file(fixture.input("input-alias.txt")).unwrap();
+    fs::write(fixture.input("input-alias.txt"), b"replaced alias\n").unwrap();
+    let third = fixture.run("hardlink_input_read");
+    assert!(
+        deoptimized(&third) || missed(&third),
+        "pathname replacement reused stale hard-link bytes: {}",
+        stderr_of(&third)
+    );
+    assert_eq!(third.stdout, b"replaced alias\n");
 }
 
 /// A recorded permission check must be replayed, not approximated: the second run reuses, and

@@ -66,3 +66,30 @@ it with a more favorable microbenchmark.
 
 **Reason:** The project's value depends on an honest boundary: automatic discovery and recovery from
 suspect outputs, not general incremental build speed.
+
+## ADR-C-001: Refuse anonymous MAP_SHARED
+
+**Decision:** Classify anonymous `MAP_SHARED` as `UNKNOWN`. Keep anonymous private `mmap` process-internal.
+
+**Context:** Anonymous shared mappings are cross-fork shared memory with no file write stream. Treating
+them as internal (as private anonymous maps are) would miss untracked mutation channels.
+
+**Rejected alternatives:** Tracking page-level stores; allowing shared anon maps inside a single-threaded
+tree. Both under-approximate visibility after `clone`/`fork`.
+
+## ADR-C-002: Hard-link creation stays unmodeled
+
+**Decision:** Successful `link`/`linkat` is an explicit `UNKNOWN` effect. Restore remains pathname-visible
+CAS rename and continues to refuse multi-link destinations.
+
+**Reason:** Native hard-link creation shares an inode; replay cannot honestly recreate that aliasing
+without an inode-preserving restore contract.
+
+## ADR-C-003: Typestate the hit expose path
+
+**Decision:** In `tracejit-core`, require `GuardsPassed` → verified streams → `expose_after_restore`
+before a `Reused` report can carry cached stdout/stderr.
+
+**Reason:** The ordering already existed procedurally; typestate makes skipping artifact validation a
+type error inside the hit loop. It does not close validate→restore TOCTOU or crash-atomicity.
+

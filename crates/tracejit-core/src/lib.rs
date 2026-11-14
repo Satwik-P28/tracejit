@@ -91,6 +91,62 @@ fn admission_is_worth_tracing(cost: &AdmissionCost) -> bool {
     admission_is_profitable(cost) && cost.hits.saturating_add(1) > cost.deopts
 }
 
+/// Typestate for the cache-hit path: cached bytes are not exposable until guards and artifacts
+/// have both been admitted. The stages cannot be skipped or reordered at the call site.
+mod reuse_hit {
+    use tracejit_guards::GuardReport;
+
+    pub struct GuardsPassed {
+        guards: GuardReport,
+    }
+
+    pub struct ArtifactsVerified {
+        guards: GuardReport,
+        stdout: Vec<u8>,
+        stderr: Vec<u8>,
+    }
+
+    /// Cached stdout/stderr/exit/files may be returned only through this token.
+    pub struct ExposableHit {
+        pub guards: GuardReport,
+        pub stdout: Vec<u8>,
+        pub stderr: Vec<u8>,
+    }
+
+    impl GuardsPassed {
+        pub fn admit(guards: GuardReport) -> Result<Self, GuardReport> {
+            if guards.failure.is_some() {
+                Err(guards)
+            } else {
+                Ok(Self { guards })
+            }
+        }
+
+        pub fn with_verified_streams(self, stdout: Vec<u8>, stderr: Vec<u8>) -> ArtifactsVerified {
+            ArtifactsVerified {
+                guards: self.guards,
+                stdout,
+                stderr,
+            }
+        }
+    }
+
+    impl ArtifactsVerified {
+        /// Call only after `restore_outputs` succeeded and inherited-stream offsets applied.
+        pub fn expose_after_restore(self) -> ExposableHit {
+            ExposableHit {
+                guards: self.guards,
+                stdout: self.stdout,
+                stderr: self.stderr,
+            }
+        }
+
+        pub fn into_guards(self) -> GuardReport {
+            self.guards
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum RunKind {
     Executed,
@@ -332,12 +388,15 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
         let mark = Instant::now();
         let guards = validate_all(&candidate.guards, options.guard_mode);
         phases.guard_validation_ns = phase_elapsed(timing, mark);
-        if guards.failure.is_some() {
-            if last_guard_report.is_none() {
-                last_guard_report = Some(guards);
+        let admitted = match reuse_hit::GuardsPassed::admit(guards) {
+            Ok(admitted) => admitted,
+            Err(failed) => {
+                if last_guard_report.is_none() {
+                    last_guard_report = Some(failed);
+                }
+                continue;
             }
-            continue;
-        }
+        };
 
         // Verify both stream objects before restoring any output. A corrupt stdout object used
         // to be discovered after files had already been replaced, which forced a retrace from a
@@ -349,15 +408,19 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
                 .map(|stderr| (stdout, stderr))
         });
         phases.stdio_replay_ns = phase_elapsed(timing, mark);
-        let (stdout, stderr) = match loaded {
-            Ok(streams) => streams,
+        let verified = match loaded {
+            Ok((stdout, stderr)) => admitted.with_verified_streams(stdout, stderr),
             Err(CacheError::CorruptObject { hash }) => {
+                drop(admitted);
                 if last_deopt_reason.is_none() {
                     last_deopt_reason = Some(format!("cached object {hash} is corrupt; retracing"));
                 }
                 continue;
             }
-            Err(error) => return Err(error.into()),
+            Err(error) => {
+                drop(admitted);
+                return Err(error.into());
+            }
         };
 
         if let Err(error) = verify_inherited_stream_offsets(&candidate.guards) {
@@ -380,6 +443,7 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
                 // shared open file description. The probe above established that this seek is
                 // reproducible; reproduce it before reporting the hit.
                 if let Err(error) = apply_inherited_stream_offsets(&candidate.guards) {
+                    let guards = verified.into_guards();
                     candidate.last_decision = DecisionRecord {
                         decision: CacheDecision::Deoptimized,
                         reason: format!(
@@ -401,6 +465,8 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
                         None,
                     );
                 }
+                // Typestate gate: streams become exposable only after restore + offset apply.
+                let hit = verified.expose_after_restore();
                 let runtime_ns = started.elapsed().as_nanos();
                 // The cost history exists for the admission policy. `always` never consults it,
                 // so writing a row on every one of its hits is pure warm path cost; `never` never
@@ -431,9 +497,9 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
                     &candidate,
                     RunKind::Reused,
                     runtime_ns,
-                    Some(guards),
-                    stdout,
-                    stderr,
+                    Some(hit.guards),
+                    hit.stdout,
+                    hit.stderr,
                 );
                 if timing {
                     report.phases = Some(phases);
