@@ -112,6 +112,22 @@ fn invoke(cache: &Path, args: &[&str], extra_env: Option<(&str, &str)>) -> Outpu
     command.output().unwrap()
 }
 
+/// Like [`invoke`], but with an explicit workload cwd.
+///
+/// CI runners often leave non-CLOEXEC descriptors above stderr; TraceJIT correctly refuses
+/// reuse when those are inherited. Classification fixtures must close them in pre_exec so the
+/// intended syscall path (O_TMPFILE, fcntl, renameat2, …) is what produces Unknown — not the
+/// inherited-fd preflight.
+fn invoke_in_workdir(cache: &Path, work: &Path, args: &[&str]) -> Output {
+    let mut command = tracejit_command();
+    command
+        .args(args)
+        .current_dir(work)
+        .env("TRACEJIT_CACHE_DIR", cache)
+        .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0");
+    command.output().unwrap()
+}
+
 fn analyze_case(binary: &Path, directory: &Path, case: &str) -> Value {
     let output = invoke(
         &directory.join("cache"),
@@ -177,13 +193,7 @@ int main(void) {
     let work = temporary.path().join("work");
     fs::create_dir(&work).unwrap();
     let args = ["run", "--json", "--", binary.to_str().unwrap()];
-    let cold = Command::new(tracejit())
-        .args(args)
-        .current_dir(&work)
-        .env("TRACEJIT_CACHE_DIR", &cache)
-        .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0")
-        .output()
-        .unwrap();
+    let cold = invoke_in_workdir(&cache, &work, &args);
     assert!(
         cold.status.success(),
         "{}",
@@ -199,14 +209,17 @@ int main(void) {
             .any(|reason| reason.as_str().unwrap_or_default().contains("O_TMPFILE")),
         "expected explicit O_TMPFILE refuse, got {cold_report}"
     );
+    assert!(
+        reasons.iter().all(|reason| {
+            !reason
+                .as_str()
+                .unwrap_or_default()
+                .contains("inherited descriptor")
+        }),
+        "harness must close inherited fds so O_TMPFILE is observed: {cold_report}"
+    );
 
-    let warm = Command::new(tracejit())
-        .args(args)
-        .current_dir(&work)
-        .env("TRACEJIT_CACHE_DIR", &cache)
-        .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0")
-        .output()
-        .unwrap();
+    let warm = invoke_in_workdir(&cache, &work, &args);
     assert!(
         warm.status.success(),
         "{}",
@@ -261,13 +274,7 @@ int main(void) {
     let work = temporary.path().join("work");
     fs::create_dir(&work).unwrap();
     let args = ["run", "--json", "--", binary.to_str().unwrap()];
-    let cold = Command::new(tracejit())
-        .args(args)
-        .current_dir(&work)
-        .env("TRACEJIT_CACHE_DIR", &cache)
-        .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0")
-        .output()
-        .unwrap();
+    let cold = invoke_in_workdir(&cache, &work, &args);
     assert!(
         cold.status.success(),
         "{}",
@@ -284,14 +291,17 @@ int main(void) {
         }),
         "expected fcntl refuse, got {cold_report}"
     );
+    assert!(
+        reasons.iter().all(|reason| {
+            !reason
+                .as_str()
+                .unwrap_or_default()
+                .contains("inherited descriptor")
+        }),
+        "harness must close inherited fds so fcntl is observed: {cold_report}"
+    );
 
-    let warm = Command::new(tracejit())
-        .args(args)
-        .current_dir(&work)
-        .env("TRACEJIT_CACHE_DIR", &cache)
-        .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0")
-        .output()
-        .unwrap();
+    let warm = invoke_in_workdir(&cache, &work, &args);
     assert!(
         warm.status.success(),
         "{}",
@@ -397,13 +407,7 @@ int main(void) {
     let args = ["run", "--json", "--", binary.to_str().unwrap()];
     let work = temporary.path().join("work");
     fs::create_dir(&work).unwrap();
-    let cold = Command::new(tracejit())
-        .args(args)
-        .current_dir(&work)
-        .env("TRACEJIT_CACHE_DIR", &cache)
-        .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0")
-        .output()
-        .unwrap();
+    let cold = invoke_in_workdir(&cache, &work, &args);
     assert!(
         cold.status.success(),
         "{}",
@@ -417,13 +421,7 @@ int main(void) {
     assert_eq!(cold_a, b"BBB", "native exchange must leave a=BBB");
     assert_eq!(cold_b, b"AAA", "native exchange must leave b=AAA");
 
-    let warm = Command::new(tracejit())
-        .args(args)
-        .current_dir(&work)
-        .env("TRACEJIT_CACHE_DIR", &cache)
-        .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0")
-        .output()
-        .unwrap();
+    let warm = invoke_in_workdir(&cache, &work, &args);
     assert!(
         warm.status.success(),
         "{}",
