@@ -1,6 +1,7 @@
 use rusqlite::{params, Connection, OptionalExtension};
 use serde::{Deserialize, Serialize};
 use std::cell::Cell;
+use std::collections::BTreeSet;
 use std::fs::{self, File};
 use std::io::{self, Read, Write};
 use std::path::{Path, PathBuf};
@@ -182,6 +183,21 @@ fn max_candidates_per_identity() -> usize {
         .unwrap_or(DEFAULT_MAX_CANDIDATES_PER_IDENTITY)
 }
 
+/// Prefix for per-process restore-intent markers (`restore-intent.v1.<pid>.json`).
+///
+/// Present after hard kill mid-apply for that pid. Soft rollback clears the writer's file.
+/// Concurrent HIT restores in other live processes must not see each other's intents as
+/// interruption. Not a multi-file atomic journal.
+const RESTORE_INTENT_PREFIX: &str = "restore-intent.v1.";
+const RESTORE_INTENT_SUFFIX: &str = ".json";
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+struct RestoreIntent {
+    version: u32,
+    pid: u32,
+    destinations: Vec<PathBuf>,
+}
+
 pub struct Cache {
     root: PathBuf,
     objects: PathBuf,
@@ -189,6 +205,8 @@ pub struct Cache {
     connection: Connection,
     pub open_timings: OpenTimings,
     last_query: Cell<QueryTimings>,
+    /// Set when open found a leftover restore intent whose writer pid is no longer alive.
+    interrupted_restore: bool,
 }
 
 impl Cache {
@@ -239,6 +257,7 @@ impl Cache {
             }
         }
         let schema_ns = u64_nanos(started);
+        let interrupted_restore = dead_restore_intents_present(&root);
         Ok(Self {
             root,
             objects,
@@ -250,7 +269,31 @@ impl Cache {
                 schema_ns,
             },
             last_query: Cell::new(QueryTimings::default()),
+            interrupted_restore,
         })
+    }
+
+    /// True when a previous process left a restore-intent marker (typically hard-killed mid-apply).
+    pub fn has_interrupted_restore(&self) -> bool {
+        self.interrupted_restore
+    }
+
+    /// Consume the interrupted-restore flag and remove dead intent files.
+    ///
+    /// Callers that refuse HIT after an interrupted restore must invoke this so a subsequent
+    /// clean execution is not blocked forever. Does not attempt to repair user workspace files.
+    pub fn consume_interrupted_restore(&mut self) -> bool {
+        let present = self.interrupted_restore;
+        self.interrupted_restore = false;
+        clear_dead_restore_intents(&self.root);
+        present
+    }
+
+    fn restore_intent_path(&self) -> PathBuf {
+        self.root.join(format!(
+            "{RESTORE_INTENT_PREFIX}{}{RESTORE_INTENT_SUFFIX}",
+            std::process::id()
+        ))
     }
 
     pub fn last_query(&self) -> QueryTimings {
@@ -462,7 +505,8 @@ impl Cache {
     /// A failure in phase 4 rolls the already-applied outputs back from those backups
     /// before returning, so the caller observes either the fully restored workspace or
     /// the one it started with. A hard kill between two renames can still leave a mixed
-    /// workspace and stray staging or backup files; there is no recovery journal.
+    /// workspace; a durable restore-intent marker then forces the next run to refuse HIT
+    /// (see [`Self::has_interrupted_restore`]). This is not a multi-file atomic journal.
     pub fn restore_outputs(&self, outputs: &[OutputArtifact]) -> Result<(), CacheError> {
         for output in outputs {
             validate_output_precondition(output)?;
@@ -471,6 +515,9 @@ impl Cache {
         for output in outputs {
             staged.push(self.stage_output(output)?);
         }
+        // Durability of staged bytes/metadata before any destination rename (single-path
+        // atomic replace still depends on rename; this only reduces lost-stage risk).
+        sync_staged_parents(outputs)?;
         let mut backups = Vec::with_capacity(outputs.len());
         for output in outputs {
             backups.push(match fs::symlink_metadata(&output.path) {
@@ -479,6 +526,9 @@ impl Cache {
                 Err(source) => return Err(io_error(&output.path, source)),
             });
         }
+        // Intent marks that apply has begun. Soft rollback and successful completion clear it.
+        // Hard kill leaves it for the next Cache::open.
+        self.write_restore_intent(outputs)?;
         let mut applied: Vec<AppliedOutput> = Vec::new();
         for ((output, staged), backup) in outputs.iter().zip(staged).zip(backups) {
             // Test hooks: TRACEJIT_TEST_RESTORE_FAIL_PATH / TRACEJIT_TEST_RESTORE_PAUSE_PATH.
@@ -489,15 +539,56 @@ impl Cache {
                     path: output.path.clone(),
                     reason: "injected restoration failure".into(),
                 };
-                return Err(rollback_restoration(&applied, error));
+                let error = rollback_restoration(&applied, error);
+                let _ = self.clear_restore_intent();
+                return Err(error);
             }
             match apply_output(output, staged, backup) {
                 Ok(Some(entry)) => applied.push(entry),
                 Ok(None) => {}
-                Err(error) => return Err(rollback_restoration(&applied, error)),
+                Err(error) => {
+                    let error = rollback_restoration(&applied, error);
+                    let _ = self.clear_restore_intent();
+                    return Err(error);
+                }
             }
         }
+        self.clear_restore_intent()?;
         Ok(())
+    }
+
+    fn write_restore_intent(&self, outputs: &[OutputArtifact]) -> Result<(), CacheError> {
+        let intent = RestoreIntent {
+            version: 1,
+            pid: std::process::id(),
+            destinations: outputs.iter().map(|output| output.path.clone()).collect(),
+        };
+        let path = self.restore_intent_path();
+        let bytes = serde_json::to_vec(&intent)?;
+        let mut temporary =
+            NamedTempFile::new_in(&self.root).map_err(|source| io_error(&self.root, source))?;
+        temporary
+            .write_all(&bytes)
+            .map_err(|source| io_error(temporary.path(), source))?;
+        temporary
+            .as_file()
+            .sync_data()
+            .map_err(|source| io_error(temporary.path(), source))?;
+        temporary
+            .persist(&path)
+            .map_err(|error| io_error(&path, error.error))?;
+        // Persist the directory entry that names the intent.
+        sync_dir(&self.root)?;
+        Ok(())
+    }
+
+    fn clear_restore_intent(&self) -> Result<(), CacheError> {
+        let path = self.restore_intent_path();
+        match fs::remove_file(&path) {
+            Ok(()) => Ok(()),
+            Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(()),
+            Err(source) => Err(io_error(&path, source)),
+        }
     }
 
     /// Verifies one cached output and stages it without touching the destination.
@@ -1065,6 +1156,77 @@ impl AppliedOutput {
     }
 }
 
+fn sync_dir(path: &Path) -> Result<(), CacheError> {
+    let dir = File::open(path).map_err(|source| io_error(path, source))?;
+    dir.sync_all().map_err(|source| io_error(path, source))?;
+    Ok(())
+}
+
+fn parse_restore_intent_pid(name: &str) -> Option<u32> {
+    let rest = name.strip_prefix(RESTORE_INTENT_PREFIX)?;
+    let pid = rest.strip_suffix(RESTORE_INTENT_SUFFIX)?;
+    pid.parse().ok()
+}
+
+fn process_is_alive(pid: u32) -> bool {
+    if pid == 0 {
+        return false;
+    }
+    // V1 is Linux-only; /proc/<pid> avoids a libc production dependency in this crate.
+    Path::new(&format!("/proc/{pid}")).exists()
+}
+
+fn dead_restore_intents_present(root: &Path) -> bool {
+    let Ok(entries) = fs::read_dir(root) else {
+        return false;
+    };
+    for entry in entries.flatten() {
+        let name = entry.file_name();
+        let Some(name) = name.to_str() else {
+            continue;
+        };
+        let Some(pid) = parse_restore_intent_pid(name) else {
+            continue;
+        };
+        if !process_is_alive(pid) {
+            return true;
+        }
+    }
+    false
+}
+
+fn clear_dead_restore_intents(root: &Path) {
+    let Ok(entries) = fs::read_dir(root) else {
+        return;
+    };
+    for entry in entries.flatten() {
+        let name = entry.file_name();
+        let Some(name) = name.to_str() else {
+            continue;
+        };
+        let Some(pid) = parse_restore_intent_pid(name) else {
+            continue;
+        };
+        if !process_is_alive(pid) {
+            let _ = fs::remove_file(entry.path());
+        }
+    }
+}
+
+/// Fsync each distinct parent directory that holds staged temps / destinations.
+fn sync_staged_parents(outputs: &[OutputArtifact]) -> Result<(), CacheError> {
+    let mut parents = BTreeSet::new();
+    for output in outputs {
+        if let Some(parent) = output.path.parent() {
+            parents.insert(parent.to_path_buf());
+        }
+    }
+    for parent in parents {
+        sync_dir(&parent)?;
+    }
+    Ok(())
+}
+
 /// Applies one prepared output mutation, returning `None` when there is nothing to undo.
 fn apply_output(
     output: &OutputArtifact,
@@ -1417,6 +1579,82 @@ mod tests {
         assert_eq!(fs::read(&first).unwrap(), b"user-a");
         assert_eq!(fs::read(&second).unwrap(), b"user-b");
         assert_eq!(temporary_files(directory.path()), 0);
+        // Soft rollback must clear this process's restore intent so the next open is not blocked.
+        assert!(!cache.restore_intent_path().is_file());
+    }
+
+    #[test]
+    fn successful_restore_clears_intent_and_never_leaves_partial_ok() {
+        let directory = tempfile::tempdir().unwrap();
+        let cache_root = directory.path().join("cache");
+        let cache = Cache::open(&cache_root).unwrap();
+        let first = directory.path().join("a.txt");
+        let second = directory.path().join("b.txt");
+        fs::write(&first, b"cached-a").unwrap();
+        fs::write(&second, b"cached-b").unwrap();
+        let artifacts = captured_outputs(&cache, &[(&first, false), (&second, false)]);
+        fs::write(&first, b"user-a").unwrap();
+        fs::write(&second, b"user-b").unwrap();
+        cache.restore_outputs(&artifacts).unwrap();
+        assert_eq!(fs::read(&first).unwrap(), b"cached-a");
+        assert_eq!(fs::read(&second).unwrap(), b"cached-b");
+        assert!(!cache.restore_intent_path().is_file());
+    }
+
+    #[test]
+    fn leftover_intent_is_detected_on_open_and_consumable() {
+        let directory = tempfile::tempdir().unwrap();
+        let cache_root = directory.path().join("cache");
+        let _cache = Cache::open(&cache_root).unwrap();
+        // Simulate hard-kill of another pid: plant a dead-pid intent marker.
+        let dead_pid = 2_147_483_646_u32;
+        assert!(
+            !process_is_alive(dead_pid),
+            "fixture pid must be dead for this test"
+        );
+        let intent_path = cache_root.join(format!(
+            "{RESTORE_INTENT_PREFIX}{dead_pid}{RESTORE_INTENT_SUFFIX}"
+        ));
+        fs::write(
+            &intent_path,
+            serde_json::to_vec(&RestoreIntent {
+                version: 1,
+                pid: dead_pid,
+                destinations: vec![PathBuf::from("/tmp/synthetic")],
+            })
+            .unwrap(),
+        )
+        .unwrap();
+        let mut reopened = Cache::open(&cache_root).unwrap();
+        assert!(reopened.has_interrupted_restore());
+        assert!(reopened.consume_interrupted_restore());
+        assert!(!reopened.has_interrupted_restore());
+        assert!(!intent_path.is_file());
+    }
+
+    #[test]
+    fn live_peer_intent_does_not_count_as_interrupted() {
+        let directory = tempfile::tempdir().unwrap();
+        let cache_root = directory.path().join("cache");
+        let cache = Cache::open(&cache_root).unwrap();
+        cache
+            .write_restore_intent(&[OutputArtifact {
+                path: PathBuf::from("out.txt"),
+                kind: OutputKind::File,
+                content: None,
+                unix_mode: None,
+                unix_uid: None,
+                unix_gid: None,
+                unix_accessed_ns: None,
+                unix_modified_ns: None,
+                artifact_version: OUTPUT_ARTIFACT_VERSION,
+                allows_create: true,
+            }])
+            .unwrap();
+        // Same-process intent is live; a fresh open must not treat it as a dead writer.
+        let reopened = Cache::open(&cache_root).unwrap();
+        assert!(!reopened.has_interrupted_restore());
+        cache.clear_restore_intent().unwrap();
     }
 
     #[test]

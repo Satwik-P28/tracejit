@@ -315,6 +315,50 @@ int main(void) {
     assert_eq!(fs::read(work.join("out.txt")).unwrap(), b"AABB");
 }
 
+/// A leftover restore-intent marker from a dead pid must refuse HIT (hard-kill recovery).
+#[test]
+fn interrupted_restore_intent_refuses_hit() {
+    let fixture = Fixture::new();
+    fixture.acquire("plain_file_read");
+    // Simulate hard-kill of another process: plant a dead-pid intent under the cache root.
+    let dead_pid = 2_147_483_646_u32;
+    let intent = fixture
+        .cache
+        .join(format!("restore-intent.v1.{dead_pid}.json"));
+    fs::write(
+        &intent,
+        format!(r#"{{"version":1,"pid":{dead_pid},"destinations":["/tmp/synthetic-output"]}}"#),
+    )
+    .unwrap();
+    let warm = invoke(
+        &fixture.cache,
+        &[
+            "run",
+            "--json",
+            "--",
+            fixture.binary_arg(),
+            "plain_file_read",
+            fixture.root(),
+        ],
+        None,
+    );
+    assert!(warm.status.success(), "{}", stderr_of(&warm));
+    let report: Value = serde_json::from_slice(&warm.stdout).unwrap();
+    assert_ne!(
+        report["kind"], "Reused",
+        "interrupted restore must not HIT: {report}"
+    );
+    let reason = report["decision_reason"].as_str().unwrap_or_default();
+    assert!(
+        reason.contains("restore was interrupted") || reason.contains("refusing HIT"),
+        "expected interrupted-restore reason, got {report}"
+    );
+    assert!(
+        !intent.exists(),
+        "dead intent must be consumed so a later clean run is not blocked forever"
+    );
+}
+
 /// Pre-restore guard recheck must refuse a HIT when inputs change in the validate→restore window.
 ///
 /// Uses `TRACEJIT_TEST_PRE_RESTORE_MUTATE_PATH` (test hook; unset in production) to inject the

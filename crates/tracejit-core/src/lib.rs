@@ -316,6 +316,16 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
             format!("inherited descriptor {fd} beyond stdin is not modelled; reuse refused");
         return run_direct(&prepared, &cache, lookup_key, &reason, options.contract);
     }
+    // A leftover restore-intent means a prior HIT apply was hard-killed mid-rename. Workspace
+    // bytes may be mixed; refuse HIT and re-execute rather than exposing a partial restore as
+    // success. Soft rollback clears the intent itself, so this path is for hard interruption.
+    if cache.has_interrupted_restore() {
+        let _ = cache.consume_interrupted_restore();
+        let reason =
+            "previous multi-output restore was interrupted; refusing HIT until a clean execution"
+                .into();
+        return execute_and_store(prepared, cache, lookup_key, None, Some(reason), None);
+    }
     let candidates = cache.find_candidates(lookup_key)?;
     let query = cache.last_query();
     let started = Instant::now();
