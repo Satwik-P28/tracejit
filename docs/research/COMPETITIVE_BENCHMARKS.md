@@ -53,6 +53,18 @@ Warm recurrence on installed projects:
 
 Raw: `benchmarks/results/phase2t/real_workflows.json`.
 
+## Phase K8 independent re-measure
+
+Tip `364331b`. Harness `benchmarks/repos/phase_k8_competitive.py`. Raw
+`benchmarks/results/phase_k8/competitive.json`.
+
+Ninja is now installed and measured. Make/Ninja identical-rerun medians ≈ **1.3 ms** vs TraceJIT
+warm ≈ **14.0 ms**. On mtime-preserved edit and corrupted output, Make/Ninja retain **WRONG**
+bytes; TraceJIT stays content-correct. Short ETL warm loss retained (1.575 → 3.146 ms). ccache is
+installed but not used as a transparent bzip2 arm; sccache/Firebuild remain skipped (absent).
+
+Audit: `docs/audits/PHASE_K8_COMPETITIVE_EVAL.md`.
+
 ## Methodology obligations for future runs
 
 - Record exact binary hash, commit, kernel, compiler, and fixture.
