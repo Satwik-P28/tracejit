@@ -1770,23 +1770,26 @@ mod tests {
     }
 
     /// The inherited-descriptor preflight runs before `Cache::open`. Reuse stays sound only if
-    /// every cache descriptor is close-on-exec; otherwise the child inherits SQLite state that was
-    /// never part of the runtime identity.
+    /// every *cache* descriptor is close-on-exec; otherwise the child inherits SQLite state that
+    /// was never part of the runtime identity. Pre-existing non-CLOEXEC descriptors from a test
+    /// harness or CI runner are out of scope here — `PreparedExecution` refuses those separately.
     #[cfg(target_os = "linux")]
     #[test]
     fn cache_open_descriptors_are_close_on_exec() {
         let directory = tempfile::tempdir().unwrap();
-        let _cache = Cache::open(directory.path().join("cache")).unwrap();
+        let root = directory.path().join("cache");
+        let _cache = Cache::open(&root).unwrap();
+        let root = fs::canonicalize(&root).unwrap();
         let path = std::ffi::CString::new("/proc/self/fd").unwrap();
         // SAFETY: pathname is NUL-terminated; opendir/readdir/closedir follow the libc contract.
         unsafe {
-            let directory = libc::opendir(path.as_ptr());
-            assert!(!directory.is_null(), "opendir /proc/self/fd failed");
-            let directory_fd = libc::dirfd(directory);
+            let scan = libc::opendir(path.as_ptr());
+            assert!(!scan.is_null(), "opendir /proc/self/fd failed");
+            let directory_fd = libc::dirfd(scan);
             let mut non_cloexec = Vec::new();
             loop {
                 *libc::__errno_location() = 0;
-                let entry = libc::readdir(directory);
+                let entry = libc::readdir(scan);
                 if entry.is_null() {
                     break;
                 }
@@ -1800,16 +1803,28 @@ mod tests {
                 if fd < 3 || fd == directory_fd {
                     continue;
                 }
+                let link = match fs::read_link(format!("/proc/self/fd/{fd}")) {
+                    Ok(link) => link,
+                    Err(_) => continue,
+                };
+                if !link.starts_with(&root) {
+                    // Ignore harness/runner descriptors; only cache-owned opens are asserted.
+                    continue;
+                }
                 let flags = libc::fcntl(fd, libc::F_GETFD);
-                assert!(flags >= 0, "F_GETFD failed for fd {fd}");
+                assert!(
+                    flags >= 0,
+                    "F_GETFD failed for fd {fd} -> {}",
+                    link.display()
+                );
                 if flags & libc::FD_CLOEXEC == 0 {
-                    non_cloexec.push(fd);
+                    non_cloexec.push((fd, link));
                 }
             }
-            libc::closedir(directory);
+            libc::closedir(scan);
             assert!(
                 non_cloexec.is_empty(),
-                "Cache::open left non-CLOEXEC descriptors {non_cloexec:?}"
+                "Cache::open left non-CLOEXEC cache descriptors {non_cloexec:?}"
             );
         }
     }
