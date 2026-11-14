@@ -13,7 +13,10 @@ use tracejit_core::{
     seal_certificate, verify_certificate, Admission, Contract, PhaseTimings, RunKind, RunOptions,
     RunReport,
 };
-use tracejit_effects::{Effect, InputDependency};
+use tracejit_effects::{
+    attach_retest, refine, reject_if_unsafe_model, CounterexampleInput, DeploymentStatus, Effect,
+    InputDependency, RetestResult,
+};
 use tracejit_guards::{Guard, GuardMode};
 
 #[derive(Parser)]
@@ -40,6 +43,8 @@ enum Command {
     VerifyCertificate(VerifyCertificateArgs),
     /// Offline comparison of cost-sensitive admission policies on a held-out matrix.
     AdmissionEval(AdmissionEvalArgs),
+    /// Offline CEGAR refinement from a counterexample JSON file (never auto-deploys).
+    Refine(RefineArgs),
 }
 
 #[derive(Args)]
@@ -118,6 +123,21 @@ struct VerifyCertificateArgs {
 
 #[derive(Args)]
 struct AdmissionEvalArgs {
+    #[arg(long)]
+    json: bool,
+}
+
+#[derive(Args)]
+struct RefineArgs {
+    /// Path to a CounterexampleInput JSON file.
+    #[arg(long)]
+    input: PathBuf,
+    /// Optional offline retest notes; presence with --retest-pass upgrades deployment status
+    /// to VerifiedOfflineNotDeployed (still not product deployment).
+    #[arg(long)]
+    retest_notes: Option<String>,
+    #[arg(long, default_value_t = false)]
+    retest_pass: bool,
     #[arg(long)]
     json: bool,
 }
@@ -423,6 +443,50 @@ fn run_cli(cli: Cli, process_startup_ns: u64, cli_parse_ns: u64) -> Result<i32> 
                 );
             }
             Ok(0)
+        }
+        Command::Refine(args) => {
+            let bytes = std::fs::read(&args.input)
+                .with_context(|| format!("could not read {}", args.input.display()))?;
+            let input: CounterexampleInput = serde_json::from_slice(&bytes)
+                .context("counterexample JSON must match CounterexampleInput")?;
+            let mut proposal = reject_if_unsafe_model(refine(&input));
+            if args.retest_pass || args.retest_notes.is_some() {
+                proposal = attach_retest(
+                    proposal,
+                    &RetestResult {
+                        passed: args.retest_pass,
+                        notes: args
+                            .retest_notes
+                            .clone()
+                            .unwrap_or_else(|| "cli retest flag".into()),
+                    },
+                );
+            }
+            if args.json {
+                println!("{}", serde_json::to_string_pretty(&proposal)?);
+            } else {
+                println!("TraceJIT refine (offline; never auto-deploys)\n");
+                println!("title          {}", proposal.title);
+                println!("hole           {:?}", proposal.hole);
+                println!("safety_ok      {}", proposal.safety_ok);
+                println!("deployment     {:?}", proposal.deployment);
+                if let Some(hint) = &proposal.registry_hint {
+                    println!("registry       {hint}");
+                }
+                println!("action         {:?}", proposal.action);
+                println!("essential steps");
+                for step in &proposal.minimized.essential_steps {
+                    println!("  - {step}");
+                }
+                println!(
+                    "RESULT phase-k5-cegar hole={:?} deployment={:?} safety_ok={}",
+                    proposal.hole, proposal.deployment, proposal.safety_ok
+                );
+            }
+            Ok(match proposal.deployment {
+                DeploymentStatus::RejectedUnsafe => 2,
+                _ => 0,
+            })
         }
     }
 }

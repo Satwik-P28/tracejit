@@ -1,0 +1,13 @@
+{
+  "title": "renameat2 RENAME_EXCHANGE false HIT",
+  "current_abstraction": "rename-as-delete-plus-rename",
+  "steps": [
+    {
+      "syscall": "renameat2",
+      "detail": "warm HIT treated exchange as delete+rename; flags later refused as not modeled",
+      "outcome": "hit"
+    }
+  ],
+  "native_obs_summary": "a=BBB b=AAA both present",
+  "tracejit_obs_summary": "warm hit deleted a (diverge/missing)"
+}

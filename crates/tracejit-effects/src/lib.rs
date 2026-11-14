@@ -1,6 +1,11 @@
+mod cegar;
 mod refinement;
 mod registry;
 
+pub use cegar::{
+    attach_retest, classify_hole, minimize, refine, reject_if_unsafe_model, CounterexampleInput,
+    DeploymentStatus, HoleKind, ObservedStep, ProposalAction, RefinementProposal,
+};
 pub use refinement::{
     directory_opened_refinement, getrusage_refinement_rejected, proposal_is_safe, run_cycle,
     Abstraction, Counterexample, MinimizedCounterexample, Observation, RefinementCycle,

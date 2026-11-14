@@ -1,0 +1,23 @@
+{
+  "title": "sibling create invalidates directory open",
+  "current_abstraction": "FileMetadata",
+  "steps": [
+    {
+      "syscall": "openat(directory)",
+      "detail": "gzip opens parent directory; FileMetadata includes mtime",
+      "outcome": "ok"
+    },
+    {
+      "syscall": "creat",
+      "detail": "unrelated sibling changes directory mtime",
+      "outcome": "ok"
+    },
+    {
+      "syscall": "guard",
+      "detail": "FileMetadata mtime mismatch",
+      "outcome": "guard_fail"
+    }
+  ],
+  "native_obs_summary": "stdout identical; inputs unchanged",
+  "tracejit_obs_summary": "deopt every run after sibling create"
+}

@@ -1,0 +1,13 @@
+{
+  "title": "openat2 RESOLVE_BENEATH",
+  "current_abstraction": "",
+  "steps": [
+    {
+      "syscall": "openat2",
+      "detail": "openat2 resolve flags 0x8 are not modeled",
+      "outcome": "refusal"
+    }
+  ],
+  "native_obs_summary": "exit=0",
+  "tracejit_obs_summary": "UNKNOWN refusal"
+}
