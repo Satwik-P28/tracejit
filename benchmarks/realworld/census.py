@@ -226,6 +226,41 @@ def setup_scratch(scratch: Path) -> dict[str, Path]:
         + "    return (int)(value >> 60); }\n",
         encoding="utf-8",
     )
+    blob = scratch / "blob.bin"
+    blob.write_bytes(bytes((index * 37) % 256 for index in range(64 * 1024)))
+    text = scratch / "lines.txt"
+    text.write_text(
+        "".join(f"line-{index:04d} value={(index * 7919) % 100003}\n" for index in range(1, 801)),
+        encoding="utf-8",
+    )
+    json_rows = scratch / "rows.json"
+    json_rows.write_text(
+        "[\n"
+        + ",\n".join(
+            f'  {{"id": {index}, "value": {(index * 37) % 5000}}}' for index in range(1, 121)
+        )
+        + "\n]\n",
+        encoding="utf-8",
+    )
+    makefile = scratch / "Makefile"
+    makefile.write_text(
+        ".PHONY: all\n"
+        "all: out.txt\n"
+        "out.txt: lines.txt\n"
+        "\tawk '{s+=$$2} END {print s}' lines.txt > out.txt\n",
+        encoding="utf-8",
+    )
+    rust_src = scratch / "hello.rs"
+    rust_src.write_text(
+        "fn main() {\n"
+        "    let mut total: u64 = 0;\n"
+        "    for i in 0u64..10_000 {\n"
+        "        total = total.wrapping_mul(1315423911).wrapping_add(i);\n"
+        "    }\n"
+        "    println!(\"{total}\");\n"
+        "}\n",
+        encoding="utf-8",
+    )
     try:
         from PIL import Image  # type: ignore
 
@@ -246,6 +281,11 @@ def setup_scratch(scratch: Path) -> dict[str, Path]:
         "manpage": manpage,
         "source": source,
         "png": scratch / "source.png",
+        "blob": blob,
+        "text": text,
+        "json_rows": json_rows,
+        "makefile": makefile,
+        "rust_src": rust_src,
     }
 
 
@@ -288,6 +328,155 @@ def workloads(fixture_source: Path) -> list[Workload]:
     def lint(scratch: Path, _data) -> list[str]:
         return ["cc", "-fsyntax-only", "-Wall", "-Wextra", "-Werror", str(fixture_source)]
 
+    def gzip_compress(scratch: Path, data: dict[str, Path]) -> list[str]:
+        return ["gzip", "-c", "-n", str(data["blob"])]
+
+    def gzip_roundtrip(scratch: Path, data: dict[str, Path]) -> list[str]:
+        return [
+            "sh",
+            "-c",
+            f"gzip -c -n {data['blob']} | gzip -dc > {scratch / 'gunzip.bin'}",
+        ]
+
+    def bzip2_compress(scratch: Path, data: dict[str, Path]) -> list[str]:
+        return ["bzip2", "-c", str(data["blob"])]
+
+    def xz_compress(scratch: Path, data: dict[str, Path]) -> list[str]:
+        return ["xz", "-c", "-0", str(data["blob"])]
+
+    def tar_archive(scratch: Path, data: dict[str, Path]) -> list[str]:
+        return [
+            "tar",
+            "-cf",
+            str(scratch / "bundle.tar"),
+            "-C",
+            str(scratch),
+            data["text"].name,
+            data["blob"].name,
+        ]
+
+    def ar_archive(scratch: Path, data: dict[str, Path]) -> list[str]:
+        # ar needs object members; compile a tiny object then archive it.
+        obj = scratch / "member.o"
+        subprocess.run(
+            ["cc", "-c", "-o", str(obj), str(data["source"])],
+            check=True,
+            capture_output=True,
+        )
+        return ["ar", "rcs", str(scratch / "libmember.a"), str(obj)]
+
+    def sed_transform(scratch: Path, data: dict[str, Path]) -> list[str]:
+        return [
+            "sed",
+            "s/value=/v=/g",
+            str(data["text"]),
+        ]
+
+    def awk_sum(scratch: Path, data: dict[str, Path]) -> list[str]:
+        return [
+            "awk",
+            "{ s += $2 } END { printf \"%d\\n\", s }",
+            str(data["text"]),
+        ]
+
+    def sort_file(scratch: Path, data: dict[str, Path]) -> list[str]:
+        return ["sort", str(data["numbers"])]
+
+    def tr_map(scratch: Path, data: dict[str, Path]) -> list[str]:
+        return ["tr", "a-z", "A-Z"]
+
+    def wc_count(scratch: Path, data: dict[str, Path]) -> list[str]:
+        return ["wc", "-l", str(data["text"])]
+
+    def sha256_digest(scratch: Path, data: dict[str, Path]) -> list[str]:
+        return ["sha256sum", str(data["blob"])]
+
+    def openssl_digest(scratch: Path, data: dict[str, Path]) -> list[str]:
+        return ["openssl", "dgst", "-sha256", str(data["blob"])]
+
+    def od_dump(scratch: Path, data: dict[str, Path]) -> list[str]:
+        return ["od", "-An", "-tx1", "-N", "256", str(data["blob"])]
+
+    def dd_copy(scratch: Path, data: dict[str, Path]) -> list[str]:
+        return [
+            "dd",
+            f"if={data['blob']}",
+            f"of={scratch / 'copy.bin'}",
+            "bs=4096",
+            "status=none",
+        ]
+
+    def jq_filter(scratch: Path, data: dict[str, Path]) -> list[str]:
+        return ["jq", "[.[].value] | add", str(data["json_rows"])]
+
+    def perl_sum(scratch: Path, data: dict[str, Path]) -> list[str]:
+        return [
+            "perl",
+            "-lne",
+            "$s += $1 if /value=(\\d+)/; END { print $s+0 }",
+            str(data["text"]),
+        ]
+
+    def make_awk(scratch: Path, _data: dict[str, Path]) -> list[str]:
+        return ["make", "-C", str(scratch), "all"]
+
+    def clang_compile(scratch: Path, data: dict[str, Path]) -> list[str]:
+        return [
+            "clang",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-c",
+            str(data["source"]),
+            "-o",
+            str(scratch / "clang.o"),
+        ]
+
+    def rustc_hello(scratch: Path, data: dict[str, Path]) -> list[str]:
+        return [
+            "rustc",
+            "-O",
+            str(data["rust_src"]),
+            "-o",
+            str(scratch / "hello"),
+        ]
+
+    def link_binary(scratch: Path, data: dict[str, Path]) -> list[str]:
+        obj = scratch / "link.o"
+        subprocess.run(
+            ["cc", "-c", "-o", str(obj), str(data["source"])],
+            check=True,
+            capture_output=True,
+        )
+        return ["cc", str(obj), "-o", str(scratch / "linked")]
+
+    def objcopy_binary(scratch: Path, data: dict[str, Path]) -> list[str]:
+        obj = scratch / "obj.o"
+        subprocess.run(
+            ["cc", "-c", "-o", str(obj), str(data["source"])],
+            check=True,
+            capture_output=True,
+        )
+        return ["objcopy", "--strip-unneeded", str(obj), str(scratch / "obj.stripped.o")]
+
+    def multi_file_pipeline(scratch: Path, data: dict[str, Path]) -> list[str]:
+        return [
+            "sh",
+            "-c",
+            (
+                f"cc -O2 -c {data['source']} -o {scratch / 'a.o'} && "
+                f"ar rcs {scratch / 'liba.a'} {scratch / 'a.o'} && "
+                f"sha256sum {scratch / 'liba.a'} > {scratch / 'liba.sha256'}"
+            ),
+        ]
+
+    def scientific_awk(scratch: Path, data: dict[str, Path]) -> list[str]:
+        return [
+            "awk",
+            "BEGIN { x=1.0 } { x = x * 1.0000007 + ($1 % 97) } END { printf \"%.10f\\n\", x }",
+            str(data["numbers"]),
+        ]
+
     return [
         Workload(
             "cc-compile-fixture",
@@ -306,12 +495,57 @@ def workloads(fixture_source: Path) -> list[Workload]:
             outputs=["source.o"],
         ),
         Workload(
+            "clang-compile-large",
+            "compiler",
+            ["clang"],
+            "Same generated TU compiled with clang (linker/tooling family coverage).",
+            clang_compile,
+            cwd="scratch",
+            outputs=["clang.o"],
+        ),
+        Workload(
+            "cc-link-binary",
+            "linker",
+            ["cc"],
+            "Compile then link a generated TU into an executable with the system linker via cc.",
+            link_binary,
+            cwd="scratch",
+            outputs=["linked"],
+        ),
+        Workload(
+            "ar-static-archive",
+            "archiver",
+            ["cc", "ar"],
+            "Archive a compiled object into a static library with ar.",
+            ar_archive,
+            cwd="scratch",
+            outputs=["libmember.a"],
+        ),
+        Workload(
+            "objcopy-strip-unneeded",
+            "toolchain",
+            ["cc", "objcopy"],
+            "objcopy --strip-unneeded on a compiled object (metadata rewrite).",
+            objcopy_binary,
+            cwd="scratch",
+            outputs=["obj.stripped.o"],
+        ),
+        Workload(
             "shell-pipeline",
             "shell",
             ["sh", "awk", "sort", "uniq"],
             "Deterministic awk | sort | uniq -c kernel pipeline over a generated integer list.",
             shell_pipeline,
             outputs=["pipeline.out"],
+        ),
+        Workload(
+            "multi-file-compile-ar-hash",
+            "multi_file",
+            ["sh", "cc", "ar", "sha256sum"],
+            "Multi-step compile → ar → sha256sum pipeline over generated sources.",
+            multi_file_pipeline,
+            cwd="scratch",
+            outputs=["liba.sha256"],
         ),
         Workload(
             "python-csv-json",
@@ -360,6 +594,155 @@ def workloads(fixture_source: Path) -> list[Workload]:
             ["cc"],
             "Compiler front-end lint pass (cc -fsyntax-only -Wall -Wextra -Werror) over the C fixture.",
             lint,
+        ),
+        Workload(
+            "gzip-compress-stdout",
+            "compress",
+            ["gzip"],
+            "gzip -c -n of a 64KiB deterministic blob (stdout capture; timestamps suppressed).",
+            gzip_compress,
+            cwd="scratch",
+        ),
+        Workload(
+            "gzip-roundtrip-file",
+            "compress",
+            ["gzip", "sh"],
+            "gzip | gunzip round-trip into a scratch file via sh.",
+            gzip_roundtrip,
+            cwd="scratch",
+            outputs=["gunzip.bin"],
+        ),
+        Workload(
+            "bzip2-compress-stdout",
+            "compress",
+            ["bzip2"],
+            "bzip2 -c of the same deterministic blob.",
+            bzip2_compress,
+            cwd="scratch",
+        ),
+        Workload(
+            "xz-compress-stdout",
+            "compress",
+            ["xz"],
+            "xz -c -0 of the deterministic blob (fast preset; not tuned for TraceJIT).",
+            xz_compress,
+            cwd="scratch",
+        ),
+        Workload(
+            "tar-create-archive",
+            "archiver",
+            ["tar"],
+            "tar -cf bundling text + binary fixtures (multi-file archive).",
+            tar_archive,
+            cwd="scratch",
+            outputs=["bundle.tar"],
+        ),
+        Workload(
+            "sed-rewrite-stdout",
+            "text",
+            ["sed"],
+            "sed substitution over a generated text file to stdout.",
+            sed_transform,
+            cwd="scratch",
+        ),
+        Workload(
+            "awk-sum-stdout",
+            "text",
+            ["awk"],
+            "awk numeric reduction over generated lines (scientific-style transform).",
+            awk_sum,
+            cwd="scratch",
+        ),
+        Workload(
+            "awk-scientific-iter",
+            "scientific",
+            ["awk"],
+            "Iterative floating-point reduction over a generated integer stream.",
+            scientific_awk,
+            cwd="scratch",
+        ),
+        Workload(
+            "sort-numbers",
+            "text",
+            ["sort"],
+            "sort of a generated integer list to stdout.",
+            sort_file,
+            cwd="scratch",
+        ),
+        Workload(
+            "wc-line-count",
+            "text",
+            ["wc"],
+            "wc -l over generated text.",
+            wc_count,
+            cwd="scratch",
+        ),
+        Workload(
+            "sha256sum-blob",
+            "digest",
+            ["sha256sum"],
+            "sha256sum of a deterministic binary blob.",
+            sha256_digest,
+            cwd="scratch",
+        ),
+        Workload(
+            "openssl-sha256",
+            "digest",
+            ["openssl"],
+            "openssl dgst -sha256 of the same blob.",
+            openssl_digest,
+            cwd="scratch",
+        ),
+        Workload(
+            "od-hex-prefix",
+            "inspect",
+            ["od"],
+            "od hex dump of the first 256 bytes of the blob.",
+            od_dump,
+            cwd="scratch",
+        ),
+        Workload(
+            "dd-copy-file",
+            "io",
+            ["dd"],
+            "dd file copy of the blob into scratch (status=none).",
+            dd_copy,
+            cwd="scratch",
+            outputs=["copy.bin"],
+        ),
+        Workload(
+            "jq-sum-values",
+            "data",
+            ["jq"],
+            "jq sum over a generated JSON array (data preprocessing).",
+            jq_filter,
+            cwd="scratch",
+        ),
+        Workload(
+            "perl-sum-values",
+            "script",
+            ["perl"],
+            "perl -lne reduction over generated text (repo-script stand-in).",
+            perl_sum,
+            cwd="scratch",
+        ),
+        Workload(
+            "make-awk-target",
+            "build",
+            ["make", "awk"],
+            "make -C scratch all: declared single-target awk reduction (build-system baseline).",
+            make_awk,
+            cwd="scratch",
+            outputs=["out.txt"],
+        ),
+        Workload(
+            "rustc-hello",
+            "rust",
+            ["rustc"],
+            "rustc -O of a tiny deterministic Rust program (Rust-related workflow).",
+            rustc_hello,
+            cwd="scratch",
+            outputs=["hello"],
         ),
     ]
 

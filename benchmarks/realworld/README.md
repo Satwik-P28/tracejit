@@ -36,17 +36,27 @@ python3 benchmarks/realworld/census.py --runs 5 --warmups 1 \
 
 ## Workloads
 
+The harness defines **≥25** workloads (currently 32) spanning compilers/linkers/archivers,
+gzip/bzip2/xz, awk/sed/sort/wc, digests, jq/perl, make, rustc, groff, Pillow, and multi-file
+pipelines. See `workloads()` in `census.py` and `docs/final/P1_COMPATIBILITY_CENSUS.md`.
+
 | Workload | Class | What it is |
 | --- | --- | --- |
 | `cc-compile-fixture` | compiler | The repository's own adversarial C fixture compiled with the system `cc`. |
 | `cc-compile-large` | compiler | A generated 300-function translation unit, compiled whole. |
+| `clang-compile-large` | compiler | Same TU with `clang`. |
+| `cc-link-binary` | linker | Compile + link via `cc`. |
+| `ar-static-archive` / `tar-create-archive` | archiver | `ar` / `tar` packaging. |
+| `gzip-*` / `bzip2-*` / `xz-*` | compress | Compression family (stdout or round-trip). |
 | `shell-pipeline` | shell | `awk \| sort \| uniq -c` over a generated integer list. |
 | `python-csv-json` | python | CPython CSV to JSON aggregation with interpreter defaults. |
-| `python-csv-json-seeded` | python | The same with `PYTHONHASHSEED=0`. |
+| `python-csv-json-seeded` | python | The same with `PYTHONHASHSEED=0` (explicitly controlled). |
 | `awk-codegen` | codegen | `awk` generating a C header from a TSV schema. |
-| `groff-manpage-html` | documentation | `groff -T<device> -man` on a troff man page, using the first installed output device (`html`, else `utf8`, else `ascii`). |
+| `groff-manpage-html` | documentation | `groff -T<device> -man` on a troff man page. |
 | `pil-image-transform` | image | Grayscale, posterize, and downsample a PNG with Pillow. |
 | `cc-syntax-only-lint` | lint | `cc -fsyntax-only -Wall -Wextra -Werror` over the C fixture. |
+| `sed` / `awk` / `sort` / `wc` / digests / `dd` / `od` / `jq` / `perl` / `make` / `rustc` | mixed | Text, scientific awk, data, build, and Rust-related workflows. |
+| `multi-file-compile-ar-hash` | multi_file | compile → ar → sha256sum pipeline. |
 
 Tools that were probed and were not present on the census host are listed in
 `census.json` under `blocked_missing_tool` with the tool names. Where a common
