@@ -19,40 +19,30 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 
 ## Current main
 
-- Tip: `bb4302f` — P1 §§6–10 package (PR #29) on restore (#28) / process (#27) / baseline (#26).
-- Final adversarial docs under `docs/final/`; §§11–14 assurance package on `cursor/final-adversarial-p1-assurance-6ed7` (`docs/final/P1_TRA28_PACKAGE.md`, raw `benchmarks/results/final_p1_assurance/`).
+- Tip: `827b776` — final adversarial PRs #26–#30 (baseline → P0 → P1 → assurance).
+- Release packaging: `docs/final/FINAL_ANSWER.md`, `ARTIFACT_EVALUATION.md`, `EXECUTIVE_SUMMARY.md`; gates `benchmarks/results/final_release/`.
 - Releases: `v0.1.0` (`cf0ddb2`), `v0.1.1` (`31c36d1`). Do not move tags.
 - Research PRs #6/#7/#9/#10 stay isolated (not for main).
 
-## Phases C–G (merged)
+## Final adversarial map
 
-- **C** semantics: anon `MAP_SHARED`/`link` UNKNOWN; hit-path expose order; EXECUTION_EQUIVALENCE.md (#12).
-- **D** verification: differential seeds 7/11/17, adversarial, property, concurrency (#13).
-- **E** research: certificates, CEGAR workflow, admission-eval; bandit default rejected (#14).
-- **F** performance: stream-hash CAS staging, single-fd guards, candidate LIMIT; large-file win; short ETL still loss (#15).
-- **G** evaluation: competitive suite + sessions A/B; make incorrect on mtime/corrupt; ninja/ccache/sccache skipped (#16).
-
-## Phases H–J (merged)
-
-- Part XVIII technical report, README, claims ledger, FOCUS materials (#17).
-
-## Phase K
-
-- Baseline: `docs/audits/PHASE_K_INDEPENDENT_BASELINE.md`.
-- K1–K7 merged (#18–#24): false-HIT fix, independent oracle, modelcheck, crash fault injection, CEGAR refine, StrictCas, measured `sync_data`/`prepare_cached`.
-- K8–K14 (research package): competitive re-eval with ninja measured, admission re-eval, novelty matrix, flagship Obs-equivalence, external-review objections, final package — `docs/audits/PHASE_K8_*` … `PHASE_K14_*`, `docs/research/NOVELTY_MATRIX.md`.
-- Flagship: fail-closed observable-equivalence for transparent whole-command reuse (honest negatives retained).
+| PR | Scope |
+| ---: | --- |
+| #26 | Live baseline + INVARIANTS |
+| #27 | P0 process refuses + TOCTOU recheck |
+| #28 | P0 restore-intent durability |
+| #29 | P1 tracing/census/e2e/admission |
+| #30 | P1 CEGAR/assurance/security/prior-art |
 
 ## Known limitations
 
-- Multi-output restore: single-path rename atomic; soft rollback verified; hard-kill not crash-atomic / not inode-preserving. Restore-intent refuses next HIT after interrupted apply (`docs/final/P0_RESTORE_DURABILITY.md`).
-- Validate→restore TOCTOU: pre-restore guard recheck shrinks the window; residual race after recheck / during restore remains. Certificates are not full proofs.
-- Short-command floor; large restore+hash can lose to direct copy (reconfirmed in final_p1 e2e).
-- Real-world census eligibility remains low under unmodified defaults (1/32 on final_p1 tip); randomness/clock dominate refusals.
-- Selective tracing and typed dependency-DAG validator remain deferred; bandit admission default rejected.
-- `cargo audit`: libsqlite3-sys RUSTSEC-2026-0459 deferred to a focused dependency bump; not claimed clean.
-- CEGAR refine never auto-deploys; no academic CEGAR novelty claim.
-- Controlled-runtime and epoll/retrieval research stay off main.
+- Multi-output restore: single-path rename atomic; soft rollback verified; hard-kill not crash-atomic / not inode-preserving. Restore-intent refuses next HIT.
+- Validate→restore TOCTOU residual after recheck remains.
+- Short-command floor / short-ETL session losses (final_p1 e2e).
+- Census eligibility 1/32 under native defaults; randomness/clock dominate.
+- Selective tracing, typed DAG validator deferred; bandit admission rejected.
+- `cargo audit` RUSTSEC-2026-0459 deferred; not claimed clean.
+- Controlled-runtime / epoll research stay off main.
 
 ## Validation
 
@@ -63,4 +53,6 @@ cargo test --workspace
 cargo test -p tracejit-cli --test linux_integration -- --nocapture
 cargo build --workspace --release
 ./scripts/demo.sh
+python3 scripts/modelcheck/check_state_machines.py
+./scripts/phase_k4_restore_fault.sh ./target/release/tracejit
 ```

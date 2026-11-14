@@ -668,13 +668,16 @@ Store file contents in CAS.
 
 On reuse:
 
-1. validate all guards
-2. restore outputs atomically where practical
+1. validate all guards (including a pre-restore recheck on the hit path)
+2. restore outputs: each pathname via atomic `rename` of a staged temp; soft
+   failure rolls back; hard kill may mix files and leaves a restore-intent that
+   refuses the next HIT (not a multi-file atomic transaction)
 3. replay stdout
 4. replay stderr
 5. return cached exit status
 
-Do not restore outputs if guard validation fails.
+Do not restore outputs if guard validation fails. Never expose a HIT after a
+failed or interrupted multi-output restore.
 
 Never cache commands with unresolved external mutation effects.
 

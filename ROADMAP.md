@@ -2,12 +2,15 @@
 
 V1 is whole-command reuse on Linux x86_64. The items below are not implemented. None of them is implied by the current CLI.
 
+Final adversarial verified subset is summarized in [docs/final/FINAL_ANSWER.md](docs/final/FINAL_ANSWER.md). Short-command losses and low native census eligibility are retained on purpose.
+
 ## Next, and small enough to review
 
 These are the concrete gaps already visible in this repository. Labels a maintainer can apply later are noted in [docs/launch/PROPOSED_ISSUES.md](docs/launch/PROPOSED_ISSUES.md). They are not open GitHub issues until someone creates them.
 
-- Model the syscalls that made `shell-pipeline` and `cc -c` `UNKNOWN` in `benchmarks/results/break-even.md`, each with a fixture that still fails closed if the model is incomplete. The recorded numbers include 115, 293, and 439. Confirm those numbers against the benchmark host's `unistd_64.h` before naming them in a patch.
-- Add one workload that is allowed to be slower than baseline, and keep publishing the loss.
+- Focused dependency bump for `libsqlite3-sys` / rusqlite addressing RUSTSEC-2026-0459 (deferred from TRA-28 audit).
+- Model high-frequency census refusals (randomness/clock) only with minimal semantics + oracle + chaos — never silent admits.
+- Complete-event proof obligation before any selective seccomp-BPF tracing experiment ([docs/final/P1_TRACING_ARCHITECTURE.md](docs/final/P1_TRACING_ARCHITECTURE.md)).
 - vDSO `clock_gettime`, `gettimeofday`, and `time` are redirected to syscalls before the program runs. Other vDSO helpers, including the signal trampoline, are left in place.
 
 ## Deliberately later
