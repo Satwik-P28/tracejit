@@ -102,7 +102,10 @@ Core encodes this order as a small typestate (`GuardsPassed` →
 - **seccomp + Landlock ≠ full execution equivalence.** They constrain the
   enforced child; they do not make multi-output restore crash-atomic, close the
   validate→restore TOCTOU window, or model every OFD/alias edge.
-- Multi-output restore remains pathname-visible under hard kill (no journal).
+- Multi-output restore remains pathname-visible under hard kill (not crash-atomic).
+  A durable restore-intent marker under the cache root forces the next run to
+  refuse HIT after an interrupted apply; soft rollback clears the marker. See
+  `docs/final/P0_RESTORE_DURABILITY.md`.
 - Hit path **re-validates guards immediately before restore** to shrink the
   validate→restore TOCTOU window (fail-closed). This does **not** eliminate the
   residual race after that recheck or during restore.

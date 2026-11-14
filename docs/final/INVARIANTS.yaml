@@ -114,22 +114,26 @@ invariants:
     statement: >
       A HIT must not report success if output restoration left a mixed or failed
       pathname-visible state. Soft failures roll back and retrace; hard-kill mid-restore
-      is outside crash-atomic guarantee and must not be advertised as success.
+      is outside crash-atomic guarantee and must not be advertised as success. A leftover
+      restore-intent marker forces the next run to refuse HIT and re-execute.
     owner_code:
-      - crates/tracejit-cache/src/lib.rs (restore_outputs / staging / rollback)
-      - crates/tracejit-core/src/lib.rs (hit path restore before expose)
+      - crates/tracejit-cache/src/lib.rs (restore_outputs / staging / rollback / intent)
+      - crates/tracejit-core/src/lib.rs (hit path restore before expose; interrupted intent refuse)
     tests:
       - crates/tracejit-cache unit: failure_during_a_later_replacement_rolls_the_first_one_back
+      - crates/tracejit-cache unit: leftover_intent_is_detected_on_open_and_consumable
       - scripts/phase_k4_restore_fault.sh
       - docs/research/formal/restore_crash.tla (model, not binary proof)
     failure_cases:
       - soft_fail_leaves_partial_outputs_and_Reused
       - hard_kill_mixed_workspace_claimed_atomic
-    checker: restore rollback + K4 fault harness + modelcheck KillNotExpose
+      - hit_after_interrupted_restore_intent
+    checker: restore rollback + intent refuse + K4 fault harness + modelcheck KillNotExpose
     coverage_gaps:
-      - no_durable_multi_file_journal
+      - no_durable_multi_file_journal_repairing_user_files
       - power_loss_durability_not_equivalent_to_SIGKILL_tests
       - inode_preserving_restore_unsupported
+      - multi_file_atomic_visibility_not_claimed
 
   - id: I5
     name: No verified CAS mismatch is replayed

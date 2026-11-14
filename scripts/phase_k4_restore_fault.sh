@@ -3,7 +3,8 @@
 #
 # Soft fail: TRACEJIT_TEST_RESTORE_FAIL_PATH aborts apply after rollback; core retraces.
 # Hard kill: TRACEJIT_TEST_RESTORE_PAUSE_PATH sleeps mid-apply; harness SIGKILLs; next run
-# must restore correct Obs (reuse or re-exec). Multi-output restore is not crash-atomic.
+# must restore correct Obs via re-exec (HIT refused while a dead-pid restore-intent remains).
+# Multi-output restore is not crash-atomic; see docs/final/P0_RESTORE_DURABILITY.md.
 #
 # Usage: phase_k4_restore_fault.sh [path-to-tracejit]
 set -eu
@@ -63,18 +64,32 @@ print(f"RESULT phase-k4-soft-fail-retrace PASS decision={decision}")
 PY
 
 # --- Hard kill: pause on second output, SIGKILL, then recover ---
+# Background a single subshell that exec's TraceJIT so $! is the writer pid that
+# owns restore-intent.v1.<pid>.json. Do not background `tracejit_run` itself: that
+# function already uses a subshell body, so $! would be a waiter and SIGKILL would
+# leave the paused restore process alive (intent still "live", HIT not refused).
 printf 'user-a\n' >"$work/a.txt"
 printf 'user-b\n' >"$work/sub/b.txt"
 set +e
-TRACEJIT_TEST_RESTORE_PAUSE_PATH="$work/sub/b.txt" \
-  tracejit_run run -- "$work/two_outputs" "$work" >/dev/null 2>"$work/pause.err" &
+(
+  for entry in /proc/self/fd/*; do
+    fd=${entry##*/}
+    case "$fd" in
+      0|1|2) ;;
+      *) eval "exec ${fd}>&-" 2>/dev/null || true ;;
+    esac
+  done
+  export TRACEJIT_TEST_RESTORE_PAUSE_PATH="$work/sub/b.txt"
+  exec "$tracejit" run -- "$work/two_outputs" "$work"
+) >/dev/null 2>"$work/pause.err" &
 pid=$!
 sleep 0.5
 kill -KILL "$pid" 2>/dev/null
 wait "$pid" 2>/dev/null
 set -e
 echo "after kill a=$(cat "$work/a.txt") b=$(cat "$work/sub/b.txt")"
-# Recovery without hooks.
+ls "$TRACEJIT_CACHE_DIR"/restore-intent.v1."$pid".json >/dev/null
+# Recovery without hooks: dead-pid intent must refuse HIT, then re-exec to correct Obs.
 tracejit_run run --json -- "$work/two_outputs" "$work" >"$work/recover.json" 2>"$work/recover.err"
 PHASE_K4_WORK="$work" python3 - <<'PY'
 import json, os
@@ -85,5 +100,8 @@ assert report.get("exit_code") == 0, report
 assert (work / "a.txt").read_text() == "input one\n"
 assert (work / "sub" / "b.txt").read_text() == "input one\n"
 decision = report.get("cache_decision") or report.get("kind")
+assert decision != "Reused", report
+reason = report.get("decision_reason") or ""
+assert "interrupted" in reason, report
 print(f"RESULT phase-k4-hard-kill-recovery PASS decision={decision}")
 PY

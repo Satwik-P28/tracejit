@@ -19,8 +19,8 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 
 ## Current main
 
-- Tip: `4421f8b` — Phase K8–K14 research package (PR #25) on K7 (`364331b`).
-- Final adversarial baseline: `docs/final/BASELINE.md` + `docs/final/INVARIANTS.yaml` (live gates on that tip).
+- Tip: `80edaa4` — P0 process/TOCTOU (PR #27) on baseline (#26) / K8–K14 (#25).
+- Final adversarial: `docs/final/BASELINE.md`, `INVARIANTS.yaml`, `P0_PROCESS_AND_TOCTOU.md`; §5 restore durability on `cursor/final-adversarial-p0-restore-6ed7` (`docs/final/P0_RESTORE_DURABILITY.md`).
 - Releases: `v0.1.0` (`cf0ddb2`), `v0.1.1` (`31c36d1`). Do not move tags.
 - Research PRs #6/#7/#9/#10 stay isolated (not for main).
 
@@ -45,7 +45,7 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 
 ## Known limitations
 
-- Multi-output restore pathname-visible under hard kill (not crash-atomic / not inode-preserving).
+- Multi-output restore: single-path rename atomic; soft rollback verified; hard-kill not crash-atomic / not inode-preserving. Restore-intent refuses next HIT after interrupted apply (`docs/final/P0_RESTORE_DURABILITY.md`).
 - Validate→restore TOCTOU: pre-restore guard recheck shrinks the window; residual race after recheck / during restore remains. Certificates are not full proofs.
 - Short-command floor; large restore+hash can lose to direct copy.
 - Controlled-runtime and epoll/retrieval research stay off main.
