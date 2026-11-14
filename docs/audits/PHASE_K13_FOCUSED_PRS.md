@@ -9,6 +9,6 @@
 | K5 CEGAR engine | #22 merged | `f148228` |
 | K6 certificate StrictCas | #23 merged | `aa3a186` |
 | K7 measured perf | #24 merged | `364331b` |
-| K8–K14 research package | this PR | branch `cursor/phase-k8-k14-research-package-7fee` |
+| K8–K14 research package | #25 open | `cursor/phase-k8-k14-research-package-7fee` @ `9b2c7cd` |
 
 K8–K14 are delivered as **one focused research PR** (harness + measured JSON + audits + claims ledger + novelty matrix) rather than seven empty doc-only PRs. Product safety code for K1–K7 already landed serially.
