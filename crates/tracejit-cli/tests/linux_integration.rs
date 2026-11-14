@@ -133,6 +133,221 @@ fn analyze_case(binary: &Path, directory: &Path, case: &str) -> Value {
     })
 }
 
+/// `O_TMPFILE` must never be modeled as a pathname open/write of the parent directory.
+///
+/// The pathname argument is only a directory; the created inode is unnamed until a later
+/// `linkat(AT_EMPTY_PATH)`. Recording Write against the directory path is incorrect Obs.
+#[test]
+fn otmpfile_is_unknown_and_never_reused() {
+    let temporary = tempfile::tempdir().unwrap();
+    let source = temporary.path().join("otmpfile.c");
+    fs::write(
+        &source,
+        r#"#define _GNU_SOURCE
+#include <fcntl.h>
+#include <stdio.h>
+#include <unistd.h>
+#ifndef O_TMPFILE
+#define O_TMPFILE (020000000 | O_DIRECTORY)
+#endif
+int main(void) {
+    int fd = open(".", O_TMPFILE | O_RDWR, 0600);
+    if (fd < 0) return 2;
+    if (write(fd, "ZZZ", 3) != 3) return 3;
+    close(fd);
+    puts("ok");
+    return 0;
+}
+"#,
+    )
+    .unwrap();
+    let binary = temporary.path().join("otmpfile");
+    assert!(
+        Command::new("cc")
+            .arg("-O0")
+            .arg(&source)
+            .arg("-o")
+            .arg(&binary)
+            .status()
+            .unwrap()
+            .success(),
+        "otmpfile compilation failed"
+    );
+    let cache = temporary.path().join("cache");
+    let work = temporary.path().join("work");
+    fs::create_dir(&work).unwrap();
+    let args = ["run", "--json", "--", binary.to_str().unwrap()];
+    let cold = Command::new(tracejit())
+        .args(args)
+        .current_dir(&work)
+        .env("TRACEJIT_CACHE_DIR", &cache)
+        .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0")
+        .output()
+        .unwrap();
+    assert!(
+        cold.status.success(),
+        "{}",
+        String::from_utf8_lossy(&cold.stderr)
+    );
+    let cold_report: Value = serde_json::from_slice(&cold.stdout).unwrap();
+    assert_eq!(cold_report["classification"], "Unknown", "{cold_report}");
+    assert_eq!(cold_report["eligible_for_reuse"], false, "{cold_report}");
+    let reasons = cold_report["reasons"].as_array().unwrap();
+    assert!(
+        reasons
+            .iter()
+            .any(|reason| reason.as_str().unwrap_or_default().contains("O_TMPFILE")),
+        "expected explicit O_TMPFILE refuse, got {cold_report}"
+    );
+
+    let warm = Command::new(tracejit())
+        .args(args)
+        .current_dir(&work)
+        .env("TRACEJIT_CACHE_DIR", &cache)
+        .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0")
+        .output()
+        .unwrap();
+    assert!(
+        warm.status.success(),
+        "{}",
+        String::from_utf8_lossy(&warm.stderr)
+    );
+    let warm_report: Value = serde_json::from_slice(&warm.stdout).unwrap();
+    assert_ne!(
+        warm_report["kind"], "Reused",
+        "O_TMPFILE must never HIT: {warm_report}"
+    );
+}
+
+/// Mutating `fcntl` commands (e.g. `F_SETFL`) must not be silently treated as process-internal.
+#[test]
+fn fcntl_setfl_is_unknown_and_never_reused() {
+    let temporary = tempfile::tempdir().unwrap();
+    let source = temporary.path().join("fcntl_setfl.c");
+    fs::write(
+        &source,
+        r#"#define _GNU_SOURCE
+#include <fcntl.h>
+#include <stdio.h>
+#include <unistd.h>
+int main(void) {
+    int fd = open("out.txt", O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    if (fd < 0) return 1;
+    if (write(fd, "AA", 2) != 2) return 1;
+    int fl = fcntl(fd, F_GETFL);
+    if (fl < 0) return 1;
+    if (fcntl(fd, F_SETFL, fl | O_APPEND) != 0) return 1;
+    if (write(fd, "BB", 2) != 2) return 1;
+    close(fd);
+    puts("ok");
+    return 0;
+}
+"#,
+    )
+    .unwrap();
+    let binary = temporary.path().join("fcntl_setfl");
+    assert!(
+        Command::new("cc")
+            .arg("-O0")
+            .arg(&source)
+            .arg("-o")
+            .arg(&binary)
+            .status()
+            .unwrap()
+            .success(),
+        "fcntl_setfl compilation failed"
+    );
+    let cache = temporary.path().join("cache");
+    let work = temporary.path().join("work");
+    fs::create_dir(&work).unwrap();
+    let args = ["run", "--json", "--", binary.to_str().unwrap()];
+    let cold = Command::new(tracejit())
+        .args(args)
+        .current_dir(&work)
+        .env("TRACEJIT_CACHE_DIR", &cache)
+        .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0")
+        .output()
+        .unwrap();
+    assert!(
+        cold.status.success(),
+        "{}",
+        String::from_utf8_lossy(&cold.stderr)
+    );
+    let cold_report: Value = serde_json::from_slice(&cold.stdout).unwrap();
+    assert_eq!(cold_report["classification"], "Unknown", "{cold_report}");
+    assert_eq!(cold_report["eligible_for_reuse"], false, "{cold_report}");
+    let reasons = cold_report["reasons"].as_array().unwrap();
+    assert!(
+        reasons.iter().any(|reason| {
+            let text = reason.as_str().unwrap_or_default();
+            text.contains("fcntl command") && text.contains("not modeled")
+        }),
+        "expected fcntl refuse, got {cold_report}"
+    );
+
+    let warm = Command::new(tracejit())
+        .args(args)
+        .current_dir(&work)
+        .env("TRACEJIT_CACHE_DIR", &cache)
+        .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0")
+        .output()
+        .unwrap();
+    assert!(
+        warm.status.success(),
+        "{}",
+        String::from_utf8_lossy(&warm.stderr)
+    );
+    let warm_report: Value = serde_json::from_slice(&warm.stdout).unwrap();
+    assert_ne!(
+        warm_report["kind"], "Reused",
+        "fcntl F_SETFL must never HIT: {warm_report}"
+    );
+    assert_eq!(fs::read(work.join("out.txt")).unwrap(), b"AABB");
+}
+
+/// Pre-restore guard recheck must refuse a HIT when inputs change in the validate→restore window.
+///
+/// Uses `TRACEJIT_TEST_PRE_RESTORE_MUTATE_PATH` (test hook; unset in production) to inject the
+/// mutation deterministically. Residual TOCTOU after the recheck remains a documented limitation.
+#[test]
+fn toctou_pre_restore_recheck_deoptimizes_instead_of_false_hit() {
+    let fixture = Fixture::new();
+    fixture.acquire("plain_file_read");
+    let input = fixture.input("input.txt");
+    let before = fs::read(&input).unwrap();
+    assert_ne!(before, b"TOCTOU-MUTATED\n");
+
+    let warm = invoke(
+        &fixture.cache,
+        &[
+            "run",
+            "--json",
+            "--",
+            fixture.binary_arg(),
+            "plain_file_read",
+            fixture.root(),
+        ],
+        Some((
+            "TRACEJIT_TEST_PRE_RESTORE_MUTATE_PATH",
+            input.to_str().unwrap(),
+        )),
+    );
+    assert!(warm.status.success(), "{}", stderr_of(&warm));
+    let report: Value = serde_json::from_slice(&warm.stdout).unwrap_or_else(|_| {
+        panic!(
+            "invalid JSON: stdout={} stderr={}",
+            String::from_utf8_lossy(&warm.stdout),
+            stderr_of(&warm)
+        )
+    });
+    assert_ne!(
+        report["kind"], "Reused",
+        "mutated input in validate→restore window must not HIT: {report}"
+    );
+    // Hook overwrote the input; retrace must observe the mutated world rather than stale cache.
+    assert_eq!(fs::read(&input).unwrap(), b"TOCTOU-MUTATED\n");
+}
+
 /// `renameat2(RENAME_EXCHANGE)` must never become a Guarded hit.
 ///
 /// Phase K adversarial audit: the tracer previously ignored renameat2 flags and recorded

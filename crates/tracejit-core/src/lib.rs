@@ -104,6 +104,27 @@ fn admission_is_worth_tracing(cost: &AdmissionCost) -> bool {
     admission_is_profitable(cost) && cost.hits.saturating_add(1) > cost.deopts
 }
 
+/// Test-only TOCTOU injection for the validate→restore window.
+///
+/// When `TRACEJIT_TEST_PRE_RESTORE_MUTATE_PATH` is set to an absolute path, the hit path
+/// overwrites that file immediately before the pre-restore guard recheck. Production runs must
+/// leave the variable unset. This exists so integration tests can prove the recheck fails closed
+/// without relying on a flaky external race.
+mod toctou {
+    use std::fs;
+    use std::path::Path;
+
+    pub fn maybe_test_mutate_before_recheck() {
+        let Some(value) = std::env::var_os("TRACEJIT_TEST_PRE_RESTORE_MUTATE_PATH") else {
+            return;
+        };
+        let path = Path::new(&value);
+        if path.is_absolute() {
+            let _ = fs::write(path, b"TOCTOU-MUTATED\n");
+        }
+    }
+}
+
 /// Typestate for the cache-hit path: cached bytes are not exposable until guards and artifacts
 /// have both been admitted. The stages cannot be skipped or reordered at the call site.
 mod reuse_hit {
@@ -441,6 +462,27 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
                 last_deopt_reason = Some(format!(
                     "inherited stream offset could not be reproduced ({error}); retracing"
                 ));
+            }
+            continue;
+        }
+
+        // Shrink the validate→restore TOCTOU window: re-check guards immediately before any
+        // workspace mutation. A concurrent edit that lands after the first validate but before
+        // this recheck forces a miss/retrace instead of a false HIT. Residual race after this
+        // recheck (and during restore) remains a documented V1 limitation — this is fail-closed
+        // hardening, not a claim that the window is closed.
+        toctou::maybe_test_mutate_before_recheck();
+        let recheck = validate_all(&candidate.guards, options.guard_mode);
+        if recheck.failure.is_some() {
+            drop(verified);
+            if last_guard_report.is_none() {
+                last_guard_report = Some(recheck);
+            }
+            if last_deopt_reason.is_none() {
+                last_deopt_reason = Some(
+                    "inputs changed between guard validation and restore (TOCTOU recheck); retracing"
+                        .into(),
+                );
             }
             continue;
         }
@@ -1131,6 +1173,12 @@ impl PreparedExecution {
         }
         hash_path(&mut hasher, &self.cwd);
         for (key, value) in &self.environment {
+            // Supervisor/harness hooks (restore fault injection, TOCTOU recheck injectors, …)
+            // must not change the command identity; otherwise warm HIT paths never run and the
+            // hooks cannot exercise the code they target.
+            if key.to_string_lossy().starts_with("TRACEJIT_TEST_") {
+                continue;
+            }
             hash_os_string(&mut hasher, key);
             hash_os_string(&mut hasher, value);
         }
@@ -1211,6 +1259,9 @@ fn add_discovery_effects(
     });
     sequence += 1;
     for (key, value) in environment {
+        if key.to_string_lossy().starts_with("TRACEJIT_TEST_") {
+            continue;
+        }
         trace.effects.push(EffectRecord {
             sequence,
             pid: trace.processes.first().map_or(0, |process| process.pid),

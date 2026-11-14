@@ -60,6 +60,10 @@ guards, not key bits.
 - `renameat2` with non-zero flags (including `RENAME_EXCHANGE`) is `UNKNOWN`.
   Flags-zero `renameat2` matches ordinary rename. Exchange must not be modeled as
   delete-plus-rename: that produced incorrect Obs on HIT (Phase K).
+- `O_TMPFILE` opens are `UNKNOWN` (unnamed inode; pathname is only a directory).
+- Mutating `fcntl` commands (including `F_SETFL`) are `UNKNOWN`. Pure `F_GET*`
+  queries and the already-modeled `F_DUPFD` / `F_SETFD` paths remain process-local
+  or tracked as before.
 - `newfstatat(..., AT_EMPTY_PATH)` and `openat2` with non-zero `resolve` flags are
   `UNKNOWN` until descriptor-inode / resolve constraints are modeled.
 - Successful terminal-state ioctls on inherited stdio are `UNKNOWN`; failed
@@ -99,6 +103,9 @@ Core encodes this order as a small typestate (`GuardsPassed` →
   enforced child; they do not make multi-output restore crash-atomic, close the
   validate→restore TOCTOU window, or model every OFD/alias edge.
 - Multi-output restore remains pathname-visible under hard kill (no journal).
+- Hit path **re-validates guards immediately before restore** to shrink the
+  validate→restore TOCTOU window (fail-closed). This does **not** eliminate the
+  residual race after that recheck or during restore.
 
 ## Non-claims
 
