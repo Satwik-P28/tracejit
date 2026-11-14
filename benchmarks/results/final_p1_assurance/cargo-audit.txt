@@ -1,0 +1,24 @@
+    Fetching advisory database from `https://github.com/RustSec/advisory-db.git`
+      Loaded 1509 security advisories (from /usr/local/cargo/advisory-db)
+    Updating crates.io index
+    Scanning Cargo.lock for vulnerabilities (113 crate dependencies)
+Crate:     libsqlite3-sys
+Version:   0.30.1
+Title:     `libsqlite3-sys` via C SQLite CVE-2026-119375
+Date:      2026-10-30
+ID:        RUSTSEC-2026-0459
+URL:       https://rustsec.org/advisories/RUSTSEC-2026-0459
+Severity:  6.8 (medium)
+Solution:  Upgrade to >=0.39.0 (patched)
+
+Crate:     rustix
+Version:   1.1.5
+Warning:   unsound
+Title:     xattr functions mark unwritten bytes as initialized when given a zero-length buffer
+Date:      2026-10-27
+ID:        RUSTSEC-2026-0486
+URL:       https://rustsec.org/advisories/RUSTSEC-2026-0486
+Solution:  Upgrade to >=1.1.6 (patched)
+
+error: 1 vulnerability found!
+warning: 1 allowed warning found

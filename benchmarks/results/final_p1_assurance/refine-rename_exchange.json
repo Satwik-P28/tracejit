@@ -1,0 +1,26 @@
+{
+  "title": "renameat2 RENAME_EXCHANGE false HIT",
+  "hole": "UnsoundAdmit",
+  "abstraction": {
+    "model_name": "rename-as-delete-plus-rename",
+    "summary": "classified hole UnsoundAdmit from supplied counterexample"
+  },
+  "counterexample": {
+    "description": "renameat2 RENAME_EXCHANGE false HIT",
+    "observable_divergence": "native=a=BBB b=AAA both present | tracejit=warm hit deleted a (diverge/missing)"
+  },
+  "minimized": {
+    "essential_steps": [
+      "renameat2 | warm HIT treated exchange as delete+rename; flags later refused as not modeled | hit"
+    ],
+    "discarded": []
+  },
+  "action": {
+    "KeepFailClosed": {
+      "rationale": "Counterexample shows Obs divergence under reuse; any admit is unsound. Keep or restore fail-closed classification."
+    }
+  },
+  "safety_ok": true,
+  "deployment": "BlockedPendingOfflineRetest",
+  "registry_hint": null
+}

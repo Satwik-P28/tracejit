@@ -19,8 +19,8 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 
 ## Current main
 
-- Tip: `026e660` — P0 restore durability (PR #28) on process/TOCTOU (#27) / baseline (#26).
-- Final adversarial P0 docs under `docs/final/`; P1 §§6–10 package on `cursor/final-adversarial-p1-perf-6ed7` (`docs/final/P1_TRA27_PACKAGE.md`, raw `benchmarks/results/final_p1/`).
+- Tip: `bb4302f` — P1 §§6–10 package (PR #29) on restore (#28) / process (#27) / baseline (#26).
+- Final adversarial docs under `docs/final/`; §§11–14 assurance package on `cursor/final-adversarial-p1-assurance-6ed7` (`docs/final/P1_TRA28_PACKAGE.md`, raw `benchmarks/results/final_p1_assurance/`).
 - Releases: `v0.1.0` (`cf0ddb2`), `v0.1.1` (`31c36d1`). Do not move tags.
 - Research PRs #6/#7/#9/#10 stay isolated (not for main).
 
@@ -50,6 +50,8 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 - Short-command floor; large restore+hash can lose to direct copy (reconfirmed in final_p1 e2e).
 - Real-world census eligibility remains low under unmodified defaults (1/32 on final_p1 tip); randomness/clock dominate refusals.
 - Selective tracing and typed dependency-DAG validator remain deferred; bandit admission default rejected.
+- `cargo audit`: libsqlite3-sys RUSTSEC-2026-0459 deferred to a focused dependency bump; not claimed clean.
+- CEGAR refine never auto-deploys; no academic CEGAR novelty claim.
 - Controlled-runtime and epoll/retrieval research stay off main.
 
 ## Validation
