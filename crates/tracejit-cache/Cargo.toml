@@ -16,4 +16,5 @@ tracejit-effects = { path = "../tracejit-effects" }
 tracejit-guards = { path = "../tracejit-guards" }
 
 [dev-dependencies]
+libc.workspace = true
 tempfile.workspace = true

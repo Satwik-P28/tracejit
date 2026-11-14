@@ -202,7 +202,22 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
     let mark = Instant::now();
     let lookup_key = prepared.lookup_key()?;
     let lookup_key_ns = phase_elapsed(timing, mark);
-    if let Some(fd) = prepared.inherited_descriptor {
+    // The first scan runs before Cache::open so internal cache fds cannot pollute the answer.
+    // Re-scan afterwards: if Cache::open (or anything else) left a non-CLOEXEC descriptor above
+    // stderr, the child would inherit it even though the preflight said the table was clean.
+    let inherited_descriptor = match prepared.inherited_descriptor {
+        Some(fd) => Some(fd),
+        None => match inherited_descriptor_beyond_stdin() {
+            Ok(fd) => fd,
+            Err(error) => {
+                let reason = format!(
+                    "inherited descriptor enumeration failed after cache open ({error}); reuse refused"
+                );
+                return run_direct(&prepared, &cache, lookup_key, &reason, options.contract);
+            }
+        },
+    };
+    if let Some(fd) = inherited_descriptor {
         // The traced child would inherit this descriptor, but its open-description state and
         // offset are not part of the cache identity. Even if the recorded run observed EOF, a
         // later run could substitute a readable source at the same number. Refuse before lookup
