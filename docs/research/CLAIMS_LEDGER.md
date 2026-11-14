@@ -2,7 +2,7 @@
 
 Status labels (Part XXII §58): **implemented+verified** | **implemented but not fully verified** | **experimental** | **rejected** | **deferred** | **blocked**.
 
-Inspected tip: `b089d5e774d6481a83ec3f308f479d551ed50ce7` (Phase G #16 merged). Evidence paths are repository-relative unless noted.
+Inspected tip: `364331b904d41de3feb7defae152ec0e50112e0e` (Phase K7 #24 merged; K8–K14 package in flight). Evidence paths are repository-relative unless noted.
 
 | Feature / claim | Status | Evidence |
 | --- | --- | --- |
@@ -40,7 +40,20 @@ Inspected tip: `b089d5e774d6481a83ec3f308f479d551ed50ce7` (Phase G #16 merged). 
 | Full-system formal proof / `FullEquivalenceProof` | blocked | non-goal; certificates refuse |
 | Bind-mount `/dev/null` substitution test | blocked | `unshare -m` EPERM (D-B9) |
 | Hardware PMU / perf attribution | blocked | tools absent on eval host |
-| Matched ninja/ccache/sccache/Firebuild numbers | blocked | not installed on Phase G host — skipped, not invented |
+| Matched Firebuild / sccache numbers | blocked | not installed on K8 host — skipped, not invented |
+| Ninja competitive arm (bzip2 build/edit) | implemented+verified | K8 `phase_k8_competitive.py`; identical-rerun win for ninja; WRONG on mtime/corrupt |
+| ccache as transparent command-cache baseline | rejected as comparison | compiler wrapper; not an applicable arm for bzip2 Obs reuse |
+| Phase K false-HIT `renameat2` exchange refuse | implemented+verified | #18; `PHASE_K1_EQUIVALENCE_ATTACK.md` |
+| Independent Obs oracle (no shared Rust crates) | implemented+verified | #19; `benchmarks/oracle/independent_obs.py` |
+| Hit-path + restore-crash external modelcheck | implemented+verified | #20; not a binary proof |
+| Restore fault injection (soft rollback+retrace) | implemented+verified | #21; hard-kill non-atomic limitation retained |
+| Input-driven CEGAR refine (never auto-deploy) | implemented+verified | #22; `tracejit refine` |
+| Certificate StrictCas CAS digest mode | implemented+verified | #23; still refuses `FullEquivalenceProof` |
+| Staging `sync_data` + SQL `prepare_cached` | implemented+verified | #24; measured before/after in `phase_k7/` |
+| Drop CAS/`put_bytes` fsync for speed | rejected | Phase F / K7 |
+| Offline admission prefers `CurrentAuto` | implemented+verified | K9 re-eval regret 49e6 ns; matches Phase E |
+| Bandit / ConfidenceBound as production default | rejected | K9; prefer_simpler |
+| Flagship: fail-closed Obs-equivalence reuse | implemented+verified | K11; not a peer-reviewed novelty claim |
 | Peer-reviewed publication / production adoption | rejected as claim | no evidence |
 
 Quantitative performance claims must cite the commit and file that produced them (see technical report §§14–17). Do not paste a new number without harness provenance.

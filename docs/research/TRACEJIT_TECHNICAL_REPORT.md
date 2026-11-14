@@ -186,7 +186,11 @@ Prior art is reviewed in [LITERATURE_REVIEW.md](LITERATURE_REVIEW.md) and [COMPE
 | CEGAR | classical software-model-checking literature; TraceJIT’s loop is an engineering workflow over effect abstractions |
 | Online decisions | TraceJIT’s admission policies are cost models over tracing, not bandits in production |
 
-TraceJIT does **not** claim superiority over Firebuild/ccache/sccache on matched workloads; ninja/ccache/sccache were absent on the Phase G host and were skipped, not invented.
+TraceJIT does **not** claim superiority over Firebuild/ccache/sccache on matched workloads.
+Phase G skipped ninja/ccache/sccache (absent). Phase K8 measured ninja on tip `364331b` and
+retained Make/Ninja identical-rerun wins plus TraceJIT content-correct recovery where those tools
+kept stale bytes; ccache remains a non-applicable compiler-wrapper baseline for the bzip2 fixture;
+sccache/Firebuild stay skipped (absent). Novelty attribution: [NOVELTY_MATRIX.md](NOVELTY_MATRIX.md).
 
 ## 20. Limitations
 
@@ -207,7 +211,8 @@ Deferred or blocked items only — not promises:
 - Durable multi-file restore journal with measured fault injection.
 - Privileged mount-namespace tests for bind-mount `/dev/null` (D-B9).
 - Broader syscall modeling only with obligation suites (epoll fork/exec/`RLIMIT_NOFILE`/fd transfer before any merge of #7).
-- Matched competitive runs once ninja/ccache/sccache/Firebuild are installed.
+- Matched competitive runs once sccache/Firebuild are installed (ninja measured in K8).
+- Peer critique against the K12 objection list without widening safety.
 - Hardware-counter attribution when PMU/`perf` exist.
 - Formal connection from TLA+ typestate to Rust hit path (**blocked** as full-system proof).
 

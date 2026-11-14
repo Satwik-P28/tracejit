@@ -19,14 +19,14 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 
 ## Current main
 
-- Tip: `aa3a186` — Phase K6 certificate StrictCas (PR #23) on K5 (`f148228`).
+- Tip: `364331b` — Phase K7 measured perf (PR #24) on K6 (`aa3a186`).
 - Releases: `v0.1.0` (`cf0ddb2`), `v0.1.1` (`31c36d1`). Do not move tags.
 - Research PRs #6/#7/#9/#10 stay isolated (not for main).
 
 ## Phases C–G (merged)
 
 - **C** semantics: anon `MAP_SHARED`/`link` UNKNOWN; hit-path expose order; EXECUTION_EQUIVALENCE.md (#12).
-- **D** verification: differential seeds 7/11/17, adversarial, proptest, concurrency (#13).
+- **D** verification: differential seeds 7/11/17, adversarial, property, concurrency (#13).
 - **E** research: certificates, CEGAR workflow, admission-eval; bandit default rejected (#14).
 - **F** performance: stream-hash CAS staging, single-fd guards, candidate LIMIT; large-file win; short ETL still loss (#15).
 - **G** evaluation: competitive suite + sessions A/B; make incorrect on mtime/corrupt; ninja/ccache/sccache skipped (#16).
@@ -35,16 +35,12 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 
 - Part XVIII technical report, README, claims ledger, FOCUS materials (#17).
 
-## Phase K (in flight)
+## Phase K
 
 - Baseline: `docs/audits/PHASE_K_INDEPENDENT_BASELINE.md`.
-- K1 (merged #18): `renameat2(RENAME_EXCHANGE)` false HIT fixed; related Obs refuses.
-- K2 (merged #19): CLI-only Obs oracle — `benchmarks/oracle/independent_obs.py`.
-- K3 (merged #20): hit-path + restore-crash modelcheck — `scripts/modelcheck/check_state_machines.py`.
-- K4 (merged #21): restore fault injection — `scripts/phase_k4_restore_fault.sh`; soft rollback+retrace; hard-kill recovery (no journal).
-- K5 (merged #22): input-driven CEGAR engine — `tracejit refine` (never auto-deploys).
-- K6 (merged #23): certificate StrictCas — `verify_certificate_strict` / `--strict`.
-- K7 (in flight): measured perf — staging `sync_data` + `prepare_cached`; see `benchmarks/results/phase_k7/`.
+- K1–K7 merged (#18–#24): false-HIT fix, independent oracle, modelcheck, crash fault injection, CEGAR refine, StrictCas, measured `sync_data`/`prepare_cached`.
+- K8–K14 (research package): competitive re-eval with ninja measured, admission re-eval, novelty matrix, flagship Obs-equivalence, external-review objections, final package — `docs/audits/PHASE_K8_*` … `PHASE_K14_*`, `docs/research/NOVELTY_MATRIX.md`.
+- Flagship: fail-closed observable-equivalence for transparent whole-command reuse (honest negatives retained).
 
 ## Known limitations
 
