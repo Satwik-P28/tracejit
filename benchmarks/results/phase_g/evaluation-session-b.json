@@ -1,0 +1,2982 @@
+{
+  "ablations": [
+    {
+      "ablation": "guard-mode-strict-vs-fast",
+      "modes": {
+        "fast": {
+          "admission": "always",
+          "all_warm_reused": true,
+          "argv": [
+            "/tmp/phase-g-guard-8qsgh_1v/fixture-driver",
+            "plain_file_read",
+            "/tmp/phase-g-guard-8qsgh_1v/work"
+          ],
+          "arm": "tracejit-always",
+          "cold_classification": "Guarded",
+          "cold_kind": "Executed",
+          "cold_ms": 38.222,
+          "contract": null,
+          "guard_mode": "fast",
+          "invalidation": null,
+          "name": "guard-fast",
+          "phases_median_ms": {
+            "cache_prepare_ns": 0.008,
+            "cas_restore_ns": 3.742,
+            "cli_parse_ns": 0.078,
+            "decision_persist_ns": 0.0,
+            "guard_validation_ns": 0.03,
+            "identity_prepare_ns": 0.099,
+            "lookup_key_ns": 0.004,
+            "present_ns": 0.025,
+            "process_startup_ns": 6.091,
+            "record_decode_ns": 0.395,
+            "sqlite_open_ns": 0.071,
+            "sqlite_query_ns": 0.306,
+            "sqlite_schema_ns": 0.097,
+            "stdio_replay_ns": 0.007
+          },
+          "warm": {
+            "max_ms": 7.231,
+            "median_ms": 6.023,
+            "min_ms": 5.611,
+            "p95_ms": 6.547,
+            "pstdev_ms": 0.349,
+            "rsd": 0.0579,
+            "runs": 20,
+            "samples_ms": [
+              6.326,
+              5.904,
+              6.33,
+              5.611,
+              7.231,
+              5.837,
+              6.135,
+              5.89,
+              5.828,
+              6.547,
+              5.976,
+              5.958,
+              5.85,
+              5.737,
+              6.42,
+              6.1,
+              6.257,
+              6.223,
+              6.025,
+              6.022
+            ]
+          },
+          "warm_kinds": [
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused"
+          ]
+        },
+        "strict": {
+          "admission": "always",
+          "all_warm_reused": true,
+          "argv": [
+            "/tmp/phase-g-guard-8qsgh_1v/fixture-driver",
+            "plain_file_read",
+            "/tmp/phase-g-guard-8qsgh_1v/work"
+          ],
+          "arm": "tracejit-always",
+          "cold_classification": "Guarded",
+          "cold_kind": "Executed",
+          "cold_ms": 33.658,
+          "contract": null,
+          "guard_mode": "strict",
+          "invalidation": null,
+          "name": "guard-strict",
+          "phases_median_ms": {
+            "cache_prepare_ns": 0.008,
+            "cas_restore_ns": 3.51,
+            "cli_parse_ns": 0.086,
+            "decision_persist_ns": 0.0,
+            "guard_validation_ns": 1.184,
+            "identity_prepare_ns": 0.103,
+            "lookup_key_ns": 0.004,
+            "present_ns": 0.024,
+            "process_startup_ns": 5.893,
+            "record_decode_ns": 0.398,
+            "sqlite_open_ns": 0.075,
+            "sqlite_query_ns": 0.302,
+            "sqlite_schema_ns": 0.099,
+            "stdio_replay_ns": 0.009
+          },
+          "warm": {
+            "max_ms": 8.263,
+            "median_ms": 7.098,
+            "min_ms": 6.438,
+            "p95_ms": 8.145,
+            "pstdev_ms": 0.537,
+            "rsd": 0.0756,
+            "runs": 20,
+            "samples_ms": [
+              7.55,
+              7.054,
+              7.102,
+              6.775,
+              6.518,
+              8.145,
+              8.083,
+              8.263,
+              7.572,
+              6.83,
+              6.87,
+              7.109,
+              7.008,
+              6.834,
+              7.094,
+              6.438,
+              6.851,
+              7.615,
+              8.063,
+              7.369
+            ]
+          },
+          "warm_kinds": [
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused"
+          ]
+        }
+      },
+      "note": "Fast may skip content hash after metadata match; Strict always hashes. Not a reordering toggle \u2014 measures pair validation cost difference."
+    },
+    {
+      "ablation": "adaptive-admission",
+      "note": "auto should avoid tracing short ETL; always pays cold+warm; never never caches",
+      "rows": {
+        "etl-always": {
+          "admission": "always",
+          "all_warm_reused": true,
+          "argv": [
+            "/agent/repos/tracejit/benchmarks/workloads/c-etl/etl"
+          ],
+          "arm": "tracejit-always",
+          "cold_classification": "Guarded",
+          "cold_kind": "Executed",
+          "cold_ms": 10.333,
+          "contract": null,
+          "guard_mode": "strict",
+          "invalidation": null,
+          "name": "etl-always",
+          "phases_median_ms": {
+            "cache_prepare_ns": 0.008,
+            "cas_restore_ns": 0.648,
+            "cli_parse_ns": 0.083,
+            "decision_persist_ns": 0.0,
+            "guard_validation_ns": 0.508,
+            "identity_prepare_ns": 0.104,
+            "lookup_key_ns": 0.004,
+            "present_ns": 0.025,
+            "process_startup_ns": 6.751,
+            "record_decode_ns": 0.146,
+            "sqlite_open_ns": 0.077,
+            "sqlite_query_ns": 0.15,
+            "sqlite_schema_ns": 0.101,
+            "stdio_replay_ns": 0.011
+          },
+          "warm": {
+            "max_ms": 4.066,
+            "median_ms": 3.045,
+            "min_ms": 2.728,
+            "p95_ms": 4.066,
+            "pstdev_ms": 0.409,
+            "rsd": 0.1342,
+            "runs": 10,
+            "samples_ms": [
+              3.807,
+              2.958,
+              3.205,
+              3.147,
+              2.728,
+              3.01,
+              4.066,
+              2.805,
+              3.08,
+              2.939
+            ]
+          },
+          "warm_kinds": [
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused"
+          ]
+        },
+        "etl-auto": {
+          "admission": "auto",
+          "all_warm_reused": false,
+          "argv": [
+            "/agent/repos/tracejit/benchmarks/workloads/c-etl/etl"
+          ],
+          "arm": "tracejit-auto",
+          "cold_classification": "Unknown",
+          "cold_kind": "Executed",
+          "cold_ms": 7.685,
+          "contract": null,
+          "guard_mode": "strict",
+          "invalidation": null,
+          "name": "etl-auto",
+          "phases_median_ms": {},
+          "warm": {
+            "max_ms": 3.817,
+            "median_ms": 3.71,
+            "min_ms": 3.233,
+            "p95_ms": 3.817,
+            "pstdev_ms": 0.19,
+            "rsd": 0.0512,
+            "runs": 10,
+            "samples_ms": [
+              3.233,
+              3.786,
+              3.606,
+              3.798,
+              3.725,
+              3.369,
+              3.698,
+              3.817,
+              3.471,
+              3.723
+            ]
+          },
+          "warm_kinds": [
+            "Executed",
+            "Executed",
+            "Executed",
+            "Executed",
+            "Executed",
+            "Executed",
+            "Executed",
+            "Executed",
+            "Executed",
+            "Executed"
+          ]
+        },
+        "etl-never": {
+          "admission": "never",
+          "all_warm_reused": false,
+          "argv": [
+            "/agent/repos/tracejit/benchmarks/workloads/c-etl/etl"
+          ],
+          "arm": "tracejit-never",
+          "cold_classification": "Unknown",
+          "cold_kind": "Executed",
+          "cold_ms": 7.723,
+          "contract": null,
+          "guard_mode": "strict",
+          "invalidation": null,
+          "name": "etl-never",
+          "phases_median_ms": {},
+          "warm": {
+            "max_ms": 4.49,
+            "median_ms": 3.751,
+            "min_ms": 3.412,
+            "p95_ms": 4.49,
+            "pstdev_ms": 0.3,
+            "rsd": 0.0799,
+            "runs": 10,
+            "samples_ms": [
+              3.71,
+              4.003,
+              3.866,
+              3.68,
+              4.49,
+              3.412,
+              3.608,
+              3.484,
+              4.061,
+              3.791
+            ]
+          },
+          "warm_kinds": [
+            "Executed",
+            "Executed",
+            "Executed",
+            "Executed",
+            "Executed",
+            "Executed",
+            "Executed",
+            "Executed",
+            "Executed",
+            "Executed"
+          ]
+        },
+        "transform-always": {
+          "admission": "always",
+          "all_warm_reused": true,
+          "argv": [
+            "/agent/repos/tracejit/benchmarks/workloads/c-transform/transform"
+          ],
+          "arm": "tracejit-always",
+          "cold_classification": "Guarded",
+          "cold_kind": "Executed",
+          "cold_ms": 45.034,
+          "contract": null,
+          "guard_mode": "strict",
+          "invalidation": null,
+          "name": "transform-always",
+          "phases_median_ms": {
+            "cache_prepare_ns": 0.008,
+            "cas_restore_ns": 0.62,
+            "cli_parse_ns": 0.082,
+            "decision_persist_ns": 0.0,
+            "guard_validation_ns": 0.572,
+            "identity_prepare_ns": 0.103,
+            "lookup_key_ns": 0.004,
+            "present_ns": 0.024,
+            "process_startup_ns": 5.886,
+            "record_decode_ns": 0.143,
+            "sqlite_open_ns": 0.076,
+            "sqlite_query_ns": 0.142,
+            "sqlite_schema_ns": 0.094,
+            "stdio_replay_ns": 0.011
+          },
+          "warm": {
+            "max_ms": 4.231,
+            "median_ms": 3.16,
+            "min_ms": 2.747,
+            "p95_ms": 4.231,
+            "pstdev_ms": 0.541,
+            "rsd": 0.1713,
+            "runs": 5,
+            "samples_ms": [
+              2.919,
+              2.747,
+              3.16,
+              3.671,
+              4.231
+            ]
+          },
+          "warm_kinds": [
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused"
+          ]
+        },
+        "transform-auto": {
+          "admission": "auto",
+          "all_warm_reused": true,
+          "argv": [
+            "/agent/repos/tracejit/benchmarks/workloads/c-transform/transform"
+          ],
+          "arm": "tracejit-auto",
+          "cold_classification": "Unknown",
+          "cold_kind": "Executed",
+          "cold_ms": 40.29,
+          "contract": null,
+          "guard_mode": "strict",
+          "invalidation": null,
+          "name": "transform-auto",
+          "phases_median_ms": {
+            "cache_prepare_ns": 0.01,
+            "cas_restore_ns": 0.43,
+            "cli_parse_ns": 0.094,
+            "decision_persist_ns": 0.0,
+            "guard_validation_ns": 0.63,
+            "identity_prepare_ns": 0.11,
+            "lookup_key_ns": 0.004,
+            "present_ns": 0.022,
+            "process_startup_ns": 7.301,
+            "record_decode_ns": 0.092,
+            "sqlite_open_ns": 0.087,
+            "sqlite_query_ns": 0.154,
+            "sqlite_schema_ns": 0.098,
+            "stdio_replay_ns": 0.01
+          },
+          "warm": {
+            "max_ms": 4.67,
+            "median_ms": 4.039,
+            "min_ms": 3.226,
+            "p95_ms": 4.67,
+            "pstdev_ms": 0.539,
+            "rsd": 0.1335,
+            "runs": 5,
+            "samples_ms": [
+              4.67,
+              4.039,
+              3.818,
+              4.633,
+              3.226
+            ]
+          },
+          "warm_kinds": [
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused"
+          ]
+        },
+        "transform-never": {
+          "admission": "never",
+          "all_warm_reused": false,
+          "argv": [
+            "/agent/repos/tracejit/benchmarks/workloads/c-transform/transform"
+          ],
+          "arm": "tracejit-never",
+          "cold_classification": "Unknown",
+          "cold_kind": "Executed",
+          "cold_ms": 39.459,
+          "contract": null,
+          "guard_mode": "strict",
+          "invalidation": null,
+          "name": "transform-never",
+          "phases_median_ms": {},
+          "warm": {
+            "max_ms": 39.792,
+            "median_ms": 39.402,
+            "min_ms": 38.478,
+            "p95_ms": 39.792,
+            "pstdev_ms": 0.457,
+            "rsd": 0.0116,
+            "runs": 5,
+            "samples_ms": [
+              38.478,
+              38.926,
+              39.402,
+              39.439,
+              39.792
+            ]
+          },
+          "warm_kinds": [
+            "Executed",
+            "Executed",
+            "Executed",
+            "Executed",
+            "Executed"
+          ]
+        }
+      }
+    },
+    {
+      "ablation": "phase-f-opts-vs-phase-e-tip",
+      "large_file": {
+        "phase_e": {
+          "admission": "always",
+          "all_warm_reused": true,
+          "argv": [
+            "/tmp/phase-g-pf-55b8jmfx/fixture-driver",
+            "plain_file_read",
+            "/tmp/phase-g-pf-55b8jmfx/work"
+          ],
+          "arm": "tracejit-always",
+          "cold_classification": "Guarded",
+          "cold_kind": "Executed",
+          "cold_ms": 69.249,
+          "contract": null,
+          "guard_mode": "strict",
+          "invalidation": null,
+          "name": "phase-e-tip-large",
+          "phases_median_ms": {
+            "cache_prepare_ns": 0.009,
+            "cas_restore_ns": 9.428,
+            "cli_parse_ns": 0.084,
+            "decision_persist_ns": 0.0,
+            "guard_validation_ns": 1.973,
+            "identity_prepare_ns": 0.088,
+            "lookup_key_ns": 0.014,
+            "present_ns": 0.036,
+            "process_startup_ns": 7.147,
+            "record_decode_ns": 0.67,
+            "sqlite_open_ns": 0.075,
+            "sqlite_query_ns": 0.615,
+            "sqlite_schema_ns": 0.101,
+            "stdio_replay_ns": 0.01
+          },
+          "warm": {
+            "max_ms": 16.704,
+            "median_ms": 14.641,
+            "min_ms": 13.682,
+            "p95_ms": 16.317,
+            "pstdev_ms": 0.862,
+            "rsd": 0.0589,
+            "runs": 20,
+            "samples_ms": [
+              14.404,
+              13.682,
+              14.711,
+              16.704,
+              15.985,
+              16.164,
+              16.317,
+              14.571,
+              14.257,
+              15.893,
+              14.961,
+              13.871,
+              14.962,
+              14.219,
+              14.217,
+              14.793,
+              15.883,
+              14.566,
+              14.283,
+              14.544
+            ]
+          },
+          "warm_kinds": [
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused"
+          ]
+        },
+        "tip": {
+          "admission": "always",
+          "all_warm_reused": true,
+          "argv": [
+            "/tmp/phase-g-pf-55b8jmfx/fixture-driver",
+            "plain_file_read",
+            "/tmp/phase-g-pf-55b8jmfx/work"
+          ],
+          "arm": "tracejit-always",
+          "cold_classification": "Guarded",
+          "cold_kind": "Executed",
+          "cold_ms": 63.437,
+          "contract": null,
+          "guard_mode": "strict",
+          "invalidation": null,
+          "name": "phase-f-tip-large",
+          "phases_median_ms": {
+            "cache_prepare_ns": 0.008,
+            "cas_restore_ns": 7.284,
+            "cli_parse_ns": 0.082,
+            "decision_persist_ns": 0.0,
+            "guard_validation_ns": 1.958,
+            "identity_prepare_ns": 0.098,
+            "lookup_key_ns": 0.004,
+            "present_ns": 0.035,
+            "process_startup_ns": 5.768,
+            "record_decode_ns": 0.582,
+            "sqlite_open_ns": 0.075,
+            "sqlite_query_ns": 0.495,
+            "sqlite_schema_ns": 0.098,
+            "stdio_replay_ns": 0.01
+          },
+          "warm": {
+            "max_ms": 12.781,
+            "median_ms": 12.031,
+            "min_ms": 11.331,
+            "p95_ms": 12.759,
+            "pstdev_ms": 0.456,
+            "rsd": 0.0379,
+            "runs": 20,
+            "samples_ms": [
+              12.759,
+              12.781,
+              12.113,
+              12.114,
+              12.588,
+              11.838,
+              12.11,
+              11.941,
+              12.622,
+              11.376,
+              11.351,
+              11.353,
+              12.413,
+              12.067,
+              11.592,
+              11.851,
+              11.996,
+              11.331,
+              12.171,
+              11.681
+            ]
+          },
+          "warm_kinds": [
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused"
+          ]
+        }
+      },
+      "lazy_decode_note": "CandidateBytes lazy decode is always on; no runtime eager toggle. Complexity measured via record_decode_ns / sqlite_query_ns under high-candidate-count-lookup bounds.",
+      "limit_note": "SQL LIMIT equals TRACEJIT_CANDIDATE_BOUND; measured in high-candidate-count-lookup.",
+      "phase_e_binary": "/tmp/tracejit-phase-e-tip/target/release/tracejit",
+      "phase_e_sha256": "d22e0db2fa5611273b9b61beb55ba6acb4a327173265ac171627861f49726de1",
+      "short_etl": {
+        "phase_e": {
+          "admission": "always",
+          "all_warm_reused": true,
+          "argv": [
+            "/agent/repos/tracejit/benchmarks/workloads/c-etl/etl"
+          ],
+          "arm": "tracejit-always",
+          "cold_classification": "Guarded",
+          "cold_kind": "Executed",
+          "cold_ms": 9.706,
+          "contract": null,
+          "guard_mode": "strict",
+          "invalidation": null,
+          "name": "phase-e-tip-short",
+          "phases_median_ms": {
+            "cache_prepare_ns": 0.008,
+            "cas_restore_ns": 0.895,
+            "cli_parse_ns": 0.082,
+            "decision_persist_ns": 0.0,
+            "guard_validation_ns": 0.52,
+            "identity_prepare_ns": 0.09,
+            "lookup_key_ns": 0.017,
+            "present_ns": 0.026,
+            "process_startup_ns": 6.684,
+            "record_decode_ns": 0.153,
+            "sqlite_open_ns": 0.077,
+            "sqlite_query_ns": 0.149,
+            "sqlite_schema_ns": 0.107,
+            "stdio_replay_ns": 0.01
+          },
+          "warm": {
+            "max_ms": 5.233,
+            "median_ms": 3.522,
+            "min_ms": 2.648,
+            "p95_ms": 5.151,
+            "pstdev_ms": 0.86,
+            "rsd": 0.2442,
+            "runs": 20,
+            "samples_ms": [
+              2.818,
+              2.648,
+              4.303,
+              3.251,
+              2.887,
+              4.801,
+              3.441,
+              2.922,
+              5.233,
+              2.709,
+              3.534,
+              3.638,
+              5.151,
+              3.976,
+              5.126,
+              3.51,
+              3.138,
+              4.963,
+              3.193,
+              3.996
+            ]
+          },
+          "warm_kinds": [
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused"
+          ]
+        },
+        "tip": {
+          "admission": "always",
+          "all_warm_reused": true,
+          "argv": [
+            "/agent/repos/tracejit/benchmarks/workloads/c-etl/etl"
+          ],
+          "arm": "tracejit-always",
+          "cold_classification": "Guarded",
+          "cold_kind": "Executed",
+          "cold_ms": 16.656,
+          "contract": null,
+          "guard_mode": "strict",
+          "invalidation": null,
+          "name": "phase-f-tip-short",
+          "phases_median_ms": {
+            "cache_prepare_ns": 0.008,
+            "cas_restore_ns": 1.41,
+            "cli_parse_ns": 0.082,
+            "decision_persist_ns": 0.0,
+            "guard_validation_ns": 0.528,
+            "identity_prepare_ns": 0.103,
+            "lookup_key_ns": 0.004,
+            "present_ns": 0.026,
+            "process_startup_ns": 5.707,
+            "record_decode_ns": 0.147,
+            "sqlite_open_ns": 0.077,
+            "sqlite_query_ns": 0.147,
+            "sqlite_schema_ns": 0.101,
+            "stdio_replay_ns": 0.01
+          },
+          "warm": {
+            "max_ms": 4.772,
+            "median_ms": 3.828,
+            "min_ms": 2.917,
+            "p95_ms": 4.318,
+            "pstdev_ms": 0.433,
+            "rsd": 0.1132,
+            "runs": 20,
+            "samples_ms": [
+              3.581,
+              3.05,
+              3.84,
+              3.37,
+              3.843,
+              4.111,
+              3.817,
+              3.85,
+              4.166,
+              3.208,
+              3.968,
+              3.958,
+              2.917,
+              4.318,
+              3.676,
+              4.244,
+              3.697,
+              3.463,
+              4.772,
+              3.757
+            ]
+          },
+          "warm_kinds": [
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused"
+          ]
+        }
+      },
+      "stream_staging_note": "Stream-hash CAS staging is compile-time in Phase F tip; compare tip vs Phase E tip warm large_file cas_restore_ns.",
+      "tip_sha256": "a00efdaec19ea98bd9ba029a08c1ef3079456de27560b8643227cb5fa989ada8"
+    }
+  ],
+  "binary": "/agent/repos/tracejit/target/release/tracejit",
+  "binary_sha256": "a00efdaec19ea98bd9ba029a08c1ef3079456de27560b8643227cb5fa989ada8",
+  "commit": "44bc118ec46b6faf5776107861313e10c95e0a46",
+  "controlled_runtime_claimed": false,
+  "host": {
+    "cpus": 4,
+    "cwd": "/agent/repos/tracejit",
+    "filesystem": "ext4   /      rw,relatime",
+    "kernel": "6.12.113+",
+    "platform": "Linux-6.12.113+-x86_64-with-glibc2.39",
+    "rustc": "rustc 1.100.0 (0ef1bc386 2026-11-09)",
+    "tools": {
+      "bzip2": "/usr/bin/bzip2",
+      "cc": "/usr/bin/cc",
+      "ccache": null,
+      "gzip": "/usr/bin/gzip",
+      "make": "/usr/bin/make",
+      "ninja": null,
+      "perf": null,
+      "sccache": null,
+      "strace": null
+    },
+    "uname": {
+      "machine": "x86_64",
+      "node": "cursor",
+      "processor": "x86_64",
+      "release": "6.12.113+",
+      "system": "Linux",
+      "version": "#1 SMP PREEMPT_DYNAMIC Fri Nov 13 20:22:28 UTC 2026"
+    }
+  },
+  "json_path": "benchmarks/results/phase_g/evaluation-session-b.json",
+  "label": "session-b",
+  "runs": 20,
+  "suite": [
+    {
+      "direct": {
+        "argv": [
+          "/agent/repos/tracejit/benchmarks/workloads/c-transform/transform"
+        ],
+        "arm": "direct",
+        "exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "timing": {
+          "max_ms": 40.327,
+          "median_ms": 36.267,
+          "min_ms": 35.468,
+          "p95_ms": 37.931,
+          "pstdev_ms": 1.041,
+          "rsd": 0.0287,
+          "runs": 20,
+          "samples_ms": [
+            37.171,
+            36.904,
+            35.468,
+            35.968,
+            35.828,
+            36.039,
+            35.705,
+            36.294,
+            36.239,
+            35.588,
+            36.169,
+            36.392,
+            36.912,
+            36.628,
+            35.959,
+            40.327,
+            37.931,
+            36.466,
+            36.051,
+            36.564
+          ]
+        }
+      },
+      "scenario": "cpu-heavy-transform",
+      "tracejit": {
+        "admission": "always",
+        "all_warm_reused": true,
+        "argv": [
+          "/agent/repos/tracejit/benchmarks/workloads/c-transform/transform"
+        ],
+        "arm": "tracejit-always",
+        "cold_classification": "Guarded",
+        "cold_kind": "Executed",
+        "cold_ms": 49.72,
+        "contract": null,
+        "guard_mode": "strict",
+        "invalidation": {
+          "classification": "Guarded",
+          "kind": "Executed",
+          "status": 0,
+          "wall_ms": 44.94
+        },
+        "name": "cpu-heavy-transform",
+        "phases_median_ms": {
+          "cache_prepare_ns": 0.009,
+          "cas_restore_ns": 0.609,
+          "cli_parse_ns": 0.089,
+          "decision_persist_ns": 0.0,
+          "guard_validation_ns": 0.574,
+          "identity_prepare_ns": 0.114,
+          "lookup_key_ns": 0.004,
+          "present_ns": 0.026,
+          "process_startup_ns": 5.231,
+          "record_decode_ns": 0.152,
+          "sqlite_open_ns": 0.084,
+          "sqlite_query_ns": 0.152,
+          "sqlite_schema_ns": 0.105,
+          "stdio_replay_ns": 0.011
+        },
+        "warm": {
+          "max_ms": 5.023,
+          "median_ms": 3.287,
+          "min_ms": 2.831,
+          "p95_ms": 4.092,
+          "pstdev_ms": 0.541,
+          "rsd": 0.1645,
+          "runs": 20,
+          "samples_ms": [
+            2.887,
+            3.225,
+            2.967,
+            3.349,
+            4.092,
+            3.553,
+            3.745,
+            3.732,
+            4.06,
+            3.011,
+            2.869,
+            2.831,
+            3.482,
+            3.561,
+            3.018,
+            3.156,
+            2.894,
+            3.363,
+            5.023,
+            2.834
+          ]
+        },
+        "warm_kinds": [
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused"
+        ]
+      }
+    },
+    {
+      "direct": {
+        "argv": [
+          "/agent/repos/tracejit/benchmarks/workloads/c-etl/etl"
+        ],
+        "arm": "direct",
+        "exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "timing": {
+          "max_ms": 1.909,
+          "median_ms": 1.583,
+          "min_ms": 1.408,
+          "p95_ms": 1.846,
+          "pstdev_ms": 0.145,
+          "rsd": 0.0919,
+          "runs": 20,
+          "samples_ms": [
+            1.704,
+            1.616,
+            1.588,
+            1.577,
+            1.418,
+            1.431,
+            1.463,
+            1.909,
+            1.537,
+            1.551,
+            1.408,
+            1.637,
+            1.814,
+            1.796,
+            1.494,
+            1.595,
+            1.846,
+            1.499,
+            1.628,
+            1.444
+          ]
+        }
+      },
+      "scenario": "short-command-overhead-loss",
+      "tracejit": {
+        "admission": "always",
+        "all_warm_reused": true,
+        "argv": [
+          "/agent/repos/tracejit/benchmarks/workloads/c-etl/etl"
+        ],
+        "arm": "tracejit-always",
+        "cold_classification": "Guarded",
+        "cold_kind": "Executed",
+        "cold_ms": 10.561,
+        "contract": null,
+        "guard_mode": "strict",
+        "invalidation": null,
+        "name": "short-command-etl",
+        "phases_median_ms": {
+          "cache_prepare_ns": 0.009,
+          "cas_restore_ns": 0.538,
+          "cli_parse_ns": 0.092,
+          "decision_persist_ns": 0.0,
+          "guard_validation_ns": 0.597,
+          "identity_prepare_ns": 0.118,
+          "lookup_key_ns": 0.004,
+          "present_ns": 0.027,
+          "process_startup_ns": 5.551,
+          "record_decode_ns": 0.163,
+          "sqlite_open_ns": 0.084,
+          "sqlite_query_ns": 0.162,
+          "sqlite_schema_ns": 0.105,
+          "stdio_replay_ns": 0.011
+        },
+        "warm": {
+          "max_ms": 3.838,
+          "median_ms": 3.209,
+          "min_ms": 2.801,
+          "p95_ms": 3.792,
+          "pstdev_ms": 0.29,
+          "rsd": 0.0903,
+          "runs": 20,
+          "samples_ms": [
+            3.14,
+            3.392,
+            3.065,
+            3.792,
+            3.568,
+            3.408,
+            3.629,
+            3.838,
+            3.06,
+            3.146,
+            3.254,
+            3.205,
+            2.949,
+            2.966,
+            3.354,
+            2.801,
+            2.942,
+            3.213,
+            2.866,
+            3.416
+          ]
+        },
+        "warm_kinds": [
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused"
+        ]
+      }
+    },
+    {
+      "correctness_model_note": "TraceJIT discovers deps via tracing + guards; bzip2 stores input mtime. Content-addressed tools key on bytes only and may ignore metadata.",
+      "direct": {
+        "timing": {
+          "max_ms": 42.921,
+          "median_ms": 26.829,
+          "min_ms": 25.042,
+          "p95_ms": 39.682,
+          "pstdev_ms": 5.159,
+          "rsd": 0.1923,
+          "runs": 20,
+          "samples_ms": [
+            30.747,
+            28.585,
+            27.022,
+            28.074,
+            25.042,
+            39.682,
+            26.205,
+            42.921,
+            25.517,
+            27.761,
+            26.181,
+            38.324,
+            26.15,
+            26.281,
+            25.505,
+            26.637,
+            25.213,
+            28.335,
+            25.172,
+            33.7
+          ]
+        }
+      },
+      "input_bytes": 280000,
+      "scenario": "compression-bzip2",
+      "tracejit_always": {
+        "admission": "always",
+        "all_warm_reused": true,
+        "argv": [
+          "bzip2",
+          "-9",
+          "-k",
+          "-f",
+          "payload.bin"
+        ],
+        "arm": "tracejit-always",
+        "cold_classification": "Guarded",
+        "cold_kind": "Executed",
+        "cold_ms": 40.348,
+        "contract": "allocator-entropy-v1",
+        "guard_mode": "strict",
+        "invalidation": null,
+        "name": "compression-bzip2-always",
+        "phases_median_ms": {
+          "cache_prepare_ns": 0.008,
+          "cas_restore_ns": 0.443,
+          "cli_parse_ns": 0.088,
+          "decision_persist_ns": 0.0,
+          "guard_validation_ns": 1.925,
+          "identity_prepare_ns": 0.115,
+          "lookup_key_ns": 0.004,
+          "present_ns": 0.024,
+          "process_startup_ns": 6.132,
+          "record_decode_ns": 0.195,
+          "sqlite_open_ns": 0.076,
+          "sqlite_query_ns": 0.164,
+          "sqlite_schema_ns": 0.102,
+          "stdio_replay_ns": 0.012
+        },
+        "warm": {
+          "max_ms": 5.694,
+          "median_ms": 4.459,
+          "min_ms": 3.896,
+          "p95_ms": 4.863,
+          "pstdev_ms": 0.364,
+          "rsd": 0.0816,
+          "runs": 20,
+          "samples_ms": [
+            4.445,
+            4.249,
+            4.396,
+            4.505,
+            5.694,
+            4.442,
+            4.612,
+            4.725,
+            3.986,
+            4.807,
+            4.537,
+            4.472,
+            4.332,
+            3.896,
+            4.356,
+            4.703,
+            4.447,
+            4.841,
+            4.863,
+            4.319
+          ]
+        },
+        "warm_kinds": [
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused"
+        ]
+      },
+      "tracejit_auto": {
+        "admission": "auto",
+        "all_warm_reused": true,
+        "argv": [
+          "bzip2",
+          "-9",
+          "-k",
+          "-f",
+          "payload.bin"
+        ],
+        "arm": "tracejit-auto",
+        "cold_classification": "Unknown",
+        "cold_kind": "Executed",
+        "cold_ms": 33.242,
+        "contract": "allocator-entropy-v1",
+        "guard_mode": "strict",
+        "invalidation": null,
+        "name": "compression-bzip2-auto",
+        "phases_median_ms": {
+          "cache_prepare_ns": 0.008,
+          "cas_restore_ns": 0.559,
+          "cli_parse_ns": 0.09,
+          "decision_persist_ns": 0.0,
+          "guard_validation_ns": 1.857,
+          "identity_prepare_ns": 0.117,
+          "lookup_key_ns": 0.004,
+          "present_ns": 0.023,
+          "process_startup_ns": 6.023,
+          "record_decode_ns": 0.129,
+          "sqlite_open_ns": 0.082,
+          "sqlite_query_ns": 0.168,
+          "sqlite_schema_ns": 0.099,
+          "stdio_replay_ns": 0.012
+        },
+        "warm": {
+          "max_ms": 7.25,
+          "median_ms": 5.15,
+          "min_ms": 4.623,
+          "p95_ms": 6.572,
+          "pstdev_ms": 0.672,
+          "rsd": 0.1305,
+          "runs": 20,
+          "samples_ms": [
+            5.061,
+            6.203,
+            5.916,
+            5.266,
+            5.418,
+            4.857,
+            6.205,
+            4.965,
+            4.857,
+            5.094,
+            4.808,
+            5.069,
+            4.623,
+            5.043,
+            4.892,
+            5.223,
+            5.793,
+            7.25,
+            5.206,
+            6.572
+          ]
+        },
+        "warm_kinds": [
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused"
+        ]
+      }
+    },
+    {
+      "direct": {
+        "timing": {
+          "max_ms": 20.385,
+          "median_ms": 18.74,
+          "min_ms": 18.002,
+          "p95_ms": 20.287,
+          "pstdev_ms": 0.616,
+          "rsd": 0.0329,
+          "runs": 20,
+          "samples_ms": [
+            19.023,
+            18.924,
+            18.564,
+            18.922,
+            18.697,
+            18.002,
+            20.287,
+            18.716,
+            19.049,
+            18.479,
+            20.385,
+            18.327,
+            19.247,
+            18.344,
+            19.763,
+            18.443,
+            18.257,
+            18.645,
+            18.764,
+            19.125
+          ]
+        }
+      },
+      "expected": "refuse-or-ineligible (getrusage/getrandom typical)",
+      "scenario": "c-compile",
+      "tracejit": {
+        "admission": "always",
+        "all_warm_reused": false,
+        "argv": [
+          "cc",
+          "-O2",
+          "-c",
+          "sample.c",
+          "-o",
+          "sample.o"
+        ],
+        "arm": "tracejit-always",
+        "cold_classification": "Nondeterministic",
+        "cold_kind": "Executed",
+        "cold_ms": 122.698,
+        "contract": null,
+        "guard_mode": "strict",
+        "invalidation": null,
+        "name": "c-compile",
+        "phases_median_ms": {},
+        "warm": {
+          "max_ms": 128.814,
+          "median_ms": 124.677,
+          "min_ms": 121.815,
+          "p95_ms": 128.814,
+          "pstdev_ms": 2.066,
+          "rsd": 0.0166,
+          "runs": 6,
+          "samples_ms": [
+            121.815,
+            124.256,
+            124.367,
+            124.987,
+            125.172,
+            128.814
+          ]
+        },
+        "warm_kinds": [
+          "Executed",
+          "Executed",
+          "Executed",
+          "Executed",
+          "Executed",
+          "Executed"
+        ]
+      }
+    },
+    {
+      "arms": {
+        "make": {
+          "phases": [
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [
+                "make"
+              ],
+              "ms": 21.978,
+              "outputs": {
+                "app.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596939692313,
+                  "sha256": "47141943161e42b55b95aeafb223c9ec5f2d8c80582ef996cc544367fccd5452",
+                  "size": 18791
+                },
+                "vendor.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596943692403,
+                  "sha256": "a7a71e6e64ecab380558054e0c456e5245e64bfe0ae8f5c471cefe8c4fd39373",
+                  "size": 18779
+                },
+                "worker.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596951692582,
+                  "sha256": "335aa2f66808c6c115da79978414a6027c0986c56a72faef40e1902fc306b378",
+                  "size": 18765
+                }
+              },
+              "scenario": "1_first_build"
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [
+                "make"
+              ],
+              "ms": 4.073,
+              "outputs": {
+                "app.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596939692313,
+                  "sha256": "47141943161e42b55b95aeafb223c9ec5f2d8c80582ef996cc544367fccd5452",
+                  "size": 18791
+                },
+                "vendor.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596943692403,
+                  "sha256": "a7a71e6e64ecab380558054e0c456e5245e64bfe0ae8f5c471cefe8c4fd39373",
+                  "size": 18779
+                },
+                "worker.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596951692582,
+                  "sha256": "335aa2f66808c6c115da79978414a6027c0986c56a72faef40e1902fc306b378",
+                  "size": 18765
+                }
+              },
+              "scenario": "2_identical_rerun"
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [
+                "make"
+              ],
+              "ms": 21.647,
+              "outputs": {
+                "app.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597003693745,
+                  "sha256": "47141943161e42b55b95aeafb223c9ec5f2d8c80582ef996cc544367fccd5452",
+                  "size": 18791
+                },
+                "vendor.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597011693923,
+                  "sha256": "a7a71e6e64ecab380558054e0c456e5245e64bfe0ae8f5c471cefe8c4fd39373",
+                  "size": 18779
+                },
+                "worker.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597015694013,
+                  "sha256": "335aa2f66808c6c115da79978414a6027c0986c56a72faef40e1902fc306b378",
+                  "size": 18765
+                }
+              },
+              "scenario": "3_outputs_deleted"
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [
+                "make"
+              ],
+              "ms": 8.483,
+              "outputs": {
+                "app.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597047694730,
+                  "sha256": "8d80eebe41e1dea860e2f2c328937cbcc83089444a1719e2f5b6a95a55b8e764",
+                  "size": 18762
+                },
+                "vendor.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597011693923,
+                  "sha256": "a7a71e6e64ecab380558054e0c456e5245e64bfe0ae8f5c471cefe8c4fd39373",
+                  "size": 18779
+                },
+                "worker.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597015694013,
+                  "sha256": "335aa2f66808c6c115da79978414a6027c0986c56a72faef40e1902fc306b378",
+                  "size": 18765
+                }
+              },
+              "scenario": "4_one_input_modified"
+            },
+            {
+              "content_correct": false,
+              "failures": [
+                "vendor.js: content differs"
+              ],
+              "kinds": [
+                "make"
+              ],
+              "ms": 1.628,
+              "outputs": {
+                "app.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597047694730,
+                  "sha256": "8d80eebe41e1dea860e2f2c328937cbcc83089444a1719e2f5b6a95a55b8e764",
+                  "size": 18762
+                },
+                "vendor.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597011693923,
+                  "sha256": "a7a71e6e64ecab380558054e0c456e5245e64bfe0ae8f5c471cefe8c4fd39373",
+                  "size": 18779
+                },
+                "worker.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597015694013,
+                  "sha256": "335aa2f66808c6c115da79978414a6027c0986c56a72faef40e1902fc306b378",
+                  "size": 18765
+                }
+              },
+              "scenario": "5_mtime_preserved_edit"
+            },
+            {
+              "content_correct": false,
+              "failures": [
+                "vendor.js: content differs",
+                "worker.js: content differs"
+              ],
+              "kinds": [
+                "make"
+              ],
+              "ms": 1.442,
+              "outputs": {
+                "app.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597047694730,
+                  "sha256": "8d80eebe41e1dea860e2f2c328937cbcc83089444a1719e2f5b6a95a55b8e764",
+                  "size": 18762
+                },
+                "vendor.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597011693923,
+                  "sha256": "a7a71e6e64ecab380558054e0c456e5245e64bfe0ae8f5c471cefe8c4fd39373",
+                  "size": 18779
+                },
+                "worker.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597071695267,
+                  "sha256": "3398b5c2a9131cb63d2d21240a5d21e63e3e54c5fce3bf88625778c1ddd347b8",
+                  "size": 10
+                }
+              },
+              "scenario": "6_corrupted_output"
+            }
+          ]
+        },
+        "native": {
+          "phases": [
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [],
+              "ms": 18.899,
+              "outputs": {
+                "app.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "2899bdb79737cdf4731871493e03a8ea965e9eff423b88a2223ba9b83a5798e2",
+                  "size": 18764
+                },
+                "vendor.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "82e5b8eda86b13d256fb667338e1fb390a4efd6983a17e6091b3575b61dac0c3",
+                  "size": 18766
+                },
+                "worker.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "335aa2f66808c6c115da79978414a6027c0986c56a72faef40e1902fc306b378",
+                  "size": 18765
+                }
+              },
+              "scenario": "1_first_build"
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [],
+              "ms": 18.367,
+              "outputs": {
+                "app.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "2899bdb79737cdf4731871493e03a8ea965e9eff423b88a2223ba9b83a5798e2",
+                  "size": 18764
+                },
+                "vendor.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "82e5b8eda86b13d256fb667338e1fb390a4efd6983a17e6091b3575b61dac0c3",
+                  "size": 18766
+                },
+                "worker.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "335aa2f66808c6c115da79978414a6027c0986c56a72faef40e1902fc306b378",
+                  "size": 18765
+                }
+              },
+              "scenario": "2_identical_rerun"
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [],
+              "ms": 18.373,
+              "outputs": {
+                "app.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "2899bdb79737cdf4731871493e03a8ea965e9eff423b88a2223ba9b83a5798e2",
+                  "size": 18764
+                },
+                "vendor.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "82e5b8eda86b13d256fb667338e1fb390a4efd6983a17e6091b3575b61dac0c3",
+                  "size": 18766
+                },
+                "worker.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "335aa2f66808c6c115da79978414a6027c0986c56a72faef40e1902fc306b378",
+                  "size": 18765
+                }
+              },
+              "scenario": "3_outputs_deleted"
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [],
+              "ms": 18.181,
+              "outputs": {
+                "app.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "47141943161e42b55b95aeafb223c9ec5f2d8c80582ef996cc544367fccd5452",
+                  "size": 18791
+                },
+                "vendor.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "82e5b8eda86b13d256fb667338e1fb390a4efd6983a17e6091b3575b61dac0c3",
+                  "size": 18766
+                },
+                "worker.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "335aa2f66808c6c115da79978414a6027c0986c56a72faef40e1902fc306b378",
+                  "size": 18765
+                }
+              },
+              "scenario": "4_one_input_modified"
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [],
+              "ms": 20.838,
+              "outputs": {
+                "app.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "47141943161e42b55b95aeafb223c9ec5f2d8c80582ef996cc544367fccd5452",
+                  "size": 18791
+                },
+                "vendor.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "a7a71e6e64ecab380558054e0c456e5245e64bfe0ae8f5c471cefe8c4fd39373",
+                  "size": 18779
+                },
+                "worker.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "335aa2f66808c6c115da79978414a6027c0986c56a72faef40e1902fc306b378",
+                  "size": 18765
+                }
+              },
+              "scenario": "5_mtime_preserved_edit"
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [],
+              "ms": 17.639,
+              "outputs": {
+                "app.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "47141943161e42b55b95aeafb223c9ec5f2d8c80582ef996cc544367fccd5452",
+                  "size": 18791
+                },
+                "vendor.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "a7a71e6e64ecab380558054e0c456e5245e64bfe0ae8f5c471cefe8c4fd39373",
+                  "size": 18779
+                },
+                "worker.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "335aa2f66808c6c115da79978414a6027c0986c56a72faef40e1902fc306b378",
+                  "size": 18765
+                }
+              },
+              "scenario": "6_corrupted_output"
+            }
+          ]
+        },
+        "simple_cas": {
+          "phases": [
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [],
+              "ms": 49.976,
+              "outputs": {
+                "app.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597143696880,
+                  "sha256": "8d80eebe41e1dea860e2f2c328937cbcc83089444a1719e2f5b6a95a55b8e764",
+                  "size": 18762
+                },
+                "vendor.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597151697059,
+                  "sha256": "ebcaefaf1f6a824db78dfc850ad3e6e251dcedec2006efbdf72081b260f373f4",
+                  "size": 18755
+                },
+                "worker.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597159697238,
+                  "sha256": "335aa2f66808c6c115da79978414a6027c0986c56a72faef40e1902fc306b378",
+                  "size": 18765
+                }
+              },
+              "scenario": "1_first_build"
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [],
+              "ms": 28.232,
+              "outputs": {
+                "app.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597207698313,
+                  "sha256": "8d80eebe41e1dea860e2f2c328937cbcc83089444a1719e2f5b6a95a55b8e764",
+                  "size": 18762
+                },
+                "vendor.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597207698313,
+                  "sha256": "ebcaefaf1f6a824db78dfc850ad3e6e251dcedec2006efbdf72081b260f373f4",
+                  "size": 18755
+                },
+                "worker.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597207698313,
+                  "sha256": "335aa2f66808c6c115da79978414a6027c0986c56a72faef40e1902fc306b378",
+                  "size": 18765
+                }
+              },
+              "scenario": "2_identical_rerun"
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [],
+              "ms": 31.941,
+              "outputs": {
+                "app.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597259699478,
+                  "sha256": "8d80eebe41e1dea860e2f2c328937cbcc83089444a1719e2f5b6a95a55b8e764",
+                  "size": 18762
+                },
+                "vendor.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597259699478,
+                  "sha256": "ebcaefaf1f6a824db78dfc850ad3e6e251dcedec2006efbdf72081b260f373f4",
+                  "size": 18755
+                },
+                "worker.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597259699478,
+                  "sha256": "335aa2f66808c6c115da79978414a6027c0986c56a72faef40e1902fc306b378",
+                  "size": 18765
+                }
+              },
+              "scenario": "3_outputs_deleted"
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [],
+              "ms": 35.422,
+              "outputs": {
+                "app.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597315700732,
+                  "sha256": "b1a18ed78df85dc52d529a7e52251bf1803030b8d73a2a4b1f10e32a9b843ba0",
+                  "size": 18757
+                },
+                "vendor.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597315700732,
+                  "sha256": "ebcaefaf1f6a824db78dfc850ad3e6e251dcedec2006efbdf72081b260f373f4",
+                  "size": 18755
+                },
+                "worker.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597315700732,
+                  "sha256": "335aa2f66808c6c115da79978414a6027c0986c56a72faef40e1902fc306b378",
+                  "size": 18765
+                }
+              },
+              "scenario": "4_one_input_modified"
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [],
+              "ms": 34.466,
+              "outputs": {
+                "app.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597367701897,
+                  "sha256": "b1a18ed78df85dc52d529a7e52251bf1803030b8d73a2a4b1f10e32a9b843ba0",
+                  "size": 18757
+                },
+                "vendor.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597371701987,
+                  "sha256": "f167f69928dc05419dcf07490edfe5cb8a983e2486d06a6cfd5fb823e09fd2da",
+                  "size": 18754
+                },
+                "worker.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597371701987,
+                  "sha256": "335aa2f66808c6c115da79978414a6027c0986c56a72faef40e1902fc306b378",
+                  "size": 18765
+                }
+              },
+              "scenario": "5_mtime_preserved_edit"
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [],
+              "ms": 27.546,
+              "outputs": {
+                "app.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597419703062,
+                  "sha256": "b1a18ed78df85dc52d529a7e52251bf1803030b8d73a2a4b1f10e32a9b843ba0",
+                  "size": 18757
+                },
+                "vendor.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597419703062,
+                  "sha256": "f167f69928dc05419dcf07490edfe5cb8a983e2486d06a6cfd5fb823e09fd2da",
+                  "size": 18754
+                },
+                "worker.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597419703062,
+                  "sha256": "335aa2f66808c6c115da79978414a6027c0986c56a72faef40e1902fc306b378",
+                  "size": 18765
+                }
+              },
+              "scenario": "6_corrupted_output"
+            }
+          ]
+        },
+        "tracejit": {
+          "phases": [
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [
+                "Executed",
+                "Executed",
+                "Executed"
+              ],
+              "ms": 59.455,
+              "outputs": {
+                "app.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597000000000,
+                  "sha256": "b1a18ed78df85dc52d529a7e52251bf1803030b8d73a2a4b1f10e32a9b843ba0",
+                  "size": 18757
+                },
+                "vendor.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "f167f69928dc05419dcf07490edfe5cb8a983e2486d06a6cfd5fb823e09fd2da",
+                  "size": 18754
+                },
+                "worker.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "335aa2f66808c6c115da79978414a6027c0986c56a72faef40e1902fc306b378",
+                  "size": 18765
+                }
+              },
+              "scenario": "1_first_build"
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [
+                "Executed",
+                "Executed",
+                "Executed"
+              ],
+              "ms": 52.823,
+              "outputs": {
+                "app.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597000000000,
+                  "sha256": "b1a18ed78df85dc52d529a7e52251bf1803030b8d73a2a4b1f10e32a9b843ba0",
+                  "size": 18757
+                },
+                "vendor.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "f167f69928dc05419dcf07490edfe5cb8a983e2486d06a6cfd5fb823e09fd2da",
+                  "size": 18754
+                },
+                "worker.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "335aa2f66808c6c115da79978414a6027c0986c56a72faef40e1902fc306b378",
+                  "size": 18765
+                }
+              },
+              "scenario": "2_identical_rerun"
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [
+                "Reused",
+                "Reused",
+                "Reused"
+              ],
+              "ms": 19.812,
+              "outputs": {
+                "app.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597000000000,
+                  "sha256": "b1a18ed78df85dc52d529a7e52251bf1803030b8d73a2a4b1f10e32a9b843ba0",
+                  "size": 18757
+                },
+                "vendor.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "f167f69928dc05419dcf07490edfe5cb8a983e2486d06a6cfd5fb823e09fd2da",
+                  "size": 18754
+                },
+                "worker.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "335aa2f66808c6c115da79978414a6027c0986c56a72faef40e1902fc306b378",
+                  "size": 18765
+                }
+              },
+              "scenario": "3_outputs_deleted"
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [
+                "Executed",
+                "Reused",
+                "Reused"
+              ],
+              "ms": 37.764,
+              "outputs": {
+                "app.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597000000000,
+                  "sha256": "099b2fc421a979e244fd25e71d05a3b4df4cfbe4c5f5a40619085fbcd5fa0b38",
+                  "size": 18746
+                },
+                "vendor.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "f167f69928dc05419dcf07490edfe5cb8a983e2486d06a6cfd5fb823e09fd2da",
+                  "size": 18754
+                },
+                "worker.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "335aa2f66808c6c115da79978414a6027c0986c56a72faef40e1902fc306b378",
+                  "size": 18765
+                }
+              },
+              "scenario": "4_one_input_modified"
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [
+                "Executed",
+                "Executed",
+                "Reused"
+              ],
+              "ms": 43.961,
+              "outputs": {
+                "app.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597000000000,
+                  "sha256": "099b2fc421a979e244fd25e71d05a3b4df4cfbe4c5f5a40619085fbcd5fa0b38",
+                  "size": 18746
+                },
+                "vendor.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "aae2ee0182449116894859aeca0c69bcbb359d26aa0e8e74ee3b66242260c1d6",
+                  "size": 18750
+                },
+                "worker.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "335aa2f66808c6c115da79978414a6027c0986c56a72faef40e1902fc306b378",
+                  "size": 18765
+                }
+              },
+              "scenario": "5_mtime_preserved_edit"
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [
+                "Reused",
+                "Executed",
+                "Executed"
+              ],
+              "ms": 47.937,
+              "outputs": {
+                "app.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630597000000000,
+                  "sha256": "099b2fc421a979e244fd25e71d05a3b4df4cfbe4c5f5a40619085fbcd5fa0b38",
+                  "size": 18746
+                },
+                "vendor.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "aae2ee0182449116894859aeca0c69bcbb359d26aa0e8e74ee3b66242260c1d6",
+                  "size": 18750
+                },
+                "worker.js": {
+                  "mode": "0o644",
+                  "mtime_ns": 1794630596000000000,
+                  "sha256": "335aa2f66808c6c115da79978414a6027c0986c56a72faef40e1902fc306b378",
+                  "size": 18765
+                }
+              },
+              "scenario": "6_corrupted_output"
+            }
+          ]
+        }
+      },
+      "correctness_model_notes": {
+        "ccache_sccache_ninja": "Not installed on this host \u2014 skipped, not claimed.",
+        "make": "mtime/graph based; preserved-mtime content edit and corrupted output can leave stale artifacts unless a content check is added.",
+        "simple_cas": "Hashes input bytes only; ignores TraceJIT-style path/metadata deps; recovers corrupted outputs on next run if input hash still matches.",
+        "tracejit": "Synchronous guards on observed deps; discovers deps automatically; may be slower on identical rerun but should not return stale bytes."
+      },
+      "runs_unused": 20,
+      "scenario": "build-edit-recovery",
+      "skips": [
+        "ninja",
+        "ccache",
+        "sccache"
+      ],
+      "warmup_note": "single-shot phases (not median of many); competitive correctness focus",
+      "warmups_unused": 5
+    },
+    {
+      "scenario": "aba-candidate-reuse",
+      "sessions": [
+        {
+          "records": [
+            {
+              "input": "one",
+              "kind": "Executed",
+              "output": "input one\n",
+              "wall_ms": 10.568
+            },
+            {
+              "input": "two",
+              "kind": "Executed",
+              "output": "input two\n",
+              "wall_ms": 7.26
+            },
+            {
+              "input": "one",
+              "kind": "Reused",
+              "output": "input one\n",
+              "wall_ms": 4.703
+            }
+          ],
+          "session": 0
+        },
+        {
+          "records": [
+            {
+              "input": "one",
+              "kind": "Executed",
+              "output": "input one\n",
+              "wall_ms": 7.198
+            },
+            {
+              "input": "two",
+              "kind": "Executed",
+              "output": "input two\n",
+              "wall_ms": 6.693
+            },
+            {
+              "input": "one",
+              "kind": "Reused",
+              "output": "input one\n",
+              "wall_ms": 4.272
+            }
+          ],
+          "session": 1
+        },
+        {
+          "records": [
+            {
+              "input": "one",
+              "kind": "Executed",
+              "output": "input one\n",
+              "wall_ms": 6.884
+            },
+            {
+              "input": "two",
+              "kind": "Executed",
+              "output": "input two\n",
+              "wall_ms": 7.288
+            },
+            {
+              "input": "one",
+              "kind": "Reused",
+              "output": "input one\n",
+              "wall_ms": 4.432
+            }
+          ],
+          "session": 2
+        },
+        {
+          "records": [
+            {
+              "input": "one",
+              "kind": "Executed",
+              "output": "input one\n",
+              "wall_ms": 7.296
+            },
+            {
+              "input": "two",
+              "kind": "Executed",
+              "output": "input two\n",
+              "wall_ms": 6.526
+            },
+            {
+              "input": "one",
+              "kind": "Reused",
+              "output": "input one\n",
+              "wall_ms": 5.813
+            }
+          ],
+          "session": 3
+        }
+      ],
+      "third_invocation_kinds": [
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused"
+      ],
+      "third_reused_count": 4,
+      "third_wall": {
+        "max_ms": 5.813,
+        "median_ms": 4.568,
+        "min_ms": 4.272,
+        "p95_ms": 5.813,
+        "pstdev_ms": 0.602,
+        "rsd": 0.1318,
+        "runs": 4,
+        "samples_ms": [
+          4.703,
+          4.272,
+          4.432,
+          5.813
+        ]
+      }
+    },
+    {
+      "direct": {
+        "argv": [
+          "/tmp/phase-g-large-50yrz2mp/fixture-driver",
+          "plain_file_read",
+          "/tmp/phase-g-large-50yrz2mp/work"
+        ],
+        "arm": "direct",
+        "exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "timing": {
+          "max_ms": 12.284,
+          "median_ms": 11.102,
+          "min_ms": 9.89,
+          "p95_ms": 12.221,
+          "pstdev_ms": 0.613,
+          "rsd": 0.0552,
+          "runs": 20,
+          "samples_ms": [
+            10.998,
+            10.889,
+            11.9,
+            11.324,
+            12.284,
+            12.221,
+            11.731,
+            10.837,
+            11.383,
+            11.177,
+            11.62,
+            11.027,
+            10.503,
+            10.67,
+            11.242,
+            10.877,
+            9.89,
+            10.591,
+            11.675,
+            10.276
+          ]
+        }
+      },
+      "input_bytes": 8388619,
+      "scenario": "large-input-hashing",
+      "tracejit": {
+        "admission": "always",
+        "all_warm_reused": true,
+        "argv": [
+          "/tmp/phase-g-large-50yrz2mp/fixture-driver",
+          "plain_file_read",
+          "/tmp/phase-g-large-50yrz2mp/work"
+        ],
+        "arm": "tracejit-always",
+        "cold_classification": "Guarded",
+        "cold_kind": "Executed",
+        "cold_ms": 118.847,
+        "contract": null,
+        "guard_mode": "strict",
+        "invalidation": {
+          "classification": "Guarded",
+          "kind": "Executed",
+          "status": 0,
+          "wall_ms": 148.96
+        },
+        "name": "large-input-hash",
+        "phases_median_ms": {
+          "cache_prepare_ns": 0.01,
+          "cas_restore_ns": 13.95,
+          "cli_parse_ns": 0.097,
+          "decision_persist_ns": 0.0,
+          "guard_validation_ns": 3.22,
+          "identity_prepare_ns": 0.116,
+          "lookup_key_ns": 0.004,
+          "present_ns": 0.044,
+          "process_startup_ns": 6.179,
+          "record_decode_ns": 1.072,
+          "sqlite_open_ns": 0.086,
+          "sqlite_query_ns": 0.93,
+          "sqlite_schema_ns": 0.106,
+          "stdio_replay_ns": 0.011
+        },
+        "warm": {
+          "max_ms": 29.578,
+          "median_ms": 21.331,
+          "min_ms": 19.849,
+          "p95_ms": 25.68,
+          "pstdev_ms": 2.27,
+          "rsd": 0.1064,
+          "runs": 20,
+          "samples_ms": [
+            24.88,
+            22.853,
+            24.083,
+            22.339,
+            21.07,
+            21.979,
+            20.561,
+            25.68,
+            19.849,
+            20.921,
+            21.528,
+            21.049,
+            20.505,
+            21.135,
+            20.388,
+            22.113,
+            20.791,
+            29.578,
+            22.055,
+            20.441
+          ]
+        },
+        "warm_kinds": [
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused"
+        ]
+      }
+    },
+    {
+      "direct": {
+        "argv": [
+          "/tmp/phase-g-multi-z80t5kj_/multi_output"
+        ],
+        "arm": "direct",
+        "exit_codes": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "timing": {
+          "max_ms": 0.77,
+          "median_ms": 0.478,
+          "min_ms": 0.385,
+          "p95_ms": 0.728,
+          "pstdev_ms": 0.101,
+          "rsd": 0.2123,
+          "runs": 20,
+          "samples_ms": [
+            0.501,
+            0.452,
+            0.418,
+            0.469,
+            0.519,
+            0.445,
+            0.42,
+            0.385,
+            0.394,
+            0.427,
+            0.501,
+            0.519,
+            0.548,
+            0.77,
+            0.652,
+            0.728,
+            0.471,
+            0.485,
+            0.436,
+            0.522
+          ]
+        }
+      },
+      "scenario": "multi-output-restore",
+      "tracejit": {
+        "admission": "always",
+        "all_warm_reused": true,
+        "argv": [
+          "/tmp/phase-g-multi-z80t5kj_/multi_output"
+        ],
+        "arm": "tracejit-always",
+        "cold_classification": "Guarded",
+        "cold_kind": "Executed",
+        "cold_ms": 9.884,
+        "contract": null,
+        "guard_mode": "strict",
+        "invalidation": null,
+        "name": "multi-output-restore",
+        "phases_median_ms": {
+          "cache_prepare_ns": 0.009,
+          "cas_restore_ns": 1.072,
+          "cli_parse_ns": 0.085,
+          "decision_persist_ns": 0.0,
+          "guard_validation_ns": 0.502,
+          "identity_prepare_ns": 0.102,
+          "lookup_key_ns": 0.003,
+          "present_ns": 0.022,
+          "process_startup_ns": 6.423,
+          "record_decode_ns": 0.147,
+          "sqlite_open_ns": 0.075,
+          "sqlite_query_ns": 0.148,
+          "sqlite_schema_ns": 0.098,
+          "stdio_replay_ns": 0.009
+        },
+        "warm": {
+          "max_ms": 5.381,
+          "median_ms": 3.526,
+          "min_ms": 2.706,
+          "p95_ms": 4.304,
+          "pstdev_ms": 0.623,
+          "rsd": 0.1767,
+          "runs": 20,
+          "samples_ms": [
+            4.009,
+            3.596,
+            3.229,
+            3.005,
+            2.973,
+            3.536,
+            2.853,
+            4.047,
+            2.845,
+            5.381,
+            3.865,
+            4.304,
+            4.287,
+            4.091,
+            3.371,
+            3.425,
+            3.47,
+            3.517,
+            3.773,
+            2.706
+          ]
+        },
+        "warm_kinds": [
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused",
+          "Reused"
+        ]
+      },
+      "validation_hit": {
+        "both_present": true,
+        "kind": "Reused",
+        "out_a_sha256": "e78f7a6feee68813b4fa251a9c5e67530f5341cf6e8100e7c5827ddde8968360",
+        "out_b_sha256": "aa5d482a3f5e084010c02d35d23f7d77072f34f7d114cab9a7e8840dcfe8f9bb",
+        "wall_ms": 3.987
+      }
+    },
+    {
+      "expected": "Nondeterministic / not reused",
+      "scenario": "nondeterministic-refuse",
+      "tracejit": {
+        "admission": "always",
+        "all_warm_reused": false,
+        "argv": [
+          "/tmp/phase-g-nd-hwiura29/fixture-driver",
+          "getrandom",
+          "/tmp/phase-g-nd-hwiura29"
+        ],
+        "arm": "tracejit-always",
+        "cold_classification": "Nondeterministic",
+        "cold_kind": "Executed",
+        "cold_ms": 12.388,
+        "contract": null,
+        "guard_mode": "strict",
+        "invalidation": null,
+        "name": "nondeterministic-refuse",
+        "phases_median_ms": {},
+        "warm": {
+          "max_ms": 7.537,
+          "median_ms": 6.688,
+          "min_ms": 6.154,
+          "p95_ms": 7.537,
+          "pstdev_ms": 0.504,
+          "rsd": 0.0754,
+          "runs": 6,
+          "samples_ms": [
+            6.582,
+            6.794,
+            7.537,
+            6.154,
+            7.384,
+            6.38
+          ]
+        },
+        "warm_kinds": [
+          "Executed",
+          "Executed",
+          "Executed",
+          "Executed",
+          "Executed",
+          "Executed"
+        ]
+      }
+    },
+    {
+      "bounds": [
+        {
+          "bound": 1,
+          "newest_hit": {
+            "max_ms": 3.536,
+            "median_ms": 2.89,
+            "min_ms": 2.65,
+            "p95_ms": 3.536,
+            "pstdev_ms": 0.244,
+            "rsd": 0.0843,
+            "runs": 10,
+            "samples_ms": [
+              2.945,
+              3.004,
+              3.036,
+              2.834,
+              2.992,
+              2.678,
+              3.536,
+              2.799,
+              2.734,
+              2.65
+            ]
+          },
+          "newest_phases_median_ms": {
+            "cache_prepare_ns": 0.008,
+            "cas_restore_ns": 0.399,
+            "cli_parse_ns": 0.081,
+            "decision_persist_ns": 0.0,
+            "guard_validation_ns": 0.517,
+            "identity_prepare_ns": 0.101,
+            "lookup_key_ns": 0.004,
+            "present_ns": 0.021,
+            "process_startup_ns": 5.13,
+            "record_decode_ns": 0.145,
+            "sqlite_open_ns": 0.076,
+            "sqlite_query_ns": 0.152,
+            "sqlite_schema_ns": 0.099,
+            "stdio_replay_ns": 0.009
+          },
+          "oldest_kinds": [
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused"
+          ],
+          "oldest_target": {
+            "max_ms": 3.547,
+            "median_ms": 3.06,
+            "min_ms": 2.586,
+            "p95_ms": 3.547,
+            "pstdev_ms": 0.247,
+            "rsd": 0.0809,
+            "runs": 10,
+            "samples_ms": [
+              2.867,
+              3.187,
+              2.586,
+              3.059,
+              3.061,
+              3.02,
+              3.133,
+              2.893,
+              3.309,
+              3.547
+            ]
+          }
+        },
+        {
+          "bound": 8,
+          "newest_hit": {
+            "max_ms": 3.412,
+            "median_ms": 3.046,
+            "min_ms": 2.614,
+            "p95_ms": 3.412,
+            "pstdev_ms": 0.224,
+            "rsd": 0.0737,
+            "runs": 10,
+            "samples_ms": [
+              2.968,
+              3.033,
+              3.059,
+              3.346,
+              2.869,
+              3.084,
+              3.412,
+              2.614,
+              2.901,
+              3.227
+            ]
+          },
+          "newest_phases_median_ms": {
+            "cache_prepare_ns": 0.008,
+            "cas_restore_ns": 0.543,
+            "cli_parse_ns": 0.083,
+            "decision_persist_ns": 0.0,
+            "guard_validation_ns": 0.488,
+            "identity_prepare_ns": 0.099,
+            "lookup_key_ns": 0.004,
+            "present_ns": 0.023,
+            "process_startup_ns": 4.938,
+            "record_decode_ns": 0.142,
+            "sqlite_open_ns": 0.072,
+            "sqlite_query_ns": 0.144,
+            "sqlite_schema_ns": 0.099,
+            "stdio_replay_ns": 0.009
+          },
+          "oldest_kinds": [
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused"
+          ],
+          "oldest_target": {
+            "max_ms": 4.266,
+            "median_ms": 3.334,
+            "min_ms": 3.069,
+            "p95_ms": 4.266,
+            "pstdev_ms": 0.396,
+            "rsd": 0.1188,
+            "runs": 10,
+            "samples_ms": [
+              3.209,
+              3.303,
+              3.069,
+              4.266,
+              3.164,
+              3.558,
+              3.144,
+              3.365,
+              3.87,
+              4.025
+            ]
+          }
+        },
+        {
+          "bound": 32,
+          "newest_hit": {
+            "max_ms": 4.103,
+            "median_ms": 3.412,
+            "min_ms": 2.898,
+            "p95_ms": 4.103,
+            "pstdev_ms": 0.352,
+            "rsd": 0.1033,
+            "runs": 10,
+            "samples_ms": [
+              3.166,
+              3.845,
+              3.524,
+              3.091,
+              4.103,
+              3.49,
+              3.051,
+              3.444,
+              3.38,
+              2.898
+            ]
+          },
+          "newest_phases_median_ms": {
+            "cache_prepare_ns": 0.008,
+            "cas_restore_ns": 0.849,
+            "cli_parse_ns": 0.083,
+            "decision_persist_ns": 0.0,
+            "guard_validation_ns": 0.49,
+            "identity_prepare_ns": 0.103,
+            "lookup_key_ns": 0.004,
+            "present_ns": 0.022,
+            "process_startup_ns": 7.006,
+            "record_decode_ns": 0.141,
+            "sqlite_open_ns": 0.074,
+            "sqlite_query_ns": 0.149,
+            "sqlite_schema_ns": 0.099,
+            "stdio_replay_ns": 0.009
+          },
+          "oldest_kinds": [
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused",
+            "Reused"
+          ],
+          "oldest_target": {
+            "max_ms": 4.922,
+            "median_ms": 3.907,
+            "min_ms": 3.744,
+            "p95_ms": 4.922,
+            "pstdev_ms": 0.328,
+            "rsd": 0.0841,
+            "runs": 10,
+            "samples_ms": [
+              3.897,
+              3.757,
+              4.098,
+              3.828,
+              4.922,
+              3.744,
+              3.867,
+              3.916,
+              4.169,
+              3.944
+            ]
+          }
+        }
+      ],
+      "scenario": "high-candidate-count-lookup"
+    },
+    {
+      "runs_unused": 20,
+      "scenario": "mixed-eligible-ineligible-sequence",
+      "sequence": [
+        {
+          "classification": "Guarded",
+          "kind": "Executed",
+          "label": "eligible-etl",
+          "phase": "cold-pass",
+          "wall_ms": 11.139
+        },
+        {
+          "classification": "Nondeterministic",
+          "kind": "Executed",
+          "label": "ineligible-getrandom",
+          "phase": "cold-pass",
+          "wall_ms": 5.859
+        },
+        {
+          "classification": "Guarded",
+          "kind": "Reused",
+          "label": "eligible-etl-again",
+          "phase": "cold-pass",
+          "wall_ms": 4.449
+        },
+        {
+          "classification": "Guarded",
+          "kind": "Executed",
+          "label": "eligible-plain",
+          "phase": "cold-pass",
+          "wall_ms": 5.599
+        },
+        {
+          "classification": "Nondeterministic",
+          "kind": "Executed",
+          "label": "ineligible-clock",
+          "phase": "cold-pass",
+          "wall_ms": 6.383
+        },
+        {
+          "classification": "Guarded",
+          "kind": "Reused",
+          "label": "eligible-etl",
+          "phase": "warm-pass",
+          "wall_ms": 3.14
+        },
+        {
+          "classification": "Nondeterministic",
+          "kind": "Executed",
+          "label": "ineligible-getrandom",
+          "phase": "warm-pass",
+          "wall_ms": 5.294
+        },
+        {
+          "classification": "Guarded",
+          "kind": "Reused",
+          "label": "eligible-etl-again",
+          "phase": "warm-pass",
+          "wall_ms": 2.826
+        },
+        {
+          "classification": "Guarded",
+          "kind": "Reused",
+          "label": "eligible-plain",
+          "phase": "warm-pass",
+          "wall_ms": 3.561
+        },
+        {
+          "classification": "Nondeterministic",
+          "kind": "Executed",
+          "label": "ineligible-clock",
+          "phase": "warm-pass",
+          "wall_ms": 5.337
+        }
+      ],
+      "warmups_unused": 5
+    }
+  ],
+  "warmups": 5,
+  "working_tree_dirty": false
+}

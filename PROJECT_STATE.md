@@ -19,18 +19,24 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 
 ## Current main
 
-- Tip: `7801748` — Phase E research (PR #14) on Phase D (`48e9596`).
+- Tip: `84b07c1` — Phase F performance (PR #15) on Phase E (`7801748`).
 - Releases: `v0.1.0` (`cf0ddb2`), `v0.1.1` (`31c36d1`). Do not move tags.
 - Research PRs #6/#7/#9/#10 stay isolated (not for main).
 
-## Phase F (branch `cursor/phase-f-performance-5cf6`)
+## Phase F (merged)
 
-- Profiled warm hit path with `TRACEJIT_PHASE_TIMING` (no `perf`/CPU PMU on this host).
-- Ranked engine costs: CAS restore (large outputs), guard validation, SQLite query/decode.
-- Shipped: stream-hash CAS staging, single-fd metadata+hash pairs, candidate `LIMIT`, precomputed runtime-identity bytes.
-- Rejected: drop staging fsync, skip guard re-hash, sync=NORMAL, metadata hash cache, unchanged-output shortcut.
-- Measured large_file warm hit 14.591 → 9.748 ms; cas_restore 9.980 → 5.947 ms. Short ETL still a net loss.
-- Store: `docs/phase-f-performance.md`. Raw: `benchmarks/results/phase_f/`.
+- Stream-hash CAS staging, single-fd metadata+hash pairs, candidate `LIMIT`, precomputed runtime-identity JSON.
+- Large-file warm hit improved on this host; short ETL remains a net loss.
+- Raw: `benchmarks/results/phase_f/`.
+
+## Phase G (branch `cursor/phase-g-evaluation-0f6f`)
+
+- Competitive suite + held-out sessions A/B via `benchmarks/repos/phase_g_evaluation.py`.
+- Wins: CPU transform (~11×), bzip2 compression, A/B/A reuse, multi-output restore, correct mtime/corrupt recovery vs make.
+- Losses retained: short ETL overhead, large restore+hash vs direct, TraceJIT identical-rerun slower than make (and deopts on bzip2 output presence).
+- Skips: ninja/ccache/sccache (not installed). Controlled-runtime not claimed.
+- Ablations: candidate LIMIT cheap; lazy decode kept; Fast vs Strict ~1 ms guard; auto admission skips short ETL but caches transform; Phase F staging still helps large CAS vs Phase E tip.
+- Store: `docs/phase-g-evaluation.md`. Raw: `benchmarks/results/phase_g/`.
 
 ## Known limitations
 
