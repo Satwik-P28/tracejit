@@ -19,7 +19,7 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 
 ## Current main
 
-- Tip: `cf1013f` — Phase H–J docs (PR #17) on Phase G (`b089d5e`).
+- Tip: `94d714d` — Phase K1 equivalence hardening (PR #18) on H–J (`cf1013f`).
 - Releases: `v0.1.0` (`cf0ddb2`), `v0.1.1` (`31c36d1`). Do not move tags.
 - Research PRs #6/#7/#9/#10 stay isolated (not for main).
 
@@ -38,7 +38,8 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 ## Phase K (in flight)
 
 - Independent adversarial audit: `docs/audits/PHASE_K_INDEPENDENT_BASELINE.md`.
-- K1: demonstrated false HIT on `renameat2(RENAME_EXCHANGE)`; fail-closed refuses for exchange flags, `openat2` resolve, `AT_EMPTY_PATH` fstat, stdio ioctl success, `fchmodat`/`fchownat` NOFOLLOW.
+- K1 (merged #18): `renameat2(RENAME_EXCHANGE)` false HIT fixed; related Obs refuses.
+- K2: CLI-only independent Obs oracle — `benchmarks/oracle/independent_obs.py`, `docs/audits/PHASE_K2_INDEPENDENT_ORACLE.md`.
 
 ## Known limitations
 

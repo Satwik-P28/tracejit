@@ -2980,3 +2980,30 @@ fn vfork_children_that_exit_without_exec_do_not_stall() {
     assert_eq!(stdout_bytes_of(&report), direct.stdout);
     eprintln!("RESULT vfork-exit PASS");
 }
+
+/// Phase K2: CLI-only independent Obs oracle (no product crate validation imports).
+#[test]
+fn phase_k2_independent_obs_oracle_seed7() {
+    let script = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../benchmarks/oracle/independent_obs.py");
+    let output_dir = tempfile::tempdir().unwrap();
+    let status = Command::new("python3")
+        .arg(&script)
+        .args(["--seed", "7", "--output"])
+        .arg(output_dir.path())
+        .env(
+            "PATH",
+            format!(
+                "{}:{}",
+                tracejit().parent().unwrap().display(),
+                std::env::var("PATH").unwrap_or_default()
+            ),
+        )
+        .status()
+        .expect("python3 must be available");
+    assert!(
+        status.success(),
+        "independent Obs oracle reported incorrect_hit or regress_eligible"
+    );
+    eprintln!("RESULT phase-k2-oracle PASS");
+}
