@@ -1768,4 +1768,49 @@ mod tests {
         cache.clear().unwrap();
         assert_eq!(fs::read(root.join("unrelated.txt")).unwrap(), b"keep");
     }
+
+    /// The inherited-descriptor preflight runs before `Cache::open`. Reuse stays sound only if
+    /// every cache descriptor is close-on-exec; otherwise the child inherits SQLite state that was
+    /// never part of the runtime identity.
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn cache_open_descriptors_are_close_on_exec() {
+        let directory = tempfile::tempdir().unwrap();
+        let _cache = Cache::open(directory.path().join("cache")).unwrap();
+        let path = std::ffi::CString::new("/proc/self/fd").unwrap();
+        // SAFETY: pathname is NUL-terminated; opendir/readdir/closedir follow the libc contract.
+        unsafe {
+            let directory = libc::opendir(path.as_ptr());
+            assert!(!directory.is_null(), "opendir /proc/self/fd failed");
+            let directory_fd = libc::dirfd(directory);
+            let mut non_cloexec = Vec::new();
+            loop {
+                *libc::__errno_location() = 0;
+                let entry = libc::readdir(directory);
+                if entry.is_null() {
+                    break;
+                }
+                let name = std::ffi::CStr::from_ptr((*entry).d_name.as_ptr());
+                let Ok(text) = name.to_str() else {
+                    continue;
+                };
+                let Ok(fd) = text.parse::<i32>() else {
+                    continue;
+                };
+                if fd < 3 || fd == directory_fd {
+                    continue;
+                }
+                let flags = libc::fcntl(fd, libc::F_GETFD);
+                assert!(flags >= 0, "F_GETFD failed for fd {fd}");
+                if flags & libc::FD_CLOEXEC == 0 {
+                    non_cloexec.push(fd);
+                }
+            }
+            libc::closedir(directory);
+            assert!(
+                non_cloexec.is_empty(),
+                "Cache::open left non-CLOEXEC descriptors {non_cloexec:?}"
+            );
+        }
+    }
 }
