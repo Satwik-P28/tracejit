@@ -2,7 +2,7 @@ use rusqlite::{params, Connection, OptionalExtension};
 use serde::{Deserialize, Serialize};
 use std::cell::Cell;
 use std::fs::{self, File};
-use std::io::{self, Write};
+use std::io::{self, Read, Write};
 use std::path::{Path, PathBuf};
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
 use tempfile::{NamedTempFile, TempPath};
@@ -398,12 +398,18 @@ impl Cache {
     /// substitute for validation. A malformed record is skipped by `decode`.
     pub fn find_candidates(&self, lookup_key: Hash) -> Result<Vec<CandidateBytes>, CacheError> {
         let started = Instant::now();
+        // Retention already prunes to this bound on write. LIMIT keeps a stale unpruned row from
+        // forcing the hit path to pull more JSON than validation will consider.
+        let bound = max_candidates_per_identity() as i64;
         let mut statement = self.connection.prepare(
             "SELECT record_json FROM executions WHERE lookup_key = ?1
-             ORDER BY CAST(updated_unix_ms AS INTEGER) DESC, execution_id DESC",
+             ORDER BY CAST(updated_unix_ms AS INTEGER) DESC, execution_id DESC
+             LIMIT ?2",
         )?;
         let rows = statement
-            .query_map([lookup_key.to_string()], |row| row.get::<_, Vec<u8>>(0))?
+            .query_map(params![lookup_key.to_string(), bound], |row| {
+                row.get::<_, Vec<u8>>(0)
+            })?
             .collect::<Result<Vec<_>, _>>()?;
         self.last_query.set(QueryTimings {
             query_ns: u64_nanos(started),
@@ -511,14 +517,33 @@ impl Cache {
                 let hash = output
                     .content
                     .ok_or_else(|| CacheError::InvalidOutputPath(output.path.clone()))?;
-                // get_bytes rehashes the object, so corruption is detected before any
-                // destination is touched.
-                let bytes = self.get_bytes(hash)?;
+                // Stream CAS → staging while hashing so large objects are not held twice in
+                // memory. The digest must match the object name before any destination mutate.
+                let source_path = self.objects.join(hash.to_string());
+                let mut source =
+                    File::open(&source_path).map_err(|source| io_error(&source_path, source))?;
                 let mut temporary =
                     NamedTempFile::new_in(parent).map_err(|source| io_error(parent, source))?;
+                let mut hasher = blake3::Hasher::new();
+                let mut buffer = [0_u8; 64 * 1024];
+                loop {
+                    let read = source
+                        .read(&mut buffer)
+                        .map_err(|source| io_error(&source_path, source))?;
+                    if read == 0 {
+                        break;
+                    }
+                    hasher.update(&buffer[..read]);
+                    temporary
+                        .write_all(&buffer[..read])
+                        .map_err(|source| io_error(temporary.path(), source))?;
+                }
+                if Hash::from(hasher.finalize()) != hash {
+                    return Err(CacheError::CorruptObject { hash });
+                }
                 temporary
-                    .write_all(&bytes)
-                    .and_then(|()| temporary.as_file().sync_all())
+                    .as_file()
+                    .sync_all()
                     .map_err(|source| io_error(temporary.path(), source))?;
                 #[cfg(unix)]
                 {

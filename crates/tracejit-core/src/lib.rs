@@ -1088,6 +1088,8 @@ struct PreparedExecution {
     cwd: PathBuf,
     environment: BTreeMap<OsString, OsString>,
     runtime_identity: RuntimeIdentity,
+    /// Canonical JSON bytes for `runtime_identity`, computed once for the lookup key.
+    runtime_identity_bytes: Vec<u8>,
     inherited_descriptor: Option<i32>,
     contract: Option<tracejit_trace::Contract>,
 }
@@ -1105,6 +1107,8 @@ impl PreparedExecution {
             .ok_or_else(|| CoreError::TargetNotFound(program.clone()))?;
         let executable_hash = hash_file(&executable)?;
         let runtime_identity = current_runtime_identity()?;
+        let runtime_identity_bytes =
+            serde_json::to_vec(&runtime_identity).map_err(GuardError::Serialization)?;
         let inherited_descriptor = inherited_descriptor_beyond_stdin()?;
         Ok(Self {
             command: command.to_vec(),
@@ -1113,6 +1117,7 @@ impl PreparedExecution {
             cwd,
             environment,
             runtime_identity,
+            runtime_identity_bytes,
             inherited_descriptor,
             contract,
         })
@@ -1129,10 +1134,7 @@ impl PreparedExecution {
             hash_os_string(&mut hasher, key);
             hash_os_string(&mut hasher, value);
         }
-        hash_component(
-            &mut hasher,
-            &serde_json::to_vec(&self.runtime_identity).map_err(GuardError::Serialization)?,
-        );
+        hash_component(&mut hasher, &self.runtime_identity_bytes);
         hash_component(
             &mut hasher,
             self.contract

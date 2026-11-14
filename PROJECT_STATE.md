@@ -19,17 +19,18 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 
 ## Current main
 
-- Tip: `48e9596` — Phase D verification (PR #13) on Phase C (`325f8a8`).
+- Tip: `7801748` — Phase E research (PR #14) on Phase D (`48e9596`).
 - Releases: `v0.1.0` (`cf0ddb2`), `v0.1.1` (`31c36d1`). Do not move tags.
 - Research PRs #6/#7/#9/#10 stay isolated (not for main).
 
-## Phase E (branch `cursor/phase-e-research-95c5`)
+## Phase F (branch `cursor/phase-f-performance-5cf6`)
 
-- Reuse certificates + independent structural verifier (`CheckedByVerifier` max).
-- CEGAR-shaped refinement workflow + syscall registry; `getrusage` refinement rejected.
-- Offline cost-sensitive admission comparison; production `auto` unchanged.
-- Thin TLA+ hit-path model (not a full-system proof).
-- Does not duplicate Phase D harnesses. Store: `docs/phase-e-research.md`.
+- Profiled warm hit path with `TRACEJIT_PHASE_TIMING` (no `perf`/CPU PMU on this host).
+- Ranked engine costs: CAS restore (large outputs), guard validation, SQLite query/decode.
+- Shipped: stream-hash CAS staging, single-fd metadata+hash pairs, candidate `LIMIT`, precomputed runtime-identity bytes.
+- Rejected: drop staging fsync, skip guard re-hash, sync=NORMAL, metadata hash cache, unchanged-output shortcut.
+- Measured large_file warm hit 14.591 → 9.748 ms; cas_restore 9.980 → 5.947 ms. Short ETL still a net loss.
+- Store: `docs/phase-f-performance.md`. Raw: `benchmarks/results/phase_f/`.
 
 ## Known limitations
 
@@ -37,6 +38,7 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 - seccomp+Landlock ≠ full execution equivalence (validate→restore TOCTOU remains).
 - Certificate verification re-samples the same mutable filesystem as the hit path.
 - Stdin OFD aliases use device/inode/position when `kcmp` is unavailable (conservative).
+- Short-command floor remains; process_startup phase timer is coarse on this host.
 
 ## Validation
 

@@ -1637,8 +1637,52 @@ pub fn validate_all(guards: &[Guard], mode: GuardMode) -> GuardReport {
     let mut passed = 0;
     while index < guards.len() {
         if let Guard::FileMetadata { path, expected } = &guards[index] {
-            if let Some(hash_path) = guards.get(index + 1).and_then(content_hash_path) {
-                if path == hash_path {
+            if let Some(hash_guard) = guards.get(index + 1) {
+                if content_hash_path(hash_guard) == Some(path.as_path()) {
+                    // Absent paths cannot be opened for a shared fd sample; keep the per-guard path.
+                    #[cfg(unix)]
+                    if !expected.is_absent() {
+                        match validate_metadata_hash_pair(path, expected, hash_guard, mode) {
+                            Ok(PairResult::Both | PairResult::MetadataOnly) => {
+                                // Fast mode counts the skipped hash as passed, matching the
+                                // previous pair policy; Strict hashed from the same fd.
+                                passed += 2;
+                                index += 2;
+                                continue;
+                            }
+                            Err(PairError::Metadata(failure)) => {
+                                if metadata_change_allows_hash_fallback(path, expected) {
+                                    match hash_guard.validate(mode) {
+                                        Ok(()) => {
+                                            passed += 2;
+                                            index += 2;
+                                            continue;
+                                        }
+                                        Err(hash_failure) => {
+                                            return GuardReport {
+                                                checked: index + 2,
+                                                passed,
+                                                failure: Some(hash_failure),
+                                            };
+                                        }
+                                    }
+                                }
+                                return GuardReport {
+                                    checked: index + 1,
+                                    passed,
+                                    failure: Some(failure),
+                                };
+                            }
+                            Err(PairError::Hash(failure)) => {
+                                return GuardReport {
+                                    checked: index + 2,
+                                    passed,
+                                    failure: Some(failure),
+                                };
+                            }
+                        }
+                    }
+                    // Reached for absent metadata expectations, and on non-Unix hosts.
                     match guards[index].validate(mode) {
                         Ok(()) if mode == GuardMode::Fast => {
                             passed += 2;
@@ -1653,7 +1697,7 @@ pub fn validate_all(guards: &[Guard], mode: GuardMode) -> GuardReport {
                         Err(_metadata_failure)
                             if metadata_change_allows_hash_fallback(path, expected) =>
                         {
-                            match guards[index + 1].validate(mode) {
+                            match hash_guard.validate(mode) {
                                 Ok(()) => {
                                     passed += 2;
                                     index += 2;
@@ -1696,6 +1740,132 @@ pub fn validate_all(guards: &[Guard], mode: GuardMode) -> GuardReport {
         passed,
         failure: None,
     }
+}
+
+#[cfg(unix)]
+enum PairResult {
+    /// Metadata and content hash both passed from one open file description.
+    Both,
+    /// Fast mode: metadata matched, so the content hash guard is skipped.
+    MetadataOnly,
+}
+
+#[cfg(unix)]
+enum PairError {
+    Metadata(GuardFailure),
+    Hash(GuardFailure),
+}
+
+/// Validate a `FileMetadata` + content-hash pair from one open file description.
+///
+/// Opening once closes the micro-TOCTOU between a path `stat` and a later path open, and avoids a
+/// second open+close on the warm hit path. Content is still fully hashed in `Strict` mode; `Fast`
+/// may skip the hash after a metadata match, matching the previous policy.
+#[cfg(unix)]
+fn validate_metadata_hash_pair(
+    path: &Path,
+    expected_meta: &FileFingerprint,
+    hash_guard: &Guard,
+    mode: GuardMode,
+) -> Result<PairResult, PairError> {
+    let file = File::open(path).map_err(|source| {
+        PairError::Metadata(GuardFailure {
+            guard: Box::new(Guard::FileMetadata {
+                path: path.to_path_buf(),
+                expected: expected_meta.clone(),
+            }),
+            reason: "file metadata unavailable".into(),
+            expected: format!("{expected_meta:?}"),
+            actual: source.to_string(),
+        })
+    })?;
+    let actual_meta = fingerprint_from_metadata(file.metadata().map_err(|source| {
+        PairError::Metadata(GuardFailure {
+            guard: Box::new(Guard::FileMetadata {
+                path: path.to_path_buf(),
+                expected: expected_meta.clone(),
+            }),
+            reason: "file metadata unavailable".into(),
+            expected: format!("{expected_meta:?}"),
+            actual: source.to_string(),
+        })
+    })?)
+    .map_err(|error| {
+        PairError::Metadata(GuardFailure {
+            guard: Box::new(Guard::FileMetadata {
+                path: path.to_path_buf(),
+                expected: expected_meta.clone(),
+            }),
+            reason: "file metadata unavailable".into(),
+            expected: format!("{expected_meta:?}"),
+            actual: error.to_string(),
+        })
+    })?;
+    if &actual_meta != expected_meta {
+        return Err(PairError::Metadata(GuardFailure {
+            guard: Box::new(Guard::FileMetadata {
+                path: path.to_path_buf(),
+                expected: expected_meta.clone(),
+            }),
+            reason: if mode == GuardMode::Strict && path.is_file() {
+                "metadata changed; no content hash was recorded".into()
+            } else {
+                "file metadata changed".into()
+            },
+            expected: format!("{expected_meta:?}"),
+            actual: format!("{actual_meta:?}"),
+        }));
+    }
+    if mode == GuardMode::Fast {
+        return Ok(PairResult::MetadataOnly);
+    }
+    let (expected_hash, require_executable) = match hash_guard {
+        Guard::FileHash { expected, .. } => (*expected, false),
+        Guard::ExecutableHash { expected, .. } => (*expected, true),
+        _ => {
+            return Err(PairError::Hash(GuardFailure {
+                guard: Box::new(hash_guard.clone()),
+                reason: "paired content guard is not a file or executable hash".into(),
+                expected: "FileHash or ExecutableHash".into(),
+                actual: format!("{hash_guard:?}"),
+            }));
+        }
+    };
+    if require_executable {
+        validate_executable(path).map_err(|actual| {
+            PairError::Hash(GuardFailure {
+                guard: Box::new(hash_guard.clone()),
+                reason: "executable permission changed".into(),
+                expected: "executable access".into(),
+                actual,
+            })
+        })?;
+    }
+    let actual_hash = hash_reader(file).map_err(|source| {
+        PairError::Hash(GuardFailure {
+            guard: Box::new(hash_guard.clone()),
+            reason: if require_executable {
+                "executable could not be hashed".into()
+            } else {
+                "file could not be hashed".into()
+            },
+            expected: expected_hash.to_string(),
+            actual: source.to_string(),
+        })
+    })?;
+    if actual_hash != expected_hash {
+        return Err(PairError::Hash(GuardFailure {
+            guard: Box::new(hash_guard.clone()),
+            reason: if require_executable {
+                "executable content changed".into()
+            } else {
+                "file content changed".into()
+            },
+            expected: expected_hash.to_string(),
+            actual: actual_hash.to_string(),
+        }));
+    }
+    Ok(PairResult::Both)
 }
 
 fn metadata_change_allows_hash_fallback(path: &Path, expected: &FileFingerprint) -> bool {
