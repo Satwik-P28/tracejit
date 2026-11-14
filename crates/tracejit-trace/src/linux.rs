@@ -1531,7 +1531,15 @@ fn decode_entry(
             let flags = args[3];
             let fd = args[4] as i64;
             let anonymous = flags & libc::MAP_ANONYMOUS as u64 != 0 || fd < 0;
-            if anonymous {
+            let shared = flags & libc::MAP_SHARED as u64 != 0;
+            // Anonymous MAP_SHARED is shared memory across fork/clone with no file effect
+            // stream. Treating it as process-internal would miss cross-process mutation.
+            if anonymous && shared {
+                PendingSyscall::Unknown {
+                    number,
+                    detail: "anonymous MAP_SHARED mapping is untracked shared memory; stores and cross-fork visibility are not captured outputs".into(),
+                }
+            } else if anonymous {
                 PendingSyscall::None
             } else {
                 PendingSyscall::Mmap {
@@ -1541,6 +1549,13 @@ fn decode_entry(
                 }
             }
         }
+        // Hard-link creation aliases an inode under a new pathname. Restoration is
+        // pathname-visible (CAS rename), so successful link/linkat cannot be replayed as
+        // native inode sharing. Fail closed rather than recording a false output model.
+        libc::SYS_link | libc::SYS_linkat => PendingSyscall::Unknown {
+            number,
+            detail: "hard-link creation is not a pathname-equivalent output effect".into(),
+        },
         libc::SYS_mprotect => PendingSyscall::Mprotect {
             address: args[0],
             length: args[1],
@@ -3414,10 +3429,20 @@ fn is_random_device(path: &Path) -> bool {
 fn inherited_fd_state(pid: Pid, fd: i32) -> FdState {
     let target = fs::read_link(format!("/proc/{}/fd/{fd}", pid.as_raw()));
     match target {
-        Ok(path) if path.is_absolute() => FdState::InheritedFile(path),
+        // Linux appends " (deleted)" when the directory entry is gone but the open file
+        // description remains. That string is not a resolvable pathname, so treating it as
+        // InheritedFile would invent a path identity the kernel does not use on replay.
+        Ok(path) if path.is_absolute() && path_is_live_pathname(&path) => {
+            FdState::InheritedFile(path)
+        }
         Ok(path) if path.to_string_lossy().starts_with("socket:") => FdState::Network,
         _ => FdState::Other,
     }
+}
+
+/// `/proc/<pid>/fd/<n>` pathnames that still name a directory entry.
+fn path_is_live_pathname(path: &Path) -> bool {
+    !path.as_os_str().as_encoded_bytes().ends_with(b" (deleted)")
 }
 
 fn ensure_vdso_disarmed(
@@ -4517,6 +4542,23 @@ mod tests {
             shared: true,
             writable: false,
         }
+    }
+
+    #[test]
+    fn deleted_proc_fd_pathname_is_not_treated_as_a_live_path() {
+        assert!(!path_is_live_pathname(Path::new("/tmp/input (deleted)")));
+        assert!(path_is_live_pathname(Path::new("/tmp/input")));
+        assert!(path_is_live_pathname(Path::new("/tmp/input(deleted)")));
+    }
+
+    #[test]
+    fn anonymous_shared_mmap_flags_are_refused() {
+        let flags = libc::MAP_SHARED as u64 | libc::MAP_ANONYMOUS as u64;
+        assert!(flags & libc::MAP_SHARED as u64 != 0);
+        assert!(flags & libc::MAP_ANONYMOUS as u64 != 0);
+        // Private anonymous mappings remain process-internal; only the shared bit is refused.
+        let private = libc::MAP_PRIVATE as u64 | libc::MAP_ANONYMOUS as u64;
+        assert_eq!(private & libc::MAP_SHARED as u64, 0);
     }
 
     /// The identity hash is sampled before tracing. If the path no longer matches it, the tracer

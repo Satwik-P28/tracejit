@@ -67,3 +67,5 @@ run before it can claim end-to-end `PROVEN`.
   the threat model.
 - Filesystem rename and link semantics are those of the mounted Linux filesystem. Unusual filesystems
   that violate ordinary POSIX expectations are not covered.
+- Anonymous and writable file-backed `MAP_SHARED` mappings are refused (`UNKNOWN`); they are not
+  replayed. See `docs/research/EXECUTION_EQUIVALENCE.md` for the Phase C contract surface.
