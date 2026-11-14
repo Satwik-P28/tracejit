@@ -19,8 +19,8 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 
 ## Current main
 
-- Tip: `80edaa4` — P0 process/TOCTOU (PR #27) on baseline (#26) / K8–K14 (#25).
-- Final adversarial: `docs/final/BASELINE.md`, `INVARIANTS.yaml`, `P0_PROCESS_AND_TOCTOU.md`; §5 restore durability on `cursor/final-adversarial-p0-restore-6ed7` (`docs/final/P0_RESTORE_DURABILITY.md`).
+- Tip: `026e660` — P0 restore durability (PR #28) on process/TOCTOU (#27) / baseline (#26).
+- Final adversarial P0 docs under `docs/final/`; P1 §§6–10 package on `cursor/final-adversarial-p1-perf-6ed7` (`docs/final/P1_TRA27_PACKAGE.md`, raw `benchmarks/results/final_p1/`).
 - Releases: `v0.1.0` (`cf0ddb2`), `v0.1.1` (`31c36d1`). Do not move tags.
 - Research PRs #6/#7/#9/#10 stay isolated (not for main).
 
@@ -47,7 +47,9 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 
 - Multi-output restore: single-path rename atomic; soft rollback verified; hard-kill not crash-atomic / not inode-preserving. Restore-intent refuses next HIT after interrupted apply (`docs/final/P0_RESTORE_DURABILITY.md`).
 - Validate→restore TOCTOU: pre-restore guard recheck shrinks the window; residual race after recheck / during restore remains. Certificates are not full proofs.
-- Short-command floor; large restore+hash can lose to direct copy.
+- Short-command floor; large restore+hash can lose to direct copy (reconfirmed in final_p1 e2e).
+- Real-world census eligibility remains low under unmodified defaults (1/32 on final_p1 tip); randomness/clock dominate refusals.
+- Selective tracing and typed dependency-DAG validator remain deferred; bandit admission default rejected.
 - Controlled-runtime and epoll/retrieval research stay off main.
 
 ## Validation
