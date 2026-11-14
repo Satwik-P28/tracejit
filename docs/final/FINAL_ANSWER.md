@@ -1,8 +1,8 @@
 # Final answer — mandate §18 checklist
 
-Evaluated tree: **origin/main `827b7763a73cddda4e3a99c9883fbae4b18d87d2`** (after PR #30).  
-Release packaging branch: `cursor/final-adversarial-release-6ed7` (this document).  
-Gates on that tip: `benchmarks/results/final_release/gates-summary.json` (fmt/clippy/tests/demo/modelcheck/K4/fuzz PASS).
+Evaluated packaging base: **origin/main `827b7763a73cddda4e3a99c9883fbae4b18d87d2`** (after PR #30).  
+**Post–TRA-29 main:** `1104051e426bd4da366608814841899f03486d90` (PR [#31](https://github.com/Satwik-P28/tracejit/pull/31) merge).  
+Gates on packaging tip: `benchmarks/results/final_release/gates-summary.json` (fmt/clippy/tests/demo/modelcheck/K4/fuzz PASS).
 
 ---
 
@@ -10,14 +10,15 @@ Gates on that tip: `benchmarks/results/final_release/gates-summary.json` (fmt/cl
 
 | Item | Value |
 | --- | --- |
+| origin/main (final, post–TRA-29) | `1104051e426bd4da366608814841899f03486d90` |
 | origin/main (pre–TRA-29 packaging) | `827b7763a73cddda4e3a99c9883fbae4b18d87d2` |
-| Release PR branch | `cursor/final-adversarial-release-6ed7` · PR [#31](https://github.com/Satwik-P28/tracejit/pull/31) (tip = branch HEAD) |
+| Release PR | [#31](https://github.com/Satwik-P28/tracejit/pull/31) · branch `cursor/final-adversarial-release-6ed7` · merge `1104051e426bd4da366608814841899f03486d90` |
 | PR #26 baseline/invariants | https://github.com/Satwik-P28/tracejit/pull/26 · merge `48899e667503` |
 | PR #27 P0 process/TOCTOU | https://github.com/Satwik-P28/tracejit/pull/27 · merge `80edaa46aeb7` |
 | PR #28 P0 restore durability | https://github.com/Satwik-P28/tracejit/pull/28 · merge `026e660f6722` |
 | PR #29 P1 §§6–10 | https://github.com/Satwik-P28/tracejit/pull/29 · merge `bb4302fccaf7` |
 | PR #30 P1 §§11–14 | https://github.com/Satwik-P28/tracejit/pull/30 · merge `827b7763a73c` |
-| TRA-29 release docs PR | https://github.com/Satwik-P28/tracejit/pull/31 (packaging; merge SHA after land) |
+| TRA-29 release docs PR | https://github.com/Satwik-P28/tracejit/pull/31 · merge `1104051e426bd4da366608814841899f03486d90` |
 
 ---
 
