@@ -1,0 +1,38 @@
+{
+  "label": "after-sync-data",
+  "commit": "f148228a66c76784e3e36576c9eaf8602b21a23e",
+  "binary_sha256": "164a7c0b0007b1870e6c9e27b70ece62c9ee48a1a662407f0c3ac764360d2a4d",
+  "host": {
+    "platform": "Linux-6.12.113+-x86_64-with-glibc2.39",
+    "cpus": 4,
+    "kernel": "6.12.113+"
+  },
+  "shapes": [
+    {
+      "shape": "c-etl",
+      "cold_ms": 15.324159000101645,
+      "cold_decision": "Executed",
+      "warm_wall_ms_median": 3.7935104999178293,
+      "warm_wall_ms_p95": 4.672924950068591,
+      "sqlite_query_ms_median": 0.134861,
+      "record_decode_ms_median": 0.1298395,
+      "guard_validation_ms_median": 0.4243485,
+      "cas_restore_ms_median": 1.0191210000000002,
+      "runs": 30,
+      "warmups": 5
+    },
+    {
+      "shape": "plain_file_read",
+      "cold_ms": 10.839776000011625,
+      "cold_decision": "Executed",
+      "warm_wall_ms_median": 3.7804240000696154,
+      "warm_wall_ms_p95": 4.7036583500357665,
+      "sqlite_query_ms_median": 0.13943899999999998,
+      "record_decode_ms_median": 0.128464,
+      "guard_validation_ms_median": 0.423036,
+      "cas_restore_ms_median": 1.0380194999999999,
+      "runs": 30,
+      "warmups": 5
+    }
+  ]
+}
