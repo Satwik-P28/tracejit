@@ -11,7 +11,7 @@ Gates on that tip: `benchmarks/results/final_release/gates-summary.json` (fmt/cl
 | Item | Value |
 | --- | --- |
 | origin/main (pre–TRA-29 packaging) | `827b7763a73cddda4e3a99c9883fbae4b18d87d2` |
-| Release PR branch | `cursor/final-adversarial-release-6ed7` @ `5b62d63d8c891958d1d04e323101568709270c96` |
+| Release PR branch | `cursor/final-adversarial-release-6ed7` @ `370e68034eabb161c8fe6ef5af413e94d0253f70` |
 | PR #26 baseline/invariants | https://github.com/Satwik-P28/tracejit/pull/26 · merge `48899e667503` |
 | PR #27 P0 process/TOCTOU | https://github.com/Satwik-P28/tracejit/pull/27 · merge `80edaa46aeb7` |
 | PR #28 P0 restore durability | https://github.com/Satwik-P28/tracejit/pull/28 · merge `026e660f6722` |
