@@ -479,6 +479,9 @@ impl Cache {
         }
         let mut applied: Vec<AppliedOutput> = Vec::new();
         for ((output, staged), backup) in outputs.iter().zip(staged).zip(backups) {
+            // Test hooks: TRACEJIT_TEST_RESTORE_FAIL_PATH / TRACEJIT_TEST_RESTORE_PAUSE_PATH.
+            // Unset in production. Pause exists so a harness can SIGKILL mid-apply.
+            fault::maybe_pause(&output.path);
             if fault::should_fail(&output.path) {
                 let error = CacheError::OutputPrecondition {
                     path: output.path.clone(),
@@ -1143,11 +1146,17 @@ fn link_count(metadata: &fs::Metadata) -> u64 {
     }
 }
 
-/// Deterministic restoration-failure injection, compiled out of normal builds.
+/// Restoration fault-injection hooks for unit tests and Phase K4 harnesses.
+///
+/// Environment variables (unset in normal use):
+/// - `TRACEJIT_TEST_RESTORE_FAIL_PATH` — absolute path that fails before apply
+/// - `TRACEJIT_TEST_RESTORE_PAUSE_PATH` — absolute path that sleeps before apply
+///   so an external harness can SIGKILL the process mid-restore
 #[cfg(test)]
 mod fault {
     use std::cell::RefCell;
     use std::path::{Path, PathBuf};
+    use std::time::Duration;
 
     thread_local! {
         static FAIL_PATH: RefCell<Option<PathBuf>> = const { RefCell::new(None) };
@@ -1162,16 +1171,42 @@ mod fault {
     }
 
     pub fn should_fail(path: &Path) -> bool {
-        FAIL_PATH.with(|slot| slot.borrow().as_deref() == Some(path))
+        if FAIL_PATH.with(|slot| slot.borrow().as_deref() == Some(path)) {
+            return true;
+        }
+        matches!(
+            std::env::var_os("TRACEJIT_TEST_RESTORE_FAIL_PATH"),
+            Some(value) if Path::new(&value) == path
+        )
+    }
+
+    pub fn maybe_pause(path: &Path) {
+        if let Some(value) = std::env::var_os("TRACEJIT_TEST_RESTORE_PAUSE_PATH") {
+            if Path::new(&value) == path {
+                std::thread::sleep(Duration::from_secs(30));
+            }
+        }
     }
 }
 
 #[cfg(not(test))]
 mod fault {
     use std::path::Path;
+    use std::time::Duration;
 
-    pub fn should_fail(_path: &Path) -> bool {
-        false
+    pub fn should_fail(path: &Path) -> bool {
+        matches!(
+            std::env::var_os("TRACEJIT_TEST_RESTORE_FAIL_PATH"),
+            Some(value) if Path::new(&value) == path
+        )
+    }
+
+    pub fn maybe_pause(path: &Path) {
+        if let Some(value) = std::env::var_os("TRACEJIT_TEST_RESTORE_PAUSE_PATH") {
+            if Path::new(&value) == path {
+                std::thread::sleep(Duration::from_secs(30));
+            }
+        }
     }
 }
 
