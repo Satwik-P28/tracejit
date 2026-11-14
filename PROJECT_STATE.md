@@ -19,25 +19,23 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 
 ## Current main
 
-- Tip: `a32c191` — Phase B post-`Cache::open` inherited-fd re-scan (PR #11).
+- Tip: `325f8a8` — Phase C execution semantics (PR #12) on Phase B (`a32c191`).
 - Prior: `29718cf` Phase 3H/3I descriptor P0 (PR #8).
 - Releases: `v0.1.0` (`cf0ddb2`), `v0.1.1` (`31c36d1`). Do not move tags.
 - Research PRs #6/#7/#9/#10 stay isolated (not for main).
 
-## Phase B (landed on main via #11)
+## Phase B / C (on main)
 
-- Post-`Cache::open` inherited-descriptor re-scan; cache-path CLOEXEC regression.
-- Removed unused workspace dependency `tracing`.
-- Concise `PROJECT_STATE.md` reconciliation.
+- Phase B (#11): post-`Cache::open` inherited-fd re-scan; cache-path CLOEXEC regression.
+- Phase C (#12): anonymous `MAP_SHARED` / hardlink create `UNKNOWN`; deleted `/proc/fd` paths; hit-path typestate; `EXECUTION_EQUIVALENCE.md`.
 
-## Phase C (branch `cursor/phase-c-execution-semantics-1daa`)
+## Phase D (branch `cursor/phase-d-verification-3119`)
 
-- Formal contract: `docs/research/EXECUTION_EQUIVALENCE.md` (Exec/Trace/Reuse, Obs(E), class eligibility, assumptions).
-- Anonymous `MAP_SHARED` refused; `link`/`linkat` explicit `UNKNOWN`; deleted `/proc/fd` pathnames not live paths.
-- Hit-path typestate: guards → verified streams → expose only after restore.
-- Regressions: `mmap_anon_shared`, `hardlink_create`, `negative_lookup`, hardlink path replacement.
-- ADRs: `docs/research/ARCHITECTURE_DECISIONS.md` (ADR-C-001..003).
-- Does **not** duplicate Phase B re-scan; rebased onto `a32c191`.
+- Differential harness `benchmarks/differential/phase_d.py`: native vs discover vs reuse; full observables; seeds 7/11/17.
+- Adversarial + concurrency + recovery integration tests in `phase_d_verification`.
+- `proptest` property tests: hash parsing, effect eligibility, artifact fail-closed, candidate decode.
+- No durable multi-file restore journal claimed; mixed-workspace detectability covered.
+- Store report: `docs/phase-d-verification.md`.
 
 ## Reconciliation snapshot (2026-11-14)
 
