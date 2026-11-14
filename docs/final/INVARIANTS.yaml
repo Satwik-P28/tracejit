@@ -55,13 +55,17 @@ invariants:
     tests:
       - crates/tracejit-effects/src/lib.rs (unit: unknown never eligible)
       - crates/tracejit-cli/tests/linux_integration.rs::renameat2_exchange_is_unknown_and_never_reused
+      - crates/tracejit-cli/tests/linux_integration.rs::otmpfile_is_unknown_and_never_reused
+      - crates/tracejit-cli/tests/linux_integration.rs::fcntl_setfl_is_unknown_and_never_reused
       - fixtures under crates/tracejit-cli/tests
     failure_cases:
       - silent_omit_of_successful_syscall_with_obs_side_effect
       - modeling_renameat2_RENAME_EXCHANGE_as_delete_plus_rename
+      - modeling_O_TMPFILE_as_directory_pathname_write
+      - silent_fcntl_F_SETFL_as_process_internal
     checker: classify + cache_eligible gate on hit path
     coverage_gaps:
-      - full_syscall_surface_inventory_incomplete_until_section_3_suite
+      - full_syscall_surface_inventory_still_expanding
       - io_uring_SCM_RIGHTS_pidfd_getfd_etc_must_remain_UNKNOWN_if_unmodeled
 
   - id: I2
@@ -75,13 +79,16 @@ invariants:
       - crates/tracejit-guards/src/lib.rs
     tests:
       - crates/tracejit-cli/tests/linux_integration.rs (guarded_hit / mutation DEOPT)
+      - crates/tracejit-cli/tests/linux_integration.rs::toctou_pre_restore_recheck_deoptimizes_instead_of_false_hit
       - crates/tracejit-cli/tests/phase_d_verification.rs
     failure_cases:
       - expose_cached_stdout_before_validate_all
       - fast_guard_mode_skipping_content_hash_without_opt_in_label
-    checker: hit typestate + integration hit/deopt
+      - hit_after_input_mutation_between_validate_and_restore
+    checker: hit typestate + pre-restore recheck + integration hit/deopt
     coverage_gaps:
-      - validate_to_restore_TOCTOU_external_mutator_not_closed
+      - validate_to_restore_TOCTOU_residual_after_pre_restore_recheck
+      - concurrent_mutation_during_restore_still_open
 
   - id: I3
     name: No incompatible runtime or contract record reused

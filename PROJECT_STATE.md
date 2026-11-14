@@ -46,7 +46,7 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 ## Known limitations
 
 - Multi-output restore pathname-visible under hard kill (not crash-atomic / not inode-preserving).
-- Validate→restore TOCTOU remains; certificates are not full proofs.
+- Validate→restore TOCTOU: pre-restore guard recheck shrinks the window; residual race after recheck / during restore remains. Certificates are not full proofs.
 - Short-command floor; large restore+hash can lose to direct copy.
 - Controlled-runtime and epoll/retrieval research stay off main.
 

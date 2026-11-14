@@ -1424,7 +1424,25 @@ fn decode_entry(
             fd: args[0] as i32,
             enabled: args[2] as i32 & libc::FD_CLOEXEC != 0,
         },
-        libc::SYS_fcntl => PendingSyscall::None,
+        // Pure queries about descriptor state are process-local for V1. Mutating commands
+        // (F_SETFL / locks / seals / owner / pipe size / …) can change OFD behavior or be
+        // visible to collaborators; do not silently treat them as None.
+        libc::SYS_fcntl
+            if matches!(
+                args[1] as i32,
+                libc::F_GETFD
+                    | libc::F_GETFL
+                    | libc::F_GETOWN
+                    | libc::F_GETLEASE
+                    | libc::F_GETPIPE_SZ
+            ) =>
+        {
+            PendingSyscall::None
+        }
+        libc::SYS_fcntl => PendingSyscall::Unknown {
+            number,
+            detail: format!("fcntl command {} is not modeled", args[1] as i32),
+        },
         libc::SYS_close => PendingSyscall::Close { fd: args[0] as i32 },
         // x86-64 `read(fd, buffer, count)` and `pread64(fd, buffer, count, offset)` carry the
         // length in the third argument; the second is the buffer address. They differ in the
@@ -2030,6 +2048,15 @@ fn open_pending(
     flags: i32,
     number: i64,
 ) -> Result<PendingSyscall, TraceError> {
+    // O_TMPFILE creates an unnamed inode in a directory; the pathname argument is only the
+    // parent. Recording Open/Write against that directory path is incorrect Obs (and would
+    // diverge from a later linkat(AT_EMPTY_PATH) naming). Fail closed until modeled.
+    if flags & libc::O_TMPFILE == libc::O_TMPFILE {
+        return Ok(PendingSyscall::Unknown {
+            number,
+            detail: "O_TMPFILE creates an unnamed inode and is not modeled".into(),
+        });
+    }
     let path = resolve_path(pid, state, dirfd, address)?;
     diag_dependency(
         pid,
