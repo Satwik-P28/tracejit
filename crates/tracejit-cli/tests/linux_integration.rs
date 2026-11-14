@@ -133,6 +133,105 @@ fn analyze_case(binary: &Path, directory: &Path, case: &str) -> Value {
     })
 }
 
+/// `renameat2(RENAME_EXCHANGE)` must never become a Guarded hit.
+///
+/// Phase K adversarial audit: the tracer previously ignored renameat2 flags and recorded
+/// Delete(from)+RenameDestination(to). On HIT that deleted `from` while a native exchange leaves
+/// both paths present with swapped bytes — a false-positive Obs mismatch. Fail closed.
+#[test]
+fn renameat2_exchange_is_unknown_and_never_reused() {
+    let temporary = tempfile::tempdir().unwrap();
+    let source = temporary.path().join("exchange.c");
+    fs::write(
+        &source,
+        r#"#define _GNU_SOURCE
+#include <fcntl.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/syscall.h>
+#ifndef RENAME_EXCHANGE
+#define RENAME_EXCHANGE (1 << 1)
+#endif
+int main(void) {
+    int fd = open("a", O_WRONLY | O_CREAT | O_TRUNC, 0600);
+    if (fd < 0) return 1;
+    if (write(fd, "AAA", 3) != 3) return 1;
+    close(fd);
+    fd = open("b", O_WRONLY | O_CREAT | O_TRUNC, 0600);
+    if (fd < 0) return 1;
+    if (write(fd, "BBB", 3) != 3) return 1;
+    close(fd);
+    return syscall(SYS_renameat2, AT_FDCWD, "a", AT_FDCWD, "b", RENAME_EXCHANGE) != 0;
+}
+"#,
+    )
+    .unwrap();
+    let binary = temporary.path().join("exchange");
+    assert!(
+        Command::new("cc")
+            .arg("-O0")
+            .arg(&source)
+            .arg("-o")
+            .arg(&binary)
+            .status()
+            .unwrap()
+            .success(),
+        "exchange compilation failed"
+    );
+    let cache = temporary.path().join("cache");
+    let args = ["run", "--json", "--", binary.to_str().unwrap()];
+    let work = temporary.path().join("work");
+    fs::create_dir(&work).unwrap();
+    let cold = Command::new(tracejit())
+        .args(args)
+        .current_dir(&work)
+        .env("TRACEJIT_CACHE_DIR", &cache)
+        .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0")
+        .output()
+        .unwrap();
+    assert!(
+        cold.status.success(),
+        "{}",
+        String::from_utf8_lossy(&cold.stderr)
+    );
+    let cold_report: Value = serde_json::from_slice(&cold.stdout).unwrap();
+    assert_eq!(cold_report["classification"], "Unknown", "{cold_report}");
+    assert_eq!(cold_report["eligible_for_reuse"], false, "{cold_report}");
+    let cold_a = fs::read(work.join("a")).unwrap_or_default();
+    let cold_b = fs::read(work.join("b")).unwrap_or_default();
+    assert_eq!(cold_a, b"BBB", "native exchange must leave a=BBB");
+    assert_eq!(cold_b, b"AAA", "native exchange must leave b=AAA");
+
+    let warm = Command::new(tracejit())
+        .args(args)
+        .current_dir(&work)
+        .env("TRACEJIT_CACHE_DIR", &cache)
+        .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0")
+        .output()
+        .unwrap();
+    assert!(
+        warm.status.success(),
+        "{}",
+        String::from_utf8_lossy(&warm.stderr)
+    );
+    let warm_report: Value = serde_json::from_slice(&warm.stdout).unwrap();
+    assert_ne!(
+        warm_report["kind"], "Reused",
+        "exchange must never HIT: {warm_report}"
+    );
+    assert_ne!(
+        warm_report["cache_decision"], "Reused",
+        "exchange must never HIT: {warm_report}"
+    );
+    let warm_a = fs::read(work.join("a")).unwrap_or_default();
+    let warm_b = fs::read(work.join("b")).unwrap_or_default();
+    assert_eq!(
+        warm_a, b"BBB",
+        "warm Obs must match native a=BBB, not delete a"
+    );
+    assert_eq!(warm_b, b"AAA", "warm Obs must match native b=AAA");
+}
+
 /// A program that stats its own output path must not reuse across a presence change.
 ///
 /// This is the Phase 2O release blocker: the contract dropped output metadata for *any* binary
@@ -796,6 +895,8 @@ fn nondeterministic_and_unknown_cases_never_reuse() {
         "vdso_clock",
         "mmap_anon_shared",
         "hardlink_create",
+        "rename_exchange",
+        "at_empty_path",
     ] {
         let args = [
             "run",

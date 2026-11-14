@@ -1154,8 +1154,20 @@ fn decode_entry(
             open_pending(pid, state, args[0] as i32, args[1], args[2] as i32, number)?
         }
         libc::SYS_openat2 => {
+            // `struct open_how` is flags/mode/resolve (three u64 words). Non-zero resolve
+            // constraints (RESOLVE_BENEATH, NO_SYMLINKS, …) are not replayed by path guards, so
+            // admitting them would let Reuse succeed where a fresh openat2 fails or opens a
+            // different object. Fail closed until resolve is modeled.
             let flags = read_word(pid, args[2])? as i32;
-            open_pending(pid, state, args[0] as i32, args[1], flags, number)?
+            let resolve = read_word(pid, args[2].saturating_add(16))?;
+            if resolve != 0 {
+                PendingSyscall::Unknown {
+                    number,
+                    detail: format!("openat2 resolve flags {resolve:#x} are not modeled"),
+                }
+            } else {
+                open_pending(pid, state, args[0] as i32, args[1], flags, number)?
+            }
         }
         // `creat(path, mode)` is `open(path, O_CREAT|O_WRONLY|O_TRUNC)`. Leaving it unmodelled
         // meant every later `fstat` on the new descriptor was unclassified too, which refused
@@ -1188,9 +1200,32 @@ fn decode_entry(
         libc::SYS_chmod | libc::SYS_chown => PendingSyscall::MetadataWrite {
             path: resolve_path(pid, state, libc::AT_FDCWD, args[0])?,
         },
-        libc::SYS_fchmodat | libc::SYS_fchownat => PendingSyscall::MetadataWrite {
-            path: resolve_path(pid, state, args[0] as i32, args[1])?,
-        },
+        libc::SYS_fchmodat => {
+            let flags = args[3] as i32;
+            if flags & libc::AT_SYMLINK_NOFOLLOW != 0 || flags & libc::AT_EMPTY_PATH != 0 {
+                PendingSyscall::Unknown {
+                    number,
+                    detail: format!("fchmodat flags {flags:#x} are not modeled"),
+                }
+            } else {
+                PendingSyscall::MetadataWrite {
+                    path: resolve_path(pid, state, args[0] as i32, args[1])?,
+                }
+            }
+        }
+        libc::SYS_fchownat => {
+            let flags = args[4] as i32;
+            if flags & libc::AT_SYMLINK_NOFOLLOW != 0 || flags & libc::AT_EMPTY_PATH != 0 {
+                PendingSyscall::Unknown {
+                    number,
+                    detail: format!("fchownat flags {flags:#x} are not modeled"),
+                }
+            } else {
+                PendingSyscall::MetadataWrite {
+                    path: resolve_path(pid, state, args[0] as i32, args[1])?,
+                }
+            }
+        }
         libc::SYS_utimensat => {
             let path = if args[1] == 0 {
                 resolution_for_fd(state, args[0] as i32)
@@ -1302,24 +1337,20 @@ fn decode_entry(
         },
         libc::SYS_readlink => readlink_pending(pid, state, libc::AT_FDCWD, args[0], number)?,
         libc::SYS_readlinkat => readlink_pending(pid, state, args[0] as i32, args[1], number)?,
+        // `AT_EMPTY_PATH` observes the open file description's inode, not a pathname. Replaying
+        // a stored path fingerprint answers a different question after rename/replace under the
+        // fd (same gap as faccessat AT_EMPTY_PATH, which already refuses). Fail closed.
         libc::SYS_newfstatat
             if args[3] as i32 & libc::AT_EMPTY_PATH != 0
                 && read_c_string(pid, args[1])?.is_empty() =>
         {
-            state
-                .fds
-                .get(&(args[0] as i32))
-                .and_then(|fd| match fd {
-                    FdState::File(path) | FdState::InheritedFile(path) => {
-                        Some(PendingSyscall::Metadata { path: path.clone() })
-                    }
-                    FdState::Other if args[0] <= 2 => Some(PendingSyscall::None),
-                    _ => None,
-                })
-                .unwrap_or_else(|| PendingSyscall::Unknown {
-                    number,
-                    detail: format!("newfstatat AT_EMPTY_PATH on unclassified fd {}", args[0]),
-                })
+            PendingSyscall::Unknown {
+                number,
+                detail: format!(
+                    "newfstatat AT_EMPTY_PATH on fd {} is not a path observation",
+                    args[0]
+                ),
+            }
         }
         libc::SYS_newfstatat if args[3] as i32 & libc::AT_SYMLINK_NOFOLLOW != 0 => {
             PendingSyscall::SymlinkMetadata {
@@ -1430,10 +1461,27 @@ fn decode_entry(
             resolve_path(pid, state, libc::AT_FDCWD, args[0])?,
             resolve_path(pid, state, libc::AT_FDCWD, args[1])?,
         ),
-        libc::SYS_renameat | libc::SYS_renameat2 => rename_pending(
+        libc::SYS_renameat => rename_pending(
             resolve_path(pid, state, args[0] as i32, args[1])?,
             resolve_path(pid, state, args[2] as i32, args[3])?,
         ),
+        // Ordinary renameat2 (flags == 0) matches rename. Non-zero flags include
+        // RENAME_EXCHANGE, which leaves both paths present with swapped content; modeling that
+        // as Delete(from)+RenameDestination(to) produces incorrect Obs on HIT (from deleted).
+        libc::SYS_renameat2 => {
+            let flags = args[4] as u32;
+            if flags != 0 {
+                PendingSyscall::Unknown {
+                    number,
+                    detail: format!("renameat2 flags {flags:#x} are not modeled"),
+                }
+            } else {
+                rename_pending(
+                    resolve_path(pid, state, args[0] as i32, args[1])?,
+                    resolve_path(pid, state, args[2] as i32, args[3])?,
+                )
+            }
+        }
         libc::SYS_unlink => delete_pending(resolve_path(pid, state, libc::AT_FDCWD, args[0])?),
         libc::SYS_unlinkat => delete_pending(resolve_path(pid, state, args[0] as i32, args[1])?),
         libc::SYS_socket | libc::SYS_socketpair => PendingSyscall::Network {
@@ -1669,15 +1717,21 @@ fn decode_entry(
                 FdState::File(path) | FdState::InheritedFile(path) => {
                     Some(PendingSyscall::TerminalProbe { path: path.clone() })
                 }
-                FdState::Other if args[0] == 1 || args[0] == 2 => Some(PendingSyscall::None),
-                FdState::Other if args[0] == 0 => Some(PendingSyscall::InheritedTerminalProbe),
+                // Successful terminal queries on piped/tty stdio change Obs; failed ENOTTY
+                // probes stay silent via InheritedTerminalProbe's failure arm. Never treat a
+                // successful TCGETS on fd 0/1/2 as process-internal.
+                FdState::Other if args[0] <= 2 => Some(PendingSyscall::InheritedTerminalProbe),
                 _ => None,
             })
             .unwrap_or_else(|| PendingSyscall::Unknown {
                 number,
                 detail: format!("TCGETS on unclassified fd {}", args[0]),
             }),
-        libc::SYS_ioctl if args[0] == 1 || args[0] == 2 => PendingSyscall::None,
+        // Other stdio ioctls (TIOCGWINSZ, …): success is unmodeled; failure (e.g. ENOTTY on a
+        // pipe) must not poison otherwise Guarded runs that only probe isatty-like state.
+        libc::SYS_ioctl if args[0] == 1 || args[0] == 2 => {
+            PendingSyscall::InheritedTerminalProbe
+        }
         // A directory seek changes which entries a later `getdents64` observes, and no directory
         // stream model tracks a mid-stream seek, so it stays refused.
         libc::SYS_lseek => match state.fds.get(&(args[0] as i32)) {
@@ -2186,7 +2240,7 @@ fn complete_syscall(
             pid,
             Effect::Unknown(UnknownEffect {
                 syscall: Some(libc::SYS_ioctl),
-                detail: "successful terminal-state query on inherited stdin cannot be guarded"
+                detail: "successful terminal-state query on inherited stdio cannot be guarded"
                     .into(),
             }),
         ),

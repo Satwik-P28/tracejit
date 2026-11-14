@@ -19,7 +19,7 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 
 ## Current main
 
-- Tip: `b089d5e` — Phase G evaluation (PR #16) on Phase F (`84b07c1`).
+- Tip: `cf1013f` — Phase H–J docs (PR #17) on Phase G (`b089d5e`).
 - Releases: `v0.1.0` (`cf0ddb2`), `v0.1.1` (`31c36d1`). Do not move tags.
 - Research PRs #6/#7/#9/#10 stay isolated (not for main).
 
@@ -31,10 +31,14 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 - **F** performance: stream-hash CAS staging, single-fd guards, candidate LIMIT; large-file win; short ETL still loss (#15).
 - **G** evaluation: competitive suite + sessions A/B; make incorrect on mtime/corrupt; ninja/ccache/sccache skipped (#16).
 
-## Phases H–J (this branch)
+## Phases H–J (merged)
 
-- Part XVIII technical report, README, claims ledger, FOCUS materials, completion report.
-- Docs/finalize only; no safety weakening.
+- Part XVIII technical report, README, claims ledger, FOCUS materials (#17).
+
+## Phase K (in flight)
+
+- Independent adversarial audit: `docs/audits/PHASE_K_INDEPENDENT_BASELINE.md`.
+- K1: demonstrated false HIT on `renameat2(RENAME_EXCHANGE)`; fail-closed refuses for exchange flags, `openat2` resolve, `AT_EMPTY_PATH` fstat, stdio ioctl success, `fchmodat`/`fchownat` NOFOLLOW.
 
 ## Known limitations
 

@@ -57,6 +57,13 @@ guards, not key bits.
   stay absent.
 - Hard-link *creation* (`link`/`linkat`) is `UNKNOWN` (not pathname-equivalent
   to CAS restore). Hard-linked *destinations* for restore are refused.
+- `renameat2` with non-zero flags (including `RENAME_EXCHANGE`) is `UNKNOWN`.
+  Flags-zero `renameat2` matches ordinary rename. Exchange must not be modeled as
+  delete-plus-rename: that produced incorrect Obs on HIT (Phase K).
+- `newfstatat(..., AT_EMPTY_PATH)` and `openat2` with non-zero `resolve` flags are
+  `UNKNOWN` until descriptor-inode / resolve constraints are modeled.
+- Successful terminal-state ioctls on inherited stdio are `UNKNOWN`; failed
+  ENOTTY-style probes do not by themselves refuse reuse.
 - `/proc/<pid>/fd/n` paths ending in ` (deleted)` are not treated as live
   pathnames.
 
