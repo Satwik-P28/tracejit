@@ -1,0 +1,96 @@
+{
+  "seed": 11,
+  "tip_hint": "run from checked-out tip; see git rev-parse HEAD",
+  "cases": 4,
+  "incorrect_hits": 0,
+  "regress_eligible": 0,
+  "independence": "CLI-only; no product crate imports",
+  "results": [
+    {
+      "case": "copy_stable",
+      "status": "ok",
+      "decision": "Executed",
+      "classification_cold": "Guarded",
+      "native": {
+        "exit": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "files": {
+          "out.txt": "76c52c09751ad7659cb601508fffaac4cc89d826910a7a49efa3519967e3f7fe"
+        }
+      },
+      "warm": {
+        "exit": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "files": {
+          "out.txt": "76c52c09751ad7659cb601508fffaac4cc89d826910a7a49efa3519967e3f7fe"
+        }
+      },
+      "files_cold": {
+        "out.txt": "76c52c09751ad7659cb601508fffaac4cc89d826910a7a49efa3519967e3f7fe"
+      },
+      "raw_exit_cold": 0,
+      "raw_exit_warm": 0
+    },
+    {
+      "case": "copy_content_change",
+      "status": "ok",
+      "decision": "Executed",
+      "native": {
+        "exit": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "files": {
+          "out.txt": "1d3441ee8bffb6705b3505a1cc6a78c355c5a7587320ef17949a833703abb75b"
+        }
+      },
+      "actual": {
+        "exit": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "files": {
+          "out.txt": "1d3441ee8bffb6705b3505a1cc6a78c355c5a7587320ef17949a833703abb75b"
+        }
+      }
+    },
+    {
+      "case": "rename_exchange",
+      "status": "ok",
+      "decision": "Ineligible",
+      "classification_cold": "Unknown",
+      "eligible_cold": false,
+      "native": {
+        "exit": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "files": {
+          "a": "dcdb704109a454784b81229d2b05f368692e758bfa33cb61d04c1b93791b0273",
+          "b": "cb1ad2119d8fafb69566510ee712661f9f14b83385006ef92aec47f523a38358"
+        }
+      },
+      "warm": {
+        "exit": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "files": {
+          "a": "dcdb704109a454784b81229d2b05f368692e758bfa33cb61d04c1b93791b0273",
+          "b": "cb1ad2119d8fafb69566510ee712661f9f14b83385006ef92aec47f523a38358"
+        }
+      }
+    },
+    {
+      "case": "getrandom_never_hit",
+      "status": "ok",
+      "decisions": [
+        "Ineligible",
+        "Ineligible"
+      ],
+      "classifications": [
+        "Nondeterministic",
+        "Nondeterministic"
+      ]
+    }
+  ],
+  "git_head": "94d714d7ea47a85345bf5235f7fc76fa938844f9"
+}
