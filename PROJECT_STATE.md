@@ -19,32 +19,29 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 
 ## Current main
 
-- Tip: `84b07c1` — Phase F performance (PR #15) on Phase E (`7801748`).
+- Tip: `b089d5e` — Phase G evaluation (PR #16) on Phase F (`84b07c1`).
 - Releases: `v0.1.0` (`cf0ddb2`), `v0.1.1` (`31c36d1`). Do not move tags.
 - Research PRs #6/#7/#9/#10 stay isolated (not for main).
 
-## Phase F (merged)
+## Phases C–G (merged)
 
-- Stream-hash CAS staging, single-fd metadata+hash pairs, candidate `LIMIT`, precomputed runtime-identity JSON.
-- Large-file warm hit improved on this host; short ETL remains a net loss.
-- Raw: `benchmarks/results/phase_f/`.
+- **C** semantics: anon `MAP_SHARED`/`link` UNKNOWN; hit-path expose order; EXECUTION_EQUIVALENCE.md (#12).
+- **D** verification: differential seeds 7/11/17, adversarial, proptest, concurrency (#13).
+- **E** research: certificates, CEGAR workflow, admission-eval; bandit default rejected (#14).
+- **F** performance: stream-hash CAS staging, single-fd guards, candidate LIMIT; large-file win; short ETL still loss (#15).
+- **G** evaluation: competitive suite + sessions A/B; make incorrect on mtime/corrupt; ninja/ccache/sccache skipped (#16).
 
-## Phase G (branch `cursor/phase-g-evaluation-0f6f`)
+## Phases H–J (this branch)
 
-- Competitive suite + held-out sessions A/B via `benchmarks/repos/phase_g_evaluation.py`.
-- Wins: CPU transform (~11×), bzip2 compression, A/B/A reuse, multi-output restore, correct mtime/corrupt recovery vs make.
-- Losses retained: short ETL overhead, large restore+hash vs direct, TraceJIT identical-rerun slower than make (and deopts on bzip2 output presence).
-- Skips: ninja/ccache/sccache (not installed). Controlled-runtime not claimed.
-- Ablations: candidate LIMIT cheap; lazy decode kept; Fast vs Strict ~1 ms guard; auto admission skips short ETL but caches transform; Phase F staging still helps large CAS vs Phase E tip.
-- Store: `docs/phase-g-evaluation.md`. Raw: `benchmarks/results/phase_g/`.
+- Part XVIII technical report, README, claims ledger, FOCUS materials, completion report.
+- Docs/finalize only; no safety weakening.
 
 ## Known limitations
 
-- Multi-output restore is pathname-visible under hard kill (not crash-atomic / not inode-preserving).
-- seccomp+Landlock ≠ full execution equivalence (validate→restore TOCTOU remains).
-- Certificate verification re-samples the same mutable filesystem as the hit path.
-- Stdin OFD aliases use device/inode/position when `kcmp` is unavailable (conservative).
-- Short-command floor remains; process_startup phase timer is coarse on this host.
+- Multi-output restore pathname-visible under hard kill (not crash-atomic / not inode-preserving).
+- Validate→restore TOCTOU remains; certificates are not full proofs.
+- Short-command floor; large restore+hash can lose to direct copy.
+- Controlled-runtime and epoll/retrieval research stay off main.
 
 ## Validation
 
