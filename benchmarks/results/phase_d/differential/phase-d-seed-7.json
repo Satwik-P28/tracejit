@@ -1,0 +1,3149 @@
+{
+  "seed": 7,
+  "contract": "allocator-entropy-v1",
+  "harness": "phase_d",
+  "cases": [
+    {
+      "case": "sed",
+      "seed": 7,
+      "classification": "Guarded",
+      "first_decision": "Executed",
+      "warm_decision": "Executed",
+      "discover_matches_native": true,
+      "warm_matches_native": true,
+      "reused": false,
+      "native": {
+        "stdout_sha256": "b74964a9c2de0ed298eb4c3d67c09ed91a2e90fe8956e5aedb10da9b099e9e85",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "discover": {
+        "stdout_sha256": "b74964a9c2de0ed298eb4c3d67c09ed91a2e90fe8956e5aedb10da9b099e9e85",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "warm": {
+        "stdout_sha256": "b74964a9c2de0ed298eb4c3d67c09ed91a2e90fe8956e5aedb10da9b099e9e85",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "native_after": {
+        "stdout_sha256": "b74964a9c2de0ed298eb4c3d67c09ed91a2e90fe8956e5aedb10da9b099e9e85",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "wc",
+      "seed": 7,
+      "classification": "Guarded",
+      "first_decision": "Executed",
+      "warm_decision": "Executed",
+      "discover_matches_native": true,
+      "warm_matches_native": true,
+      "reused": false,
+      "native": {
+        "stdout_sha256": "3043f848081b3dc4e2e2cf3f83ceee6c4ecdc1eb0fa6ebf28824791a5eeebf82",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "discover": {
+        "stdout_sha256": "3043f848081b3dc4e2e2cf3f83ceee6c4ecdc1eb0fa6ebf28824791a5eeebf82",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "warm": {
+        "stdout_sha256": "3043f848081b3dc4e2e2cf3f83ceee6c4ecdc1eb0fa6ebf28824791a5eeebf82",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "native_after": {
+        "stdout_sha256": "3043f848081b3dc4e2e2cf3f83ceee6c4ecdc1eb0fa6ebf28824791a5eeebf82",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- wc -c input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "md5sum",
+      "seed": 7,
+      "classification": "Guarded",
+      "first_decision": "Executed",
+      "warm_decision": "Executed",
+      "discover_matches_native": true,
+      "warm_matches_native": true,
+      "reused": false,
+      "native": {
+        "stdout_sha256": "249fed6ac62ca98aadc528bba7ddd8d93822375483409e42b436b9bd9fe12ad3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "discover": {
+        "stdout_sha256": "249fed6ac62ca98aadc528bba7ddd8d93822375483409e42b436b9bd9fe12ad3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "warm": {
+        "stdout_sha256": "249fed6ac62ca98aadc528bba7ddd8d93822375483409e42b436b9bd9fe12ad3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "native_after": {
+        "stdout_sha256": "249fed6ac62ca98aadc528bba7ddd8d93822375483409e42b436b9bd9fe12ad3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- md5sum input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "gzip",
+      "seed": 7,
+      "classification": "Guarded",
+      "first_decision": "Executed",
+      "warm_decision": "Executed",
+      "discover_matches_native": true,
+      "warm_matches_native": true,
+      "reused": false,
+      "native": {
+        "stdout_sha256": "8f41ab8c2dcc059443fdebfe3f788cbfd562cb715bdf0ffb27ef7d14153793d2",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "discover": {
+        "stdout_sha256": "8f41ab8c2dcc059443fdebfe3f788cbfd562cb715bdf0ffb27ef7d14153793d2",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "warm": {
+        "stdout_sha256": "8f41ab8c2dcc059443fdebfe3f788cbfd562cb715bdf0ffb27ef7d14153793d2",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "native_after": {
+        "stdout_sha256": "8f41ab8c2dcc059443fdebfe3f788cbfd562cb715bdf0ffb27ef7d14153793d2",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- gzip -9 -c input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "base64",
+      "seed": 7,
+      "classification": "Guarded",
+      "first_decision": "Executed",
+      "warm_decision": "Executed",
+      "discover_matches_native": true,
+      "warm_matches_native": true,
+      "reused": false,
+      "native": {
+        "stdout_sha256": "e0e21e2a51f35ee4c274b78f35675e7071b4fc5b4ee77b4c7fbb63ba02f62773",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "discover": {
+        "stdout_sha256": "e0e21e2a51f35ee4c274b78f35675e7071b4fc5b4ee77b4c7fbb63ba02f62773",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "warm": {
+        "stdout_sha256": "e0e21e2a51f35ee4c274b78f35675e7071b4fc5b4ee77b4c7fbb63ba02f62773",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "native_after": {
+        "stdout_sha256": "e0e21e2a51f35ee4c274b78f35675e7071b4fc5b4ee77b4c7fbb63ba02f62773",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- base64 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "tr",
+      "seed": 7,
+      "classification": "Unknown",
+      "first_decision": "Ineligible",
+      "warm_decision": "Ineligible",
+      "discover_matches_native": true,
+      "warm_matches_native": true,
+      "reused": false,
+      "native": {
+        "stdout_sha256": "ca3abbca7fa4277eb9b063c130d2297a4cd528fdce0dd2cbf32072fa010b8286",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "discover": {
+        "stdout_sha256": "ca3abbca7fa4277eb9b063c130d2297a4cd528fdce0dd2cbf32072fa010b8286",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "warm": {
+        "stdout_sha256": "ca3abbca7fa4277eb9b063c130d2297a4cd528fdce0dd2cbf32072fa010b8286",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "native_after": {
+        "stdout_sha256": "ca3abbca7fa4277eb9b063c130d2297a4cd528fdce0dd2cbf32072fa010b8286",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- tr a-z A-Z",
+      "status": "ok"
+    },
+    {
+      "case": "sed-sub",
+      "seed": 7,
+      "classification": "Guarded",
+      "first_decision": "Executed",
+      "warm_decision": "Executed",
+      "discover_matches_native": true,
+      "warm_matches_native": true,
+      "reused": false,
+      "native": {
+        "stdout_sha256": "c0c312f67c6e21c8ba2d5bed9d13b234b05c0efdb54d06af3d962e84130056a4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "discover": {
+        "stdout_sha256": "c0c312f67c6e21c8ba2d5bed9d13b234b05c0efdb54d06af3d962e84130056a4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "warm": {
+        "stdout_sha256": "c0c312f67c6e21c8ba2d5bed9d13b234b05c0efdb54d06af3d962e84130056a4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "native_after": {
+        "stdout_sha256": "c0c312f67c6e21c8ba2d5bed9d13b234b05c0efdb54d06af3d962e84130056a4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g sub/input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "cat",
+      "seed": 7,
+      "classification": "Guarded",
+      "first_decision": "Executed",
+      "warm_decision": "Executed",
+      "discover_matches_native": true,
+      "warm_matches_native": true,
+      "reused": false,
+      "native": {
+        "stdout_sha256": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "discover": {
+        "stdout_sha256": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "warm": {
+        "stdout_sha256": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "native_after": {
+        "stdout_sha256": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cat input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "head",
+      "seed": 7,
+      "classification": "Guarded",
+      "first_decision": "Executed",
+      "warm_decision": "Executed",
+      "discover_matches_native": true,
+      "warm_matches_native": true,
+      "reused": false,
+      "native": {
+        "stdout_sha256": "df390c3e225ae12e4ba271bb7071aee63297a9e34ad443831a6ee221b3f423ff",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "discover": {
+        "stdout_sha256": "df390c3e225ae12e4ba271bb7071aee63297a9e34ad443831a6ee221b3f423ff",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "warm": {
+        "stdout_sha256": "df390c3e225ae12e4ba271bb7071aee63297a9e34ad443831a6ee221b3f423ff",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "native_after": {
+        "stdout_sha256": "df390c3e225ae12e4ba271bb7071aee63297a9e34ad443831a6ee221b3f423ff",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- head -c 1000 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "cut",
+      "seed": 7,
+      "classification": "Guarded",
+      "first_decision": "Executed",
+      "warm_decision": "Executed",
+      "discover_matches_native": true,
+      "warm_matches_native": true,
+      "reused": false,
+      "native": {
+        "stdout_sha256": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "discover": {
+        "stdout_sha256": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "warm": {
+        "stdout_sha256": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "native_after": {
+        "stdout_sha256": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cut -d   -f1 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "bzip2-file",
+      "seed": 7,
+      "classification": "Guarded",
+      "first_decision": "Executed",
+      "warm_decision": "Executed",
+      "discover_matches_native": true,
+      "warm_matches_native": true,
+      "reused": false,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "input.txt.bz2": "a3cf72201187695eb0717078ec637d09b8bd15368539392a4e4c768c0f2857d1"
+        }
+      },
+      "discover": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "input.txt.bz2": "a3cf72201187695eb0717078ec637d09b8bd15368539392a4e4c768c0f2857d1"
+        }
+      },
+      "warm": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "input.txt.bz2": "a3cf72201187695eb0717078ec637d09b8bd15368539392a4e4c768c0f2857d1"
+        }
+      },
+      "native_after": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "input.txt.bz2": "a3cf72201187695eb0717078ec637d09b8bd15368539392a4e4c768c0f2857d1"
+        }
+      },
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- bzip2 -k -f input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "cp-out",
+      "seed": 7,
+      "classification": "Unknown",
+      "first_decision": "Ineligible",
+      "warm_decision": "Ineligible",
+      "discover_matches_native": true,
+      "warm_matches_native": true,
+      "reused": false,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "copied.txt": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df"
+        }
+      },
+      "discover": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "copied.txt": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df"
+        }
+      },
+      "warm": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "copied.txt": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df"
+        }
+      },
+      "native_after": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "copied.txt": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df"
+        }
+      },
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cp input.txt copied.txt",
+      "status": "ok"
+    },
+    {
+      "case": "env:sed",
+      "mutation": "env",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "b74964a9c2de0ed298eb4c3d67c09ed91a2e90fe8956e5aedb10da9b099e9e85",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "b74964a9c2de0ed298eb4c3d67c09ed91a2e90fe8956e5aedb10da9b099e9e85",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "env:wc",
+      "mutation": "env",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "3043f848081b3dc4e2e2cf3f83ceee6c4ecdc1eb0fa6ebf28824791a5eeebf82",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "3043f848081b3dc4e2e2cf3f83ceee6c4ecdc1eb0fa6ebf28824791a5eeebf82",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- wc -c input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "env:md5sum",
+      "mutation": "env",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "249fed6ac62ca98aadc528bba7ddd8d93822375483409e42b436b9bd9fe12ad3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "249fed6ac62ca98aadc528bba7ddd8d93822375483409e42b436b9bd9fe12ad3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- md5sum input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "env:gzip",
+      "mutation": "env",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "8f41ab8c2dcc059443fdebfe3f788cbfd562cb715bdf0ffb27ef7d14153793d2",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "8f41ab8c2dcc059443fdebfe3f788cbfd562cb715bdf0ffb27ef7d14153793d2",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- gzip -9 -c input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "env:base64",
+      "mutation": "env",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e0e21e2a51f35ee4c274b78f35675e7071b4fc5b4ee77b4c7fbb63ba02f62773",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "e0e21e2a51f35ee4c274b78f35675e7071b4fc5b4ee77b4c7fbb63ba02f62773",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- base64 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "env:tr",
+      "mutation": "env",
+      "decision": "Ineligible",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "ca3abbca7fa4277eb9b063c130d2297a4cd528fdce0dd2cbf32072fa010b8286",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "ca3abbca7fa4277eb9b063c130d2297a4cd528fdce0dd2cbf32072fa010b8286",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- tr a-z A-Z",
+      "status": "ok"
+    },
+    {
+      "case": "env:sed-sub",
+      "mutation": "env",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "c0c312f67c6e21c8ba2d5bed9d13b234b05c0efdb54d06af3d962e84130056a4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "c0c312f67c6e21c8ba2d5bed9d13b234b05c0efdb54d06af3d962e84130056a4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g sub/input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "env:cat",
+      "mutation": "env",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cat input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "env:head",
+      "mutation": "env",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "df390c3e225ae12e4ba271bb7071aee63297a9e34ad443831a6ee221b3f423ff",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "df390c3e225ae12e4ba271bb7071aee63297a9e34ad443831a6ee221b3f423ff",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- head -c 1000 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "env:cut",
+      "mutation": "env",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cut -d   -f1 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "env:bzip2-file",
+      "mutation": "env",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "input.txt.bz2": "a3cf72201187695eb0717078ec637d09b8bd15368539392a4e4c768c0f2857d1"
+        }
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "input.txt.bz2": "a3cf72201187695eb0717078ec637d09b8bd15368539392a4e4c768c0f2857d1"
+        }
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- bzip2 -k -f input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "env:cp-out",
+      "mutation": "env",
+      "decision": "Ineligible",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "copied.txt": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df"
+        }
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "copied.txt": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df"
+        }
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cp input.txt copied.txt",
+      "status": "ok"
+    },
+    {
+      "case": "content:sed",
+      "mutation": "content",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "27309b20f5f682d7d2ca574f040a051da9a4f415a7061ea39a48c694735094c0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "27309b20f5f682d7d2ca574f040a051da9a4f415a7061ea39a48c694735094c0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "content:wc",
+      "mutation": "content",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "6bb7835465f20223e8b720eec3757f842c1ed494edce9013792ef2fe90382c10",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "6bb7835465f20223e8b720eec3757f842c1ed494edce9013792ef2fe90382c10",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- wc -c input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "content:md5sum",
+      "mutation": "content",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "772ada5640c693879c353a531debe60775342e0875dec01bd349aa8b7c97623c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "772ada5640c693879c353a531debe60775342e0875dec01bd349aa8b7c97623c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- md5sum input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "content:gzip",
+      "mutation": "content",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "c465ec53fb3fe1580428a8e87de5d8cd9bdcdcbac720fb97f39abf49a9b1c032",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "c465ec53fb3fe1580428a8e87de5d8cd9bdcdcbac720fb97f39abf49a9b1c032",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- gzip -9 -c input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "content:base64",
+      "mutation": "content",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "56f22adcc10f283cbd0b27e136ea8762a7b73ac47d3653d2447f7fe81236fa3f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "56f22adcc10f283cbd0b27e136ea8762a7b73ac47d3653d2447f7fe81236fa3f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- base64 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "content:tr",
+      "mutation": "content",
+      "decision": "Ineligible",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "ca3abbca7fa4277eb9b063c130d2297a4cd528fdce0dd2cbf32072fa010b8286",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "ca3abbca7fa4277eb9b063c130d2297a4cd528fdce0dd2cbf32072fa010b8286",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- tr a-z A-Z",
+      "status": "ok"
+    },
+    {
+      "case": "content:sed-sub",
+      "mutation": "content",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "c0c312f67c6e21c8ba2d5bed9d13b234b05c0efdb54d06af3d962e84130056a4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "c0c312f67c6e21c8ba2d5bed9d13b234b05c0efdb54d06af3d962e84130056a4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g sub/input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "content:cat",
+      "mutation": "content",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "dd4e17bb2eaa9f09a2aa80e449cadf1f6f3dc04d9a134f2590cb94ba3f2b0d8a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "dd4e17bb2eaa9f09a2aa80e449cadf1f6f3dc04d9a134f2590cb94ba3f2b0d8a",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cat input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "content:head",
+      "mutation": "content",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "6b42a8edc8b1b76cb6e3df12b51b1749c0b620424c564763c4bf8dd5b217bbe0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "6b42a8edc8b1b76cb6e3df12b51b1749c0b620424c564763c4bf8dd5b217bbe0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- head -c 1000 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "content:cut",
+      "mutation": "content",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "108e590dc064baa19496ddbaedbc9d20b6b0db60415cbe6c9f8c7500fad030b3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "108e590dc064baa19496ddbaedbc9d20b6b0db60415cbe6c9f8c7500fad030b3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cut -d   -f1 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "content:bzip2-file",
+      "mutation": "content",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "input.txt.bz2": "57a4a90355e31a127283b4e143ac695a55d0e3638686c52b03a7814785c03879"
+        }
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "input.txt.bz2": "57a4a90355e31a127283b4e143ac695a55d0e3638686c52b03a7814785c03879"
+        }
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- bzip2 -k -f input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "content:cp-out",
+      "mutation": "content",
+      "decision": "Ineligible",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "copied.txt": "69276e86150d1e683a6b8a20167f42e4b5d2c116395f96d848eb96543af48525"
+        }
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "copied.txt": "69276e86150d1e683a6b8a20167f42e4b5d2c116395f96d848eb96543af48525"
+        }
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cp input.txt copied.txt",
+      "status": "ok"
+    },
+    {
+      "case": "mtime:sed",
+      "mutation": "mtime",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "b74964a9c2de0ed298eb4c3d67c09ed91a2e90fe8956e5aedb10da9b099e9e85",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "b74964a9c2de0ed298eb4c3d67c09ed91a2e90fe8956e5aedb10da9b099e9e85",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "mtime:wc",
+      "mutation": "mtime",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "3043f848081b3dc4e2e2cf3f83ceee6c4ecdc1eb0fa6ebf28824791a5eeebf82",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "3043f848081b3dc4e2e2cf3f83ceee6c4ecdc1eb0fa6ebf28824791a5eeebf82",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- wc -c input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "mtime:md5sum",
+      "mutation": "mtime",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "249fed6ac62ca98aadc528bba7ddd8d93822375483409e42b436b9bd9fe12ad3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "249fed6ac62ca98aadc528bba7ddd8d93822375483409e42b436b9bd9fe12ad3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- md5sum input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "mtime:gzip",
+      "mutation": "mtime",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "7a4721c14ed6f9ba323423d974cba924d394a5ac65d23ac2eb078466052a4b48",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "7a4721c14ed6f9ba323423d974cba924d394a5ac65d23ac2eb078466052a4b48",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- gzip -9 -c input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "mtime:base64",
+      "mutation": "mtime",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e0e21e2a51f35ee4c274b78f35675e7071b4fc5b4ee77b4c7fbb63ba02f62773",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "e0e21e2a51f35ee4c274b78f35675e7071b4fc5b4ee77b4c7fbb63ba02f62773",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- base64 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "mtime:tr",
+      "mutation": "mtime",
+      "decision": "Ineligible",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "ca3abbca7fa4277eb9b063c130d2297a4cd528fdce0dd2cbf32072fa010b8286",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "ca3abbca7fa4277eb9b063c130d2297a4cd528fdce0dd2cbf32072fa010b8286",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- tr a-z A-Z",
+      "status": "ok"
+    },
+    {
+      "case": "mtime:sed-sub",
+      "mutation": "mtime",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "c0c312f67c6e21c8ba2d5bed9d13b234b05c0efdb54d06af3d962e84130056a4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "c0c312f67c6e21c8ba2d5bed9d13b234b05c0efdb54d06af3d962e84130056a4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g sub/input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "mtime:cat",
+      "mutation": "mtime",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cat input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "mtime:head",
+      "mutation": "mtime",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "df390c3e225ae12e4ba271bb7071aee63297a9e34ad443831a6ee221b3f423ff",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "df390c3e225ae12e4ba271bb7071aee63297a9e34ad443831a6ee221b3f423ff",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- head -c 1000 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "mtime:cut",
+      "mutation": "mtime",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cut -d   -f1 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "mtime:bzip2-file",
+      "mutation": "mtime",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "input.txt.bz2": "a3cf72201187695eb0717078ec637d09b8bd15368539392a4e4c768c0f2857d1"
+        }
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "input.txt.bz2": "a3cf72201187695eb0717078ec637d09b8bd15368539392a4e4c768c0f2857d1"
+        }
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- bzip2 -k -f input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "mtime:cp-out",
+      "mutation": "mtime",
+      "decision": "Ineligible",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "copied.txt": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df"
+        }
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "copied.txt": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df"
+        }
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cp input.txt copied.txt",
+      "status": "ok"
+    },
+    {
+      "case": "permissions:sed",
+      "mutation": "permissions",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "b74964a9c2de0ed298eb4c3d67c09ed91a2e90fe8956e5aedb10da9b099e9e85",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "b74964a9c2de0ed298eb4c3d67c09ed91a2e90fe8956e5aedb10da9b099e9e85",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "permissions:wc",
+      "mutation": "permissions",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "3043f848081b3dc4e2e2cf3f83ceee6c4ecdc1eb0fa6ebf28824791a5eeebf82",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "3043f848081b3dc4e2e2cf3f83ceee6c4ecdc1eb0fa6ebf28824791a5eeebf82",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- wc -c input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "permissions:md5sum",
+      "mutation": "permissions",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "249fed6ac62ca98aadc528bba7ddd8d93822375483409e42b436b9bd9fe12ad3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "249fed6ac62ca98aadc528bba7ddd8d93822375483409e42b436b9bd9fe12ad3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- md5sum input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "permissions:gzip",
+      "mutation": "permissions",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "40eb1ddf273a075e7770abc88c58602a87494bcc79eb02a1cffa549737164ca1",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "40eb1ddf273a075e7770abc88c58602a87494bcc79eb02a1cffa549737164ca1",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- gzip -9 -c input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "permissions:base64",
+      "mutation": "permissions",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e0e21e2a51f35ee4c274b78f35675e7071b4fc5b4ee77b4c7fbb63ba02f62773",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "e0e21e2a51f35ee4c274b78f35675e7071b4fc5b4ee77b4c7fbb63ba02f62773",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- base64 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "permissions:tr",
+      "mutation": "permissions",
+      "decision": "Ineligible",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "ca3abbca7fa4277eb9b063c130d2297a4cd528fdce0dd2cbf32072fa010b8286",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "ca3abbca7fa4277eb9b063c130d2297a4cd528fdce0dd2cbf32072fa010b8286",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- tr a-z A-Z",
+      "status": "ok"
+    },
+    {
+      "case": "permissions:sed-sub",
+      "mutation": "permissions",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "c0c312f67c6e21c8ba2d5bed9d13b234b05c0efdb54d06af3d962e84130056a4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "c0c312f67c6e21c8ba2d5bed9d13b234b05c0efdb54d06af3d962e84130056a4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g sub/input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "permissions:cat",
+      "mutation": "permissions",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cat input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "permissions:head",
+      "mutation": "permissions",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "df390c3e225ae12e4ba271bb7071aee63297a9e34ad443831a6ee221b3f423ff",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "df390c3e225ae12e4ba271bb7071aee63297a9e34ad443831a6ee221b3f423ff",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- head -c 1000 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "permissions:cut",
+      "mutation": "permissions",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cut -d   -f1 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "permissions:bzip2-file",
+      "mutation": "permissions",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "input.txt.bz2": "a3cf72201187695eb0717078ec637d09b8bd15368539392a4e4c768c0f2857d1"
+        }
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "input.txt.bz2": "a3cf72201187695eb0717078ec637d09b8bd15368539392a4e4c768c0f2857d1"
+        }
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- bzip2 -k -f input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "permissions:cp-out",
+      "mutation": "permissions",
+      "decision": "Ineligible",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "copied.txt": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df"
+        }
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "copied.txt": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df"
+        }
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cp input.txt copied.txt",
+      "status": "ok"
+    },
+    {
+      "case": "symlink:sed",
+      "mutation": "symlink",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "b74964a9c2de0ed298eb4c3d67c09ed91a2e90fe8956e5aedb10da9b099e9e85",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "b74964a9c2de0ed298eb4c3d67c09ed91a2e90fe8956e5aedb10da9b099e9e85",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "symlink:wc",
+      "mutation": "symlink",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "3043f848081b3dc4e2e2cf3f83ceee6c4ecdc1eb0fa6ebf28824791a5eeebf82",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "3043f848081b3dc4e2e2cf3f83ceee6c4ecdc1eb0fa6ebf28824791a5eeebf82",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- wc -c input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "symlink:md5sum",
+      "mutation": "symlink",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "249fed6ac62ca98aadc528bba7ddd8d93822375483409e42b436b9bd9fe12ad3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "249fed6ac62ca98aadc528bba7ddd8d93822375483409e42b436b9bd9fe12ad3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- md5sum input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "symlink:gzip",
+      "mutation": "symlink",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "40eb1ddf273a075e7770abc88c58602a87494bcc79eb02a1cffa549737164ca1",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "40eb1ddf273a075e7770abc88c58602a87494bcc79eb02a1cffa549737164ca1",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- gzip -9 -c input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "symlink:base64",
+      "mutation": "symlink",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e0e21e2a51f35ee4c274b78f35675e7071b4fc5b4ee77b4c7fbb63ba02f62773",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "e0e21e2a51f35ee4c274b78f35675e7071b4fc5b4ee77b4c7fbb63ba02f62773",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- base64 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "symlink:tr",
+      "mutation": "symlink",
+      "decision": "Ineligible",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "ca3abbca7fa4277eb9b063c130d2297a4cd528fdce0dd2cbf32072fa010b8286",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "ca3abbca7fa4277eb9b063c130d2297a4cd528fdce0dd2cbf32072fa010b8286",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- tr a-z A-Z",
+      "status": "ok"
+    },
+    {
+      "case": "symlink:sed-sub",
+      "mutation": "symlink",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "c0c312f67c6e21c8ba2d5bed9d13b234b05c0efdb54d06af3d962e84130056a4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "c0c312f67c6e21c8ba2d5bed9d13b234b05c0efdb54d06af3d962e84130056a4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g sub/input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "symlink:cat",
+      "mutation": "symlink",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cat input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "symlink:head",
+      "mutation": "symlink",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "df390c3e225ae12e4ba271bb7071aee63297a9e34ad443831a6ee221b3f423ff",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "df390c3e225ae12e4ba271bb7071aee63297a9e34ad443831a6ee221b3f423ff",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- head -c 1000 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "symlink:cut",
+      "mutation": "symlink",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cut -d   -f1 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "symlink:bzip2-file",
+      "mutation": "symlink",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "input.txt.bz2": "a3cf72201187695eb0717078ec637d09b8bd15368539392a4e4c768c0f2857d1"
+        }
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "input.txt.bz2": "a3cf72201187695eb0717078ec637d09b8bd15368539392a4e4c768c0f2857d1"
+        }
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- bzip2 -k -f input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "symlink:cp-out",
+      "mutation": "symlink",
+      "decision": "Ineligible",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "copied.txt": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df"
+        }
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "copied.txt": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df"
+        }
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cp input.txt copied.txt",
+      "status": "ok"
+    },
+    {
+      "case": "hardlink_swap:sed",
+      "mutation": "hardlink_swap",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "0713be7fef024152d4655287b3d6cff9f2480843414ed7bc8d82b5e211b31f1f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "0713be7fef024152d4655287b3d6cff9f2480843414ed7bc8d82b5e211b31f1f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "hardlink_swap:wc",
+      "mutation": "hardlink_swap",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "3efa83961d88c88ae151e613c303c79e3f39f2a8e3aee81892a89074bbbcefac",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "3efa83961d88c88ae151e613c303c79e3f39f2a8e3aee81892a89074bbbcefac",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- wc -c input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "hardlink_swap:md5sum",
+      "mutation": "hardlink_swap",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "d5213cf85307892f660657ed624c073df1bd8bcc3da595d6be095b4ffca023c5",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "d5213cf85307892f660657ed624c073df1bd8bcc3da595d6be095b4ffca023c5",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- md5sum input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "hardlink_swap:gzip",
+      "mutation": "hardlink_swap",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "992e0f8511b7dc4edf78b8f9aa5c4718416b751efc7deb3d0ae862d564fc1484",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "992e0f8511b7dc4edf78b8f9aa5c4718416b751efc7deb3d0ae862d564fc1484",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- gzip -9 -c input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "hardlink_swap:base64",
+      "mutation": "hardlink_swap",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "dfa4d3429325f09546160d98d7cb7481d8718348a5881c92fc4ce627f889108d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "dfa4d3429325f09546160d98d7cb7481d8718348a5881c92fc4ce627f889108d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- base64 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "hardlink_swap:tr",
+      "mutation": "hardlink_swap",
+      "decision": "Ineligible",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "ca3abbca7fa4277eb9b063c130d2297a4cd528fdce0dd2cbf32072fa010b8286",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "ca3abbca7fa4277eb9b063c130d2297a4cd528fdce0dd2cbf32072fa010b8286",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- tr a-z A-Z",
+      "status": "ok"
+    },
+    {
+      "case": "hardlink_swap:sed-sub",
+      "mutation": "hardlink_swap",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "c0c312f67c6e21c8ba2d5bed9d13b234b05c0efdb54d06af3d962e84130056a4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "c0c312f67c6e21c8ba2d5bed9d13b234b05c0efdb54d06af3d962e84130056a4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g sub/input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "hardlink_swap:cat",
+      "mutation": "hardlink_swap",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "0713be7fef024152d4655287b3d6cff9f2480843414ed7bc8d82b5e211b31f1f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "0713be7fef024152d4655287b3d6cff9f2480843414ed7bc8d82b5e211b31f1f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cat input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "hardlink_swap:head",
+      "mutation": "hardlink_swap",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "da3fe18f15e01c0f5a92a538b481e8de27fecd4c4c2f7e778ca7e6bd5a48a174",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "da3fe18f15e01c0f5a92a538b481e8de27fecd4c4c2f7e778ca7e6bd5a48a174",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- head -c 1000 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "hardlink_swap:cut",
+      "mutation": "hardlink_swap",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "d99f2cb4442f0e1091ac7183f5defb885eddfc8ad53f89337404c83e5635b378",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "d99f2cb4442f0e1091ac7183f5defb885eddfc8ad53f89337404c83e5635b378",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cut -d   -f1 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "hardlink_swap:bzip2-file",
+      "mutation": "hardlink_swap",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "input.txt.bz2": "afcfdacf108c63b46a28888ff9df85b7953bb10cfa3ea6a4eda4fe08a51b5cf3"
+        }
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "input.txt.bz2": "afcfdacf108c63b46a28888ff9df85b7953bb10cfa3ea6a4eda4fe08a51b5cf3"
+        }
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- bzip2 -k -f input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "hardlink_swap:cp-out",
+      "mutation": "hardlink_swap",
+      "decision": "Ineligible",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "copied.txt": "0713be7fef024152d4655287b3d6cff9f2480843414ed7bc8d82b5e211b31f1f"
+        }
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "copied.txt": "0713be7fef024152d4655287b3d6cff9f2480843414ed7bc8d82b5e211b31f1f"
+        }
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cp input.txt copied.txt",
+      "status": "ok"
+    },
+    {
+      "case": "truncate:sed",
+      "mutation": "truncate",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "d5f479edc8118ca0d8d8f9a78fa09a8dc62e6c457c97e454fcf513514f08f07c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "d5f479edc8118ca0d8d8f9a78fa09a8dc62e6c457c97e454fcf513514f08f07c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "truncate:wc",
+      "mutation": "truncate",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "43a0fa410ae8bcf959cdc6b2350bb31b4cf8c2e6f1a6709eed932008a003d900",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "43a0fa410ae8bcf959cdc6b2350bb31b4cf8c2e6f1a6709eed932008a003d900",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- wc -c input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "truncate:md5sum",
+      "mutation": "truncate",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "42ccd919ab6bf900bc4c30392230f533baf69a3f3b56f4a8b8f998b1a578fd60",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "42ccd919ab6bf900bc4c30392230f533baf69a3f3b56f4a8b8f998b1a578fd60",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- md5sum input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "truncate:gzip",
+      "mutation": "truncate",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "d7f4520318f784030c94774ac37a4687f2deed089cf93eed43a21076da402b4f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "d7f4520318f784030c94774ac37a4687f2deed089cf93eed43a21076da402b4f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- gzip -9 -c input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "truncate:base64",
+      "mutation": "truncate",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "eb39520929fd3bb0e1cfd588145648aaaa315ba2b967c219c00ed39f0d437be4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "eb39520929fd3bb0e1cfd588145648aaaa315ba2b967c219c00ed39f0d437be4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- base64 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "truncate:tr",
+      "mutation": "truncate",
+      "decision": "Ineligible",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "ca3abbca7fa4277eb9b063c130d2297a4cd528fdce0dd2cbf32072fa010b8286",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "ca3abbca7fa4277eb9b063c130d2297a4cd528fdce0dd2cbf32072fa010b8286",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- tr a-z A-Z",
+      "status": "ok"
+    },
+    {
+      "case": "truncate:sed-sub",
+      "mutation": "truncate",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "c0c312f67c6e21c8ba2d5bed9d13b234b05c0efdb54d06af3d962e84130056a4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "c0c312f67c6e21c8ba2d5bed9d13b234b05c0efdb54d06af3d962e84130056a4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g sub/input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "truncate:cat",
+      "mutation": "truncate",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "d5f479edc8118ca0d8d8f9a78fa09a8dc62e6c457c97e454fcf513514f08f07c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "d5f479edc8118ca0d8d8f9a78fa09a8dc62e6c457c97e454fcf513514f08f07c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cat input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "truncate:head",
+      "mutation": "truncate",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "d5f479edc8118ca0d8d8f9a78fa09a8dc62e6c457c97e454fcf513514f08f07c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "d5f479edc8118ca0d8d8f9a78fa09a8dc62e6c457c97e454fcf513514f08f07c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- head -c 1000 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "truncate:cut",
+      "mutation": "truncate",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "d5f479edc8118ca0d8d8f9a78fa09a8dc62e6c457c97e454fcf513514f08f07c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "d5f479edc8118ca0d8d8f9a78fa09a8dc62e6c457c97e454fcf513514f08f07c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cut -d   -f1 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "truncate:bzip2-file",
+      "mutation": "truncate",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "input.txt.bz2": "e55136495f884ec0a70910c4c14b2fc7b6b8277c65d39e37ba97b13a3e94a513"
+        }
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "input.txt.bz2": "e55136495f884ec0a70910c4c14b2fc7b6b8277c65d39e37ba97b13a3e94a513"
+        }
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- bzip2 -k -f input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "truncate:cp-out",
+      "mutation": "truncate",
+      "decision": "Ineligible",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "copied.txt": "d5f479edc8118ca0d8d8f9a78fa09a8dc62e6c457c97e454fcf513514f08f07c"
+        }
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "copied.txt": "d5f479edc8118ca0d8d8f9a78fa09a8dc62e6c457c97e454fcf513514f08f07c"
+        }
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cp input.txt copied.txt",
+      "status": "ok"
+    },
+    {
+      "case": "append:sed",
+      "mutation": "append",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "0bb837bd91b046927f99629087437c07bb96dcea7c29b109036f108ad3a80c68",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "0bb837bd91b046927f99629087437c07bb96dcea7c29b109036f108ad3a80c68",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "append:wc",
+      "mutation": "append",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "b6aa636766f126e15e485094684acdc083f60116f098f0f7e92a8ceb3bd94666",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "b6aa636766f126e15e485094684acdc083f60116f098f0f7e92a8ceb3bd94666",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- wc -c input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "append:md5sum",
+      "mutation": "append",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "dce03b981912ff1dfe67dbeefcecb947db74560ed1c7f20fbee8c4b85c5fe616",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "dce03b981912ff1dfe67dbeefcecb947db74560ed1c7f20fbee8c4b85c5fe616",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- md5sum input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "append:gzip",
+      "mutation": "append",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "9f85c7f0e7113c14fee88e54b14ea84684105cd591f89c2b273f380ab3c76ced",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "9f85c7f0e7113c14fee88e54b14ea84684105cd591f89c2b273f380ab3c76ced",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- gzip -9 -c input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "append:base64",
+      "mutation": "append",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "48ccfd89b111190a9386ca565e5d5748b71882d252077d99492ef8e7cbc5ecab",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "48ccfd89b111190a9386ca565e5d5748b71882d252077d99492ef8e7cbc5ecab",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- base64 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "append:tr",
+      "mutation": "append",
+      "decision": "Ineligible",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "ca3abbca7fa4277eb9b063c130d2297a4cd528fdce0dd2cbf32072fa010b8286",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "ca3abbca7fa4277eb9b063c130d2297a4cd528fdce0dd2cbf32072fa010b8286",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- tr a-z A-Z",
+      "status": "ok"
+    },
+    {
+      "case": "append:sed-sub",
+      "mutation": "append",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "c0c312f67c6e21c8ba2d5bed9d13b234b05c0efdb54d06af3d962e84130056a4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "c0c312f67c6e21c8ba2d5bed9d13b234b05c0efdb54d06af3d962e84130056a4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g sub/input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "append:cat",
+      "mutation": "append",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "d1f4dea1b2e51d98293c05771bbcfc1c9c361aca09911b22efc496783508708f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "d1f4dea1b2e51d98293c05771bbcfc1c9c361aca09911b22efc496783508708f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cat input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "append:head",
+      "mutation": "append",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "df390c3e225ae12e4ba271bb7071aee63297a9e34ad443831a6ee221b3f423ff",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "df390c3e225ae12e4ba271bb7071aee63297a9e34ad443831a6ee221b3f423ff",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- head -c 1000 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "append:cut",
+      "mutation": "append",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "9c80f9685aa7c86ff31fdacd9e30cf39cf332e2245571947b1fb26ec018a200c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "9c80f9685aa7c86ff31fdacd9e30cf39cf332e2245571947b1fb26ec018a200c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cut -d   -f1 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "append:bzip2-file",
+      "mutation": "append",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "input.txt.bz2": "1799c91069b71274b4e28a5c79570f786a7d8123ce2e02aeac7a218d2ccc11bb"
+        }
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "input.txt.bz2": "1799c91069b71274b4e28a5c79570f786a7d8123ce2e02aeac7a218d2ccc11bb"
+        }
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- bzip2 -k -f input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "append:cp-out",
+      "mutation": "append",
+      "decision": "Ineligible",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "copied.txt": "6b854760cac4f758fc6dbcae43f8bdb7f7cb34df61baae25d5ced1b32a78fc8b"
+        }
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "copied.txt": "6b854760cac4f758fc6dbcae43f8bdb7f7cb34df61baae25d5ced1b32a78fc8b"
+        }
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cp input.txt copied.txt",
+      "status": "ok"
+    },
+    {
+      "case": "rename:sed",
+      "mutation": "rename",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "5ca4c40c12eef5397078469fd1fdecd670a6bf183893b44c8378737c105e182d",
+        "exit": 2,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "5ca4c40c12eef5397078469fd1fdecd670a6bf183893b44c8378737c105e182d",
+        "exit": 2,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "rename:wc",
+      "mutation": "rename",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "52e0576ec5febdf2f6cd9cbcf2a242d4506fe4957247c2b274953816c4150114",
+        "exit": 1,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "52e0576ec5febdf2f6cd9cbcf2a242d4506fe4957247c2b274953816c4150114",
+        "exit": 1,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- wc -c input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "rename:md5sum",
+      "mutation": "rename",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "c074a7c6e5cc7f9c2b953fc26ca85270539b03a031f5292f6902e3572b39d205",
+        "exit": 1,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "c074a7c6e5cc7f9c2b953fc26ca85270539b03a031f5292f6902e3572b39d205",
+        "exit": 1,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- md5sum input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "rename:gzip",
+      "mutation": "rename",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "73e455c6bef5b10274f5f02dba9a93184b10c6c846901127ffce2ff52fd35259",
+        "exit": 1,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "73e455c6bef5b10274f5f02dba9a93184b10c6c846901127ffce2ff52fd35259",
+        "exit": 1,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- gzip -9 -c input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "rename:base64",
+      "mutation": "rename",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "87b062b991f43267a35a6b12ec33966213e1879ffa98937d714e21697862f2c9",
+        "exit": 1,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "87b062b991f43267a35a6b12ec33966213e1879ffa98937d714e21697862f2c9",
+        "exit": 1,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- base64 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "rename:tr",
+      "mutation": "rename",
+      "decision": "Ineligible",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "ca3abbca7fa4277eb9b063c130d2297a4cd528fdce0dd2cbf32072fa010b8286",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "ca3abbca7fa4277eb9b063c130d2297a4cd528fdce0dd2cbf32072fa010b8286",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- tr a-z A-Z",
+      "status": "ok"
+    },
+    {
+      "case": "rename:sed-sub",
+      "mutation": "rename",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "c0c312f67c6e21c8ba2d5bed9d13b234b05c0efdb54d06af3d962e84130056a4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "c0c312f67c6e21c8ba2d5bed9d13b234b05c0efdb54d06af3d962e84130056a4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g sub/input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "rename:cat",
+      "mutation": "rename",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "65c8c731e6802112e22db186e1d49b22557931f50a83eb0a869531bb1857a472",
+        "exit": 1,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "65c8c731e6802112e22db186e1d49b22557931f50a83eb0a869531bb1857a472",
+        "exit": 1,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cat input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "rename:head",
+      "mutation": "rename",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "fdd8d53703b65903fb625029513bc02f72de6cf42692d4447b56a1d5eb39dd3e",
+        "exit": 1,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "fdd8d53703b65903fb625029513bc02f72de6cf42692d4447b56a1d5eb39dd3e",
+        "exit": 1,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- head -c 1000 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "rename:cut",
+      "mutation": "rename",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "1cfae5766471b8d6d01572ed093cea3a65ca90e329aa0d37ea7fbff23de00bff",
+        "exit": 1,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "1cfae5766471b8d6d01572ed093cea3a65ca90e329aa0d37ea7fbff23de00bff",
+        "exit": 1,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cut -d   -f1 input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "rename:bzip2-file",
+      "mutation": "rename",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "468e1d180086660351470f32f1bb764c6a7e3515d528ecdbaa297b60e51cf05a",
+        "exit": 1,
+        "outputs": {
+          "input.txt.bz2": null
+        }
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "468e1d180086660351470f32f1bb764c6a7e3515d528ecdbaa297b60e51cf05a",
+        "exit": 1,
+        "outputs": {
+          "input.txt.bz2": null
+        }
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- bzip2 -k -f input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "rename:cp-out",
+      "mutation": "rename",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "3b42cd4ea1192bb709d323d691a40805ba3b8acf09a9b57acd6af25456378bc1",
+        "exit": 1,
+        "outputs": {
+          "copied.txt": null
+        }
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "3b42cd4ea1192bb709d323d691a40805ba3b8acf09a9b57acd6af25456378bc1",
+        "exit": 1,
+        "outputs": {
+          "copied.txt": null
+        }
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cp input.txt copied.txt",
+      "status": "ok"
+    },
+    {
+      "case": "directory:sed",
+      "status": "skipped",
+      "seed": 7
+    },
+    {
+      "case": "directory:wc",
+      "status": "skipped",
+      "seed": 7
+    },
+    {
+      "case": "directory:md5sum",
+      "status": "skipped",
+      "seed": 7
+    },
+    {
+      "case": "directory:gzip",
+      "status": "skipped",
+      "seed": 7
+    },
+    {
+      "case": "directory:base64",
+      "status": "skipped",
+      "seed": 7
+    },
+    {
+      "case": "directory:tr",
+      "status": "skipped",
+      "seed": 7
+    },
+    {
+      "case": "directory:sed-sub",
+      "mutation": "directory",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "3b841eb19cc216b70068c7b3fb9e85146007ab6fcb51a9860c9adba913d1f6bc",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "3b841eb19cc216b70068c7b3fb9e85146007ab6fcb51a9860c9adba913d1f6bc",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g sub/input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "directory:cat",
+      "status": "skipped",
+      "seed": 7
+    },
+    {
+      "case": "directory:head",
+      "status": "skipped",
+      "seed": 7
+    },
+    {
+      "case": "directory:cut",
+      "status": "skipped",
+      "seed": 7
+    },
+    {
+      "case": "directory:bzip2-file",
+      "status": "skipped",
+      "seed": 7
+    },
+    {
+      "case": "directory:cp-out",
+      "status": "skipped",
+      "seed": 7
+    },
+    {
+      "case": "concurrent_writer:sed",
+      "mutation": "concurrent_writer",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "b74964a9c2de0ed298eb4c3d67c09ed91a2e90fe8956e5aedb10da9b099e9e85",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "ccc34fcf7253ec0c216b5d370d5fecbfa8bc045769d5b14ef8f0b122189e0cc7",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": false,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g input.txt",
+      "status": "refused-or-retraced"
+    },
+    {
+      "case": "concurrent_writer:wc",
+      "mutation": "concurrent_writer",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "3043f848081b3dc4e2e2cf3f83ceee6c4ecdc1eb0fa6ebf28824791a5eeebf82",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "2fdec6b78b545fbfb7e14d1cad15a17bbf4874945ea7539fe820ffc175af0de5",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": false,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- wc -c input.txt",
+      "status": "refused-or-retraced"
+    },
+    {
+      "case": "concurrent_writer:md5sum",
+      "mutation": "concurrent_writer",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "249fed6ac62ca98aadc528bba7ddd8d93822375483409e42b436b9bd9fe12ad3",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "638330c63aae490db41190811ef507c728950e61bf7c25a164a6e53e95563910",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": false,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- md5sum input.txt",
+      "status": "refused-or-retraced"
+    },
+    {
+      "case": "concurrent_writer:gzip",
+      "mutation": "concurrent_writer",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "87f926ac732c14733e9f6bdeefe2c9c97cf971a73da016e14f22813b190c6f41",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "87f926ac732c14733e9f6bdeefe2c9c97cf971a73da016e14f22813b190c6f41",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- gzip -9 -c input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "concurrent_writer:base64",
+      "mutation": "concurrent_writer",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e0e21e2a51f35ee4c274b78f35675e7071b4fc5b4ee77b4c7fbb63ba02f62773",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "8474c3d4abed0247cadcaa3371a2f2905d68cacab9026469c88a04aece4b0627",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": false,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- base64 input.txt",
+      "status": "refused-or-retraced"
+    },
+    {
+      "case": "concurrent_writer:tr",
+      "mutation": "concurrent_writer",
+      "decision": "Ineligible",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "ca3abbca7fa4277eb9b063c130d2297a4cd528fdce0dd2cbf32072fa010b8286",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "ca3abbca7fa4277eb9b063c130d2297a4cd528fdce0dd2cbf32072fa010b8286",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- tr a-z A-Z",
+      "status": "ok"
+    },
+    {
+      "case": "concurrent_writer:sed-sub",
+      "mutation": "concurrent_writer",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "c0c312f67c6e21c8ba2d5bed9d13b234b05c0efdb54d06af3d962e84130056a4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "c0c312f67c6e21c8ba2d5bed9d13b234b05c0efdb54d06af3d962e84130056a4",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": true,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- sed -e s/alpha/ALPHA/g sub/input.txt",
+      "status": "ok"
+    },
+    {
+      "case": "concurrent_writer:cat",
+      "mutation": "concurrent_writer",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "ccc34fcf7253ec0c216b5d370d5fecbfa8bc045769d5b14ef8f0b122189e0cc7",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": false,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cat input.txt",
+      "status": "refused-or-retraced"
+    },
+    {
+      "case": "concurrent_writer:head",
+      "mutation": "concurrent_writer",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "df390c3e225ae12e4ba271bb7071aee63297a9e34ad443831a6ee221b3f423ff",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "3ba7de5f92b6df663a93f1fc41feb2c54480f812c5938525df89afd461653427",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": false,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- head -c 1000 input.txt",
+      "status": "refused-or-retraced"
+    },
+    {
+      "case": "concurrent_writer:cut",
+      "mutation": "concurrent_writer",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "actual": {
+        "stdout_sha256": "ccc34fcf7253ec0c216b5d370d5fecbfa8bc045769d5b14ef8f0b122189e0cc7",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {}
+      },
+      "matches_native": false,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cut -d   -f1 input.txt",
+      "status": "refused-or-retraced"
+    },
+    {
+      "case": "concurrent_writer:bzip2-file",
+      "mutation": "concurrent_writer",
+      "decision": "Executed",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "input.txt.bz2": "a3cf72201187695eb0717078ec637d09b8bd15368539392a4e4c768c0f2857d1"
+        }
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "input.txt.bz2": "4bc695d4fb0a70d340431e43f7aa0240ab9b85b954db49a5a30351b885ed01f3"
+        }
+      },
+      "matches_native": false,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- bzip2 -k -f input.txt",
+      "status": "refused-or-retraced"
+    },
+    {
+      "case": "concurrent_writer:cp-out",
+      "mutation": "concurrent_writer",
+      "decision": "Ineligible",
+      "seed": 7,
+      "native": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "copied.txt": "ae39ad1869430e438bceec8b9c36aaa6b711ce907a2f2c9ccd8117cfde4cf7df"
+        }
+      },
+      "actual": {
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exit": 0,
+        "outputs": {
+          "copied.txt": "ccc34fcf7253ec0c216b5d370d5fecbfa8bc045769d5b14ef8f0b122189e0cc7"
+        }
+      },
+      "matches_native": false,
+      "repro": "/agent/repos/tracejit/target/release/tracejit run --json --contract allocator-entropy-v1 -- cp input.txt copied.txt",
+      "status": "refused-or-retraced"
+    },
+    {
+      "case": "corrupt-cas-object",
+      "victim": "483368e2d87f1e0b11d321f39c1f9b5d34459ffbd34ecfb44302147cce46f577",
+      "seed": 7,
+      "decision": "Executed",
+      "status": "ok"
+    },
+    {
+      "case": "contract-mismatch-native-vs-allocator",
+      "seed": 7,
+      "decision": "Executed",
+      "kind": "Executed",
+      "status": "ok"
+    }
+  ],
+  "incorrect_hits": 0,
+  "discover_mismatches": 0,
+  "executed_scenarios": 135,
+  "skipped_scenarios": 11
+}

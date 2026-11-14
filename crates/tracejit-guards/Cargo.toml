@@ -14,4 +14,5 @@ thiserror.workspace = true
 tracejit-effects = { path = "../tracejit-effects" }
 
 [dev-dependencies]
+proptest = { workspace = true }
 tempfile.workspace = true

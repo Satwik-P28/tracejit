@@ -17,4 +17,5 @@ tracejit-guards = { path = "../tracejit-guards" }
 
 [dev-dependencies]
 libc.workspace = true
+proptest = { workspace = true }
 tempfile.workspace = true

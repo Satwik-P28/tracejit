@@ -1449,6 +1449,7 @@ pub fn classify(effects: &[EffectRecord]) -> Classification {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use proptest::prelude::*;
 
     #[test]
     fn hash_round_trip() {
@@ -1515,6 +1516,81 @@ mod tests {
         let effect = Effect::Read(ReadEffect::WorkingDirectory);
         let encoded = serde_json::to_vec(&effect).unwrap();
         assert_eq!(serde_json::from_slice::<Effect>(&encoded).unwrap(), effect);
+    }
+
+    #[test]
+    fn ineligible_classes_never_claim_cache_eligibility() {
+        assert!(!DeterminismClass::Unknown.cache_eligible());
+        assert!(!DeterminismClass::Nondeterministic.cache_eligible());
+        assert!(!DeterminismClass::EmpiricallyStable.cache_eligible());
+        assert!(DeterminismClass::Guarded.cache_eligible());
+        assert!(DeterminismClass::Proven.cache_eligible());
+    }
+
+    #[test]
+    fn unknown_effect_classification_is_never_cache_eligible() {
+        let effects = vec![EffectRecord {
+            sequence: 0,
+            pid: 1,
+            effect: Effect::Unknown(UnknownEffect {
+                syscall: Some(16),
+                detail: "ioctl".into(),
+            }),
+        }];
+        let classification = classify(&effects);
+        assert_eq!(classification.class, DeterminismClass::Unknown);
+        assert!(!classification.class.cache_eligible());
+    }
+
+    proptest::proptest! {
+        #[test]
+        fn hash_hex_round_trip(bytes in prop::array::uniform32(any::<u8>())) {
+            let hash = Hash::new(bytes);
+            let parsed: Hash = hash.to_string().parse().unwrap();
+            prop_assert_eq!(parsed, hash);
+        }
+
+        #[test]
+        fn hash_rejects_wrong_length(s in "[0-9a-f]{0,63}|[0-9a-f]{65,80}") {
+            prop_assert!(s.parse::<Hash>().is_err());
+        }
+
+        #[test]
+        fn hash_rejects_non_hex(s in "[g-zG-Z]{64}") {
+            prop_assert!(s.parse::<Hash>().is_err());
+        }
+
+        #[test]
+        fn effect_json_round_trip(
+            detail in "[a-z]{1,16}",
+            syscall in prop::option::of(0i64..512)
+        ) {
+            let effect = Effect::Unknown(UnknownEffect {
+                syscall,
+                detail: detail.clone(),
+            });
+            let encoded = serde_json::to_vec(&effect).unwrap();
+            let decoded: Effect = serde_json::from_slice(&encoded).unwrap();
+            prop_assert_eq!(decoded, effect);
+        }
+
+        #[test]
+        fn random_or_clock_is_nondeterministic_not_eligible(
+            use_clock in any::<bool>()
+        ) {
+            let effect = if use_clock {
+                Effect::Read(ReadEffect::Clock(ClockKind::Realtime))
+            } else {
+                Effect::Read(ReadEffect::Random(RandomSource::GetRandom))
+            };
+            let classification = classify(&[EffectRecord {
+                sequence: 0,
+                pid: 1,
+                effect,
+            }]);
+            prop_assert_eq!(classification.class, DeterminismClass::Nondeterministic);
+            prop_assert!(!classification.class.cache_eligible());
+        }
     }
 
     #[test]

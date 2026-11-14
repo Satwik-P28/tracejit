@@ -1913,6 +1913,7 @@ pub fn compile_guards(executable: PathBuf, identity: &ExecutionIdentity) -> Vec<
 #[cfg(test)]
 mod tests {
     use super::*;
+    use proptest::prelude::*;
     use std::io::Write;
 
     #[cfg(unix)]
@@ -1964,6 +1965,22 @@ mod tests {
             canonical_hash(&left).unwrap(),
             canonical_hash(&right).unwrap()
         );
+    }
+
+    proptest::proptest! {
+        #[test]
+        fn canonical_hash_is_deterministic(values in prop::collection::vec(any::<u32>(), 0..32)) {
+            let left = canonical_hash(&values).unwrap();
+            let right = canonical_hash(&values).unwrap();
+            prop_assert_eq!(left, right);
+        }
+
+        #[test]
+        fn no_unexpected_effects_guard_always_passes(_seed in any::<u8>()) {
+            let guard = Guard::NoUnexpectedEffects;
+            prop_assert!(guard.validate(GuardMode::Strict).is_ok());
+            prop_assert!(guard.validate(GuardMode::Fast).is_ok());
+        }
     }
 
     #[test]

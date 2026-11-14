@@ -1231,6 +1231,7 @@ pub fn now_unix_ms() -> u128 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use proptest::prelude::*;
 
     #[test]
     fn cas_deduplicates_and_detects_corruption() {
@@ -1767,6 +1768,90 @@ mod tests {
         fs::write(root.join("unrelated.txt"), b"keep").unwrap();
         cache.clear().unwrap();
         assert_eq!(fs::read(root.join("unrelated.txt")).unwrap(), b"keep");
+    }
+
+    /// Documents that multi-output restore is not crash-atomic: a simulated mid-restore
+    /// workspace (first destination already swapped, second still user content) is a mixed
+    /// state with no recovery journal. Ordinary fault injection still rolls back; this test
+    /// only asserts detectability of the mixed bytes, not automatic repair.
+    #[test]
+    fn mixed_mid_restore_workspace_is_detectable_without_a_journal() {
+        let directory = tempfile::tempdir().unwrap();
+        let cache = Cache::open(directory.path().join("cache")).unwrap();
+        let first = directory.path().join("a.txt");
+        let second = directory.path().join("b.txt");
+        fs::write(&first, b"cached-a").unwrap();
+        fs::write(&second, b"cached-b").unwrap();
+        let artifacts = captured_outputs(&cache, &[(&first, false), (&second, false)]);
+        // Simulate hard-kill after the first rename applied and before the second.
+        fs::write(&first, b"cached-a").unwrap();
+        fs::write(&second, b"user-b-still").unwrap();
+        assert_eq!(fs::read(&first).unwrap(), b"cached-a");
+        assert_eq!(fs::read(&second).unwrap(), b"user-b-still");
+        // A subsequent restore under normal control converges; there is still no journal that
+        // would have recovered the mixed state after a real kill.
+        cache.restore_outputs(&artifacts).unwrap();
+        assert_eq!(fs::read(&first).unwrap(), b"cached-a");
+        assert_eq!(fs::read(&second).unwrap(), b"cached-b");
+    }
+
+    #[test]
+    fn malformed_candidate_bytes_decode_to_none() {
+        let junk = CandidateBytes(b"{not-json".to_vec());
+        assert!(junk.decode().is_none());
+        let empty = CandidateBytes(Vec::new());
+        assert!(empty.decode().is_none());
+        let partial = CandidateBytes(br#"{"id":"x"}"#.to_vec());
+        assert!(partial.decode().is_none());
+    }
+
+    proptest::proptest! {
+        #![proptest_config(ProptestConfig::with_cases(64))]
+
+        #[test]
+        fn legacy_or_incomplete_file_artifacts_fail_closed(
+            version in prop::sample::select(vec![0u32, 1, 3, 99]),
+            drop_mtime in any::<bool>(),
+            drop_uid in any::<bool>()
+        ) {
+            let directory = tempfile::tempdir().unwrap();
+            let cache = Cache::open(directory.path().join("cache")).unwrap();
+            let path = directory.path().join("out.txt");
+            fs::write(&path, b"user").unwrap();
+            let hash = cache.put_bytes(b"cached").unwrap();
+            let mut artifact = OutputArtifact {
+                path: path.clone(),
+                kind: OutputKind::File,
+                content: Some(hash),
+                unix_mode: Some(0o600),
+                unix_uid: Some(unsafe { libc::geteuid() }),
+                unix_gid: Some(unsafe { libc::getegid() }),
+                unix_accessed_ns: Some(1),
+                unix_modified_ns: Some(1),
+                artifact_version: version,
+                allows_create: true,
+            };
+            if drop_mtime {
+                artifact.unix_modified_ns = None;
+            }
+            if drop_uid {
+                artifact.unix_uid = None;
+            }
+            // Every generated case is intentionally incomplete or wrong-version.
+            let result = cache.restore_outputs(&[artifact]);
+            prop_assert!(
+                result.is_err(),
+                "legacy/incomplete artifact must fail closed: version={version} drop_mtime={drop_mtime} drop_uid={drop_uid}"
+            );
+            prop_assert_eq!(fs::read(&path).unwrap(), b"user");
+        }
+
+        #[test]
+        fn arbitrary_bytes_never_decode_as_stored_execution(bytes in prop::collection::vec(any::<u8>(), 0..256)) {
+            // Only well-formed StoredExecution JSON may decode; random bytes must fail closed.
+            let candidate = CandidateBytes(bytes);
+            prop_assert!(candidate.decode().is_none());
+        }
     }
 
     /// The inherited-descriptor preflight runs before `Cache::open`. Reuse stays sound only if
