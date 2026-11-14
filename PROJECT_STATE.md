@@ -19,7 +19,7 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 
 ## Current main
 
-- Tip: `f148228` — Phase K5 CEGAR engine (PR #22) on K4 (`10e2d68`).
+- Tip: `aa3a186` — Phase K6 certificate StrictCas (PR #23) on K5 (`f148228`).
 - Releases: `v0.1.0` (`cf0ddb2`), `v0.1.1` (`31c36d1`). Do not move tags.
 - Research PRs #6/#7/#9/#10 stay isolated (not for main).
 
@@ -42,8 +42,9 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 - K2 (merged #19): CLI-only Obs oracle — `benchmarks/oracle/independent_obs.py`.
 - K3 (merged #20): hit-path + restore-crash modelcheck — `scripts/modelcheck/check_state_machines.py`.
 - K4 (merged #21): restore fault injection — `scripts/phase_k4_restore_fault.sh`; soft rollback+retrace; hard-kill recovery (no journal).
-- K5 (merged #22): input-driven CEGAR engine — `tracejit refine`, `crates/tracejit-effects/src/cegar.rs` (never auto-deploys).
-- K6 (in flight): certificate StrictCas verify + security assessment — `verify_certificate_strict` / `--strict`.
+- K5 (merged #22): input-driven CEGAR engine — `tracejit refine` (never auto-deploys).
+- K6 (merged #23): certificate StrictCas — `verify_certificate_strict` / `--strict`.
+- K7 (in flight): measured perf — staging `sync_data` + `prepare_cached`; see `benchmarks/results/phase_k7/`.
 
 ## Known limitations
 

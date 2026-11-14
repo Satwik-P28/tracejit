@@ -401,7 +401,9 @@ impl Cache {
         // Retention already prunes to this bound on write. LIMIT keeps a stale unpruned row from
         // forcing the hit path to pull more JSON than validation will consider.
         let bound = max_candidates_per_identity() as i64;
-        let mut statement = self.connection.prepare(
+        // prepare_cached avoids re-compiling the hit-path candidate query on every warm reuse.
+        // Correctness is unchanged: same SQL, same LIMIT, same validation of every candidate.
+        let mut statement = self.connection.prepare_cached(
             "SELECT record_json FROM executions WHERE lookup_key = ?1
              ORDER BY CAST(updated_unix_ms AS INTEGER) DESC, execution_id DESC
              LIMIT ?2",
@@ -544,9 +546,13 @@ impl Cache {
                 if Hash::from(hasher.finalize()) != hash {
                     return Err(CacheError::CorruptObject { hash });
                 }
+                // Flush file *data* before rename. Full `sync_all` also waits on inode metadata of
+                // the temporary name; that metadata is not part of Obs(E) and is discarded on
+                // rename. CAS object puts still use `sync_all`. Crash before rename remains
+                // fail-closed (retrace); multi-output hard-kill atomicity is unchanged.
                 temporary
                     .as_file()
-                    .sync_all()
+                    .sync_data()
                     .map_err(|source| io_error(temporary.path(), source))?;
                 #[cfg(unix)]
                 {
