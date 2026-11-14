@@ -1,0 +1,593 @@
+{
+  "label": "ablation-no-fsync",
+  "commit": "780174869afa02a2587d76d7ac244d3595d5a034",
+  "binary": "/agent/repos/tracejit/target/release/tracejit",
+  "binary_sha256": "3121b0f67f6f7f9a586503f30c2dd3ecc5bfdbd8211f0c947b3fe266374a0d0b",
+  "warmups": 3,
+  "runs": 20,
+  "host": {
+    "kernel": "6.12.113+",
+    "platform": "Linux-6.12.113+-x86_64-with-glibc2.39",
+    "cpus": 4,
+    "perf_available": false,
+    "perf_path": null,
+    "strace_available": false,
+    "strace_path": null,
+    "perf_event_paranoid": "2",
+    "pmu_devices": [
+      "breakpoint",
+      "kprobe",
+      "msr",
+      "power",
+      "software",
+      "tracepoint",
+      "uprobe"
+    ],
+    "hardware_cpu_pmu_present": false,
+    "filesystem": "ext4   /"
+  },
+  "shapes": [
+    {
+      "name": "c-etl",
+      "argv": [
+        "/agent/repos/tracejit/benchmarks/workloads/c-etl/etl"
+      ],
+      "cold_ms": 13.804,
+      "cold_kind": "Executed",
+      "warm": {
+        "runs": 20,
+        "median_ms": 2.356,
+        "min_ms": 1.925,
+        "p95_ms": 2.647,
+        "samples_ms": [
+          2.361,
+          2.856,
+          2.603,
+          2.166,
+          2.582,
+          2.458,
+          2.161,
+          2.351,
+          2.64,
+          2.13,
+          2.647,
+          2.207,
+          1.925,
+          2.096,
+          2.129,
+          2.187,
+          2.394,
+          2.4,
+          2.122,
+          2.558
+        ]
+      },
+      "warm_kinds": [
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused"
+      ],
+      "phases_median_ms": {
+        "cache_prepare_ns": 0.008,
+        "cas_restore_ns": 0.0,
+        "cli_parse_ns": 0.075,
+        "decision_persist_ns": 0.0,
+        "guard_validation_ns": 0.422,
+        "identity_prepare_ns": 0.111,
+        "lookup_key_ns": 0.003,
+        "present_ns": 0.021,
+        "process_startup_ns": 5.966,
+        "record_decode_ns": 0.129,
+        "sqlite_open_ns": 0.076,
+        "sqlite_query_ns": 0.134,
+        "sqlite_schema_ns": 0.101,
+        "stdio_replay_ns": 0.008
+      },
+      "all_warm_reused": true,
+      "phase_rank": [
+        {
+          "phase": "process_startup_ns",
+          "median_ms": 5.966,
+          "share_of_summed_phases": 0.8458
+        },
+        {
+          "phase": "guard_validation_ns",
+          "median_ms": 0.422,
+          "share_of_summed_phases": 0.0598
+        },
+        {
+          "phase": "sqlite_query_ns",
+          "median_ms": 0.134,
+          "share_of_summed_phases": 0.019
+        },
+        {
+          "phase": "record_decode_ns",
+          "median_ms": 0.129,
+          "share_of_summed_phases": 0.0183
+        },
+        {
+          "phase": "identity_prepare_ns",
+          "median_ms": 0.111,
+          "share_of_summed_phases": 0.0157
+        },
+        {
+          "phase": "sqlite_schema_ns",
+          "median_ms": 0.101,
+          "share_of_summed_phases": 0.0143
+        },
+        {
+          "phase": "sqlite_open_ns",
+          "median_ms": 0.076,
+          "share_of_summed_phases": 0.0108
+        },
+        {
+          "phase": "cli_parse_ns",
+          "median_ms": 0.075,
+          "share_of_summed_phases": 0.0106
+        },
+        {
+          "phase": "present_ns",
+          "median_ms": 0.021,
+          "share_of_summed_phases": 0.003
+        },
+        {
+          "phase": "cache_prepare_ns",
+          "median_ms": 0.008,
+          "share_of_summed_phases": 0.0011
+        },
+        {
+          "phase": "stdio_replay_ns",
+          "median_ms": 0.008,
+          "share_of_summed_phases": 0.0011
+        },
+        {
+          "phase": "lookup_key_ns",
+          "median_ms": 0.003,
+          "share_of_summed_phases": 0.0004
+        }
+      ]
+    },
+    {
+      "name": "plain_file_read",
+      "argv": [
+        "/tmp/phase-f-work-eq8zcta0/fixture-driver",
+        "plain_file_read",
+        "/tmp/phase-f-work-eq8zcta0"
+      ],
+      "cold_ms": 16.323,
+      "cold_kind": "Executed",
+      "warm": {
+        "runs": 20,
+        "median_ms": 2.417,
+        "min_ms": 2.216,
+        "p95_ms": 2.66,
+        "samples_ms": [
+          2.238,
+          2.689,
+          2.519,
+          2.353,
+          2.574,
+          2.482,
+          2.28,
+          2.66,
+          2.403,
+          2.216,
+          2.625,
+          2.414,
+          2.396,
+          2.639,
+          2.276,
+          2.504,
+          2.442,
+          2.419,
+          2.415,
+          2.219
+        ]
+      },
+      "warm_kinds": [
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused"
+      ],
+      "phases_median_ms": {
+        "cache_prepare_ns": 0.007,
+        "cas_restore_ns": 0.134,
+        "cli_parse_ns": 0.077,
+        "decision_persist_ns": 0.0,
+        "guard_validation_ns": 0.434,
+        "identity_prepare_ns": 0.114,
+        "lookup_key_ns": 0.003,
+        "present_ns": 0.022,
+        "process_startup_ns": 5.902,
+        "record_decode_ns": 0.135,
+        "sqlite_open_ns": 0.082,
+        "sqlite_query_ns": 0.135,
+        "sqlite_schema_ns": 0.099,
+        "stdio_replay_ns": 0.007
+      },
+      "all_warm_reused": true,
+      "phase_rank": [
+        {
+          "phase": "process_startup_ns",
+          "median_ms": 5.902,
+          "share_of_summed_phases": 0.8253
+        },
+        {
+          "phase": "guard_validation_ns",
+          "median_ms": 0.434,
+          "share_of_summed_phases": 0.0607
+        },
+        {
+          "phase": "record_decode_ns",
+          "median_ms": 0.135,
+          "share_of_summed_phases": 0.0189
+        },
+        {
+          "phase": "sqlite_query_ns",
+          "median_ms": 0.135,
+          "share_of_summed_phases": 0.0189
+        },
+        {
+          "phase": "cas_restore_ns",
+          "median_ms": 0.134,
+          "share_of_summed_phases": 0.0187
+        },
+        {
+          "phase": "identity_prepare_ns",
+          "median_ms": 0.114,
+          "share_of_summed_phases": 0.0159
+        },
+        {
+          "phase": "sqlite_schema_ns",
+          "median_ms": 0.099,
+          "share_of_summed_phases": 0.0138
+        },
+        {
+          "phase": "sqlite_open_ns",
+          "median_ms": 0.082,
+          "share_of_summed_phases": 0.0115
+        },
+        {
+          "phase": "cli_parse_ns",
+          "median_ms": 0.077,
+          "share_of_summed_phases": 0.0108
+        },
+        {
+          "phase": "present_ns",
+          "median_ms": 0.022,
+          "share_of_summed_phases": 0.0031
+        },
+        {
+          "phase": "cache_prepare_ns",
+          "median_ms": 0.007,
+          "share_of_summed_phases": 0.001
+        },
+        {
+          "phase": "stdio_replay_ns",
+          "median_ms": 0.007,
+          "share_of_summed_phases": 0.001
+        },
+        {
+          "phase": "lookup_key_ns",
+          "median_ms": 0.003,
+          "share_of_summed_phases": 0.0004
+        }
+      ]
+    },
+    {
+      "name": "large_file_read",
+      "argv": [
+        "/tmp/phase-f-work-eq8zcta0/fixture-driver",
+        "plain_file_read",
+        "/tmp/phase-f-work-eq8zcta0/large"
+      ],
+      "cold_ms": 68.209,
+      "cold_kind": "Executed",
+      "warm": {
+        "runs": 20,
+        "median_ms": 12.182,
+        "min_ms": 10.332,
+        "p95_ms": 13.46,
+        "samples_ms": [
+          12.325,
+          11.303,
+          10.332,
+          11.193,
+          10.592,
+          14.246,
+          12.566,
+          10.388,
+          12.933,
+          12.726,
+          13.132,
+          11.489,
+          12.093,
+          11.126,
+          13.46,
+          11.9,
+          12.271,
+          12.718,
+          12.699,
+          10.847
+        ]
+      },
+      "warm_kinds": [
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused"
+      ],
+      "phases_median_ms": {
+        "cache_prepare_ns": 0.008,
+        "cas_restore_ns": 7.627,
+        "cli_parse_ns": 0.086,
+        "decision_persist_ns": 0.0,
+        "guard_validation_ns": 1.433,
+        "identity_prepare_ns": 0.124,
+        "lookup_key_ns": 0.004,
+        "present_ns": 0.033,
+        "process_startup_ns": 5.504,
+        "record_decode_ns": 0.532,
+        "sqlite_open_ns": 0.092,
+        "sqlite_query_ns": 0.51,
+        "sqlite_schema_ns": 0.108,
+        "stdio_replay_ns": 0.008
+      },
+      "all_warm_reused": true,
+      "phase_rank": [
+        {
+          "phase": "cas_restore_ns",
+          "median_ms": 7.627,
+          "share_of_summed_phases": 0.4746
+        },
+        {
+          "phase": "process_startup_ns",
+          "median_ms": 5.504,
+          "share_of_summed_phases": 0.3425
+        },
+        {
+          "phase": "guard_validation_ns",
+          "median_ms": 1.433,
+          "share_of_summed_phases": 0.0892
+        },
+        {
+          "phase": "record_decode_ns",
+          "median_ms": 0.532,
+          "share_of_summed_phases": 0.0331
+        },
+        {
+          "phase": "sqlite_query_ns",
+          "median_ms": 0.51,
+          "share_of_summed_phases": 0.0317
+        },
+        {
+          "phase": "identity_prepare_ns",
+          "median_ms": 0.124,
+          "share_of_summed_phases": 0.0077
+        },
+        {
+          "phase": "sqlite_schema_ns",
+          "median_ms": 0.108,
+          "share_of_summed_phases": 0.0067
+        },
+        {
+          "phase": "sqlite_open_ns",
+          "median_ms": 0.092,
+          "share_of_summed_phases": 0.0057
+        },
+        {
+          "phase": "cli_parse_ns",
+          "median_ms": 0.086,
+          "share_of_summed_phases": 0.0054
+        },
+        {
+          "phase": "present_ns",
+          "median_ms": 0.033,
+          "share_of_summed_phases": 0.0021
+        },
+        {
+          "phase": "cache_prepare_ns",
+          "median_ms": 0.008,
+          "share_of_summed_phases": 0.0005
+        },
+        {
+          "phase": "stdio_replay_ns",
+          "median_ms": 0.008,
+          "share_of_summed_phases": 0.0005
+        },
+        {
+          "phase": "lookup_key_ns",
+          "median_ms": 0.004,
+          "share_of_summed_phases": 0.0002
+        }
+      ]
+    },
+    {
+      "name": "bin_true",
+      "argv": [
+        "/bin/true"
+      ],
+      "cold_ms": 12.318,
+      "cold_kind": "Executed",
+      "warm": {
+        "runs": 20,
+        "median_ms": 2.256,
+        "min_ms": 1.991,
+        "p95_ms": 2.498,
+        "samples_ms": [
+          3.0,
+          2.309,
+          2.11,
+          2.139,
+          2.351,
+          2.361,
+          2.194,
+          2.374,
+          2.155,
+          2.263,
+          2.263,
+          2.213,
+          2.202,
+          2.281,
+          1.991,
+          2.005,
+          2.4,
+          2.498,
+          2.104,
+          2.25
+        ]
+      },
+      "warm_kinds": [
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused"
+      ],
+      "phases_median_ms": {
+        "cache_prepare_ns": 0.007,
+        "cas_restore_ns": 0.0,
+        "cli_parse_ns": 0.068,
+        "decision_persist_ns": 0.0,
+        "guard_validation_ns": 0.429,
+        "identity_prepare_ns": 0.095,
+        "lookup_key_ns": 0.003,
+        "present_ns": 0.024,
+        "process_startup_ns": 5.982,
+        "record_decode_ns": 0.113,
+        "sqlite_open_ns": 0.06,
+        "sqlite_query_ns": 0.122,
+        "sqlite_schema_ns": 0.092,
+        "stdio_replay_ns": 0.008
+      },
+      "all_warm_reused": true,
+      "phase_rank": [
+        {
+          "phase": "process_startup_ns",
+          "median_ms": 5.982,
+          "share_of_summed_phases": 0.8542
+        },
+        {
+          "phase": "guard_validation_ns",
+          "median_ms": 0.429,
+          "share_of_summed_phases": 0.0613
+        },
+        {
+          "phase": "sqlite_query_ns",
+          "median_ms": 0.122,
+          "share_of_summed_phases": 0.0174
+        },
+        {
+          "phase": "record_decode_ns",
+          "median_ms": 0.113,
+          "share_of_summed_phases": 0.0161
+        },
+        {
+          "phase": "identity_prepare_ns",
+          "median_ms": 0.095,
+          "share_of_summed_phases": 0.0136
+        },
+        {
+          "phase": "sqlite_schema_ns",
+          "median_ms": 0.092,
+          "share_of_summed_phases": 0.0131
+        },
+        {
+          "phase": "cli_parse_ns",
+          "median_ms": 0.068,
+          "share_of_summed_phases": 0.0097
+        },
+        {
+          "phase": "sqlite_open_ns",
+          "median_ms": 0.06,
+          "share_of_summed_phases": 0.0086
+        },
+        {
+          "phase": "present_ns",
+          "median_ms": 0.024,
+          "share_of_summed_phases": 0.0034
+        },
+        {
+          "phase": "stdio_replay_ns",
+          "median_ms": 0.008,
+          "share_of_summed_phases": 0.0011
+        },
+        {
+          "phase": "cache_prepare_ns",
+          "median_ms": 0.007,
+          "share_of_summed_phases": 0.001
+        },
+        {
+          "phase": "lookup_key_ns",
+          "median_ms": 0.003,
+          "share_of_summed_phases": 0.0004
+        }
+      ]
+    }
+  ]
+}
