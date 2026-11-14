@@ -2,7 +2,7 @@
 
 Status labels (Part XXII §58): **implemented+verified** | **implemented but not fully verified** | **experimental** | **rejected** | **deferred** | **blocked**.
 
-Inspected tip: `4421f8be60cdd50231e2cf5662130511fdd1c175` (Phase K8–K14 #25 merged; final adversarial baseline in `docs/final/`). Evidence paths are repository-relative unless noted.
+Inspected tip: `827b7763a73cddda4e3a99c9883fbae4b18d87d2` (final adversarial PRs #26–#30 on main). Evidence paths are repository-relative unless noted. Package index: `docs/final/FINAL_ANSWER.md`.
 
 | Feature / claim | Status | Evidence |
 | --- | --- | --- |
@@ -55,5 +55,10 @@ Inspected tip: `4421f8be60cdd50231e2cf5662130511fdd1c175` (Phase K8–K14 #25 me
 | Bandit / ConfidenceBound as production default | rejected | K9; prefer_simpler |
 | Flagship: fail-closed Obs-equivalence reuse | implemented+verified | K11; not a peer-reviewed novelty claim |
 | Peer-reviewed publication / production adoption | rejected as claim | no evidence |
+| P0 O_TMPFILE / fcntl SETFL refuse + pre-restore TOCTOU recheck | implemented+verified | #27; `docs/final/P0_PROCESS_AND_TOCTOU.md` |
+| P0 per-pid restore-intent refuse HIT after hard kill | implemented+verified | #28; `P0_RESTORE_DURABILITY.md`; not multi-file atomic |
+| P1 census ≥25 + e2e four objectives + admission re-eval | implemented+verified | #29; `final_p1/` raw JSON |
+| P1 CEGAR/assurance/security/prior-art matrix | implemented+verified | #30; no novelty overclaim; audit finding deferred |
+| Selective tracing / typed DAG validator / SQLite RUSTSEC bump | deferred | FINAL_ANSWER §3 |
 
 Quantitative performance claims must cite the commit and file that produced them (see technical report §§14–17). Do not paste a new number without harness provenance.

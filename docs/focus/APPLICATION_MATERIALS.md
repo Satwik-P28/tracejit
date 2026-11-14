@@ -1,51 +1,62 @@
 # TraceJIT application materials
 
-Verified evidence only. Tip: `b089d5e774d6481a83ec3f308f479d551ed50ce7` (Phase G #16 on `main`). No peer-reviewed, production-adoption, collaborator, user-count, or award claims.
+Verified evidence only. Tip: `827b7763a73cddda4e3a99c9883fbae4b18d87d2` (main after final-adversarial PRs #26–#30). No peer-reviewed, production-adoption, collaborator, user-count, or award claims. Agent assistance was used in implementation and documentation; do not claim otherwise.
 
 ## Concise project summary
 
-TraceJIT is a Rust prototype that memoizes unmodified Linux x86_64 commands by tracing modeled syscalls, classifying effects, and replaying outputs only when `GUARDED`/`PROVEN` records still pass synchronous guards. It fails closed on clocks, randomness, networks, and unmodeled behavior. Measured wins include a CPU-heavy transform (~11.6× warm hit on this host) and correct recovery where Make returns stale bytes; short commands and large restore+hash paths remain net losses.
+TraceJIT is a Rust prototype that memoizes unmodified Linux x86_64 commands by tracing modeled syscalls, classifying effects, and replaying outputs only when `GUARDED`/`PROVEN` records still pass synchronous guards. It fails closed on clocks, randomness, networks, and unmodeled behavior. Measured wins include ~7.4× warm HIT on real `c-transform` (final_p1 e2e @ `026e660`) and correct recovery where Make returns stale bytes; short-command floor and short-ETL sessions remain net losses.
 
 ## Two resume bullets
 
-- Built a fail-closed Linux process memoizer (ptrace, BLAKE3 CAS, SQLite) that reuses whole commands only after effect classification and synchronous guards; closed inherited-descriptor and `/dev/null` identity P0s with regression tests and Landlock/`PROVEN` integration coverage.
-- Measured honest performance boundaries: ~11.6× warm reuse on a CPU-heavy C transform and correct mtime/corrupt recovery vs Make, while retaining documented short-ETL (0.407×) and large-file restore losses; added reuse certificates, CEGAR-shaped refinement, and offline admission analysis without weakening production safety.
+- Built a fail-closed Linux process memoizer (ptrace, BLAKE3 CAS, SQLite) that reuses whole commands only after effect classification and synchronous guards; closed RENAME_EXCHANGE false-HIT, restore-intent refuse after hard kill, and pre-restore TOCTOU recheck with regression tests.
+- Measured honest performance boundaries: ~7.4× warm reuse on a CPU-heavy C transform with bootstrap CIs, 1/32 native census eligibility, and documented short-command losses; shipped CEGAR refine without auto-deploy and an offline admission model that cannot override safety.
 
-## 100-word technical description
+## ≤100-word Jane Street FOCUS description
 
-TraceJIT observes an unmodified Linux x86_64 process with ptrace, reconstructs filesystem and descriptor dependencies, and classifies each run as GUARDED, PROVEN, UNKNOWN, or NONDETERMINISTIC. Only GUARDED and PROVEN records may reuse, and only after every compiled guard passes and cached streams verify—before any output is restored. PROVEN additionally requires installed seccomp and Landlock. The system stores artifacts in a BLAKE3 content-addressed store indexed by SQLite, retains a bounded set of alternate candidates, and refuses clocks, entropy, and unmodeled syscalls. Evaluation shows large speedups on long deterministic CPU work, correct recovery where Make is wrong, and deliberate losses on short commands.
+TraceJIT observes an unmodified Linux x86_64 process with ptrace, reconstructs filesystem and descriptor dependencies, and classifies each run as GUARDED, PROVEN, UNKNOWN, or NONDETERMINISTIC. Only GUARDED and PROVEN may reuse, and only after every compiled guard passes and cached streams verify—before any output is restored. PROVEN additionally requires installed seccomp and Landlock. Artifacts live in a BLAKE3 CAS indexed by SQLite. Evaluation shows large speedups on long deterministic CPU work, correct recovery where Make is wrong, and deliberate losses on short commands. Correctness contract stops at modeled Obs—not full equivalence or multi-file atomic restore.
+
+## 60-second interview explanation
+
+Most caches trust a declared graph or a compiler wrapper. TraceJIT instead traces one unmodified command, keeps only what it can guard, and refuses clocks, entropy, and unknown syscalls. A hit must re-check every dependency and verify CAS bytes before touching your files. We found a false hit on rename exchange and fixed it by refusing that path. Warm hits win on heavy CPU transforms and lose on sub-millisecond commands—admission skips tracing when it will not pay off, but never skips safety.
 
 ## Hardest engineering problem
 
-Inherited open-file identity: pathname-only trust for `/dev/null` and missing preflight for fds above stderr produced demonstrable false hits (EOF reuse after descriptor substitution). Fixing this required fstat identity checks, fail-closed `/proc/self/fd` enumeration, `dup2(fd,fd)` state preservation, forgetting directory enumeration on descriptor reuse, and a post-`Cache::open` re-scan so cache-owned descriptors could not hide non-CLOEXEC fds—without widening observation into an unsound full descriptor model.
+`renameat2(RENAME_EXCHANGE)` looked like a delete+rename under an incomplete model and produced a false HIT (native Obs diverged). Fixing it required treating exchange flags as unmodeled/UNKNOWN, preserving that refuse under adversarial fixtures, and keeping the independent oracle from sharing production validator code—without “fixing” performance by widening admits.
 
-## Most important failed experiment
+## Meaningful performance win and loss
 
-Controlled CPython / allocator-entropy contracts (research PRs #9/#10) and related “make Python reusable” directions. Binding exact ELF build IDs and call sites still left clocks, `gettid`, and semantic changes (`os.kill(getpid)`, fixed clocks, hash-seed policy) that are not native-equivalent. Counterexamples blocked merge; native census stayed 0/9 reusable. Lesson kept on main: do not ship controlled runtimes that quietly change cold-run semantics.
+- **Win:** `c-transform` warm HIT ≈ 4.40 ms vs DIRECT ≈ 32.66 ms (~7.4×), `benchmarks/results/final_p1/e2e.json`.
+- **Loss:** `plain_file_read` warm HIT ≈ 5.73 ms vs DIRECT ≈ 0.38 ms; short-ETL session cumulative also loses — same artifact.
 
-## What was learned
+## Design decisions (human)
 
-- Observation plus guards can make whole-command reuse sound for a narrow class—and the refusals are as informative as the hits.
-- Output-presence invalidation is often necessary, not a missing optimization (bzip2 identical-rerun deopt).
-- Hit-path cost is dominated by CAS restore and hashing on large files; dropping fsync wins microseconds and loses durability.
-- Adaptive admission earns its keep by skipping short commands while still caching long ones.
-- Competitive honesty matters: skip missing tools; report Make’s incorrect fast path rather than claiming TraceJIT wins identical-rerun latency.
+Prefer refuse over stale reuse; keep soft restore rollback and hard-kill intent refuse rather than a false all-or-nothing journal; keep production admission as analytical CurrentAuto; reject bandit defaults and controlled runtimes that change cold semantics; document competitor skips instead of inventing losses.
 
-## Reproducibility instructions
+## Ten adversarial follow-ups (accurate answers)
 
-On Linux x86_64, at `b089d5e` or a descendant that keeps these artifacts:
+1. **Is PROVEN a proof?** No — installed seccomp+Landlock for that run, not machine-checked Obs equivalence.
+2. **Can two renames be atomic?** No — sequential visibility; soft rollback only.
+3. **What about TOCTOU?** Recheck shrinks the window; residual race remains.
+4. **Why not eBPF?** Lost events unbounded; measurement adjunct only.
+5. **Why refuse getrandom?** Nondeterministic; workload env like PYTHONHASHSEED is not a classifier exception.
+6. **Did you beat Ninja?** Identical rerun: no. Content-correct on mtime/corrupt: yes (phase_k8).
+7. **Auto-deploy CEGAR?** Never — `VerifiedOfflineNotDeployed` ceiling.
+8. **Census 1/32 — failure?** Boundary under native randomness/clock; not tuned to pass.
+9. **SQLite CVE?** Documented deferred bump; audit not claimed clean.
+10. **Did a model write all code?** No — agent assistance was used; claims avoid fabrication.
+
+## Reproducibility
 
 ```bash
-git checkout b089d5e774d6481a83ec3f308f479d551ed50ce7   # or later main with docs PR
+git checkout 827b7763a73cddda4e3a99c9883fbae4b18d87d2
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo test --workspace
 cargo build --workspace --release
 cargo test -p tracejit-cli --test linux_integration -- --nocapture
 ./scripts/demo.sh
-./scripts/benchmark.sh
-# optional Phase G suite (writes under benchmarks/results/phase_g/):
-python3 benchmarks/repos/phase_g_evaluation.py
+python3 scripts/modelcheck/check_state_machines.py
+./scripts/phase_k4_restore_fault.sh ./target/release/tracejit
 ```
 
-Raw evidence: `benchmarks/results/latest.*`, `benchmarks/results/phase_f/`, `benchmarks/results/phase_g/`, `benchmarks/results/phase_d/differential/`. Technical report: [../research/TRACEJIT_TECHNICAL_REPORT.md](../research/TRACEJIT_TECHNICAL_REPORT.md). Claims: [../research/CLAIMS_LEDGER.md](../research/CLAIMS_LEDGER.md).
+Evidence index: `docs/final/FINAL_ANSWER.md`, `docs/final/ARTIFACT_EVALUATION.md`, `docs/research/CLAIMS_LEDGER.md`.

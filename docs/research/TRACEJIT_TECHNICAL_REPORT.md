@@ -194,15 +194,16 @@ sccache/Firebuild stay skipped (absent). Novelty attribution: [NOVELTY_MATRIX.md
 
 ## 20. Limitations
 
-1. Validate→restore TOCTOU remains.
-2. Multi-output restore not crash-atomic / not inode-preserving.
+1. Validate→restore TOCTOU remains (pre-restore recheck shrinks but does not close it).
+2. Multi-output restore not crash-atomic / not inode-preserving; restore-intent refuses next HIT after hard kill.
 3. Observation ≠ full userspace dependency capture.
 4. Certificates never claim `FullEquivalenceProof`.
-5. Short-command floor; large restore+hash can lose to direct copy.
-6. Python/shell/`cc -c` typically refused on native census.
+5. Short-command floor; large restore+hash can lose to direct copy (reconfirmed final_p1 e2e).
+6. Native census eligibility remains low (1/32 on final_p1); randomness/clock dominate.
 7. Cache not encrypted; single-operator threat model.
-8. TLA+ model not machine-checked against the binary.
+8. Modelcheck is exhaustive on small machines, not a binary proof.
 9. No peer-reviewed publication; no production-adoption claim.
+10. Open `cargo audit` finding on bundled SQLite (deferred bump).
 
 ## 21. Future research
 
@@ -218,6 +219,6 @@ Deferred or blocked items only — not promises:
 
 ---
 
-**Evidence index:** [README](../../README.md) · [CLAIMS_LEDGER](CLAIMS_LEDGER.md) · [FOCUS materials](../focus/APPLICATION_MATERIALS.md) · [EXECUTION_EQUIVALENCE](EXECUTION_EQUIVALENCE.md) · [benchmarks/results/](../../benchmarks/results/) · [SAFETY](../../SAFETY.md) · [ARCHITECTURE](../../ARCHITECTURE.md)
+**Evidence index:** [FINAL_ANSWER](../final/FINAL_ANSWER.md) · [ARTIFACT_EVALUATION](../final/ARTIFACT_EVALUATION.md) · [README](../../README.md) · [CLAIMS_LEDGER](CLAIMS_LEDGER.md) · [FOCUS materials](../focus/APPLICATION_MATERIALS.md) · [EXECUTION_EQUIVALENCE](EXECUTION_EQUIVALENCE.md) · [benchmarks/results/](../../benchmarks/results/) · [SAFETY](../../SAFETY.md) · [ARCHITECTURE](../../ARCHITECTURE.md)
 
 **Appendix — superseded narrative:** The 9 November 2026 public-`f90b4db` report and Phase 3A–3G addenda remain in git history; this Part XVIII rewrite supersedes them as the living technical report. Historical numbers above keep their original commits.

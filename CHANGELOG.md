@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (final adversarial package on main@827b776)
+
+Documentation and verification packaging for mandate §§1–18 (PRs #26–#30): live baseline/invariants; P0 process/TOCTOU/restore-intent; P1 census/e2e/admission/CEGAR/assurance/security/prior-art matrix; artifact evaluation and FINAL_ANSWER. Product semantics of #27–#28 remain as merged; no version bump. See `docs/final/FINAL_ANSWER.md`. Open `cargo audit` finding RUSTSEC-2026-0459 deferred.
+
 ## 0.1.1
 
 - `tracejit explain` prints observed inputs, outputs, and guards without environment values.

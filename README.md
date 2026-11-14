@@ -34,26 +34,21 @@ Feature status table: [docs/research/CLAIMS_LEDGER.md](docs/research/CLAIMS_LEDG
 
 ## Measured wins and losses
 
-All figures cite committed harness outputs. Tip for Phase G evidence: merge `b089d5e` (PR #16).
+All figures cite committed harness outputs with exact tips. Do not merge numbers across commits into one “speedup.”
 
-**Wins (Phase G session A medians, `benchmarks/results/phase_g/evaluation-session-a.md`):**
+**Final adversarial e2e (tip `026e660`, `benchmarks/results/final_p1/e2e.md`, n=30, bootstrap 95% CI):**
 
-| Scenario | Result |
-| --- | --- |
-| CPU-heavy `c-transform` | 36.136 → **3.116** ms warm reused (~11.6×) |
-| `bzip2 -9` (contract) | 26.485 → **5.333** ms |
-| A/B/A third invocation | **4/4** Reused |
-| mtime-preserved edit / corrupt output | TraceJIT **correct**; make **incorrect** |
+| Scenario | DIRECT | Warm HIT | Note |
+| --- | ---: | ---: | --- |
+| CPU-heavy `c-transform` | 32.662 ms | **4.403 ms (~7.4×)** | Real workload, not synthetic-only |
+| `plain_file_read` floor | **0.384 ms** | 5.725 ms | Warm **loss** — DIRECT wins |
+| Short-ETL session cumulative | **41 ms** | 166 ms | HITs can still lose the session |
 
-**Losses retained:**
+**Census:** 1/32 verified reuse under unmodified defaults (`benchmarks/results/final_p1/census/`).
 
-| Scenario | Result | Evidence |
-| --- | --- | --- |
-| Official short C ETL | 1.455 → 3.571 ms (**0.407×**) | `benchmarks/results/latest.md` @ `94c64c7` |
-| Large ~8 MiB read | 10.786 → 21.539 ms | Phase G session A |
-| Identical build rerun vs make | TraceJIT slower; may deopt on output presence | Phase G |
+**Competitive (tip `364331b`, `benchmarks/results/phase_k8/`):** Make/Ninja win identical-rerun wall time; TraceJIT stays content-correct on mtime-preserved edit / corrupt output where Make/Ninja returned WRONG. Missing tools are skipped, not scored as losses.
 
-Historical hosted-runner transform **78.780×** (`e9684c1`) and short-ETL **0.929×** (`63e3363`) remain historical; do not merge them into a same-commit comparison. ninja/ccache/sccache were **not installed** on the Phase G host and are not claimed.
+Historical Phase G / hosted-runner figures remain in older artifacts; see [docs/final/FINAL_ANSWER.md](docs/final/FINAL_ANSWER.md).
 
 ## Demo
 
@@ -73,8 +68,10 @@ cargo build --workspace --release
 
 ## Technical report and application notes
 
-- Design/evidence report (Part XVIII structure): [docs/research/TRACEJIT_TECHNICAL_REPORT.md](docs/research/TRACEJIT_TECHNICAL_REPORT.md)
+- Final adversarial package index: [docs/final/FINAL_ANSWER.md](docs/final/FINAL_ANSWER.md) · [EXECUTIVE_SUMMARY.md](docs/final/EXECUTIVE_SUMMARY.md) · [ARTIFACT_EVALUATION.md](docs/final/ARTIFACT_EVALUATION.md)
+- Design/evidence report: [docs/research/TRACEJIT_TECHNICAL_REPORT.md](docs/research/TRACEJIT_TECHNICAL_REPORT.md)
 - Claims ledger: [docs/research/CLAIMS_LEDGER.md](docs/research/CLAIMS_LEDGER.md)
+- Prior-art matrix: [docs/final/PRIOR_ART_IMPLEMENTATION_MATRIX.md](docs/final/PRIOR_ART_IMPLEMENTATION_MATRIX.md)
 - FOCUS / application materials: [docs/focus/APPLICATION_MATERIALS.md](docs/focus/APPLICATION_MATERIALS.md)
 
 ## 30-second path
