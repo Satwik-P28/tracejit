@@ -1,3 +1,16 @@
+mod admission_research;
+mod certificate;
+
+pub use admission_research::{
+    compare_policies, expected_benefit, held_out_matrix, prefer_simpler, simulate, PolicyOutcome,
+    ResearchPolicy, WorkloadStep, HIT_COST_FLOOR_NS as RESEARCH_HIT_COST_FLOOR_NS,
+};
+pub use certificate::{
+    certificate_from_record, issue_certificate, parse_certificate, seal_certificate,
+    verify_certificate, CertificateError, ClaimStrength, ReuseCertificate, VerificationReport,
+    REUSE_CERTIFICATE_SCHEMA,
+};
+
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 use std::ffi::{OsStr, OsString};
@@ -493,6 +506,9 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
                     cache.put_execution(&candidate)?;
                     phases.decision_persist_ns = phase_elapsed(timing, mark);
                 }
+                // Optional reuse certificate for independent structural verification. Emission
+                // never strengthens the runtime claim beyond CheckedByVerifier.
+                maybe_write_certificate(&candidate, Some(&hit.guards), CacheDecision::Reused);
                 let mut report = report_from_record(
                     &candidate,
                     RunKind::Reused,
@@ -1437,6 +1453,48 @@ fn phase_elapsed(enabled: bool, started: Instant) -> u64 {
         u64::try_from(started.elapsed().as_nanos()).unwrap_or(u64::MAX)
     } else {
         0
+    }
+}
+
+/// When `TRACEJIT_CERTIFICATE_PATH` is set, write a sealed reuse certificate JSON for inspection.
+/// Failures to seal or write are reported on stderr and never convert a hit into a miss.
+fn maybe_write_certificate(
+    record: &StoredExecution,
+    guards: Option<&GuardReport>,
+    decision: CacheDecision,
+) {
+    let Some(path) = std::env::var_os("TRACEJIT_CERTIFICATE_PATH") else {
+        return;
+    };
+    let issued = match issue_certificate(
+        record,
+        guards,
+        decision,
+        record.last_decision.reason.clone(),
+    ) {
+        Ok(certificate) => certificate,
+        Err(error) => {
+            eprintln!("tracejit: certificate issue failed: {error}");
+            return;
+        }
+    };
+    let sealed = match seal_certificate(issued) {
+        Ok(certificate) => certificate,
+        Err(error) => {
+            eprintln!("tracejit: certificate seal failed: {error}");
+            return;
+        }
+    };
+    match serde_json::to_vec_pretty(&sealed) {
+        Ok(bytes) => {
+            if let Err(error) = fs::write(&path, bytes) {
+                eprintln!(
+                    "tracejit: could not write certificate to {}: {error}",
+                    path.to_string_lossy()
+                );
+            }
+        }
+        Err(error) => eprintln!("tracejit: certificate encode failed: {error}"),
     }
 }
 

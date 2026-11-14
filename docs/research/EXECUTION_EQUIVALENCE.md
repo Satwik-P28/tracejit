@@ -98,3 +98,12 @@ Core encodes this order as a small typestate (`GuardsPassed` →
 This contract is **not** a formal verification of TraceJIT. It does not claim
 observational equivalence for unmodeled syscalls, research controlled-Python
 contracts, or inode-preserving restore.
+
+## Reuse certificates (Phase E)
+
+A `tracejit.reuse-certificate.v1` may document what a hit path established. The
+independent verifier only promotes evidence to `CheckedByVerifier`; it never
+issues `FullEquivalenceProof`. See `docs/research/REUSE_CERTIFICATES.md`.
+
+A thin TLA+ sketch of the hit-path typestate lives at
+`docs/research/formal/reuse_hit.tla` (mapping only; not a full-system proof).
