@@ -1,6 +1,6 @@
 # TraceJIT benchmark result
 
-Measured commit: `6202273fd003c1b0b3c8437ad5279f9493b9a52d`
+Measured commit: `94c64c709dfb0bec433dacf83cc967aeee6a1f1b`
 
 ## Methodology
 
@@ -22,16 +22,16 @@ python3 benchmarks/harness/benchmark.py --runs 30 --warmups 5
 
 | Condition | Median | p95 | Minimum | Maximum | Standard deviation | Runs |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Baseline | 1.365688 ms | 1.492300 ms | 1.185363 ms | 1.502026 ms | 0.090213 ms | 30 |
-| Traced cold | 8.358205 ms | 10.577850 ms | 6.991559 ms | 11.383663 ms | 1.133158 ms | 30 |
-| Guard check | 1.717285 ms | 2.380398 ms | 1.047672 ms | 2.561982 ms | 0.399949 ms | 30 |
-| Cached end-to-end | 3.368883 ms | 4.053170 ms | 2.655804 ms | 4.420530 ms | 0.407442 ms | 30 |
+| Baseline | 1.455152 ms | 1.644641 ms | 1.234551 ms | 1.824625 ms | 0.137484 ms | 30 |
+| Traced cold | 8.968401 ms | 12.919426 ms | 7.820731 ms | 14.036943 ms | 1.462091 ms | 30 |
+| Guard check | 1.390462 ms | 1.974330 ms | 1.109110 ms | 2.348442 ms | 0.269321 ms | 30 |
+| Cached end-to-end | 3.571171 ms | 5.655776 ms | 3.017916 ms | 5.782441 ms | 0.616765 ms | 30 |
 
-Tracing overhead: `512.014238%`
+Tracing overhead: `516.320563%`
 
-Cache-hit speedup: `0.405383x`
+Cache-hit speedup: `0.407472x`
 
-Median time saved: `-2.003195 ms`
+Median time saved: `-2.116019 ms`
 
 ## Correctness
 
@@ -145,15 +145,15 @@ Vulnerability Vmscape:                   Not affected
 
 ```text
 total        used        free      shared  buff/cache   available
-Mem:            15Gi        10Gi       1.5Gi       9.2Mi       3.6Gi       4.8Gi
+Mem:            15Gi        10Gi       1.6Gi        17Mi       3.5Gi       4.8Gi
 Swap:             0B          0B          0B
 ```
 
 ### `df -T .`
 
 ```text
-Filesystem     Type 1K-blocks     Used Available Use% Mounted on
-/dev/vdc       ext4 265591976 10122544 255453048   4% /
+Filesystem     Type 1K-blocks    Used Available Use% Mounted on
+/dev/vdc       ext4 265591976 9979468 255596124   4% /
 ```
 
 ### `python3 --version`
@@ -177,7 +177,7 @@ cargo 1.100.0 (3acc79c0c 2026-11-05)
 ### `git rev-parse HEAD`
 
 ```text
-6202273fd003c1b0b3c8437ad5279f9493b9a52d
+94c64c709dfb0bec433dacf83cc967aeee6a1f1b
 ```
 
 
