@@ -22,7 +22,9 @@ blake3 = "1.5"
 clap = { version = "4.5", features = ["derive"] }
 libc = "0.2"
 nix = { version = "0.29", features = ["fs", "process", "ptrace", "signal"] }
-rusqlite = { version = "0.41", features = ["bundled"] }
+# fallible_uint restores u64 ToSql/FromSql with i64::try_from (same as 0.32): values
+# outside 0..=i64::MAX fail closed rather than clamping or bitcasting.
+rusqlite = { version = "0.41", features = ["bundled", "fallible_uint"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 tempfile = "3.23"

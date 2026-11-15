@@ -721,13 +721,13 @@ impl Cache {
                 [lookup_key.to_string()],
                 |row| {
                     Ok(AdmissionCost {
-                        // rusqlite ≥0.41 dropped unsigned FromSql; store/load via i64.
-                        direct_ns: from_sql_u64(row.get(0)?),
-                        hit_ns: from_sql_u64(row.get(1)?),
-                        cold_ns: from_sql_u64(row.get(2)?),
-                        hits: from_sql_u64(row.get(3)?),
-                        skips: from_sql_u64(row.get(4)?),
-                        deopts: from_sql_u64(row.get(5)?),
+                        // INTEGER columns via rusqlite `fallible_uint`: u64 ↔ i64 try_from.
+                        direct_ns: row.get(0)?,
+                        hit_ns: row.get(1)?,
+                        cold_ns: row.get(2)?,
+                        hits: row.get(3)?,
+                        skips: row.get(4)?,
+                        deopts: row.get(5)?,
                         updated_ms: row.get::<_, String>(6)?.parse().unwrap_or_default(),
                     })
                 },
@@ -778,12 +778,12 @@ impl Cache {
                updated_unix_ms=excluded.updated_unix_ms",
             params![
                 lookup_key.to_string(),
-                to_sql_u64(direct),
-                to_sql_u64(hit),
-                to_sql_u64(cold),
-                to_sql_u64(hits),
-                to_sql_u64(skips),
-                to_sql_u64(deopts),
+                direct,
+                hit,
+                cold,
+                hits,
+                skips,
+                deopts,
                 now_unix_ms().to_string()
             ],
         )?;
@@ -791,10 +791,9 @@ impl Cache {
     }
 
     pub fn stats(&self) -> Result<CacheStats, CacheError> {
-        let executions: i64 =
+        let executions =
             self.connection
                 .query_row("SELECT COUNT(*) FROM executions", [], |row| row.get(0))?;
-        let executions = from_sql_u64(executions);
         let mut objects = 0_u64;
         let mut object_bytes = 0_u64;
         for entry in
@@ -1189,15 +1188,6 @@ fn process_is_alive(pid: u32) -> bool {
     Path::new(&format!("/proc/{pid}")).exists()
 }
 
-/// rusqlite ≥0.41 no longer implements `FromSql`/`ToSql` for unsigned integers.
-fn from_sql_u64(value: i64) -> u64 {
-    u64::try_from(value).unwrap_or(0)
-}
-
-fn to_sql_u64(value: u64) -> i64 {
-    i64::try_from(value).unwrap_or(i64::MAX)
-}
-
 /// Field 22 of `/proc/<pid>/stat`: clock ticks after boot when the process started.
 fn process_starttime(pid: u32) -> Option<u64> {
     let stat = fs::read_to_string(format!("/proc/{pid}/stat")).ok()?;
@@ -1535,6 +1525,59 @@ mod tests {
             cache.get_bytes(first),
             Err(CacheError::CorruptObject { .. })
         ));
+    }
+
+    /// Admission INTEGER columns use rusqlite `fallible_uint` (u64 ↔ i64 try_from).
+    /// Values in 0..=i64::MAX round-trip bit-exactly; above i64::MAX fails closed on write
+    /// (same convention as rusqlite 0.32).
+    #[test]
+    fn admission_u64_columns_round_trip_or_fail_closed() {
+        let directory = tempfile::tempdir().unwrap();
+        let cache = Cache::open(directory.path().join("cache")).unwrap();
+        let key = Hash::from(blake3::hash(b"admission-u64-roundtrip"));
+
+        cache
+            .record_admission(key, i64::MAX as u64, 0, Some(42), false, false)
+            .unwrap();
+        let cost = cache.admission_cost(key).unwrap().expect("row present");
+        assert_eq!(cost.direct_ns, i64::MAX as u64);
+        assert_eq!(cost.hit_ns, 42);
+        assert_eq!(cost.hits, 1);
+
+        let over = (i64::MAX as u64).saturating_add(1);
+        assert!(
+            over > i64::MAX as u64,
+            "precondition: sample exceeds signed INTEGER domain"
+        );
+        // Fresh key so blend cannot shrink the out-of-range sample before ToSql.
+        let over_key = Hash::from(blake3::hash(b"admission-u64-over-max"));
+        let err = cache
+            .record_admission(over_key, over, 0, None, false, false)
+            .expect_err("u64 > i64::MAX must fail closed on write");
+        assert!(
+            matches!(err, CacheError::Database(_)),
+            "expected Database/ToSql failure, got {err:?}"
+        );
+        assert!(
+            cache.admission_cost(over_key).unwrap().is_none(),
+            "failed write must not leave a partial admission row"
+        );
+
+        // Negative INTEGER on disk (corrupt/legacy) must fail closed on read, not clamp to 0.
+        cache
+            .connection
+            .execute(
+                "UPDATE admission SET direct_ns = -1 WHERE lookup_key = ?1",
+                [key.to_string()],
+            )
+            .unwrap();
+        let read_err = cache
+            .admission_cost(key)
+            .expect_err("negative INTEGER must fail closed on u64 FromSql");
+        assert!(
+            matches!(read_err, CacheError::Database(_)),
+            "expected Database/FromSql failure, got {read_err:?}"
+        );
     }
 
     #[test]
