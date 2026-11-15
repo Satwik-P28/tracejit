@@ -721,12 +721,13 @@ impl Cache {
                 [lookup_key.to_string()],
                 |row| {
                     Ok(AdmissionCost {
-                        direct_ns: row.get(0)?,
-                        hit_ns: row.get(1)?,
-                        cold_ns: row.get(2)?,
-                        hits: row.get(3)?,
-                        skips: row.get(4)?,
-                        deopts: row.get(5)?,
+                        // rusqlite ≥0.41 dropped unsigned FromSql; store/load via i64.
+                        direct_ns: from_sql_u64(row.get(0)?),
+                        hit_ns: from_sql_u64(row.get(1)?),
+                        cold_ns: from_sql_u64(row.get(2)?),
+                        hits: from_sql_u64(row.get(3)?),
+                        skips: from_sql_u64(row.get(4)?),
+                        deopts: from_sql_u64(row.get(5)?),
                         updated_ms: row.get::<_, String>(6)?.parse().unwrap_or_default(),
                     })
                 },
@@ -777,12 +778,12 @@ impl Cache {
                updated_unix_ms=excluded.updated_unix_ms",
             params![
                 lookup_key.to_string(),
-                direct,
-                hit,
-                cold,
-                hits,
-                skips,
-                deopts,
+                to_sql_u64(direct),
+                to_sql_u64(hit),
+                to_sql_u64(cold),
+                to_sql_u64(hits),
+                to_sql_u64(skips),
+                to_sql_u64(deopts),
                 now_unix_ms().to_string()
             ],
         )?;
@@ -790,9 +791,10 @@ impl Cache {
     }
 
     pub fn stats(&self) -> Result<CacheStats, CacheError> {
-        let executions =
+        let executions: i64 =
             self.connection
                 .query_row("SELECT COUNT(*) FROM executions", [], |row| row.get(0))?;
+        let executions = from_sql_u64(executions);
         let mut objects = 0_u64;
         let mut object_bytes = 0_u64;
         for entry in
@@ -1185,6 +1187,15 @@ fn process_is_alive(pid: u32) -> bool {
     }
     // V1 is Linux-only; /proc/<pid> avoids a libc production dependency in this crate.
     Path::new(&format!("/proc/{pid}")).exists()
+}
+
+/// rusqlite ≥0.41 no longer implements `FromSql`/`ToSql` for unsigned integers.
+fn from_sql_u64(value: i64) -> u64 {
+    u64::try_from(value).unwrap_or(0)
+}
+
+fn to_sql_u64(value: u64) -> i64 {
+    i64::try_from(value).unwrap_or(i64::MAX)
 }
 
 /// Field 22 of `/proc/<pid>/stat`: clock ticks after boot when the process started.
