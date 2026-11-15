@@ -59,13 +59,27 @@ fn workspace(directory: &Path) {
 /// Test processes can carry descriptors opened by the harness. TraceJIT correctly refuses to
 /// reuse when those descriptors are present, so ordinary tests close them before spawning the
 /// binary; the inherited-FD test below deliberately adds descriptor 9 afterward.
+///
+/// Only **non-CLOEXEC** descriptors are closed. Rust's `Command` spawn-error socket is CLOEXEC;
+/// blindly closing it in `pre_exec` turns a failed `exec` / failed `pre_exec` into a false
+/// `Ok(exit=1)` with empty stdout/stderr (parent sees EOF on the error channel). CLOEXEC fds are
+/// dropped by the kernel at `exec` of TraceJIT anyway, so skipping them still leaves a clean
+/// inherited table for the product.
 fn close_descriptors_above_stderr(except: i32) {
     for fd in 3..1024 {
-        if fd != except {
-            // SAFETY: closing an unused descriptor is async-signal-safe; EBADF is ignored.
-            unsafe {
-                libc::close(fd);
-            }
+        if fd == except {
+            continue;
+        }
+        // SAFETY: F_GETFD/close are async-signal-safe; EBADF means the slot is empty.
+        let flags = unsafe { libc::fcntl(fd, libc::F_GETFD) };
+        if flags < 0 {
+            continue;
+        }
+        if flags & libc::FD_CLOEXEC != 0 {
+            continue;
+        }
+        unsafe {
+            libc::close(fd);
         }
     }
 }
@@ -1933,23 +1947,43 @@ fn run_with_fd9(fixture: &Fixture, case: &str, source: Option<&File>, traced: bo
         command
     };
     command.stdin(Stdio::null());
-    // SAFETY: pre_exec runs between fork and exec; dup2/close are async-signal-safe and the source
-    // descriptor remains open in the parent until the child has exec'd.
+    // SAFETY: pre_exec runs between fork and exec; dup2/fcntl/close are async-signal-safe and the
+    // source descriptor remains open in the parent until the child has exec'd.
     unsafe {
         command.pre_exec(move || {
             close_descriptors_above_stderr(source_fd);
             if source_fd >= 0 {
-                if libc::dup2(source_fd, 9) < 0 {
-                    return Err(std::io::Error::last_os_error());
-                }
-                if source_fd != 9 {
-                    libc::close(source_fd);
-                }
+                install_inheritable_fd9(source_fd)?;
             }
             Ok(())
         });
     }
     command.output().unwrap()
+}
+
+/// Place `source_fd` at descriptor 9 **without** FD_CLOEXEC so it survives `exec` of TraceJIT.
+///
+/// `std::fs::File::open` uses `O_CLOEXEC`. Linux `dup2(old, old)` is a no-op that preserves
+/// CLOEXEC, so when the harness source already is fd 9 (common under parallel tests that fill
+/// 3..8), a naive dup2 leaves CLOEXEC set and the kernel drops fd 9 at exec — TraceJIT then
+/// traces a child that gets EBADF on `read(9)`, exits 3, and the test sees empty stderr.
+fn install_inheritable_fd9(source_fd: i32) -> std::io::Result<()> {
+    if source_fd != 9 {
+        // SAFETY: dup2 is async-signal-safe; caller verified source_fd is live.
+        if unsafe { libc::dup2(source_fd, 9) } < 0 {
+            return Err(std::io::Error::last_os_error());
+        }
+        // SAFETY: close is async-signal-safe; source_fd is distinct from 9.
+        unsafe {
+            libc::close(source_fd);
+        }
+    }
+    // Clear CLOEXEC whether we dup2'd or source_fd was already 9.
+    // SAFETY: F_SETFD on the live fd 9 we just installed.
+    if unsafe { libc::fcntl(9, libc::F_SETFD, 0) } < 0 {
+        return Err(std::io::Error::last_os_error());
+    }
+    Ok(())
 }
 
 fn pipe_with_data() -> File {
@@ -1981,28 +2015,22 @@ fn inherited_descriptor_beyond_stdin_is_never_reused() {
         ("pipe", Some(&pipe)),
         ("closed", None),
     ] {
-        // CI can transiently fail a baseline spawn under parallel load (empty stderr). Retry once
-        // with richer diagnostics; product refusal for fd 9 is what this test asserts afterward.
-        let first = {
-            let attempt = run_with_fd9(&fixture, "inherited_fd9_read", Some(&null), true);
-            if attempt.status.success() {
-                attempt
-            } else {
-                run_with_fd9(&fixture, "inherited_fd9_read", Some(&null), true)
-            }
-        };
+        use std::os::unix::process::ExitStatusExt;
+        let first = run_with_fd9(&fixture, "inherited_fd9_read", Some(&null), true);
         assert!(
             first.status.success(),
-            "{label} baseline status={:?} stderr={} stdout={}",
+            "{label} baseline code={:?} signal={:?} stderr={:?} stdout={:?}",
             first.status.code(),
+            first.status.signal(),
             stderr_of(&first),
             String::from_utf8_lossy(&first.stdout)
         );
         let second = run_with_fd9(&fixture, "inherited_fd9_read", Some(&null), true);
         assert!(
             second.status.success(),
-            "{label} baseline status={:?} stderr={} stdout={}",
+            "{label} baseline code={:?} signal={:?} stderr={:?} stdout={:?}",
             second.status.code(),
+            second.status.signal(),
             stderr_of(&second),
             String::from_utf8_lossy(&second.stdout)
         );
@@ -2083,18 +2111,14 @@ fn close_on_exec_descriptor_is_not_an_inherited_boundary() {
         ]);
         command.env("TRACEJIT_CACHE_DIR", &fixture.cache);
         command.env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0");
-        // SAFETY: pre_exec runs between fork and exec; dup2/fcntl/close are async-signal-safe.
+        // SAFETY: pre_exec runs between fork and exec; helpers only use async-signal-safe calls.
         unsafe {
             command.pre_exec(move || {
                 close_descriptors_above_stderr(source_fd);
-                if libc::dup2(source_fd, 9) < 0 {
-                    return Err(std::io::Error::last_os_error());
-                }
+                install_inheritable_fd9(source_fd)?;
+                // This case wants CLOEXEC so the traced child does *not* see fd 9.
                 if libc::fcntl(9, libc::F_SETFD, libc::FD_CLOEXEC) < 0 {
                     return Err(std::io::Error::last_os_error());
-                }
-                if source_fd != 9 {
-                    libc::close(source_fd);
                 }
                 Ok(())
             });
@@ -2224,8 +2248,68 @@ fn descriptor_enumeration_failure_is_fail_closed() {
     eprintln!("RESULT descriptor-enumeration-failure PASS");
 }
 
+/// Regression for the CI flake on concurrent/baseline fd9 tests: when the harness source fd
+/// **is already 9** and carries `O_CLOEXEC` from `File::open`, `dup2(9,9)` alone leaves CLOEXEC
+/// set and `exec` drops fd 9. TraceJIT then exits with the child's code 3 and empty stderr.
+#[test]
+fn cloexec_source_already_on_fd9_still_reaches_the_child() {
+    use std::os::unix::process::ExitStatusExt;
+
+    let fixture = Fixture::new();
+    let donor = File::open("/dev/null").unwrap();
+    let donor_fd = donor.as_raw_fd();
+    // SAFETY: install a CLOEXEC descriptor at slot 9, modeling File::open landing on 9 under load.
+    unsafe {
+        if donor_fd != 9 {
+            assert_eq!(libc::dup2(donor_fd, 9), 9, "dup2 onto 9");
+        }
+        assert_eq!(
+            libc::fcntl(9, libc::F_SETFD, libc::FD_CLOEXEC),
+            0,
+            "set CLOEXEC on 9"
+        );
+    }
+    let flags = unsafe { libc::fcntl(9, libc::F_GETFD) };
+    assert!(
+        flags >= 0 && flags & libc::FD_CLOEXEC != 0,
+        "precondition: fd9 CLOEXEC"
+    );
+
+    // SAFETY: borrow fd 9 without taking ownership away from this process until forget below.
+    let source_on_nine = unsafe { File::from_raw_fd(9) };
+    let output = run_with_fd9(&fixture, "inherited_fd9_read", Some(&source_on_nine), true);
+    std::mem::forget(source_on_nine);
+    drop(donor);
+    if donor_fd != 9 {
+        unsafe {
+            libc::close(9);
+        }
+    }
+
+    assert!(
+        output.status.success(),
+        "code={:?} signal={:?} stderr={:?} stdout={:?}",
+        output.status.code(),
+        output.status.signal(),
+        stderr_of(&output),
+        String::from_utf8_lossy(&output.stdout)
+    );
+    let report: Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert_ne!(report["kind"], "Reused", "{report}");
+    let bytes = report["stdout_bytes"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|byte| byte.as_u64().unwrap() as u8)
+        .collect::<Vec<_>>();
+    assert_eq!(bytes, b"EOF\n", "{report}");
+    eprintln!("RESULT cloexec-fd9-survives-exec PASS");
+}
+
 #[test]
 fn concurrent_inherited_descriptor_replacements_are_refused() {
+    use std::os::unix::process::ExitStatusExt;
+
     let null = File::open("/dev/null").unwrap();
     let zero = File::open("/dev/zero").unwrap();
     let (null_output, zero_output) = std::thread::scope(|scope| {
@@ -2243,7 +2327,16 @@ fn concurrent_inherited_descriptor_replacements_are_refused() {
         ("null", null_output, b"EOF\n".as_slice()),
         ("zero", zero_output, b"DATA\n".as_slice()),
     ] {
-        assert!(output.status.success(), "{label}: {}", stderr_of(&output));
+        assert!(
+            output.status.success(),
+            "{label}: code={:?} signal={:?} stderr={:?} stdout={:?} \
+             (code 3 + empty stderr + JSON stdout usually means fd9 never reached the child; \
+             code 1 + empty stdio usually meant harness closed Rust's spawn-error socket)",
+            output.status.code(),
+            output.status.signal(),
+            stderr_of(&output),
+            String::from_utf8_lossy(&output.stdout)
+        );
         let report: Value = serde_json::from_slice(&output.stdout).unwrap();
         assert_ne!(report["kind"], "Reused", "{label}: {report}");
         let bytes = report["stdout_bytes"]

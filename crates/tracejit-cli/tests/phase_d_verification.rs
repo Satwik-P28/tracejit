@@ -19,8 +19,16 @@ fn tracejit() -> PathBuf {
 }
 
 fn close_descriptors_above_stderr() {
+    // Skip CLOEXEC fds so Rust's spawn-error channel survives `pre_exec` (see linux_integration).
     for fd in 3..1024 {
-        // SAFETY: closing an unused descriptor is async-signal-safe; EBADF is ignored.
+        // SAFETY: F_GETFD/close are async-signal-safe; EBADF means the slot is empty.
+        let flags = unsafe { libc::fcntl(fd, libc::F_GETFD) };
+        if flags < 0 {
+            continue;
+        }
+        if flags & libc::FD_CLOEXEC != 0 {
+            continue;
+        }
         unsafe {
             libc::close(fd);
         }

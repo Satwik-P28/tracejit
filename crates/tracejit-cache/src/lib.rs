@@ -195,6 +195,11 @@ const RESTORE_INTENT_SUFFIX: &str = ".json";
 struct RestoreIntent {
     version: u32,
     pid: u32,
+    /// `/proc/<pid>/stat` starttime (field 22). Bound so a recycled PID cannot
+    /// masquerade as the original writer and hide an interrupted restore.
+    /// Absent/zero in legacy markers → treated as interrupted (fail closed).
+    #[serde(default)]
+    starttime: u64,
     destinations: Vec<PathBuf>,
 }
 
@@ -558,9 +563,15 @@ impl Cache {
     }
 
     fn write_restore_intent(&self, outputs: &[OutputArtifact]) -> Result<(), CacheError> {
+        let pid = std::process::id();
+        let starttime = process_starttime(pid).ok_or_else(|| CacheError::OutputPrecondition {
+            path: self.restore_intent_path(),
+            reason: "could not read /proc/self starttime for restore-intent".into(),
+        })?;
         let intent = RestoreIntent {
             version: 1,
-            pid: std::process::id(),
+            pid,
+            starttime,
             destinations: outputs.iter().map(|output| output.path.clone()).collect(),
         };
         let path = self.restore_intent_path();
@@ -1176,6 +1187,41 @@ fn process_is_alive(pid: u32) -> bool {
     Path::new(&format!("/proc/{pid}")).exists()
 }
 
+/// Field 22 of `/proc/<pid>/stat`: clock ticks after boot when the process started.
+fn process_starttime(pid: u32) -> Option<u64> {
+    let stat = fs::read_to_string(format!("/proc/{pid}/stat")).ok()?;
+    // `comm` may contain spaces and parentheses; fields after the final `)` are stable.
+    let close = stat.rfind(')')?;
+    let mut fields = stat[close + 1..].split_whitespace();
+    // After `)`: state(3) … starttime(22) → skip 19 tokens, take the 20th.
+    for _ in 0..19 {
+        fields.next()?;
+    }
+    fields.next()?.parse().ok()
+}
+
+/// An intent is interrupted when its writer is gone **or** the PID was reused
+/// (starttime mismatch / missing). Live same-starttime writers are in-progress restores.
+fn restore_intent_is_interrupted(path: &Path, pid: u32) -> bool {
+    let Ok(bytes) = fs::read(path) else {
+        return false;
+    };
+    let Ok(intent) = serde_json::from_slice::<RestoreIntent>(&bytes) else {
+        // Unreadable marker: fail closed.
+        return true;
+    };
+    if intent.pid != pid || intent.starttime == 0 {
+        return true;
+    }
+    if !process_is_alive(pid) {
+        return true;
+    }
+    match process_starttime(pid) {
+        Some(starttime) => starttime != intent.starttime,
+        None => true,
+    }
+}
+
 fn dead_restore_intents_present(root: &Path) -> bool {
     let Ok(entries) = fs::read_dir(root) else {
         return false;
@@ -1188,7 +1234,7 @@ fn dead_restore_intents_present(root: &Path) -> bool {
         let Some(pid) = parse_restore_intent_pid(name) else {
             continue;
         };
-        if !process_is_alive(pid) {
+        if restore_intent_is_interrupted(&entry.path(), pid) {
             return true;
         }
     }
@@ -1207,7 +1253,7 @@ fn clear_dead_restore_intents(root: &Path) {
         let Some(pid) = parse_restore_intent_pid(name) else {
             continue;
         };
-        if !process_is_alive(pid) {
+        if restore_intent_is_interrupted(&entry.path(), pid) {
             let _ = fs::remove_file(entry.path());
         }
     }
@@ -1620,6 +1666,7 @@ mod tests {
             serde_json::to_vec(&RestoreIntent {
                 version: 1,
                 pid: dead_pid,
+                starttime: 1,
                 destinations: vec![PathBuf::from("/tmp/synthetic")],
             })
             .unwrap(),
@@ -1629,6 +1676,58 @@ mod tests {
         assert!(reopened.has_interrupted_restore());
         assert!(reopened.consume_interrupted_restore());
         assert!(!reopened.has_interrupted_restore());
+        assert!(!intent_path.is_file());
+    }
+
+    #[test]
+    fn recycled_pid_intent_with_mismatched_starttime_is_interrupted() {
+        let directory = tempfile::tempdir().unwrap();
+        let cache_root = directory.path().join("cache");
+        let _cache = Cache::open(&cache_root).unwrap();
+        let live_pid = std::process::id();
+        let real_start = process_starttime(live_pid).expect("self starttime");
+        let intent_path = cache_root.join(format!(
+            "{RESTORE_INTENT_PREFIX}{live_pid}{RESTORE_INTENT_SUFFIX}"
+        ));
+        // Simulate hard-kill then PID reuse: same pid, wrong starttime.
+        fs::write(
+            &intent_path,
+            serde_json::to_vec(&RestoreIntent {
+                version: 1,
+                pid: live_pid,
+                starttime: real_start.saturating_add(1_000_000),
+                destinations: vec![PathBuf::from("/tmp/synthetic")],
+            })
+            .unwrap(),
+        )
+        .unwrap();
+        let mut reopened = Cache::open(&cache_root).unwrap();
+        assert!(
+            reopened.has_interrupted_restore(),
+            "PID reuse must not hide an interrupted restore"
+        );
+        assert!(reopened.consume_interrupted_restore());
+        assert!(!intent_path.is_file());
+    }
+
+    #[test]
+    fn legacy_intent_without_starttime_is_interrupted() {
+        let directory = tempfile::tempdir().unwrap();
+        let cache_root = directory.path().join("cache");
+        let _cache = Cache::open(&cache_root).unwrap();
+        let live_pid = std::process::id();
+        let intent_path = cache_root.join(format!(
+            "{RESTORE_INTENT_PREFIX}{live_pid}{RESTORE_INTENT_SUFFIX}"
+        ));
+        // Pre-starttime markers omit the field (serde default 0) → fail closed.
+        fs::write(
+            &intent_path,
+            format!(r#"{{"version":1,"pid":{live_pid},"destinations":["/tmp/synthetic"]}}"#),
+        )
+        .unwrap();
+        let mut reopened = Cache::open(&cache_root).unwrap();
+        assert!(reopened.has_interrupted_restore());
+        assert!(reopened.consume_interrupted_restore());
         assert!(!intent_path.is_file());
     }
 
