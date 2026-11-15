@@ -1,6 +1,6 @@
 # TraceJIT application materials
 
-Verified evidence only. Tip: `7b9e7ca98143fc8e55e4927b21906aa361219b6a` (main after stabilization #33–#35). No peer-reviewed, production-adoption, collaborator, user-count, or award claims. Agent assistance was used in implementation and documentation; do not claim otherwise.
+Verified evidence only. Tip: `3779ca078b78de3c8b3e6f30a1301352038d068b` (main after stabilization #33–#35). No peer-reviewed, production-adoption, collaborator, user-count, or award claims. Agent assistance was used in implementation and documentation; do not claim otherwise.
 
 ## Concise project summary
 
@@ -42,13 +42,13 @@ Prefer refuse over stale reuse; keep soft restore rollback and hard-kill intent 
 6. **Did you beat Ninja?** Identical rerun: no. Content-correct on mtime/corrupt: yes (phase_k8).
 7. **Auto-deploy CEGAR?** Never — `VerifiedOfflineNotDeployed` ceiling.
 8. **Census 1/32 — failure?** Boundary under native randomness/clock; not tuned to pass.
-9. **SQLite CVE?** `#34` upgraded deps; `cargo audit` clean on `7b9e7ca` tip.
+9. **SQLite CVE?** `#34` upgraded deps; `cargo audit` clean on packaging tip `3779ca0`.
 10. **Did a model write all code?** No — agent assistance was used; claims avoid fabrication.
 
 ## Reproducibility
 
 ```bash
-git checkout 7b9e7ca98143fc8e55e4927b21906aa361219b6a
+git checkout 3779ca078b78de3c8b3e6f30a1301352038d068b
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo test --workspace
