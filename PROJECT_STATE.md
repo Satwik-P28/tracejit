@@ -19,7 +19,7 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 
 ## Current main
 
-- Tip: `7b9e7ca` — merge of warm-hit profile PR [#35](https://github.com/Satwik-P28/tracejit/pull/35); product `crates/` unchanged since `ed3bd39` (#33/#34). Main CI: [43681932897](https://github.com/Satwik-P28/tracejit/actions/runs/43681932897) success.
+- Tip: `3779ca0` — merge of docs/gates PR [#36](https://github.com/Satwik-P28/tracejit/pull/36); product `crates/` unchanged since `ed3bd39`. Main CI: [43682852108](https://github.com/Satwik-P28/tracejit/actions/runs/43682852108) success.
 - PR3 evidence: `benchmarks/results/final_stab_pr3/` (skip-rate negative result; phase breakdown; mandate §4).
 - PR4 gates + release report: `benchmarks/results/final_stab_pr4/`, `docs/final/RELEASE_REPORT.md`.
 - Releases: `v0.1.0` (`cf0ddb2`), `v0.1.1` (`31c36d1`). Do not move tags.
