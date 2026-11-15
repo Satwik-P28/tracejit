@@ -1,4 +1,5 @@
 {
+  "decision": "withdraw_destination_match_restore_skip",
   "before": {
     "commit": "ed3bd39fabd2c809a25059740ccc553b935b9039",
     "artifacts": [
@@ -8,15 +9,20 @@
       "census_before/"
     ]
   },
-  "after": {
-    "commit": "5c50d111b0c567863163a1d49023cb2bb12d34a9",
+  "skip_probe_withdrawn": {
+    "note": "Measured with skip enabled on top of 7b0abf9; not a product claim",
     "artifacts": [
+      "skip_rate_study.json",
       "phase_k7_after.json",
       "warm_hit_profile_after.json",
-      "harness_after/",
-      "census_after/"
+      "harness_after/"
     ]
   },
-  "optimization": "skip restore_outputs when every destination already matches recorded content+metadata (O_NOATIME hash)",
-  "note": "Harness working_tree_dirty=true reflects untracked result dirs during measurement; binary built from the recorded commit."
+  "after_drop": {
+    "note": "Product code matches ed3bd39 restore path; binary SHA matched ed3bd39 release build",
+    "artifacts": [
+      "three_scenario_after_drop.json",
+      "compare.md"
+    ]
+  }
 }

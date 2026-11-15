@@ -1,57 +1,61 @@
-# Final stabilization PR3: warm-hit before/after
+# Final stabilization PR3: warm-hit profile (opt withdrawn)
 
-Host: Linux 6.12.113+ x86_64, 4 CPUs, glibc 2.39.  
-Method: release binary; `TRACEJIT_PHASE_TIMING`; fds >2 closed for phase_k7; official `scripts/benchmark.sh`; `benchmarks/realworld/census.py`.
+Host: Linux 6.12.113+ x86_64, 4 CPUs, glibc 2.39.
 
-**Do not treat numbers from other commits as fresh.** Each artifact records its `commit` field.
+## Decision
 
-| Arm | Commit | Binary role |
-| --- | --- | --- |
-| Before | `ed3bd39fabd2c809a25059740ccc553b935b9039` | main tip after #34 (audit) |
-| After | `5c50d111b0c567863163a1d49023cb2bb12d34a9` | skip-restore when destinations already match |
+**The destination-match restore skip was withdrawn.** It only fired in synthetic
+back-to-back warm HIT loops where nothing reads outputs between runs. Under
+default Linux `relatime`, any consumer read after a restore advances atime when
+`atime <= mtime` (the post-restore case). Obs and full restore both treat recorded
+atime as part of v2 metadata, so the skip must compare atime; relaxing that would
+make skip ≠ full restore. Measured skip rate with output consumption: **0/40**.
 
-Raw JSON: `phase_k7_{before,after}.json`, `warm_hit_profile_{before,after}.json`, `harness_{before,after}/latest.json`, `census_{before,after}/census.json`, `PROVENANCE.json`.
+Do **not** cite 5.2 ms → 3.4 ms as a product win. That delta is the synthetic
+no-consumer loop only (`skip_rate_study.json` scenario `c-etl-back-to-back`).
 
-## Profile (c-etl warm HIT phase medians, ms)
+PR3 deliverable after withdrawal: profile + skip-rate study + before benches on
+`ed3bd39`, tip restored to full-restore behavior (same as `ed3bd39` restore path).
 
-| Phase | Before (`ed3bd39`) | After (`5c50d11`) |
-| --- | ---: | ---: |
-| warm wall | 5.601 | 3.381 |
-| cas_restore | 2.103 | 0.031 |
-| guard_validation | 0.432 | 0.424 |
-| sqlite_query | 0.178 | 0.164 |
-| record_decode | 0.133 | 0.132 |
+## Provenance
 
-Largest measured warm cost before the change was `cas_restore` (staging + `sync_data` + restore-intent + rename) on destinations that already matched the CAS object.
+| Artifact | Commit / binary |
+| --- | --- |
+| `phase_k7_before.json`, `warm_hit_profile_before.json`, `harness_before/`, `census_before/` | `ed3bd39` |
+| `skip_rate_study.json` (probe **with** skip) | working tree on `7b0abf9` + skip WIP; see file |
+| `three_scenario_after_drop.json` | tip after skip removed (binary SHA matches `ed3bd39` release) |
+| `phase_k7_after.json` / harness_after | **historical probe with skip — not a claimed product result** |
 
-## phase_k7 microbench (5 warmups + 30 runs)
+## Skip rate (same machine, n=40 unless noted)
 
-| Shape | Warm wall before ms | Warm wall after ms | cas_restore before | cas_restore after |
+| Scenario | Consume output between HITs? | Skips | Full restores | Skip rate | Warm wall median ms |
+| --- | --- | ---: | ---: | ---: | ---: |
+| c-etl back-to-back | no | 40 | 0 | 1.00 | 3.309 |
+| c-etl consume `report.json` | yes | 0 | 40 | 0.00 | 4.032 |
+| plain back-to-back | no | 40 | 0 | 1.00 | 3.315 |
+| plain consume outputs | yes | 0 | 40 | 0.00 | 4.087 |
+| session-like ETL consume | yes | 0 | 30 | 0.00 | 4.836 |
+
+Classification: `cas_restore_ns < 200_000` ⇒ skip. Raw: `skip_rate_study.json`.
+
+## Three scenarios after drop (full restore always) — `three_scenario_after_drop.json`
+
+| Scenario | n | Warm wall median ms | p95 ms | cas_restore median ns |
 | --- | ---: | ---: | ---: | ---: |
-| c-etl | 5.219 | 3.409 | 1.861 | 0.031 |
-| plain_file_read | 5.475 | 3.392 | 1.996 | 0.027 |
+| outputs present & matching | 40 | 5.260 | 7.055 | 1_872_162 |
+| outputs deleted | 40 | 6.219 | 7.166 | 2_839_471 |
+| outputs diverged (small) | 40 | 4.134 | 5.694 | 900_312 |
+| outputs diverged (2 MiB) | 40 | 4.217 | 6.533 | 963_048 |
 
-## Official harness (`benchmarks/workloads/c-etl`)
+Headline for matching warm HIT remains the ~5 ms full-restore floor on this host, not the withdrawn 3.4 ms skip figure.
 
-| Metric | Before (`ed3bd39`) | After (`5c50d11`) |
-| --- | ---: | ---: |
-| cached median ns | 5_004_024 | 2_900_365 |
-| guard_check median ns | 3_130_513 | 1_090_955 |
-| baseline median ns | 1_369_003 | 1_439_502 |
-| output_equivalent | PASS | PASS |
+## Atime / Obs (why we did not relax the comparison)
 
-## Census (native `admission=always`)
+- Full restore sets mode, uid, gid, atime, mtime from the v2 artifact (`stage_output`).
+- `INVARIANTS.yaml` Obs includes `regular_file_output_metadata_v2_when_present`.
+- Skip that ignored atime would leave a post-read atime while full restore would reset it → distinguishable under Obs.
+- Therefore atime stays required for any skip; with relatime + consumers, skip rate is ~0 → **drop**.
 
-| | Before | After |
-| --- | ---: | ---: |
-| eligibility_rate | 0.03125 (1/32) | 0.03125 (1/32) |
-| reused | 1 | 1 |
-| refused | 30 | 30 |
+## Census
 
-Eligibility unchanged (expected: restore fast path does not alter classification).
-
-## Change under test
-
-When every `OutputArtifact` already matches on-disk content (BLAKE3 via `O_NOATIME`) and metadata (mode/uid/gid/atime/mtime), `restore_outputs` returns without staging, parent fsync, restore-intent, or rename. Shape validation still runs; mismatch or `O_NOATIME` denial falls through to the existing durable path. CAS puts still `sync_all`; divergent destinations still full-restore.
-
-Rejected for this PR: dropping staging sync, weakening guards, or skipping content verification.
+Before `ed3bd39` and after-with-skip probe both 1/32 eligible; restore path does not change classification. Tip after drop: same classifier.

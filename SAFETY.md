@@ -47,6 +47,12 @@ PROVEN narrows the executing process's effect surface, but current Landlock
 policy does not freeze external processes or the filesystem. Use TraceJIT only
 where concurrent mutation is controlled.
 
+A warm-HIT fast path that skipped restore when destinations already matched was
+evaluated and rejected for V1: Obs includes v2 atime, full restore resets atime,
+and under `relatime` any consumer read between runs defeats the skip. Skipping
+would also leave the same residual verify→return window as post-restore exposure;
+that is not race elimination. See `benchmarks/results/final_stab_pr3/compare.md`.
+
 Multi-output restore uses atomic single-path `rename` plus soft rollback. Hard
 kill mid-apply may leave a mixed workspace; a durable per-pid restore-intent then
 forces the next run to refuse HIT and re-execute. TraceJIT does not claim
