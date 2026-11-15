@@ -1,0 +1,15 @@
+
+TraceJIT
+
+cache          MISS
+classified     GUARDED
+dependencies   7
+outputs        2
+unknown        0
+runtime        2.67ms
+
+next run is eligible for guarded reuse
+RESULT phase-k4-soft-fail-retrace PASS decision=Executed
+after kill a=input one b=user-b
+RESULT phase-k4-hard-kill-recovery PASS decision=Ineligible
+EXIT:0

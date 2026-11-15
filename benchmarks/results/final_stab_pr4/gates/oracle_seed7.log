@@ -1,0 +1,6 @@
+copy_stable                  ok
+copy_content_change          ok
+rename_exchange              ok
+getrandom_never_hit          ok
+RESULT phase-k2-oracle incorrect_hits=0 regress_eligible=0 cases=4 -> benchmarks/results/final_stab_pr4/gates/oracle-seed7/oracle-seed-7.json
+EXIT:0

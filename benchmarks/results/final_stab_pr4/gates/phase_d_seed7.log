@@ -1,0 +1,16 @@
+{
+  "seed": 7,
+  "cases": 146,
+  "executed_scenarios": 135,
+  "skipped_scenarios": 11,
+  "statuses": {
+    "ok": 126,
+    "skipped": 11,
+    "refused-or-retraced": 9
+  },
+  "incorrect_hits": 0,
+  "discover_mismatches": 0,
+  "output": "/agent/repos/tracejit-final-adv/benchmarks/results/final_stab_pr4/gates/phase_d_seed7/phase-d-seed-7.json"
+}
+RESULT phase-d-differential PASS
+EXIT:0

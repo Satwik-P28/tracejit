@@ -1,0 +1,6 @@
+reuse_hit states=9 violations=0
+restore_crash states=14 violations=0
+restore_crash mixed_kill_states=2 (limitation; must not expose)
+restore_intent states=5 legal_states=4 legal_violations=0 planted_illegal=1
+RESULT phase-k3-modelcheck PASS
+EXIT:0

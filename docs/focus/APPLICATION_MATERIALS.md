@@ -1,15 +1,15 @@
 # TraceJIT application materials
 
-Verified evidence only. Tip: `827b7763a73cddda4e3a99c9883fbae4b18d87d2` (main after final-adversarial PRs #26–#30). No peer-reviewed, production-adoption, collaborator, user-count, or award claims. Agent assistance was used in implementation and documentation; do not claim otherwise.
+Verified evidence only. Tip: `7b9e7ca98143fc8e55e4927b21906aa361219b6a` (main after stabilization #33–#35). No peer-reviewed, production-adoption, collaborator, user-count, or award claims. Agent assistance was used in implementation and documentation; do not claim otherwise.
 
 ## Concise project summary
 
-TraceJIT is a Rust prototype that memoizes unmodified Linux x86_64 commands by tracing modeled syscalls, classifying effects, and replaying outputs only when `GUARDED`/`PROVEN` records still pass synchronous guards. It fails closed on clocks, randomness, networks, and unmodeled behavior. Measured wins include ~7.4× warm HIT on real `c-transform` (final_p1 e2e @ `026e660`) and correct recovery where Make returns stale bytes; short-command floor and short-ETL sessions remain net losses.
+TraceJIT is a Rust prototype that memoizes unmodified Linux x86_64 commands by tracing modeled syscalls, classifying effects, and replaying outputs only when `GUARDED`/`PROVEN` records still pass synchronous guards. It fails closed on clocks, randomness, networks, and unmodeled behavior. On the final product tip, warm HIT is ~6.1× on real `c-transform` (mandate §4) and recovers correctly where Make returns stale bytes; short-command floor and short-ETL sessions remain net losses. A destination-match restore skip was evaluated and withdrawn (0% skip when outputs are consumed).
 
 ## Two resume bullets
 
 - Built a fail-closed Linux process memoizer (ptrace, BLAKE3 CAS, SQLite) that reuses whole commands only after effect classification and synchronous guards; closed RENAME_EXCHANGE false-HIT, restore-intent refuse after hard kill, and pre-restore TOCTOU recheck with regression tests.
-- Measured honest performance boundaries: ~7.4× warm reuse on a CPU-heavy C transform with bootstrap CIs, 1/32 native census eligibility, and documented short-command losses; shipped CEGAR refine without auto-deploy and an offline admission model that cannot override safety.
+- Profiled the warm-HIT path and rejected unsafe speedups: measured ~6.1× reuse on a CPU-heavy C transform with bootstrap CIs, documented 1/32 native census eligibility and short-command losses, and withdrew a restore skip that only helped a synthetic no-consumer loop.
 
 ## ≤100-word Jane Street FOCUS description
 
@@ -25,12 +25,12 @@ Most caches trust a declared graph or a compiler wrapper. TraceJIT instead trace
 
 ## Meaningful performance win and loss
 
-- **Win:** `c-transform` warm HIT ≈ 4.40 ms vs DIRECT ≈ 32.66 ms (~7.4×), `benchmarks/results/final_p1/e2e.json`.
-- **Loss:** `plain_file_read` warm HIT ≈ 5.73 ms vs DIRECT ≈ 0.38 ms; short-ETL session cumulative also loses — same artifact.
+- **Win:** `c-transform` warm HIT ≈ 5.303 ms vs DIRECT ≈ 32.524 ms (~6.1×), `benchmarks/results/final_stab_pr3/mandate_s4/` @ measuring commit `4ffde9a` (product ≡ `7b9e7ca`).
+- **Loss:** `/bin/true` warm HIT ≈ 4.475 ms vs DIRECT ≈ 0.351 ms; short-ETL session cumulative also loses — same package. Destination-match restore skip withdrawn (0/40 with consume).
 
 ## Design decisions (human)
 
-Prefer refuse over stale reuse; keep soft restore rollback and hard-kill intent refuse rather than a false all-or-nothing journal; keep production admission as analytical CurrentAuto; reject bandit defaults and controlled runtimes that change cold semantics; document competitor skips instead of inventing losses.
+Prefer refuse over stale reuse; keep soft restore rollback and hard-kill intent refuse rather than a false all-or-nothing journal; keep production admission as analytical CurrentAuto; reject bandit defaults and controlled runtimes that change cold semantics; document competitor skips instead of inventing losses; withdraw opts that only win synthetic loops.
 
 ## Ten adversarial follow-ups (accurate answers)
 
@@ -42,13 +42,13 @@ Prefer refuse over stale reuse; keep soft restore rollback and hard-kill intent 
 6. **Did you beat Ninja?** Identical rerun: no. Content-correct on mtime/corrupt: yes (phase_k8).
 7. **Auto-deploy CEGAR?** Never — `VerifiedOfflineNotDeployed` ceiling.
 8. **Census 1/32 — failure?** Boundary under native randomness/clock; not tuned to pass.
-9. **SQLite CVE?** Documented deferred bump; audit not claimed clean.
+9. **SQLite CVE?** `#34` upgraded deps; `cargo audit` clean on `7b9e7ca` tip.
 10. **Did a model write all code?** No — agent assistance was used; claims avoid fabrication.
 
 ## Reproducibility
 
 ```bash
-git checkout 827b7763a73cddda4e3a99c9883fbae4b18d87d2
+git checkout 7b9e7ca98143fc8e55e4927b21906aa361219b6a
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo test --workspace
@@ -59,4 +59,4 @@ python3 scripts/modelcheck/check_state_machines.py
 ./scripts/phase_k4_restore_fault.sh ./target/release/tracejit
 ```
 
-Evidence index: `docs/final/FINAL_ANSWER.md`, `docs/final/ARTIFACT_EVALUATION.md`, `docs/research/CLAIMS_LEDGER.md`.
+Evidence index: `docs/final/RELEASE_REPORT.md`, `docs/final/FINAL_ANSWER.md`, `docs/research/CLAIMS_LEDGER.md`.

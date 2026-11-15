@@ -1,0 +1,17 @@
+usage: independent_obs.py [-h] [--seed SEED] [--output OUTPUT]
+
+Phase K2 independent execution oracle. Compares TraceJIT Obs against a fresh
+native Exec without importing any TraceJIT product crates, classifiers, or
+guard validators. The only interface to the product is the `tracejit` CLI
+binary (and the OS). Obs (execution-equivalence contract): - process exit
+status - stdout / stderr byte strings TraceJIT reports (or native pipes) -
+named regular-file outputs present after the run A ``Reused`` decision whose
+Obs differs from a twin-workspace native Exec is an ``incorrect_hit``.
+Uncertainty / UNKNOWN that refuses reuse is not a failure. Usage: python3
+benchmarks/oracle/independent_obs.py [--seed N] [--output DIR]
+
+options:
+  -h, --help       show this help message and exit
+  --seed SEED
+  --output OUTPUT
+EXIT:0

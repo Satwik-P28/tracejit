@@ -1,0 +1,133 @@
+TraceJIT demo. One run each. Medians are in benchmarks/results/break-even.md.
+Workload: fold numbers.txt, then 250000000 extra mix rounds. This is synthetic.
+=== direct run ===
+5b5bc5148ab51560
+direct runtime 34 ms (one run, not a median)
+RESULT direct PASS
+=== first traced run ===
+5b5bc5148ab51560
+
+TraceJIT
+
+cache          MISS
+classified     GUARDED
+dependencies   7
+outputs        1
+unknown        0
+runtime        35.66ms
+
+next run is eligible for guarded reuse
+RESULT miss PASS
+=== second guarded hit ===
+5b5bc5148ab51560
+
+TraceJIT
+
+guards         60/60 passed
+cache          HIT
+runtime        5.08ms
+saved          30.58ms
+speedup        7.0x
+RESULT hit PASS
+=== explain ===
+TraceJIT explanation
+
+execution      ef9e47324cdd96ea
+command        ./benchmarks/workloads/c-transform/transform
+classification GUARDED
+cache decision Reused
+reason         all guards passed and cached outputs were restored
+effects        54
+guards         60
+inputs         7
+outputs        1
+details
+  - all observed dependencies are guardable or captured outputs
+cache key      argv, cwd, executable hash, runtime identity, and all 44 inherited environment entries
+observed inputs
+  READ  /agent/repos/tracejit-final-adv/benchmarks/workloads/c-transform/numbers.txt
+  READ  /etc/ld.so.cache
+  READ  /lib/x86_64-linux-gnu/libc.so.6
+  EXEC  /agent/repos/tracejit-final-adv/benchmarks/workloads/c-transform/transform
+  META  /etc/ld.so.cache
+  META  /etc/ld.so.preload
+  META  /lib/x86_64-linux-gnu/libc.so.6
+outputs
+  WRITE /agent/repos/tracejit-final-adv/benchmarks/workloads/c-transform/output/report.txt
+guards
+  file metadata /agent/repos/tracejit-final-adv/benchmarks/workloads/c-transform/transform
+  executable content /agent/repos/tracejit-final-adv/benchmarks/workloads/c-transform/transform
+  working directory /agent/repos/tracejit-final-adv
+  runtime identity
+  environment key AGENT_TRANSCRIPTS
+  environment key CARGO_HOME
+  environment key CURSOR_AGENT
+  environment key CURSOR_AGENT_SOCKET
+  environment key CURSOR_CONVERSATION_ID
+  environment key CURSOR_REQUEST_ID
+  environment key CURSOR_RIPGREP_PATH
+  environment key CURSOR_SPAWN_CWD_HOP
+  environment key CURSOR_WORKLOAD_CGROUP
+  environment key DISPLAY
+  environment key EXEC_DAEMON_STARTUP_TRACEPARENT
+  environment key FORCE_COLOR
+  environment key GH_TELEMETRY
+  environment key GIT_CONFIG_COUNT
+  environment key GIT_CONFIG_KEY_0
+  environment key GIT_CONFIG_VALUE_0
+  environment key GIT_DISCOVERY_ACROSS_FILESYSTEM
+  environment key GIT_LFS_SKIP_SMUDGE
+  environment key GLIBC_TUNABLES
+  environment key HOME
+  environment key LANG
+  environment key LC_ALL
+  environment key MALLOC_ARENA_MAX
+  environment key NODE_DISABLE_COMPILE_CACHE
+  environment key NO_COLOR
+  environment key NVM_BIN
+  environment key NVM_CD_FLAGS
+  environment key NVM_DIR
+  environment key NVM_INC
+  environment key OLDPWD
+  environment key PATH
+  environment key PWD
+  environment key RUSTUP_HOME
+  environment key RUST_VERSION
+  environment key SHELL
+  environment key SHLVL
+  environment key TERM
+  environment key TRACEJIT
+  environment key TRACEJIT_CACHE_DIR
+  environment key USER
+  environment key VNC_DPI
+  environment key VNC_RESOLUTION
+  environment key _ZO_DOCTOR
+  environment key __CURSOR_SANDBOX_ENV_RESTORE
+  file metadata /agent/repos/tracejit-final-adv/benchmarks/workloads/c-transform/numbers.txt
+  file content /agent/repos/tracejit-final-adv/benchmarks/workloads/c-transform/numbers.txt
+  file metadata /etc/ld.so.cache
+  file content /etc/ld.so.cache
+  file metadata /lib/x86_64-linux-gnu/libc.so.6
+  file content /lib/x86_64-linux-gnu/libc.so.6
+  file metadata /agent/repos/tracejit-final-adv/benchmarks/workloads/c-transform/transform
+  executable content /agent/repos/tracejit-final-adv/benchmarks/workloads/c-transform/transform
+  file metadata /etc/ld.so.cache
+  file metadata /etc/ld.so.preload
+  file metadata /lib/x86_64-linux-gnu/libc.so.6
+RESULT explain PASS
+=== mutate input ===
+=== run after mutation ===
+511d993f9b8b4e21
+
+TraceJIT
+
+cache          DEOPT
+classified     GUARDED
+dependencies   7
+outputs        1
+unknown        0
+runtime        35.00ms
+
+next run is eligible for guarded reuse
+RESULT mutation DEOPT
+EXIT:0

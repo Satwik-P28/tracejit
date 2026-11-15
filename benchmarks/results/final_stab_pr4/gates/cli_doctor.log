@@ -1,0 +1,9 @@
+os             linux
+arch           x86_64
+supported      yes
+ptrace         yes
+seccomp        yes
+landlock       abi 6
+proven         yes
+cache          /tmp/fstat1-c (writable)
+EXIT:0
