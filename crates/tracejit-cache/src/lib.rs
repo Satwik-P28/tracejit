@@ -516,6 +516,13 @@ impl Cache {
         for output in outputs {
             validate_output_precondition(output)?;
         }
+        // Warm hits usually re-apply bytes that the previous run (or an earlier HIT) already
+        // left in place. When every destination already matches the recorded content and
+        // metadata, skip staging/fsync/intent/rename. Inspection opens with O_NOATIME so the
+        // content hash check cannot itself invalidate atime and defeat the fast path.
+        if outputs_already_match(outputs)? {
+            return Ok(());
+        }
         let mut staged = Vec::with_capacity(outputs.len());
         for output in outputs {
             staged.push(self.stage_output(output)?);
@@ -1260,6 +1267,101 @@ fn clear_dead_restore_intents(root: &Path) {
     }
 }
 
+/// True when every recorded output is already present with matching content and metadata.
+///
+/// Returns `Ok(false)` when any destination differs or cannot be inspected cheaply; the caller
+/// then performs a full staged restore. I/O errors while inspecting a path that should exist
+/// propagate so the hit fails closed instead of treating a permission failure as a mismatch.
+fn outputs_already_match(outputs: &[OutputArtifact]) -> Result<bool, CacheError> {
+    for output in outputs {
+        if !output_already_matches(output)? {
+            return Ok(false);
+        }
+    }
+    Ok(true)
+}
+
+fn output_already_matches(output: &OutputArtifact) -> Result<bool, CacheError> {
+    if output.artifact_version != OUTPUT_ARTIFACT_VERSION {
+        return Ok(false);
+    }
+    // Shape errors must not be swallowed by the fast path (e.g. a deletion that wrongly
+    // carries metadata would otherwise look "already absent" and return Ok).
+    validate_artifact_shape(output)?;
+    match output.kind {
+        OutputKind::Deleted => match fs::symlink_metadata(&output.path) {
+            Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(true),
+            Err(source) => Err(io_error(&output.path, source)),
+            Ok(_) => Ok(false),
+        },
+        OutputKind::File => {
+            let Some(expected) = output.content else {
+                return Ok(false);
+            };
+            let metadata = match fs::symlink_metadata(&output.path) {
+                Ok(metadata) => metadata,
+                Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(false),
+                Err(source) => return Err(io_error(&output.path, source)),
+            };
+            if !metadata.file_type().is_file() || link_count(&metadata) != 1 {
+                return Ok(false);
+            }
+            #[cfg(unix)]
+            {
+                use std::os::unix::fs::{MetadataExt, PermissionsExt};
+                if output.unix_mode != Some(metadata.permissions().mode())
+                    || output.unix_uid != Some(metadata.uid())
+                    || output.unix_gid != Some(metadata.gid())
+                {
+                    return Ok(false);
+                }
+                let accessed = i128::from(metadata.atime()) * 1_000_000_000
+                    + i128::from(metadata.atime_nsec());
+                let modified = i128::from(metadata.mtime()) * 1_000_000_000
+                    + i128::from(metadata.mtime_nsec());
+                if output.unix_accessed_ns != Some(accessed)
+                    || output.unix_modified_ns != Some(modified)
+                {
+                    return Ok(false);
+                }
+            }
+            // `None` means O_NOATIME was denied: decline the fast path rather than dirty atime
+            // with a normal open or fail the hit.
+            let Some(file) = open_for_hash_without_atime(&output.path)? else {
+                return Ok(false);
+            };
+            let actual = hash_reader(file).map_err(|source| io_error(&output.path, source))?;
+            Ok(actual == expected)
+        }
+    }
+}
+
+/// Open for hashing with Linux `O_NOATIME`. `Ok(None)` = rights denied; decline the fast path
+/// rather than open normally (a normal read can advance atime under `relatime` after a write).
+fn open_for_hash_without_atime(path: &Path) -> Result<Option<File>, CacheError> {
+    #[cfg(target_os = "linux")]
+    {
+        use std::os::unix::fs::OpenOptionsExt;
+        match fs::OpenOptions::new()
+            .read(true)
+            .custom_flags(libc::O_NOATIME)
+            .open(path)
+        {
+            Ok(file) => Ok(Some(file)),
+            Err(error) if matches!(error.raw_os_error(), Some(libc::EPERM | libc::EACCES)) => {
+                Ok(None)
+            }
+            Err(source) => Err(io_error(path, source)),
+        }
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        File::open(path)
+            .map(Some)
+            .map_err(|source| io_error(path, source))
+    }
+}
+
 /// Fsync each distinct parent directory that holds staged temps / destinations.
 fn sync_staged_parents(outputs: &[OutputArtifact]) -> Result<(), CacheError> {
     let mut parents = BTreeSet::new();
@@ -1658,6 +1760,44 @@ mod tests {
         assert_eq!(fs::read(&first).unwrap(), b"cached-a");
         assert_eq!(fs::read(&second).unwrap(), b"cached-b");
         assert_eq!(temporary_files(directory.path()), 0);
+    }
+
+    #[test]
+    fn restore_skips_work_when_destinations_already_match() {
+        use std::os::unix::fs::MetadataExt;
+        let directory = tempfile::tempdir().unwrap();
+        let cache = Cache::open(directory.path().join("cache")).unwrap();
+        let path = directory.path().join("already.txt");
+        fs::write(&path, b"stable-bytes").unwrap();
+        let artifacts = captured_outputs(&cache, &[(&path, false)]);
+        // Mutate then restore once so the on-disk bytes match the artifact.
+        fs::write(&path, b"dirty").unwrap();
+        cache.restore_outputs(&artifacts).unwrap();
+        assert_eq!(fs::read(&path).unwrap(), b"stable-bytes");
+        let before = fs::symlink_metadata(&path).unwrap();
+        // Second restore must be a no-op when the fast path applies: content and mtime stay.
+        // atime is opened with O_NOATIME; some filesystems ignore that flag, so atime is not
+        // asserted here — content/mtime/intent absence still prove no staged rewrite ran.
+        cache.restore_outputs(&artifacts).unwrap();
+        let after = fs::symlink_metadata(&path).unwrap();
+        assert_eq!(fs::read(&path).unwrap(), b"stable-bytes");
+        assert_eq!(before.mtime(), after.mtime());
+        assert_eq!(before.mtime_nsec(), after.mtime_nsec());
+        assert_eq!(before.ino(), after.ino());
+        assert!(!cache.restore_intent_path().is_file());
+        assert_eq!(temporary_files(directory.path()), 0);
+    }
+
+    #[test]
+    fn restore_still_replaces_when_content_diverges() {
+        let directory = tempfile::tempdir().unwrap();
+        let cache = Cache::open(directory.path().join("cache")).unwrap();
+        let path = directory.path().join("diverged.txt");
+        fs::write(&path, b"cached").unwrap();
+        let artifacts = captured_outputs(&cache, &[(&path, false)]);
+        fs::write(&path, b"diverged").unwrap();
+        cache.restore_outputs(&artifacts).unwrap();
+        assert_eq!(fs::read(&path).unwrap(), b"cached");
     }
 
     #[test]
