@@ -721,6 +721,7 @@ impl Cache {
                 [lookup_key.to_string()],
                 |row| {
                     Ok(AdmissionCost {
+                        // INTEGER columns via rusqlite `fallible_uint`: u64 ↔ i64 try_from.
                         direct_ns: row.get(0)?,
                         hit_ns: row.get(1)?,
                         cold_ns: row.get(2)?,
@@ -1524,6 +1525,59 @@ mod tests {
             cache.get_bytes(first),
             Err(CacheError::CorruptObject { .. })
         ));
+    }
+
+    /// Admission INTEGER columns use rusqlite `fallible_uint` (u64 ↔ i64 try_from).
+    /// Values in 0..=i64::MAX round-trip bit-exactly; above i64::MAX fails closed on write
+    /// (same convention as rusqlite 0.32).
+    #[test]
+    fn admission_u64_columns_round_trip_or_fail_closed() {
+        let directory = tempfile::tempdir().unwrap();
+        let cache = Cache::open(directory.path().join("cache")).unwrap();
+        let key = Hash::from(blake3::hash(b"admission-u64-roundtrip"));
+
+        cache
+            .record_admission(key, i64::MAX as u64, 0, Some(42), false, false)
+            .unwrap();
+        let cost = cache.admission_cost(key).unwrap().expect("row present");
+        assert_eq!(cost.direct_ns, i64::MAX as u64);
+        assert_eq!(cost.hit_ns, 42);
+        assert_eq!(cost.hits, 1);
+
+        let over = (i64::MAX as u64).saturating_add(1);
+        assert!(
+            over > i64::MAX as u64,
+            "precondition: sample exceeds signed INTEGER domain"
+        );
+        // Fresh key so blend cannot shrink the out-of-range sample before ToSql.
+        let over_key = Hash::from(blake3::hash(b"admission-u64-over-max"));
+        let err = cache
+            .record_admission(over_key, over, 0, None, false, false)
+            .expect_err("u64 > i64::MAX must fail closed on write");
+        assert!(
+            matches!(err, CacheError::Database(_)),
+            "expected Database/ToSql failure, got {err:?}"
+        );
+        assert!(
+            cache.admission_cost(over_key).unwrap().is_none(),
+            "failed write must not leave a partial admission row"
+        );
+
+        // Negative INTEGER on disk (corrupt/legacy) must fail closed on read, not clamp to 0.
+        cache
+            .connection
+            .execute(
+                "UPDATE admission SET direct_ns = -1 WHERE lookup_key = ?1",
+                [key.to_string()],
+            )
+            .unwrap();
+        let read_err = cache
+            .admission_cost(key)
+            .expect_err("negative INTEGER must fail closed on u64 FromSql");
+        assert!(
+            matches!(read_err, CacheError::Database(_)),
+            "expected Database/FromSql failure, got {read_err:?}"
+        );
     }
 
     #[test]
