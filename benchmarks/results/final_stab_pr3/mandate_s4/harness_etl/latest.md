@@ -1,0 +1,192 @@
+# TraceJIT benchmark result
+
+Measured commit: `4ffde9aa82ba91b4f71a587d5c8acb3136ad96a7`
+
+## Methodology
+
+The committed C ETL workload was measured with 5 warmups and 30 recorded runs per stable condition. Baseline runs execute that binary directly. Every traced-cold sample uses a fresh TraceJIT cache. Cached samples use an unchanged guarded entry and must report a cache hit. All timings are wall-clock process times except guard-check timings, which are TraceJIT's internal guard validation, output restoration, and cached-stream loading duration.
+
+The process ran with `GLIBC_TUNABLES=glibc.malloc.tcache_count=0` and `MALLOC_ARENA_MAX=1` so glibc does not draw allocator entropy or query CPU count. The Python ETL is analyzed separately with `PYTHONHASHSEED=0` and `PYTHONDONTWRITEBYTECODE=1`. CPU frequency, neighboring runner activity, and warm operating-system filesystem caches were not controlled.
+
+## Commands
+
+```text
+cargo build --workspace --release
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets --all-features -- -D warnings
+cargo test --workspace
+python3 benchmarks/harness/benchmark.py --runs 30 --warmups 5
+```
+
+## Results
+
+| Condition | Median | p95 | Minimum | Maximum | Standard deviation | Runs |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Baseline | 1.374281 ms | 1.651949 ms | 1.143171 ms | 1.671174 ms | 0.133521 ms | 30 |
+| Traced cold | 8.288596 ms | 12.881025 ms | 7.294484 ms | 15.153648 ms | 1.870398 ms | 30 |
+| Guard check | 2.626611 ms | 4.042882 ms | 1.701584 ms | 4.186674 ms | 0.835332 ms | 30 |
+| Cached end-to-end | 4.430003 ms | 6.198092 ms | 3.350248 ms | 6.418614 ms | 0.812093 ms | 30 |
+
+Tracing overhead: `503.122360%`
+
+Cache-hit speedup: `0.310221x`
+
+Median time saved: `-3.055722 ms`
+
+## Correctness
+
+Output equivalence: `PASS`
+
+Mutation/deopt: `PASS`
+
+Changed dependency: `benchmarks/workloads/python-etl/inputs/sales.csv`
+
+Explanation identified dependency: `yes`
+
+## Python ETL
+
+This command is not part of the timed reuse result. CPython binds its main thread with `gettid`, which TraceJIT classifies as process identity and refuses.
+
+Command: `python3 benchmarks/workloads/python-etl/main.py`
+
+Classification: `Nondeterministic`
+
+Eligible for reuse: `no`
+
+Reasons:
+
+- process read randomness via getrandom
+- process read system clock: monotonic
+- process read process identity via gettid
+- process read system clock: realtime
+
+The equivalence check compares workload exit status, captured stdout, captured stderr, output bytes, and output SHA-256 across baseline, traced, and cache-hit execution.
+
+## Environment
+
+### `uname -a`
+
+```text
+Linux cursor 6.12.113+ #1 SMP PREEMPT_DYNAMIC Fri Nov 13 20:22:28 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+```
+
+### `uname -m`
+
+```text
+x86_64
+```
+
+### `cat /etc/os-release`
+
+```text
+PRETTY_NAME="Ubuntu 24.04.5 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04.5 LTS (Noble Numbat)"
+VERSION_CODENAME=noble
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=noble
+LOGO=ubuntu-logo
+```
+
+### `lscpu`
+
+```text
+Architecture:                            x86_64
+CPU op-mode(s):                          32-bit, 64-bit
+Address sizes:                           46 bits physical, 57 bits virtual
+Byte Order:                              Little Endian
+CPU(s):                                  4
+On-line CPU(s) list:                     0-3
+Vendor ID:                               GenuineIntel
+Model name:                              Intel(R) Xeon(R) Processor
+CPU family:                              6
+Model:                                   207
+Thread(s) per core:                      1
+Core(s) per socket:                      4
+Socket(s):                               1
+Stepping:                                2
+BogoMIPS:                                4800.00
+Flags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc pebs bts rep_good nopl xtopology nonstop_tsc cpuid tsc_known_freq pni pclmulqdq dtes64 vmx ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch cpuid_fault ssbd ibrs ibpb stibp ibrs_enhanced tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid avx512f avx512dq rdseed adx smap avx512ifma clflushopt clwb avx512cd sha_ni avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves avx_vnni avx512_bf16 wbnoinvd arat vnmi avx512vbmi umip pku ospke avx512_vbmi2 gfni vaes vpclmulqdq avx512_vnni avx512_bitalg avx512_vpopcntdq rdpid bus_lock_detect cldemote movdiri movdir64b fsrm md_clear serialize tsxldtrk amx_bf16 avx512_fp16 amx_tile amx_int8 flush_l1d arch_capabilities
+Virtualization:                          VT-x
+Hypervisor vendor:                       KVM
+Virtualization type:                     full
+L1d cache:                               192 KiB (4 instances)
+L1i cache:                               128 KiB (4 instances)
+L2 cache:                                8 MiB (4 instances)
+L3 cache:                                320 MiB (1 instance)
+NUMA node(s):                            1
+NUMA node0 CPU(s):                       0-3
+Vulnerability Gather data sampling:      Not affected
+Vulnerability Indirect target selection: Not affected
+Vulnerability Itlb multihit:             Not affected
+Vulnerability L1tf:                      Not affected
+Vulnerability Mds:                       Not affected
+Vulnerability Meltdown:                  Not affected
+Vulnerability Mmio stale data:           Not affected
+Vulnerability Reg file data sampling:    Not affected
+Vulnerability Retbleed:                  Not affected
+Vulnerability Spec rstack overflow:      Not affected
+Vulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl
+Vulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization
+Vulnerability Spectre v2:                Mitigation; Enhanced / Automatic IBRS; IBPB conditional; PBRSB-eIBRS SW sequence; BHI BHI_DIS_S
+Vulnerability Srbds:                     Not affected
+Vulnerability Tsa:                       Not affected
+Vulnerability Tsx async abort:           Mitigation; TSX disabled
+Vulnerability Vmscape:                   Not affected
+```
+
+### `free -h`
+
+```text
+total        used        free      shared  buff/cache   available
+Mem:            15Gi        10Gi       845Mi        17Mi       4.3Gi       4.8Gi
+Swap:             0B          0B          0B
+```
+
+### `df -T .`
+
+```text
+Filesystem     Type 1K-blocks     Used Available Use% Mounted on
+/dev/vdc       ext4 265591976 13203036 252372556   5% /
+```
+
+### `python3 --version`
+
+```text
+Python 3.12.3
+```
+
+### `rustc --version`
+
+```text
+rustc 1.100.0 (0ef1bc386 2026-11-09)
+```
+
+### `cargo --version`
+
+```text
+cargo 1.100.0 (3acc79c0c 2026-11-05)
+```
+
+### `git rev-parse HEAD`
+
+```text
+4ffde9aa82ba91b4f71a587d5c8acb3136ad96a7
+```
+
+
+Every condition reports `relative_standard_deviation`, so run-to-run noise is visible next to each median rather than hidden behind it.
+
+## Repository mutation
+
+Tracked or untracked paths that appeared during the run: `['benchmarks/results/final_stab_pr3/mandate_s4/harness_etl/explain-cache-hit.txt', 'benchmarks/results/final_stab_pr3/mandate_s4/harness_etl/explain-deopt.txt', 'benchmarks/workloads/python-etl/inputs/sales.csv']`. The workload writes only into its own `output/` directory and the compiled binary, both of which are ignored by Git, and the harness restores the input and output files it touched.
+
+## Limitations
+
+These measurements cover one small deterministic C ETL workload on one Linux x86_64 host. CPython is reported as a refusal, not as a speedup. They are not evidence of universal speedups, production readiness, or performance on other workloads or machines.

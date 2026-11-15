@@ -1,0 +1,20 @@
+{
+  "tip": "4ffde9aa82ba91b4f71a587d5c8acb3136ad96a7",
+  "base": "ed3bd39fabd2c809a25059740ccc553b935b9039",
+  "crates_diff_vs_base": "empty",
+  "decision": "withdraw_destination_match_restore_skip",
+  "negative_result": "skip_rate_study.json",
+  "profile": [
+    "warm_hit_phase_breakdown.json",
+    "warm_hit_profile_breakdown.md",
+    "warm_hit_profile_before.json"
+  ],
+  "tip_scenarios": "three_scenario_after_drop.json",
+  "mandate_s4": "mandate_s4/",
+  "withdrawn_probes_not_product_claims": [
+    "withdrawn_skip_probe_phase_k7.json",
+    "withdrawn_skip_probe_warm_hit_profile.json",
+    "withdrawn_skip_probe_harness/",
+    "withdrawn_skip_probe_census/"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "label": "before",
+  "commit": "ed3bd39fabd2c809a25059740ccc553b935b9039",
+  "commit_short": "ed3bd39fabd2",
+  "measured_at": "2026-11-15T05:16:28.351763Z",
+  "host": {
+    "platform": "Linux-6.12.113+-x86_64-with-glibc2.39",
+    "cpus": 4
+  },
+  "binary_sha256": "9ffe77b2d7c930f0dc17c9a0e0b28e2030a8b0c1208d85469d62970acd27ec35"
+}

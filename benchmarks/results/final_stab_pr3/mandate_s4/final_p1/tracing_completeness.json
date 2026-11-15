@@ -1,0 +1,59 @@
+{
+  "cases": {
+    "c-etl": {
+      "argv": [
+        "/agent/repos/tracejit-final-adv/benchmarks/workloads/c-etl/etl"
+      ],
+      "strace_available": false,
+      "strace_summary": "strace not installed on this host",
+      "tracejit": {
+        "classification": "Guarded",
+        "dependency_count": 8,
+        "effect_counts": {
+          "controls": 1,
+          "reads": 18,
+          "unknown": 0,
+          "writes": 2
+        },
+        "eligible_for_reuse": true,
+        "kind": "Executed",
+        "output_count": 1,
+        "process_count": 1,
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs"
+        ]
+      }
+    },
+    "plain_file_read": {
+      "argv": [
+        "/tmp/tj-trace-7rqmnkvo/fixture-driver",
+        "plain_file_read",
+        "/tmp/tj-trace-7rqmnkvo/work"
+      ],
+      "strace_available": false,
+      "strace_summary": "strace not installed on this host",
+      "tracejit": {
+        "classification": "Guarded",
+        "dependency_count": 7,
+        "effect_counts": {
+          "controls": 1,
+          "reads": 17,
+          "unknown": 0,
+          "writes": 2
+        },
+        "eligible_for_reuse": true,
+        "kind": "Executed",
+        "output_count": 1,
+        "process_count": 1,
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs"
+        ]
+      }
+    }
+  },
+  "method": "Reference: strace -c counts (host). TraceJIT: JSON effect/process counts from a single cold traced run. Selective seccomp-BPF tracing is NOT enabled; complete-event coverage remains the production obligation.",
+  "selective_tracing": {
+    "reason": "Complete-event coverage proof obligation is not yet discharged for a filtered syscall set; production remains ptrace-all stops.",
+    "status": "deferred"
+  }
+}

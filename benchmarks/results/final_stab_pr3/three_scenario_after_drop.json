@@ -1,0 +1,35 @@
+{
+  "label": "after-drop-no-skip",
+  "commit": "7b0abf9cbc0dc878dfc8f4494410246a2f991572",
+  "note": "Product skip removed; tip matches ed3bd39 restore behavior. Measured on working tree after revert.",
+  "measured_at": "2026-11-15T05:28:29.193858+00:00",
+  "binary_sha256": "9ffe77b2d7c930f0dc17c9a0e0b28e2030a8b0c1208d85469d62970acd27ec35",
+  "matching_present": {
+    "n": 40,
+    "warm_wall_ms_median": 5.260003499643062,
+    "warm_wall_ms_p95": 7.054987749779684,
+    "cas_restore_ns_median": 1872162,
+    "cas_restore_ns_p95": 3621989
+  },
+  "outputs_deleted": {
+    "n": 40,
+    "warm_wall_ms_median": 6.218966500455281,
+    "warm_wall_ms_p95": 7.165546699434344,
+    "cas_restore_ns_median": 2839471,
+    "cas_restore_ns_p95": 3749222
+  },
+  "outputs_diverged_small": {
+    "n": 40,
+    "warm_wall_ms_median": 4.134035499646416,
+    "warm_wall_ms_p95": 5.6939164002415055,
+    "cas_restore_ns_median": 900312,
+    "cas_restore_ns_p95": 2495150
+  },
+  "outputs_diverged_large_2MiB": {
+    "n": 40,
+    "warm_wall_ms_median": 4.217136000079336,
+    "warm_wall_ms_p95": 6.533013499938534,
+    "cas_restore_ns_median": 963048,
+    "cas_restore_ns_p95": 3256830
+  }
+}

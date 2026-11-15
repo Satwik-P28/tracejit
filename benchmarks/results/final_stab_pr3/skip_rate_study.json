@@ -1,0 +1,91 @@
+{
+  "commit_working_tree": "WIP_with_skip",
+  "git_head": "7b0abf9cbc0dc878dfc8f4494410246a2f991572",
+  "measured_at": "2026-11-15T05:27:36.366553+00:00",
+  "binary_sha256": "49491fe974e8017e2ff2c2a803b3ecbedbb76d3086ae515448adfbb1a6abfe7e",
+  "relatime_note": "Linux default relatime updates atime when atime<=mtime; any read after restore typically declines skip",
+  "scenarios": [
+    {
+      "scenario": "c-etl-back-to-back",
+      "consume_output_between_runs": false,
+      "n": 40,
+      "skip_count": 40,
+      "full_restore_count": 0,
+      "skip_rate": 1.0,
+      "warm_wall_ms_median": 3.3087274996432825,
+      "warm_wall_ms_p95": 3.5559089493744978,
+      "cas_restore_ns_median": 30982,
+      "cas_restore_ns_p95": 35041,
+      "kinds": {
+        "Reused": 40
+      },
+      "skip_threshold_ns": 200000
+    },
+    {
+      "scenario": "c-etl-consume-output",
+      "consume_output_between_runs": true,
+      "n": 40,
+      "skip_count": 0,
+      "full_restore_count": 40,
+      "skip_rate": 0.0,
+      "warm_wall_ms_median": 4.031846999623667,
+      "warm_wall_ms_p95": 5.644883849436155,
+      "cas_restore_ns_median": 820228,
+      "cas_restore_ns_p95": 2203156,
+      "kinds": {
+        "Reused": 40
+      },
+      "skip_threshold_ns": 200000
+    },
+    {
+      "scenario": "plain-back-to-back",
+      "consume_output_between_runs": false,
+      "n": 40,
+      "skip_count": 40,
+      "full_restore_count": 0,
+      "skip_rate": 1.0,
+      "warm_wall_ms_median": 3.3154949996969663,
+      "warm_wall_ms_p95": 3.776155549667237,
+      "cas_restore_ns_median": 27182,
+      "cas_restore_ns_p95": 37338,
+      "kinds": {
+        "Reused": 40
+      },
+      "skip_threshold_ns": 200000
+    },
+    {
+      "scenario": "plain-consume-output",
+      "consume_output_between_runs": true,
+      "n": 40,
+      "skip_count": 0,
+      "full_restore_count": 40,
+      "skip_rate": 0.0,
+      "warm_wall_ms_median": 4.087043500021537,
+      "warm_wall_ms_p95": 5.680645699794695,
+      "cas_restore_ns_median": 942767,
+      "cas_restore_ns_p95": 2364136,
+      "kinds": {
+        "Reused": 40
+      },
+      "skip_threshold_ns": 200000
+    },
+    {
+      "scenario": "session-like-etl-consume",
+      "consume_output_between_runs": true,
+      "n": 30,
+      "skip_count": 0,
+      "full_restore_count": 30,
+      "skip_rate": 0.0,
+      "warm_wall_ms_median": 4.836468999656063,
+      "warm_wall_ms_p95": 6.059505399753107,
+      "cas_restore_ns_median": 1521620,
+      "cas_restore_ns_p95": 2735135,
+      "kinds": {
+        "Reused": 30
+      },
+      "skip_threshold_ns": 200000
+    }
+  ],
+  "decision": "withdrawn",
+  "headline_forbidden": "Do not cite back-to-back 3.3ms as product warm-HIT; consume scenarios show 0% skip"
+}
