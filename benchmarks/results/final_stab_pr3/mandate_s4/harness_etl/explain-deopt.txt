@@ -1,0 +1,232 @@
+TraceJIT explanation
+
+execution      463c8ba9adacb6cd
+command        /agent/repos/tracejit-final-adv/benchmarks/workloads/c-etl/etl
+classification GUARDED
+cache decision Deoptimized
+reason         cached execution deoptimized
+effects        59
+guards         66
+inputs         8
+outputs        1
+deopt          file content changed
+expected       3c49e4908a16857ab1b0bd9809f054cd608b4e73ae38ad6f68525c4aa4587414
+actual         6979a7c85f2848cbad5c0d6bf4a3835aa8424989378bb747694eb224fe7c6bfa
+details
+  - all observed dependencies are guardable or captured outputs
+cache key      argv, cwd, executable hash, runtime identity, and all 48 inherited environment entries
+observed inputs
+  READ  /agent/repos/tracejit-final-adv/benchmarks/workloads/python-etl/inputs/customers.csv
+  READ  /agent/repos/tracejit-final-adv/benchmarks/workloads/python-etl/inputs/sales.csv
+  READ  /etc/ld.so.cache
+  READ  /lib/x86_64-linux-gnu/libc.so.6
+  EXEC  /agent/repos/tracejit-final-adv/benchmarks/workloads/c-etl/etl
+  META  /etc/ld.so.cache
+  META  /etc/ld.so.preload
+  META  /lib/x86_64-linux-gnu/libc.so.6
+outputs
+  WRITE /agent/repos/tracejit-final-adv/benchmarks/workloads/c-etl/output/report.json
+guards
+  file metadata /agent/repos/tracejit-final-adv/benchmarks/workloads/c-etl/etl
+  executable content /agent/repos/tracejit-final-adv/benchmarks/workloads/c-etl/etl
+  working directory /agent/repos/tracejit-final-adv
+  runtime identity
+  environment key AGENT_TRANSCRIPTS
+  environment key CARGO_HOME
+  environment key CURSOR_AGENT
+  environment key CURSOR_AGENT_SOCKET
+  environment key CURSOR_CONVERSATION_ID
+  environment key CURSOR_REQUEST_ID
+  environment key CURSOR_RIPGREP_PATH
+  environment key CURSOR_SPAWN_CWD_HOP
+  environment key CURSOR_WORKLOAD_CGROUP
+  environment key DISPLAY
+  environment key EXEC_DAEMON_STARTUP_TRACEPARENT
+  environment key FORCE_COLOR
+  environment key GH_TELEMETRY
+  environment key GIT_CONFIG_COUNT
+  environment key GIT_CONFIG_KEY_0
+  environment key GIT_CONFIG_VALUE_0
+  environment key GIT_DISCOVERY_ACROSS_FILESYSTEM
+  environment key GIT_LFS_SKIP_SMUDGE
+  environment key GLIBC_TUNABLES
+  environment key HOME
+  environment key LANG
+  environment key LC_ALL
+  environment key MALLOC_ARENA_MAX
+  environment key NODE_DISABLE_COMPILE_CACHE
+  environment key NO_COLOR
+  environment key NVM_BIN
+  environment key NVM_CD_FLAGS
+  environment key NVM_DIR
+  environment key NVM_INC
+  environment key OLDPWD
+  environment key PATH
+  environment key PS1
+  environment key PWD
+  environment key PYTHONDONTWRITEBYTECODE
+  environment key PYTHONHASHSEED
+  environment key RUSTUP_HOME
+  environment key RUST_VERSION
+  environment key SHELL
+  environment key SHLVL
+  environment key TERM
+  environment key TRACEJIT
+  environment key TRACEJIT_CACHE_DIR
+  environment key USER
+  environment key VNC_DPI
+  environment key VNC_RESOLUTION
+  environment key _
+  environment key _ZO_DOCTOR
+  environment key __CURSOR_SANDBOX_ENV_RESTORE
+  file metadata /agent/repos/tracejit-final-adv/benchmarks/workloads/python-etl/inputs/customers.csv
+  file content /agent/repos/tracejit-final-adv/benchmarks/workloads/python-etl/inputs/customers.csv
+  file metadata /agent/repos/tracejit-final-adv/benchmarks/workloads/python-etl/inputs/sales.csv
+  file content /agent/repos/tracejit-final-adv/benchmarks/workloads/python-etl/inputs/sales.csv
+  file metadata /etc/ld.so.cache
+  file content /etc/ld.so.cache
+  file metadata /lib/x86_64-linux-gnu/libc.so.6
+  file content /lib/x86_64-linux-gnu/libc.so.6
+  file metadata /agent/repos/tracejit-final-adv/benchmarks/workloads/c-etl/etl
+  executable content /agent/repos/tracejit-final-adv/benchmarks/workloads/c-etl/etl
+  file metadata /etc/ld.so.cache
+  file metadata /etc/ld.so.preload
+  file metadata /lib/x86_64-linux-gnu/libc.so.6
+effect detail
+  0 pid 194733 Control(Exec(ProcessExec { path: "/agent/repos/tracejit-final-adv/benchmarks/workloads/c-etl/etl", hash: Some(Hash([206, 248, 242, 67, 3, 205, 209, 25, 164, 120, 153, 63, 69, 8, 54, 125, 144, 123, 180, 132, 137, 10, 160, 12, 244, 30, 108, 129, 162, 132, 251, 184])), fingerprint: Some(FileFingerprint { device: 65056, inode: 7605619, size: 16616, blocks: 40, block_size: 4096, accessed_ns: 1794720757282660645, modified_ns: 1794720757278660692, changed_ns: 1794720757278660692, mode: 33261, link_count: 1, uid: 1000, gid: 1000, device_id: 0 }) }))
+  1 pid 194733 Read(FileMetadata(FileMetadataRead { path: "/etc/ld.so.preload", fingerprint: Some(FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 }), audited_toolchain: false }))
+  2 pid 194733 Read(File(FileRead { path: "/etc/ld.so.cache", hash: Some(Hash([195, 35, 224, 197, 140, 38, 204, 204, 176, 212, 43, 137, 85, 9, 93, 67, 74, 174, 94, 28, 93, 54, 138, 29, 4, 133, 162, 236, 35, 9, 39, 1])), fingerprint: Some(FileFingerprint { device: 65056, inode: 392, size: 34203, blocks: 72, block_size: 4096, accessed_ns: 1794647172273383476, modified_ns: 1794362087000000000, changed_ns: 1794362087000000000, mode: 33188, link_count: 1, uid: 0, gid: 0, device_id: 0 }) }))
+  3 pid 194733 Read(FileMetadata(FileMetadataRead { path: "/etc/ld.so.cache", fingerprint: Some(FileFingerprint { device: 65056, inode: 392, size: 34203, blocks: 72, block_size: 4096, accessed_ns: 1794647172273383476, modified_ns: 1794362087000000000, changed_ns: 1794362087000000000, mode: 33188, link_count: 1, uid: 0, gid: 0, device_id: 0 }), audited_toolchain: false }))
+  4 pid 194733 Read(File(FileRead { path: "/lib/x86_64-linux-gnu/libc.so.6", hash: Some(Hash([229, 150, 184, 222, 70, 188, 174, 164, 10, 5, 29, 54, 157, 35, 11, 76, 140, 1, 242, 172, 6, 229, 215, 59, 223, 87, 142, 194, 173, 166, 218, 56])), fingerprint: Some(FileFingerprint { device: 65056, inode: 110397, size: 2129424, blocks: 4160, block_size: 4096, accessed_ns: 1794647172273383476, modified_ns: 1788444912000000000, changed_ns: 1794350864000000000, mode: 33261, link_count: 1, uid: 0, gid: 0, device_id: 0 }) }))
+  5 pid 194733 Read(FileMetadata(FileMetadataRead { path: "/lib/x86_64-linux-gnu/libc.so.6", fingerprint: Some(FileFingerprint { device: 65056, inode: 110397, size: 2129424, blocks: 4160, block_size: 4096, accessed_ns: 1794647172273383476, modified_ns: 1788444912000000000, changed_ns: 1794350864000000000, mode: 33261, link_count: 1, uid: 0, gid: 0, device_id: 0 }), audited_toolchain: false }))
+  6 pid 194733 Read(File(FileRead { path: "/agent/repos/tracejit-final-adv/benchmarks/workloads/python-etl/inputs/customers.csv", hash: Some(Hash([77, 125, 92, 145, 76, 69, 125, 61, 133, 124, 34, 142, 142, 195, 214, 214, 109, 164, 100, 136, 183, 108, 12, 176, 217, 210, 253, 11, 111, 20, 145, 42])), fingerprint: Some(FileFingerprint { device: 65056, inode: 7604308, size: 62, blocks: 8, block_size: 4096, accessed_ns: 1794695318140529771, modified_ns: 1794695318108533589, changed_ns: 1794695318108533589, mode: 33188, link_count: 1, uid: 1000, gid: 1000, device_id: 0 }) }))
+  7 pid 194733 Read(File(FileRead { path: "/agent/repos/tracejit-final-adv/benchmarks/workloads/python-etl/inputs/sales.csv", hash: Some(Hash([105, 121, 167, 200, 95, 40, 72, 203, 173, 92, 13, 107, 244, 163, 131, 90, 168, 66, 73, 137, 55, 139, 183, 71, 105, 78, 178, 36, 254, 124, 107, 250])), fingerprint: Some(FileFingerprint { device: 65056, inode: 7604309, size: 136, blocks: 8, block_size: 4096, accessed_ns: 1794720758066651508, modified_ns: 1794720758062651555, changed_ns: 1794720758062651555, mode: 33188, link_count: 1, uid: 1000, gid: 1000, device_id: 0 }) }))
+  8 pid 194733 Write(File(FileWrite { path: "/agent/repos/tracejit-final-adv/benchmarks/workloads/c-etl/output/report.json", operation: CreateOrModify, allows_create: Some(true) }))
+  9 pid 194733 Write(File(FileWrite { path: "/agent/repos/tracejit-final-adv/benchmarks/workloads/c-etl/output/report.json", operation: CreateOrModify, allows_create: None }))
+  10 pid 194733 Read(WorkingDirectory)
+  11 pid 194733 Read(Environment(EnvironmentRead { key: "AGENT_TRANSCRIPTS", value: Some("/home/ubuntu/.cursor/projects/agent-repos-tracejit/agent-transcripts") }))
+  12 pid 194733 Read(Environment(EnvironmentRead { key: "CARGO_HOME", value: Some("/usr/local/cargo") }))
+  13 pid 194733 Read(Environment(EnvironmentRead { key: "CURSOR_AGENT", value: Some("1") }))
+  14 pid 194733 Read(Environment(EnvironmentRead { key: "CURSOR_AGENT_SOCKET", value: Some("/run/cursor/api.sock") }))
+  15 pid 194733 Read(Environment(EnvironmentRead { key: "CURSOR_CONVERSATION_ID", value: Some("bc-588fb4be-c738-5f4a-b110-e4d753a36ed7") }))
+  16 pid 194733 Read(Environment(EnvironmentRead { key: "CURSOR_REQUEST_ID", value: Some("f4845f64-1857-46d1-b5d7-cc6823446b95") }))
+  17 pid 194733 Read(Environment(EnvironmentRead { key: "CURSOR_RIPGREP_PATH", value: Some("/exec-daemon/rg") }))
+  18 pid 194733 Read(Environment(EnvironmentRead { key: "CURSOR_SPAWN_CWD_HOP", value: Some("1") }))
+  19 pid 194733 Read(Environment(EnvironmentRead { key: "CURSOR_WORKLOAD_CGROUP", value: Some("/sys/fs/cgroup/system.slice/pod-s3iuqdmwxvdinjxf2zopw7ubqi-3ec12b42/cursor-agent/workload") }))
+  20 pid 194733 Read(Environment(EnvironmentRead { key: "DISPLAY", value: Some(":1") }))
+  21 pid 194733 Read(Environment(EnvironmentRead { key: "EXEC_DAEMON_STARTUP_TRACEPARENT", value: Some("00-01a1dc2cec2a7d1eaf9cff6bf7b38465-2d26461ba705610e-01") }))
+  22 pid 194733 Read(Environment(EnvironmentRead { key: "FORCE_COLOR", value: Some("0") }))
+  23 pid 194733 Read(Environment(EnvironmentRead { key: "GH_TELEMETRY", value: Some("false") }))
+  24 pid 194733 Read(Environment(EnvironmentRead { key: "GIT_CONFIG_COUNT", value: Some("1") }))
+  25 pid 194733 Read(Environment(EnvironmentRead { key: "GIT_CONFIG_KEY_0", value: Some("core.quotePath") }))
+  26 pid 194733 Read(Environment(EnvironmentRead { key: "GIT_CONFIG_VALUE_0", value: Some("false") }))
+  27 pid 194733 Read(Environment(EnvironmentRead { key: "GIT_DISCOVERY_ACROSS_FILESYSTEM", value: Some("0") }))
+  28 pid 194733 Read(Environment(EnvironmentRead { key: "GIT_LFS_SKIP_SMUDGE", value: Some("1") }))
+  29 pid 194733 Read(Environment(EnvironmentRead { key: "GLIBC_TUNABLES", value: Some("glibc.malloc.tcache_count=0") }))
+  30 pid 194733 Read(Environment(EnvironmentRead { key: "HOME", value: Some("/home/ubuntu") }))
+  31 pid 194733 Read(Environment(EnvironmentRead { key: "LANG", value: Some("en_US.UTF-8") }))
+  32 pid 194733 Read(Environment(EnvironmentRead { key: "LC_ALL", value: Some("en_US.UTF-8") }))
+  33 pid 194733 Read(Environment(EnvironmentRead { key: "MALLOC_ARENA_MAX", value: Some("1") }))
+  34 pid 194733 Read(Environment(EnvironmentRead { key: "NODE_DISABLE_COMPILE_CACHE", value: Some("1") }))
+  35 pid 194733 Read(Environment(EnvironmentRead { key: "NO_COLOR", value: Some("1") }))
+  36 pid 194733 Read(Environment(EnvironmentRead { key: "NVM_BIN", value: Some("/home/ubuntu/.nvm/versions/node/v22.23.4/bin") }))
+  37 pid 194733 Read(Environment(EnvironmentRead { key: "NVM_CD_FLAGS", value: Some("") }))
+  38 pid 194733 Read(Environment(EnvironmentRead { key: "NVM_DIR", value: Some("/home/ubuntu/.nvm") }))
+  39 pid 194733 Read(Environment(EnvironmentRead { key: "NVM_INC", value: Some("/home/ubuntu/.nvm/versions/node/v22.23.4/include/node") }))
+  40 pid 194733 Read(Environment(EnvironmentRead { key: "OLDPWD", value: Some("/agent/repos/tracejit-final-adv") }))
+  41 pid 194733 Read(Environment(EnvironmentRead { key: "PATH", value: Some("/usr/local/cargo/bin:/exec-daemon:/exec-daemon/tools:/usr/local/cargo/bin:/home/ubuntu/.nvm/versions/node/v22.23.4/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin") }))
+  42 pid 194733 Read(Environment(EnvironmentRead { key: "PS1", value: Some("\\[\u{1b}[36m\\]\\W\\[\u{1b}[0m\\] $ ") }))
+  43 pid 194733 Read(Environment(EnvironmentRead { key: "PWD", value: Some("/agent/repos/tracejit-final-adv") }))
+  44 pid 194733 Read(Environment(EnvironmentRead { key: "PYTHONDONTWRITEBYTECODE", value: Some("1") }))
+  45 pid 194733 Read(Environment(EnvironmentRead { key: "PYTHONHASHSEED", value: Some("0") }))
+  46 pid 194733 Read(Environment(EnvironmentRead { key: "RUSTUP_HOME", value: Some("/usr/local/rustup") }))
+  47 pid 194733 Read(Environment(EnvironmentRead { key: "RUST_VERSION", value: Some("1.83.0") }))
+  48 pid 194733 Read(Environment(EnvironmentRead { key: "SHELL", value: Some("/bin/bash") }))
+  49 pid 194733 Read(Environment(EnvironmentRead { key: "SHLVL", value: Some("1") }))
+  50 pid 194733 Read(Environment(EnvironmentRead { key: "TERM", value: Some("dumb") }))
+  51 pid 194733 Read(Environment(EnvironmentRead { key: "TRACEJIT", value: Some("/agent/repos/tracejit-final-adv/target/release/tracejit") }))
+  52 pid 194733 Read(Environment(EnvironmentRead { key: "TRACEJIT_CACHE_DIR", value: Some("/tmp/tracejit-deopt-y8_31tuy") }))
+  53 pid 194733 Read(Environment(EnvironmentRead { key: "USER", value: Some("ubuntu") }))
+  54 pid 194733 Read(Environment(EnvironmentRead { key: "VNC_DPI", value: Some("96") }))
+  55 pid 194733 Read(Environment(EnvironmentRead { key: "VNC_RESOLUTION", value: Some("1920x1200x24") }))
+  56 pid 194733 Read(Environment(EnvironmentRead { key: "_", value: Some("./scripts/benchmark.sh") }))
+  57 pid 194733 Read(Environment(EnvironmentRead { key: "_ZO_DOCTOR", value: Some("0") }))
+  58 pid 194733 Read(Environment(EnvironmentRead { key: "__CURSOR_SANDBOX_ENV_RESTORE", value: Some("builtin unset CURSOR_CONVERSATION_ID CURSOR_REQUEST_ID CURSOR_AGENT_STORE_FILES_DIR CURSOR_AGENT_STORE_SHARED_PATHS 2>/dev/null || true; builtin export CURSOR_CONVERSATION_ID='bc-588fb4be-c738-5f4a-b110-e4d753a36ed7'; builtin export CURSOR_REQUEST_ID='f4845f64-1857-46d1-b5d7-cc6823446b95'") }))
+guard detail
+  FileMetadata { path: "/agent/repos/tracejit-final-adv/benchmarks/workloads/c-etl/etl", expected: FileFingerprint { device: 65056, inode: 7605619, size: 16616, blocks: 40, block_size: 4096, accessed_ns: 1794720757282660645, modified_ns: 1794720757278660692, changed_ns: 1794720757278660692, mode: 33261, link_count: 1, uid: 1000, gid: 1000, device_id: 0 } }
+  ExecutableHash { path: "/agent/repos/tracejit-final-adv/benchmarks/workloads/c-etl/etl", expected: Hash([206, 248, 242, 67, 3, 205, 209, 25, 164, 120, 153, 63, 69, 8, 54, 125, 144, 123, 180, 132, 137, 10, 160, 12, 244, 30, 108, 129, 162, 132, 251, 184]) }
+  WorkingDirectory { expected: "/agent/repos/tracejit-final-adv" }
+  RuntimeIdentity { expected: RuntimeIdentity { os: "Linux", architecture: "x86_64", kernel_release: "6.12.113+", kernel_version: "#1 SMP PREEMPT_DYNAMIC Fri Nov 13 20:22:28 UTC 2026", hostname: "cursor", domain_name: "(none)", uid: 1000, euid: 1000, gid: 1000, egid: 1000, stack_limit_soft: 8388608, stack_limit_hard: 18446744073709551615, nofile_limit_soft: 524288, nofile_limit_hard: 524288, as_limit_soft: 18446744073709551615, as_limit_hard: 18446744073709551615, rss_limit_soft: 18446744073709551615, rss_limit_hard: 18446744073709551615, stdin: FileDescriptorIdentity { target: "/dev/null", fingerprint: Some(FileFingerprint { device: 6, inode: 4, size: 0, blocks: 0, block_size: 4096, accessed_ns: 0, modified_ns: 1794631763883279900, changed_ns: 1794631763883279900, mode: 8630, link_count: 1, uid: 0, gid: 0, device_id: 259 }) } } }
+  EnvironmentValue { key: "AGENT_TRANSCRIPTS", expected: Some("/home/ubuntu/.cursor/projects/agent-repos-tracejit/agent-transcripts") }
+  EnvironmentValue { key: "CARGO_HOME", expected: Some("/usr/local/cargo") }
+  EnvironmentValue { key: "CURSOR_AGENT", expected: Some("1") }
+  EnvironmentValue { key: "CURSOR_AGENT_SOCKET", expected: Some("/run/cursor/api.sock") }
+  EnvironmentValue { key: "CURSOR_CONVERSATION_ID", expected: Some("bc-588fb4be-c738-5f4a-b110-e4d753a36ed7") }
+  EnvironmentValue { key: "CURSOR_REQUEST_ID", expected: Some("f4845f64-1857-46d1-b5d7-cc6823446b95") }
+  EnvironmentValue { key: "CURSOR_RIPGREP_PATH", expected: Some("/exec-daemon/rg") }
+  EnvironmentValue { key: "CURSOR_SPAWN_CWD_HOP", expected: Some("1") }
+  EnvironmentValue { key: "CURSOR_WORKLOAD_CGROUP", expected: Some("/sys/fs/cgroup/system.slice/pod-s3iuqdmwxvdinjxf2zopw7ubqi-3ec12b42/cursor-agent/workload") }
+  EnvironmentValue { key: "DISPLAY", expected: Some(":1") }
+  EnvironmentValue { key: "EXEC_DAEMON_STARTUP_TRACEPARENT", expected: Some("00-01a1dc2cec2a7d1eaf9cff6bf7b38465-2d26461ba705610e-01") }
+  EnvironmentValue { key: "FORCE_COLOR", expected: Some("0") }
+  EnvironmentValue { key: "GH_TELEMETRY", expected: Some("false") }
+  EnvironmentValue { key: "GIT_CONFIG_COUNT", expected: Some("1") }
+  EnvironmentValue { key: "GIT_CONFIG_KEY_0", expected: Some("core.quotePath") }
+  EnvironmentValue { key: "GIT_CONFIG_VALUE_0", expected: Some("false") }
+  EnvironmentValue { key: "GIT_DISCOVERY_ACROSS_FILESYSTEM", expected: Some("0") }
+  EnvironmentValue { key: "GIT_LFS_SKIP_SMUDGE", expected: Some("1") }
+  EnvironmentValue { key: "GLIBC_TUNABLES", expected: Some("glibc.malloc.tcache_count=0") }
+  EnvironmentValue { key: "HOME", expected: Some("/home/ubuntu") }
+  EnvironmentValue { key: "LANG", expected: Some("en_US.UTF-8") }
+  EnvironmentValue { key: "LC_ALL", expected: Some("en_US.UTF-8") }
+  EnvironmentValue { key: "MALLOC_ARENA_MAX", expected: Some("1") }
+  EnvironmentValue { key: "NODE_DISABLE_COMPILE_CACHE", expected: Some("1") }
+  EnvironmentValue { key: "NO_COLOR", expected: Some("1") }
+  EnvironmentValue { key: "NVM_BIN", expected: Some("/home/ubuntu/.nvm/versions/node/v22.23.4/bin") }
+  EnvironmentValue { key: "NVM_CD_FLAGS", expected: Some("") }
+  EnvironmentValue { key: "NVM_DIR", expected: Some("/home/ubuntu/.nvm") }
+  EnvironmentValue { key: "NVM_INC", expected: Some("/home/ubuntu/.nvm/versions/node/v22.23.4/include/node") }
+  EnvironmentValue { key: "OLDPWD", expected: Some("/agent/repos/tracejit-final-adv") }
+  EnvironmentValue { key: "PATH", expected: Some("/usr/local/cargo/bin:/exec-daemon:/exec-daemon/tools:/usr/local/cargo/bin:/home/ubuntu/.nvm/versions/node/v22.23.4/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin") }
+  EnvironmentValue { key: "PS1", expected: Some("\\[\u{1b}[36m\\]\\W\\[\u{1b}[0m\\] $ ") }
+  EnvironmentValue { key: "PWD", expected: Some("/agent/repos/tracejit-final-adv") }
+  EnvironmentValue { key: "PYTHONDONTWRITEBYTECODE", expected: Some("1") }
+  EnvironmentValue { key: "PYTHONHASHSEED", expected: Some("0") }
+  EnvironmentValue { key: "RUSTUP_HOME", expected: Some("/usr/local/rustup") }
+  EnvironmentValue { key: "RUST_VERSION", expected: Some("1.83.0") }
+  EnvironmentValue { key: "SHELL", expected: Some("/bin/bash") }
+  EnvironmentValue { key: "SHLVL", expected: Some("1") }
+  EnvironmentValue { key: "TERM", expected: Some("dumb") }
+  EnvironmentValue { key: "TRACEJIT", expected: Some("/agent/repos/tracejit-final-adv/target/release/tracejit") }
+  EnvironmentValue { key: "TRACEJIT_CACHE_DIR", expected: Some("/tmp/tracejit-deopt-y8_31tuy") }
+  EnvironmentValue { key: "USER", expected: Some("ubuntu") }
+  EnvironmentValue { key: "VNC_DPI", expected: Some("96") }
+  EnvironmentValue { key: "VNC_RESOLUTION", expected: Some("1920x1200x24") }
+  EnvironmentValue { key: "_", expected: Some("./scripts/benchmark.sh") }
+  EnvironmentValue { key: "_ZO_DOCTOR", expected: Some("0") }
+  EnvironmentValue { key: "__CURSOR_SANDBOX_ENV_RESTORE", expected: Some("builtin unset CURSOR_CONVERSATION_ID CURSOR_REQUEST_ID CURSOR_AGENT_STORE_FILES_DIR CURSOR_AGENT_STORE_SHARED_PATHS 2>/dev/null || true; builtin export CURSOR_CONVERSATION_ID='bc-588fb4be-c738-5f4a-b110-e4d753a36ed7'; builtin export CURSOR_REQUEST_ID='f4845f64-1857-46d1-b5d7-cc6823446b95'") }
+  FileMetadata { path: "/agent/repos/tracejit-final-adv/benchmarks/workloads/python-etl/inputs/customers.csv", expected: FileFingerprint { device: 65056, inode: 7604308, size: 62, blocks: 8, block_size: 4096, accessed_ns: 1794695318140529771, modified_ns: 1794695318108533589, changed_ns: 1794695318108533589, mode: 33188, link_count: 1, uid: 1000, gid: 1000, device_id: 0 } }
+  FileHash { path: "/agent/repos/tracejit-final-adv/benchmarks/workloads/python-etl/inputs/customers.csv", expected: Hash([77, 125, 92, 145, 76, 69, 125, 61, 133, 124, 34, 142, 142, 195, 214, 214, 109, 164, 100, 136, 183, 108, 12, 176, 217, 210, 253, 11, 111, 20, 145, 42]) }
+  FileMetadata { path: "/agent/repos/tracejit-final-adv/benchmarks/workloads/python-etl/inputs/sales.csv", expected: FileFingerprint { device: 65056, inode: 7604309, size: 136, blocks: 8, block_size: 4096, accessed_ns: 1794720758066651508, modified_ns: 1794720758062651555, changed_ns: 1794720758062651555, mode: 33188, link_count: 1, uid: 1000, gid: 1000, device_id: 0 } }
+  FileHash { path: "/agent/repos/tracejit-final-adv/benchmarks/workloads/python-etl/inputs/sales.csv", expected: Hash([105, 121, 167, 200, 95, 40, 72, 203, 173, 92, 13, 107, 244, 163, 131, 90, 168, 66, 73, 137, 55, 139, 183, 71, 105, 78, 178, 36, 254, 124, 107, 250]) }
+  FileMetadata { path: "/etc/ld.so.cache", expected: FileFingerprint { device: 65056, inode: 392, size: 34203, blocks: 72, block_size: 4096, accessed_ns: 1794647172273383476, modified_ns: 1794362087000000000, changed_ns: 1794362087000000000, mode: 33188, link_count: 1, uid: 0, gid: 0, device_id: 0 } }
+  FileHash { path: "/etc/ld.so.cache", expected: Hash([195, 35, 224, 197, 140, 38, 204, 204, 176, 212, 43, 137, 85, 9, 93, 67, 74, 174, 94, 28, 93, 54, 138, 29, 4, 133, 162, 236, 35, 9, 39, 1]) }
+  FileMetadata { path: "/lib/x86_64-linux-gnu/libc.so.6", expected: FileFingerprint { device: 65056, inode: 110397, size: 2129424, blocks: 4160, block_size: 4096, accessed_ns: 1794647172273383476, modified_ns: 1788444912000000000, changed_ns: 1794350864000000000, mode: 33261, link_count: 1, uid: 0, gid: 0, device_id: 0 } }
+  FileHash { path: "/lib/x86_64-linux-gnu/libc.so.6", expected: Hash([229, 150, 184, 222, 70, 188, 174, 164, 10, 5, 29, 54, 157, 35, 11, 76, 140, 1, 242, 172, 6, 229, 215, 59, 223, 87, 142, 194, 173, 166, 218, 56]) }
+  FileMetadata { path: "/agent/repos/tracejit-final-adv/benchmarks/workloads/c-etl/etl", expected: FileFingerprint { device: 65056, inode: 7605619, size: 16616, blocks: 40, block_size: 4096, accessed_ns: 1794720757282660645, modified_ns: 1794720757278660692, changed_ns: 1794720757278660692, mode: 33261, link_count: 1, uid: 1000, gid: 1000, device_id: 0 } }
+  ExecutableHash { path: "/agent/repos/tracejit-final-adv/benchmarks/workloads/c-etl/etl", expected: Hash([206, 248, 242, 67, 3, 205, 209, 25, 164, 120, 153, 63, 69, 8, 54, 125, 144, 123, 180, 132, 137, 10, 160, 12, 244, 30, 108, 129, 162, 132, 251, 184]) }
+  FileMetadata { path: "/etc/ld.so.cache", expected: FileFingerprint { device: 65056, inode: 392, size: 34203, blocks: 72, block_size: 4096, accessed_ns: 1794647172273383476, modified_ns: 1794362087000000000, changed_ns: 1794362087000000000, mode: 33188, link_count: 1, uid: 0, gid: 0, device_id: 0 } }
+  FileMetadata { path: "/etc/ld.so.preload", expected: FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 } }
+  FileMetadata { path: "/lib/x86_64-linux-gnu/libc.so.6", expected: FileFingerprint { device: 65056, inode: 110397, size: 2129424, blocks: 4160, block_size: 4096, accessed_ns: 1794647172273383476, modified_ns: 1788444912000000000, changed_ns: 1794350864000000000, mode: 33261, link_count: 1, uid: 0, gid: 0, device_id: 0 } }
+  NoUnexpectedEffects
+input hashes
+  File { path: "/agent/repos/tracejit-final-adv/benchmarks/workloads/python-etl/inputs/customers.csv", expected_hash: Hash([77, 125, 92, 145, 76, 69, 125, 61, 133, 124, 34, 142, 142, 195, 214, 214, 109, 164, 100, 136, 183, 108, 12, 176, 217, 210, 253, 11, 111, 20, 145, 42]), fingerprint: Some(FileFingerprint { device: 65056, inode: 7604308, size: 62, blocks: 8, block_size: 4096, accessed_ns: 1794695318140529771, modified_ns: 1794695318108533589, changed_ns: 1794695318108533589, mode: 33188, link_count: 1, uid: 1000, gid: 1000, device_id: 0 }) }
+  File { path: "/agent/repos/tracejit-final-adv/benchmarks/workloads/python-etl/inputs/sales.csv", expected_hash: Hash([105, 121, 167, 200, 95, 40, 72, 203, 173, 92, 13, 107, 244, 163, 131, 90, 168, 66, 73, 137, 55, 139, 183, 71, 105, 78, 178, 36, 254, 124, 107, 250]), fingerprint: Some(FileFingerprint { device: 65056, inode: 7604309, size: 136, blocks: 8, block_size: 4096, accessed_ns: 1794720758066651508, modified_ns: 1794720758062651555, changed_ns: 1794720758062651555, mode: 33188, link_count: 1, uid: 1000, gid: 1000, device_id: 0 }) }
+  File { path: "/etc/ld.so.cache", expected_hash: Hash([195, 35, 224, 197, 140, 38, 204, 204, 176, 212, 43, 137, 85, 9, 93, 67, 74, 174, 94, 28, 93, 54, 138, 29, 4, 133, 162, 236, 35, 9, 39, 1]), fingerprint: Some(FileFingerprint { device: 65056, inode: 392, size: 34203, blocks: 72, block_size: 4096, accessed_ns: 1794647172273383476, modified_ns: 1794362087000000000, changed_ns: 1794362087000000000, mode: 33188, link_count: 1, uid: 0, gid: 0, device_id: 0 }) }
+  File { path: "/lib/x86_64-linux-gnu/libc.so.6", expected_hash: Hash([229, 150, 184, 222, 70, 188, 174, 164, 10, 5, 29, 54, 157, 35, 11, 76, 140, 1, 242, 172, 6, 229, 215, 59, 223, 87, 142, 194, 173, 166, 218, 56]), fingerprint: Some(FileFingerprint { device: 65056, inode: 110397, size: 2129424, blocks: 4160, block_size: 4096, accessed_ns: 1794647172273383476, modified_ns: 1788444912000000000, changed_ns: 1794350864000000000, mode: 33261, link_count: 1, uid: 0, gid: 0, device_id: 0 }) }
+  Executable { path: "/agent/repos/tracejit-final-adv/benchmarks/workloads/c-etl/etl", expected_hash: Hash([206, 248, 242, 67, 3, 205, 209, 25, 164, 120, 153, 63, 69, 8, 54, 125, 144, 123, 180, 132, 137, 10, 160, 12, 244, 30, 108, 129, 162, 132, 251, 184]), fingerprint: Some(FileFingerprint { device: 65056, inode: 7605619, size: 16616, blocks: 40, block_size: 4096, accessed_ns: 1794720757282660645, modified_ns: 1794720757278660692, changed_ns: 1794720757278660692, mode: 33261, link_count: 1, uid: 1000, gid: 1000, device_id: 0 }) }
+  Metadata { path: "/etc/ld.so.cache", fingerprint: FileFingerprint { device: 65056, inode: 392, size: 34203, blocks: 72, block_size: 4096, accessed_ns: 1794647172273383476, modified_ns: 1794362087000000000, changed_ns: 1794362087000000000, mode: 33188, link_count: 1, uid: 0, gid: 0, device_id: 0 } }
+  Metadata { path: "/etc/ld.so.preload", fingerprint: FileFingerprint { device: 18446744073709551615, inode: 18446744073709551615, size: 18446744073709551615, blocks: 18446744073709551615, block_size: 18446744073709551615, accessed_ns: -170141183460469231731687303715884105728, modified_ns: -170141183460469231731687303715884105728, changed_ns: -170141183460469231731687303715884105728, mode: 4294967295, link_count: 18446744073709551615, uid: 4294967295, gid: 4294967295, device_id: 18446744073709551615 } }
+  Metadata { path: "/lib/x86_64-linux-gnu/libc.so.6", fingerprint: FileFingerprint { device: 65056, inode: 110397, size: 2129424, blocks: 4160, block_size: 4096, accessed_ns: 1794647172273383476, modified_ns: 1788444912000000000, changed_ns: 1794350864000000000, mode: 33261, link_count: 1, uid: 0, gid: 0, device_id: 0 } }
+output hashes
+  OutputArtifact { path: "/agent/repos/tracejit-final-adv/benchmarks/workloads/c-etl/output/report.json", kind: File, content: Some(Hash([107, 204, 205, 140, 147, 107, 153, 98, 7, 158, 54, 103, 40, 86, 71, 19, 193, 40, 107, 245, 187, 71, 59, 109, 52, 221, 245, 148, 196, 113, 171, 241])), unix_mode: Some(33188), unix_uid: Some(1000), unix_gid: Some(1000), unix_accessed_ns: Some(1794720758062651555), unix_modified_ns: Some(1794720758070651462), artifact_version: 2, allows_create: true }

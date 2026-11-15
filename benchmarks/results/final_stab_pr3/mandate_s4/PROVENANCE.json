@@ -1,0 +1,14 @@
+{
+  "commit": "4ffde9aa82ba91b4f71a587d5c8acb3136ad96a7",
+  "note": "Fresh mandate §4 measurements on final PR3 tip (crates ≡ ed3bd39).",
+  "artifacts": {
+    "c_transform_throughput": "final_p1/e2e.json §9 throughput",
+    "short_command_floor": "short_and_compression.json true_*",
+    "compression": "short_and_compression.json gzip64k_*",
+    "etl_harness": "harness_etl/latest.json",
+    "developer_session": "final_p1/e2e.json §9 session",
+    "concurrency": "final_p1/e2e.json §9 concurrency",
+    "warm_cold_direct_auto": "final_p1/e2e.json hit_floor + throughput + short_and_compression",
+    "census": "census/census.json"
+  }
+}

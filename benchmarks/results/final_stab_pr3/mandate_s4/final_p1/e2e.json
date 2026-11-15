@@ -1,0 +1,839 @@
+{
+  "aggregate_counts": {
+    "cache_decision_counts": {
+      "Executed": 74,
+      "Reused": 134,
+      "Skipped": 37
+    },
+    "kind_counts": {
+      "Executed": 114,
+      "Reused": 139
+    }
+  },
+  "commit": "4ffde9aa82ba91b4f71a587d5c8acb3136ad96a7",
+  "competitors_not_re_run_here": {
+    "note": "Make/Ninja/ccache competitive arms were measured on tip 364331b in benchmarks/results/phase_k8/; this package re-measures TraceJIT DIRECT/cold/warm/AUTO on the current tip. Missing tools are not scored as losses.",
+    "prior_raw": "benchmarks/results/phase_k8/competitive.json"
+  },
+  "generated_unix_ms": 1794720765207,
+  "host": {
+    "cpus": 4,
+    "python": "3.12.3",
+    "uname": {
+      "machine": "x86_64",
+      "node": "cursor",
+      "processor": "x86_64",
+      "release": "6.12.113+",
+      "system": "Linux",
+      "version": "#1 SMP PREEMPT_DYNAMIC Fri Nov 13 20:22:28 UTC 2026"
+    }
+  },
+  "protocol": {
+    "bootstrap_median_ci": "400 resamples, 95%",
+    "release_binary": "/agent/repos/tracejit-final-adv/target/release/tracejit",
+    "runs": 30,
+    "warmups": 5
+  },
+  "section10_admission": {
+    "raw_path": "benchmarks/results/final_stab_pr3/mandate_s4/final_p1/admission-eval.txt",
+    "result_lines": [
+      "policy            Never total_ns=866000000 oracle_ns=575000000 regret_ns=291000000 traces=0 hits=0 directs=34",
+      "policy           Always total_ns=1086000000 oracle_ns=575000000 regret_ns=511000000 traces=18 hits=16 directs=0",
+      "policy      CurrentAuto total_ns=624000000 oracle_ns=575000000 regret_ns=49000000 traces=2 hits=8 directs=24",
+      "policy        Threshold total_ns=744000000 oracle_ns=575000000 regret_ns=169000000 traces=10 hits=8 directs=16",
+      "policy             Ewma total_ns=744000000 oracle_ns=575000000 regret_ns=169000000 traces=10 hits=8 directs=16",
+      "policy  ConfidenceBound total_ns=624000000 oracle_ns=575000000 regret_ns=49000000 traces=2 hits=8 directs=24",
+      "RESULT phase-e-admission preferred=CurrentAuto regret_ns=49000000"
+    ],
+    "returncode": 0
+  },
+  "section6_tracing": "tracing_completeness.json",
+  "section9": {
+    "concurrency": {
+      "all_success": true,
+      "kind_counts": {
+        "Executed": 3,
+        "Reused": 5
+      },
+      "results": [
+        {
+          "cache_decision": "Reused",
+          "exit_code": 0,
+          "kind": "Reused",
+          "returncode": 0
+        },
+        {
+          "cache_decision": "Reused",
+          "exit_code": 0,
+          "kind": "Reused",
+          "returncode": 0
+        },
+        {
+          "cache_decision": "Reused",
+          "exit_code": 0,
+          "kind": "Reused",
+          "returncode": 0
+        },
+        {
+          "cache_decision": "Reused",
+          "exit_code": 0,
+          "kind": "Reused",
+          "returncode": 0
+        },
+        {
+          "cache_decision": "Executed",
+          "exit_code": 0,
+          "kind": "Executed",
+          "returncode": 0
+        },
+        {
+          "cache_decision": "Ineligible",
+          "exit_code": 0,
+          "kind": "Executed",
+          "returncode": 0
+        },
+        {
+          "cache_decision": "Ineligible",
+          "exit_code": 0,
+          "kind": "Executed",
+          "returncode": 0
+        },
+        {
+          "cache_decision": "Reused",
+          "exit_code": 0,
+          "kind": "Reused",
+          "returncode": 0
+        }
+      ],
+      "wall_ns": 23440046,
+      "workers": 8
+    },
+    "hit_floor": {
+      "auto": {
+        "cache_decision_counts": {
+          "Skipped": 36
+        },
+        "kind_counts": {
+          "Executed": 36
+        },
+        "last_report": {
+          "cache_decision": "Skipped",
+          "classification": "Unknown",
+          "decision_reason": "admission policy estimates that a trace cannot repay itself for this identity",
+          "dependency_count": 0,
+          "effect_counts": {
+            "controls": 0,
+            "reads": 0,
+            "unknown": 0,
+            "writes": 0
+          },
+          "eligible_for_reuse": false,
+          "kind": "Executed",
+          "output_count": 0,
+          "process_count": 1
+        },
+        "timing": {
+          "max_ns": 5020651,
+          "mean_ns": 3398301,
+          "median_bootstrap_95ci_ns": [
+            3072265,
+            3390729
+          ],
+          "median_ns": 3252373,
+          "min_ns": 2860449,
+          "p05_ns": 2896168,
+          "p95_ns": 4835825,
+          "runs": 30,
+          "samples_ns": [
+            4174560,
+            2969063,
+            2860449,
+            3744811,
+            3017507,
+            3044127,
+            5020651,
+            3340723,
+            3010664,
+            4835825,
+            3412458,
+            2981439,
+            3280973,
+            3176242,
+            3075810,
+            3580122,
+            3414219,
+            3134023,
+            3244063,
+            3100404,
+            3317739,
+            3369001,
+            2896168,
+            3260683,
+            3988979,
+            2967901,
+            3116439,
+            3962909,
+            3616602,
+            3034496
+          ],
+          "stdev_ns": 524920.2598164368
+        }
+      },
+      "cold_trace": {
+        "cache_decision_counts": {
+          "Executed": 35
+        },
+        "kind_counts": {
+          "Executed": 35
+        },
+        "last_report": {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "decision_reason": "no eligible cached execution matched the pre-execution identity",
+          "dependency_count": 7,
+          "effect_counts": {
+            "controls": 1,
+            "reads": 17,
+            "unknown": 0,
+            "writes": 2
+          },
+          "eligible_for_reuse": true,
+          "kind": "Executed",
+          "output_count": 1,
+          "process_count": 1
+        },
+        "timing": {
+          "max_ns": 10570512,
+          "mean_ns": 8215340,
+          "median_bootstrap_95ci_ns": [
+            7517221,
+            8578051
+          ],
+          "median_ns": 7783448,
+          "min_ns": 6355516,
+          "p05_ns": 6896884,
+          "p95_ns": 10457181,
+          "runs": 30,
+          "samples_ns": [
+            7795918,
+            8565555,
+            7535142,
+            7770978,
+            7491139,
+            7123317,
+            7535498,
+            6901571,
+            7891745,
+            7769059,
+            6896884,
+            8004892,
+            6946886,
+            10201758,
+            10570512,
+            7429227,
+            9976736,
+            10168864,
+            7222567,
+            10457181,
+            8929494,
+            6355516,
+            7498944,
+            9530706,
+            8741149,
+            7702468,
+            8590547,
+            7726524,
+            8235687,
+            8893758
+          ],
+          "stdev_ns": 1142985.5073882006
+        }
+      },
+      "direct": {
+        "max_ns": 703867,
+        "mean_ns": 395650,
+        "median_bootstrap_95ci_ns": [
+          330782,
+          350833
+        ],
+        "median_ns": 337404,
+        "min_ns": 314436,
+        "p05_ns": 316258,
+        "p95_ns": 695854,
+        "runs": 30,
+        "samples_ns": [
+          660455,
+          512027,
+          703867,
+          392141,
+          354858,
+          346113,
+          334231,
+          336073,
+          695854,
+          616041,
+          383495,
+          346808,
+          330782,
+          335838,
+          341712,
+          326750,
+          323869,
+          343512,
+          487261,
+          437208,
+          337043,
+          331201,
+          320351,
+          314436,
+          318167,
+          316258,
+          330715,
+          328934,
+          325763,
+          337766
+        ],
+        "stdev_ns": 117450.46864004228
+      },
+      "shape": "plain_file_read",
+      "warm_hit": {
+        "cache_decision_counts": {
+          "Executed": 1,
+          "Reused": 35
+        },
+        "kind_counts": {
+          "Executed": 1,
+          "Reused": 35
+        },
+        "last_report": {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "decision_reason": "all guards passed and cached outputs were restored",
+          "dependency_count": 7,
+          "effect_counts": {
+            "controls": 1,
+            "reads": 17,
+            "unknown": 0,
+            "writes": 2
+          },
+          "eligible_for_reuse": true,
+          "kind": "Reused",
+          "output_count": 1,
+          "process_count": 1
+        },
+        "timing": {
+          "max_ns": 6337767,
+          "mean_ns": 4452397,
+          "median_bootstrap_95ci_ns": [
+            3893579,
+            4610234
+          ],
+          "median_ns": 4331760,
+          "min_ns": 3590394,
+          "p05_ns": 3600754,
+          "p95_ns": 6275482,
+          "runs": 30,
+          "samples_ns": [
+            4589596,
+            4167470,
+            4253099,
+            3684752,
+            4410422,
+            3893579,
+            4591689,
+            3833999,
+            5066445,
+            3646764,
+            4081045,
+            4161097,
+            3600754,
+            5115381,
+            5132485,
+            5025442,
+            4013239,
+            3618672,
+            4520681,
+            3758166,
+            4767442,
+            3590394,
+            6275482,
+            5172782,
+            6337767,
+            5434930,
+            4628779,
+            3867553,
+            4545908,
+            3786116
+          ],
+          "stdev_ns": 731545.3061602921
+        }
+      }
+    },
+    "session": {
+      "cache_decision_counts": {
+        "Executed": 1,
+        "Reused": 30
+      },
+      "direct_cumulative_ns": 35451919,
+      "kind_counts": {
+        "Executed": 1,
+        "Reused": 30
+      },
+      "plan_length": 31,
+      "timeline": [
+        {
+          "admission": "always",
+          "cache_decision": "Executed",
+          "elapsed_ns": 13451021,
+          "kind": "Executed"
+        },
+        {
+          "admission": "always",
+          "cache_decision": "Reused",
+          "elapsed_ns": 5969506,
+          "kind": "Reused"
+        },
+        {
+          "admission": "always",
+          "cache_decision": "Reused",
+          "elapsed_ns": 5950535,
+          "kind": "Reused"
+        },
+        {
+          "admission": "always",
+          "cache_decision": "Reused",
+          "elapsed_ns": 4151393,
+          "kind": "Reused"
+        },
+        {
+          "admission": "always",
+          "cache_decision": "Reused",
+          "elapsed_ns": 4299403,
+          "kind": "Reused"
+        },
+        {
+          "admission": "always",
+          "cache_decision": "Reused",
+          "elapsed_ns": 4184931,
+          "kind": "Reused"
+        },
+        {
+          "admission": "always",
+          "cache_decision": "Reused",
+          "elapsed_ns": 6138634,
+          "kind": "Reused"
+        },
+        {
+          "admission": "always",
+          "cache_decision": "Reused",
+          "elapsed_ns": 5974507,
+          "kind": "Reused"
+        },
+        {
+          "admission": "always",
+          "cache_decision": "Reused",
+          "elapsed_ns": 5734052,
+          "kind": "Reused"
+        },
+        {
+          "admission": "always",
+          "cache_decision": "Reused",
+          "elapsed_ns": 4673270,
+          "kind": "Reused"
+        },
+        {
+          "admission": "always",
+          "cache_decision": "Reused",
+          "elapsed_ns": 6403120,
+          "kind": "Reused"
+        },
+        {
+          "admission": "always",
+          "cache_decision": "Reused",
+          "elapsed_ns": 6407434,
+          "kind": "Reused"
+        },
+        {
+          "admission": "always",
+          "cache_decision": "Reused",
+          "elapsed_ns": 5894346,
+          "kind": "Reused"
+        },
+        {
+          "admission": "always",
+          "cache_decision": "Reused",
+          "elapsed_ns": 5932827,
+          "kind": "Reused"
+        },
+        {
+          "admission": "always",
+          "cache_decision": "Reused",
+          "elapsed_ns": 5037189,
+          "kind": "Reused"
+        },
+        {
+          "admission": "always",
+          "cache_decision": "Reused",
+          "elapsed_ns": 4627931,
+          "kind": "Reused"
+        },
+        {
+          "admission": "auto",
+          "cache_decision": "Reused",
+          "elapsed_ns": 4093445,
+          "kind": "Reused"
+        },
+        {
+          "admission": "auto",
+          "cache_decision": "Reused",
+          "elapsed_ns": 7030026,
+          "kind": "Reused"
+        },
+        {
+          "admission": "auto",
+          "cache_decision": "Reused",
+          "elapsed_ns": 6526284,
+          "kind": "Reused"
+        },
+        {
+          "admission": "auto",
+          "cache_decision": "Reused",
+          "elapsed_ns": 6043750,
+          "kind": "Reused"
+        },
+        {
+          "admission": "auto",
+          "cache_decision": "Reused",
+          "elapsed_ns": 7427673,
+          "kind": "Reused"
+        },
+        {
+          "admission": "auto",
+          "cache_decision": "Reused",
+          "elapsed_ns": 4630361,
+          "kind": "Reused"
+        },
+        {
+          "admission": "auto",
+          "cache_decision": "Reused",
+          "elapsed_ns": 4628651,
+          "kind": "Reused"
+        },
+        {
+          "admission": "auto",
+          "cache_decision": "Reused",
+          "elapsed_ns": 4348613,
+          "kind": "Reused"
+        },
+        {
+          "admission": "auto",
+          "cache_decision": "Reused",
+          "elapsed_ns": 6859394,
+          "kind": "Reused"
+        },
+        {
+          "admission": "auto",
+          "cache_decision": "Reused",
+          "elapsed_ns": 5762816,
+          "kind": "Reused"
+        },
+        {
+          "admission": "auto",
+          "cache_decision": "Reused",
+          "elapsed_ns": 4602624,
+          "kind": "Reused"
+        },
+        {
+          "admission": "auto",
+          "cache_decision": "Reused",
+          "elapsed_ns": 5645643,
+          "kind": "Reused"
+        },
+        {
+          "admission": "auto",
+          "cache_decision": "Reused",
+          "elapsed_ns": 4229481,
+          "kind": "Reused"
+        },
+        {
+          "admission": "auto",
+          "cache_decision": "Reused",
+          "elapsed_ns": 5511175,
+          "kind": "Reused"
+        },
+        {
+          "admission": "auto",
+          "cache_decision": "Reused",
+          "elapsed_ns": 4875585,
+          "kind": "Reused"
+        }
+      ],
+      "tracejit_cumulative_ns": 177045620
+    },
+    "throughput": {
+      "auto": {
+        "cache_decision_counts": {
+          "Executed": 1,
+          "Reused": 34,
+          "Skipped": 1
+        },
+        "kind_counts": {
+          "Executed": 2,
+          "Reused": 34
+        },
+        "last_report": {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "decision_reason": "all guards passed and cached outputs were restored",
+          "dependency_count": 7,
+          "effect_counts": {
+            "controls": 1,
+            "reads": 17,
+            "unknown": 0,
+            "writes": 2
+          },
+          "eligible_for_reuse": true,
+          "kind": "Reused",
+          "output_count": 1,
+          "process_count": 1
+        },
+        "timing": {
+          "max_ns": 8644073,
+          "mean_ns": 6470468,
+          "median_bootstrap_95ci_ns": [
+            5178544,
+            7559605
+          ],
+          "median_ns": 7060849,
+          "min_ns": 4124817,
+          "p05_ns": 4368633,
+          "p95_ns": 8296733,
+          "runs": 30,
+          "samples_ns": [
+            6600954,
+            7601187,
+            7948588,
+            7226814,
+            5889304,
+            4646342,
+            4124817,
+            5036084,
+            4762193,
+            7517398,
+            5070331,
+            7542095,
+            7771577,
+            4798485,
+            7884957,
+            8644073,
+            5481874,
+            4758682,
+            7805769,
+            5279193,
+            8296733,
+            8084172,
+            7038922,
+            7407512,
+            7804318,
+            5286757,
+            4368633,
+            7082776,
+            4776403,
+            7577116
+          ],
+          "stdev_ns": 1413407.3737605277
+        }
+      },
+      "binary": "/agent/repos/tracejit-final-adv/benchmarks/workloads/c-transform/transform",
+      "cold_trace": {
+        "cache_decision_counts": {
+          "Executed": 35
+        },
+        "kind_counts": {
+          "Executed": 35
+        },
+        "last_report": {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "decision_reason": "no eligible cached execution matched the pre-execution identity",
+          "dependency_count": 7,
+          "effect_counts": {
+            "controls": 1,
+            "reads": 17,
+            "unknown": 0,
+            "writes": 2
+          },
+          "eligible_for_reuse": true,
+          "kind": "Executed",
+          "output_count": 1,
+          "process_count": 1
+        },
+        "timing": {
+          "max_ns": 47323505,
+          "mean_ns": 43592835,
+          "median_bootstrap_95ci_ns": [
+            42387140,
+            44311846
+          ],
+          "median_ns": 43676188,
+          "min_ns": 39477780,
+          "p05_ns": 39932898,
+          "p95_ns": 46987760,
+          "runs": 30,
+          "samples_ns": [
+            41458101,
+            43565316,
+            41717476,
+            42317546,
+            42387140,
+            44414676,
+            42963331,
+            41674872,
+            41075404,
+            45761866,
+            43529470,
+            41761259,
+            39932898,
+            44068254,
+            40759710,
+            39477780,
+            46832817,
+            45871042,
+            46987760,
+            44159187,
+            45771929,
+            44209017,
+            45366383,
+            44036581,
+            43614870,
+            46069711,
+            44468625,
+            42471040,
+            43737506,
+            47323505
+          ],
+          "stdev_ns": 2057438.4800964352
+        }
+      },
+      "direct": {
+        "max_ns": 33360811,
+        "mean_ns": 32598158,
+        "median_bootstrap_95ci_ns": [
+          32481096,
+          32568869
+        ],
+        "median_ns": 32523944,
+        "min_ns": 32227463,
+        "p05_ns": 32278745,
+        "p95_ns": 33086683,
+        "runs": 30,
+        "samples_ns": [
+          32801353,
+          32604992,
+          32412086,
+          32416034,
+          32479145,
+          32521512,
+          32503921,
+          33046980,
+          32569763,
+          32836557,
+          32483047,
+          32370597,
+          32567975,
+          33360811,
+          32547455,
+          32567672,
+          32789772,
+          32729784,
+          32451717,
+          32481610,
+          33086683,
+          32278745,
+          32298076,
+          32490765,
+          32508818,
+          32227463,
+          32555883,
+          33028869,
+          32526376,
+          32400289
+        ],
+        "stdev_ns": 255378.60518105706
+      },
+      "shape": "c-transform-or-etl",
+      "warm_hit": {
+        "cache_decision_counts": {
+          "Executed": 1,
+          "Reused": 35
+        },
+        "kind_counts": {
+          "Executed": 1,
+          "Reused": 35
+        },
+        "last_report": {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "decision_reason": "all guards passed and cached outputs were restored",
+          "dependency_count": 7,
+          "effect_counts": {
+            "controls": 1,
+            "reads": 17,
+            "unknown": 0,
+            "writes": 2
+          },
+          "eligible_for_reuse": true,
+          "kind": "Reused",
+          "output_count": 1,
+          "process_count": 1
+        },
+        "timing": {
+          "max_ns": 6561246,
+          "mean_ns": 5295254,
+          "median_bootstrap_95ci_ns": [
+            4881492,
+            5796698
+          ],
+          "median_ns": 5303428,
+          "min_ns": 3603840,
+          "p05_ns": 3700371,
+          "p95_ns": 6477206,
+          "runs": 30,
+          "samples_ns": [
+            5394842,
+            6561246,
+            4862287,
+            5336839,
+            3992481,
+            6080423,
+            5215184,
+            6119603,
+            5068425,
+            6029255,
+            6435763,
+            5583020,
+            5917882,
+            4687342,
+            3775275,
+            3700371,
+            5697184,
+            5097986,
+            5896213,
+            5270017,
+            5613614,
+            5103448,
+            6134520,
+            6477206,
+            6253457,
+            4881492,
+            4383117,
+            4839122,
+            3603840,
+            4846190
+          ],
+          "stdev_ns": 824221.1826857885
+        }
+      }
+    }
+  }
+}

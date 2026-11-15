@@ -1,0 +1,48 @@
+{
+  "commit": "4ffde9aa82ba91b4f71a587d5c8acb3136ad96a7",
+  "measured_at": "2026-11-15T05:31:57.156626+00:00",
+  "binary_sha256": "9ffe77b2d7c930f0dc17c9a0e0b28e2030a8b0c1208d85469d62970acd27ec35",
+  "shape": "c-etl warm HIT",
+  "n": 40,
+  "warmups": 5,
+  "warm_wall_ms_median": 4.618783500063728,
+  "warm_wall_ms_p95": 6.543039250664151,
+  "phases_ms_median": {
+    "process_startup_ns": 6.2132179999999995,
+    "cli_parse_ns": 0.0767225,
+    "identity_prepare_ns": 0.0849955,
+    "cache_prepare_ns": 0.007412,
+    "sqlite_open_ns": 0.0781415,
+    "sqlite_schema_ns": 0.10948250000000001,
+    "lookup_key_ns": 0.00357,
+    "sqlite_query_ns": 0.17316900000000002,
+    "record_decode_ns": 0.13433050000000002,
+    "guard_validation_ns": 0.4299515,
+    "cas_restore_ns": 1.16304,
+    "stdio_replay_ns": 0.0081945,
+    "decision_persist_ns": 0.0,
+    "present_ns": 0.021777499999999998
+  },
+  "phase_labels": {
+    "process_startup_ns": "process_startup (proc tick; coarse)",
+    "cli_parse_ns": "cli_parse",
+    "identity_prepare_ns": "identity_prepare (exe hash)",
+    "cache_prepare_ns": "cache_prepare",
+    "sqlite_open_ns": "sqlite_open",
+    "sqlite_schema_ns": "sqlite_schema (user_version)",
+    "lookup_key_ns": "lookup_key",
+    "sqlite_query_ns": "sqlite_query",
+    "record_decode_ns": "record_decode",
+    "guard_validation_ns": "guard_validation (+ recheck in wall; timed once)",
+    "cas_restore_ns": "cas_restore (stage+hash+fsync+intent+rename)",
+    "stdio_replay_ns": "stdio_replay (CAS stdout/stderr load)",
+    "decision_persist_ns": "decision_persist",
+    "present_ns": "present"
+  },
+  "notes": [
+    "process_startup_ns is derived from /proc starttime (CLK_TCK quantization); do not treat as sub-10ms accurate.",
+    "guard_validation_ns times the first validate_all; a second TOCTOU recheck runs before restore and is included in wall but not a separate phase field.",
+    "cas_restore includes CAS verify+stage, sync_data, parent dir sync, restore-intent, rename apply."
+  ],
+  "attributable_in_process_ms_median": 2.290787
+}

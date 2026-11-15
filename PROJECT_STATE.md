@@ -20,7 +20,7 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 ## Current main
 
 - Tip: `ed3bd39` — stabilization: CI fd9/starttime (#33), audit rusqlite/tempfile (#34); prior adversarial #26–#32.
-- Perf PR (#35): warm-hit profile + skip-rate study; destination-match restore skip **withdrawn** (synthetic-only under relatime). Evidence `benchmarks/results/final_stab_pr3/`.
+- Perf PR (#35): warm-hit profile + skip-rate **negative** result; skip withdrawn; `crates/` ≡ `ed3bd39`. Evidence `benchmarks/results/final_stab_pr3/` (+ `mandate_s4/`).
 - Release packaging: `docs/final/FINAL_ANSWER.md`, `ARTIFACT_EVALUATION.md`, `EXECUTIVE_SUMMARY.md`; gates `benchmarks/results/final_release/`.
 - Releases: `v0.1.0` (`cf0ddb2`), `v0.1.1` (`31c36d1`). Do not move tags.
 - Research PRs #6/#7/#9/#10 stay isolated (not for main).
