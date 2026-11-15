@@ -1,0 +1,22 @@
+{
+  "before": {
+    "commit": "ed3bd39fabd2c809a25059740ccc553b935b9039",
+    "artifacts": [
+      "phase_k7_before.json",
+      "warm_hit_profile_before.json",
+      "harness_before/",
+      "census_before/"
+    ]
+  },
+  "after": {
+    "commit": "5c50d111b0c567863163a1d49023cb2bb12d34a9",
+    "artifacts": [
+      "phase_k7_after.json",
+      "warm_hit_profile_after.json",
+      "harness_after/",
+      "census_after/"
+    ]
+  },
+  "optimization": "skip restore_outputs when every destination already matches recorded content+metadata (O_NOATIME hash)",
+  "note": "Harness working_tree_dirty=true reflects untracked result dirs during measurement; binary built from the recorded commit."
+}

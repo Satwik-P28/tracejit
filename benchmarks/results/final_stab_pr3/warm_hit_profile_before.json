@@ -1,0 +1,38 @@
+{
+  "commit": "ed3bd39fabd2c809a25059740ccc553b935b9039",
+  "warm_wall_ms_median": 5.601399499937543,
+  "phases_ms_median": {
+    "process_startup_ns": 5.926435,
+    "cli_parse_ns": 0.077378,
+    "identity_prepare_ns": 0.08934500000000001,
+    "cache_prepare_ns": 0.007521,
+    "sqlite_open_ns": 0.0786605,
+    "sqlite_schema_ns": 0.11199300000000001,
+    "lookup_key_ns": 0.003573,
+    "sqlite_query_ns": 0.178437,
+    "record_decode_ns": 0.13309700000000002,
+    "guard_validation_ns": 0.43215950000000003,
+    "cas_restore_ns": 2.102745,
+    "stdio_replay_ns": 0.008317499999999999,
+    "decision_persist_ns": 0.0,
+    "present_ns": 0.022227499999999997
+  },
+  "phases_ms_mean": {
+    "process_startup_ns": 5.9123664,
+    "cli_parse_ns": 0.0792768,
+    "identity_prepare_ns": 0.09050145,
+    "cache_prepare_ns": 0.0084441,
+    "sqlite_open_ns": 0.081459175,
+    "sqlite_schema_ns": 0.11472415,
+    "lookup_key_ns": 0.0036147,
+    "sqlite_query_ns": 0.18013405,
+    "record_decode_ns": 0.137094025,
+    "guard_validation_ns": 0.4386715,
+    "cas_restore_ns": 2.076502525,
+    "stdio_replay_ns": 0.008455275,
+    "decision_persist_ns": 0.0,
+    "present_ns": 0.022753125
+  },
+  "sum_phases_median": 9.171889,
+  "n": 40
+}

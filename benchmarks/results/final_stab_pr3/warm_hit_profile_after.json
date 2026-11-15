@@ -1,0 +1,24 @@
+{
+  "label": "after",
+  "commit": "5c50d111b0c567863163a1d49023cb2bb12d34a9",
+  "measured_at": "2026-11-15T05:19:57.733892+00:00",
+  "binary_sha256": "c9c6490682088e0f76f9e722dac795b88d57ab8208059fedf10892de6dfe3290",
+  "warm_wall_ms_median": 3.3807835002335196,
+  "phases_ms_median": {
+    "process_startup_ns": 6.4595145,
+    "cli_parse_ns": 0.0721375,
+    "identity_prepare_ns": 0.081454,
+    "cache_prepare_ns": 0.007103,
+    "sqlite_open_ns": 0.071164,
+    "sqlite_schema_ns": 0.104383,
+    "lookup_key_ns": 0.003419,
+    "sqlite_query_ns": 0.1643685,
+    "record_decode_ns": 0.132197,
+    "guard_validation_ns": 0.4235235,
+    "cas_restore_ns": 0.0305545,
+    "stdio_replay_ns": 0.0079185,
+    "decision_persist_ns": 0.0,
+    "present_ns": 0.023309999999999997
+  },
+  "n": 40
+}
