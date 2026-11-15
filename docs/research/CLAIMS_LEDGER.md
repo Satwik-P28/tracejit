@@ -2,7 +2,7 @@
 
 Status labels (Part XXII §58): **implemented+verified** | **implemented but not fully verified** | **experimental** | **rejected** | **deferred** | **blocked**.
 
-Inspected tip: `827b7763a73cddda4e3a99c9883fbae4b18d87d2` (final adversarial PRs #26–#30 on main). Evidence paths are repository-relative unless noted. Package index: `docs/final/FINAL_ANSWER.md`.
+Inspected tip: `7b9e7ca98143fc8e55e4927b21906aa361219b6a` (stabilization #33–#35 on main; product crates ≡ `ed3bd39`). Evidence paths are repository-relative unless noted. Package index: `docs/final/RELEASE_REPORT.md`; prior adversarial index: `docs/final/FINAL_ANSWER.md`.
 
 | Feature / claim | Status | Evidence |
 | --- | --- | --- |
@@ -58,7 +58,12 @@ Inspected tip: `827b7763a73cddda4e3a99c9883fbae4b18d87d2` (final adversarial PRs
 | P0 O_TMPFILE / fcntl SETFL refuse + pre-restore TOCTOU recheck | implemented+verified | #27; `docs/final/P0_PROCESS_AND_TOCTOU.md` |
 | P0 per-pid restore-intent refuse HIT after hard kill | implemented+verified | #28; `P0_RESTORE_DURABILITY.md`; not multi-file atomic |
 | P1 census ≥25 + e2e four objectives + admission re-eval | implemented+verified | #29; `final_p1/` raw JSON |
-| P1 CEGAR/assurance/security/prior-art matrix | implemented+verified | #30; no novelty overclaim; audit finding deferred |
-| Selective tracing / typed DAG validator / SQLite RUSTSEC bump | deferred | FINAL_ANSWER §3 |
+| P1 CEGAR/assurance/security/prior-art matrix | implemented+verified | #30; no novelty overclaim |
+| CI fd9/starttime + restore-intent flake fixes | implemented+verified | #33 |
+| Dependency audit upgrades (rusqlite/tempfile) | implemented+verified | #34; `cargo audit` clean on `7b9e7ca` |
+| Warm-HIT phase profile + mandate §4 remeasure | implemented+verified | #35; `final_stab_pr3/` |
+| Destination-match restore skip (incl. atime) | rejected | #35; 0/40 skip with consume; synthetic-only win withdrawn |
+| Selective tracing / typed DAG validator | deferred | FINAL_ANSWER §3 |
+| Branch protection required checks | blocked | GitHub API 403 from release agent |
 
 Quantitative performance claims must cite the commit and file that produced them (see technical report §§14–17). Do not paste a new number without harness provenance.

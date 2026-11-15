@@ -1,0 +1,21 @@
+   Compiling tempfile v3.27.0
+   Compiling tracejit-cache v0.1.1 (/agent/repos/tracejit-final-adv/crates/tracejit-cache)
+   Compiling tracejit-core v0.1.1 (/agent/repos/tracejit-final-adv/crates/tracejit-core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.24s
+     Running unittests src/lib.rs (target/debug/build/tracejit-core/c3ed56834b69c854/out/tracejit_core-c3ed56834b69c854)
+
+running 10 tests
+test certificate::tests::limitations_document_mutable_state_trust ... ok
+test certificate::tests::parse_rejects_malformed_json ... ok
+test certificate::tests::verifier_accepts_consistent_reuse_certificate ... ok
+test certificate::tests::structural_mode_still_ok_without_cache ... ok
+test certificate::tests::verifier_rejects_full_equivalence_claim ... ok
+test certificate::tests::verifier_rejects_legacy_artifact_on_reuse ... ok
+test certificate::tests::verifier_rejects_reused_with_ineligible_class ... ok
+test certificate::tests::verifier_rejects_missing_cas_object ... ok
+test certificate::tests::strict_cas_rejects_missing_object ... ok
+test certificate::tests::strict_cas_accepts_when_objects_present ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.01s
+
+EXIT:0

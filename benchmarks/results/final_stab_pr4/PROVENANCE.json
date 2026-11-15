@@ -1,0 +1,11 @@
+{
+  "pr4_tip": "7b9e7ca98143fc8e55e4927b21906aa361219b6a",
+  "product_crates_equiv": "ed3bd39 / 7b9e7ca",
+  "section4_measured_on": "4ffde9a (product \u2261 ed3bd39; no crates change through 7b9e7ca)",
+  "section4_source": "benchmarks/results/final_stab_pr3/mandate_s4/",
+  "section4_missing": [],
+  "main_ci_merge35": "https://github.com/Satwik-P28/tracejit/actions/runs/43681932897",
+  "section4_pointer": "benchmarks/results/final_stab_pr3/mandate_s4/",
+  "gates": "benchmarks/results/final_stab_pr4/gates/GATES_SUMMARY.md",
+  "branch_protection": "403 Resource not accessible by integration"
+}

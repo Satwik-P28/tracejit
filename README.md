@@ -36,19 +36,21 @@ Feature status table: [docs/research/CLAIMS_LEDGER.md](docs/research/CLAIMS_LEDG
 
 All figures cite committed harness outputs with exact tips. Do not merge numbers across commits into one “speedup.”
 
-**Final adversarial e2e (tip `026e660`, `benchmarks/results/final_p1/e2e.md`, n=30, bootstrap 95% CI):**
+**Mandate §4 on final product tip** (measured `4ffde9a`, product `crates/` ≡ `ed3bd39`/`7b9e7ca`; `benchmarks/results/final_stab_pr3/mandate_s4/`, n=30, bootstrap 95% CI):
 
 | Scenario | DIRECT | Warm HIT | Note |
 | --- | ---: | ---: | --- |
-| CPU-heavy `c-transform` | 32.662 ms | **4.403 ms (~7.4×)** | Real workload, not synthetic-only |
-| `plain_file_read` floor | **0.384 ms** | 5.725 ms | Warm **loss** — DIRECT wins |
-| Short-ETL session cumulative | **41 ms** | 166 ms | HITs can still lose the session |
+| CPU-heavy `c-transform` | 32.524 ms | **5.303 ms (~6.1×)** | Real workload; no safe warm-HIT opt landed |
+| `/bin/true` / short floor | **0.351 ms** | 4.475 ms | Warm **loss** — DIRECT wins |
+| Short-ETL session cumulative | **35 ms** | 177 ms | HITs can still lose the session |
 
-**Census:** 1/32 verified reuse under unmodified defaults (`benchmarks/results/final_p1/census/`).
+**Census:** 1/32 eligibility under unmodified defaults (`mandate_s4/census/`).
+
+**Withdrawn opt:** destination-match restore skip — synthetic back-to-back looked faster; with output consumption skip rate is **0/40**. Not a product claim ([final_stab_pr3/compare.md](benchmarks/results/final_stab_pr3/compare.md)).
 
 **Competitive (tip `364331b`, `benchmarks/results/phase_k8/`):** Make/Ninja win identical-rerun wall time; TraceJIT stays content-correct on mtime-preserved edit / corrupt output where Make/Ninja returned WRONG. Missing tools are skipped, not scored as losses.
 
-Historical Phase G / hosted-runner figures remain in older artifacts; see [docs/final/FINAL_ANSWER.md](docs/final/FINAL_ANSWER.md).
+Release report: [docs/final/RELEASE_REPORT.md](docs/final/RELEASE_REPORT.md). Older adversarial packaging: [docs/final/FINAL_ANSWER.md](docs/final/FINAL_ANSWER.md).
 
 ## Demo
 

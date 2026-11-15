@@ -1,0 +1,338 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.04s
+     Running unittests src/lib.rs (target/debug/build/tracejit-cache/6f2d2d99eb3f2c54/out/tracejit_cache-6f2d2d99eb3f2c54)
+
+running 34 tests
+test tests::a_deletion_artifact_with_metadata_fails_closed ... ok
+test tests::a_malformed_record_fails_closed_instead_of_reusing ... ok
+test tests::a_corrupt_object_fails_before_any_destination_is_touched ... ok
+test tests::a_hard_linked_destination_is_refused_without_touching_either_link ... ok
+test tests::a_marker_written_by_a_peer_is_not_unrelated_content ... ok
+test tests::a_metadata_failure_leaves_the_destination_untouched ... ok
+test tests::a_symlink_substituted_before_the_swap_cannot_redirect_the_write ... ok
+test tests::a_second_attempt_after_a_failed_restoration_recovers ... ok
+test tests::a_version_two_file_artifact_without_complete_metadata_fails_closed ... ok
+test tests::cache_root_refuses_existing_unrelated_content ... ok
+test tests::admission_u64_columns_round_trip_or_fail_closed ... ok
+test tests::arbitrary_bytes_never_decode_as_stored_execution ... ok
+test tests::cache_open_descriptors_are_close_on_exec ... ok
+test tests::clear_removes_only_owned_cache_entries ... ok
+test tests::cas_deduplicates_and_detects_corruption ... ok
+test tests::deleting_a_path_replaced_by_a_directory_fails_closed ... ok
+test tests::leftover_intent_is_detected_on_open_and_consumable ... ok
+test tests::legacy_artifact_without_a_schema_version_fails_closed ... ok
+test tests::failure_during_a_later_replacement_rolls_the_first_one_back ... ok
+test tests::legacy_intent_without_starttime_is_interrupted ... ok
+test tests::malformed_candidate_bytes_decode_to_none ... ok
+test tests::live_peer_intent_does_not_count_as_interrupted ... ok
+test tests::metadata_replay_round_trips_mode_owner_and_times ... ok
+test tests::mixed_file_and_deletion_restoration_rolls_both_back ... ok
+test tests::mixed_mid_restore_workspace_is_detectable_without_a_journal ... ok
+test tests::output_restoration_is_content_checked ... ok
+test tests::recycled_pid_intent_with_mismatched_starttime_is_interrupted ... ok
+test tests::restoration_rejects_symlink_substitution ... ok
+test tests::restoration_respects_create_precondition ... ok
+test tests::restores_multiple_outputs_over_existing_content ... ok
+test tests::successful_restore_clears_intent_and_never_leaves_partial_ok ... ok
+test tests::v1_cache_is_migrated_without_losing_its_record ... ok
+test tests::legacy_or_incomplete_file_artifacts_fail_closed ... ok
+test tests::concurrent_first_initialization_never_refuses_its_own_marker ... ok
+
+test result: ok. 34 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.18s
+
+     Running unittests src/main.rs (target/debug/build/tracejit-cli/41ffeb53aca053d4/out/tracejit-41ffeb53aca053d4)
+
+running 5 tests
+test tests::duration_format_uses_measured_value ... ok
+test tests::dependency_summary_names_effects_without_environment_values ... ok
+test tests::version_flag_is_available ... ok
+test tests::doctor_command_parses ... ok
+test tests::command_requires_separator_and_program ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/execution_fidelity.rs (target/debug/build/tracejit-cli/7fef745f8d1c7e8d/out/execution_fidelity-7fef745f8d1c7e8d)
+
+running 1 test
+test ordinary_developer_commands_execute_like_native ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.27s
+
+     Running tests/linux_integration.rs (target/debug/build/tracejit-cli/50dd006e870c7a80/out/linux_integration-50dd006e870c7a80)
+
+running 62 tests
+test a_contract_does_not_absorb_application_randomness ... ok
+test a_repointed_symlink_before_dotdot_is_never_a_cache_hit ... ok
+test a_hard_linked_output_retraces_instead_of_aborting ... ok
+test a_corrupted_cached_output_fails_closed ... ok
+test a_traced_script_sees_the_callers_script_path ... ok
+test a_symlinked_cache_root_is_refused ... ok
+test a_repointed_symlink_chain_before_dotdot_is_never_a_cache_hit ... ok
+test a_self_killed_child_is_reported_and_never_reused ... ok
+test allocator_double_free_detection_survives_the_contract ... ok
+test allocator_entropy_contract_reuses_a_glibc_tool ... ok
+test access_check_is_replayed_as_a_predicate ... ok
+test alternating_inputs_reuse_a_retained_candidate ... ok
+test an_absence_guard_reports_a_file_that_appeared ... ok
+test changing_stdin_from_null_to_regular_is_not_reused ... ok
+test child_process_dependency_change_deoptimizes ... ok
+test adversarial_classification_table ... ok
+test cloexec_source_already_on_fd9_still_reaches_the_child ... ok
+test auto_admission_skips_short_commands_and_caches_expensive_ones ... ok
+test close_on_exec_descriptor_is_not_an_inherited_boundary ... ok
+test concurrent_cache_reads_all_reuse_the_same_result ... ok
+test concurrent_inherited_descriptor_replacements_are_refused ... ok
+test concurrent_identical_runs_neither_fail_nor_reuse_unsafely ... ok
+test descriptor_enumeration_failure_is_fail_closed ... ok
+test corrupted_objects_are_repaired_and_reuse_resumes ... ok
+test dev_null_seek_is_reusable ... ok
+test corrupt_stream_is_rejected_before_output_restoration ... ok
+test dup2_same_descriptor_preserves_directory_and_pipe_tracking ... ok
+test dev_null_read_family_is_reusable ... ok
+test enforced_execution_is_proven_reused_and_invalidated ... ok
+test executed_interpreter_change_deoptimizes ... ok
+test fcntl_setfl_is_unknown_and_never_reused ... ok
+test fast_guard_mode_still_deoptimizes_on_a_content_change ... ok
+test gzip_reuse_survives_creating_entries_beside_the_input ... ok
+test hardlink_input_path_replacement_is_never_a_stale_hit ... ok
+test inherited_stdin_reuse_is_stable_across_fresh_sessions ... ok
+test inherited_descriptor_beyond_stdin_is_never_reused ... ok
+test guarded_hit_deopt_restore_and_replay ... ok
+test metadata_preserving_program_reuses_and_replays_mode_and_times ... ok
+test interrupted_restore_intent_refuses_hit ... ok
+test negative_lookup_deopts_when_the_path_appears ... ok
+test metadata_symlink_and_environment_changes_miss ... ok
+test otmpfile_is_unknown_and_never_reused ... ok
+test inherited_stdin_seek_model_reproduces_offsets_and_refuses_unsound_cases ... ok
+test nondeterministic_and_unknown_cases_never_reuse ... ok
+test permission_change_deoptimizes ... ok
+test real_gzip_workload_is_reused_and_invalidated ... ok
+test output_prestate_refuses_non_file_destinations ... ok
+copy_stable                  ok
+copy_content_change          ok
+rename_exchange              ok
+getrandom_never_hit          ok
+RESULT phase-k2-oracle incorrect_hits=0 regress_eligible=0 cases=4 -> /tmp/.tmpEERmap/oracle-seed-7.json
+test phase_k2_independent_obs_oracle_seed7 ... ok
+test regular_file_stdin_read_uses_the_offset_stream_model ... ok
+test regular_file_stdin_seek_is_reused_as_an_offset_stream ... ok
+test renameat2_exchange_is_unknown_and_never_reused ... ok
+test sandbox_child ... ok
+
+running 1 test
+test sandbox_child ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 61 filtered out; finished in 0.00s
+
+test sandbox_declared_path_succeeds_and_other_effects_are_denied ... ok
+test removing_a_dependency_deoptimizes ... ok
+test traced_execution_preserves_the_caller_supplied_argv0 ... ok
+test same_size_content_change_with_original_mtime_deoptimizes ... ok
+test output_prestate_reuse_matches_native_filesystem_effects ... ok
+test toctou_pre_restore_recheck_deoptimizes_instead_of_false_hit ... ok
+test un_audited_program_does_not_reuse_across_its_output_presence_change ... ok
+test vfork_children_that_exit_without_exec_do_not_stall ... ok
+test working_directory_change_is_a_miss ... ok
+test vfork_exec_children_are_registered_before_their_first_stop ... ok
+
+test result: ok. 62 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.21s
+
+     Running tests/phase_d_verification.rs (target/debug/build/tracejit-cli/925fd16ffe3ae716/out/phase_d_verification-925fd16ffe3ae716)
+
+running 6 tests
+test phase_d_full_observable_contract_on_fixture_hit ... ok
+test phase_d_concurrent_identical_cmds_and_candidate_readers ... ok
+test phase_d_concurrent_candidate_inserts_retain_safe_hits ... ok
+test phase_d_recovery_mixed_workspace_is_detectable_or_fail_closed ... ok
+test phase_d_restore_under_contention_does_not_serve_corrupt_bytes ... ok
+test phase_d_adversarial_scenarios_never_reuse_stale_observables ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.56s
+
+     Running tests/phase_k_crash_recovery.rs (target/debug/build/tracejit-cli/9a2f62d2c2c8ac7a/out/phase_k_crash_recovery-9a2f62d2c2c8ac7a)
+
+running 1 test
+test phase_k4_restore_fault_harness_passes ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.67s
+
+     Running tests/phase_k_modelcheck.rs (target/debug/build/tracejit-cli/c0f5b123baf0bfdf/out/phase_k_modelcheck-c0f5b123baf0bfdf)
+
+running 1 test
+test phase_k3_state_machine_checker_passes ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running unittests src/lib.rs (target/debug/build/tracejit-core/71472dbb4780b70d/out/tracejit_core-71472dbb4780b70d)
+
+running 23 tests
+test admission_research::tests::expected_benefit_fails_closed_without_samples ... ok
+test admission_research::tests::always_traces_ineligible_identities ... ok
+test admission_research::tests::expected_benefit_positive_when_hits_dominate ... ok
+test admission_research::tests::never_policy_never_hits ... ok
+test certificate::tests::limitations_document_mutable_state_trust ... ok
+test certificate::tests::parse_rejects_malformed_json ... ok
+test certificate::tests::structural_mode_still_ok_without_cache ... ok
+test admission_research::tests::held_out_comparison_prefers_simple_policy_when_tied_or_better ... ok
+test certificate::tests::verifier_accepts_consistent_reuse_certificate ... ok
+test certificate::tests::verifier_rejects_full_equivalence_claim ... ok
+test certificate::tests::verifier_rejects_legacy_artifact_on_reuse ... ok
+test certificate::tests::verifier_rejects_missing_cas_object ... ok
+test certificate::tests::verifier_rejects_reused_with_ineligible_class ... ok
+test tests::cache_path_fails_closed_when_it_cannot_be_created ... ok
+test tests::existing_cache_directory_is_writable_without_being_created ... ok
+test tests::read_before_write_remains_a_dependency ... ok
+test tests::simplified_admission_declines_cheap_and_frequently_invalidating_identities ... ok
+test tests::stat_start_ticks_skip_spaces_inside_comm ... ok
+test tests::missing_cache_directory_is_creatable_when_an_ancestor_is_writable ... ok
+test tests::write_then_read_is_not_an_input_dependency ... ok
+test tests::unsupported_platform_explains_why_reuse_is_unavailable ... ok
+test certificate::tests::strict_cas_rejects_missing_object ... ok
+test certificate::tests::strict_cas_accepts_when_objects_present ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/lib.rs (target/debug/build/tracejit-effects/5efaaca4447334f5/out/tracejit_effects-5efaaca4447334f5)
+
+running 24 tests
+test cegar::tests::getrusage_stays_fail_closed ... ok
+test cegar::tests::ignore_whitelist_sketch_is_rejected_unsafe ... ok
+test cegar::tests::directory_mtime_overabstraction_proposes_but_does_not_deploy ... ok
+test cegar::tests::engine_is_driven_by_input_not_hardcoded_cycle_table ... ok
+test cegar::tests::rename_exchange_ce_keeps_fail_closed_and_blocked ... ok
+test refinement::tests::directory_opened_cycle_is_accepted_and_safe ... ok
+test cegar::tests::unmodeled_flags_are_not_auto_admitted ... ok
+test refinement::tests::getrusage_cycle_is_rejected ... ok
+test refinement::tests::ignore_proposals_are_unsafe ... ok
+test registry::tests::directory_open_is_guarded ... ok
+test registry::tests::getrusage_stays_nondeterministic ... ok
+test registry::tests::registry_has_no_duplicate_names ... ok
+test tests::execution_identity_environment_round_trips_as_ordered_entries ... ok
+test tests::hash_hex_round_trip ... ok
+test tests::hash_round_trip ... ok
+test tests::ineligible_classes_never_claim_cache_eligibility ... ok
+test tests::random_or_clock_is_nondeterministic_not_eligible ... ok
+test tests::refusal_reasons_name_the_observed_syscall ... ok
+test tests::serialization_round_trip ... ok
+test tests::unknown_effect_classification_is_never_cache_eligible ... ok
+test tests::unknown_takes_precedence_over_nondeterminism ... ok
+test tests::effect_json_round_trip ... ok
+test tests::hash_rejects_non_hex ... ok
+test tests::hash_rejects_wrong_length ... ok
+
+test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running unittests src/lib.rs (target/debug/build/tracejit-guards/afb3d23672d8f69e/out/tracejit_guards-afb3d23672d8f69e)
+
+running 36 tests
+test tests::absence_metadata_guard_detects_creation ... ok
+test tests::an_access_check_replays_only_for_the_recorded_identity ... ok
+test tests::access_guard_replays_the_kernel_answer ... ok
+test tests::canonical_hash_is_stable_for_sorted_maps ... ok
+test tests::access_guard_keeps_a_recorded_denial_that_still_holds ... ok
+test tests::an_access_check_without_a_recorded_identity_is_refused ... ok
+test tests::content_hash_does_not_override_permission_change ... ok
+test tests::descriptor_scan_fails_after_entries_without_treating_them_as_eof ... ok
+test tests::descriptor_scan_fails_before_the_first_entry ... ok
+test tests::descriptor_scan_fails_when_fcntl_cannot_establish_identity ... ok
+test tests::descriptor_scan_reports_close_failure_even_when_no_descriptor_was_found ... ok
+test tests::descriptor_scan_reports_directory_fd_failure_and_closes ... ok
+test tests::descriptor_scan_returns_first_surviving_descriptor ... ok
+test tests::compiler_runtime_guard_requires_the_audited_profile ... ok
+test tests::descriptor_scan_skips_cloexec_and_directory_descriptors ... ok
+test tests::directory_open_guard_detects_a_type_change ... ok
+test tests::directory_enumeration_guard_replays_the_exact_entry_stream ... ok
+test tests::directory_open_guard_detects_permission_change ... ok
+test tests::directory_open_guard_detects_removal ... ok
+test tests::directory_open_guard_detects_replacement ... ok
+test tests::directory_open_guard_ignores_entries_created_beside_an_input ... ok
+test tests::directory_open_guard_ignores_timestamps_size_and_link_count ... ok
+test tests::directory_open_guard_replays_o_path_without_read_permission ... ok
+test tests::directory_open_guard_requires_the_recorded_credentials ... ok
+test tests::fast_mode_accepts_unchanged_metadata_without_hashing ... ok
+test tests::explicit_directory_metadata_guard_still_compares_timestamps ... ok
+test tests::file_hash_guard_detects_change ... ok
+test tests::filesystem_stat_guard_replays_every_field_and_detects_capacity_change ... ok
+test tests::guard_report_stops_at_first_failure ... ok
+test tests::inherited_stream_guard_refuses_stdin_that_is_not_the_recorded_file ... ok
+test tests::output_prestate_admits_only_an_absent_or_writable_regular_file ... ok
+test tests::strict_mode_hashes_after_safe_metadata_change ... ok
+test tests::symlink_metadata_guard_detects_target_replacement ... ok
+test tests::controlled_entropy_guard_requires_the_recorded_runtime_and_shape ... ok
+test tests::no_unexpected_effects_guard_always_passes ... ok
+test tests::canonical_hash_is_deterministic ... ok
+
+test result: ok. 36 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/lib.rs (target/debug/build/tracejit-sandbox/6653695b976ceb3b/out/tracejit_sandbox-6653695b976ceb3b)
+
+running 4 tests
+test tests::enforcement_refuses_when_landlock_is_absent ... ok
+test tests::unsupported_or_partial_sandbox_cannot_prove ... ok
+test tests::seccomp_filter_alone_denies_its_forbidden_surface ... ok
+test tests::supported_sandbox_enforces_declared_surface ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/build/tracejit-trace/defe00237d3514aa/out/tracejit_trace-defe00237d3514aa)
+
+running 20 tests
+test linux::phase3d_tests::null_device_identity_is_not_path_only ... ok
+test linux::tests::a_scheduler_stable_pipe_transfer_is_not_an_effect ... ok
+test linux::tests::a_short_read_before_end_of_file_stays_stable ... ok
+test linux::tests::a_short_read_followed_by_more_data_refuses_reuse ... ok
+test linux::tests::a_partial_write_refuses_reuse ... ok
+test linux::tests::anonymous_shared_mmap_flags_are_refused ... ok
+test linux::tests::an_untracked_vectored_transfer_refuses_reuse ... ok
+test linux::tests::deleted_proc_fd_pathname_is_not_treated_as_a_live_path ... ok
+test linux::tests::munmap_drops_only_the_covered_range ... ok
+test linux::tests::dup2_same_descriptor_preserves_file_directory_pipe_and_cloexec_state ... ok
+test linux::tests::descriptor_reuse_through_close_open_socket_and_pipe_forgets_enumeration ... ok
+test linux::tests::normalize_keeps_parent_components_so_links_resolve_like_the_kernel ... ok
+test linux::tests::private_mprotect_write_is_not_a_shared_store ... ok
+test linux::tests::reusing_a_descriptor_forgets_its_directory_enumeration ... ok
+test linux::tests::ordinary_duplicates_still_replace_destination_and_reset_cloexec ... ok
+test linux::tests::shared_mprotect_write_is_visible_to_the_guard ... ok
+test linux::tests::two_writers_make_byte_order_scheduling_dependent ... ok
+test linux::tests::synthetic_vdso_time_symbols_are_patched_in_place ... ok
+test linux::tests::vdso_stub_is_mov_syscall_ret ... ok
+test linux::tests::refuses_to_trace_an_executable_that_no_longer_matches_its_identity ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Doc-tests tracejit_cache
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests tracejit_core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests tracejit_effects
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests tracejit_guards
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests tracejit_sandbox
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests tracejit_trace
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+EXIT:0

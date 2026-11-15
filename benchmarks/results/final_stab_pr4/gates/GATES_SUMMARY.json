@@ -1,0 +1,166 @@
+{
+  "tip": "7b9e7ca98143fc8e55e4927b21906aa361219b6a",
+  "gates": [
+    {
+      "command": "cargo fmt --all -- --check",
+      "evidence": "benchmarks/results/final_stab_pr4/gates/fmt.log",
+      "status": "passed",
+      "exit": 0,
+      "note": ""
+    },
+    {
+      "command": "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+      "evidence": "benchmarks/results/final_stab_pr4/gates/clippy.log",
+      "status": "passed",
+      "exit": 0,
+      "note": ""
+    },
+    {
+      "command": "cargo test --workspace",
+      "evidence": "benchmarks/results/final_stab_pr4/gates/cargo_test_workspace.log",
+      "status": "passed",
+      "exit": 0,
+      "note": ""
+    },
+    {
+      "command": "cargo test -p tracejit-cli --test linux_integration -- --nocapture",
+      "evidence": "benchmarks/results/final_stab_pr4/gates/linux_integration.log",
+      "status": "passed",
+      "exit": 0,
+      "note": ""
+    },
+    {
+      "command": "cargo build --workspace --release",
+      "evidence": "benchmarks/results/final_stab_pr4/gates/release_build.log",
+      "status": "passed",
+      "exit": 0,
+      "note": ""
+    },
+    {
+      "command": "cargo audit",
+      "evidence": "benchmarks/results/final_stab_pr4/gates/cargo_audit.log",
+      "status": "passed",
+      "exit": 0,
+      "note": "clean on tip; no advisories reported"
+    },
+    {
+      "command": "./scripts/demo.sh",
+      "evidence": "benchmarks/results/final_stab_pr4/gates/demo.log",
+      "status": "passed",
+      "exit": 0,
+      "note": ""
+    },
+    {
+      "command": "python3 scripts/modelcheck/check_state_machines.py",
+      "evidence": "benchmarks/results/final_stab_pr4/gates/modelcheck.log",
+      "status": "passed",
+      "exit": 0,
+      "note": ""
+    },
+    {
+      "command": "./scripts/phase_k4_restore_fault.sh ./target/release/tracejit",
+      "evidence": "benchmarks/results/final_stab_pr4/gates/phase_k4_restore_fault.log",
+      "status": "passed",
+      "exit": 0,
+      "note": ""
+    },
+    {
+      "command": "cargo test -p tracejit-core --lib certificate",
+      "evidence": "benchmarks/results/final_stab_pr4/gates/certificate_tests.log",
+      "status": "passed",
+      "exit": 0,
+      "note": ""
+    },
+    {
+      "command": "cargo test -p tracejit-effects --lib cegar",
+      "evidence": "benchmarks/results/final_stab_pr4/gates/cegar_tests.log",
+      "status": "passed",
+      "exit": 0,
+      "note": ""
+    },
+    {
+      "command": "python3 benchmarks/oracle/independent_obs.py --seed 7",
+      "evidence": "benchmarks/results/final_stab_pr4/gates/oracle_seed7.log",
+      "status": "passed",
+      "exit": 0,
+      "note": ""
+    },
+    {
+      "command": "python3 benchmarks/differential/fuzz.py --seed 7",
+      "evidence": "benchmarks/results/final_stab_pr4/gates/differential/seed7.log",
+      "status": "passed",
+      "exit": 0,
+      "note": ""
+    },
+    {
+      "command": "python3 benchmarks/differential/fuzz.py --seed 11",
+      "evidence": "benchmarks/results/final_stab_pr4/gates/differential/seed11.log",
+      "status": "passed",
+      "exit": 0,
+      "note": ""
+    },
+    {
+      "command": "python3 benchmarks/differential/fuzz.py --seed 29",
+      "evidence": "benchmarks/results/final_stab_pr4/gates/differential/seed29.log",
+      "status": "passed",
+      "exit": 0,
+      "note": ""
+    },
+    {
+      "command": "python3 benchmarks/differential/phase_d.py --seed 7 --cases 40",
+      "evidence": "benchmarks/results/final_stab_pr4/gates/phase_d_seed7.log",
+      "status": "passed",
+      "exit": 0,
+      "note": ""
+    },
+    {
+      "command": "python3 benchmarks/differential/phase_d.py --seed 11 --cases 40",
+      "evidence": "benchmarks/results/final_stab_pr4/gates/phase_d_seed11.log",
+      "status": "passed",
+      "exit": 0,
+      "note": ""
+    },
+    {
+      "command": "./target/release/tracejit doctor",
+      "evidence": "benchmarks/results/final_stab_pr4/gates/cli_doctor.log",
+      "status": "passed",
+      "exit": 0,
+      "note": ""
+    },
+    {
+      "command": "./target/release/tracejit --help",
+      "evidence": "benchmarks/results/final_stab_pr4/gates/cli_help.log",
+      "status": "passed",
+      "exit": 0,
+      "note": ""
+    },
+    {
+      "command": "./target/release/tracejit refine --input docs/research/cegar/rename_exchange.json --json",
+      "evidence": "benchmarks/results/final_stab_pr4/gates/refine_cli.log",
+      "status": "passed",
+      "exit": 0,
+      "note": ""
+    },
+    {
+      "command": "./scripts/test-install-release.sh DIST_DIR (v0.1.1 assets, extracted)",
+      "evidence": "benchmarks/results/final_stab_pr4/gates/install_smoke.log",
+      "status": "passed",
+      "exit": 0,
+      "note": ""
+    },
+    {
+      "command": "dedicated metamorphic harness",
+      "evidence": "benchmarks/results/final_stab_pr4/gates/metamorphic.log",
+      "status": "not run",
+      "exit": null,
+      "note": "no metamorphic harness in repo; multi-seed differential/phase_d used instead"
+    },
+    {
+      "command": "gh api .../branches/main/protection",
+      "evidence": "benchmarks/results/final_stab_pr4/gates/branch_protection.log",
+      "status": "failed",
+      "exit": null,
+      "note": "HTTP 403 Resource not accessible by integration"
+    }
+  ]
+}

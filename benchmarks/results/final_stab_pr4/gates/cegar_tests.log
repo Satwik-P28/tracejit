@@ -1,0 +1,15 @@
+   Compiling tracejit-effects v0.1.1 (/agent/repos/tracejit-final-adv/crates/tracejit-effects)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.92s
+     Running unittests src/lib.rs (target/debug/build/tracejit-effects/b2698564a6a1ec2b/out/tracejit_effects-b2698564a6a1ec2b)
+
+running 6 tests
+test cegar::tests::getrusage_stays_fail_closed ... ok
+test cegar::tests::ignore_whitelist_sketch_is_rejected_unsafe ... ok
+test cegar::tests::directory_mtime_overabstraction_proposes_but_does_not_deploy ... ok
+test cegar::tests::engine_is_driven_by_input_not_hardcoded_cycle_table ... ok
+test cegar::tests::rename_exchange_ce_keeps_fail_closed_and_blocked ... ok
+test cegar::tests::unmodeled_flags_are_not_auto_admitted ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 0.00s
+
+EXIT:0

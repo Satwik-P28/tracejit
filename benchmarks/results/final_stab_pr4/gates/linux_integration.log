@@ -1,0 +1,173 @@
+   Compiling tracejit-cache v0.1.1 (/agent/repos/tracejit-final-adv/crates/tracejit-cache)
+   Compiling tracejit-core v0.1.1 (/agent/repos/tracejit-final-adv/crates/tracejit-core)
+   Compiling tracejit-cli v0.1.1 (/agent/repos/tracejit-final-adv/crates/tracejit-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.44s
+     Running tests/linux_integration.rs (target/debug/build/tracejit-cli/09a5df57659ee159/out/linux_integration-09a5df57659ee159)
+
+running 62 tests
+RESULT controlled-application-randomness PASS
+test a_contract_does_not_absorb_application_randomness ... ok
+test a_repointed_symlink_before_dotdot_is_never_a_cache_hit ... ok
+test a_hard_linked_output_retraces_instead_of_aborting ... ok
+test a_corrupted_cached_output_fails_closed ... ok
+test a_traced_script_sees_the_callers_script_path ... ok
+test a_symlinked_cache_root_is_refused ... ok
+test a_repointed_symlink_chain_before_dotdot_is_never_a_cache_hit ... ok
+test a_self_killed_child_is_reported_and_never_reused ... ok
+RESULT allocator-double-free PASS
+test allocator_double_free_detection_survives_the_contract ... ok
+Case                     Expected         Actual           Safe
+RESULT access_predicate PASS
+test access_check_is_replayed_as_a_predicate ... ok
+plain_file_read          Guarded          Guarded          yes
+file_content_changed     Guarded          Guarded          yes
+file_mtime_changed       Guarded          Guarded          yes
+RESULT controlled-sed PASS
+test allocator_entropy_contract_reuses_a_glibc_tool ... ok
+symlink_target_changed   Guarded          Guarded          yes
+read_to_stdout           Guarded          Guarded          yes
+cwd_dependency           Guarded          Guarded          yes
+environment_dependency   Guarded          Guarded          yes
+unset_environment_dependency Guarded          Guarded          yes
+locale_dependency        Guarded          Guarded          yes
+timezone_dependency      Guarded          Guarded          yes
+vdso_clock               Nondeterministic Nondeterministic yes
+clock_realtime           Nondeterministic Nondeterministic yes
+clock_monotonic          Nondeterministic Nondeterministic yes
+getrandom                Nondeterministic Nondeterministic yes
+urandom                  Nondeterministic Nondeterministic yes
+proc_cpuinfo             Guarded          Guarded          yes
+proc_self                Unknown          Unknown          yes
+hostname                 Guarded          Guarded          yes
+uid_gid_dependency       Guarded          Guarded          yes
+process_identity         Nondeterministic Nondeterministic yes
+RESULT alternate-candidate-replay PASS
+test alternating_inputs_reuse_a_retained_candidate ... ok
+system_info              Nondeterministic Nondeterministic yes
+tempfile_creation        Nondeterministic Nondeterministic yes
+fork_child               Guarded          Guarded          yes
+clone_thread             Unknown          Unknown          yes
+exec_child               Guarded          Guarded          yes
+test an_absence_guard_reports_a_file_that_appeared ... ok
+child_file_dependency    Guarded          Guarded          yes
+shared_file_write        Guarded          Guarded          yes
+write_then_read          Guarded          Guarded          yes
+rename_output            Guarded          Guarded          yes
+delete_output            Guarded          Guarded          yes
+network_connect          Nondeterministic Nondeterministic yes
+network_send             Nondeterministic Nondeterministic yes
+dns_lookup               Nondeterministic Nondeterministic yes
+unix_socket              Nondeterministic Nondeterministic yes
+mmap_shared_write        Unknown          Unknown          yes
+mmap_shared_mprotect     Unknown          Unknown          yes
+mmap_anon_shared         Unknown          Unknown          yes
+hardlink_create          Unknown          Unknown          yes
+negative_lookup          Guarded          Guarded          yes
+hardlink_input_read      Guarded          Guarded          yes
+unknown_ioctl            Unknown          Unknown          yes
+readlink_non_symlink     Guarded          Guarded          yes
+tracked_file_terminal_probe Guarded          Guarded          yes
+fd_cloexec               Guarded          Guarded          yes
+at_empty_path            Unknown          Unknown          yes
+test changing_stdin_from_null_to_regular_is_not_reused ... ok
+rename_exchange          Unknown          Unknown          yes
+stdin_metadata           Guarded          Guarded          yes
+dynamic_library_dependency Guarded          Guarded          yes
+interpreter_dependency   Guarded          Guarded          yes
+script_dependency        Guarded          Guarded          yes
+nonzero_exit             Guarded          Guarded          yes
+stdout_only              Guarded          Guarded          yes
+stderr_only              Guarded          Guarded          yes
+test child_process_dependency_change_deoptimizes ... ok
+dev_null_lseek           Guarded          Guarded          yes
+output_presence_stdout   Guarded          Guarded          yes
+output_presence_stderr   Guarded          Guarded          yes
+access_check             Guarded          Guarded          yes
+faccessat_check          Guarded          Guarded          yes
+pipe_roundtrip           Guarded          Guarded          yes
+pipe_short_read          Unknown          Unknown          yes
+RESULT classification PASS
+test adversarial_classification_table ... ok
+RESULT cloexec-fd9-survives-exec PASS
+test cloexec_source_already_on_fd9_still_reaches_the_child ... ok
+RESULT auto-admission PASS
+test auto_admission_skips_short_commands_and_caches_expensive_ones ... ok
+RESULT close-on-exec PASS
+test close_on_exec_descriptor_is_not_an_inherited_boundary ... ok
+test concurrent_cache_reads_all_reuse_the_same_result ... ok
+RESULT concurrent-inherited-descriptor PASS
+test concurrent_inherited_descriptor_replacements_are_refused ... ok
+test concurrent_identical_runs_neither_fail_nor_reuse_unsafely ... ok
+RESULT descriptor-enumeration-failure PASS
+test descriptor_enumeration_failure_is_fail_closed ... ok
+test corrupted_objects_are_repaired_and_reuse_resumes ... ok
+RESULT dev-null-lseek PASS
+test dev_null_seek_is_reusable ... ok
+RESULT corrupt-stream-order PASS
+test corrupt_stream_is_rejected_before_output_restoration ... ok
+RESULT dup2-same-descriptor PASS
+test dup2_same_descriptor_preserves_directory_and_pipe_tracking ... ok
+RESULT dev-null-read-family PASS
+test dev_null_read_family_is_reusable ... ok
+RESULT proven-reuse PASS
+test enforced_execution_is_proven_reused_and_invalidated ... ok
+test executed_interpreter_change_deoptimizes ... ok
+test fast_guard_mode_still_deoptimizes_on_a_content_change ... ok
+test fcntl_setfl_is_unknown_and_never_reused ... ok
+RESULT gzip-directory-dependency PASS
+test gzip_reuse_survives_creating_entries_beside_the_input ... ok
+test hardlink_input_path_replacement_is_never_a_stale_hit ... ok
+RESULT controlled-tr PASS
+test inherited_stdin_reuse_is_stable_across_fresh_sessions ... ok
+RESULT inherited-descriptor-beyond-stdin PASS
+test inherited_descriptor_beyond_stdin_is_never_reused ... ok
+RESULT guarded_hit PASS
+RESULT mutation DEOPT
+test guarded_hit_deopt_restore_and_replay ... ok
+test metadata_preserving_program_reuses_and_replays_mode_and_times ... ok
+test interrupted_restore_intent_refuses_hit ... ok
+test negative_lookup_deopts_when_the_path_appears ... ok
+test metadata_symlink_and_environment_changes_miss ... ok
+test otmpfile_is_unknown_and_never_reused ... ok
+RESULT inherited-stdin-seek PASS
+test inherited_stdin_seek_model_reproduces_offsets_and_refuses_unsound_cases ... ok
+test nondeterministic_and_unknown_cases_never_reuse ... ok
+test permission_change_deoptimizes ... ok
+RESULT gzip-reuse PASS
+test real_gzip_workload_is_reused_and_invalidated ... ok
+test output_prestate_refuses_non_file_destinations ... ok
+test regular_file_stdin_read_uses_the_offset_stream_model ... ok
+copy_stable                  ok
+copy_content_change          ok
+rename_exchange              ok
+getrandom_never_hit          ok
+RESULT phase-k2-oracle incorrect_hits=0 regress_eligible=0 cases=4 -> /tmp/.tmp6WOJSs/oracle-seed-7.json
+RESULT phase-k2-oracle PASS
+test phase_k2_independent_obs_oracle_seed7 ... ok
+RESULT substituted-dev-null PASS
+test regular_file_stdin_seek_is_reused_as_an_offset_stream ... ok
+test renameat2_exchange_is_unknown_and_never_reused ... ok
+test sandbox_child ... ok
+RESULT sandbox PASS: seccomp and Landlock ABI 3+ available
+
+running 1 test
+test sandbox_child ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 61 filtered out; finished in 0.00s
+
+test sandbox_declared_path_succeeds_and_other_effects_are_denied ... ok
+test removing_a_dependency_deoptimizes ... ok
+test traced_execution_preserves_the_caller_supplied_argv0 ... ok
+test output_prestate_reuse_matches_native_filesystem_effects ... ok
+test same_size_content_change_with_original_mtime_deoptimizes ... ok
+test toctou_pre_restore_recheck_deoptimizes_instead_of_false_hit ... ok
+test un_audited_program_does_not_reuse_across_its_output_presence_change ... ok
+RESULT vfork-exit PASS
+test vfork_children_that_exit_without_exec_do_not_stall ... ok
+test working_directory_change_is_a_miss ... ok
+RESULT vfork-registration PASS
+test vfork_exec_children_are_registered_before_their_first_stop ... ok
+
+test result: ok. 62 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.29s
+
+EXIT:0

@@ -2,7 +2,9 @@
 
 The short-command loss remains [benchmarks/results/latest.md](benchmarks/results/latest.md), from commit `63e33638709aacfaed896ab587435e64c0ecea62`. TraceJIT has a fixed-cost floor and is not beneficial for extremely short commands.
 
-Warm-HIT destination-match restore skip was **evaluated and withdrawn** (final stabilization PR3). A synthetic back-to-back loop with no consumer of outputs can look like ~5 ms → ~3 ms; under `relatime`, reading outputs between runs yields **0% skip** because recorded atime is part of Obs and must match. See [benchmarks/results/final_stab_pr3/compare.md](benchmarks/results/final_stab_pr3/compare.md) and `skip_rate_study.json`. Do not cite the synthetic skip delta as a product result.
+Warm-HIT destination-match restore skip was **evaluated and withdrawn** (final stabilization PR3 / #35). A synthetic back-to-back loop with no consumer of outputs can look like ~5 ms → ~3 ms; under `relatime`, reading outputs between runs yields **0% skip** because recorded atime is part of Obs and must match. See [benchmarks/results/final_stab_pr3/compare.md](benchmarks/results/final_stab_pr3/compare.md) and `skip_rate_study.json`. Do not cite the synthetic skip delta as a product result.
+
+**Final mandate §4 package** (measuring commit `4ffde9a`, product ≡ `ed3bd39`/`7b9e7ca`): [benchmarks/results/final_stab_pr3/mandate_s4/SUMMARY.md](benchmarks/results/final_stab_pr3/mandate_s4/SUMMARY.md) — C transform, short floor, gzip, ETL, session, concurrency, warm/cold/direct/auto, census. Warm-HIT phase breakdown: [warm_hit_profile_breakdown.md](benchmarks/results/final_stab_pr3/warm_hit_profile_breakdown.md). PR4 gate logs: [final_stab_pr4/gates/](benchmarks/results/final_stab_pr4/gates/).
 
 The 312.913 ms to 3.972 ms result is the synthetic `c-transform` workload: it folds `benchmarks/workloads/c-transform/numbers.txt` and then runs 250,000,000 extra mix rounds (`EXTRA_ROUNDS` in `main.c`). It is a controlled CPU-bound command with a real file input and a real output file. It is not a compiler, an ETL job from production, or evidence that other commands scale the same way.
 

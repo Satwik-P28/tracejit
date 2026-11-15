@@ -1,0 +1,18 @@
+tracejit-v0.1.1-x86_64-unknown-linux-gnu.tar.gz: OK
+tracejit-v0.1.1-x86_64-unknown-linux-gnu.tar.gz: OK
+installed /tmp/tmp.allG0kdJaB/tracejit
+ensure /tmp/tmp.allG0kdJaB is on PATH, then run: tracejit doctor
+os             linux
+arch           x86_64
+supported      yes
+ptrace         yes
+seccomp        yes
+landlock       abi 6
+proven         yes
+cache          /tmp/fstat1-c (writable)
+tracejit-v0.1.1-x86_64-unknown-linux-gnu.tar.gz: FAILED
+sha256sum: WARNING: 1 computed checksum did NOT match
+checksum mismatch; refusing to install
+v0.1.1 is not published. Use ./scripts/install-dev.sh from a checkout.
+installer test passed
+EXIT:0

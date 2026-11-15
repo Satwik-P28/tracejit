@@ -1,0 +1,8 @@
+usage: phase_d.py [-h] [--seed SEED] [--output OUTPUT] [--cases CASES]
+
+options:
+  -h, --help       show this help message and exit
+  --seed SEED
+  --output OUTPUT
+  --cases CASES    optional cap on base cases (0 = all)
+EXIT:0
