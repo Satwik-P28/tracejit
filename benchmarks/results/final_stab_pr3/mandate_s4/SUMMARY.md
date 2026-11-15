@@ -1,23 +1,46 @@
 # Mandate §4 snapshot
 
-commit `4ffde9aa82ba91b4f71a587d5c8acb3136ad96a7`
+Measured on tip `4ffde9a` (product ≡ `ed3bd39`); packaging commit may follow.  
+Nothing deferred to PR4. Raw JSON under this directory.
 
-## Hit floor / ETL-like
-- direct: median 0.337 ms p95 0.696 ms n=30 ci=[330782, 350833]
-## C transform throughput
-- direct: median 32.524 ms p95 33.087 ms ci=[32481096, 32568869]
-## Session
-- tracejit cumulative 177.046 ms direct 35.452 ms kinds={'Executed': 1, 'Reused': 30}
-## Concurrency
-- keys=['all_success', 'kind_counts', 'results', 'wall_ns', 'workers']
-## Short + compression
-- true_direct: median 0.351 ms p95 0.610 ms ci=[317606, 364017]
-- true_cold: median 4.544 ms p95 6.058 ms ci=[4122805, 5183266]
-- true_warm: median 4.475 ms p95 5.236 ms ci=[4207541, 4699607]
-- gzip64k_direct: median 0.847 ms p95 0.960 ms ci=[716091, 878141]
-- gzip64k_cold: median 4.686 ms p95 6.329 ms ci=[4217139, 5046993]
-- gzip64k_warm: median 4.805 ms p95 6.306 ms ci=[4141254, 5317839]
-## Harness ETL
-- baseline 1.374 ms cached 4.430 ms traced_cold 8.289 ms
-## Census
-- eligibility 0.03125 reused 1/32
+## C transform (`final_p1/e2e.json` throughput)
+
+| Mode | Median ms | p95 ms | 95% CI median ns |
+| --- | ---: | ---: | --- |
+| direct | 32.524 | 33.087 | [32481096, 32568869] |
+| cold_trace | 43.676 | 46.988 | [42387140, 44311846] |
+| warm_hit | 5.303 | 6.477 | [4881492, 5796698] |
+| auto | 7.061 | 8.297 | [5178544, 7559605] |
+
+## Short-command `/bin/true` (`short_and_compression.json`)
+
+| Mode | Median ms | p95 ms | 95% CI median ns |
+| --- | ---: | ---: | --- |
+| direct | 0.351 | 0.610 | [317606, 364017] |
+| cold | 4.544 | 6.058 | [4122805, 5183266] |
+| warm | 4.475 | 5.236 | [4207541, 4699607] |
+
+## Compression gzip 64KiB
+
+| Mode | Median ms | p95 ms | 95% CI median ns |
+| --- | ---: | ---: | --- |
+| direct | 0.847 | 0.960 | [716091, 878141] |
+| cold | 4.686 | 6.329 | [4217139, 5046993] |
+| warm (Reused) | 4.805 | 6.306 | [4141254, 5317839] |
+
+## ETL hit floor + harness
+
+| Mode | Median ms | p95 ms | 95% CI median ns |
+| --- | ---: | ---: | --- |
+| direct | 0.337 | 0.696 | [330782, 350833] |
+| cold_trace | 7.783 | 10.457 | [7517221, 8578051] |
+| warm_hit | 4.332 | 6.275 | [3893579, 4610234] |
+| auto | 3.252 | 4.836 | [3072265, 3390729] |
+
+Harness ETL (`harness_etl/latest.json`): baseline 1.374 ms, traced_cold 8.289 ms, cached 4.430 ms.
+
+## Session / concurrency / census
+
+- Session: TraceJIT cumulative 177.046 ms vs direct 35.452 ms; kinds Executed=1 Reused=30
+- Concurrency: `e2e.json` section9.concurrency
+- Census: eligibility **1/32** (`census/census.json`)
