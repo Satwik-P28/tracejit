@@ -1,3 +1,5 @@
+mod verity;
+
 use serde::{Deserialize, Serialize};
 use std::ffi::{CStr, OsString};
 use std::fs::{self, File};
@@ -9,6 +11,15 @@ use tracejit_effects::{
     FilesystemStats, FilesystemStatsSource, Hash, InputDependency, NamespaceIdentity,
     RuntimeIdentity,
 };
+
+/// Experimental fs-verity acceleration, off unless explicitly requested.
+fn verity_enabled() -> bool {
+    verity_cfg_enabled() || cfg!(test)
+}
+
+fn verity_cfg_enabled() -> bool {
+    std::env::var_os("TRACEJIT_VERITY").is_some_and(|value| value == "1")
+}
 
 /// Whether a fresh run could open this path for writing at all.
 ///
@@ -52,6 +63,11 @@ pub enum Guard {
     FileHash {
         path: PathBuf,
         expected: Hash,
+        /// Optional fs-verity Merkle root recorded at trace time. When present it is a
+        /// content witness that can be re-measured without reading the file; the digest
+        /// covers content only, so metadata guards still carry path/permission identity.
+        #[serde(default)]
+        verity: Option<Hash>,
     },
     FileMetadata {
         path: PathBuf,
@@ -547,7 +563,29 @@ impl Guard {
                     })
                 }
             }
-            Self::FileHash { path, expected } => {
+            Self::FileHash {
+                path,
+                expected,
+                verity,
+            } => {
+                // fs-verity acceleration: a verity file cannot change in place, so a matching
+                // Merkle root is equivalent to a matching content hash at a fraction of the
+                // cost. Anything unexpected (not enrolled, unsupported, unreadable) falls back
+                // to the strict hash below; a *measured* mismatch never falls back.
+                if let (Some(recorded), true) = (verity, verity_enabled()) {
+                    if let Ok(Some(actual)) = crate::verity::measure_path(path) {
+                        let actual = Hash::new(actual);
+                        if &actual == recorded {
+                            return Ok(());
+                        }
+                        return Err(GuardFailure {
+                            guard: Box::new(self.clone()),
+                            reason: "file content changed (fs-verity root differs)".into(),
+                            expected: recorded.to_string(),
+                            actual: actual.to_string(),
+                        });
+                    }
+                }
                 let actual = hash_file(path).map_err(|error| GuardFailure {
                     guard: Box::new(self.clone()),
                     reason: "file could not be hashed".into(),
@@ -1946,6 +1984,14 @@ pub fn compile_guards(executable: PathBuf, identity: &ExecutionIdentity) -> Vec<
                 guards.push(Guard::FileHash {
                     path: path.clone(),
                     expected: *expected_hash,
+                    verity: if verity_enabled() {
+                        crate::verity::measure_path(path)
+                            .ok()
+                            .flatten()
+                            .map(Hash::new)
+                    } else {
+                        None
+                    },
                 });
             }
             InputDependency::Metadata { path, fingerprint } => guards.push(Guard::FileMetadata {
@@ -2162,6 +2208,7 @@ mod tests {
         let guard = Guard::FileHash {
             path: path.clone(),
             expected: hash_file(&path).unwrap(),
+            verity: None,
         };
         assert!(guard.validate(GuardMode::Strict).is_ok());
         fs::write(&path, b"after").unwrap();
@@ -2229,6 +2276,7 @@ mod tests {
             Guard::FileHash {
                 path,
                 expected: Hash::from(blake3::hash(b"deliberately different")),
+                verity: None,
             },
         ];
         let report = validate_all(&guards, GuardMode::Fast);
@@ -2254,6 +2302,7 @@ mod tests {
             Guard::FileHash {
                 path,
                 expected: expected_hash,
+                verity: None,
             },
         ];
         let report = validate_all(&guards, GuardMode::Strict);
@@ -2645,6 +2694,7 @@ mod tests {
             Guard::FileHash {
                 path,
                 expected: expected_hash,
+                verity: None,
             },
         ];
         assert!(validate_all(&guards, GuardMode::Strict).failure.is_some());
@@ -2909,5 +2959,112 @@ mod tests {
         };
         let failure = guard.validate(GuardMode::Strict).unwrap_err();
         assert!(failure.reason.contains("credentials"), "{failure:?}");
+    }
+}
+
+#[cfg(test)]
+mod verity_guard_tests {
+    use super::*;
+
+    fn recorded(byte: u8) -> Hash {
+        Hash::new([byte; 32])
+    }
+
+    fn unreadable(path: &Path) {
+        use std::os::unix::fs::PermissionsExt;
+        let mut permissions = fs::metadata(path).unwrap().permissions();
+        permissions.set_mode(0o000);
+        fs::set_permissions(path, permissions).unwrap();
+    }
+
+    #[test]
+    fn matching_verity_root_reuses_without_reading_the_file() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("input");
+        fs::write(&path, b"immutable content").unwrap();
+        unreadable(&path);
+        if File::open(&path).is_ok() {
+            return; // root: the premise (an unreadable file) does not hold
+        }
+        let guard = Guard::FileHash {
+            path: path.clone(),
+            expected: recorded(0xAA),
+            verity: Some(recorded(0x11)),
+        };
+        verity::set_test_digest(Some(Some([0x11; 32])));
+        assert!(
+            guard.validate(GuardMode::Strict).is_ok(),
+            "a matching verity root must accept without reading content"
+        );
+        verity::set_test_digest(None);
+        assert!(
+            guard.validate(GuardMode::Strict).is_err(),
+            "without verity the unreadable file must not validate"
+        );
+    }
+
+    #[test]
+    fn a_different_verity_root_fails_closed_without_hash_fallback() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("input");
+        fs::write(&path, b"content").unwrap();
+        let guard = Guard::FileHash {
+            path,
+            // The BLAKE3 expectation matches the current bytes, so only the verity
+            // comparison can reject this guard.
+            expected: hash_file(&directory.path().join("input")).unwrap(),
+            verity: Some(recorded(0x11)),
+        };
+        verity::set_test_digest(Some(Some([0x22; 32])));
+        let failure = guard.validate(GuardMode::Strict).unwrap_err();
+        assert!(
+            failure.reason.contains("fs-verity"),
+            "a mismatched root must fail closed, got: {}",
+            failure.reason
+        );
+        verity::set_test_digest(None);
+        assert!(guard.validate(GuardMode::Strict).is_ok());
+    }
+
+    #[test]
+    fn an_unmeasurable_root_falls_back_to_strict_hashing() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("input");
+        fs::write(&path, b"content").unwrap();
+        let guard = Guard::FileHash {
+            path: path.clone(),
+            expected: hash_file(&path).unwrap(),
+            verity: Some(recorded(0x11)),
+        };
+        verity::set_test_digest(Some(None));
+        assert!(
+            guard.validate(GuardMode::Strict).is_ok(),
+            "an unenrolled/unsupported file must still validate by hash"
+        );
+        fs::write(&path, b"changed").unwrap();
+        assert!(
+            guard.validate(GuardMode::Strict).is_err(),
+            "strict hashing must still reject changed content"
+        );
+    }
+
+    #[test]
+    fn records_written_before_verity_deserialize_without_a_root() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("input");
+        fs::write(&path, b"content").unwrap();
+        let guard = Guard::FileHash {
+            path,
+            expected: hash_file(&directory.path().join("input")).unwrap(),
+            verity: None,
+        };
+        let mut value = serde_json::to_value(&guard).unwrap();
+        value["FileHash"]
+            .as_object_mut()
+            .unwrap()
+            .remove("verity")
+            .expect("the field is serialized");
+        let decoded: Guard = serde_json::from_value(value).unwrap();
+        assert_eq!(decoded, guard);
     }
 }

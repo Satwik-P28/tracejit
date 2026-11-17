@@ -61,3 +61,10 @@ python3 scripts/modelcheck/check_state_machines.py
 ```
 
 Gate evidence: `benchmarks/results/final_stab_pr4/gates/GATES_SUMMARY.md`.
+
+## Research branches (not merged)
+
+- Phase S fs-verity witness prototype lives on `phase-s/verity`: `FS_IOC_MEASURE_VERITY` on
+  `Guard::FileHash` behind `TRACEJIT_VERITY=1`, strict-hash fallback unchanged. The test kernel
+  returns `EOPNOTSUPP`, so no gain is demonstrable; warm-hit cost is 61–69 % output
+  materialisation and fsync, guard hashing only 8.5–9.1 %. See `research/phase_s/REPORT.md`.
