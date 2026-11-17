@@ -37,6 +37,7 @@ expected=$(printf '%s\n' \
   "${prefix_name}/SAFETY.md" \
   "${prefix_name}/SECURITY.md" \
   "${prefix_name}/VERSION" \
+  "${prefix_name}/docs/" \
   "${prefix_name}/docs/BENCHMARK_REPRODUCTION.md" \
   "${prefix_name}/docs/INSTALL.md" \
   "${prefix_name}/docs/LIMITATIONS.md" \

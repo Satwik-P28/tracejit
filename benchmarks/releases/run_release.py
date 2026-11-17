@@ -198,9 +198,9 @@ def cpu_transform(binary: Path, env: dict[str, str], warmups: int, runs: int) ->
 
     def cold() -> int:
         with tempfile.TemporaryDirectory(prefix="tracejit-cold-") as cache:
-            elapsed, _, stderr = tracejit(binary, Path(cache), env, command)
-            if "cache          MISS" not in stderr or "classified     GUARDED" not in stderr:
-                raise RuntimeError(f"transform cold run was not GUARDED: {stderr}")
+            elapsed, report, _ = tracejit(binary, Path(cache), env, command, quiet=True)
+            if report.get("classification") != "Guarded" or report.get("kind") != "Executed":
+                raise RuntimeError(f"transform cold run was not a GUARDED execution: {report}")
             return elapsed
 
     with tempfile.TemporaryDirectory(prefix="tracejit-warm-") as cache:
@@ -276,15 +276,22 @@ def compression(binary: Path, env: dict[str, str], warmups: int, runs: int) -> d
 
         with tempfile.TemporaryDirectory(prefix="tracejit-gzip-cache-") as cache:
             cache_path = Path(cache)
-            first_elapsed, _, first_stderr = tracejit(binary, cache_path, env, command)
-            if "classified     GUARDED" not in first_stderr:
+            first_elapsed, first_report, _ = tracejit(binary, cache_path, env, command, quiet=True)
+            if first_report.get("classification") != "Guarded":
                 return scenario(
                     "compression",
                     "controlled",
                     "gzip -9 on a deterministic 4 MiB file.",
                     {},
                     ["TraceJIT refused gzip; recorded as a refusal, not a speedup."],
-                    refusals=[{"command": command, "diagnostic": first_stderr.strip()[-2000:]}],
+                    refusals=[
+                        {
+                            "command": command,
+                            "diagnostic": f"classification={first_report.get('classification')} "
+                            f"decision={first_report.get('cache_decision')} "
+                            f"reasons={first_report.get('reasons')}",
+                        }
+                    ],
                 )
             second_elapsed, report, _ = tracejit(binary, cache_path, env, command, quiet=True)
             if report.get("kind") != "Reused":
@@ -292,9 +299,9 @@ def compression(binary: Path, env: dict[str, str], warmups: int, runs: int) -> d
 
             def cold() -> int:
                 with tempfile.TemporaryDirectory(prefix="tracejit-gzip-cold-") as fresh:
-                    elapsed, _, stderr = tracejit(binary, Path(fresh), env, command)
-                    if "classified     GUARDED" not in stderr:
-                        raise RuntimeError(f"gzip classification changed: {stderr}")
+                    elapsed, report, _ = tracejit(binary, Path(fresh), env, command, quiet=True)
+                    if report.get("classification") != "Guarded":
+                        raise RuntimeError(f"gzip classification changed: {report}")
                     return elapsed
 
             def warm() -> int:
@@ -334,9 +341,9 @@ def etl_session(binary: Path, env: dict[str, str], warmups: int, runs: int) -> d
         with tempfile.TemporaryDirectory(prefix="tracejit-session-") as cache:
             cache_path = Path(cache)
             for index in range(repetitions):
-                elapsed, report, stderr = tracejit(binary, cache_path, env, command, quiet=True)
-                if index == 0 and "classified     GUARDED" not in stderr:
-                    raise RuntimeError(f"session first run was not GUARDED: {stderr}")
+                elapsed, report, _ = tracejit(binary, cache_path, env, command, quiet=True)
+                if index == 0 and report.get("classification") != "Guarded":
+                    raise RuntimeError(f"session first run was not GUARDED: {report}")
                 if index > 0 and report.get("kind") != "Reused":
                     raise RuntimeError(f"session run {index} did not reuse: {report}")
                 total += elapsed
@@ -363,9 +370,9 @@ def large_restore(binary: Path, env: dict[str, str], warmups: int, runs: int) ->
 
     def cold() -> int:
         with tempfile.TemporaryDirectory(prefix="tracejit-large-cold-") as cache:
-            elapsed, _, stderr = tracejit(binary, Path(cache), env, command)
-            if "classified     GUARDED" not in stderr:
-                raise RuntimeError(f"large-output cold run was not GUARDED: {stderr}")
+            elapsed, report, _ = tracejit(binary, Path(cache), env, command, quiet=True)
+            if report.get("classification") != "Guarded":
+                raise RuntimeError(f"large-output cold run was not GUARDED: {report}")
             return elapsed
 
     with tempfile.TemporaryDirectory(prefix="tracejit-large-warm-") as cache:
