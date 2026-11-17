@@ -3370,3 +3370,58 @@ fn phase_k2_independent_obs_oracle_seed7() {
     );
     eprintln!("RESULT phase-k2-oracle PASS");
 }
+
+/// Phase R: an experimental candidate order may change which retained record is tried
+/// first, but never what is reused or restored. Every mode must produce the same
+/// classification, the same bytes, and a full guard validation before reuse.
+#[test]
+fn candidate_order_override_preserves_reuse_and_outputs() {
+    let _serial = COMPILER_TIMING_LOCK.lock().unwrap();
+    let temporary = tempfile::tempdir().unwrap();
+    let binary = compile_fixture(temporary.path());
+    for mode in ["newest", "last-success", "hit-count"] {
+        let root = temporary.path().join(format!("order-{mode}"));
+        fs::create_dir_all(&root).unwrap();
+        workspace(&root);
+        let cache = root.join("cache");
+        let args = [
+            "run",
+            "--json",
+            "--",
+            binary.to_str().unwrap(),
+            "plain_file_read",
+            root.to_str().unwrap(),
+        ];
+        let input = root.join("input.txt");
+        let output = root.join("output.txt");
+
+        let first = invoke(&cache, &args, Some(("TRACEJIT_CANDIDATE_ORDER", mode)));
+        assert!(
+            first.status.success(),
+            "{mode}: {}",
+            String::from_utf8_lossy(&first.stderr)
+        );
+        let first: Value = serde_json::from_slice(&first.stdout).unwrap();
+        assert_eq!(first["kind"], "Executed", "{mode}: {first}");
+
+        fs::write(&input, b"input two\n").unwrap();
+        let second = invoke(&cache, &args, Some(("TRACEJIT_CANDIDATE_ORDER", mode)));
+        assert!(second.status.success(), "{mode}");
+        let second: Value = serde_json::from_slice(&second.stdout).unwrap();
+        assert_ne!(second["kind"], "Reused", "{mode}: {second}");
+        assert_eq!(fs::read(&output).unwrap(), b"input two\n");
+
+        fs::write(&input, b"input one\n").unwrap();
+        let third = invoke(&cache, &args, Some(("TRACEJIT_CANDIDATE_ORDER", mode)));
+        assert!(third.status.success(), "{mode}");
+        let third: Value = serde_json::from_slice(&third.stdout).unwrap();
+        assert_eq!(third["kind"], "Reused", "{mode}: {third}");
+        assert_eq!(third["classification"], "Guarded", "{mode}: {third}");
+        assert_eq!(fs::read(&output).unwrap(), b"input one\n");
+        assert!(
+            third["candidates_examined"].as_u64().unwrap_or(0) >= 1,
+            "{mode}: reused without validating a candidate: {third}"
+        );
+        eprintln!("RESULT candidate-order-{mode} PASS");
+    }
+}

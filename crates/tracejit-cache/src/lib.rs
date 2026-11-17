@@ -162,7 +162,7 @@ pub struct QueryTimings {
 
 /// Bumped when the SQLite schema changes, so `Cache::open` runs the migration batch once instead
 /// of on every invocation.
-const CACHE_SCHEMA_VERSION: i64 = 2;
+const CACHE_SCHEMA_VERSION: i64 = 3;
 
 /// Alternate guarded records retained for one command identity. Inputs are guards, not part of
 /// the lookup key, so alternating between two versions of an input must not evict the first
@@ -171,6 +171,48 @@ const CACHE_SCHEMA_VERSION: i64 = 2;
 const DEFAULT_MAX_CANDIDATES_PER_IDENTITY: usize = 8;
 const MAX_CANDIDATES_ENV: &str = "TRACEJIT_CANDIDATE_BOUND";
 const MAX_CANDIDATES_LIMIT: usize = 64;
+const CANDIDATE_ORDER_ENV: &str = "TRACEJIT_CANDIDATE_ORDER";
+
+/// Experimental candidate trial order (Phase R).
+///
+/// Ordering only chooses which retained record has its guards validated first. It never
+/// skips a guard, never changes a classification, and a candidate that fails validation is
+/// still rejected. `Newest` is the production default; the other modes are research-only and
+/// are selected by `TRACEJIT_CANDIDATE_ORDER`.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub enum CandidateOrder {
+    /// Most recently written record first (production behaviour).
+    #[default]
+    Newest,
+    /// Record whose guards last passed first, then newest.
+    LastSuccess,
+    /// Record with the most recorded successes first, then last success, then newest.
+    HitCount,
+}
+
+impl CandidateOrder {
+    /// Parses an override value. Unknown text is rejected rather than guessed.
+    pub fn parse(value: &str) -> Option<Self> {
+        match value {
+            "newest" => Some(Self::Newest),
+            "last-success" => Some(Self::LastSuccess),
+            "hit-count" => Some(Self::HitCount),
+            _ => None,
+        }
+    }
+
+    /// Reads the experimental override. Unknown or malformed values keep the default.
+    pub fn from_env() -> Self {
+        std::env::var(CANDIDATE_ORDER_ENV)
+            .ok()
+            .and_then(|value| Self::parse(&value))
+            .unwrap_or_default()
+    }
+
+    pub fn is_default(self) -> bool {
+        self == Self::Newest
+    }
+}
 
 /// The retention bound is a policy choice, not an execution identity. An experimental override
 /// lets the scaling benchmark exercise 1, 2, 4, 8, 16, 32 and 64 candidates without changing the
@@ -445,17 +487,45 @@ impl Cache {
     /// The caller must decode each candidate and run its guards before reuse; this API is not a
     /// substitute for validation. A malformed record is skipped by `decode`.
     pub fn find_candidates(&self, lookup_key: Hash) -> Result<Vec<CandidateBytes>, CacheError> {
+        self.find_candidates_ordered(lookup_key, CandidateOrder::Newest)
+    }
+
+    /// Retained candidates for one identity in the requested trial order.
+    ///
+    /// The order is a hint about which record is likely to validate; it is not evidence. The
+    /// caller validates every candidate it tries.
+    pub fn find_candidates_ordered(
+        &self,
+        lookup_key: Hash,
+        order: CandidateOrder,
+    ) -> Result<Vec<CandidateBytes>, CacheError> {
         let started = Instant::now();
         // Retention already prunes to this bound on write. LIMIT keeps a stale unpruned row from
         // forcing the hit path to pull more JSON than validation will consider.
         let bound = max_candidates_per_identity() as i64;
         // prepare_cached avoids re-compiling the hit-path candidate query on every warm reuse.
         // Correctness is unchanged: same SQL, same LIMIT, same validation of every candidate.
-        let mut statement = self.connection.prepare_cached(
-            "SELECT record_json FROM executions WHERE lookup_key = ?1
-             ORDER BY CAST(updated_unix_ms AS INTEGER) DESC, execution_id DESC
-             LIMIT ?2",
-        )?;
+        let sql = match order {
+            CandidateOrder::Newest => {
+                "SELECT record_json FROM executions WHERE lookup_key = ?1
+                 ORDER BY CAST(updated_unix_ms AS INTEGER) DESC, execution_id DESC
+                 LIMIT ?2"
+            }
+            CandidateOrder::LastSuccess => {
+                "SELECT record_json FROM executions WHERE lookup_key = ?1
+                 ORDER BY CAST(last_success_unix_ms AS INTEGER) DESC,
+                          CAST(updated_unix_ms AS INTEGER) DESC, execution_id DESC
+                 LIMIT ?2"
+            }
+            CandidateOrder::HitCount => {
+                "SELECT record_json FROM executions WHERE lookup_key = ?1
+                 ORDER BY success_count DESC,
+                          CAST(last_success_unix_ms AS INTEGER) DESC,
+                          CAST(updated_unix_ms AS INTEGER) DESC, execution_id DESC
+                 LIMIT ?2"
+            }
+        };
+        let mut statement = self.connection.prepare_cached(sql)?;
         let rows = statement
             .query_map(params![lookup_key.to_string(), bound], |row| {
                 row.get::<_, Vec<u8>>(0)
@@ -466,6 +536,20 @@ impl Cache {
             decode_ns: 0,
         });
         Ok(rows.into_iter().map(CandidateBytes).collect())
+    }
+
+    /// Records that a retained candidate's guards passed and its outputs were restored.
+    ///
+    /// Phase R statistic only. It does not affect eligibility or validation, and a failure to
+    /// write it is returned to the caller rather than being treated as a cache hit.
+    pub fn record_candidate_success(&self, execution_id: &str) -> Result<(), CacheError> {
+        self.connection.execute(
+            "UPDATE executions
+             SET success_count = success_count + 1, last_success_unix_ms = ?2
+             WHERE execution_id = ?1",
+            params![execution_id, now_unix_ms().to_string()],
+        )?;
+        Ok(())
     }
 
     pub fn find_by_id(&self, id: &str) -> Result<Option<StoredExecution>, CacheError> {
@@ -937,11 +1021,13 @@ fn initialize_schema(connection: &mut Connection) -> Result<(), CacheError> {
     )?;
     let transaction = connection.transaction()?;
     transaction.execute_batch(
-        "CREATE TABLE executions_candidates (
+        "         CREATE TABLE executions_candidates (
              lookup_key TEXT NOT NULL,
              execution_id TEXT PRIMARY KEY NOT NULL,
              record_json BLOB NOT NULL,
-             updated_unix_ms TEXT NOT NULL
+             updated_unix_ms TEXT NOT NULL,
+             last_success_unix_ms TEXT NOT NULL DEFAULT '0',
+             success_count INTEGER NOT NULL DEFAULT 0
          );
          INSERT OR REPLACE INTO executions_candidates
              (lookup_key, execution_id, record_json, updated_unix_ms)
@@ -962,13 +1048,23 @@ fn initialize_schema(connection: &mut Connection) -> Result<(), CacheError> {
              deopts INTEGER NOT NULL DEFAULT 0,
              updated_unix_ms TEXT NOT NULL
          );
-         PRAGMA user_version=2;",
+         PRAGMA user_version=3;",
     )?;
     transaction.commit()?;
     // Older caches predate the deoptimisation counter; adding it is idempotent and ignored when
     // the column already exists.
     let _ = connection.execute(
         "ALTER TABLE admission ADD COLUMN deopts INTEGER NOT NULL DEFAULT 0",
+        [],
+    );
+    // Phase R candidate-ranking statistics. Existing rows start with no successes, which is
+    // exactly the fallback state: ordering then reduces to newest-first.
+    let _ = connection.execute(
+        "ALTER TABLE executions ADD COLUMN last_success_unix_ms TEXT NOT NULL DEFAULT '0'",
+        [],
+    );
+    let _ = connection.execute(
+        "ALTER TABLE executions ADD COLUMN success_count INTEGER NOT NULL DEFAULT 0",
         [],
     );
     Ok(())
@@ -2155,6 +2251,75 @@ mod tests {
     }
 
     #[test]
+    fn candidate_order_parse_rejects_unknown_values() {
+        assert_eq!(
+            CandidateOrder::parse("newest"),
+            Some(CandidateOrder::Newest)
+        );
+        assert_eq!(
+            CandidateOrder::parse("last-success"),
+            Some(CandidateOrder::LastSuccess)
+        );
+        assert_eq!(
+            CandidateOrder::parse("hit-count"),
+            Some(CandidateOrder::HitCount)
+        );
+        assert_eq!(CandidateOrder::parse("bogus"), None);
+        assert_eq!(CandidateOrder::parse(""), None);
+    }
+
+    /// Ordering is a hint only; the rows are inserted directly because decoding is not needed
+    /// to rank them.
+    #[test]
+    fn candidate_order_modes_rank_by_recorded_statistics() {
+        let directory = tempfile::tempdir().unwrap();
+        let cache = Cache::open(directory.path()).unwrap();
+        let key = Hash::new([7_u8; 32]);
+        for (id, updated, last_success, count) in [
+            ("old", "3000", "0", 0),
+            ("a", "2000", "5000", 1),
+            ("b", "1000", "4000", 3),
+            ("corrupt", "500", "not-a-number", 0),
+        ] {
+            cache
+                .connection
+                .execute(
+                    "INSERT INTO executions
+                     (lookup_key, execution_id, record_json, updated_unix_ms,
+                      last_success_unix_ms, success_count)
+                     VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+                    params![
+                        key.to_string(),
+                        id,
+                        id.as_bytes(),
+                        updated,
+                        last_success,
+                        count
+                    ],
+                )
+                .unwrap();
+        }
+        let order = |mode| {
+            cache
+                .find_candidates_ordered(key, mode)
+                .unwrap()
+                .into_iter()
+                .map(|candidate| String::from_utf8(candidate.0).unwrap())
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(order(CandidateOrder::Newest), ["old", "a", "b", "corrupt"]);
+        // Ties on the statistic fall back to the updated-time order, never to row order.
+        assert_eq!(
+            order(CandidateOrder::LastSuccess),
+            ["a", "b", "old", "corrupt"]
+        );
+        assert_eq!(
+            order(CandidateOrder::HitCount),
+            ["b", "a", "old", "corrupt"]
+        );
+    }
+
+    #[test]
     fn v1_cache_is_migrated_without_losing_its_record() {
         let directory = tempfile::tempdir().unwrap();
         let root = directory.path().join("cache");
@@ -2190,7 +2355,7 @@ mod tests {
             .connection
             .query_row("PRAGMA user_version", [], |row| row.get(0))
             .unwrap();
-        assert_eq!(version, 2);
+        assert_eq!(version, 3);
         let count: i64 = cache
             .connection
             .query_row("SELECT COUNT(*) FROM executions", [], |row| row.get(0))
@@ -2199,7 +2364,9 @@ mod tests {
         cache
             .connection
             .execute(
-                "INSERT INTO executions VALUES ('key', 'second', X'7B7D', '2')",
+                "INSERT INTO executions
+                 (lookup_key, execution_id, record_json, updated_unix_ms)
+                 VALUES ('key', 'second', X'7B7D', '2')",
                 [],
             )
             .unwrap();

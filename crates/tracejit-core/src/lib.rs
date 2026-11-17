@@ -18,8 +18,8 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 use tracejit_cache::{
-    now_unix_ms, output_from_path, AdmissionCost, Cache, CacheDecision, CacheError, DecisionRecord,
-    OutputKind, StoredExecution,
+    now_unix_ms, output_from_path, AdmissionCost, Cache, CacheDecision, CacheError, CandidateOrder,
+    DecisionRecord, OutputKind, StoredExecution,
 };
 use tracejit_effects::{
     classify, reconstruct_dependencies, DeterminismClass, Effect, EffectRecord, EnvironmentRead,
@@ -221,6 +221,10 @@ pub struct RunReport {
     pub exit_code: i32,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub phases: Option<PhaseTimings>,
+    /// Candidates whose guards were validated before this decision. Zero means no candidate
+    /// was examined (a direct execution or an admission/cache refusal).
+    #[serde(default)]
+    pub candidates_examined: usize,
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
@@ -326,7 +330,8 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
                 .into();
         return execute_and_store(prepared, cache, lookup_key, None, Some(reason), None);
     }
-    let candidates = cache.find_candidates(lookup_key)?;
+    let candidate_order = CandidateOrder::from_env();
+    let candidates = cache.find_candidates_ordered(lookup_key, candidate_order)?;
     let query = cache.last_query();
     let started = Instant::now();
     let mut phases = PhaseTimings {
@@ -405,6 +410,7 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
     let mut last_guard_report = None;
     let mut last_deopt_reason = None;
     let mut enforcement_candidate = None;
+    let mut candidates_examined = 0_usize;
 
     for encoded in candidates {
         let mark = Instant::now();
@@ -429,6 +435,7 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
             continue;
         }
 
+        candidates_examined += 1;
         let mark = Instant::now();
         let guards = validate_all(&candidate.guards, options.guard_mode);
         phases.guard_validation_ns = phase_elapsed(timing, mark);
@@ -546,6 +553,14 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
                         false,
                     )?;
                 }
+                // Experimental ranking statistic. Only written when a non-default order is
+                // active, so the production warm path never pays for it.
+                // Best-effort: the hit is already fully validated, so a failed statistics write
+                // must not turn a correct reuse into an error. Missing or zero statistics simply
+                // degrade the order to newest-first.
+                if !candidate_order.is_default() {
+                    let _ = cache.record_candidate_success(&candidate.id);
+                }
                 let persist_decision = candidate.last_decision.decision != CacheDecision::Reused;
                 candidate.last_decision = DecisionRecord {
                     decision: CacheDecision::Reused,
@@ -569,6 +584,7 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
                     hit.stdout,
                     hit.stderr,
                 );
+                report.candidates_examined = candidates_examined;
                 if timing {
                     report.phases = Some(phases);
                 }
@@ -706,6 +722,7 @@ pub fn analyze(command: Vec<OsString>) -> Result<RunReport, CoreError> {
         stderr: outcome.stderr,
         exit_code: trace.execution.exit_code,
         phases: None,
+        candidates_examined: 0,
     })
 }
 
@@ -886,6 +903,7 @@ fn run_direct(
         stderr: output.stderr,
         exit_code: output.status.code().unwrap_or(-1),
         phases: None,
+        candidates_examined: 0,
     })
 }
 
@@ -1508,6 +1526,7 @@ fn report_from_record(
         stderr,
         exit_code: record.exit_code,
         phases: None,
+        candidates_examined: 0,
     }
 }
 

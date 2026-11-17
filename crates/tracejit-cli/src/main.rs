@@ -538,6 +538,7 @@ fn present_report(report: &RunReport, json_output: bool, verbose: bool) -> Resul
             "irreversible_effect_count": report.irreversible_effect_count,
             "dependency_count": report.dependency_count,
             "output_count": report.output_count,
+            "candidates_examined": report.candidates_examined,
             "guards": guards,
             "reasons": report.reasons,
             "contract": report.contract,

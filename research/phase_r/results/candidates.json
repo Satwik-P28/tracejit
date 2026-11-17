@@ -1,0 +1,227 @@
+{
+  "binary": "/workspace/chats/24375cea864939ae012511ac/target/release/tracejit",
+  "input_bytes": 4194304,
+  "runs_per_cell": 200,
+  "host": {
+    "kernel": "6.1.102",
+    "machine": "x86_64"
+  },
+  "rows": [
+    {
+      "scenario": "single",
+      "mode": "newest",
+      "states": 1,
+      "runs": 190,
+      "median_ms": 28.175198007375002,
+      "p95_ms": 39.1581189993303,
+      "mean_ms": 30.466214755525517,
+      "mean_candidates_examined": 1.0,
+      "kinds": {
+        "Reused": 190
+      },
+      "all_reused": true
+    },
+    {
+      "scenario": "single",
+      "mode": "last-success",
+      "states": 1,
+      "runs": 190,
+      "median_ms": 30.27907997602597,
+      "p95_ms": 37.77906954055651,
+      "mean_ms": 31.424023932777345,
+      "mean_candidates_examined": 1.0,
+      "kinds": {
+        "Reused": 190
+      },
+      "all_reused": true,
+      "median_diff_vs_newest_ms": 1.904647913761437,
+      "diff_ci95_ms": [
+        1.6582714742980897,
+        2.2605149424634874
+      ]
+    },
+    {
+      "scenario": "single",
+      "mode": "hit-count",
+      "states": 1,
+      "runs": 190,
+      "median_ms": 32.9937280039303,
+      "p95_ms": 41.60319844959304,
+      "mean_ms": 34.1397084963606,
+      "mean_candidates_examined": 1.0,
+      "kinds": {
+        "Reused": 190
+      },
+      "all_reused": true,
+      "median_diff_vs_newest_ms": 4.832496517337859,
+      "diff_ci95_ms": [
+        3.883310593664646,
+        5.400202120654285
+      ]
+    },
+    {
+      "scenario": "alternate2",
+      "mode": "newest",
+      "states": 2,
+      "runs": 190,
+      "median_ms": 31.089605996385217,
+      "p95_ms": 36.89842177554965,
+      "mean_ms": 31.546554335785146,
+      "mean_candidates_examined": 1.5,
+      "kinds": {
+        "Reused": 190
+      },
+      "all_reused": true
+    },
+    {
+      "scenario": "alternate2",
+      "mode": "last-success",
+      "states": 2,
+      "runs": 190,
+      "median_ms": 34.775711013935506,
+      "p95_ms": 41.68363978387788,
+      "mean_ms": 35.75671596611899,
+      "mean_candidates_examined": 2.0,
+      "kinds": {
+        "Reused": 190
+      },
+      "all_reused": true,
+      "median_diff_vs_newest_ms": 3.7442705361172557,
+      "diff_ci95_ms": [
+        3.16837354330346,
+        4.408495966345072
+      ]
+    },
+    {
+      "scenario": "alternate2",
+      "mode": "hit-count",
+      "states": 2,
+      "runs": 190,
+      "median_ms": 36.10127803403884,
+      "p95_ms": 45.978628023294725,
+      "mean_ms": 39.08677198801582,
+      "mean_candidates_examined": 2.0,
+      "kinds": {
+        "Reused": 190
+      },
+      "all_reused": true,
+      "median_diff_vs_newest_ms": 5.626444995868951,
+      "diff_ci95_ms": [
+        5.0443640211597085,
+        6.170234992168844
+      ]
+    },
+    {
+      "scenario": "cycle8",
+      "mode": "newest",
+      "states": 8,
+      "runs": 190,
+      "median_ms": 41.26011655898765,
+      "p95_ms": 49.36779148993082,
+      "mean_ms": 40.47409355775208,
+      "mean_candidates_examined": 4.468421052631579,
+      "kinds": {
+        "Reused": 190
+      },
+      "all_reused": true
+    },
+    {
+      "scenario": "cycle8",
+      "mode": "last-success",
+      "states": 8,
+      "runs": 190,
+      "median_ms": 54.94787503266707,
+      "p95_ms": 66.56624474562703,
+      "mean_ms": 56.7048683394923,
+      "mean_candidates_examined": 8.0,
+      "kinds": {
+        "Reused": 190
+      },
+      "all_reused": true,
+      "median_diff_vs_newest_ms": 15.364689461421221,
+      "diff_ci95_ms": [
+        13.897792960051447,
+        16.917091968934983
+      ]
+    },
+    {
+      "scenario": "cycle8",
+      "mode": "hit-count",
+      "states": 8,
+      "runs": 190,
+      "median_ms": 56.819842546246946,
+      "p95_ms": 65.93722554971464,
+      "mean_ms": 58.27670131356602,
+      "mean_candidates_examined": 8.0,
+      "kinds": {
+        "Reused": 190
+      },
+      "all_reused": true,
+      "median_diff_vs_newest_ms": 17.68864446785301,
+      "diff_ci95_ms": [
+        16.098792024422437,
+        19.40078812185675
+      ]
+    },
+    {
+      "scenario": "skew2",
+      "mode": "newest",
+      "states": 2,
+      "runs": 190,
+      "median_ms": 32.41330402670428,
+      "p95_ms": 38.851804134901606,
+      "mean_ms": 33.54324459674229,
+      "mean_candidates_examined": 1.8,
+      "kinds": {
+        "Reused": 190
+      },
+      "all_reused": true
+    },
+    {
+      "scenario": "skew2",
+      "mode": "last-success",
+      "states": 2,
+      "runs": 190,
+      "median_ms": 34.26986699923873,
+      "p95_ms": 43.04779729573055,
+      "mean_ms": 35.426532632156615,
+      "mean_candidates_examined": 1.4,
+      "kinds": {
+        "Reused": 190
+      },
+      "all_reused": true,
+      "median_diff_vs_newest_ms": 2.4468310293741524,
+      "diff_ci95_ms": [
+        0.9747380390763283,
+        3.207947826012969
+      ]
+    },
+    {
+      "scenario": "skew2",
+      "mode": "hit-count",
+      "states": 2,
+      "runs": 190,
+      "median_ms": 33.9181125164032,
+      "p95_ms": 40.786129387561225,
+      "mean_ms": 35.15063672706387,
+      "mean_candidates_examined": 1.2,
+      "kinds": {
+        "Reused": 190
+      },
+      "all_reused": true,
+      "median_diff_vs_newest_ms": 0.9039855794981122,
+      "diff_ci95_ms": [
+        0.6105649517849088,
+        1.7103069694712758
+      ]
+    }
+  ],
+  "direct": {
+    "scenario": "direct",
+    "mode": "direct",
+    "median_ms": 15.209378500003368,
+    "p95_ms": 15.708171064034104,
+    "mean_ms": 14.863965332042426,
+    "runs": 50
+  }
+}
