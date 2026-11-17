@@ -1,10 +1,22 @@
 #!/bin/sh
-# Install the published Linux x86_64 release. Exits if v0.1.1 has not been published.
-# TRACEJIT_RELEASE_DIR skips the download and reads the archive plus SHA256SUMS from that directory.
-# TRACEJIT_INSTALL_PREFIX selects the install directory. The default is ~/.local/bin.
+# Install the published Linux x86_64 release.
+#
+# Version resolution: TRACEJIT_RELEASE_VERSION, else ./VERSION next to this script.
+#   TRACEJIT_RELEASE_DIR     read the archive and SHA256SUMS from a local directory
+#   TRACEJIT_RELEASE_BASE    download base URL (default: the GitHub release tag)
+#   TRACEJIT_INSTALL_PREFIX  install directory (default: ~/.local/bin)
 set -eu
 
-version=0.1.1
+root=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+if [ -n "${TRACEJIT_RELEASE_VERSION:-}" ]; then
+  version=$TRACEJIT_RELEASE_VERSION
+elif [ -f "$root/VERSION" ]; then
+  version=$(cat "$root/VERSION")
+else
+  echo "cannot determine the release version; set TRACEJIT_RELEASE_VERSION" >&2
+  exit 1
+fi
+
 name="tracejit-v${version}-x86_64-unknown-linux-gnu.tar.gz"
 base="${TRACEJIT_RELEASE_BASE:-https://github.com/Satwik-P28/tracejit/releases/download/v${version}}"
 dest="${TRACEJIT_INSTALL_PREFIX:-${HOME}/.local/bin}"
@@ -42,13 +54,30 @@ else
   fi
 fi
 
-if ! sha256sum -c SHA256SUMS; then
+# SHA256SUMS also lists the manifest and SBOM, which this script does not
+# download. Verify the archive entry and fail if it is absent.
+if ! grep -q "  ${name}\$" SHA256SUMS; then
+  echo "SHA256SUMS has no entry for ${name}; refusing to install" >&2
+  exit 1
+fi
+if ! sha256sum -c --ignore-missing SHA256SUMS; then
   echo "checksum mismatch; refusing to install" >&2
   exit 1
 fi
 tar -xzf "$name"
 
+extracted="tracejit-v${version}-x86_64-unknown-linux-gnu/tracejit"
+if [ ! -x "$extracted" ]; then
+  echo "archive does not contain $extracted" >&2
+  exit 1
+fi
+reported=$("$extracted" --version | awk '{print $2}')
+if [ "$reported" != "$version" ]; then
+  echo "archive binary reports $reported but the release is $version; refusing to install" >&2
+  exit 1
+fi
+
 mkdir -p "$dest"
-install -m 755 "tracejit-v${version}-x86_64-unknown-linux-gnu/tracejit" "${dest}/tracejit"
+install -m 755 "$extracted" "${dest}/tracejit"
 echo "installed ${dest}/tracejit"
 echo "ensure ${dest} is on PATH, then run: tracejit doctor"

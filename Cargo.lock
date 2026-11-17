@@ -776,7 +776,7 @@ dependencies = [
 
 [[package]]
 name = "tracejit-cache"
-version = "0.1.1"
+version = "0.2.0-beta.1"
 dependencies = [
  "blake3",
  "libc",
@@ -792,7 +792,7 @@ dependencies = [
 
 [[package]]
 name = "tracejit-cli"
-version = "0.1.1"
+version = "0.2.0-beta.1"
 dependencies = [
  "anyhow",
  "clap",
@@ -809,7 +809,7 @@ dependencies = [
 
 [[package]]
 name = "tracejit-core"
-version = "0.1.1"
+version = "0.2.0-beta.1"
 dependencies = [
  "blake3",
  "libc",
@@ -826,7 +826,7 @@ dependencies = [
 
 [[package]]
 name = "tracejit-effects"
-version = "0.1.1"
+version = "0.2.0-beta.1"
 dependencies = [
  "blake3",
  "proptest",
@@ -837,7 +837,7 @@ dependencies = [
 
 [[package]]
 name = "tracejit-guards"
-version = "0.1.1"
+version = "0.2.0-beta.1"
 dependencies = [
  "blake3",
  "libc",
@@ -851,7 +851,7 @@ dependencies = [
 
 [[package]]
 name = "tracejit-sandbox"
-version = "0.1.1"
+version = "0.2.0-beta.1"
 dependencies = [
  "libc",
  "serde",
@@ -861,7 +861,7 @@ dependencies = [
 
 [[package]]
 name = "tracejit-trace"
-version = "0.1.1"
+version = "0.2.0-beta.1"
 dependencies = [
  "libc",
  "nix",

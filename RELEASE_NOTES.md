@@ -1,33 +1,63 @@
-# TraceJIT v0.1.1
+# TraceJIT v0.2.0-beta.1
 
-Linux x86_64 only. This does not replace the v0.1.0 release. v0.1.0 remains the previously published binary. It does not print the dependency summary from `tracejit explain`, and it does not use the current `doctor` sentences.
+First independently packaged public beta. Linux x86_64 only.
 
-v0.1.1 adds that summary, names an unsupported machine in `doctor`, and refuses a file-backed `MAP_SHARED` mapping that is writable or that `mprotect` makes writable. Those mappings were previously ignored. A private or read-only file mapping is still not itself an effect. The open of that file remains the content guard.
+TraceJIT is a research-oriented prototype. It does not guarantee execution
+equivalence, has not been peer reviewed, and has no production adoption. Read
+[docs/LIMITATIONS.md](docs/LIMITATIONS.md) before relying on a cache hit.
 
-The published timings were not remeasured for this version. The cache-hit path since commit `e9684c1` is unchanged aside from the mmap refusal. vDSO disarm runs only while tracing. The synthetic transform does not use a shared writable mapping.
+## What changed
 
-On the published GitHub-hosted runner, guarded cache hits sat near 4 ms. The deterministic C transform in this repository went from 312.913 ms to 3.972 ms (78.780x) at commit `e9684c1c01a7bbbab4cae50e2389105596d613f1`. Short commands may be slower: the 7.396 ms C ETL was 7.957 ms on a cache hit (0.929468x) at commit `63e33638709aacfaed896ab587435e64c0ecea62`.
+- Version declarations now come from one `VERSION` file, checked against the
+  Cargo workspace version and the binary by `scripts/check-version-consistency.sh`
+  and by CI.
+- The release archive is built by `scripts/package-release.sh` and contains the
+  optimized binary, README, both licenses, `SECURITY.md`, `SAFETY.md`,
+  `ARCHITECTURE.md`, install and benchmark-reproduction guides,
+  `docs/LIMITATIONS.md`, a provenance manifest, and a CycloneDX SBOM.
+- `SHA256SUMS` covers the archive, `RELEASE_MANIFEST.json` and `sbom.cdx.json`.
+- The installer verifies the checksum, the archive layout, and the binary's
+  reported version, and refuses corrupt, truncated, or mismatched artifacts.
+- New release benchmark package under `benchmarks/releases/v0.2.0-beta.1/` with
+  raw samples, medians, p95, bootstrap confidence intervals, environment details
+  and retained negative results.
+- No optimization research branch was merged. Phase Q, R and S were negative;
+  newest-first candidate selection and strict hashing stay the defaults.
 
-Python is refused because CPython calls `getrandom` and `gettid`. Shell pipelines and `cc -c` are `UNKNOWN`. Before each traced program runs, vDSO `clock_gettime`, `gettimeofday`, and `time` are redirected to real syscalls. An observed clock is not reused. If that redirect cannot be completed, the command is `UNKNOWN`. A missing clock syscall is not treated as proof that time was unused.
-
-These are measurements of specific workloads on those commits, not a claim that every command gets faster, and not a new measurement of v0.1.1. Tables and machine details: `benchmarks/results/break-even.md` and `benchmarks/results/latest.md`.
+Product semantics are unchanged from v0.1.1: guarded whole-command reuse,
+fail-closed classification, certificates that never assert full equivalence.
 
 ## Install
 
-From a checkout of this version:
-
 ```bash
-cargo build --workspace --release
-./scripts/demo.sh
-```
-
-The release archive, once published, is `tracejit-v0.1.1-x86_64-unknown-linux-gnu.tar.gz`, checked with `SHA256SUMS`. `scripts/install-release.sh` downloads that archive and refuses to install if it is missing.
-
-```bash
-tracejit --version
+version=$(curl -fsSL https://raw.githubusercontent.com/Satwik-P28/tracejit/main/VERSION)
+base="https://github.com/Satwik-P28/tracejit/releases/download/v${version}"
+name="tracejit-v${version}-x86_64-unknown-linux-gnu.tar.gz"
+curl -fsSLO "${base}/${name}" && curl -fsSLO "${base}/SHA256SUMS"
+sha256sum -c --ignore-missing SHA256SUMS
+tar -xzf "$name"
+install -m 755 "tracejit-v${version}-x86_64-unknown-linux-gnu/tracejit" ~/.local/bin/tracejit
 tracejit doctor
-tracejit run -- <command>
 ```
+
+## Verification
+
+```bash
+tracejit --version   # tracejit 0.2.0-beta.1
+sha256sum -c --ignore-missing SHA256SUMS
+python3 -c 'import json; m=json.load(open("RELEASE_MANIFEST.json")); print(m["release"]["commit"], m["build"]["binary_sha256"])'
+```
+
+Byte-for-byte reproducible builds are not claimed. Rebuild and compare the
+recorded hashes with [docs/BENCHMARK_REPRODUCTION.md](docs/BENCHMARK_REPRODUCTION.md).
+
+## Known limitations
+
+Validate-to-restore TOCTOU remains. Multi-output restore is not crash-atomic
+under hard kill; restore intent makes the next attempt retrace. Observation is
+ptrace-level. Warm hits have a fixed cost that loses on short commands. Cache
+eligibility under unmodified defaults is low. See
+[docs/LIMITATIONS.md](docs/LIMITATIONS.md) for the full list.
 
 ## License
 

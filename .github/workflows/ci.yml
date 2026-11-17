@@ -45,6 +45,8 @@ jobs:
           fi
       - name: Release build
         run: cargo build --workspace --release
+      - name: Version consistency
+        run: ./scripts/check-version-consistency.sh
       - name: Doctor and kernel capabilities
         run: |
           set -eu

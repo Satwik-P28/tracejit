@@ -23,6 +23,9 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 - PR3 evidence: `benchmarks/results/final_stab_pr3/` (skip-rate negative result; phase breakdown; mandate §4).
 - PR4 gates + release report: `benchmarks/results/final_stab_pr4/`, `docs/final/RELEASE_REPORT.md`.
 - Releases: `v0.1.0` (`cf0ddb2`), `v0.1.1` (`31c36d1`). Do not move tags.
+- Beta release candidate: `v0.2.0-beta.1`, version from `VERSION`, packaged by
+  `scripts/package-release.sh` with manifest + SBOM; evidence in
+  `benchmarks/releases/v0.2.0-beta.1/`. Product semantics unchanged from v0.1.1.
 - Research PRs #6/#7/#9/#10 stay isolated (not for main).
 - Branch protection: API **403** from this agent (cannot enable).
 
@@ -49,6 +52,7 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 ## Validation
 
 ```bash
+./scripts/check-version-consistency.sh
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo test --workspace
