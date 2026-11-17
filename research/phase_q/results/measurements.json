@@ -1,0 +1,836 @@
+{
+  "phase": "Q",
+  "generated_unix_s": 1794893987.9357848,
+  "python": "3.12.3",
+  "numpy": "2.5.5",
+  "seed": 20261117,
+  "anchors": {
+    "guard_counts": [
+      33
+    ],
+    "guard_validation_ms_median": 5.9454,
+    "hit_wall_ms_median": 31.5745,
+    "deopt_wall_ms_median": 245.6973,
+    "cold_wall_ms_median": 266.3125,
+    "baseline_runtime_ms": 227.7122,
+    "dependency_count": 12,
+    "transition_failed_at": 30,
+    "transition_checked": 30,
+    "candidate_bounds": [
+      1,
+      2,
+      4,
+      8,
+      16,
+      32,
+      64
+    ],
+    "candidate_target_ms": [
+      6.304,
+      12.181,
+      14.605,
+      20.979,
+      25.057,
+      42.281,
+      82.21
+    ],
+    "candidate_newest_ms": [
+      11.489,
+      12.558,
+      11.327,
+      12.195,
+      12.289,
+      13.465,
+      14.52
+    ],
+    "candidate_miss_ms": [
+      16.755,
+      16.6,
+      20.035,
+      20.014,
+      34.874,
+      46.372,
+      77.21
+    ],
+    "candidate_base_ms": 8.5245,
+    "candidate_per_validation_ms": 1.1334,
+    "candidate_fit_r2": 0.9909,
+    "admission_policies": [
+      {
+        "policy": "Never",
+        "total_ns": 866000000,
+        "oracle_ns": 575000000,
+        "regret_ns": 291000000,
+        "traces": 0,
+        "hits": 0,
+        "directs": 34
+      },
+      {
+        "policy": "Always",
+        "total_ns": 1086000000,
+        "oracle_ns": 575000000,
+        "regret_ns": 511000000,
+        "traces": 18,
+        "hits": 16,
+        "directs": 0
+      },
+      {
+        "policy": "CurrentAuto",
+        "total_ns": 624000000,
+        "oracle_ns": 575000000,
+        "regret_ns": 49000000,
+        "traces": 2,
+        "hits": 8,
+        "directs": 24
+      },
+      {
+        "policy": "Threshold",
+        "total_ns": 744000000,
+        "oracle_ns": 575000000,
+        "regret_ns": 169000000,
+        "traces": 10,
+        "hits": 8,
+        "directs": 16
+      },
+      {
+        "policy": "Ewma",
+        "total_ns": 744000000,
+        "oracle_ns": 575000000,
+        "regret_ns": 169000000,
+        "traces": 10,
+        "hits": 8,
+        "directs": 16
+      },
+      {
+        "policy": "ConfidenceBound",
+        "total_ns": 624000000,
+        "oracle_ns": 575000000,
+        "regret_ns": 49000000,
+        "traces": 2,
+        "hits": 8,
+        "directs": 24
+      }
+    ],
+    "admission_oracle_ns": 575000000,
+    "warm_hit_phases_ms": {
+      "process_startup_ns": 6.2132,
+      "cli_parse_ns": 0.0767,
+      "identity_prepare_ns": 0.085,
+      "cache_prepare_ns": 0.0074,
+      "sqlite_open_ns": 0.0781,
+      "sqlite_schema_ns": 0.1095,
+      "lookup_key_ns": 0.0036,
+      "sqlite_query_ns": 0.1732,
+      "record_decode_ns": 0.1343,
+      "guard_validation_ns": 0.43,
+      "cas_restore_ns": 1.163,
+      "stdio_replay_ns": 0.0082,
+      "decision_persist_ns": 0.0,
+      "present_ns": 0.0218
+    }
+  },
+  "complexity": {
+    "guards": 33,
+    "adjacency_blocks": 28,
+    "candidate_cap": 8,
+    "sort_comparisons": 135,
+    "bruteforce_orders_blocks": "28!",
+    "dp_states_blocks": 268435456,
+    "dp_transitions_blocks": 7516192768,
+    "candidates_exact_orders_at_cap": 40320,
+    "candidate_orders_at_measured_max_retention": "64! (measurable, not enumerable)",
+    "objective_is_compact_qubo": false,
+    "objective_reason": "E[cost] = sum_k c_k * prod_{j<k}(1-p_j) is a degree-n pseudo-Boolean polynomial in position indicators; a QUBO can express at most degree 2, so an exact QUBO needs exponentially many auxiliaries"
+  },
+  "E1_ratio_optimality": {
+    "claim": "greedy ratio rule equals the exact optimum for independent guards",
+    "rows": [
+      {
+        "n_blocks": 4,
+        "trials": 150,
+        "greedy_suboptimal": 0,
+        "max_relative_gap": 0.0
+      },
+      {
+        "n_blocks": 6,
+        "trials": 150,
+        "greedy_suboptimal": 0,
+        "max_relative_gap": 0.0
+      },
+      {
+        "n_blocks": 8,
+        "trials": 150,
+        "greedy_suboptimal": 0,
+        "max_relative_gap": 0.0
+      },
+      {
+        "n_blocks": 10,
+        "trials": 150,
+        "greedy_suboptimal": 0,
+        "max_relative_gap": 0.0
+      },
+      {
+        "n_blocks": 12,
+        "trials": 150,
+        "greedy_suboptimal": 0,
+        "max_relative_gap": 0.0
+      },
+      {
+        "n_blocks": 14,
+        "trials": 60,
+        "greedy_suboptimal": 0,
+        "max_relative_gap": 0.0
+      },
+      {
+        "n_blocks": 16,
+        "trials": 60,
+        "greedy_suboptimal": 0,
+        "max_relative_gap": 0.0
+      }
+    ],
+    "bruteforce_cross_check": {
+      "instances": 25,
+      "dp_vs_bruteforce_disagreements": 0
+    },
+    "tolerance": "relative 1e-12 (ties at the ulp level are not suboptimality)",
+    "conclusion": "exact within 1e-12 on every instance tested"
+  },
+  "E2_measured_guards": {
+    "instance": {
+      "guards": 33,
+      "blocks": 28,
+      "guard_validation_ms": 5.9454,
+      "measured_failure_position": [
+        30,
+        30
+      ],
+      "measured_fraction_of_guard_budget_paid_before_failure": 0.9667
+    },
+    "stable_no_failure": {
+      "rows": [
+        {
+          "solver": "current",
+          "cost_ms": 5.800191,
+          "runtime_ms": 0.0,
+          "evaluations": 0,
+          "verified": true
+        },
+        {
+          "solver": "ratio-greedy",
+          "cost_ms": 5.606422,
+          "runtime_ms": 0.084,
+          "evaluations": 0,
+          "verified": true
+        },
+        {
+          "solver": "local-search",
+          "cost_ms": 5.606422,
+          "runtime_ms": 8.6477,
+          "evaluations": 0,
+          "verified": true
+        }
+      ],
+      "note": "every plan validates every guard; ordering cannot change a plain hit"
+    },
+    "asset_changed": {
+      "rows": [
+        {
+          "solver": "current",
+          "cost_ms": 3.247735,
+          "runtime_ms": 0.0,
+          "evaluations": 0,
+          "verified": true
+        },
+        {
+          "solver": "ratio-greedy",
+          "cost_ms": 0.027457,
+          "runtime_ms": 0.077,
+          "evaluations": 0,
+          "verified": true
+        },
+        {
+          "solver": "local-search",
+          "cost_ms": 0.027457,
+          "runtime_ms": 8.4708,
+          "evaluations": 0,
+          "verified": true
+        },
+        {
+          "solver": "simulated-annealing",
+          "cost_ms": 0.027457,
+          "runtime_ms": 736.5235,
+          "evaluations": 20000,
+          "verified": true
+        },
+        {
+          "solver": "tabu",
+          "cost_ms": 0.027457,
+          "runtime_ms": 5510.415,
+          "evaluations": 240000,
+          "verified": true
+        },
+        {
+          "solver": "parallel-tempering",
+          "cost_ms": 0.027457,
+          "runtime_ms": 12984.2738,
+          "evaluations": 336000,
+          "verified": true
+        }
+      ],
+      "measured_shape_current_ms": 5.7472,
+      "measured_shape_saving_ms": 5.7198,
+      "model_failure_position": [
+        15,
+        33
+      ],
+      "saved_ms_vs_current": 3.2203,
+      "local_search_extra_saving_ms": 0.0,
+      "measured_deopt_wall_ms": 245.6973,
+      "saved_fraction_of_deopt_wall": 0.01311,
+      "measured_hit_wall_ms": 31.5745
+    },
+    "verifier_violations": []
+  },
+  "E3_correlated": {
+    "instances": 12,
+    "n_blocks": 16,
+    "n_groups": 8,
+    "mean_gap_vs_best_found": {
+      "current": 0.3187338998630301,
+      "ratio-greedy": 0.023370696131744615,
+      "local-search": 1.5995909007605907e-05,
+      "simulated-annealing": 5.363716212359706e-05,
+      "tabu": 0.0,
+      "parallel-tempering": 8.580703293869473e-05,
+      "branch-and-bound": 0.012997997937327753
+    },
+    "max_gap_vs_best_found": {
+      "current": 0.679284647097497,
+      "ratio-greedy": 0.07273926205561893,
+      "local-search": 0.00019195090809127088,
+      "simulated-annealing": 0.00010298975756702077,
+      "tabu": 0.0,
+      "parallel-tempering": 0.00018846614254689685,
+      "branch-and-bound": 0.03761558926894289
+    },
+    "mean_runtime_ms": {
+      "current": 0.0,
+      "ratio-greedy": 0.09999158404146631,
+      "local-search": 11.337190924677998,
+      "simulated-annealing": 235.87950232710378,
+      "tabu": 202.85991983837448,
+      "parallel-tempering": 402.77341817272827,
+      "branch-and-bound": 819.415887730429
+    },
+    "mean_extra_cost_vs_ratio_ms": {
+      "current": 0.4868032966587048,
+      "ratio-greedy": 0.0,
+      "local-search": -0.0362164777213315,
+      "simulated-annealing": -0.03615438284625052,
+      "tabu": -0.03625960491414757,
+      "parallel-tempering": -0.036081164464333244,
+      "branch-and-bound": -0.016608614452726492
+    },
+    "break_even_speedup_needed": {
+      "current": null,
+      "ratio-greedy": null,
+      "local-search": 313.03957861148916,
+      "simulated-annealing": 6524.2298099846075,
+      "tabu": 5594.653342712615,
+      "parallel-tempering": 11162.982795937078,
+      "branch-and-bound": 49336.79989157148
+    },
+    "branch_and_bound_exact_on_all": false,
+    "verifier_violations": []
+  },
+  "E4_candidates": {
+    "rows": [
+      {
+        "bound": 1,
+        "newest_first_ms": 1.1334,
+        "optimal_order_ms": 1.1334,
+        "model_saving_ms": 0.0,
+        "measured_target_wall_ms": 6.304,
+        "measured_newest_wall_ms": 11.489,
+        "measured_gap_ms": -5.1850000000000005,
+        "verified": true
+      },
+      {
+        "bound": 2,
+        "newest_first_ms": 1.6485818181818184,
+        "optimal_order_ms": 1.6485818181818184,
+        "model_saving_ms": 0.0,
+        "measured_target_wall_ms": 12.181,
+        "measured_newest_wall_ms": 12.558,
+        "measured_gap_ms": -0.37700000000000067,
+        "verified": true
+      },
+      {
+        "bound": 4,
+        "newest_first_ms": 2.7486711805978215,
+        "optimal_order_ms": 2.3216877752837437,
+        "model_saving_ms": 0.42698340531407764,
+        "measured_target_wall_ms": 14.605,
+        "measured_newest_wall_ms": 11.327,
+        "measured_gap_ms": 3.2780000000000005,
+        "verified": true
+      },
+      {
+        "bound": 8,
+        "newest_first_ms": 4.367934698339754,
+        "optimal_order_ms": 3.9446210301026365,
+        "model_saving_ms": 0.42331366823711714,
+        "measured_target_wall_ms": 20.979,
+        "measured_newest_wall_ms": 12.195,
+        "measured_gap_ms": 8.783999999999999,
+        "verified": true
+      },
+      {
+        "bound": 16,
+        "newest_first_ms": 8.324985430881208,
+        "optimal_order_ms": 7.928710604066328,
+        "model_saving_ms": 0.3962748268148806,
+        "measured_target_wall_ms": 25.057,
+        "measured_newest_wall_ms": 12.289,
+        "measured_gap_ms": 12.767999999999999,
+        "verified": true
+      },
+      {
+        "bound": 32,
+        "newest_first_ms": 17.73042532619917,
+        "optimal_order_ms": 17.398246997276676,
+        "model_saving_ms": 0.33217832892249527,
+        "measured_target_wall_ms": 42.281,
+        "measured_newest_wall_ms": 13.465,
+        "measured_gap_ms": 28.816,
+        "verified": true
+      },
+      {
+        "bound": 64,
+        "newest_first_ms": 38.767082274094996,
+        "optimal_order_ms": 38.52598726631952,
+        "model_saving_ms": 0.24109500777547807,
+        "measured_target_wall_ms": 82.21,
+        "measured_newest_wall_ms": 14.52,
+        "measured_gap_ms": 67.69,
+        "verified": true
+      }
+    ],
+    "exact_enumeration_at_cap": {
+      "orders_enumerated": 40320,
+      "exact_cost_ms": 3.9446210301026365,
+      "ratio_cost_ms": 3.9446210301026365,
+      "runtime_ms": 81.00964105688035
+    },
+    "learner": {
+      "bound": 8,
+      "train_runs": 2000,
+      "held_out_runs": 2000,
+      "mean_validations_newest_first": 2.843,
+      "mean_validations_learned": 2.142,
+      "empirical_saving_ms_vs_newest": 0.7945133999999999,
+      "model_cost_ms_newest": 4.367934698339754,
+      "model_cost_ms_learned": 3.9446210301026365,
+      "model_cost_ms_optimal": 3.9446210301026365,
+      "decision_cost_per_plan_ms": 0.0026617110706865788
+    },
+    "note": "candidate validation cost is equal across candidates of one identity, so the optimal order is descending match probability; newest-first is only optimal when recency equals probability"
+  },
+  "E5_knapsack": {
+    "items": 12,
+    "budget_ms": 1014.9805298728201,
+    "qubo_vars": 19,
+    "qubo_max_abs_coefficient": 64.95522388059702,
+    "qubo_penalty": 0.007462686567164179,
+    "cost_unit_ms": 10.1498052987282,
+    "rows": [
+      {
+        "solver": "exact-dp",
+        "value": 4102.079531636119,
+        "runtime_ms": 0.0,
+        "feasible": true,
+        "gap_vs_exact": 0.0
+      },
+      {
+        "solver": "greedy-ratio",
+        "value": 4102.07953163612,
+        "runtime_ms": 0.0,
+        "feasible": true,
+        "gap_vs_exact": -2.217155213005281e-16
+      },
+      {
+        "solver": "qubo-sa",
+        "value": 4102.079531636119,
+        "runtime_ms": 71.78802601993084,
+        "feasible": true,
+        "used_budget_ms": 996.2132946800318,
+        "energy": -2.7902348596049933,
+        "gap_vs_exact": 0.0
+      },
+      {
+        "solver": "qubo-tabu",
+        "value": 4102.079531636119,
+        "runtime_ms": 4200.626712059602,
+        "feasible": true,
+        "used_budget_ms": 996.2132946800318,
+        "energy": -2.7902348596051167,
+        "gap_vs_exact": 0.0
+      },
+      {
+        "solver": "qubo-sqa",
+        "value": 4102.079531636119,
+        "runtime_ms": 1687.0892450679094,
+        "feasible": true,
+        "used_budget_ms": 996.2132946800318,
+        "energy": -2.7902348596049933,
+        "gap_vs_exact": 0.0
+      }
+    ],
+    "penalty_sweep": [
+      {
+        "penalty_multiplier": 1.0,
+        "penalty": 0.007462686567164179,
+        "max_abs_coefficient": 64.95522388059702,
+        "sampler": "sa",
+        "value": 4102.079531636119,
+        "feasible": true,
+        "used_budget_ms": 996.2132946800318,
+        "runtime_ms": 71.76172605250031
+      },
+      {
+        "penalty_multiplier": 1.0,
+        "penalty": 0.007462686567164179,
+        "max_abs_coefficient": 64.95522388059702,
+        "sampler": "sqa",
+        "value": 4102.079531636119,
+        "feasible": true,
+        "used_budget_ms": 996.2132946800318,
+        "runtime_ms": 1689.464405993931
+      },
+      {
+        "penalty_multiplier": 10.0,
+        "penalty": 0.07462686567164178,
+        "max_abs_coefficient": 649.5522388059701,
+        "sampler": "sa",
+        "value": 3894.4346547950304,
+        "feasible": false,
+        "used_budget_ms": 1022.3355916971843,
+        "runtime_ms": 72.21034599933773
+      },
+      {
+        "penalty_multiplier": 10.0,
+        "penalty": 0.07462686567164178,
+        "max_abs_coefficient": 649.5522388059701,
+        "sampler": "sqa",
+        "value": 3894.4346547950304,
+        "feasible": false,
+        "used_budget_ms": 1022.3355916971843,
+        "runtime_ms": 1687.8712349571288
+      },
+      {
+        "penalty_multiplier": 100.0,
+        "penalty": 0.746268656716418,
+        "max_abs_coefficient": 6495.522388059702,
+        "sampler": "sa",
+        "value": 4102.079531636119,
+        "feasible": true,
+        "used_budget_ms": 996.2132946800318,
+        "runtime_ms": 73.04896705318242
+      },
+      {
+        "penalty_multiplier": 100.0,
+        "penalty": 0.746268656716418,
+        "max_abs_coefficient": 6495.522388059702,
+        "sampler": "sqa",
+        "value": 3669.153516867577,
+        "feasible": true,
+        "used_budget_ms": 919.9182206348937,
+        "runtime_ms": 1677.3037099046633
+      }
+    ],
+    "exact_set": [
+      0,
+      5,
+      6,
+      8
+    ]
+  },
+  "E6_partition": {
+    "blocks": 28,
+    "bins": 4,
+    "serial_guard_ms": 5.945399999999999,
+    "ideal_parallel_ms": 1.4863499999999998,
+    "best_makespan_ms": 2.04098552955665,
+    "lower_bound_ms": 2.04098552955665,
+    "largest_block_ms": 2.04098552955665,
+    "rows": [
+      {
+        "solver": "lpt",
+        "makespan_ms": 2.04098552955665,
+        "runtime_ms": 0.0,
+        "feasible": true,
+        "gap_vs_best": 0.0,
+        "gap_vs_lower_bound": 0.0
+      },
+      {
+        "solver": "qubo-sa",
+        "makespan_ms": 2.0922389778325123,
+        "runtime_ms": 34.62734702043235,
+        "feasible": true,
+        "gap_vs_best": 0.02511210762331845,
+        "gap_vs_lower_bound": 0.02511210762331845
+      },
+      {
+        "solver": "qubo-tabu",
+        "makespan_ms": 2.04098552955665,
+        "runtime_ms": 843.3556519448757,
+        "feasible": true,
+        "gap_vs_best": 0.0,
+        "gap_vs_lower_bound": 0.0
+      },
+      {
+        "solver": "qubo-sqa",
+        "makespan_ms": 2.1132895012315274,
+        "runtime_ms": 2929.0780660230666,
+        "feasible": true,
+        "gap_vs_best": 0.035426008968610055,
+        "gap_vs_lower_bound": 0.035426008968610055
+      }
+    ],
+    "parallel_upper_bound_saving_ms": 4.4590499999999995,
+    "parallelizable_guards": 32,
+    "total_guards": 33,
+    "qubo_vars": 112,
+    "qubo_max_abs_coefficient": 143.39112463999996,
+    "safety_note": "order-dependent guards (inherited-stream offsets) and metadata/content pairs sharing one fd cannot be moved to another worker without changing the validated object; the measured saving is an upper bound, not a plan"
+  },
+  "E7_cegar": {
+    "train_identities": 12,
+    "test_identities": 12,
+    "epochs": [
+      {
+        "epoch": 0,
+        "rows": {
+          "static-prior": {
+            "held_out_mean_cost_ms": 0.9954374716382293,
+            "planning_ms": 1.413581077940762
+          },
+          "online-cumulative": {
+            "held_out_mean_cost_ms": 0.9954374716382293,
+            "planning_ms": 1.3165210839360952
+          },
+          "online-ewma": {
+            "held_out_mean_cost_ms": 0.9954374716382293,
+            "planning_ms": 1.2793709756806493
+          },
+          "oracle-probabilities": {
+            "held_out_mean_cost_ms": 0.9249699655148718,
+            "planning_ms": 0.6850110366940498
+          }
+        }
+      },
+      {
+        "epoch": 1,
+        "rows": {
+          "static-prior": {
+            "held_out_mean_cost_ms": 0.8706123016651148,
+            "planning_ms": 1.2681710068136454
+          },
+          "online-cumulative": {
+            "held_out_mean_cost_ms": 0.8739815850747314,
+            "planning_ms": 1.2824400328099728
+          },
+          "online-ewma": {
+            "held_out_mean_cost_ms": 1.0081102528941246,
+            "planning_ms": 1.2537500588223338
+          },
+          "oracle-probabilities": {
+            "held_out_mean_cost_ms": 0.7988840764392415,
+            "planning_ms": 0.6537700537592173
+          }
+        }
+      },
+      {
+        "epoch": 2,
+        "rows": {
+          "static-prior": {
+            "held_out_mean_cost_ms": 0.8617660909322904,
+            "planning_ms": 1.2992509873583913
+          },
+          "online-cumulative": {
+            "held_out_mean_cost_ms": 0.8827527050358774,
+            "planning_ms": 1.2607299722731113
+          },
+          "online-ewma": {
+            "held_out_mean_cost_ms": 0.9247749280337341,
+            "planning_ms": 1.2698809150606394
+          },
+          "oracle-probabilities": {
+            "held_out_mean_cost_ms": 0.7783423930859625,
+            "planning_ms": 0.6720799719914794
+          }
+        }
+      },
+      {
+        "epoch": 3,
+        "rows": {
+          "static-prior": {
+            "held_out_mean_cost_ms": 0.9099538654422387,
+            "planning_ms": 1.3275310629978776
+          },
+          "online-cumulative": {
+            "held_out_mean_cost_ms": 0.9241013951218667,
+            "planning_ms": 1.26597099006176
+          },
+          "online-ewma": {
+            "held_out_mean_cost_ms": 0.9045056337961097,
+            "planning_ms": 1.25955103430897
+          },
+          "oracle-probabilities": {
+            "held_out_mean_cost_ms": 0.8253467232073395,
+            "planning_ms": 0.7044200319796801
+          }
+        }
+      },
+      {
+        "epoch": 4,
+        "rows": {
+          "static-prior": {
+            "held_out_mean_cost_ms": 0.9319532404586692,
+            "planning_ms": 1.2514309491962194
+          },
+          "online-cumulative": {
+            "held_out_mean_cost_ms": 0.9450433064174335,
+            "planning_ms": 1.2855409877374768
+          },
+          "online-ewma": {
+            "held_out_mean_cost_ms": 0.9300178338849381,
+            "planning_ms": 1.2699209619313478
+          },
+          "oracle-probabilities": {
+            "held_out_mean_cost_ms": 0.8495609249722695,
+            "planning_ms": 0.6478410214185715
+          }
+        }
+      },
+      {
+        "epoch": 5,
+        "rows": {
+          "static-prior": {
+            "held_out_mean_cost_ms": 0.893561689636528,
+            "planning_ms": 1.2630010023713112
+          },
+          "online-cumulative": {
+            "held_out_mean_cost_ms": 0.9184887556971227,
+            "planning_ms": 1.2550409883260727
+          },
+          "online-ewma": {
+            "held_out_mean_cost_ms": 0.885592374254349,
+            "planning_ms": 1.2685710098594427
+          },
+          "oracle-probabilities": {
+            "held_out_mean_cost_ms": 0.8214255821271759,
+            "planning_ms": 0.6704899715259671
+          }
+        }
+      }
+    ],
+    "mean_held_out_cost_ms": {
+      "static-prior": 0.9105474432955117,
+      "online-cumulative": 0.9233008698308768,
+      "online-ewma": 0.9414064157502474,
+      "oracle-probabilities": 0.83308827755781
+    },
+    "best_arm": "oracle-probabilities",
+    "note": "estimates are updated only from the training split; plans are evaluated against held-out identities under their true correlated model"
+  },
+  "E8_admission": {
+    "source": "benchmarks/results/phase_k9/admission-eval.json",
+    "oracle_ms": 575.0,
+    "rows": [
+      {
+        "policy": "Never",
+        "total_ms": 866.0,
+        "regret_ms": 291.0,
+        "regret_over_oracle": 0.5060869565217392
+      },
+      {
+        "policy": "Always",
+        "total_ms": 1086.0,
+        "regret_ms": 511.0,
+        "regret_over_oracle": 0.888695652173913
+      },
+      {
+        "policy": "CurrentAuto",
+        "total_ms": 624.0,
+        "regret_ms": 49.0,
+        "regret_over_oracle": 0.08521739130434783
+      },
+      {
+        "policy": "Threshold",
+        "total_ms": 744.0,
+        "regret_ms": 169.0,
+        "regret_over_oracle": 0.29391304347826086
+      },
+      {
+        "policy": "Ewma",
+        "total_ms": 744.0,
+        "regret_ms": 169.0,
+        "regret_over_oracle": 0.29391304347826086
+      },
+      {
+        "policy": "ConfidenceBound",
+        "total_ms": 624.0,
+        "regret_ms": 49.0,
+        "regret_over_oracle": 0.08521739130434783
+      }
+    ],
+    "current_auto_regret_ms": 49.0,
+    "steps": 34,
+    "max_planning_gain_ms_per_step": 1.4411764705882353,
+    "note": "offline DP cannot beat the recorded oracle, and the oracle is clairvoyant; the achievable online improvement is bounded by the CurrentAuto regret"
+  },
+  "E9_session": {
+    "save_per_deopt_ms": 5.7198,
+    "ratio_sort_decision_ms": 0.077,
+    "local_search_decision_ms": 11.337190924677998,
+    "break_even_deopt_rate_for_per_run_sort": 0.01346200916115948,
+    "rows": [
+      {
+        "deopt_rate": 0.0,
+        "session_wall_ms": 31574.5,
+        "gross_saving_ms": 0.0,
+        "gross_saving_pct": 0.0,
+        "net_after_sort_ms": -77.0,
+        "net_after_local_search_ms": -11337.190924677998
+      },
+      {
+        "deopt_rate": 0.01,
+        "session_wall_ms": 33715.728,
+        "gross_saving_ms": 57.198,
+        "gross_saving_pct": 0.16964782726921987,
+        "net_after_sort_ms": -19.802,
+        "net_after_local_search_ms": -11279.992924677998
+      },
+      {
+        "deopt_rate": 0.05,
+        "session_wall_ms": 42280.64,
+        "gross_saving_ms": 285.99,
+        "gross_saving_pct": 0.6764088717673148,
+        "net_after_sort_ms": 208.99,
+        "net_after_local_search_ms": -11051.200924677998
+      },
+      {
+        "deopt_rate": 0.2,
+        "session_wall_ms": 74399.06,
+        "gross_saving_ms": 1143.96,
+        "gross_saving_pct": 1.5376000718288645,
+        "net_after_sort_ms": 1066.96,
+        "net_after_local_search_ms": -10193.230924677999
+      }
+    ],
+    "note": "plans are compiled and stored with the trace, so a per-run re-plan is a pessimistic upper bound on decision cost"
+  },
+  "wall_seconds": 56.63269885000773,
+  "correctness_violations": []
+}

@@ -44,6 +44,7 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 - Census eligibility 1/32 under native defaults; randomness/clock dominate.
 - Destination-match restore skip withdrawn: 0% skip when outputs are consumed (`skip_rate_study.json`).
 - Selective tracing, typed DAG validator deferred; bandit admission rejected.
+- Phase Q research is isolated and **not merged**: `research/phase_q/` — negative result on quantum-inspired guard/candidate ordering (greedy sort optimal; SA/tabu/PT/SQA dominated on decision cost). See `research/phase_q/REPORT.md`; no product crates changed.
 - Controlled-runtime / epoll research stay off main.
 
 ## Validation
