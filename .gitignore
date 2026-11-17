@@ -9,6 +9,8 @@ benchmarks/workloads/c-etl/etl
 benchmarks/workloads/sweep/sweep
 benchmarks/workloads/c-transform/transform
 benchmarks/workloads/build-sample/sample.o
+benchmarks/releases/fixtures/large_output
+benchmarks/releases/fixtures/output/
 benchmarks/workloads/**/output/report.json
 benchmarks/workloads/**/output/report.txt
 benchmarks/workloads/sweep/output/*.txt

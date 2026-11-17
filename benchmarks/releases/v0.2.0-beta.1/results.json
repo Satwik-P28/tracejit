@@ -1,0 +1,646 @@
+{
+  "configuration": {
+    "runs": 20,
+    "warmups": 3
+  },
+  "environment": {
+    "architecture": "x86_64",
+    "commands": {
+      "cargo --version": "cargo 1.100.0 (3acc79c0c 2026-11-05)",
+      "cat /etc/os-release": "PRETTY_NAME=\"Ubuntu 24.04.5 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"24.04\"\nVERSION=\"24.04.5 LTS (Noble Numbat)\"\nVERSION_CODENAME=noble\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=noble\nLOGO=ubuntu-logo",
+      "df -T .": "Filesystem     Type 1K-blocks    Used Available Use% Mounted on\n/dev/root      ext4  16337788 9541612   5940932  62% /",
+      "free -h": "total        used        free      shared  buff/cache   available\nMem:           3.8Gi       454Mi       2.0Gi       1.1Mi       1.6Gi       3.4Gi\nSwap:             0B          0B          0B",
+      "gcc --version": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+      "lscpu": "Architecture:                         x86_64\nCPU op-mode(s):                       32-bit, 64-bit\nAddress sizes:                        48 bits physical, 48 bits virtual\nByte Order:                           Little Endian\nCPU(s):                               2\nOn-line CPU(s) list:                  0,1\nVendor ID:                            AuthenticAMD\nModel name:                           19/01\nCPU family:                           25\nModel:                                1\nThread(s) per core:                   1\nCore(s) per socket:                   2\nSocket(s):                            1\nStepping:                             1\nBogoMIPS:                             3992.49\nFlags:                                fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy svm cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw topoext perfctr_core invpcid_single ssbd ibrs ibpb stibp vmmcall fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves clzero xsaveerptr wbnoinvd arat npt lbrv nrip_save tsc_scale vmcb_clean flushbyasid pausefilter pfthreshold v_vmsave_vmload vgif umip pku ospke vaes vpclmulqdq rdpid fsrm arch_capabilities\nVirtualization:                       AMD-V\nHypervisor vendor:                    KVM\nVirtualization type:                  full\nL1d cache:                            32 KiB (1 instance)\nL1i cache:                            32 KiB (1 instance)\nL2 cache:                             512 KiB (1 instance)\nL3 cache:                             32 MiB (1 instance)\nNUMA node(s):                         1\nNUMA node0 CPU(s):                    0,1\nVulnerability Gather data sampling:   Not affected\nVulnerability Itlb multihit:          Not affected\nVulnerability L1tf:                   Not affected\nVulnerability Mds:                    Not affected\nVulnerability Meltdown:               Not affected\nVulnerability Mmio stale data:        Not affected\nVulnerability Reg file data sampling: Not affected\nVulnerability Retbleed:               Not affected\nVulnerability Spec rstack overflow:   Mitigation; safe RET\nVulnerability Spec store bypass:      Mitigation; Speculative Store Bypass disabled via prctl\nVulnerability Spectre v1:             Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:             Mitigation; Retpolines; IBPB conditional; IBRS_FW; STIBP disabled; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected\nVulnerability Srbds:                  Not affected\nVulnerability Tsx async abort:        Not affected",
+      "make --version": "GNU Make 4.3",
+      "ninja --version": "missing",
+      "python3 --version": "Python 3.12.3",
+      "rustc --version": "rustc 1.100.0 (0ef1bc386 2026-11-09)",
+      "uname -a": "Linux freestyle-vm 6.1.102 #1 SMP PREEMPT_DYNAMIC Sun Nov  8 09:00:04 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux"
+    },
+    "cpu": "19/01",
+    "cpus": 2,
+    "kernel": "6.1.102",
+    "toolchain": "rustc 1.100.0 (0ef1bc386 2026-11-09)"
+  },
+  "limitations": [
+    "Single host; CPU frequency and neighbour activity are not controlled.",
+    "One Linux x86_64 machine, not a fleet.",
+    "Medians are per-commit; do not combine this table with older commit results."
+  ],
+  "release": {
+    "binary_sha256": "5a1100c5fd92dd7f2593451932d1ba93a2bd1f83d8681bb18861a4bc246db990",
+    "commit": "cdb307be9160b93318603005373a0a9f69b84219",
+    "generated_at": "2026-11-17T22:37:40Z",
+    "version": "0.2.0-beta.1",
+    "working_tree_dirty": false
+  },
+  "scenarios": [
+    {
+      "conditions": {
+        "cold_trace": {
+          "bootstrap_95ci_median": {
+            "high_ns": 384685537,
+            "low_ns": 361794340
+          },
+          "maximum_ns": 419164062,
+          "median_ns": 374615702,
+          "minimum_ns": 352889024,
+          "p95_ns": 409538559,
+          "relative_standard_deviation": 0.04844334208205585,
+          "runs": 20,
+          "samples_ns": [
+            384396265,
+            375613032,
+            352889024,
+            389156663,
+            387372838,
+            366964421,
+            419164062,
+            373618372,
+            409538559,
+            370101065,
+            360646542,
+            384525117,
+            362942138,
+            384173948,
+            356867145,
+            353024928,
+            384845958,
+            355539555,
+            356046525,
+            391325040
+          ],
+          "standard_deviation_ns": 18147636.601295494
+        },
+        "direct": {
+          "bootstrap_95ci_median": {
+            "high_ns": 359719128,
+            "low_ns": 330591053
+          },
+          "maximum_ns": 369664787,
+          "median_ns": 333102799,
+          "minimum_ns": 329173565,
+          "p95_ns": 369034093,
+          "relative_standard_deviation": 0.046149496475355094,
+          "runs": 20,
+          "samples_ns": [
+            331212809,
+            369664787,
+            329681898,
+            339791338,
+            360425387,
+            337899781,
+            329710832,
+            361060108,
+            330530590,
+            329315742,
+            359012869,
+            329173565,
+            369034093,
+            329530224,
+            330735123,
+            361091747,
+            334434061,
+            331771537,
+            362918012,
+            331471275
+          ],
+          "standard_deviation_ns": 15372526.448381416
+        },
+        "warm_hit": {
+          "bootstrap_95ci_median": {
+            "high_ns": 9937322,
+            "low_ns": 8690844
+          },
+          "maximum_ns": 10630247,
+          "median_ns": 8839168,
+          "minimum_ns": 8430341,
+          "p95_ns": 10559364,
+          "relative_standard_deviation": 0.08629968290177584,
+          "runs": 20,
+          "samples_ns": [
+            9980128,
+            9942898,
+            10559364,
+            10630247,
+            9931747,
+            10410776,
+            10320606,
+            8868273,
+            8660933,
+            8542541,
+            8929477,
+            8690349,
+            9369503,
+            8691340,
+            8704525,
+            8625417,
+            8718291,
+            8810063,
+            8430341,
+            8555476
+          ],
+          "standard_deviation_ns": 762817.3955155241
+        }
+      },
+      "description": "Committed C transform: folds numbers.txt, then 250,000,000 fixed mix rounds.",
+      "kind": "synthetic",
+      "name": "cpu_transform",
+      "notes": [
+        "Output report.txt is identical across direct, traced, and reused runs."
+      ]
+    },
+    {
+      "conditions": {
+        "direct": {
+          "bootstrap_95ci_median": {
+            "high_ns": 835156,
+            "low_ns": 819728
+          },
+          "maximum_ns": 864161,
+          "median_ns": 826069,
+          "minimum_ns": 791705,
+          "p95_ns": 862628,
+          "relative_standard_deviation": 0.024147285443429162,
+          "runs": 20,
+          "samples_ns": [
+            832131,
+            819808,
+            843572,
+            835517,
+            826059,
+            821200,
+            821291,
+            844353,
+            799780,
+            826080,
+            800621,
+            802435,
+            864161,
+            833994,
+            791705,
+            819648,
+            809859,
+            862628,
+            854763,
+            834795
+          ],
+          "standard_deviation_ns": 19947.336012610805
+        },
+        "warm_hit": {
+          "bootstrap_95ci_median": {
+            "high_ns": 6818778,
+            "low_ns": 6341073
+          },
+          "maximum_ns": 7970829,
+          "median_ns": 6407622,
+          "minimum_ns": 6267936,
+          "p95_ns": 7498253,
+          "relative_standard_deviation": 0.07412344999562136,
+          "runs": 20,
+          "samples_ns": [
+            7970829,
+            7478265,
+            7498253,
+            6336063,
+            6525519,
+            6762112,
+            6875445,
+            6697371,
+            6907605,
+            6312670,
+            6267936,
+            7044522,
+            6314252,
+            6374896,
+            6296770,
+            6343227,
+            6412607,
+            6402638,
+            6338919,
+            6347805
+          ],
+          "standard_deviation_ns": 474955.0859695683
+        }
+      },
+      "description": "/bin/true: the fixed cost of a warm hit with no useful work to save.",
+      "kind": "synthetic",
+      "name": "short_command",
+      "notes": [
+        "A warm hit that costs more than the command itself is a documented loss."
+      ]
+    },
+    {
+      "conditions": {
+        "cold_trace": {
+          "bootstrap_95ci_median": {
+            "high_ns": 434839090,
+            "low_ns": 412132084
+          },
+          "maximum_ns": 534225069,
+          "median_ns": 428127032,
+          "minimum_ns": 395494259,
+          "p95_ns": 525813362,
+          "relative_standard_deviation": 0.08827779251836829,
+          "runs": 20,
+          "samples_ns": [
+            405438450,
+            432058897,
+            430334091,
+            397172306,
+            436244997,
+            467140923,
+            402277281,
+            403791641,
+            433433184,
+            427998841,
+            414629618,
+            412132084,
+            534225069,
+            525813362,
+            478885830,
+            395494259,
+            452119170,
+            428255223,
+            425083064,
+            421694228
+          ],
+          "standard_deviation_ns": 37794109.30240082
+        },
+        "direct": {
+          "bootstrap_95ci_median": {
+            "high_ns": 119053925,
+            "low_ns": 116437970
+          },
+          "maximum_ns": 158437169,
+          "median_ns": 117236657,
+          "minimum_ns": 113955113,
+          "p95_ns": 144897495,
+          "relative_standard_deviation": 0.09278260374313399,
+          "runs": 20,
+          "samples_ns": [
+            119413871,
+            116310621,
+            116565319,
+            115951136,
+            158437169,
+            117755941,
+            116896790,
+            117467390,
+            118337472,
+            127275886,
+            115371098,
+            117005924,
+            144897495,
+            115047732,
+            114979173,
+            118681687,
+            127994374,
+            116693709,
+            113955113,
+            120351910
+          ],
+          "standard_deviation_ns": 10877522.290600715
+        },
+        "warm_hit": {
+          "bootstrap_95ci_median": {
+            "high_ns": 294632263,
+            "low_ns": 263295024
+          },
+          "maximum_ns": 324960373,
+          "median_ns": 289334396,
+          "minimum_ns": 234111997,
+          "p95_ns": 314686404,
+          "relative_standard_deviation": 0.0945753048941624,
+          "runs": 20,
+          "samples_ns": [
+            306910170,
+            288538303,
+            295906402,
+            292588981,
+            293358124,
+            314686404,
+            280530114,
+            299871059,
+            262350668,
+            234581317,
+            234111997,
+            242706637,
+            238056425,
+            248502796,
+            324960373,
+            292655836,
+            290130490,
+            308416264,
+            264239381,
+            273965161
+          ],
+          "standard_deviation_ns": 27363888.765355974
+        }
+      },
+      "description": "gzip -9 -n -c over a deterministic 4 MiB file; compressed bytes are captured stdout.",
+      "kind": "controlled",
+      "name": "compression",
+      "notes": [
+        "probe_cold_ns=671530796",
+        "probe_warm_ns=292982349"
+      ]
+    },
+    {
+      "conditions": {
+        "direct": {
+          "bootstrap_95ci_median": {
+            "high_ns": 92093979,
+            "low_ns": 88681087
+          },
+          "maximum_ns": 119866239,
+          "median_ns": 89028834,
+          "minimum_ns": 88329441,
+          "p95_ns": 115430106,
+          "relative_standard_deviation": 0.09921286038334924,
+          "runs": 20,
+          "samples_ns": [
+            88839375,
+            115430106,
+            88410054,
+            88550026,
+            89216455,
+            96783777,
+            93814507,
+            88329441,
+            98700872,
+            88556956,
+            88638603,
+            88627111,
+            119866239,
+            88723571,
+            89022023,
+            100801814,
+            90373452,
+            90235216,
+            88939785,
+            89035645
+          ],
+          "standard_deviation_ns": 8832805.277734376
+        },
+        "tracejit": {
+          "bootstrap_95ci_median": {
+            "high_ns": 135922403,
+            "low_ns": 118581445
+          },
+          "maximum_ns": 164506503,
+          "median_ns": 125348761,
+          "minimum_ns": 109722344,
+          "p95_ns": 161735756,
+          "relative_standard_deviation": 0.13296605809860787,
+          "runs": 20,
+          "samples_ns": [
+            129264256,
+            120790102,
+            161735756,
+            128494593,
+            129213400,
+            119693588,
+            164506503,
+            146266793,
+            137363655,
+            134481151,
+            142542930,
+            117469302,
+            122202929,
+            155448443,
+            121347887,
+            112648193,
+            110977337,
+            109722344,
+            112424884,
+            111255089
+          ],
+          "standard_deviation_ns": 16667130.637714513
+        }
+      },
+      "description": "10 sequential runs of the committed C ETL, direct versus one trace plus nine hits.",
+      "kind": "controlled",
+      "name": "etl_session",
+      "notes": [
+        "Session totals include every process launch; a hit that costs more than the command loses."
+      ]
+    },
+    {
+      "conditions": {
+        "cold_trace": {
+          "bootstrap_95ci_median": {
+            "high_ns": 602314420,
+            "low_ns": 565680568
+          },
+          "maximum_ns": 615319912,
+          "median_ns": 588896500,
+          "minimum_ns": 553370075,
+          "p95_ns": 615319912,
+          "relative_standard_deviation": 0.035329276301161325,
+          "runs": 10,
+          "samples_ns": [
+            553370075,
+            575148440,
+            596865340,
+            565820707,
+            556212697,
+            591808277,
+            589674524,
+            615319912,
+            614954317,
+            588118476
+          ],
+          "standard_deviation_ns": 20805287.16128685
+        },
+        "direct": {
+          "bootstrap_95ci_median": {
+            "high_ns": 151597932,
+            "low_ns": 137764467
+          },
+          "maximum_ns": 162260860,
+          "median_ns": 142828680,
+          "minimum_ns": 129012042,
+          "p95_ns": 162260860,
+          "relative_standard_deviation": 0.06807626673990691,
+          "runs": 10,
+          "samples_ns": [
+            129012042,
+            156645609,
+            133825941,
+            147434613,
+            141702994,
+            151597932,
+            143954366,
+            138264866,
+            162260860,
+            139737698
+          ],
+          "standard_deviation_ns": 9723243.317788808
+        },
+        "warm_hit": {
+          "bootstrap_95ci_median": {
+            "high_ns": 201363773,
+            "low_ns": 190388363
+          },
+          "maximum_ns": 220113343,
+          "median_ns": 193251047,
+          "minimum_ns": 183503340,
+          "p95_ns": 220113343,
+          "relative_standard_deviation": 0.05131763236360467,
+          "runs": 10,
+          "samples_ns": [
+            190544927,
+            187987962,
+            192788765,
+            191280486,
+            220113343,
+            205755415,
+            193713329,
+            196972131,
+            183503340,
+            200348874
+          ],
+          "standard_deviation_ns": 9917186.183827687
+        }
+      },
+      "description": "64 MiB deterministic output file. Warm hits pay output materialisation and fsync.",
+      "kind": "synthetic",
+      "name": "large_restore",
+      "notes": [
+        "Output SHA-256 is verified after every warm hit before the sample is accepted."
+      ]
+    },
+    {
+      "conditions": {
+        "direct_after_mutation": {
+          "bootstrap_95ci_median": {
+            "high_ns": 21322119,
+            "low_ns": 10180203
+          },
+          "maximum_ns": 41994220,
+          "median_ns": 15686064,
+          "minimum_ns": 10169473,
+          "p95_ns": 41994220,
+          "relative_standard_deviation": 0.6117792840669496,
+          "runs": 10,
+          "samples_ns": [
+            21271815,
+            21350052,
+            21322119,
+            21050079,
+            41994220,
+            10322049,
+            10208576,
+            10178309,
+            10180203,
+            10169473
+          ],
+          "standard_deviation_ns": 9596409.003748352
+        },
+        "tracejit_after_mutation": {
+          "bootstrap_95ci_median": {
+            "high_ns": 35523204,
+            "low_ns": 27402363
+          },
+          "maximum_ns": 41589831,
+          "median_ns": 31616321,
+          "minimum_ns": 25293288,
+          "p95_ns": 41589831,
+          "relative_standard_deviation": 0.1553479291975261,
+          "runs": 10,
+          "samples_ns": [
+            29305813,
+            27402363,
+            35523204,
+            30879023,
+            34859619,
+            32353619,
+            25293288,
+            26923305,
+            37325073,
+            41589831
+          ],
+          "standard_deviation_ns": 4911529.996194257
+        }
+      },
+      "description": "sales.csv is mutated after priming. TraceJIT must deoptimise and recompute, never reuse.",
+      "kind": "controlled",
+      "name": "cache_invalidation",
+      "notes": [
+        "Every measured run was required to report cache_decision=Deoptimized."
+      ]
+    },
+    {
+      "conditions": {
+        "cold_8_concurrent": {
+          "bootstrap_95ci_median": {
+            "high_ns": 116453729,
+            "low_ns": 53711025
+          },
+          "maximum_ns": 116453729,
+          "median_ns": 72440281,
+          "minimum_ns": 53711025,
+          "p95_ns": 116453729,
+          "relative_standard_deviation": 0.293852923713549,
+          "runs": 5,
+          "samples_ns": [
+            116453729,
+            88739411,
+            72440281,
+            69405750,
+            53711025
+          ],
+          "standard_deviation_ns": 21286788.36648105
+        },
+        "warm_8_concurrent": {
+          "bootstrap_95ci_median": {
+            "high_ns": 22979588,
+            "low_ns": 20966633
+          },
+          "maximum_ns": 22979588,
+          "median_ns": 22124926,
+          "minimum_ns": 20966633,
+          "p95_ns": 22979588,
+          "relative_standard_deviation": 0.03532527785231099,
+          "runs": 5,
+          "samples_ns": [
+            22124926,
+            20966633,
+            21094412,
+            22979588,
+            22467027
+          ],
+          "standard_deviation_ns": 781569.1584118196
+        }
+      },
+      "description": "Eight simultaneous /bin/true invocations sharing one cache, cold and warm.",
+      "kind": "controlled",
+      "name": "concurrency",
+      "notes": [
+        "All eight processes must exit 0; warm batches must all report Reused."
+      ]
+    },
+    {
+      "conditions": {},
+      "description": "Unmodified real-world command census (eligibility, refusals, hits).",
+      "kind": "real-world",
+      "name": "compatibility_census",
+      "notes": [
+        "Raw harness output is in the adjacent log and JSON files.",
+        "exit_status=0"
+      ]
+    },
+    {
+      "conditions": {},
+      "description": "Make/Ninja/plain-CAS comparison on a rebuild workload; missing tools are skipped, not scored.",
+      "kind": "real-world",
+      "name": "make_ninja_competitive",
+      "notes": [
+        "Raw harness output is in the adjacent log and JSON files.",
+        "exit_status=0"
+      ]
+    }
+  ]
+}

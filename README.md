@@ -62,7 +62,18 @@ All figures cite committed harness outputs with exact tips. Do not merge numbers
 | `/bin/true` / short floor | **0.351 ms** | 4.475 ms | Warm **loss** — DIRECT wins |
 | Short-ETL session cumulative | **35 ms** | 177 ms | HITs can still lose the session |
 
-**Census:** 1/32 eligibility under unmodified defaults (`mandate_s4/census/`).
+**Beta release candidate `v0.2.0-beta.1`** (measured `cdb307b`, n=20, bootstrap 95% CI, `benchmarks/releases/v0.2.0-beta.1/`):
+
+| Scenario | DIRECT | Cold trace | Warm HIT | Note |
+| --- | ---: | ---: | ---: | --- |
+| CPU-heavy `c-transform` | 333.1 ms | 374.6 ms | **8.8 ms** | About 37× on this host |
+| `/bin/true` | **0.83 ms** | — | 6.41 ms | Warm loss |
+| `gzip -9` over 4 MiB | **117.2 ms** | 428.1 ms | 289.3 ms | Warm loss: replaying compressed stdout |
+| 10-run ETL session | **89.0 ms** | — | 125.3 ms | Session loss despite correct hits |
+| 64 MiB output file | **142.8 ms** | 588.9 ms | 193.3 ms | Restore and fsync dominate |
+| 8 concurrent `/bin/true` | — | 72.4 ms | 22.1 ms | All processes correct |
+
+**Census:** 1/32 eligibility under unmodified defaults (`mandate_s4/census/`; the beta census reproduces 1/32 in `benchmarks/releases/v0.2.0-beta.1/census/`).
 
 **Withdrawn opt:** destination-match restore skip — synthetic back-to-back looked faster; with output consumption skip rate is **0/40**. Not a product claim ([final_stab_pr3/compare.md](benchmarks/results/final_stab_pr3/compare.md)).
 

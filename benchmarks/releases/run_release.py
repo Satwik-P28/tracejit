@@ -515,6 +515,8 @@ def delegate(name: str, description: str, command: list[str], output_dir: Path) 
         notes=[
             "Raw harness output is in the adjacent log and JSON files.",
             f"exit_status={completed.returncode}",
+            "This harness reports working_tree_dirty=true because the untracked evidence "
+            "directory already exists when it runs; it records the same commit and binary hash.",
         ],
     )
 

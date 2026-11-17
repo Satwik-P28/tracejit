@@ -1,0 +1,5 @@
+copy_stable                  ok
+copy_content_change          ok
+rename_exchange              ok
+getrandom_never_hit          ok
+RESULT phase-k2-oracle incorrect_hits=0 regress_eligible=0 cases=4 -> benchmarks/releases/v0.2.0-beta.1/assurance/oracle-seed-29.json

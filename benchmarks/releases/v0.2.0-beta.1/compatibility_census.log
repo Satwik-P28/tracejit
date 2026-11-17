@@ -1,0 +1,305 @@
+$ python3 benchmarks/realworld/census.py --tracejit /workspace/chats/24375cea864939ae012511ac/target/release/tracejit --runs 3 --warmups 1 --output-dir /workspace/chats/24375cea864939ae012511ac/benchmarks/releases/v0.2.0-beta.1/census
+exit=0
+
+--- stdout ---
+cc-compile-fixture         refused                Unknown            eligible=False
+cc-compile-large           refused                Unknown            eligible=False
+clang-compile-large        blocked_missing_tool   -                  eligible=-
+cc-link-binary             refused                Unknown            eligible=False
+ar-static-archive          refused                Nondeterministic   eligible=False
+objcopy-strip-unneeded     refused                Nondeterministic   eligible=False
+shell-pipeline             refused                Unknown            eligible=False
+multi-file-compile-ar-hash refused                Unknown            eligible=False
+python-csv-json            refused                Nondeterministic   eligible=False
+python-csv-json-seeded     refused                Nondeterministic   eligible=False
+awk-codegen                refused                Nondeterministic   eligible=False
+groff-manpage-html         refused                Unknown            eligible=False
+pil-image-transform        refused                Unknown            eligible=False
+cc-syntax-only-lint        refused                Unknown            eligible=False
+gzip-compress-stdout       reused                 Guarded            eligible=True
+gzip-roundtrip-file        refused                Unknown            eligible=False
+bzip2-compress-stdout      refused                Nondeterministic   eligible=False
+xz-compress-stdout         refused                Unknown            eligible=False
+tar-create-archive         refused                Nondeterministic   eligible=False
+sed-rewrite-stdout         refused                Nondeterministic   eligible=False
+awk-sum-stdout             refused                Nondeterministic   eligible=False
+awk-scientific-iter        refused                Nondeterministic   eligible=False
+sort-numbers               refused                Nondeterministic   eligible=False
+wc-line-count              refused                Nondeterministic   eligible=False
+sha256sum-blob             refused                Nondeterministic   eligible=False
+openssl-sha256             refused                Nondeterministic   eligible=False
+od-hex-prefix              refused                Nondeterministic   eligible=False
+dd-copy-file               refused                Nondeterministic   eligible=False
+jq-sum-values              refused                Nondeterministic   eligible=False
+perl-sum-values            refused                Unknown            eligible=False
+make-awk-target            refused                Unknown            eligible=False
+rustc-hello                refused                Unknown            eligible=False
+{
+  "attempted": 31,
+  "blocked_missing_tool": 1,
+  "blocker_ranking": [
+    {
+      "blocker": "randomness",
+      "count": 18,
+      "occurrences": 18,
+      "workloads": [
+        "ar-static-archive",
+        "awk-codegen",
+        "awk-scientific-iter",
+        "awk-sum-stdout",
+        "bzip2-compress-stdout",
+        "cc-syntax-only-lint",
+        "dd-copy-file",
+        "jq-sum-values",
+        "objcopy-strip-unneeded",
+        "od-hex-prefix",
+        "openssl-sha256",
+        "python-csv-json",
+        "python-csv-json-seeded",
+        "sed-rewrite-stdout",
+        "sha256sum-blob",
+        "sort-numbers",
+        "tar-create-archive",
+        "wc-line-count"
+      ]
+    },
+    {
+      "blocker": "clock",
+      "count": 9,
+      "occurrences": 11,
+      "workloads": [
+        "ar-static-archive",
+        "awk-codegen",
+        "awk-scientific-iter",
+        "awk-sum-stdout",
+        "cc-syntax-only-lint",
+        "dd-copy-file",
+        "python-csv-json",
+        "python-csv-json-seeded",
+        "tar-create-archive"
+      ]
+    },
+    {
+      "blocker": "system_information",
+      "count": 4,
+      "occurrences": 7,
+      "workloads": [
+        "ar-static-archive",
+        "cc-syntax-only-lint",
+        "objcopy-strip-unneeded",
+        "sort-numbers"
+      ]
+    },
+    {
+      "blocker": "process_identity",
+      "count": 3,
+      "occurrences": 4,
+      "workloads": [
+        "awk-codegen",
+        "python-csv-json",
+        "python-csv-json-seeded"
+      ]
+    },
+    {
+      "blocker": "failed_descriptor_operation",
+      "count": 2,
+      "occurrences": 2,
+      "workloads": [
+        "gzip-roundtrip-file",
+        "shell-pipeline"
+      ]
+    },
+    {
+      "blocker": "other:clone file-descriptor and cwd sharing semantics are not elig",
+      "count": 1,
+      "occurrences": 12,
+      "workloads": [
+        "rustc-hello"
+      ]
+    },
+    {
+      "blocker": "procfs_process_relative",
+      "count": 1,
+      "occurrences": 7,
+      "workloads": [
+        "rustc-hello"
+      ]
+    },
+    {
+      "blocker": "other:file-backed MAP_SHARED mapping is writable; stores through i",
+      "count": 1,
+      "occurrences": 2,
+      "workloads": [
+        "rustc-hello"
+      ]
+    },
+    {
+      "blocker": "network",
+      "count": 1,
+      "occurrences": 1,
+      "workloads": [
+        "tar-create-archive"
+      ]
+    },
+    {
+      "blocker": "other:pipe 1: a read returned less than it requested and more data",
+      "count": 1,
+      "occurrences": 1,
+      "workloads": [
+        "groff-manpage-html"
+      ]
+    },
+    {
+      "blocker": "other:pipe 1: more than one process wrote to it, so byte order dep",
+      "count": 1,
+      "occurrences": 1,
+      "workloads": [
+        "rustc-hello"
+      ]
+    },
+    {
+      "blocker": "other:pipe 2: a read returned less than it requested and more data",
+      "count": 1,
+      "occurrences": 1,
+      "workloads": [
+        "shell-pipeline"
+      ]
+    },
+    {
+      "blocker": "other:pipe 3: a read returned less than it requested and more data",
+      "count": 1,
+      "occurrences": 1,
+      "workloads": [
+        "shell-pipeline"
+      ]
+    },
+    {
+      "blocker": "unhashable_open",
+      "count": 1,
+      "occurrences": 1,
+      "workloads": [
+        "perl-sum-values"
+      ]
+    },
+    {
+      "blocker": "unrestorable_output",
+      "count": 1,
+      "occurrences": 1,
+      "workloads": [
+        "cc-syntax-only-lint"
+      ]
+    }
+  ],
+  "denominator_definition": "attempted = every requested workload whose required tools were present and whose direct execution succeeded. Tool-missing and workload-failed entries are excluded from the rate and listed separately.",
+  "eligibility_rate": 0.03225806451612903,
+  "refused": 30,
+  "requested": 32,
+  "reused": 1,
+  "unmodeled_syscall_ranking": [
+    {
+      "count": 5,
+      "name": "5: fstat",
+      "syscall": 5,
+      "workloads": [
+        "groff-manpage-html",
+        "gzip-roundtrip-file",
+        "perl-sum-values",
+        "rustc-hello",
+        "shell-pipeline"
+      ]
+    },
+    {
+      "count": 4,
+      "name": "16: ioctl",
+      "syscall": 16,
+      "workloads": [
+        "gzip-roundtrip-file",
+        "perl-sum-values",
+        "rustc-hello",
+        "shell-pipeline"
+      ]
+    },
+    {
+      "count": 4,
+      "name": "98: getrusage",
+      "syscall": 98,
+      "workloads": [
+        "cc-compile-fixture",
+        "cc-compile-large",
+        "cc-link-binary",
+        "multi-file-compile-ar-hash"
+      ]
+    },
+    {
+      "count": 3,
+      "name": "72: fcntl",
+      "syscall": 72,
+      "workloads": [
+        "make-awk-target",
+        "rustc-hello",
+        "xz-compress-stdout"
+      ]
+    },
+    {
+      "count": 2,
+      "name": "291: epoll_create1",
+      "syscall": 291,
+      "workloads": [
+        "pil-image-transform",
+        "rustc-hello"
+      ]
+    },
+    {
+      "count": 1,
+      "name": "157: prctl",
+      "syscall": 157,
+      "workloads": [
+        "rustc-hello"
+      ]
+    },
+    {
+      "count": 1,
+      "name": "233: epoll_ctl",
+      "syscall": 233,
+      "workloads": [
+        "rustc-hello"
+      ]
+    },
+    {
+      "count": 1,
+      "name": "290: eventfd2",
+      "syscall": 290,
+      "workloads": [
+        "rustc-hello"
+      ]
+    },
+    {
+      "count": 1,
+      "name": "332: statx",
+      "syscall": 332,
+      "workloads": [
+        "rustc-hello"
+      ]
+    },
+    {
+      "count": 1,
+      "name": "7: poll",
+      "syscall": 7,
+      "workloads": [
+        "rustc-hello"
+      ]
+    },
+    {
+      "count": 1,
+      "name": "73: flock",
+      "syscall": 73,
+      "workloads": [
+        "rustc-hello"
+      ]
+    }
+  ],
+  "workload_failed": 0
+}
+
+--- stderr ---
+
