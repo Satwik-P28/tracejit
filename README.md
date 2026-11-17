@@ -2,6 +2,24 @@
 
 Reuse an unmodified Linux x86_64 command only when the dependencies TraceJIT observed still pass synchronous guards. If an effect is unknown, or the command reads the clock, randomness, or the network, TraceJIT runs it again. Correctness beats performance; uncertainty fails closed.
 
+**Status:** `v0.2.0-beta.1`, a research-oriented prototype for Linux x86_64. It is not a general guarantee of execution equivalence, has not been peer reviewed, and has no production adoption. Read [known limitations](docs/LIMITATIONS.md) before trusting a hit.
+
+## Install
+
+Linux x86_64 only. The archive contains the binary, licenses, safety and security documentation, provenance manifest, and SBOM.
+
+```bash
+version=$(curl -fsSL https://raw.githubusercontent.com/Satwik-P28/tracejit/main/VERSION)
+base="https://github.com/Satwik-P28/tracejit/releases/download/v${version}"
+name="tracejit-v${version}-x86_64-unknown-linux-gnu.tar.gz"
+curl -fsSLO "${base}/${name}" && curl -fsSLO "${base}/SHA256SUMS"
+sha256sum -c --ignore-missing SHA256SUMS
+tar -xzf "$name" && install -m 755 "tracejit-v${version}-x86_64-unknown-linux-gnu/tracejit" ~/.local/bin/tracejit
+tracejit doctor   # requires supported yes and ptrace yes
+```
+
+Full instructions, source builds, and artifact verification: [docs/INSTALL.md](docs/INSTALL.md).
+
 ## Why this is hard
 
 Declared build graphs (Make, Ninja, Bazel) and compiler caches (ccache, sccache) reuse work when inputs are listed or toolchain-specific. An already-built command does not come with that list. Replaying stdout and output files without checking what the process actually depended on is a stale-hit hazard. ptrace sees modeled kernel crossings, not arbitrary userspace influence; clocks, entropy, process identity, and unmodeled syscalls force refusal rather than a guessed hit.
@@ -44,7 +62,18 @@ All figures cite committed harness outputs with exact tips. Do not merge numbers
 | `/bin/true` / short floor | **0.351 ms** | 4.475 ms | Warm **loss** — DIRECT wins |
 | Short-ETL session cumulative | **35 ms** | 177 ms | HITs can still lose the session |
 
-**Census:** 1/32 eligibility under unmodified defaults (`mandate_s4/census/`).
+**Beta release candidate `v0.2.0-beta.1`** (measured `cdb307b`, n=20, bootstrap 95% CI, `benchmarks/releases/v0.2.0-beta.1/`):
+
+| Scenario | DIRECT | Cold trace | Warm HIT | Note |
+| --- | ---: | ---: | ---: | --- |
+| CPU-heavy `c-transform` | 333.1 ms | 374.6 ms | **8.8 ms** | About 37× on this host |
+| `/bin/true` | **0.83 ms** | — | 6.41 ms | Warm loss |
+| `gzip -9` over 4 MiB | **117.2 ms** | 428.1 ms | 289.3 ms | Warm loss: replaying compressed stdout |
+| 10-run ETL session | **89.0 ms** | — | 125.3 ms | Session loss despite correct hits |
+| 64 MiB output file | **142.8 ms** | 588.9 ms | 193.3 ms | Restore and fsync dominate |
+| 8 concurrent `/bin/true` | — | 72.4 ms | 22.1 ms | All processes correct |
+
+**Census:** 1/32 eligibility under unmodified defaults (`mandate_s4/census/`; the beta census reproduces 1/32 in `benchmarks/releases/v0.2.0-beta.1/census/`).
 
 **Withdrawn opt:** destination-match restore skip — synthetic back-to-back looked faster; with output consumption skip rate is **0/40**. Not a product claim ([final_stab_pr3/compare.md](benchmarks/results/final_stab_pr3/compare.md)).
 
@@ -62,11 +91,20 @@ cargo build --workspace --release
 ./target/release/tracejit doctor
 ```
 
-`demo.sh` compiles the synthetic transform, traces, reuses, explains, mutates the input, and requires `DEOPT`. For the short-command harness:
+`demo.sh` compiles the synthetic transform, traces, reuses, explains, mutates the input, and requires `DEOPT`. It runs with `TRACEJIT` set to an installed binary as well:
+
+```bash
+TRACEJIT=~/.local/bin/tracejit ./scripts/demo.sh
+```
+
+For the short-command harness and the release benchmark package:
 
 ```bash
 ./scripts/benchmark.sh
+python3 benchmarks/releases/run_release.py --runs 20 --warmups 3
 ```
+
+Release evidence lives in `benchmarks/releases/v<version>/`; the methodology is in [docs/BENCHMARK_REPRODUCTION.md](docs/BENCHMARK_REPRODUCTION.md).
 
 ## Technical report and application notes
 
@@ -109,6 +147,10 @@ flowchart TD
   next --> deopt[Guard failure: deoptimize and retrace]
   deopt --> trace
 ```
+
+## Supported platforms
+
+Linux x86_64 (GNU) with `ptrace` permitted. `doctor` refuses other operating systems, architectures, and missing kernel features instead of degrading silently. There is no macOS, Windows, AArch64, or musl build; none is advertised.
 
 ## Architecture and tests
 

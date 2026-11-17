@@ -1,0 +1,602 @@
+{
+  "binary": "/workspace/chats/24375cea864939ae012511ac/target/release/tracejit",
+  "binary_sha256": "5a1100c5fd92dd7f2593451932d1ba93a2bd1f83d8681bb18861a4bc246db990",
+  "commit": "cdb307be9160b93318603005373a0a9f69b84219",
+  "host": {
+    "cpus": 2,
+    "kernel": "6.1.102",
+    "platform": "Linux-6.1.102-x86_64-with-glibc2.39",
+    "rustc": "rustc 1.100.0 (0ef1bc386 2026-11-09)",
+    "tools": {
+      "bzip2": "/usr/bin/bzip2",
+      "cc": "/usr/bin/cc",
+      "ccache": null,
+      "make": "/usr/bin/make",
+      "ninja": null,
+      "sccache": null
+    }
+  },
+  "json_path": "benchmarks/releases/v0.2.0-beta.1/competitive/competitive.json",
+  "label": "phase-k8",
+  "runs": 5,
+  "suite": [
+    {
+      "arms": {
+        "ccache": {
+          "installed": false,
+          "reason": "compiler wrapper; not a drop-in arm for transparent bzip2 command reuse",
+          "skipped": true
+        },
+        "make": {
+          "phases": [
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [
+                "make"
+              ],
+              "method": "single-invocation",
+              "phase": "1_first_build",
+              "timing": {
+                "max_ms": 34.033,
+                "median_ms": 34.033,
+                "min_ms": 34.033,
+                "p95_ms": 34.033,
+                "pstdev_ms": 0.0,
+                "runs": 1,
+                "samples_ms": [
+                  34.033
+                ]
+              }
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [
+                "make"
+              ],
+              "method": "steady-state-after-warmup",
+              "phase": "2_identical_rerun",
+              "timing": {
+                "max_ms": 2.155,
+                "median_ms": 1.979,
+                "min_ms": 1.908,
+                "p95_ms": 2.155,
+                "pstdev_ms": 0.09,
+                "runs": 5,
+                "samples_ms": [
+                  1.931,
+                  2.155,
+                  2.058,
+                  1.979,
+                  1.908
+                ]
+              }
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [
+                "make"
+              ],
+              "method": "single-invocation",
+              "phase": "3_outputs_deleted",
+              "timing": {
+                "max_ms": 34.114,
+                "median_ms": 34.114,
+                "min_ms": 34.114,
+                "p95_ms": 34.114,
+                "pstdev_ms": 0.0,
+                "runs": 1,
+                "samples_ms": [
+                  34.114
+                ]
+              }
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [
+                "make"
+              ],
+              "method": "single-invocation",
+              "phase": "4_one_input_modified",
+              "timing": {
+                "max_ms": 12.323,
+                "median_ms": 12.323,
+                "min_ms": 12.323,
+                "p95_ms": 12.323,
+                "pstdev_ms": 0.0,
+                "runs": 1,
+                "samples_ms": [
+                  12.323
+                ]
+              }
+            },
+            {
+              "content_correct": false,
+              "failures": [
+                "vendor.js: content differs"
+              ],
+              "kinds": [
+                "make"
+              ],
+              "method": "single-invocation",
+              "phase": "5_mtime_preserved_edit",
+              "timing": {
+                "max_ms": 1.959,
+                "median_ms": 1.959,
+                "min_ms": 1.959,
+                "p95_ms": 1.959,
+                "pstdev_ms": 0.0,
+                "runs": 1,
+                "samples_ms": [
+                  1.959
+                ]
+              }
+            },
+            {
+              "content_correct": false,
+              "failures": [
+                "vendor.js: content differs",
+                "worker.js: content differs"
+              ],
+              "kinds": [
+                "make"
+              ],
+              "method": "single-invocation",
+              "phase": "6_corrupted_output",
+              "timing": {
+                "max_ms": 1.967,
+                "median_ms": 1.967,
+                "min_ms": 1.967,
+                "p95_ms": 1.967,
+                "pstdev_ms": 0.0,
+                "runs": 1,
+                "samples_ms": [
+                  1.967
+                ]
+              }
+            }
+          ]
+        },
+        "native": {
+          "phases": [
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [],
+              "method": "single-invocation",
+              "phase": "1_first_build",
+              "timing": {
+                "max_ms": 24.955,
+                "median_ms": 24.955,
+                "min_ms": 24.955,
+                "p95_ms": 24.955,
+                "pstdev_ms": 0.0,
+                "runs": 1,
+                "samples_ms": [
+                  24.955
+                ]
+              }
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [],
+              "method": "steady-state-after-warmup",
+              "phase": "2_identical_rerun",
+              "timing": {
+                "max_ms": 24.566,
+                "median_ms": 24.42,
+                "min_ms": 24.29,
+                "p95_ms": 24.566,
+                "pstdev_ms": 0.094,
+                "runs": 5,
+                "samples_ms": [
+                  24.566,
+                  24.369,
+                  24.48,
+                  24.29,
+                  24.42
+                ]
+              }
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [],
+              "method": "single-invocation",
+              "phase": "3_outputs_deleted",
+              "timing": {
+                "max_ms": 24.288,
+                "median_ms": 24.288,
+                "min_ms": 24.288,
+                "p95_ms": 24.288,
+                "pstdev_ms": 0.0,
+                "runs": 1,
+                "samples_ms": [
+                  24.288
+                ]
+              }
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [],
+              "method": "single-invocation",
+              "phase": "4_one_input_modified",
+              "timing": {
+                "max_ms": 24.545,
+                "median_ms": 24.545,
+                "min_ms": 24.545,
+                "p95_ms": 24.545,
+                "pstdev_ms": 0.0,
+                "runs": 1,
+                "samples_ms": [
+                  24.545
+                ]
+              }
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [],
+              "method": "single-invocation",
+              "phase": "5_mtime_preserved_edit",
+              "timing": {
+                "max_ms": 24.131,
+                "median_ms": 24.131,
+                "min_ms": 24.131,
+                "p95_ms": 24.131,
+                "pstdev_ms": 0.0,
+                "runs": 1,
+                "samples_ms": [
+                  24.131
+                ]
+              }
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [],
+              "method": "single-invocation",
+              "phase": "6_corrupted_output",
+              "timing": {
+                "max_ms": 24.004,
+                "median_ms": 24.004,
+                "min_ms": 24.004,
+                "p95_ms": 24.004,
+                "pstdev_ms": 0.0,
+                "runs": 1,
+                "samples_ms": [
+                  24.004
+                ]
+              }
+            }
+          ]
+        },
+        "ninja": {
+          "reason": "ninja not installed",
+          "skipped": true
+        },
+        "sccache": {
+          "installed": false,
+          "reason": "compiler wrapper; not installed or not applicable to this workload",
+          "skipped": true
+        },
+        "simple_cas": {
+          "phases": [
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [],
+              "method": "single-invocation",
+              "phase": "1_first_build",
+              "timing": {
+                "max_ms": 78.889,
+                "median_ms": 78.889,
+                "min_ms": 78.889,
+                "p95_ms": 78.889,
+                "pstdev_ms": 0.0,
+                "runs": 1,
+                "samples_ms": [
+                  78.889
+                ]
+              }
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [],
+              "method": "steady-state-after-warmup",
+              "phase": "2_identical_rerun",
+              "timing": {
+                "max_ms": 39.023,
+                "median_ms": 38.796,
+                "min_ms": 37.775,
+                "p95_ms": 39.023,
+                "pstdev_ms": 0.453,
+                "runs": 5,
+                "samples_ms": [
+                  38.796,
+                  38.807,
+                  38.271,
+                  37.775,
+                  39.023
+                ]
+              }
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [],
+              "method": "single-invocation",
+              "phase": "3_outputs_deleted",
+              "timing": {
+                "max_ms": 38.399,
+                "median_ms": 38.399,
+                "min_ms": 38.399,
+                "p95_ms": 38.399,
+                "pstdev_ms": 0.0,
+                "runs": 1,
+                "samples_ms": [
+                  38.399
+                ]
+              }
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [],
+              "method": "single-invocation",
+              "phase": "4_one_input_modified",
+              "timing": {
+                "max_ms": 46.833,
+                "median_ms": 46.833,
+                "min_ms": 46.833,
+                "p95_ms": 46.833,
+                "pstdev_ms": 0.0,
+                "runs": 1,
+                "samples_ms": [
+                  46.833
+                ]
+              }
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [],
+              "method": "single-invocation",
+              "phase": "5_mtime_preserved_edit",
+              "timing": {
+                "max_ms": 55.13,
+                "median_ms": 55.13,
+                "min_ms": 55.13,
+                "p95_ms": 55.13,
+                "pstdev_ms": 0.0,
+                "runs": 1,
+                "samples_ms": [
+                  55.13
+                ]
+              }
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [],
+              "method": "single-invocation",
+              "phase": "6_corrupted_output",
+              "timing": {
+                "max_ms": 39.049,
+                "median_ms": 39.049,
+                "min_ms": 39.049,
+                "p95_ms": 39.049,
+                "pstdev_ms": 0.0,
+                "runs": 1,
+                "samples_ms": [
+                  39.049
+                ]
+              }
+            }
+          ]
+        },
+        "tracejit": {
+          "phases": [
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [
+                "Executed",
+                "Executed",
+                "Executed"
+              ],
+              "method": "single-invocation",
+              "phase": "1_first_build",
+              "timing": {
+                "max_ms": 87.602,
+                "median_ms": 87.602,
+                "min_ms": 87.602,
+                "p95_ms": 87.602,
+                "pstdev_ms": 0.0,
+                "runs": 1,
+                "samples_ms": [
+                  87.602
+                ]
+              }
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [
+                "Reused",
+                "Reused",
+                "Reused"
+              ],
+              "method": "steady-state-after-warmup",
+              "phase": "2_identical_rerun",
+              "timing": {
+                "max_ms": 35.401,
+                "median_ms": 33.985,
+                "min_ms": 33.281,
+                "p95_ms": 35.401,
+                "pstdev_ms": 0.706,
+                "runs": 5,
+                "samples_ms": [
+                  33.985,
+                  35.401,
+                  33.763,
+                  33.281,
+                  34.178
+                ]
+              }
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [
+                "Reused",
+                "Reused",
+                "Reused"
+              ],
+              "method": "single-invocation",
+              "phase": "3_outputs_deleted",
+              "timing": {
+                "max_ms": 49.07,
+                "median_ms": 49.07,
+                "min_ms": 49.07,
+                "p95_ms": 49.07,
+                "pstdev_ms": 0.0,
+                "runs": 1,
+                "samples_ms": [
+                  49.07
+                ]
+              }
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [
+                "Executed",
+                "Reused",
+                "Reused"
+              ],
+              "method": "single-invocation",
+              "phase": "4_one_input_modified",
+              "timing": {
+                "max_ms": 54.387,
+                "median_ms": 54.387,
+                "min_ms": 54.387,
+                "p95_ms": 54.387,
+                "pstdev_ms": 0.0,
+                "runs": 1,
+                "samples_ms": [
+                  54.387
+                ]
+              }
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [
+                "Executed",
+                "Executed",
+                "Reused"
+              ],
+              "method": "single-invocation",
+              "phase": "5_mtime_preserved_edit",
+              "timing": {
+                "max_ms": 70.667,
+                "median_ms": 70.667,
+                "min_ms": 70.667,
+                "p95_ms": 70.667,
+                "pstdev_ms": 0.0,
+                "runs": 1,
+                "samples_ms": [
+                  70.667
+                ]
+              }
+            },
+            {
+              "content_correct": true,
+              "failures": [],
+              "kinds": [
+                "Reused",
+                "Executed",
+                "Executed"
+              ],
+              "method": "single-invocation",
+              "phase": "6_corrupted_output",
+              "timing": {
+                "max_ms": 73.837,
+                "median_ms": 73.837,
+                "min_ms": 73.837,
+                "p95_ms": 73.837,
+                "pstdev_ms": 0.0,
+                "runs": 1,
+                "samples_ms": [
+                  73.837
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "asset_lines_each": 8000,
+      "phases": [
+        "1_first_build",
+        "2_identical_rerun",
+        "3_outputs_deleted",
+        "4_one_input_modified",
+        "5_mtime_preserved_edit",
+        "6_corrupted_output"
+      ],
+      "scenario": "build-edit-recovery"
+    },
+    {
+      "direct": {
+        "max_ms": 8.928,
+        "median_ms": 8.811,
+        "min_ms": 8.717,
+        "p95_ms": 8.928,
+        "pstdev_ms": 0.071,
+        "runs": 5,
+        "samples_ms": [
+          8.928,
+          8.811,
+          8.824,
+          8.763,
+          8.717
+        ]
+      },
+      "net_loss": false,
+      "scenario": "short-command-etl-overhead",
+      "tracejit_cold_kind": "Executed",
+      "tracejit_cold_ms": 23.572,
+      "tracejit_warm": {
+        "max_ms": 6.765,
+        "median_ms": 6.34,
+        "min_ms": 6.296,
+        "p95_ms": 6.765,
+        "pstdev_ms": 0.174,
+        "runs": 5,
+        "samples_ms": [
+          6.371,
+          6.296,
+          6.34,
+          6.334,
+          6.765
+        ]
+      },
+      "tracejit_warm_kinds": [
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused",
+        "Reused"
+      ]
+    }
+  ],
+  "warmups": 2,
+  "working_tree_dirty": true
+}

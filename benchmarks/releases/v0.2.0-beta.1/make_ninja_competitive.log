@@ -1,0 +1,12 @@
+$ python3 benchmarks/repos/phase_k8_competitive.py --binary /workspace/chats/24375cea864939ae012511ac/target/release/tracejit --runs 5 --warmups 2 --output-dir /workspace/chats/24375cea864939ae012511ac/benchmarks/releases/v0.2.0-beta.1/competitive
+exit=0
+
+--- stdout ---
+scenario build-edit-recovery
+scenario short-command-etl
+wrote /workspace/chats/24375cea864939ae012511ac/benchmarks/releases/v0.2.0-beta.1/competitive/competitive.json
+wrote /workspace/chats/24375cea864939ae012511ac/benchmarks/releases/v0.2.0-beta.1/competitive/competitive.md
+RESULT phase-k8 commit=cdb307be9160 dirty=True etl_loss=False
+
+--- stderr ---
+

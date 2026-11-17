@@ -1,0 +1,108 @@
+{
+  "artifacts": [
+    {
+      "bytes": 7116,
+      "path": "ARCHITECTURE.md",
+      "sha256": "1ce52d622d0dc7b799c23073dec2a76a06bb5a7d1073c599b4c72ac2e076cb69"
+    },
+    {
+      "bytes": 2980,
+      "path": "CHANGELOG.md",
+      "sha256": "d95962117d316670248dd4721bcabe85caab0f836f6c67924238862d9ade24aa"
+    },
+    {
+      "bytes": 11358,
+      "path": "LICENSE-APACHE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "bytes": 1079,
+      "path": "LICENSE-MIT",
+      "sha256": "ed88fa91feb4390b917c74966108fdac57a2f45903b794ff1160a5289ade9a14"
+    },
+    {
+      "bytes": 9305,
+      "path": "README.md",
+      "sha256": "c06dd90026a6ca55b01d15bb27abeab96648995aa7e2e7910c3ba8539570b7ff"
+    },
+    {
+      "bytes": 2830,
+      "path": "RELEASE_NOTES.md",
+      "sha256": "2f5e49c8dd41d887c6d4d56de8a5213b6c35a3cb773bf8699a91e2d21f2e1523"
+    },
+    {
+      "bytes": 7791,
+      "path": "SAFETY.md",
+      "sha256": "e1ef9f3a8d93238bc021bffe169e93da401c04ff5289d91dcea6d8163ad1c65b"
+    },
+    {
+      "bytes": 1486,
+      "path": "SECURITY.md",
+      "sha256": "652c87672ad3a002897ede0467ab0074dbfed870ba16847c1bb3f9d50bd13f67"
+    },
+    {
+      "bytes": 13,
+      "path": "VERSION",
+      "sha256": "214374e4ab6ceb79d5fa5ff001fe9bbcbea31c3fd8c6bd42d48e7efaf6b2ce9f"
+    },
+    {
+      "bytes": 3697,
+      "path": "docs/BENCHMARK_REPRODUCTION.md",
+      "sha256": "41eaf431078d1e473e92f3a1b9730aaec3f9749367d072d6f2d2fe11eaec4401"
+    },
+    {
+      "bytes": 2431,
+      "path": "docs/INSTALL.md",
+      "sha256": "cb4c67241dd3d4b85184584423264f5d205e2e81901937cbabe9dbd7229920f4"
+    },
+    {
+      "bytes": 3461,
+      "path": "docs/LIMITATIONS.md",
+      "sha256": "96b09b2c93afa35ceee4eb4b66a0f281671ad64929e19bfaec86801dc5c02d19"
+    },
+    {
+      "bytes": 7725736,
+      "path": "tracejit",
+      "sha256": "5a1100c5fd92dd7f2593451932d1ba93a2bd1f83d8681bb18861a4bc246db990"
+    }
+  ],
+  "build": {
+    "binary_bytes": 7725736,
+    "binary_sha256": "5a1100c5fd92dd7f2593451932d1ba93a2bd1f83d8681bb18861a4bc246db990",
+    "command": "cargo build --workspace --release",
+    "profile": "release",
+    "target": "x86_64-unknown-linux-gnu"
+  },
+  "dependencies": {
+    "locked_packages": 110,
+    "lockfile": "Cargo.lock",
+    "lockfile_sha256": "a764bd1ddd357f698f7c41d0169ee3ae62009379679fcec0aad3b546d648bb67"
+  },
+  "environment": {
+    "architecture": "x86_64",
+    "cpu": "19/01",
+    "cpus": 8,
+    "kernel": "6.1.102",
+    "os": "PRETTY_NAME=\"Ubuntu 24.04.5 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"24.04\"\nVERSION=\"24.04.5 LTS (Noble Numbat)\"\nVERSION_CODENAME=noble\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=noble\nLOGO=ubuntu-logo"
+  },
+  "release": {
+    "branch": "release/v0.2.0-beta.1",
+    "commit": "0ed69c564fc9c044783aad3dc0e28c8426b8c985",
+    "commit_date": "2026-11-17T22:47:50+00:00",
+    "generated_at": "2026-11-17T22:47:56Z",
+    "tag": "v0.2.0-beta.1",
+    "version": "0.2.0-beta.1",
+    "working_tree_dirty": false
+  },
+  "reproducibility": {
+    "byte_for_byte_claimed": false,
+    "note": "Archive members are ordered and timestamped from the commit, and gzip stores no name or timestamp. Byte-for-byte rebuild equality has not been independently demonstrated, so it is not claimed."
+  },
+  "schema_version": 1,
+  "toolchain": {
+    "cargo": "cargo 1.100.0 (3acc79c0c 2026-11-05)",
+    "rust-toolchain.toml": "[toolchain]\nchannel = \"stable\"\nprofile = \"minimal\"\ncomponents = [\"clippy\", \"rustfmt\"]",
+    "rust-toolchain.toml_sha256": "e8f987fcaff2d408e2b10a3b3002e3a13835e77f2ff01b947c1d445caef3fac1",
+    "rustc": "rustc 1.100.0 (0ef1bc386 2026-11-09)"
+  }
+}
