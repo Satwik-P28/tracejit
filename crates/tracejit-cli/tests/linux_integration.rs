@@ -13,13 +13,6 @@ fn tracejit() -> PathBuf {
     PathBuf::from(env!("CARGO_BIN_EXE_tracejit"))
 }
 
-/// Serialises the tests that both compile C and depend on a measured wall-clock threshold.
-///
-/// `auto_admission_skips_short_commands_and_caches_expensive_ones` decides by timing the direct
-/// run; a concurrent compilation can push a short command over its 6 ms threshold and change the
-/// decision for reasons that have nothing to do with the policy under test.
-static COMPILER_TIMING_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
-
 fn compile_fixture(directory: &Path) -> PathBuf {
     let source =
         PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/fixtures/fixture_driver.c");
@@ -56,34 +49,209 @@ fn workspace(directory: &Path) {
     std::os::unix::fs::symlink("input.txt", directory.join("input-link")).unwrap();
 }
 
-/// Test processes can carry descriptors opened by the harness. TraceJIT correctly refuses to
-/// reuse when those descriptors are present, so ordinary tests close them before spawning the
-/// binary; the inherited-FD test below deliberately adds descriptor 9 afterward.
+/// Marks every descriptor the harness did not hand to this child close-on-exec, **in the child**.
 ///
-/// Only **non-CLOEXEC** descriptors are closed. Rust's `Command` spawn-error socket is CLOEXEC;
-/// blindly closing it in `pre_exec` turns a failed `exec` / failed `pre_exec` into a false
-/// `Ok(exit=1)` with empty stdout/stderr (parent sees EOF on the error channel). CLOEXEC fds are
-/// dropped by the kernel at `exec` of TraceJIT anyway, so skipping them still leaves a clean
-/// inherited table for the product.
-fn close_descriptors_above_stderr(except: i32) {
-    for fd in 3..1024 {
-        if fd == except {
-            continue;
-        }
-        // SAFETY: F_GETFD/close are async-signal-safe; EBADF means the slot is empty.
+/// TraceJIT correctly refuses reuse when a non-CLOEXEC descriptor above stderr reaches the traced
+/// child, so a descriptor this test process inherited from cargo, the shell or a CI runner makes
+/// every ordinary integration test refuse. GitHub Actions hands the test process descriptors (142
+/// and 145 in run `44235001207`) that no test created, no test owns, and no test can know about.
+///
+/// The sweep runs in `pre_exec`: after `fork`, before `exec`, in a child with exactly one thread
+/// and a private copy of the descriptor table. That placement is the whole correctness argument.
+///
+/// * It cannot touch a descriptor belonging to an unrelated test or thread, because the parent's
+///   table is not involved: the child owns its copy and is the only process that observes the
+///   change. No lock, and no coordination with `std::process`, is required.
+/// * `close_range(…, CLOSE_RANGE_CLOEXEC)` is one kernel call, so there is no
+///   `F_GETFD`/`F_SETFD` window in which a slot could be closed and reused, and it reaches every
+///   descriptor the process can own rather than a fixed 3..1023 range.
+/// * It closes nothing. Every descriptor stays open and valid for the process that owns it; it
+///   merely drops it from the `exec`. `Command`'s own spawn-error and stdio pipes are created
+///   close-on-exec already and are installed with `dup2`, which clears the flag on the new
+///   standard descriptors, so marking them again is a no-op.
+///
+/// This replaced a process-wide scan of descriptors 3..1023 run from a `Once` during normal
+/// parallel test execution. That scan mutated descriptors owned by unrelated live threads, could
+/// change another thread's intended child inheritance, could not reach descriptors above 1023, and
+/// had a window between the flag query and the update.
+fn without_inherited_descriptors(command: &mut Command) {
+    let limit = descriptor_limit();
+    // SAFETY: the closure runs between fork and exec in the child. It issues only the
+    // `close_range`/`fcntl` syscalls, allocates nothing and takes no lock, so it is
+    // async-signal-safe and cannot interact with a lock another thread held at `fork`.
+    unsafe {
+        command.pre_exec(move || {
+            mark_above_stderr_close_on_exec(limit);
+            Ok(())
+        });
+    }
+}
+
+/// Sets `FD_CLOEXEC` on every descriptor at or above 3 in the calling process.
+///
+/// Called only from `pre_exec`, where the calling process is the freshly forked child.
+fn mark_above_stderr_close_on_exec(limit: u32) {
+    let first = 3_u32;
+    // SAFETY: `close_range` rewrites descriptor flags and borrows no memory from Rust.
+    let flagged = unsafe {
+        libc::syscall(
+            libc::SYS_close_range,
+            first,
+            u32::MAX,
+            libc::CLOSE_RANGE_CLOEXEC,
+        )
+    };
+    if flagged == 0 {
+        return;
+    }
+    // `close_range` arrived in Linux 5.9 and `CLOSE_RANGE_CLOEXEC` in 5.11. On an older kernel the
+    // loop is still race-free for the same reason the syscall is: it runs in the forked child,
+    // which has one thread, so no slot can be closed or reused between `F_GETFD` and `F_SETFD`.
+    // It walks to `RLIMIT_NOFILE`, above which no descriptor can exist, so nothing escapes it.
+    for fd in first..limit {
+        let fd = fd as i32;
+        // SAFETY: F_GETFD/F_SETFD only read or set descriptor flags; EBADF means an empty slot.
         let flags = unsafe { libc::fcntl(fd, libc::F_GETFD) };
-        if flags < 0 {
+        if flags < 0 || flags & libc::FD_CLOEXEC != 0 {
             continue;
         }
-        if flags & libc::FD_CLOEXEC != 0 {
-            continue;
-        }
+        // SAFETY: the descriptor is open, so its descriptor flags can be updated.
         unsafe {
-            libc::close(fd);
+            libc::fcntl(fd, libc::F_SETFD, flags | libc::FD_CLOEXEC);
         }
     }
 }
 
+/// The first descriptor number that cannot exist in this process.
+///
+/// Read before the fork: the fallback sweep has to reach the highest possible descriptor, and
+/// resolving `RLIM_INFINITY` means reading `/proc/sys/fs/nr_open`, which the child must not do
+/// because it is not async-signal-safe.
+fn descriptor_limit() -> u32 {
+    let mut limit = libc::rlimit {
+        rlim_cur: 0,
+        rlim_max: 0,
+    };
+    // SAFETY: getrlimit writes the limits into the struct it is given.
+    if unsafe { libc::getrlimit(libc::RLIMIT_NOFILE, &mut limit) } != 0 {
+        return 1 << 20;
+    }
+    let limit = if limit.rlim_cur == libc::RLIM_INFINITY {
+        fs::read_to_string("/proc/sys/fs/nr_open")
+            .ok()
+            .and_then(|value| value.trim().parse::<u64>().ok())
+            .unwrap_or(1 << 20)
+    } else {
+        limit.rlim_cur
+    };
+    u32::try_from(limit).unwrap_or(u32::MAX).max(1 << 10)
+}
+
+/// Serialises the tests that both compile C and depend on a measured wall-clock threshold.
+///
+/// `auto_admission_skips_short_commands_and_caches_expensive_ones` decides by timing the direct
+/// run; a concurrent compilation can push a short command over its 6 ms threshold and change the
+/// decision for reasons that have nothing to do with the policy under test.
+///
+/// Poisoning is recovered rather than propagated. The guarded value is `()`: this lock orders
+/// execution and protects no data, so there is no state that could be left inconsistent and
+/// nothing a poisoned guard could hide. Propagating the poison would instead turn one real panic
+/// into one failure plus a `PoisonError` panic in every later test that needs the lock, burying
+/// the original defect. libtest still reports the test that actually panicked.
+fn serial_timing_lock() -> std::sync::MutexGuard<'static, ()> {
+    static LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+    LOCK.lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+}
+
+/// Runs one `#[test]` body in its own process and returns false in the parent.
+///
+/// Tests that deliberately leave a non-CLOEXEC descriptor open must not run beside tests that
+/// spawn TraceJIT from the same process: the sibling's child inherits the descriptor and the
+/// product correctly refuses it, which looks like a spurious failure. Re-executing this test
+/// binary with `--exact` gives the test an otherwise empty descriptor table, so the behaviour it
+/// asserts is its own and cannot affect any other test.
+fn run_in_isolated_process(name: &str) -> bool {
+    if std::env::var_os("TRACEJIT_ISOLATED_TEST_CHILD").is_some() {
+        return true;
+    }
+    let executable = std::env::current_exe().expect("current test executable");
+    let mut command = Command::new(executable);
+    command
+        .args(["--exact", name, "--nocapture", "--test-threads=1"])
+        .env("TRACEJIT_ISOLATED_TEST_CHILD", "1");
+    without_inherited_descriptors(&mut command);
+    let output = command
+        .output()
+        .expect("re-execute the test binary for an isolated case");
+    assert!(
+        output.status.success(),
+        "isolated case {name} failed: status {:?}\nstdout:\n{}\nstderr:\n{}",
+        output.status.code(),
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    false
+}
+
+/// Re-executes this test binary with `descriptors` open **and inheritable**, the way a CI runner
+/// hands descriptors to the harness, and returns false in the parent.
+///
+/// The descriptors are installed with `dup2` in `pre_exec`, so they cross a real `exec` into the
+/// new process: the reproduction does not depend on whatever a particular runner happens to leave
+/// open, and the numbers (including one above the old 1023 sweep) are exact.
+fn run_in_process_inheriting(name: &str, descriptors: &[i32]) -> bool {
+    if std::env::var_os("TRACEJIT_ISOLATED_TEST_CHILD").is_some() {
+        return true;
+    }
+    let executable = std::env::current_exe().expect("current test executable");
+    let source = File::open("/dev/null").expect("/dev/null must be available");
+    let source_fd = source.as_raw_fd();
+    let numbers = descriptors.to_vec();
+    let recorded = descriptors
+        .iter()
+        .map(i32::to_string)
+        .collect::<Vec<_>>()
+        .join(",");
+    let mut command = Command::new(executable);
+    command
+        .args(["--exact", name, "--nocapture", "--test-threads=1"])
+        .env("TRACEJIT_ISOLATED_TEST_CHILD", "1")
+        .env("TRACEJIT_INHERITED_TEST_DESCRIPTORS", &recorded);
+    // SAFETY: pre_exec runs between fork and exec; dup2/fcntl are async-signal-safe and the source
+    // descriptor stays open in the parent until the child has exec'd.
+    unsafe {
+        command.pre_exec(move || {
+            for number in &numbers {
+                if libc::dup2(source_fd, *number) < 0 {
+                    return Err(std::io::Error::last_os_error());
+                }
+                // dup2 already clears FD_CLOEXEC on the new descriptor; state it so the
+                // reproduction cannot silently become inheritable-descriptor-free.
+                if libc::fcntl(*number, libc::F_SETFD, 0) < 0 {
+                    return Err(std::io::Error::last_os_error());
+                }
+            }
+            Ok(())
+        });
+    }
+    let output = command
+        .output()
+        .expect("re-execute the test binary with inherited descriptors");
+    assert!(
+        output.status.success(),
+        "isolated case {name} failed: status {:?}\nstdout:\n{}\nstderr:\n{}",
+        output.status.code(),
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    false
+}
+
+/// Marks a descriptor the harness hands to a child as close-on-exec.
+///
+/// The sweep in [`without_inherited_descriptors`] already covers the file itself; keeping its
+/// descriptor close-on-exec states that the harness only means to pass it as stdio.
 fn set_cloexec(file: &File) {
     // SAFETY: fcntl operates on a live descriptor owned by `file`.
     let flags = unsafe { libc::fcntl(file.as_raw_fd(), libc::F_GETFD) };
@@ -93,20 +261,15 @@ fn set_cloexec(file: &File) {
     assert_eq!(result, 0, "F_SETFD failed");
 }
 
+/// A `tracejit` invocation whose child cannot see a descriptor the harness did not hand it.
 fn tracejit_command() -> Command {
     let mut command = Command::new(tracejit());
-    // SAFETY: pre_exec runs between fork and exec; close is async-signal-safe.
-    unsafe {
-        command.pre_exec(|| {
-            close_descriptors_above_stderr(-1);
-            Ok(())
-        });
-    }
+    without_inherited_descriptors(&mut command);
     command
 }
 
 fn invoke(cache: &Path, args: &[&str], extra_env: Option<(&str, &str)>) -> Output {
-    let mut command = Command::new(tracejit());
+    let mut command = tracejit_command();
     command
         .args(args)
         .env("TRACEJIT_CACHE_DIR", cache)
@@ -116,22 +279,28 @@ fn invoke(cache: &Path, args: &[&str], extra_env: Option<(&str, &str)>) -> Outpu
     if let Some((key, value)) = extra_env {
         command.env(key, value);
     }
-    // SAFETY: pre_exec runs between fork and exec; close is async-signal-safe.
-    unsafe {
-        command.pre_exec(|| {
-            close_descriptors_above_stderr(-1);
-            Ok(())
-        });
-    }
     command.output().unwrap()
+}
+
+/// Like [`invoke`], but the child keeps this process's descriptor table exactly as it is.
+///
+/// Only the inherited-descriptor regressions use this: they must present TraceJIT with a descriptor
+/// this process deliberately holds, which sanitising the child would remove.
+fn invoke_inheriting(cache: &Path, args: &[&str]) -> Output {
+    Command::new(tracejit())
+        .args(args)
+        .env("TRACEJIT_CACHE_DIR", cache)
+        .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0")
+        .output()
+        .unwrap()
 }
 
 /// Like [`invoke`], but with an explicit workload cwd.
 ///
 /// CI runners often leave non-CLOEXEC descriptors above stderr; TraceJIT correctly refuses
-/// reuse when those are inherited. Classification fixtures must close them in pre_exec so the
-/// intended syscall path (O_TMPFILE, fcntl, renameat2, …) is what produces Unknown — not the
-/// inherited-fd preflight.
+/// reuse when those are inherited. The child is swept close-on-exec (see
+/// [`without_inherited_descriptors`]) so the intended syscall path (O_TMPFILE, fcntl, renameat2, …)
+/// is what produces Unknown — not the inherited-fd preflight.
 fn invoke_in_workdir(cache: &Path, work: &Path, args: &[&str]) -> Output {
     let mut command = tracejit_command();
     command
@@ -298,12 +467,15 @@ int main(void) {
     assert_eq!(cold_report["classification"], "Unknown", "{cold_report}");
     assert_eq!(cold_report["eligible_for_reuse"], false, "{cold_report}");
     let reasons = cold_report["reasons"].as_array().unwrap();
+    // `O_APPEND` changes where the next write lands. The status-flag rule admits only an
+    // `O_NONBLOCK` change on a private regular file, so this rewrite must still refuse and name
+    // the flag it rejected.
     assert!(
         reasons.iter().any(|reason| {
             let text = reason.as_str().unwrap_or_default();
-            text.contains("fcntl command") && text.contains("not modeled")
+            text.contains("status-flag change") && text.contains("beyond O_NONBLOCK")
         }),
-        "expected fcntl refuse, got {cold_report}"
+        "expected the O_APPEND rewrite to be refused, got {cold_report}"
     );
     assert!(
         reasons.iter().all(|reason| {
@@ -511,7 +683,7 @@ int main(void) {
 /// the audited toolchain.
 #[test]
 fn un_audited_program_does_not_reuse_across_its_output_presence_change() {
-    let _serial = COMPILER_TIMING_LOCK.lock().unwrap();
+    let _serial = serial_timing_lock();
     let temporary = tempfile::tempdir().unwrap();
     let source = temporary.path().join("presence.c");
     fs::write(
@@ -570,7 +742,7 @@ fn un_audited_program_does_not_reuse_across_its_output_presence_change() {
 /// a direct GCC run with identical pre-state.
 #[test]
 fn output_prestate_reuse_matches_native_filesystem_effects() {
-    let _serial = COMPILER_TIMING_LOCK.lock().unwrap();
+    let _serial = serial_timing_lock();
     use std::os::unix::fs::PermissionsExt;
     let temporary = tempfile::tempdir().unwrap();
     let source = temporary.path().join("effect.c");
@@ -660,7 +832,7 @@ fn output_prestate_reuse_matches_native_filesystem_effects() {
 /// replaced by a cached artifact, even when the target is writable.
 #[test]
 fn output_prestate_refuses_non_file_destinations() {
-    let _serial = COMPILER_TIMING_LOCK.lock().unwrap();
+    let _serial = serial_timing_lock();
     use std::os::unix::fs::PermissionsExt;
     let temporary = tempfile::tempdir().unwrap();
     let source = temporary.path().join("destination.c");
@@ -722,7 +894,7 @@ fn output_prestate_refuses_non_file_destinations() {
 /// and the artifact metadata replay end to end.
 #[test]
 fn metadata_preserving_program_reuses_and_replays_mode_and_times() {
-    let _serial = COMPILER_TIMING_LOCK.lock().unwrap();
+    let _serial = serial_timing_lock();
     use std::os::unix::fs::{MetadataExt, PermissionsExt};
     let temporary = tempfile::tempdir().unwrap();
     let source = temporary.path().join("metadata.c");
@@ -1052,7 +1224,7 @@ fn guarded_hit_deopt_restore_and_replay() {
 /// records and verifies each one's guards before choosing a hit.
 #[test]
 fn alternating_inputs_reuse_a_retained_candidate() {
-    let _serial = COMPILER_TIMING_LOCK.lock().unwrap();
+    let _serial = serial_timing_lock();
     let temporary = tempfile::tempdir().unwrap();
     workspace(temporary.path());
     let binary = compile_fixture(temporary.path());
@@ -1209,13 +1381,14 @@ fn sandbox_declared_path_succeeds_and_other_effects_are_denied() {
     let undeclared = temporary.path().join("undeclared");
     fs::write(&declared, b"allowed").unwrap();
     fs::write(&undeclared, b"denied").unwrap();
-    let status = Command::new(std::env::current_exe().unwrap())
+    let mut sandbox = Command::new(std::env::current_exe().unwrap());
+    sandbox
         .args(["--exact", "sandbox_child", "--nocapture"])
         .env("TRACEJIT_SANDBOX_CHILD", "1")
         .env("TRACEJIT_DECLARED", &declared)
-        .env("TRACEJIT_UNDECLARED", &undeclared)
-        .status()
-        .unwrap();
+        .env("TRACEJIT_UNDECLARED", &undeclared);
+    without_inherited_descriptors(&mut sandbox);
+    let status = sandbox.status().unwrap();
     assert!(status.success());
 }
 
@@ -1900,7 +2073,7 @@ fn a_corrupted_cached_output_fails_closed() {
 /// retrace observe `PRESENT` and produce different bytes than a run against the original
 /// `ABSENT` state. Corrupting the recorded stream object makes the two orders distinguishable.
 fn run_with_stdin(fixture: &Fixture, case: &str, stdin: &Path) -> Output {
-    let mut command = Command::new(tracejit());
+    let mut command = tracejit_command();
     command
         .args([
             "run",
@@ -1913,13 +2086,6 @@ fn run_with_stdin(fixture: &Fixture, case: &str, stdin: &Path) -> Output {
         .env("TRACEJIT_CACHE_DIR", &fixture.cache)
         .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0")
         .stdin(Stdio::from(File::open(stdin).unwrap()));
-    // SAFETY: pre_exec runs between fork and exec; close is async-signal-safe.
-    unsafe {
-        command.pre_exec(|| {
-            close_descriptors_above_stderr(-1);
-            Ok(())
-        });
-    }
     command.output().unwrap()
 }
 
@@ -1929,7 +2095,7 @@ fn run_with_stdin(fixture: &Fixture, case: &str, stdin: &Path) -> Output {
 fn run_with_fd9(fixture: &Fixture, case: &str, source: Option<&File>, traced: bool) -> Output {
     let source_fd = source.map_or(-1, AsRawFd::as_raw_fd);
     let mut command = if traced {
-        let mut command = Command::new(tracejit());
+        let mut command = tracejit_command();
         command.args([
             "run",
             "--json",
@@ -1948,12 +2114,16 @@ fn run_with_fd9(fixture: &Fixture, case: &str, source: Option<&File>, traced: bo
     };
     command.stdin(Stdio::null());
     // SAFETY: pre_exec runs between fork and exec; dup2/fcntl/close are async-signal-safe and the
-    // source descriptor remains open in the parent until the child has exec'd.
+    // source descriptor remains open in the parent until the child has exec'd. The sweep that
+    // marks unrelated descriptors close-on-exec is registered first, so the descriptor installed
+    // here survives it and only descriptor 9 is touched afterwards.
     unsafe {
         command.pre_exec(move || {
-            close_descriptors_above_stderr(source_fd);
             if source_fd >= 0 {
                 install_inheritable_fd9(source_fd)?;
+            } else {
+                // SAFETY: close is async-signal-safe; EBADF means 9 was already empty.
+                libc::close(9);
             }
             Ok(())
         });
@@ -1988,8 +2158,15 @@ fn install_inheritable_fd9(source_fd: i32) -> std::io::Result<()> {
 
 fn pipe_with_data() -> File {
     let mut descriptors = [-1; 2];
-    // SAFETY: the array has room for both descriptors; successful pipe initializes them.
-    assert_eq!(unsafe { libc::pipe(descriptors.as_mut_ptr()) }, 0);
+    // CLOEXEC matters here: a plain `pipe` would stay inheritable in the shared test process and
+    // every concurrently spawned TraceJIT child would inherit it, correctly refusing reuse for a
+    // descriptor this test created. The child still receives the bytes because `run_with_fd9`
+    // installs descriptor 9 itself in `pre_exec`.
+    // SAFETY: the array has room for both descriptors; successful pipe2 initializes them.
+    assert_eq!(
+        unsafe { libc::pipe2(descriptors.as_mut_ptr(), libc::O_CLOEXEC) },
+        0
+    );
     // SAFETY: ownership of each successful pipe descriptor is transferred exactly once.
     let read_end = unsafe { File::from_raw_fd(descriptors[0]) };
     // SAFETY: ownership of each successful pipe descriptor is transferred exactly once.
@@ -1997,6 +2174,233 @@ fn pipe_with_data() -> File {
     write_end.write_all(b"pipe bytes\n").unwrap();
     drop(write_end);
     read_end
+}
+
+/// A descriptor the *parent* holds without `FD_CLOEXEC` really is inherited by the traced child.
+///
+/// Reuse must be refused before lookup: the description's identity, flags and offset are not part
+/// of the cache key, so a later run could point the same number at a different source. This case
+/// exercises the ordinary inheritance path (no `pre_exec`), which is how a caller's shell or build
+/// tool supplies descriptors, rather than the explicit descriptor-9 fixture below.
+///
+/// Isolated: the descriptor is deliberately inheritable, so it must never be visible to a sibling
+/// test's spawn.
+#[test]
+fn an_inheritable_parent_descriptor_is_refused() {
+    if !run_in_isolated_process("an_inheritable_parent_descriptor_is_refused") {
+        return;
+    }
+    let fixture = Fixture::new();
+    let args = [
+        "run",
+        "--json",
+        "--",
+        fixture.binary_arg(),
+        "plain_file_read",
+        fixture.root(),
+    ];
+
+    // 1. Baseline: with nothing extra inherited the command is eligible and genuinely reused, so a
+    // refusal below cannot be caused by anything but the descriptor this test adds. The baseline
+    // spawn sweeps its child, so a descriptor this process inherited from its own parent cannot
+    // stand in for the one added below.
+    let baseline_first: Value =
+        serde_json::from_slice(&invoke(&fixture.cache, &args, None).stdout).unwrap();
+    assert_eq!(
+        baseline_first["eligible_for_reuse"], true,
+        "{baseline_first}"
+    );
+    assert_eq!(baseline_first["kind"], "Executed", "{baseline_first}");
+    let baseline_second: Value =
+        serde_json::from_slice(&invoke(&fixture.cache, &args, None).stdout).unwrap();
+    assert_eq!(
+        baseline_second["kind"], "Reused",
+        "the baseline must reuse before a descriptor is added: {baseline_second}"
+    );
+
+    // 2. A descriptor this process deliberately leaves inheritable.
+    let source = File::open(fixture.input("input.txt")).unwrap();
+    let fd = source.as_raw_fd();
+    assert!(
+        fd > 2,
+        "the inherited descriptor must be above stderr: {fd}"
+    );
+    // SAFETY: fcntl operates on the live descriptor owned by `source`.
+    let flags = unsafe { libc::fcntl(fd, libc::F_GETFD) };
+    assert!(flags >= 0, "F_GETFD failed");
+    assert_eq!(
+        unsafe { libc::fcntl(fd, libc::F_SETFD, flags & !libc::FD_CLOEXEC) },
+        0,
+        "clearing FD_CLOEXEC failed"
+    );
+    let expected = format!("inherited descriptor {fd}");
+
+    // 3. No HIT while the descriptor is inherited, and the reason names its number. Repeat, because
+    // a first refusal that wrote or consumed a record would show up as a HIT the second time.
+    // These spawns keep the descriptor table: the descriptor has to reach TraceJIT to be refused.
+    let first = invoke_inheriting(&fixture.cache, &args);
+    assert!(first.status.success(), "{}", stderr_of(&first));
+    let first_report: Value = serde_json::from_slice(&first.stdout).unwrap();
+    assert_eq!(
+        first_report["eligible_for_reuse"], false,
+        "an inherited descriptor must never be eligible: {first_report}"
+    );
+    assert!(
+        first_report["reasons"].to_string().contains(&expected),
+        "the refusal must name descriptor {fd}: {first_report}"
+    );
+    let second = invoke_inheriting(&fixture.cache, &args);
+    assert!(second.status.success(), "{}", stderr_of(&second));
+    let second_report: Value = serde_json::from_slice(&second.stdout).unwrap();
+    assert_eq!(
+        second_report["kind"], "Executed",
+        "no HIT may be served while the descriptor is inherited: {second_report}"
+    );
+    assert!(
+        second_report["reasons"].to_string().contains(&expected),
+        "{second_report}"
+    );
+
+    // The fallback runs the command natively, so its observation is the native one.
+    let native = Command::new(fixture.binary_arg())
+        .args(["plain_file_read", fixture.root()])
+        .output()
+        .unwrap();
+    assert_eq!(
+        second_report["exit_code"].as_i64(),
+        native.status.code().map(i64::from)
+    );
+    assert_eq!(stdout_bytes_of(&second_report), native.stdout);
+
+    // 4. Closing it restores reuse: the refusal is scoped to the inherited table and does not
+    // poison the record written while the table was clean.
+    drop(source);
+    let restored: Value =
+        serde_json::from_slice(&invoke(&fixture.cache, &args, None).stdout).unwrap();
+    assert_eq!(
+        restored["kind"], "Reused",
+        "reuse must return once the extra descriptor is closed: {restored}"
+    );
+    eprintln!("RESULT inherited-parent-descriptor-refused PASS");
+}
+
+/// The descriptor table a CI runner hands the harness must not contaminate ordinary runs, and a
+/// genuinely inherited descriptor must still be refused.
+///
+/// Run `44235001207` failed because the runner left descriptors 142 and 145 open without
+/// `FD_CLOEXEC` in the integration binary. This case re-executes the test binary with exactly those
+/// descriptors (plus 1500, above the old 3..1023 sweep) open and inheritable, so the condition
+/// crosses a real `exec` and is deterministic instead of depending on a particular runner.
+#[test]
+fn runner_inherited_descriptors_do_not_contaminate_runs_and_are_still_refused() {
+    let name = "runner_inherited_descriptors_do_not_contaminate_runs_and_are_still_refused";
+    if !run_in_process_inheriting(name, &[142, 145, 1500]) {
+        return;
+    }
+    let inherited: Vec<i32> = std::env::var("TRACEJIT_INHERITED_TEST_DESCRIPTORS")
+        .expect("the parent records the descriptors it installed")
+        .split(',')
+        .map(|value| value.parse().expect("a descriptor number"))
+        .collect();
+    assert_eq!(inherited, vec![142, 145, 1500]);
+    for fd in &inherited {
+        // SAFETY: F_GETFD only reads descriptor flags.
+        let flags = unsafe { libc::fcntl(*fd, libc::F_GETFD) };
+        assert!(flags >= 0, "descriptor {fd} was not inherited");
+        assert_eq!(
+            flags & libc::FD_CLOEXEC,
+            0,
+            "descriptor {fd} must still be inheritable: that is the runner condition"
+        );
+    }
+
+    let fixture = Fixture::new();
+    let args = [
+        "run",
+        "--json",
+        "--",
+        fixture.binary_arg(),
+        "plain_file_read",
+        fixture.root(),
+    ];
+
+    // 1. A spawn that sweeps its child is unaffected: no inherited-descriptor refusal, no `EBADF`
+    //    from the spawn-error or stdio pipes, and an ordinary HIT. This is exactly what failed on
+    //    the runner.
+    let baseline: Value =
+        serde_json::from_slice(&invoke(&fixture.cache, &args, None).stdout).unwrap();
+    assert_eq!(baseline["kind"], "Executed", "{baseline}");
+    let reused_output = invoke(&fixture.cache, &args, None);
+    assert!(
+        reused_output.status.success(),
+        "{}",
+        stderr_of(&reused_output)
+    );
+    let reused: Value = serde_json::from_slice(&reused_output.stdout).unwrap();
+    assert_eq!(
+        reused["kind"], "Reused",
+        "an ordinary run must ignore the runner's descriptors: {reused}"
+    );
+
+    // 2. Handing the same table over unchanged is refused before lookup. `/proc` enumeration order
+    //    is not sorted, so the refusal names one of the inherited descriptors; the single-descriptor
+    //    case below pins the identity exactly.
+    let handed = invoke_inheriting(&fixture.cache, &args);
+    assert!(handed.status.success(), "{}", stderr_of(&handed));
+    let handed_report: Value = serde_json::from_slice(&handed.stdout).unwrap();
+    assert_eq!(
+        handed_report["eligible_for_reuse"], false,
+        "an inherited runner descriptor must never be eligible: {handed_report}"
+    );
+    let reasons = handed_report["reasons"].to_string();
+    assert!(
+        inherited
+            .iter()
+            .any(|fd| reasons.contains(format!("inherited descriptor {fd}").as_str())),
+        "the refusal must name an inherited descriptor: {handed_report}"
+    );
+
+    // The refusal path still runs the program natively, so output and status are the native ones.
+    let native = Command::new(fixture.binary_arg())
+        .args(["plain_file_read", fixture.root()])
+        .output()
+        .unwrap();
+    assert_eq!(
+        handed_report["exit_code"].as_i64(),
+        native.status.code().map(i64::from)
+    );
+    assert_eq!(stdout_bytes_of(&handed_report), native.stdout);
+
+    // 3. A descriptor above 1023 is enumerated too: neither the sweep nor the preflight is a fixed
+    //    range, so the last remaining inherited descriptor is named exactly.
+    // SAFETY: 142 and 145 belong to this private process.
+    unsafe {
+        libc::close(142);
+        libc::close(145);
+    }
+    let high = invoke_inheriting(&fixture.cache, &args);
+    assert!(high.status.success(), "{}", stderr_of(&high));
+    let high_report: Value = serde_json::from_slice(&high.stdout).unwrap();
+    assert!(
+        high_report["reasons"]
+            .to_string()
+            .contains("inherited descriptor 1500"),
+        "a descriptor above the old 1023 sweep must still be refused: {high_report}"
+    );
+
+    // 4. Closing it restores reuse: the refusal was scoped to the inherited table and did not
+    //    poison the record written while the table was clean.
+    // SAFETY: 1500 belongs to this private process.
+    unsafe {
+        libc::close(1500);
+    }
+    let restored: Value =
+        serde_json::from_slice(&invoke(&fixture.cache, &args, None).stdout).unwrap();
+    assert_eq!(
+        restored["kind"], "Reused",
+        "reuse must return once the inherited descriptors are closed: {restored}"
+    );
+    eprintln!("RESULT runner-descriptors PASS");
 }
 
 #[test]
@@ -2100,7 +2504,7 @@ fn close_on_exec_descriptor_is_not_an_inherited_boundary() {
     let source = File::open("/dev/null").unwrap();
     let source_fd = source.as_raw_fd();
     let run = || {
-        let mut command = Command::new(tracejit());
+        let mut command = tracejit_command();
         command.args([
             "run",
             "--json",
@@ -2114,7 +2518,6 @@ fn close_on_exec_descriptor_is_not_an_inherited_boundary() {
         // SAFETY: pre_exec runs between fork and exec; helpers only use async-signal-safe calls.
         unsafe {
             command.pre_exec(move || {
-                close_descriptors_above_stderr(source_fd);
                 install_inheritable_fd9(source_fd)?;
                 // This case wants CLOEXEC so the traced child does *not* see fd 9.
                 if libc::fcntl(9, libc::F_SETFD, libc::FD_CLOEXEC) < 0 {
@@ -2199,7 +2602,7 @@ struct dirent *readdir(DIR *directory) {
 
 #[test]
 fn descriptor_enumeration_failure_is_fail_closed() {
-    let _serial = COMPILER_TIMING_LOCK.lock().unwrap();
+    let _serial = serial_timing_lock();
     let fixture = Fixture::new();
     let shim = compile_readdir_fault_shim(fixture.directory.path());
     for (label, after) in [("before-first", "0"), ("after-one-entry", "1")] {
@@ -2254,6 +2657,14 @@ fn descriptor_enumeration_failure_is_fail_closed() {
 #[test]
 fn cloexec_source_already_on_fd9_still_reaches_the_child() {
     use std::os::unix::process::ExitStatusExt;
+
+    // Isolated: this case installs a descriptor at slot 9 in the test process itself. `dup2` onto
+    // a slot silently closes whatever another thread held there, so running it beside the rest of
+    // the suite corrupted unrelated spawns (`EBADF` from `Command::output`, even on stdout). A
+    // private process makes the slot manipulation unobservable to every other test.
+    if !run_in_isolated_process("cloexec_source_already_on_fd9_still_reaches_the_child") {
+        return;
+    }
 
     let fixture = Fixture::new();
     let donor = File::open("/dev/null").unwrap();
@@ -2463,6 +2874,98 @@ fn regular_file_stdin_seek_is_reused_as_an_offset_stream() {
         b"input one\n"
     );
     eprintln!("RESULT substituted-dev-null PASS");
+}
+
+/// Runs one fixture case under a fresh-from-JSON report with the census's allocator tuning, so
+/// the glibc tcache probe cannot mask a descriptor decision under test.
+fn observation_report(fixture: &Fixture, case: &str) -> Value {
+    let output = tracejit_command()
+        .args([
+            "run",
+            "--json",
+            "--",
+            fixture.binary_arg(),
+            case,
+            fixture.root(),
+        ])
+        .env("TRACEJIT_CACHE_DIR", &fixture.cache)
+        .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0")
+        .output()
+        .unwrap();
+    assert!(output.status.success(), "{}", stderr_of(&output));
+    serde_json::from_slice(&output.stdout).unwrap()
+}
+
+/// The null device is a content-free source and sink, so opening it must not refuse reuse.
+#[test]
+fn null_device_open_is_reusable() {
+    let fixture = Fixture::new();
+    let first = observation_report(&fixture, "dev_null_open_write");
+    assert_eq!(first["kind"], "Executed", "{first}");
+    let second = observation_report(&fixture, "dev_null_open_write");
+    assert_eq!(second["kind"], "Reused", "{second}");
+    assert_eq!(
+        fs::read(fixture.input("output.txt")).unwrap(),
+        fs::read(fixture.input("input.txt")).unwrap()
+    );
+    eprintln!("RESULT null-device-reuse PASS");
+}
+
+/// A create-only epoll instance is process-internal: nothing can observe it before close.
+#[test]
+fn create_only_epoll_is_reusable() {
+    let fixture = Fixture::new();
+    assert_eq!(
+        observation_report(&fixture, "epoll_create_close")["kind"],
+        "Executed"
+    );
+    let second = observation_report(&fixture, "epoll_create_close");
+    assert_eq!(second["kind"], "Reused", "{second}");
+    eprintln!("RESULT epoll-create-reuse PASS");
+}
+
+/// Registering a descriptor makes readiness observable, so `epoll_ctl` must keep refusing.
+#[test]
+fn epoll_registration_is_refused() {
+    let fixture = Fixture::new();
+    let first = observation_report(&fixture, "epoll_ctl_use");
+    assert_eq!(first["eligible_for_reuse"], false, "{first}");
+    let second = observation_report(&fixture, "epoll_ctl_use");
+    assert_eq!(second["eligible_for_reuse"], false, "{second}");
+    assert_ne!(second["kind"], "Reused", "{second}");
+    eprintln!("RESULT epoll-registration-refused PASS");
+}
+
+/// `O_NONBLOCK` on a private regular-file descriptor cannot change anything the program sees.
+#[test]
+fn regular_file_blocking_bit_is_reusable() {
+    for case in ["regular_file_setfl_nonblock", "regular_file_fionbio"] {
+        let fixture = Fixture::new();
+        assert_eq!(
+            observation_report(&fixture, case)["kind"],
+            "Executed",
+            "{case}"
+        );
+        let second = observation_report(&fixture, case);
+        assert_eq!(second["kind"], "Reused", "{case}: {second}");
+    }
+    eprintln!("RESULT regular-file-blocking-bit PASS");
+}
+
+/// The same rewrite on a pipe, and an `O_APPEND` rewrite on a regular file, stay refused.
+#[test]
+fn observable_status_flag_rewrites_are_refused() {
+    for case in ["pipe_setfl_nonblock", "regular_file_setfl_append"] {
+        let fixture = Fixture::new();
+        assert_eq!(
+            observation_report(&fixture, case)["eligible_for_reuse"],
+            false,
+            "{case} must not be eligible"
+        );
+        let second = observation_report(&fixture, case);
+        assert_ne!(second["kind"], "Reused", "{case}: {second}");
+    }
+    eprintln!("RESULT observable-status-flags-refused PASS");
 }
 
 #[test]
@@ -2830,19 +3333,11 @@ fn inherited_stdin_reuse_is_stable_across_fresh_sessions() {
         let traced = |cache: &Path, stdin: &Path| {
             let source = fs::File::open(stdin).unwrap();
             set_cloexec(&source);
-            let mut command = Command::new(tracejit());
+            let mut command = tracejit_command();
             command
                 .args(args)
                 .env("TRACEJIT_CACHE_DIR", cache)
                 .stdin(std::process::Stdio::from(source));
-            // SAFETY: stdio is installed before pre_exec; closing the parent's copy of the
-            // stdin source prevents it from appearing as an unmodelled inherited descriptor.
-            unsafe {
-                command.pre_exec(|| {
-                    close_descriptors_above_stderr(-1);
-                    Ok(())
-                });
-            }
             let output = command.output().unwrap();
             serde_json::from_slice::<Value>(&output.stdout).unwrap()
         };
@@ -2927,7 +3422,7 @@ fn allocator_double_free_detection_survives_the_contract() {
 /// Cost-aware admission must run short commands directly and still cache commands that repay.
 #[test]
 fn auto_admission_skips_short_commands_and_caches_expensive_ones() {
-    let _serial = COMPILER_TIMING_LOCK.lock().unwrap();
+    let _serial = serial_timing_lock();
     let temporary = tempfile::tempdir().unwrap();
     let small = temporary.path().join("small.txt");
     fs::write(&small, "alpha\n".repeat(1000)).unwrap();
@@ -2943,9 +3438,31 @@ fn auto_admission_skips_short_commands_and_caches_expensive_ones() {
         small.to_str().unwrap(),
     ];
     let first: Value = serde_json::from_slice(&invoke(&cache, &short, None).stdout).unwrap();
+    // The first run never pays for a trace: it only measures the direct cost. That is independent
+    // of how fast the host is.
     assert_eq!(first["cache_decision"], "Skipped", "{first}");
+    // The second run applies the policy to the cost the first run measured
+    // (`admission_is_worth_tracing`: a trace must repay twice the hit-cost floor). Assert *that*
+    // rule rather than assuming this host can run `wc` inside the break-even window: under default
+    // test parallelism on an oversubscribed machine the same command measures 11-25 ms, and then
+    // paying for one trace is the correct decision, not a defect. Both branches assert the policy;
+    // neither is skipped.
+    let measured_direct = first["baseline_runtime_ns"]
+        .as_u64()
+        .expect("the measuring run must report the direct runtime it sampled");
+    let break_even = 2 * tracejit_core::HIT_COST_FLOOR_NS;
     let second: Value = serde_json::from_slice(&invoke(&cache, &short, None).stdout).unwrap();
-    assert_eq!(second["cache_decision"], "Skipped", "{second}");
+    if measured_direct < break_even {
+        assert_eq!(
+            second["cache_decision"], "Skipped",
+            "a command measured at {measured_direct} ns cannot repay a trace: {second}"
+        );
+    } else {
+        assert_ne!(
+            second["cache_decision"], "Skipped",
+            "a command measured at {measured_direct} ns must be traced: {second}"
+        );
+    }
     assert_eq!(first["stdout_bytes"], second["stdout_bytes"]);
     assert_eq!(first["exit_code"], second["exit_code"]);
 
@@ -3028,9 +3545,9 @@ fn inherited_stdin_seek_model_reproduces_offsets_and_refuses_unsound_cases() {
             stdin.seek(SeekFrom::Start(start)).unwrap();
         }
         let duplicate = stdin.try_clone().unwrap();
-        set_cloexec(&stdin);
-        let source_fd = duplicate.as_raw_fd();
-        let mut command = Command::new(tracejit());
+        // The child's table is swept close-on-exec, so only its stdio reaches TraceJIT and the
+        // spawn machinery's own pipes are untouched.
+        let mut command = tracejit_command();
         command
             .args([
                 "run",
@@ -3043,14 +3560,6 @@ fn inherited_stdin_seek_model_reproduces_offsets_and_refuses_unsound_cases() {
             ])
             .env("TRACEJIT_CACHE_DIR", cache)
             .stdin(std::process::Stdio::from(duplicate));
-        // SAFETY: pre_exec runs before stdio is installed; keep the stdin source and close every
-        // other parent descriptor so only the intended stdin reaches TraceJIT.
-        unsafe {
-            command.pre_exec(move || {
-                close_descriptors_above_stderr(source_fd);
-                Ok(())
-            });
-        }
         let output = command.output().unwrap();
         assert!(
             output.status.success(),
@@ -3189,7 +3698,8 @@ fn inherited_stdin_seek_model_reproduces_offsets_and_refuses_unsound_cases() {
     // inherited descriptor. It is refused before the program runs, so neither the alias's seek nor
     // the caller-visible shared offset can be replayed.
     let alias_input = fs::File::open(&input).unwrap();
-    let inherited = Command::new("sh")
+    let mut shell = Command::new("sh");
+    shell
         .args([
             "-c",
             "exec 3<&0; exec \"$1\" run --json --contract allocator-entropy-v1 -- \"$2\" alias-fd3",
@@ -3201,9 +3711,11 @@ fn inherited_stdin_seek_model_reproduces_offsets_and_refuses_unsound_cases() {
             "TRACEJIT_CACHE_DIR",
             temporary.path().join("cache-inherited-alias"),
         )
-        .stdin(std::process::Stdio::from(alias_input))
-        .output()
-        .unwrap();
+        .stdin(std::process::Stdio::from(alias_input));
+    // Only the alias this case creates is inherited: the sweep leaves fd 3 alone because the shell
+    // installs it after `pre_exec` runs.
+    without_inherited_descriptors(&mut shell);
+    let inherited = shell.output().unwrap();
     assert!(
         inherited.status.success(),
         "traced inherited alias failed: {}",
@@ -3319,7 +3831,8 @@ fn vfork_children_that_exit_without_exec_do_not_stall() {
         .output()
         .unwrap();
     assert!(direct.status.success());
-    let traced = Command::new("timeout")
+    let mut guarded = Command::new("timeout");
+    guarded
         .args([
             "60",
             tracejit().to_str().unwrap(),
@@ -3331,9 +3844,9 @@ fn vfork_children_that_exit_without_exec_do_not_stall() {
             "40",
             "4",
         ])
-        .env("TRACEJIT_CACHE_DIR", temporary.path().join("cache"))
-        .output()
-        .unwrap();
+        .env("TRACEJIT_CACHE_DIR", temporary.path().join("cache"));
+    without_inherited_descriptors(&mut guarded);
+    let traced = guarded.output().unwrap();
     assert!(
         traced.status.success(),
         "traced exit-without-exec storm failed or stalled: {}",

@@ -1,0 +1,1889 @@
+{
+  "admission": "always",
+  "aggregate": {
+    "attempted": 20,
+    "blocked_missing_tool": 0,
+    "blocker_ranking": [
+      {
+        "blocker": "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "count": 10,
+        "occurrences": 10,
+        "workloads": [
+          "heldout-ar-ranlib",
+          "heldout-find-xargs",
+          "heldout-gcc-compile-link",
+          "heldout-gcc-preprocess",
+          "heldout-grep-count",
+          "heldout-make-build",
+          "heldout-python-json",
+          "heldout-shell-script",
+          "heldout-sort-unique-pipeline",
+          "heldout-tar-gzip"
+        ]
+      },
+      {
+        "blocker": "procfs_process_relative",
+        "count": 3,
+        "occurrences": 6,
+        "workloads": [
+          "heldout-find-xargs",
+          "heldout-grep-count",
+          "heldout-shell-script"
+        ]
+      },
+      {
+        "blocker": "clock",
+        "count": 3,
+        "occurrences": 4,
+        "workloads": [
+          "heldout-ar-ranlib",
+          "heldout-gcc-preprocess",
+          "heldout-python-json"
+        ]
+      },
+      {
+        "blocker": "process_identity",
+        "count": 2,
+        "occurrences": 3,
+        "workloads": [
+          "heldout-ar-ranlib",
+          "heldout-python-json"
+        ]
+      },
+      {
+        "blocker": "system_information",
+        "count": 1,
+        "occurrences": 2,
+        "workloads": [
+          "heldout-gcc-preprocess"
+        ]
+      },
+      {
+        "blocker": "other:pipe 2: a read returned less than it requested and more data",
+        "count": 1,
+        "occurrences": 1,
+        "workloads": [
+          "heldout-sort-unique-pipeline"
+        ]
+      },
+      {
+        "blocker": "randomness",
+        "count": 1,
+        "occurrences": 1,
+        "workloads": [
+          "heldout-ar-ranlib"
+        ]
+      }
+    ],
+    "denominator_definition": "attempted = every requested workload whose required tools were present and whose direct execution succeeded. Tool-missing and workload-failed entries are excluded from the rate and listed separately.",
+    "eligibility_rate": 0.4,
+    "refused": 10,
+    "requested": 20,
+    "reused": 8,
+    "unmodeled_syscall_ranking": [
+      {
+        "count": 4,
+        "name": "5: fstat",
+        "syscall": 5,
+        "workloads": [
+          "heldout-find-xargs",
+          "heldout-shell-script",
+          "heldout-sort-unique-pipeline",
+          "heldout-tar-gzip"
+        ]
+      },
+      {
+        "count": 1,
+        "name": "7: poll",
+        "syscall": 7,
+        "workloads": [
+          "heldout-find-xargs"
+        ]
+      },
+      {
+        "count": 1,
+        "name": "72: fcntl",
+        "syscall": 72,
+        "workloads": [
+          "heldout-make-build"
+        ]
+      },
+      {
+        "count": 1,
+        "name": "98: getrusage",
+        "syscall": 98,
+        "workloads": [
+          "heldout-gcc-compile-link"
+        ]
+      }
+    ],
+    "workload_failed": 0
+  },
+  "commit": "b9752324b125b8fd1659d820433d889973ced88d",
+  "contract": "allocator-entropy-v1",
+  "environment": {
+    "architecture": "x86_64",
+    "commit": "b9752324b125b8fd1659d820433d889973ced88d",
+    "cpu": "Architecture:                         x86_64\nCPU op-mode(s):                       32-bit, 64-bit\nAddress sizes:                        48 bits physical, 48 bits virtual\nByte Order:                           Little Endian\nCPU(s):                               8\nOn-line CPU(s) list:                  0-7\nVendor ID:                            AuthenticAMD\nModel name:                           19/01\nCPU family:                           25\nModel:                                1\nThread(s) per core:                   1\nCore(s) per socket:                   8\nSocket(s):                            1\nStepping:                             1\nBogoMIPS:                             3992.49\nFlags:                                fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy svm cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw topoext perfctr_core invpcid_single ssbd ibrs ibpb stibp vmmcall fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves clzero xsaveerptr wbnoinvd arat npt lbrv nrip_save tsc_scale vmcb_clean flushbyasid pausefilter pfthreshold v_vmsave_vmload vgif umip pku ospke vaes vpclmulqdq rdpid fsrm arch_capabilities\nVirtualization:                       AMD-V\nHypervisor vendor:                    KVM\nVirtualization type:                  full\nL1d cache:                            128 KiB (4 instances)\nL1i cache:                            128 KiB (4 instances)\nL2 cache:                             2 MiB (4 instances)\nL3 cache:                             32 MiB (1 instance)\nNUMA node(s):                         1\nNUMA node0 CPU(s):                    0-7\nVulnerability Gather data sampling:   Not affected\nVulnerability Itlb multihit:          Not affected\nVulnerability L1tf:                   Not affected\nVulnerability Mds:                    Not affected\nVulnerability Meltdown:               Not affected\nVulnerability Mmio stale data:        Not affected\nVulnerability Reg file data sampling: Not affected\nVulnerability Retbleed:               Not affected\nVulnerability Spec rstack overflow:   Mitigation; safe RET\nVulnerability Spec store bypass:      Mitigation; Speculative Store Bypass disabled via prctl\nVulnerability Spectre v1:             Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:             Mitigation; Retpolines; IBPB conditional; IBRS_FW; STIBP disabled; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected\nVulnerability Srbds:                  Not affected\nVulnerability Tsx async abort:        Not affected",
+    "filesystem": "Filesystem     Type 1K-blocks    Used Available Use% Mounted on\n/dev/root      ext4  65478188 9814756  52291608  16% /",
+    "kernel": "6.1.102",
+    "memory": "total        used        free      shared  buff/cache   available\nMem:            15Gi       554Mi        10Gi       1.1Mi       4.9Gi        15Gi\nSwap:             0B          0B          0B",
+    "os_release": "PRETTY_NAME=\"Ubuntu 24.04.5 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"24.04\"\nVERSION=\"24.04.5 LTS (Noble Numbat)\"\nVERSION_CODENAME=noble\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=noble\nLOGO=ubuntu-logo",
+    "python": "Python 3.12.3",
+    "uname": "Linux freestyle-vm 6.1.102 #1 SMP PREEMPT_DYNAMIC Sun Nov  8 09:00:04 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux",
+    "working_tree_dirty": true
+  },
+  "generated_unix_ms": 1794971891462,
+  "runs": {
+    "measured": 1,
+    "warmups": 0
+  },
+  "suite": "heldout-v03",
+  "syscall_name_source": "host kernel headers",
+  "workloads": [
+    {
+      "blockers": [
+        "clock",
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "system_information"
+      ],
+      "category": "compiler",
+      "classification": "Nondeterministic",
+      "command": [
+        "gcc",
+        "-E",
+        "-I",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-gcc-preprocess/project",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-gcc-preprocess/project/main.c",
+        "-o",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-gcc-preprocess/main.i"
+      ],
+      "cwd": "/tmp/final/census_v03.py-contract/scratch/heldout-gcc-preprocess",
+      "dependency_count": 276,
+      "direct": {
+        "maximum_ns": 14674675,
+        "median_ns": 14674675,
+        "minimum_ns": 14674675,
+        "p95_ns": 14674675,
+        "runs": 1,
+        "samples_ns": [
+          14674675
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/final/census_v03.py-contract/scratch/heldout-gcc-preprocess/main.i": "2d78412c74a32db5232d227905356dc3cf2a0850be8d36edfdd4e9e8fd8071e6"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 3,
+        "reads": 754,
+        "unknown": 0,
+        "writes": 7
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "heldout-gcc-preprocess",
+      "note": "Preprocesses a two-file C project with a project include directory (gcc -E).",
+      "output_count": 1,
+      "output_equivalence": "PASS",
+      "process_count": 2,
+      "reason_counts": {
+        "clock": 1,
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "system_information": 2
+      },
+      "reasons": [
+        "process read system information via prlimit64",
+        "process read system information via sysinfo",
+        "process read system clock: realtime",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "gcc"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 148193700,
+        "median_ns": 148193700,
+        "minimum_ns": 148193700,
+        "p95_ns": 148193700,
+        "runs": 1,
+        "samples_ns": [
+          148193700
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/final/census_v03.py-contract/scratch/heldout-gcc-preprocess/main.i": "2d78412c74a32db5232d227905356dc3cf2a0850be8d36edfdd4e9e8fd8071e6"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "unmodeled_syscall:98"
+      ],
+      "category": "compiler",
+      "classification": "Unknown",
+      "command": [
+        "gcc",
+        "-O1",
+        "-Wall",
+        "-I",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-gcc-compile-link/project",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-gcc-compile-link/project/main.c",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-gcc-compile-link/project/util.c",
+        "-o",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-gcc-compile-link/app"
+      ],
+      "cwd": "/tmp/final/census_v03.py-contract/scratch/heldout-gcc-compile-link",
+      "dependency_count": 474,
+      "direct": {
+        "maximum_ns": 76582059,
+        "median_ns": 76582059,
+        "minimum_ns": 76582059,
+        "p95_ns": 76582059,
+        "runs": 1,
+        "samples_ns": [
+          76582059
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/final/census_v03.py-contract/scratch/heldout-gcc-compile-link/app": "cde5778c17814065f876ebdf8f91058c94bca0b026e6a2a60867c2664fb0122d"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 13,
+        "reads": 1531,
+        "unknown": 3,
+        "writes": 81
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "heldout-gcc-compile-link",
+      "note": "Compiles and links a two-translation-unit C project in one gcc invocation.",
+      "output_count": 7,
+      "output_equivalence": "PASS",
+      "process_count": 7,
+      "reason_counts": {
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "unmodeled_syscall:98": 3
+      },
+      "reasons": [
+        "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffe2aad7760, 0x7ffe2aad7cf8, 0x7ffe2aad78b0, 0x0, 0x7fcab9f88380]",
+        "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffc2085ef00, 0x7ffc2085f498, 0x7ffc2085f050, 0x0, 0x7f3682ed3380]",
+        "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fffdd984140, 0x7fffdd984618, 0x7fffdd984070, 0x0, 0x7f583f80d380]",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "gcc"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 344757788,
+        "median_ns": 344757788,
+        "minimum_ns": 344757788,
+        "p95_ns": 344757788,
+        "runs": 1,
+        "samples_ns": [
+          344757788
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/final/census_v03.py-contract/scratch/heldout-gcc-compile-link/app": "cde5778c17814065f876ebdf8f91058c94bca0b026e6a2a60867c2664fb0122d"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "98: getrusage"
+      ],
+      "unsupported_syscalls": [
+        98
+      ]
+    },
+    {
+      "blockers": [
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "unmodeled_syscall:72"
+      ],
+      "category": "build",
+      "classification": "Unknown",
+      "command": [
+        "make",
+        "-C",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-make-build/project",
+        "all"
+      ],
+      "cwd": "/tmp/final/census_v03.py-contract/scratch/heldout-make-build",
+      "dependency_count": 68,
+      "direct": {
+        "maximum_ns": 106064389,
+        "median_ns": 106064389,
+        "minimum_ns": 106064389,
+        "p95_ns": 106064389,
+        "runs": 1,
+        "samples_ns": [
+          106064389
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/final/census_v03.py-contract/scratch/heldout-make-build/project/app": "cde5778c17814065f876ebdf8f91058c94bca0b026e6a2a60867c2664fb0122d",
+          "/tmp/final/census_v03.py-contract/scratch/heldout-make-build/project/main.o": "06bcdedaa53fb2ce0702c0b942baa0fe6e0090ea832eb4299e4933e2193c7c87",
+          "/tmp/final/census_v03.py-contract/scratch/heldout-make-build/project/util.o": "c1f0b6d487cd38443077df0c45a98b55711891f5580533fa52c5fc5dda51b314"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "f2d7c7d9d7acf9ad26ecb47ee0b07f53c155e3bb72f9b80c2fafa1b6c354474c"
+      },
+      "effect_counts": {
+        "controls": 3,
+        "reads": 88,
+        "unknown": 2,
+        "writes": 0
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "heldout-make-build",
+      "note": "Real Makefile with declared object rules and a link step (incremental-build unit).",
+      "output_count": 0,
+      "output_equivalence": "FAIL",
+      "process_count": 1,
+      "reason_counts": {
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "unmodeled_syscall:72": 2
+      },
+      "reasons": [
+        "unmodeled successful syscall 72: status-flag change on fd 1 whose open file description is shared or unclassified",
+        "unmodeled successful syscall 72: status-flag change on fd 2 whose open file description is shared or unclassified",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "make",
+        "gcc"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 47039919,
+        "median_ns": 47039919,
+        "minimum_ns": 47039919,
+        "p95_ns": 47039919,
+        "runs": 1,
+        "samples_ns": [
+          47039919
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/final/census_v03.py-contract/scratch/heldout-make-build/project/app": "cde5778c17814065f876ebdf8f91058c94bca0b026e6a2a60867c2664fb0122d",
+          "/tmp/final/census_v03.py-contract/scratch/heldout-make-build/project/main.o": "06bcdedaa53fb2ce0702c0b942baa0fe6e0090ea832eb4299e4933e2193c7c87",
+          "/tmp/final/census_v03.py-contract/scratch/heldout-make-build/project/util.o": "c1f0b6d487cd38443077df0c45a98b55711891f5580533fa52c5fc5dda51b314"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "b8f252247da8b45789d8e6e9986519d090c583f3c535013ec2df91adf4bebb7a"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "72: fcntl"
+      ],
+      "unsupported_syscalls": [
+        72
+      ]
+    },
+    {
+      "blockers": [
+        "clock",
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "process_identity",
+        "randomness"
+      ],
+      "category": "archiver",
+      "classification": "Nondeterministic",
+      "command": [
+        "sh",
+        "-c",
+        "ar rcs /tmp/final/census_v03.py-contract/scratch/heldout-ar-ranlib/libheldout.a /tmp/final/census_v03.py-contract/scratch/heldout-ar-ranlib/util.o && ranlib /tmp/final/census_v03.py-contract/scratch/heldout-ar-ranlib/libheldout.a"
+      ],
+      "cwd": "/tmp/final/census_v03.py-contract/scratch/heldout-ar-ranlib",
+      "dependency_count": 71,
+      "direct": {
+        "maximum_ns": 11267403,
+        "median_ns": 11267403,
+        "minimum_ns": 11267403,
+        "p95_ns": 11267403,
+        "runs": 1,
+        "samples_ns": [
+          11267403
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/final/census_v03.py-contract/scratch/heldout-ar-ranlib/libheldout.a": "05ddebb60ef534b0d9b77c0aedfa52232230ce3cf7ac19538a7106cb4c44f588"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 5,
+        "reads": 218,
+        "unknown": 0,
+        "writes": 10
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "heldout-ar-ranlib",
+      "note": "Static archive creation followed by ranlib symbol-index generation.",
+      "output_count": 3,
+      "output_equivalence": "PASS",
+      "process_count": 3,
+      "reason_counts": {
+        "clock": 1,
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "process_identity": 2,
+        "randomness": 1
+      },
+      "reasons": [
+        "process read process identity via getpid",
+        "process read process identity via getppid",
+        "process read system clock: monotonic",
+        "process read randomness via getrandom",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "sh",
+        "gcc",
+        "ar",
+        "ranlib"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 98218899,
+        "median_ns": 98218899,
+        "minimum_ns": 98218899,
+        "p95_ns": 98218899,
+        "runs": 1,
+        "samples_ns": [
+          98218899
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/final/census_v03.py-contract/scratch/heldout-ar-ranlib/libheldout.a": "05ddebb60ef534b0d9b77c0aedfa52232230ce3cf7ac19538a7106cb4c44f588"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "category": "toolchain",
+      "classification": "Guarded",
+      "command": [
+        "strip",
+        "--strip-unneeded",
+        "-o",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-strip-binary/app-stripped",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-strip-binary/app-full"
+      ],
+      "cwd": "/tmp/final/census_v03.py-contract/scratch/heldout-strip-binary",
+      "dependency_count": 34,
+      "direct": {
+        "maximum_ns": 3682511,
+        "median_ns": 3682511,
+        "minimum_ns": 3682511,
+        "p95_ns": 3682511,
+        "runs": 1,
+        "samples_ns": [
+          3682511
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/final/census_v03.py-contract/scratch/heldout-strip-binary/app-stripped": "0268160fae4d9ebef83c210851487bbe08272c4945da6e26ad59adef40815500"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 57,
+        "unknown": 0,
+        "writes": 15
+      },
+      "eligible_for_reuse": true,
+      "hit_decision": "Deoptimized",
+      "hit_kind": "Executed",
+      "hit_reason": "cached execution deoptimized",
+      "name": "heldout-strip-binary",
+      "note": "strip --strip-unneeded of a debug build (binary rewriting).",
+      "output_count": 1,
+      "process_count": 1,
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "strip",
+        "gcc"
+      ],
+      "status": "reuse_was_not_obtained",
+      "traced_cold": {
+        "maximum_ns": 55869228,
+        "median_ns": 55869228,
+        "minimum_ns": 55869228,
+        "p95_ns": 55869228,
+        "runs": 1,
+        "samples_ns": [
+          55869228
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/final/census_v03.py-contract/scratch/heldout-strip-binary/app-stripped": "0268160fae4d9ebef83c210851487bbe08272c4945da6e26ad59adef40815500"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0
+    },
+    {
+      "blockers": [],
+      "cache_hit": {
+        "maximum_ns": 32928092,
+        "median_ns": 32928092,
+        "minimum_ns": 32928092,
+        "p95_ns": 32928092,
+        "runs": 1,
+        "samples_ns": [
+          32928092
+        ]
+      },
+      "category": "toolchain",
+      "classification": "Guarded",
+      "command": [
+        "objdump",
+        "-d",
+        "--no-show-raw-insn",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-objdump-disassemble/app-full"
+      ],
+      "cwd": "/tmp/final/census_v03.py-contract/scratch/heldout-objdump-disassemble",
+      "dependency_count": 35,
+      "direct": {
+        "maximum_ns": 5397767,
+        "median_ns": 5397767,
+        "minimum_ns": 5397767,
+        "p95_ns": 5397767,
+        "runs": 1,
+        "samples_ns": [
+          5397767
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "9d630d8f2973d68151e995c5a668d197e66df34faa5ebf055df35284dec5e087"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 54,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": true,
+      "hit_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "9d630d8f2973d68151e995c5a668d197e66df34faa5ebf055df35284dec5e087"
+      },
+      "hit_obtained": true,
+      "name": "heldout-objdump-disassemble",
+      "note": "objdump -d disassembly of a compiled binary to stdout.",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {},
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "objdump",
+        "gcc"
+      ],
+      "speedup": 0.1639258964655468,
+      "status": "reused",
+      "time_saved_ns": -27530325,
+      "traced_cold": {
+        "maximum_ns": 49469174,
+        "median_ns": 49469174,
+        "minimum_ns": 49469174,
+        "p95_ns": 49469174,
+        "runs": 1,
+        "samples_ns": [
+          49469174
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "9d630d8f2973d68151e995c5a668d197e66df34faa5ebf055df35284dec5e087"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [],
+      "cache_hit": {
+        "maximum_ns": 20108073,
+        "median_ns": 20108073,
+        "minimum_ns": 20108073,
+        "p95_ns": 20108073,
+        "runs": 1,
+        "samples_ns": [
+          20108073
+        ]
+      },
+      "category": "toolchain",
+      "classification": "Guarded",
+      "command": [
+        "readelf",
+        "-h",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-readelf-header/app-full"
+      ],
+      "cwd": "/tmp/final/census_v03.py-contract/scratch/heldout-readelf-header",
+      "dependency_count": 31,
+      "direct": {
+        "maximum_ns": 3056633,
+        "median_ns": 3056633,
+        "minimum_ns": 3056633,
+        "p95_ns": 3056633,
+        "runs": 1,
+        "samples_ns": [
+          3056633
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "2e1b77093951020527a0c56389280b119497064c3617c7421b4003f02cf13a90"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 48,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": true,
+      "hit_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "2e1b77093951020527a0c56389280b119497064c3617c7421b4003f02cf13a90"
+      },
+      "hit_obtained": true,
+      "name": "heldout-readelf-header",
+      "note": "readelf -h ELF header report (Rust/C toolchain inspection shape).",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {},
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "readelf",
+        "gcc"
+      ],
+      "speedup": 0.15201023986734086,
+      "status": "reused",
+      "time_saved_ns": -17051440,
+      "traced_cold": {
+        "maximum_ns": 43832517,
+        "median_ns": 43832517,
+        "minimum_ns": 43832517,
+        "p95_ns": 43832517,
+        "runs": 1,
+        "samples_ns": [
+          43832517
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "2e1b77093951020527a0c56389280b119497064c3617c7421b4003f02cf13a90"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [],
+      "cache_hit": {
+        "maximum_ns": 23167596,
+        "median_ns": 23167596,
+        "minimum_ns": 23167596,
+        "p95_ns": 23167596,
+        "runs": 1,
+        "samples_ns": [
+          23167596
+        ]
+      },
+      "category": "toolchain",
+      "classification": "Guarded",
+      "command": [
+        "nm",
+        "--defined-only",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-nm-symbols/app-full"
+      ],
+      "cwd": "/tmp/final/census_v03.py-contract/scratch/heldout-nm-symbols",
+      "dependency_count": 57,
+      "direct": {
+        "maximum_ns": 4607089,
+        "median_ns": 4607089,
+        "minimum_ns": 4607089,
+        "p95_ns": 4607089,
+        "runs": 1,
+        "samples_ns": [
+          4607089
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "9cd2ba1a0723a2751f3f8dee33531a891fa7b31e7fd5b8e08568793cf0f9a2e4"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 99,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": true,
+      "hit_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "9cd2ba1a0723a2751f3f8dee33531a891fa7b31e7fd5b8e08568793cf0f9a2e4"
+      },
+      "hit_obtained": true,
+      "name": "heldout-nm-symbols",
+      "note": "nm --defined-only symbol listing of a compiled binary.",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {},
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "nm",
+        "gcc"
+      ],
+      "speedup": 0.1988591738219192,
+      "status": "reused",
+      "time_saved_ns": -18560507,
+      "traced_cold": {
+        "maximum_ns": 57886373,
+        "median_ns": 57886373,
+        "minimum_ns": 57886373,
+        "p95_ns": 57886373,
+        "runs": 1,
+        "samples_ns": [
+          57886373
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "9cd2ba1a0723a2751f3f8dee33531a891fa7b31e7fd5b8e08568793cf0f9a2e4"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "unmodeled_syscall:5"
+      ],
+      "category": "archive",
+      "classification": "Unknown",
+      "command": [
+        "tar",
+        "-czf",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-tar-gzip/bundle.tar.gz",
+        "-C",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-tar-gzip/project",
+        "main.c",
+        "util.c",
+        "util.h",
+        "Makefile"
+      ],
+      "cwd": "/tmp/final/census_v03.py-contract/scratch/heldout-tar-gzip",
+      "dependency_count": 90,
+      "direct": {
+        "maximum_ns": 7302313,
+        "median_ns": 7302313,
+        "minimum_ns": 7302313,
+        "p95_ns": 7302313,
+        "runs": 1,
+        "samples_ns": [
+          7302313
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/final/census_v03.py-contract/scratch/heldout-tar-gzip/bundle.tar.gz": "ec81921721887c7d6dbc3db539dc8636c6e22da86a883d6c9aec5f9b1340b34b"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 5,
+        "reads": 135,
+        "unknown": 2,
+        "writes": 6
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "heldout-tar-gzip",
+      "note": "tar -czf of a four-file project directory (archive creation with internal zlib).",
+      "output_count": 1,
+      "output_equivalence": "PASS",
+      "process_count": 3,
+      "reason_counts": {
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "unmodeled_syscall:5": 2
+      },
+      "reasons": [
+        "unmodeled successful syscall 5: fstat on pipe descriptor 4 reports buffered byte counts, which depend on scheduling",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 0 reports buffered byte counts, which depend on scheduling",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "tar"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 66976562,
+        "median_ns": 66976562,
+        "minimum_ns": 66976562,
+        "p95_ns": 66976562,
+        "runs": 1,
+        "samples_ns": [
+          66976562
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/final/census_v03.py-contract/scratch/heldout-tar-gzip/bundle.tar.gz": "ec81921721887c7d6dbc3db539dc8636c6e22da86a883d6c9aec5f9b1340b34b"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "5: fstat"
+      ],
+      "unsupported_syscalls": [
+        5
+      ]
+    },
+    {
+      "category": "archive",
+      "classification": "Guarded",
+      "command": [
+        "unzip",
+        "-q",
+        "-o",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-unzip-extract/extracted.zip",
+        "-d",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-unzip-extract/unzipped"
+      ],
+      "cwd": "/tmp/final/census_v03.py-contract/scratch/heldout-unzip-extract",
+      "dependency_count": 29,
+      "direct": {
+        "maximum_ns": 3979151,
+        "median_ns": 3979151,
+        "minimum_ns": 3979151,
+        "p95_ns": 3979151,
+        "runs": 1,
+        "samples_ns": [
+          3979151
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/final/census_v03.py-contract/scratch/heldout-unzip-extract/unzipped/member-util.c": "9cb0a91bbbe225d65fdab1c3630e1041b9f22055f1b592788701001562f97071",
+          "/tmp/final/census_v03.py-contract/scratch/heldout-unzip-extract/unzipped/member-util.h": "698427147b5b86f40c5cf30d973e7f9d936d51ccf14309c8708c59187d90396b"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 52,
+        "unknown": 0,
+        "writes": 10
+      },
+      "eligible_for_reuse": true,
+      "hit_decision": "Deoptimized",
+      "hit_kind": "Executed",
+      "hit_reason": "cached execution deoptimized",
+      "name": "heldout-unzip-extract",
+      "note": "unzip extraction of a two-member archive into a new directory.",
+      "output_count": 2,
+      "process_count": 1,
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "unzip",
+        "zip"
+      ],
+      "status": "reuse_was_not_obtained",
+      "traced_cold": {
+        "maximum_ns": 44635305,
+        "median_ns": 44635305,
+        "minimum_ns": 44635305,
+        "p95_ns": 44635305,
+        "runs": 1,
+        "samples_ns": [
+          44635305
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/final/census_v03.py-contract/scratch/heldout-unzip-extract/unzipped/member-util.c": "9cb0a91bbbe225d65fdab1c3630e1041b9f22055f1b592788701001562f97071",
+          "/tmp/final/census_v03.py-contract/scratch/heldout-unzip-extract/unzipped/member-util.h": "698427147b5b86f40c5cf30d973e7f9d936d51ccf14309c8708c59187d90396b"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0
+    },
+    {
+      "blockers": [],
+      "cache_hit": {
+        "maximum_ns": 17328769,
+        "median_ns": 17328769,
+        "minimum_ns": 17328769,
+        "p95_ns": 17328769,
+        "runs": 1,
+        "samples_ns": [
+          17328769
+        ]
+      },
+      "category": "text",
+      "classification": "Guarded",
+      "command": [
+        "iconv",
+        "-f",
+        "UTF-8",
+        "-t",
+        "ISO-8859-1",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-iconv-transcode/words.txt"
+      ],
+      "cwd": "/tmp/final/census_v03.py-contract/scratch/heldout-iconv-transcode",
+      "dependency_count": 55,
+      "direct": {
+        "maximum_ns": 2736014,
+        "median_ns": 2736014,
+        "minimum_ns": 2736014,
+        "p95_ns": 2736014,
+        "runs": 1,
+        "samples_ns": [
+          2736014
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "94b50b4f964a0a0fb426ce90717e3e93dc90a1a17d56df6f6fae883e65149c74"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 71,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": true,
+      "hit_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "94b50b4f964a0a0fb426ce90717e3e93dc90a1a17d56df6f6fae883e65149c74"
+      },
+      "hit_obtained": true,
+      "name": "heldout-iconv-transcode",
+      "note": "iconv UTF-8 \u2192 ISO-8859-1 transcoding of a generated word list to stdout.",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {},
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "iconv"
+      ],
+      "speedup": 0.1578885378413204,
+      "status": "reused",
+      "time_saved_ns": -14592755,
+      "traced_cold": {
+        "maximum_ns": 45203283,
+        "median_ns": 45203283,
+        "minimum_ns": 45203283,
+        "p95_ns": 45203283,
+        "runs": 1,
+        "samples_ns": [
+          45203283
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "94b50b4f964a0a0fb426ce90717e3e93dc90a1a17d56df6f6fae883e65149c74"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [],
+      "cache_hit": {
+        "maximum_ns": 26120438,
+        "median_ns": 26120438,
+        "minimum_ns": 26120438,
+        "p95_ns": 26120438,
+        "runs": 1,
+        "samples_ns": [
+          26120438
+        ]
+      },
+      "category": "text",
+      "classification": "Guarded",
+      "command": [
+        "base64",
+        "-w",
+        "76",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-base64-encode/words.txt"
+      ],
+      "cwd": "/tmp/final/census_v03.py-contract/scratch/heldout-base64-encode",
+      "dependency_count": 53,
+      "direct": {
+        "maximum_ns": 2569534,
+        "median_ns": 2569534,
+        "minimum_ns": 2569534,
+        "p95_ns": 2569534,
+        "runs": 1,
+        "samples_ns": [
+          2569534
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "9657c2adaa10c6549a04c3066efb3b9cb41d3b5ea482a11de6a62f863a4fcb2e"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 69,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": true,
+      "hit_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "9657c2adaa10c6549a04c3066efb3b9cb41d3b5ea482a11de6a62f863a4fcb2e"
+      },
+      "hit_obtained": true,
+      "name": "heldout-base64-encode",
+      "note": "base64 -w 76 of a generated word list to stdout.",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {},
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "base64"
+      ],
+      "speedup": 0.09837254643279718,
+      "status": "reused",
+      "time_saved_ns": -23550904,
+      "traced_cold": {
+        "maximum_ns": 38553249,
+        "median_ns": 38553249,
+        "minimum_ns": 38553249,
+        "p95_ns": 38553249,
+        "runs": 1,
+        "samples_ns": [
+          38553249
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "9657c2adaa10c6549a04c3066efb3b9cb41d3b5ea482a11de6a62f863a4fcb2e"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [],
+      "cache_hit": {
+        "maximum_ns": 32514723,
+        "median_ns": 32514723,
+        "minimum_ns": 32514723,
+        "p95_ns": 32514723,
+        "runs": 1,
+        "samples_ns": [
+          32514723
+        ]
+      },
+      "category": "digest",
+      "classification": "Guarded",
+      "command": [
+        "md5sum",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-md5sum/words.txt"
+      ],
+      "cwd": "/tmp/final/census_v03.py-contract/scratch/heldout-md5sum",
+      "dependency_count": 55,
+      "direct": {
+        "maximum_ns": 3479602,
+        "median_ns": 3479602,
+        "minimum_ns": 3479602,
+        "p95_ns": 3479602,
+        "runs": 1,
+        "samples_ns": [
+          3479602
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "41af3e4ea919f968caef791abad1e9936f5a9672f5ba32562ff36b67a76bed56"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 71,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": true,
+      "hit_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "41af3e4ea919f968caef791abad1e9936f5a9672f5ba32562ff36b67a76bed56"
+      },
+      "hit_obtained": true,
+      "name": "heldout-md5sum",
+      "note": "md5sum of a generated word list (second digest implementation family).",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {},
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "md5sum"
+      ],
+      "speedup": 0.10701619693946032,
+      "status": "reused",
+      "time_saved_ns": -29035121,
+      "traced_cold": {
+        "maximum_ns": 48650155,
+        "median_ns": 48650155,
+        "minimum_ns": 48650155,
+        "p95_ns": 48650155,
+        "runs": 1,
+        "samples_ns": [
+          48650155
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "41af3e4ea919f968caef791abad1e9936f5a9672f5ba32562ff36b67a76bed56"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [],
+      "cache_hit": {
+        "maximum_ns": 21038151,
+        "median_ns": 21038151,
+        "minimum_ns": 21038151,
+        "p95_ns": 21038151,
+        "runs": 1,
+        "samples_ns": [
+          21038151
+        ]
+      },
+      "category": "data",
+      "classification": "Guarded",
+      "command": [
+        "cut",
+        "-d",
+        ",",
+        "-f",
+        "1,3",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-cut-columns/sales.csv"
+      ],
+      "cwd": "/tmp/final/census_v03.py-contract/scratch/heldout-cut-columns",
+      "dependency_count": 53,
+      "direct": {
+        "maximum_ns": 2488004,
+        "median_ns": 2488004,
+        "minimum_ns": 2488004,
+        "p95_ns": 2488004,
+        "runs": 1,
+        "samples_ns": [
+          2488004
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "c32d11c9d1cf4c819444b8c3828184b1053b3d3b9dfe5d8dd5446a2677b792bc"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 69,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": true,
+      "hit_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "c32d11c9d1cf4c819444b8c3828184b1053b3d3b9dfe5d8dd5446a2677b792bc"
+      },
+      "hit_obtained": true,
+      "name": "heldout-cut-columns",
+      "note": "cut field selection from a generated CSV.",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {},
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "cut"
+      ],
+      "speedup": 0.11826153353495751,
+      "status": "reused",
+      "time_saved_ns": -18550147,
+      "traced_cold": {
+        "maximum_ns": 35928605,
+        "median_ns": 35928605,
+        "minimum_ns": 35928605,
+        "p95_ns": 35928605,
+        "runs": 1,
+        "samples_ns": [
+          35928605
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "c32d11c9d1cf4c819444b8c3828184b1053b3d3b9dfe5d8dd5446a2677b792bc"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "procfs_process_relative"
+      ],
+      "category": "text",
+      "classification": "Unknown",
+      "command": [
+        "grep",
+        "-c",
+        "^gamma-",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-grep-count/words.txt"
+      ],
+      "cwd": "/tmp/final/census_v03.py-contract/scratch/heldout-grep-count",
+      "dependency_count": 55,
+      "direct": {
+        "maximum_ns": 1634835,
+        "median_ns": 1634835,
+        "minimum_ns": 1634835,
+        "p95_ns": 1634835,
+        "runs": 1,
+        "samples_ns": [
+          1634835
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "eea8254c7500ba3de996aa8ad6af399183f04e17d4a8102fde539dbc93a90012"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 71,
+        "unknown": 1,
+        "writes": 0
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "heldout-grep-count",
+      "note": "grep -c fixed-prefix match count over a generated word list.",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "procfs_process_relative": 1
+      },
+      "reasons": [
+        "process-relative procfs dependency: /proc/self/maps",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "grep"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 32867763,
+        "median_ns": 32867763,
+        "minimum_ns": 32867763,
+        "p95_ns": 32867763,
+        "runs": 1,
+        "samples_ns": [
+          32867763
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "eea8254c7500ba3de996aa8ad6af399183f04e17d4a8102fde539dbc93a90012"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "other:pipe 2: a read returned less than it requested and more data",
+        "unmodeled_syscall:5"
+      ],
+      "category": "shell",
+      "classification": "Unknown",
+      "command": [
+        "sh",
+        "-c",
+        "sort /tmp/final/census_v03.py-contract/scratch/heldout-sort-unique-pipeline/words.txt | uniq -c | sort -k1,1nr -k2,2 > /tmp/final/census_v03.py-contract/scratch/heldout-sort-unique-pipeline/frequencies.txt"
+      ],
+      "cwd": "/tmp/final/census_v03.py-contract/scratch/heldout-sort-unique-pipeline",
+      "dependency_count": 72,
+      "direct": {
+        "maximum_ns": 6299646,
+        "median_ns": 6299646,
+        "minimum_ns": 6299646,
+        "p95_ns": 6299646,
+        "runs": 1,
+        "samples_ns": [
+          6299646
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/final/census_v03.py-contract/scratch/heldout-sort-unique-pipeline/frequencies.txt": "f847cef9c3a860824df2bc4f9a0f2c12b1df271510d88a7330efd0752f545adf"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 7,
+        "reads": 216,
+        "unknown": 6,
+        "writes": 3
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "heldout-sort-unique-pipeline",
+      "note": "sort | uniq -c | sort kernel pipeline writing a frequency table.",
+      "output_count": 1,
+      "output_equivalence": "PASS",
+      "process_count": 4,
+      "reason_counts": {
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "other:pipe 2: a read returned less than it requested and more data": 1,
+        "unmodeled_syscall:5": 5
+      },
+      "reasons": [
+        "unmodeled successful syscall 5: fstat on pipe descriptor 0 reports buffered byte counts, which depend on scheduling",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 0 reports buffered byte counts, which depend on scheduling",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 0 reports buffered byte counts, which depend on scheduling",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 1 reports buffered byte counts, which depend on scheduling",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 1 reports buffered byte counts, which depend on scheduling",
+        "pipe 2: a read returned less than it requested and more data followed, so the reader's observations depend on scheduling",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "sh",
+        "sort",
+        "uniq"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 58232763,
+        "median_ns": 58232763,
+        "minimum_ns": 58232763,
+        "p95_ns": 58232763,
+        "runs": 1,
+        "samples_ns": [
+          58232763
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/final/census_v03.py-contract/scratch/heldout-sort-unique-pipeline/frequencies.txt": "f847cef9c3a860824df2bc4f9a0f2c12b1df271510d88a7330efd0752f545adf"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "5: fstat"
+      ],
+      "unsupported_syscalls": [
+        5
+      ]
+    },
+    {
+      "blockers": [],
+      "cache_hit": {
+        "maximum_ns": 23681075,
+        "median_ns": 23681075,
+        "minimum_ns": 23681075,
+        "p95_ns": 23681075,
+        "runs": 1,
+        "samples_ns": [
+          23681075
+        ]
+      },
+      "category": "text",
+      "classification": "Guarded",
+      "command": [
+        "comm",
+        "-12",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-comm-sorted/a.txt",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-comm-sorted/b.txt"
+      ],
+      "cwd": "/tmp/final/census_v03.py-contract/scratch/heldout-comm-sorted",
+      "dependency_count": 55,
+      "direct": {
+        "maximum_ns": 1295747,
+        "median_ns": 1295747,
+        "minimum_ns": 1295747,
+        "p95_ns": 1295747,
+        "runs": 1,
+        "samples_ns": [
+          1295747
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "fe5eecf55c78c79bd3b52126eeaaa76fa31a5fc77e66286449fb8169712951b6"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 71,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": true,
+      "hit_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "fe5eecf55c78c79bd3b52126eeaaa76fa31a5fc77e66286449fb8169712951b6"
+      },
+      "hit_obtained": true,
+      "name": "heldout-comm-sorted",
+      "note": "comm -12 intersection of two sorted generated files to stdout.",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {},
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "comm"
+      ],
+      "speedup": 0.05471656164257746,
+      "status": "reused",
+      "time_saved_ns": -22385328,
+      "traced_cold": {
+        "maximum_ns": 38223350,
+        "median_ns": 38223350,
+        "minimum_ns": 38223350,
+        "p95_ns": 38223350,
+        "runs": 1,
+        "samples_ns": [
+          38223350
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "fe5eecf55c78c79bd3b52126eeaaa76fa31a5fc77e66286449fb8169712951b6"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "procfs_process_relative",
+        "unmodeled_syscall:5",
+        "unmodeled_syscall:7"
+      ],
+      "category": "shell",
+      "classification": "Unknown",
+      "command": [
+        "sh",
+        "-c",
+        "find /tmp/final/census_v03.py-contract/scratch/heldout-find-xargs/project -name '*.c' -print0 | sort -z | xargs -0 wc -l"
+      ],
+      "cwd": "/tmp/final/census_v03.py-contract/scratch/heldout-find-xargs",
+      "dependency_count": 101,
+      "direct": {
+        "maximum_ns": 4239630,
+        "median_ns": 4239630,
+        "minimum_ns": 4239630,
+        "p95_ns": 4239630,
+        "runs": 1,
+        "samples_ns": [
+          4239630
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e10e5da590f16e2c469f4420a69b82081580d8a74d843ec5d6337bda4e9b53c3"
+      },
+      "effect_counts": {
+        "controls": 10,
+        "reads": 287,
+        "unknown": 7,
+        "writes": 0
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "heldout-find-xargs",
+      "note": "find -print0 | sort -z | xargs -0 wc -l: a subprocess tree over a scratch project.",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 5,
+      "reason_counts": {
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "procfs_process_relative": 1,
+        "unmodeled_syscall:5": 5,
+        "unmodeled_syscall:7": 1
+      },
+      "reasons": [
+        "process-relative procfs dependency: /proc/self/fd",
+        "unmodeled successful syscall 7: unmodeled syscall 7 args [0x7ffece3062e0, 0x4, 0x0, 0x7fa9499b2fc0, 0x556fddeb3010, 0x0]",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 0 reports buffered byte counts, which depend on scheduling",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 0 reports buffered byte counts, which depend on scheduling",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 0 reports buffered byte counts, which depend on scheduling",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 1 reports buffered byte counts, which depend on scheduling",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 1 reports buffered byte counts, which depend on scheduling",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "sh",
+        "find",
+        "sort",
+        "xargs",
+        "wc"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 61935175,
+        "median_ns": 61935175,
+        "minimum_ns": 61935175,
+        "p95_ns": 61935175,
+        "runs": 1,
+        "samples_ns": [
+          61935175
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e10e5da590f16e2c469f4420a69b82081580d8a74d843ec5d6337bda4e9b53c3"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "5: fstat",
+        "7: poll"
+      ],
+      "unsupported_syscalls": [
+        5,
+        7
+      ]
+    },
+    {
+      "blockers": [
+        "clock",
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "process_identity"
+      ],
+      "category": "python",
+      "classification": "Nondeterministic",
+      "command": [
+        "/opt/freestyle/python/bin/python3",
+        "-c",
+        "import json,sys\nrows = json.load(open(sys.argv[1]))\nout = [{'id': r['id'], 'value': r['value'], 'tag': r['tag']} for r in rows if r['value'] % 7 == 0]\nopen(sys.argv[2], 'w').write(json.dumps(out, indent=2, sort_keys=True))\n",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-python-json/rows.json",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-python-json/filtered.json"
+      ],
+      "cwd": "/tmp/final/census_v03.py-contract/scratch/heldout-python-json",
+      "dependency_count": 162,
+      "direct": {
+        "maximum_ns": 37053883,
+        "median_ns": 37053883,
+        "minimum_ns": 37053883,
+        "p95_ns": 37053883,
+        "runs": 1,
+        "samples_ns": [
+          37053883
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/final/census_v03.py-contract/scratch/heldout-python-json/filtered.json": "55b15d8477b5c039b723e68c2af6d65274f4145be32c89465e3dea6dc3761aaf"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 884,
+        "unknown": 0,
+        "writes": 2
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "heldout-python-json",
+      "note": "CPython JSON load/filter/dump producing a file (runtime-driven data workload).",
+      "output_count": 1,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "clock": 2,
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "process_identity": 1
+      },
+      "reasons": [
+        "process read system clock: monotonic",
+        "process read process identity via gettid",
+        "process read system clock: realtime",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "/opt/freestyle/python/bin/python3"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 164344062,
+        "median_ns": 164344062,
+        "minimum_ns": 164344062,
+        "p95_ns": 164344062,
+        "runs": 1,
+        "samples_ns": [
+          164344062
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/final/census_v03.py-contract/scratch/heldout-python-json/filtered.json": "55b15d8477b5c039b723e68c2af6d65274f4145be32c89465e3dea6dc3761aaf"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "procfs_process_relative",
+        "unmodeled_syscall:5"
+      ],
+      "category": "shell",
+      "classification": "Unknown",
+      "command": [
+        "sh",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-shell-script/script.sh",
+        "/tmp/final/census_v03.py-contract/scratch/heldout-shell-script/words.txt"
+      ],
+      "cwd": "/tmp/final/census_v03.py-contract/scratch/heldout-shell-script",
+      "dependency_count": 65,
+      "direct": {
+        "maximum_ns": 9450918,
+        "median_ns": 9450918,
+        "minimum_ns": 9450918,
+        "p95_ns": 9450918,
+        "runs": 1,
+        "samples_ns": [
+          9450918
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "c3c4473af252e24206e49455aaaf8bdad4a6c575d8ef3a2a3309b2c84439b566"
+      },
+      "effect_counts": {
+        "controls": 13,
+        "reads": 273,
+        "unknown": 12,
+        "writes": 0
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "heldout-shell-script",
+      "note": "A POSIX shell script with a loop, command substitution and arithmetic (script tree).",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 9,
+      "reason_counts": {
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "procfs_process_relative": 4,
+        "unmodeled_syscall:5": 8
+      },
+      "reasons": [
+        "process-relative procfs dependency: /proc/self/maps",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 1 reports buffered byte counts, which depend on scheduling",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 1 reports buffered byte counts, which depend on scheduling",
+        "process-relative procfs dependency: /proc/self/maps",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 1 reports buffered byte counts, which depend on scheduling",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 1 reports buffered byte counts, which depend on scheduling",
+        "process-relative procfs dependency: /proc/self/maps",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 1 reports buffered byte counts, which depend on scheduling",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 1 reports buffered byte counts, which depend on scheduling",
+        "process-relative procfs dependency: /proc/self/maps",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 1 reports buffered byte counts, which depend on scheduling",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 1 reports buffered byte counts, which depend on scheduling",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "sh",
+        "grep"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 93904659,
+        "median_ns": 93904659,
+        "minimum_ns": 93904659,
+        "p95_ns": 93904659,
+        "runs": 1,
+        "samples_ns": [
+          93904659
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "c3c4473af252e24206e49455aaaf8bdad4a6c575d8ef3a2a3309b2c84439b566"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "5: fstat"
+      ],
+      "unsupported_syscalls": [
+        5
+      ]
+    }
+  ]
+}
