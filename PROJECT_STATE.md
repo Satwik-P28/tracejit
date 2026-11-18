@@ -63,6 +63,24 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 - New tests: `superseded_delete_does_not_pin_the_next_run_to_the_old_bytes`,
   `terminal_delete_still_requires_the_deleted_bytes`, and three dependency unit tests.
 
+## Research line, Phase W1 audit (`research/phase-w`)
+
+- Independent audit of the elision rule found one unsound case and repaired it: the **source** of a
+  `rename` is content that moves into the destination output, not pre-state that disappears. When
+  the program moved an object aside and re-created it (`mv out.o out.o.bak`), both snapshots were
+  elided and a warm run restored the *previous* object bytes into the backup name — an incorrect
+  HIT, reproduced end to end. `record_snapshot` now records the rename source as an ordinary
+  content read; the destination stays superseded pre-state, and `delete` is unchanged.
+- Adversarial matrix `benchmarks/phase_w1/audit.py` (13 cases, native vs warm): successful/failed
+  unlink and rename, rename destinations, partial execution, terminal delete,
+  delete→create→delete, multiple writes, program reads, symlink and hard-link aliases, replaced
+  inode. 13/13 observationally equal to native, 0 incorrect hits; `docs/PHASE_W1_AUDIT.md`.
+- Regression: `rename_source_bytes_are_an_input_even_when_the_source_is_recreated`, plus two
+  dependency unit tests (destination elided, legacy records without the marker stay strict).
+- Re-measured after the repair: 27 invocations 14.714 s → 10.164 s (1.02× → 1.48× native),
+  48 invocations 17.298 s → 13.748 s (1.58× → 1.98×); 12 → 6 deoptimisations in both,
+  one per edit. ccache/sccache/make/ninja remain faster (5.0–6.0 s). No version bump.
+
 ## Known limitations
 
 - Metadata guards include `accessed_ns`, which the traced command's own reads update. Commands that

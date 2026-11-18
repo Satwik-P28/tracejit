@@ -1,5 +1,13 @@
 # Phase W: multi-state reuse, the two-deoptimisation penalty, and honest competition
 
+> **W1 correction.** The elision rule as first written was unsound for `rename`: the source's bytes
+> are moved to the destination, which is a restored output, so they are not superseded pre-state.
+> A warm run could restore stale bytes into the destination when the source was re-created. The
+> source is now recorded as an ordinary content read; `delete` and rename destinations keep the
+> rule below. Counterexample, invariant matrix and re-measured numbers: `docs/PHASE_W1_AUDIT.md`.
+> Caveat on the "raw data" line below: the two largest dumps are preserved at commit `2edf4b4` and
+> are not carried on the branch.
+
 Baseline: `main` = `cb4783f10bc4de0c8b7cf269121cfd83710730df` (PR #39). Research branch:
 `research/phase-w`. Production binary before any change: `31898b97e5d8c427773930469d795a097de2d654b684017e55974bd2edcf2c64`
 (byte-identical to `main`). All numbers below are measured on this host (Linux 6.1.102, x86_64,

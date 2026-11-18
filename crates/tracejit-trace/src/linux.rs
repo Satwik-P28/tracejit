@@ -1984,12 +1984,28 @@ fn path_snapshot(path: &Path) -> PathSnapshot {
     }
 }
 
-fn record_snapshot(pid: Pid, path: PathBuf, snapshot: PathSnapshot, collector: &mut Collector) {
+/// Records the observation the tracer took to describe a path before mutating it.
+///
+/// `prestate_snapshot` distinguishes the two jobs such a snapshot can have. A path the operation
+/// *removes* (`unlink`, or the source side of a `rename`) contributes its pre-state to the
+/// filesystem only through what survives: after an unlink nothing does (unless the execution later
+/// re-creates the path itself), but after a rename the exact bytes are moved to the destination,
+/// which is an output restored from the cache. Those source bytes therefore flow into Obs(E) and
+/// must stay an ordinary dependency even when the source path is re-created later. The destination
+/// side is genuine supersedable pre-state: the rename replaces it, and a later re-creation replaces
+/// it again.
+fn record_snapshot(
+    pid: Pid,
+    path: PathBuf,
+    snapshot: PathSnapshot,
+    prestate_snapshot: bool,
+    collector: &mut Collector,
+) {
     match snapshot {
         PathSnapshot::File { hash, fingerprint } => collector.push(
             pid,
             Effect::Read(ReadEffect::File(FileRead {
-                prestate_snapshot: true,
+                prestate_snapshot,
                 path,
                 hash: Some(hash),
                 fingerprint: Some(fingerprint),
@@ -1998,7 +2014,7 @@ fn record_snapshot(pid: Pid, path: PathBuf, snapshot: PathSnapshot, collector: &
         PathSnapshot::Metadata(fingerprint) => collector.push(
             pid,
             Effect::Read(ReadEffect::FileMetadata(FileMetadataRead {
-                prestate_snapshot: true,
+                prestate_snapshot,
                 path,
                 fingerprint: Some(fingerprint),
                 audited_toolchain: audited_toolchain(pid).is_some(),
@@ -2007,7 +2023,7 @@ fn record_snapshot(pid: Pid, path: PathBuf, snapshot: PathSnapshot, collector: &
         PathSnapshot::Absent => collector.push(
             pid,
             Effect::Read(ReadEffect::FileMetadata(FileMetadataRead {
-                prestate_snapshot: true,
+                prestate_snapshot,
                 path,
                 fingerprint: Some(tracejit_effects::FileFingerprint::absent()),
                 audited_toolchain: audited_toolchain(pid).is_some(),
@@ -2515,8 +2531,12 @@ fn complete_syscall(
             from_snapshot,
             to_snapshot,
         } => {
-            record_snapshot(pid, from.clone(), from_snapshot, collector);
-            record_snapshot(pid, to.clone(), to_snapshot, collector);
+            // The source bytes are moved to the destination and restored from the cache on a
+            // hit, so they are content this execution carries into its output, not a pre-state
+            // the same execution provably replaces. The destination's own pre-state is replaced
+            // by the rename and may be elided when nothing else depends on it.
+            record_snapshot(pid, from.clone(), from_snapshot, false, collector);
+            record_snapshot(pid, to.clone(), to_snapshot, true, collector);
             collector.push(
                 pid,
                 Effect::Write(WriteEffect::File(FileWrite {
@@ -2535,7 +2555,7 @@ fn complete_syscall(
             );
         }
         PendingSyscall::Delete { path, snapshot } => {
-            record_snapshot(pid, path.clone(), snapshot, collector);
+            record_snapshot(pid, path.clone(), snapshot, true, collector);
             collector.push(
                 pid,
                 Effect::Write(WriteEffect::File(FileWrite {

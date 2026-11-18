@@ -562,13 +562,15 @@ pub struct FileRead {
     pub hash: Option<Hash>,
     pub fingerprint: Option<FileFingerprint>,
     /// True when this observation was taken by the tracer immediately before it recorded a
-    /// `delete`/`rename` of the same path, not by the traced program.
+    /// `delete`/`rename` *destination* replacement of the same path, not by the traced program.
     ///
-    /// The distinction matters for dependency reconstruction: a snapshot of a path the same
-    /// execution later re-creates cannot reach any observable effect, while a snapshot of a path
-    /// the execution removes for good describes bytes the run destroyed and stays a dependency.
-    /// Records written before this field existed deserialize as `false` and keep the stricter
-    /// behaviour.
+    /// The distinction matters for dependency reconstruction: a snapshot of the pre-state the
+    /// same execution replaces later in the run cannot reach any observable effect, while a
+    /// snapshot of a path the execution removes for good describes bytes the run destroyed and
+    /// stays a dependency. The source side of a rename is never marked: those exact bytes are
+    /// moved to the destination, which is restored from the cache, so they are content the
+    /// execution carries into its output. Records written before this field existed deserialize
+    /// as `false` and keep the stricter behaviour.
     #[serde(default)]
     pub prestate_snapshot: bool,
 }
@@ -1168,7 +1170,10 @@ pub fn reconstruct_dependencies(effects: &[EffectRecord]) -> Vec<InputDependency
                 if precedes_first_write(&first_writes, &read.path, record.sequence) =>
             {
                 if read.prestate_snapshot && !terminal_deletes.contains(&read.path) {
-                    // A superseded pre-state: the execution re-creates this path later.
+                    // A superseded pre-state: the execution re-creates this path later. Only
+                    // `delete` and rename *destination* snapshots are marked this way. A rename
+                    // source arrives as an ordinary read because its bytes are moved into an
+                    // output, so eliding it would restore bytes the next run never relocated.
                 } else if let Some(hash) = read.hash {
                     files
                         .entry(read.path.clone())
@@ -1588,6 +1593,65 @@ mod tests {
         let dependencies = reconstruct_dependencies(&effects);
         assert_eq!(
             file_dependency(&dependencies, "unit.o"),
+            Some(Hash::from(blake3::hash(b"before")))
+        );
+    }
+
+    #[test]
+    fn a_rename_destination_prestate_is_elided_while_its_source_stays() {
+        // Exactly the encoding the tracer emits for `rename(a, b)`: the source observation is an
+        // ordinary content read (its bytes now live at `b`), the destination observation is the
+        // pre-state the rename replaces.
+        let effects = vec![
+            file_read("a", false),
+            file_read("b", true),
+            file_write("a", FileWriteKind::Delete, 1),
+            file_write("b", FileWriteKind::RenameDestination, 2),
+        ];
+        let dependencies = reconstruct_dependencies(&effects);
+        assert_eq!(
+            file_dependency(&dependencies, "a"),
+            Some(Hash::from(blake3::hash(b"before")))
+        );
+        assert_eq!(file_dependency(&dependencies, "b"), None);
+    }
+
+    #[test]
+    fn records_written_before_the_marker_existed_stay_strict() {
+        // Old cache records carry no provenance field. They must deserialize to the stricter
+        // reading (a tracer snapshot is an ordinary dependency), so an upgrade can never turn a
+        // previously validated record into an elided one.
+        let current = FileRead {
+            path: PathBuf::from("unit.o"),
+            hash: Some(Hash::from(blake3::hash(b"before"))),
+            fingerprint: None,
+            prestate_snapshot: false,
+        };
+        let mut encoded = serde_json::to_value(current).unwrap();
+        assert!(encoded
+            .as_object_mut()
+            .unwrap()
+            .remove("prestate_snapshot")
+            .is_some());
+        let decoded: Effect = serde_json::from_value(serde_json::json!({
+            "Read": { "File": encoded }
+        }))
+        .unwrap();
+        let Effect::Read(ReadEffect::File(read)) = &decoded else {
+            panic!("expected a file read");
+        };
+        assert!(!read.prestate_snapshot);
+        let effects = vec![
+            EffectRecord {
+                sequence: 0,
+                pid: 1,
+                effect: decoded,
+            },
+            file_write("unit.o", FileWriteKind::Delete, 1),
+            file_write("unit.o", FileWriteKind::CreateOrModify, 2),
+        ];
+        assert_eq!(
+            file_dependency(&reconstruct_dependencies(&effects), "unit.o"),
             Some(Hash::from(blake3::hash(b"before")))
         );
     }

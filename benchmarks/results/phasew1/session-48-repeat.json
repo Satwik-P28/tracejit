@@ -1,0 +1,134 @@
+{
+  "scenario": "edits",
+  "rounds": 16,
+  "units": 3,
+  "functions_per_unit": 220,
+  "edit_rounds": [
+    7,
+    12
+  ],
+  "total_invocations": 48,
+  "reference_objects": {
+    "unit0.o": "e86cf16cfcd62388e383b80a6f162e58",
+    "unit1.o": "a5ebec4ac0d4518929d595257d0ca3e7",
+    "unit2.o": "74cab575db368f9880fd6141ee564dd0"
+  },
+  "arms": {
+    "native": {
+      "arm": "native",
+      "seconds": 26.833,
+      "decisions": {},
+      "objects": {
+        "unit0.o": "e86cf16cfcd62388e383b80a6f162e58",
+        "unit1.o": "a5ebec4ac0d4518929d595257d0ca3e7",
+        "unit2.o": "74cab575db368f9880fd6141ee564dd0"
+      },
+      "cache_bytes": 0,
+      "tool_stats": [],
+      "objects_match_native": true
+    },
+    "tracejit-main": {
+      "arm": "tracejit-main",
+      "seconds": 18.012,
+      "decisions": {
+        "miss": 3,
+        "hit": 33,
+        "deopt": 12
+      },
+      "objects": {
+        "unit0.o": "e86cf16cfcd62388e383b80a6f162e58",
+        "unit1.o": "a5ebec4ac0d4518929d595257d0ca3e7",
+        "unit2.o": "74cab575db368f9880fd6141ee564dd0"
+      },
+      "cache_bytes": 18416713,
+      "tool_stats": [],
+      "objects_match_native": true
+    },
+    "tracejit-fix": {
+      "arm": "tracejit-fix",
+      "seconds": 13.481,
+      "decisions": {
+        "miss": 3,
+        "hit": 38,
+        "deopt": 7
+      },
+      "objects": {
+        "unit0.o": "e86cf16cfcd62388e383b80a6f162e58",
+        "unit1.o": "a5ebec4ac0d4518929d595257d0ca3e7",
+        "unit2.o": "74cab575db368f9880fd6141ee564dd0"
+      },
+      "cache_bytes": 12904148,
+      "tool_stats": [],
+      "objects_match_native": true
+    },
+    "ccache": {
+      "arm": "ccache",
+      "seconds": 5.546,
+      "decisions": {},
+      "objects": {
+        "unit0.o": "e86cf16cfcd62388e383b80a6f162e58",
+        "unit1.o": "a5ebec4ac0d4518929d595257d0ca3e7",
+        "unit2.o": "74cab575db368f9880fd6141ee564dd0"
+      },
+      "cache_bytes": 5989088,
+      "tool_stats": [
+        "Cacheable calls:     48 /  48 (100.0%)\n  Hits:              39 /  48 (81.25%)\n    Direct:          39 /  39 (100.0%)\n    Preprocessed:     0 /  39 ( 0.00%)\n  Misses:             9 /  48 (18.75%)\nLocal storage:\n  Cache size (GiB): 0.0 / 5.0 ( 0.00%)\n  Hits:              39 /  48 (81.25%)\n  Misses:             9 /  48 (18.75%)"
+      ],
+      "objects_match_native": true
+    },
+    "sccache": {
+      "arm": "sccache",
+      "seconds": 6.215,
+      "decisions": {},
+      "objects": {
+        "unit0.o": "e86cf16cfcd62388e383b80a6f162e58",
+        "unit1.o": "a5ebec4ac0d4518929d595257d0ca3e7",
+        "unit2.o": "74cab575db368f9880fd6141ee564dd0"
+      },
+      "cache_bytes": 95139,
+      "tool_stats": [
+        "Compile requests                     48",
+        "Compile requests executed            48",
+        "Cache hits                           39",
+        "Cache hits (C/C++)                   39",
+        "Cache misses                          9",
+        "Cache misses (C/C++)                  9",
+        "Cache hits rate                   81.25 %",
+        "Cache hits rate (C/C++)           81.25 %"
+      ],
+      "objects_match_native": true
+    },
+    "make": {
+      "arm": "make",
+      "seconds": 5.217,
+      "decisions": {
+        "rebuild": 3,
+        "up-to-date": 13
+      },
+      "objects": {
+        "unit0.o": "e86cf16cfcd62388e383b80a6f162e58",
+        "unit1.o": "a5ebec4ac0d4518929d595257d0ca3e7",
+        "unit2.o": "74cab575db368f9880fd6141ee564dd0"
+      },
+      "cache_bytes": 0,
+      "tool_stats": [],
+      "objects_match_native": true
+    },
+    "ninja": {
+      "arm": "ninja",
+      "seconds": 4.987,
+      "decisions": {
+        "rebuild": 3,
+        "up-to-date": 13
+      },
+      "objects": {
+        "unit0.o": "e86cf16cfcd62388e383b80a6f162e58",
+        "unit1.o": "a5ebec4ac0d4518929d595257d0ca3e7",
+        "unit2.o": "74cab575db368f9880fd6141ee564dd0"
+      },
+      "cache_bytes": 0,
+      "tool_stats": [],
+      "objects_match_native": true
+    }
+  }
+}
