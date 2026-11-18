@@ -1,5 +1,29 @@
 # Changelog
 
+## Unreleased (`development/v0.3`, Phase U)
+
+Compatibility modelling and verification work on top of the published
+`v0.2.0-beta.1`. No version bump, no release. Native reuse semantics are
+unchanged; the additions only admit observations whose value is already
+reproduced by existing guards.
+
+- The null device is classified by device identity (character device 1:3,
+  checked on the open descriptor) instead of being refused as an unhashable
+  path, so `open("/dev/null")` reads and writes no longer block reuse.
+- Create-only `epoll_create1` instances are process-internal; `epoll_ctl`,
+  `epoll_wait`, reads from the descriptor and failed creation still refuse.
+- `fcntl(F_SETFL)`/`ioctl(FIONBIO)` are admitted only when the sole changed
+  bit is `O_NONBLOCK` on a regular file this process opened and before it has
+  created a child. `O_APPEND`, pipe and inherited-descriptor rewrites refuse.
+- Pure `prlimit64` queries for the four limits `RuntimeIdentity` already
+  guards are no longer effects; installing a limit still is.
+- `EBADF` on a negative descriptor and `ENOTTY` from `TCGETS` on an internal
+  pipe are treated as the deterministic observations they are.
+- New `benchmarks/realworld/census_v03.py`: a twenty-workload held-out corpus
+  that imports the existing census harness. `docs/COMPATIBILITY_V03.md`
+  records the measured blocker taxonomy, the accepted and rejected models, and
+  the metadata-guard (`atime`) deopt it found.
+
 ## 0.2.0-beta.1
 
 First independently packaged public beta. No optimization research branch was
