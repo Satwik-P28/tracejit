@@ -1468,8 +1468,12 @@ fn decode_entry(
         libc::SYS_fcntl if args[1] as i32 == libc::F_SETFL => {
             status_flag_change(pid, state, args[0] as i32, Some(args[2] as i32), number)?
         }
-        // Pure queries about descriptor state are process-local for V1. Mutating commands
-        // (F_SETFL / locks / seals / owner / pipe size / …) can change OFD behavior or be
+        // Pure queries about descriptor state are process-local **for descriptors this execution
+        // created**: their flags and ownership are a function of the program's own traced calls.
+        // An inherited description was configured by whoever created it and no guard records
+        // those flags, so querying one is a dependency: a parent that handed us an `O_NONBLOCK`
+        // or `O_APPEND` reader would otherwise get the previous run's branch replayed. Mutating
+        // commands (F_SETFL / locks / seals / owner / pipe size / …) can change OFD behavior or be
         // visible to collaborators; do not silently treat them as None.
         libc::SYS_fcntl
             if matches!(
@@ -1481,7 +1485,21 @@ fn decode_entry(
                     | libc::F_GETPIPE_SZ
             ) =>
         {
-            PendingSyscall::None
+            let fd = args[0] as i32;
+            match state.fds.get(&fd) {
+                Some(FdState::File(_))
+                | Some(FdState::NullDevice(_))
+                | Some(FdState::InternalPipe { .. })
+                | Some(FdState::Epoll)
+                | Some(FdState::Network) => PendingSyscall::None,
+                _ => PendingSyscall::Unknown {
+                    number,
+                    detail: format!(
+                        "fcntl query {} on inherited or unclassified fd {fd}, whose flags are not guarded",
+                        args[1] as i32
+                    ),
+                },
+            }
         }
         libc::SYS_fcntl => PendingSyscall::Unknown {
             number,
@@ -4438,6 +4456,52 @@ mod tests {
             pipes: HashMap::new(),
             next_pipe: 0,
         }
+    }
+
+    /// A flag query is only process-local for a description this execution created. An inherited
+    /// one was configured by someone else and no guard records those flags, so a program that
+    /// branches on `F_GETFL(stdin)` cannot be replayed from a record taken under different flags.
+    #[test]
+    fn fcntl_flag_queries_refuse_inherited_descriptors() {
+        let pid = Pid::from_raw(std::process::id() as i32);
+        let base = || ProcessState {
+            cwd: PathBuf::from("/"),
+            fds: HashMap::new(),
+            close_on_exec: HashSet::new(),
+            entering: false,
+            synchronize_on_next_syscall: false,
+            pending: None,
+            file_mappings: Vec::new(),
+            enumerations: HashMap::new(),
+            stdin_stream: None,
+            vdso_disarmed: false,
+            descriptor_sharing: false,
+        };
+        let query = |state: &ProcessState, fd: i32| {
+            let mut registers: libc::user_regs_struct = unsafe { std::mem::zeroed() };
+            registers.orig_rax = libc::SYS_fcntl as u64;
+            registers.rdi = fd as u64;
+            registers.rsi = libc::F_GETFL as u64;
+            decode_entry(pid, state, &registers, None).unwrap()
+        };
+
+        let mut inherited = base();
+        inherited.fds.insert(0, FdState::Other);
+        assert!(
+            matches!(query(&inherited, 0), PendingSyscall::Unknown { .. }),
+            "flags of an inherited descriptor are not guarded"
+        );
+
+        let mut owned = base();
+        owned
+            .fds
+            .insert(5, FdState::File(PathBuf::from("/tmp/owned")));
+        assert!(matches!(query(&owned, 5), PendingSyscall::None));
+
+        assert!(
+            matches!(query(&base(), 9), PendingSyscall::Unknown { .. }),
+            "an unknown descriptor cannot be assumed process-local"
+        );
     }
 
     #[test]
