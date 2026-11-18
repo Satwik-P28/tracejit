@@ -1,0 +1,826 @@
+{
+  "tracejit": "/workspace/chats/24375cea864939ae012511ac/target/release/tracejit",
+  "fixture": "/tmp/tracejit-phase-w1-audit/fixture-driver",
+  "cases": [
+    {
+      "case": "unlink_then_recreate",
+      "mode": "replace_output",
+      "rule": "superseded delete snapshot is elided",
+      "mutation": "output.txt holds different bytes",
+      "cold": {
+        "kind": "Executed",
+        "classification": "Guarded",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs"
+        ]
+      },
+      "warm": {
+        "kind": "Reused",
+        "classification": "Guarded",
+        "cache_decision": "Reused",
+        "failed_guard": null,
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs"
+        ]
+      },
+      "expected_reuse": true,
+      "reused": true,
+      "files_match_native": true,
+      "streams_match_native": true,
+      "decision_matches_rule": true,
+      "pass": true,
+      "native_files": {
+        "input.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        },
+        "output.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o600"
+        }
+      },
+      "warm_files": {
+        "input.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        },
+        "output.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o600"
+        }
+      }
+    },
+    {
+      "case": "rename_aside_then_recreate",
+      "mode": "rename_aside_recreate",
+      "rule": "the rename source's bytes move into the destination output",
+      "mutation": "output.txt holds different bytes (they are what moves aside)",
+      "cold": {
+        "kind": "Executed",
+        "classification": "Guarded",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs"
+        ]
+      },
+      "warm": {
+        "kind": "Executed",
+        "classification": "Guarded",
+        "cache_decision": "Deoptimized",
+        "failed_guard": {
+          "FileMetadata": {
+            "expected": {
+              "accessed_ns": 1794989172006053003,
+              "block_size": 4096,
+              "blocks": 8,
+              "changed_ns": 1794989172006053003,
+              "device": 65024,
+              "device_id": 0,
+              "gid": 1001,
+              "inode": 542516,
+              "link_count": 1,
+              "mode": 33188,
+              "modified_ns": 1794989172006053003,
+              "size": 11,
+              "uid": 38075502
+            },
+            "path": "/tmp/tracejit-phase-w1-audit/rename_aside_then_recreate/output.txt"
+          }
+        },
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs"
+        ]
+      },
+      "expected_reuse": false,
+      "reused": false,
+      "files_match_native": true,
+      "streams_match_native": true,
+      "decision_matches_rule": true,
+      "pass": true,
+      "native_files": {
+        "input.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        },
+        "output.txt": {
+          "kind": "file",
+          "bytes": "66726573680a",
+          "mode": "0o600"
+        },
+        "second.txt": {
+          "kind": "file",
+          "bytes": "6368616e67656420726573756c742074686174206973206c6f6e6765720a",
+          "mode": "0o600"
+        }
+      },
+      "warm_files": {
+        "input.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        },
+        "output.txt": {
+          "kind": "file",
+          "bytes": "66726573680a",
+          "mode": "0o600"
+        },
+        "second.txt": {
+          "kind": "file",
+          "bytes": "6368616e67656420726573756c742074686174206973206c6f6e6765720a",
+          "mode": "0o600"
+        }
+      }
+    },
+    {
+      "case": "rename_over_existing_destination",
+      "mode": "rename_over_existing",
+      "rule": "the destination's replaced pre-state is elided; the source stays",
+      "mutation": "output.txt (rename destination) holds different bytes",
+      "cold": {
+        "kind": "Executed",
+        "classification": "Guarded",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs"
+        ]
+      },
+      "warm": {
+        "kind": "Reused",
+        "classification": "Guarded",
+        "cache_decision": "Reused",
+        "failed_guard": null,
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs"
+        ]
+      },
+      "expected_reuse": true,
+      "reused": true,
+      "files_match_native": true,
+      "streams_match_native": true,
+      "decision_matches_rule": true,
+      "pass": true,
+      "native_files": {
+        "output.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        }
+      },
+      "warm_files": {
+        "output.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        }
+      }
+    },
+    {
+      "case": "failed_unlink_eisdir",
+      "mode": "failed_unlink_directory",
+      "rule": "a failed mutation is recorded as unguardable",
+      "mutation": "none (the failing mutation is the case)",
+      "cold": {
+        "kind": "Executed",
+        "classification": "Unknown",
+        "reasons": [
+          "failed filesystem effect is not guardable: /tmp/tracejit-phase-w1-audit/failed_unlink_eisdir (errno 21)"
+        ]
+      },
+      "warm": {
+        "kind": "Executed",
+        "classification": "Unknown",
+        "cache_decision": "Ineligible",
+        "failed_guard": null,
+        "reasons": [
+          "failed filesystem effect is not guardable: /tmp/tracejit-phase-w1-audit/failed_unlink_eisdir (errno 21)"
+        ]
+      },
+      "expected_reuse": false,
+      "reused": false,
+      "files_match_native": true,
+      "streams_match_native": true,
+      "decision_matches_rule": true,
+      "pass": true,
+      "native_files": {
+        "input.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        },
+        "output.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o600"
+        }
+      },
+      "warm_files": {
+        "input.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        },
+        "output.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o600"
+        }
+      }
+    },
+    {
+      "case": "failed_rename_enoent",
+      "mode": "failed_rename_missing",
+      "rule": "a failed rename is recorded as unguardable",
+      "mutation": "none (the failing mutation is the case)",
+      "cold": {
+        "kind": "Executed",
+        "classification": "Unknown",
+        "reasons": [
+          "failed rename is not guardable: /tmp/tracejit-phase-w1-audit/failed_rename_enoent/absent.txt to /tmp/tracejit-phase-w1-audit/failed_rename_enoent/output.txt (errno 2)"
+        ]
+      },
+      "warm": {
+        "kind": "Executed",
+        "classification": "Unknown",
+        "cache_decision": "Ineligible",
+        "failed_guard": null,
+        "reasons": [
+          "failed rename is not guardable: /tmp/tracejit-phase-w1-audit/failed_rename_enoent/absent.txt to /tmp/tracejit-phase-w1-audit/failed_rename_enoent/output.txt (errno 2)"
+        ]
+      },
+      "expected_reuse": false,
+      "reused": false,
+      "files_match_native": true,
+      "streams_match_native": true,
+      "decision_matches_rule": true,
+      "pass": true,
+      "native_files": {
+        "input.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        },
+        "output.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        }
+      },
+      "warm_files": {
+        "input.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        },
+        "output.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        }
+      }
+    },
+    {
+      "case": "partial_delete_then_exit",
+      "mode": "partial_then_exit",
+      "rule": "the execution ends with the path absent: the removed bytes stay inputs",
+      "mutation": "output.txt holds different bytes",
+      "cold": {
+        "kind": "Executed",
+        "classification": "Guarded",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs"
+        ]
+      },
+      "warm": {
+        "kind": "Executed",
+        "classification": "Guarded",
+        "cache_decision": "Deoptimized",
+        "failed_guard": {
+          "FileHash": {
+            "expected": [
+              114,
+              249,
+              204,
+              18,
+              212,
+              210,
+              14,
+              157,
+              202,
+              63,
+              130,
+              172,
+              60,
+              214,
+              74,
+              141,
+              102,
+              242,
+              222,
+              231,
+              87,
+              74,
+              121,
+              64,
+              146,
+              73,
+              77,
+              147,
+              166,
+              64,
+              44,
+              62
+            ],
+            "path": "/tmp/tracejit-phase-w1-audit/partial_delete_then_exit/output.txt"
+          }
+        },
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs"
+        ]
+      },
+      "expected_reuse": false,
+      "reused": false,
+      "files_match_native": true,
+      "streams_match_native": true,
+      "decision_matches_rule": true,
+      "pass": true,
+      "native_files": {
+        "input.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        }
+      },
+      "warm_files": {
+        "input.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        }
+      }
+    },
+    {
+      "case": "terminal_delete",
+      "mode": "delete_only",
+      "rule": "terminal deletion keeps the exact bytes it removed",
+      "mutation": "output.txt holds different bytes",
+      "cold": {
+        "kind": "Executed",
+        "classification": "Guarded",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs"
+        ]
+      },
+      "warm": {
+        "kind": "Executed",
+        "classification": "Guarded",
+        "cache_decision": "Deoptimized",
+        "failed_guard": {
+          "FileHash": {
+            "expected": [
+              114,
+              249,
+              204,
+              18,
+              212,
+              210,
+              14,
+              157,
+              202,
+              63,
+              130,
+              172,
+              60,
+              214,
+              74,
+              141,
+              102,
+              242,
+              222,
+              231,
+              87,
+              74,
+              121,
+              64,
+              146,
+              73,
+              77,
+              147,
+              166,
+              64,
+              44,
+              62
+            ],
+            "path": "/tmp/tracejit-phase-w1-audit/terminal_delete/output.txt"
+          }
+        },
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs"
+        ]
+      },
+      "expected_reuse": false,
+      "reused": false,
+      "files_match_native": true,
+      "streams_match_native": true,
+      "decision_matches_rule": true,
+      "pass": true,
+      "native_files": {
+        "input.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        }
+      },
+      "warm_files": {
+        "input.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        }
+      }
+    },
+    {
+      "case": "delete_create_delete",
+      "mode": "delete_create_delete",
+      "rule": "the last write is a delete, so the pre-state stays a dependency",
+      "mutation": "output.txt holds different bytes",
+      "cold": {
+        "kind": "Executed",
+        "classification": "Guarded",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs"
+        ]
+      },
+      "warm": {
+        "kind": "Executed",
+        "classification": "Guarded",
+        "cache_decision": "Deoptimized",
+        "failed_guard": {
+          "FileHash": {
+            "expected": [
+              114,
+              249,
+              204,
+              18,
+              212,
+              210,
+              14,
+              157,
+              202,
+              63,
+              130,
+              172,
+              60,
+              214,
+              74,
+              141,
+              102,
+              242,
+              222,
+              231,
+              87,
+              74,
+              121,
+              64,
+              146,
+              73,
+              77,
+              147,
+              166,
+              64,
+              44,
+              62
+            ],
+            "path": "/tmp/tracejit-phase-w1-audit/delete_create_delete/output.txt"
+          }
+        },
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs"
+        ]
+      },
+      "expected_reuse": false,
+      "reused": false,
+      "files_match_native": true,
+      "streams_match_native": true,
+      "decision_matches_rule": true,
+      "pass": true,
+      "native_files": {
+        "input.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        }
+      },
+      "warm_files": {
+        "input.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        }
+      }
+    },
+    {
+      "case": "multiple_writes_same_path",
+      "mode": "multiple_writes",
+      "rule": "the last write authors the content; earlier pre-state cannot reach it",
+      "mutation": "output.txt holds different bytes",
+      "cold": {
+        "kind": "Executed",
+        "classification": "Guarded",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs"
+        ]
+      },
+      "warm": {
+        "kind": "Reused",
+        "classification": "Guarded",
+        "cache_decision": "Reused",
+        "failed_guard": null,
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs"
+        ]
+      },
+      "expected_reuse": true,
+      "reused": true,
+      "files_match_native": true,
+      "streams_match_native": true,
+      "decision_matches_rule": true,
+      "pass": true,
+      "native_files": {
+        "input.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        },
+        "output.txt": {
+          "kind": "file",
+          "bytes": "7365636f6e640a",
+          "mode": "0o600"
+        }
+      },
+      "warm_files": {
+        "input.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        },
+        "output.txt": {
+          "kind": "file",
+          "bytes": "7365636f6e640a",
+          "mode": "0o600"
+        }
+      }
+    },
+    {
+      "case": "program_read_then_replace",
+      "mode": "read_then_replace",
+      "rule": "a program read is a genuine observation and is never elided",
+      "mutation": "output.txt holds bytes the program reads",
+      "cold": {
+        "kind": "Executed",
+        "classification": "Guarded",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs"
+        ]
+      },
+      "warm": {
+        "kind": "Executed",
+        "classification": "Guarded",
+        "cache_decision": "Deoptimized",
+        "failed_guard": {
+          "FileMetadata": {
+            "expected": {
+              "accessed_ns": 1794989172282053003,
+              "block_size": 4096,
+              "blocks": 8,
+              "changed_ns": 1794989172274053003,
+              "device": 65024,
+              "device_id": 0,
+              "gid": 1001,
+              "inode": 542660,
+              "link_count": 1,
+              "mode": 33188,
+              "modified_ns": 1794989172274053003,
+              "size": 11,
+              "uid": 38075502
+            },
+            "path": "/tmp/tracejit-phase-w1-audit/program_read_then_replace/output.txt"
+          }
+        },
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs"
+        ]
+      },
+      "expected_reuse": false,
+      "reused": false,
+      "files_match_native": true,
+      "streams_match_native": true,
+      "decision_matches_rule": true,
+      "pass": true,
+      "native_files": {
+        "input.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        },
+        "output.txt": {
+          "kind": "file",
+          "bytes": "62657461206973206c6f6e6765720a",
+          "mode": "0o600"
+        }
+      },
+      "warm_files": {
+        "input.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        },
+        "output.txt": {
+          "kind": "file",
+          "bytes": "62657461206973206c6f6e6765720a",
+          "mode": "0o600"
+        }
+      }
+    },
+    {
+      "case": "symlink_prestate",
+      "mode": "symlink_delete_recreate",
+      "rule": "a symlink pre-state cannot be fingerprinted, so the run is unguardable",
+      "mutation": "output.txt is now a symbolic link",
+      "cold": {
+        "kind": "Executed",
+        "classification": "Guarded",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs"
+        ]
+      },
+      "warm": {
+        "kind": "Executed",
+        "classification": "Unknown",
+        "cache_decision": "Ineligible",
+        "failed_guard": null,
+        "reasons": [
+          "filesystem precondition cannot be guarded: /tmp/tracejit-phase-w1-audit/symlink_prestate/output.txt"
+        ]
+      },
+      "expected_reuse": false,
+      "reused": false,
+      "files_match_native": true,
+      "streams_match_native": true,
+      "decision_matches_rule": true,
+      "pass": true,
+      "native_files": {
+        "input.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        },
+        "link-target.txt": {
+          "kind": "file",
+          "bytes": "6c696e6b207461726765740a",
+          "mode": "0o644"
+        },
+        "output.txt": {
+          "kind": "file",
+          "bytes": "66726573680a",
+          "mode": "0o600"
+        }
+      },
+      "warm_files": {
+        "input.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        },
+        "link-target.txt": {
+          "kind": "file",
+          "bytes": "6c696e6b207461726765740a",
+          "mode": "0o644"
+        },
+        "output.txt": {
+          "kind": "file",
+          "bytes": "66726573680a",
+          "mode": "0o600"
+        }
+      }
+    },
+    {
+      "case": "hardlink_twin",
+      "mode": "delete_recreate",
+      "rule": "the twin is not an output and must keep its bytes",
+      "mutation": "output.txt holds different bytes",
+      "cold": {
+        "kind": "Executed",
+        "classification": "Guarded",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs"
+        ]
+      },
+      "warm": {
+        "kind": "Reused",
+        "classification": "Guarded",
+        "cache_decision": "Reused",
+        "failed_guard": null,
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs"
+        ]
+      },
+      "expected_reuse": true,
+      "reused": true,
+      "files_match_native": true,
+      "streams_match_native": true,
+      "decision_matches_rule": true,
+      "pass": true,
+      "native_files": {
+        "input.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        },
+        "output.txt": {
+          "kind": "file",
+          "bytes": "66726573680a",
+          "mode": "0o600"
+        },
+        "twin.txt": {
+          "kind": "file",
+          "bytes": "6f6c6420726573756c740a",
+          "mode": "0o644"
+        }
+      },
+      "warm_files": {
+        "input.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        },
+        "output.txt": {
+          "kind": "file",
+          "bytes": "66726573680a",
+          "mode": "0o600"
+        },
+        "twin.txt": {
+          "kind": "file",
+          "bytes": "6f6c6420726573756c740a",
+          "mode": "0o644"
+        }
+      }
+    },
+    {
+      "case": "replaced_inode_same_bytes",
+      "mode": "replace_output",
+      "rule": "the elided pre-state does not depend on the inode identity",
+      "mutation": "output.txt holds different bytes",
+      "cold": {
+        "kind": "Executed",
+        "classification": "Guarded",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs"
+        ]
+      },
+      "warm": {
+        "kind": "Reused",
+        "classification": "Guarded",
+        "cache_decision": "Reused",
+        "failed_guard": null,
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs"
+        ]
+      },
+      "expected_reuse": true,
+      "reused": true,
+      "files_match_native": true,
+      "streams_match_native": true,
+      "decision_matches_rule": true,
+      "pass": true,
+      "native_files": {
+        "input.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        },
+        "output.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o600"
+        }
+      },
+      "warm_files": {
+        "input.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o644"
+        },
+        "output.txt": {
+          "kind": "file",
+          "bytes": "696e707574206f6e650a",
+          "mode": "0o600"
+        }
+      }
+    }
+  ],
+  "passed": 13,
+  "total": 13
+}

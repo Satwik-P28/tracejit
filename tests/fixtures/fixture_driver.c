@@ -94,6 +94,124 @@ int main(int argc, char **argv) {
   join_path(output, sizeof(output), root, "output.txt");
   join_path(second, sizeof(second), root, "second.txt");
 
+  if (!strcmp(name, "replace_output")) {
+    // The compiler pattern: remove the previous result, then create the new one. The bytes that
+    // existed before the unlink cannot reach the final state, so a record for this execution must
+    // not depend on them.
+    if (unlink(output) != 0 && errno != ENOENT) return 1;
+    copy_file(input, output);
+    return 0;
+  }
+  if (!strcmp(name, "rename_aside_recreate")) {
+    // Move the previous result aside, then recreate the path. The bytes that were moved to
+    // second.txt are the pre-state of output.txt, so they are still visible in the filesystem this
+    // execution leaves behind even though output.txt itself is recreated from scratch.
+    if (rename(output, second) != 0) return 1;
+    int fd = open(output, O_WRONLY | O_CREAT | O_TRUNC, 0600);
+    if (fd < 0) return 2;
+    int written = write(fd, "fresh\n", 6) == 6 ? 0 : 3;
+    if (close(fd) != 0) return 4;
+    return written;
+  }
+  if (!strcmp(name, "failed_unlink_directory")) {
+    // unlink(2) on a directory fails with EISDIR. The failure is not a mutation, and its path is
+    // still whatever it was, so the execution must not be replayed from a guess.
+    if (unlink(root) == 0) return 2;
+    if (errno != EISDIR) return 3;
+    copy_file(input, output);
+    return 0;
+  }
+  if (!strcmp(name, "failed_rename_missing")) {
+    char missing[4096];
+    join_path(missing, sizeof(missing), root, "absent.txt");
+    if (rename(missing, output) == 0) return 2;
+    if (errno != ENOENT) return 3;
+    copy_file(input, output);
+    return 0;
+  }
+  if (!strcmp(name, "partial_then_exit")) {
+    // Remove the previous result and die before recreating it. The execution ends with the path
+    // absent, so the bytes it removed stay part of what it did.
+    if (unlink(output) != 0) return 1;
+    _exit(9);
+  }
+  if (!strcmp(name, "delete_create_delete")) {
+    if (unlink(output) != 0 && errno != ENOENT) return 1;
+    int fd = open(output, O_WRONLY | O_CREAT | O_TRUNC, 0600);
+    if (fd < 0) return 2;
+    int written = write(fd, "middle\n", 7) == 7 ? 0 : 3;
+    if (close(fd) != 0) return 4;
+    if (written != 0) return written;
+    return unlink(output);
+  }
+  if (!strcmp(name, "multiple_writes")) {
+    if (unlink(output) != 0 && errno != ENOENT) return 1;
+    int fd = open(output, O_WRONLY | O_CREAT | O_TRUNC, 0600);
+    if (fd < 0) return 2;
+    if (write(fd, "first\n", 6) != 6 || close(fd) != 0) return 3;
+    fd = open(output, O_WRONLY | O_CREAT | O_TRUNC, 0600);
+    if (fd < 0) return 4;
+    if (write(fd, "second\n", 7) != 7) {
+      close(fd);
+      return 5;
+    }
+    return close(fd) != 0;
+  }
+  if (!strcmp(name, "rename_over_existing")) {
+    // The destination's own bytes are replaced by the rename, so they are not an input. The
+    // source's bytes are, because they become the destination.
+    return rename(input, output);
+  }
+  if (!strcmp(name, "read_then_replace")) {
+    // A genuine program read of the previous result, then the compiler pattern. The bytes the
+    // program observed steer what it writes, so they must stay guarded even though the path is
+    // re-created below.
+    char buffer[4096] = {0};
+    int fd = open(output, O_RDONLY);
+    if (fd < 0) return 1;
+    ssize_t count = read(fd, buffer, sizeof(buffer));
+    close(fd);
+    if (count < 0) return 2;
+    if (unlink(output) != 0) return 3;
+    int out = open(output, O_WRONLY | O_CREAT | O_TRUNC, 0600);
+    if (out < 0) return 4;
+    if (count > 0 && write(out, buffer, (size_t)count) != count) {
+      close(out);
+      return 5;
+    }
+    return close(out) != 0;
+  }
+  if (!strcmp(name, "symlink_delete_recreate")) {
+    // The pre-state of the path is a symbolic link, which the tracer refuses to describe with a
+    // content fingerprint. Replacing the link name with a regular file must not be replayed from
+    // that refusal.
+    if (unlink(output) != 0 && errno != ENOENT) return 1;
+    int fd = open(output, O_WRONLY | O_CREAT | O_TRUNC, 0600);
+    if (fd < 0) return 2;
+    if (write(fd, "fresh\n", 6) != 6) {
+      close(fd);
+      return 3;
+    }
+    return close(fd) != 0;
+  }
+  if (!strcmp(name, "delete_recreate")) {
+    // Remove the previous result and put a new one in its place. Used both for the plain
+    // compiler pattern and, with a `twin.txt` hard link prepared by the harness, to check that a
+    // replay does not disturb the other name that shares the inode.
+    if (unlink(output) != 0 && errno != ENOENT) return 1;
+    int fd = open(output, O_WRONLY | O_CREAT | O_TRUNC, 0600);
+    if (fd < 0) return 2;
+    if (write(fd, "fresh\n", 6) != 6) {
+      close(fd);
+      return 3;
+    }
+    return close(fd) != 0;
+  }
+  if (!strcmp(name, "delete_only")) {
+    // A terminal deletion: the result *is* the absence of the path, so the bytes removed by the
+    // unlink stay part of what this execution observed.
+    return unlink(output) == 0 || errno == ENOENT ? 0 : 1;
+  }
   if (!strcmp(name, "vdso_clock")) {
     struct timespec spec;
     struct timeval wall;
