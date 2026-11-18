@@ -110,6 +110,15 @@ enum FdState {
         readable: bool,
         writable: bool,
     },
+    /// An epoll instance created by this process. Creation, duplication and close are
+    /// process-internal; the instance holds no state a caller can observe until `epoll_ctl`
+    /// registers a descriptor or `epoll_wait` reports readiness, and both stay unclassified.
+    Epoll,
+    /// The kernel null device, identified by the open object (character device 1:3) rather than by
+    /// the pathname that opened it. Reads always reach end-of-file and writes are discarded, so
+    /// the descriptor contributes content no input can change; the pathname is kept as a metadata
+    /// guard so a bind mount that substitutes a real file for the node is detected.
+    NullDevice(PathBuf),
     Other,
 }
 
@@ -165,6 +174,16 @@ enum PendingSyscall {
     SetCloseOnExec {
         fd: i32,
         enabled: bool,
+    },
+    /// A status-flag rewrite (`F_SETFL`/`FIONBIO`) whose only change is `O_NONBLOCK` on a
+    /// regular file this process opened. The call itself has no observable effect, but a
+    /// *failed* call is still an observation and must not be treated as a silent no-op.
+    SetStatusFlags {
+        fd: i32,
+    },
+    /// `epoll_create1`: the instance does not exist until the call succeeds.
+    EpollCreate {
+        close_on_exec: bool,
     },
     Rename {
         from: PathBuf,
@@ -1269,6 +1288,9 @@ fn decode_entry(
                 FdState::File(path) | FdState::InheritedFile(path) => {
                     Some(PendingSyscall::Metadata { path: path.clone() })
                 }
+                // `fstat` on the null device reports a fixed device node: mode, rdev and inode are
+                // properties of the node, and size and timestamps never change on it.
+                FdState::NullDevice(path) => Some(PendingSyscall::Metadata { path: path.clone() }),
                 FdState::InternalPipe { .. } => Some(PendingSyscall::Unknown {
                     number,
                     detail: format!(
@@ -1424,6 +1446,15 @@ fn decode_entry(
             fd: args[0] as i32,
             enabled: args[2] as i32 & libc::FD_CLOEXEC != 0,
         },
+        // `F_SETFL` rewrites the status flags of the open file description. Only `O_NONBLOCK`
+        // can be admitted, and only on a regular file this process opened: POSIX gives it no
+        // effect on regular-file I/O, and the one path that could still observe it (a blocking
+        // lock request turning into `EAGAIN`) is itself an unmodelled `fcntl` command. Any other
+        // flag bit (`O_APPEND`, `O_DIRECT`, `O_NOATIME`, …) changes observable behaviour, and an
+        // inherited or pipe description is shared with another process or is scheduling-visible.
+        libc::SYS_fcntl if args[1] as i32 == libc::F_SETFL => {
+            status_flag_change(pid, state, args[0] as i32, Some(args[2] as i32), number)?
+        }
         // Pure queries about descriptor state are process-local for V1. Mutating commands
         // (F_SETFL / locks / seals / owner / pipe size / …) can change OFD behavior or be
         // visible to collaborators; do not silently treat them as None.
@@ -1470,6 +1501,9 @@ fn decode_entry(
         libc::SYS_writev => PendingSyscall::Write {
             fd: args[0] as i32,
             count: None,
+        },
+        libc::SYS_epoll_create1 => PendingSyscall::EpollCreate {
+            close_on_exec: args[0] as i32 & libc::EPOLL_CLOEXEC != 0,
         },
         libc::SYS_pipe | libc::SYS_pipe2 => PendingSyscall::Pipe {
             address: args[0],
@@ -1647,14 +1681,21 @@ fn decode_entry(
         {
             PendingSyscall::None
         }
+        // A pure query of a limit that `RuntimeIdentity` already guards. The identity records the
+        // inherited stack, descriptor, address-space and resident-set limits, so returning them
+        // cannot depend on anything a cache hit does not re-check. A call that installs a new
+        // limit (`new_limit != 0`), or queries a limit the identity does not carry, stays an
+        // effect: a program that reads back a limit it just changed would see state no guard
+        // reproduces.
         libc::SYS_prlimit64
             if args[0] == 0
-                && args[1] == libc::RLIMIT_STACK as u64
                 && args[2] == 0
-                && args[3] != 0 =>
+                && args[3] != 0
+                && matches!(
+                    args[1] as u32,
+                    libc::RLIMIT_STACK | libc::RLIMIT_NOFILE | libc::RLIMIT_AS | libc::RLIMIT_RSS
+                ) =>
         {
-            // glibc queries the inherited stack limit during startup. RuntimeIdentity guards the
-            // same values before reuse. Limit changes and all other prlimit calls remain effects.
             PendingSyscall::None
         }
         libc::SYS_getrusage
@@ -1739,12 +1780,25 @@ fn decode_entry(
                 // probes stay silent via InheritedTerminalProbe's failure arm. Never treat a
                 // successful TCGETS on fd 0/1/2 as process-internal.
                 FdState::Other if args[0] <= 2 => Some(PendingSyscall::InheritedTerminalProbe),
+                // A pipe can never answer `TCGETS`, so the probe fails with `ENOTTY` — the same
+                // observation a native run makes, with no scheduling input. A success would still
+                // be refused by the completion arm; the pipe end stays classified for reads,
+                // writes and close.
+                FdState::InternalPipe { .. } => Some(PendingSyscall::InheritedTerminalProbe),
+                // A null device is a character device, not a terminal: `TCGETS` fails with
+                // `ENOTTY` deterministically. A success is still refused by the completion arm.
+                FdState::NullDevice(_) => Some(PendingSyscall::InheritedTerminalProbe),
                 _ => None,
             })
             .unwrap_or_else(|| PendingSyscall::Unknown {
                 number,
                 detail: format!("TCGETS on unclassified fd {}", args[0]),
             }),
+        // `FIONBIO` is `F_SETFL(O_NONBLOCK)` through an ioctl: it toggles that one bit and leaves
+        // every other status flag alone, so it follows the same admission rule as `F_SETFL`.
+        libc::SYS_ioctl if args[1] == libc::FIONBIO => {
+            status_flag_change(pid, state, args[0] as i32, None, number)?
+        }
         // Other stdio ioctls (TIOCGWINSZ, …): success is unmodeled; failure (e.g. ENOTTY on a
         // pipe) must not poison otherwise Guarded runs that only probe isatty-like state.
         libc::SYS_ioctl if args[0] == 1 || args[0] == 2 => {
@@ -2175,6 +2229,34 @@ fn complete_syscall(
                         ),
                     }),
                 );
+            } else if path == Path::new("/dev/null") && is_null_device_fd(pid, fd) {
+                // Opening the null device is a content-free operation whatever the access mode:
+                // every read reaches EOF and every write is discarded. The device identity is
+                // checked on the opened descriptor, so a bind mount or substituted node that makes
+                // `/dev/null` resolve to a regular file takes the ordinary path below instead.
+                match before_fingerprint.clone().or_else(|| fingerprint(&path).ok()) {
+                    Some(fingerprint) => {
+                        state.fds.insert(fd, FdState::NullDevice(path.clone()));
+                        collector.push(
+                            pid,
+                            Effect::Read(ReadEffect::FileMetadata(FileMetadataRead {
+                                path,
+                                fingerprint: Some(fingerprint),
+                                audited_toolchain: audited_toolchain(pid).is_some(),
+                            })),
+                        );
+                    }
+                    None => {
+                        state.fds.insert(fd, FdState::Other);
+                        collector.push(
+                            pid,
+                            Effect::Unknown(UnknownEffect {
+                                syscall: Some(libc::SYS_open),
+                                detail: "null-device identity cannot be guarded".into(),
+                            }),
+                        );
+                    }
+                }
             } else if flags & (libc::O_WRONLY | libc::O_RDWR | libc::O_CREAT | libc::O_TRUNC) != 0 {
                 state.fds.insert(fd, FdState::File(path.clone()));
                 if flags & libc::O_TRUNC == 0 {
@@ -2318,6 +2400,17 @@ fn complete_syscall(
                 }),
             ),
         },
+        PendingSyscall::EpollCreate { close_on_exec } => {
+            let fd = result as i32;
+            forget_descriptor(state, fd);
+            state.fds.insert(fd, FdState::Epoll);
+            if close_on_exec {
+                state.close_on_exec.insert(fd);
+            } else {
+                state.close_on_exec.remove(&fd);
+            }
+        }
+        PendingSyscall::SetStatusFlags { .. } => {}
         PendingSyscall::Chdir { path } => {
             state.cwd = path.clone();
             collector.push(pid, Effect::Control(ControlEffect::Chdir(path)));
@@ -2561,6 +2654,8 @@ fn complete_syscall(
                 })),
             ),
             Some(FdState::File(_)) => {}
+            // The null device reports end-of-file for every read, independent of any input.
+            Some(FdState::NullDevice(_)) => {}
             // Bytes from a pipe created inside this execution are a function of inputs that are
             // already guarded, so the read itself is not a dependency. Whether the transfer is
             // packetisation independent is tracked per pipe and enforced at the end of the trace.
@@ -2683,6 +2778,8 @@ fn complete_syscall(
                 writable: true,
                 ..
             }) => collector.pipe_write(pid, *pipe, count, result),
+            // Writes to the null device are discarded by the kernel.
+            Some(FdState::NullDevice(_)) => {}
             Some(FdState::Other) if fd == 1 || fd == 2 => {}
             _ => collector.push(
                 pid,
@@ -2904,6 +3001,24 @@ fn complete_failed_syscall(
         }
         PendingSyscall::TerminalProbe { path } => record_metadata(pid, path, collector),
         PendingSyscall::InheritedTerminalProbe => {}
+        PendingSyscall::EpollCreate { .. } => collector.push(
+            pid,
+            Effect::Unknown(UnknownEffect {
+                syscall: Some(libc::SYS_epoll_create1),
+                detail: format!(
+                    "epoll_create1 failed (errno {errno}); descriptor state is not replayable"
+                ),
+            }),
+        ),
+        PendingSyscall::SetStatusFlags { fd } => collector.push(
+            pid,
+            Effect::Unknown(UnknownEffect {
+                syscall: None,
+                detail: format!(
+                    "failed status-flag change on fd {fd} is not modeled (errno {errno})"
+                ),
+            }),
+        ),
         PendingSyscall::Open { path, .. }
         | PendingSyscall::Metadata { path }
         | PendingSyscall::SymlinkMetadata { path }
@@ -3050,6 +3165,15 @@ fn complete_failed_syscall(
                 detail: format!("failed I/O on fd {fd} is not modeled (errno {errno})"),
             }),
         ),
+        PendingSyscall::Dup { source, .. }
+        | PendingSyscall::Close { fd: source }
+        | PendingSyscall::SetCloseOnExec { fd: source, .. }
+            if source < 0 =>
+        {
+            // A negative descriptor is not in any descriptor table, so `EBADF` is the only
+            // possible answer. The program's observation is fixed by the argument it passed, not
+            // by state a replayed run could differ on.
+        }
         PendingSyscall::Dup { source, .. }
         | PendingSyscall::Close { fd: source }
         | PendingSyscall::SetCloseOnExec { fd: source, .. } => collector.push(
@@ -3958,6 +4082,76 @@ fn fd_position(pid: Pid, fd: i32) -> Option<u64> {
         .find_map(|line| line.strip_prefix("pos:")?.trim().parse().ok())
 }
 
+/// Reads the status flags of an open file description from `/proc/<pid>/fdinfo`.
+///
+/// The kernel prints `flags:` in octal. `None` means the flags could not be established, and the
+/// caller must refuse rather than assume a value.
+fn fd_status_flags(pid: Pid, fd: i32) -> Option<i32> {
+    let info = fs::read_to_string(format!("/proc/{}/fdinfo/{fd}", pid.as_raw())).ok()?;
+    info.lines().find_map(|line| {
+        let value = line.strip_prefix("flags:")?.trim();
+        i32::from_str_radix(value, 8).ok()
+    })
+}
+
+/// Decides whether a status-flag rewrite can be admitted without recording an effect.
+///
+/// `requested` is the new `F_SETFL` word, or `None` for `FIONBIO`, which only toggles
+/// `O_NONBLOCK`. Admission requires all of:
+///
+/// * the descriptor was opened by this process (`FdState::File`), so no other process reaches the
+///   same open file description through an inherited descriptor or a fork;
+/// * the open object is a regular file, where `O_NONBLOCK` has no effect on I/O;
+/// * for `F_SETFL`, every flag bit other than `O_NONBLOCK` is unchanged.
+///
+/// Anything else keeps the conservative refusal: an inherited or pipe description is shared with
+/// another process or makes blocking behaviour visible, and a change to `O_APPEND`, `O_DIRECT` or
+/// `O_NOATIME` alters what a later write does.
+fn status_flag_change(
+    pid: Pid,
+    state: &ProcessState,
+    fd: i32,
+    requested: Option<i32>,
+    number: i64,
+) -> Result<PendingSyscall, TraceError> {
+    let refuse = |detail: String| {
+        Ok(PendingSyscall::Unknown {
+            number,
+            detail,
+        })
+    };
+    let Some(FdState::File(path)) = state.fds.get(&fd) else {
+        return refuse(format!(
+            "status-flag change on fd {fd} whose open file description is shared or unclassified"
+        ));
+    };
+    let Ok(metadata) = fs::metadata(format!("/proc/{}/fd/{fd}", pid.as_raw())) else {
+        return refuse(format!(
+            "status-flag change on fd {fd} whose open object cannot be inspected"
+        ));
+    };
+    if !metadata.is_file() {
+        return refuse(format!(
+            "status-flag change on fd {fd} is not a regular file: {}",
+            path.display()
+        ));
+    }
+    if let Some(requested) = requested {
+        let Some(current) = fd_status_flags(pid, fd) else {
+            return refuse(format!(
+                "status-flag change on fd {fd} whose current flags cannot be read"
+            ));
+        };
+        let changed = (current ^ requested) & !libc::O_NONBLOCK;
+        if changed != 0 {
+            return refuse(format!(
+                "status-flag change on fd {fd} alters flags {changed:#x} beyond O_NONBLOCK"
+            ));
+        }
+    }
+    Ok(PendingSyscall::SetStatusFlags { fd })
+}
+
 /// Captures the contract of an inherited regular-file stdin before the program runs.
 ///
 /// Only a regular file whose descriptor target is still reachable at the same path is admitted.
@@ -4130,6 +4324,8 @@ fn pending_description(pending: &PendingSyscall) -> String {
         PendingSyscall::Seek { fd } => format!("seek on fd {fd}"),
         PendingSyscall::Write { fd, .. } => format!("write to fd {fd}"),
         PendingSyscall::Pipe { .. } => "pipe creation".into(),
+        PendingSyscall::EpollCreate { .. } => "epoll creation".into(),
+        PendingSyscall::SetStatusFlags { fd } => format!("status-flag change on fd {fd}"),
         PendingSyscall::Signal { signal, target } => {
             format!("signal {signal} to process {target}")
         }
