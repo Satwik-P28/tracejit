@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/epoll.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/random.h>
@@ -458,6 +459,101 @@ int main(int argc, char **argv) {
     if (write(fds[1], "b", 1) != 1) return 12;
     if (close(fds[1]) != 0) return 13;
     if (waitpid(child, NULL, 0) != child) return 14;
+    copy_file(input, output);
+    return 0;
+  }
+  if (!strcmp(name, "dev_null_open_write")) {
+    /* The null device discards every write and never reports content, so a descriptor opened on
+       it carries no observable. Its identity is the device node, not the pathname. */
+    int fd = open("/dev/null", O_WRONLY);
+    if (fd < 0) return 1;
+    if (write(fd, "discarded\n", 10) != 10) return 2;
+    struct stat metadata;
+    if (fstat(fd, &metadata) != 0) return 3;
+    if (close(fd) != 0) return 4;
+    int read_fd = open("/dev/null", O_RDONLY);
+    if (read_fd < 0) return 5;
+    char byte;
+    if (read(read_fd, &byte, 1) != 0) return 6;
+    if (close(read_fd) != 0) return 7;
+    copy_file(input, output);
+    return 0;
+  }
+  if (!strcmp(name, "epoll_create_close")) {
+    /* An epoll instance that is only created and closed holds no state any caller can observe. */
+    int first = epoll_create1(EPOLL_CLOEXEC);
+    if (first < 0) return 1;
+    int second = epoll_create1(0);
+    if (second < 0) return 2;
+    if (dup2(first, first) != first) return 3;
+    if (close(first) != 0) return 4;
+    if (close(second) != 0) return 5;
+    copy_file(input, output);
+    return 0;
+  }
+  if (!strcmp(name, "epoll_ctl_use")) {
+    /* Registering a descriptor makes readiness observable, so this must stay refused. */
+    int fds[2];
+    if (pipe(fds) != 0) return 1;
+    int instance = epoll_create1(EPOLL_CLOEXEC);
+    if (instance < 0) return 2;
+    struct epoll_event event = {.events = EPOLLIN, .data = {.fd = fds[0]}};
+    if (epoll_ctl(instance, EPOLL_CTL_ADD, fds[0], &event) != 0) return 3;
+    if (close(instance) != 0) return 4;
+    if (close(fds[0]) != 0 || close(fds[1]) != 0) return 5;
+    copy_file(input, output);
+    return 0;
+  }
+  if (!strcmp(name, "regular_file_setfl_nonblock")) {
+    /* O_NONBLOCK has no effect on regular-file I/O, and the descriptor is private to this
+       process, so the rewrite is unobservable. */
+    int fd = open(input, O_RDONLY);
+    if (fd < 0) return 1;
+    int flags = fcntl(fd, F_GETFL);
+    if (flags < 0) return 2;
+    if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) != 0) return 3;
+    char buffer[16];
+    ssize_t count = read(fd, buffer, sizeof(buffer));
+    if (count <= 0) return 4;
+    if (fcntl(fd, F_SETFL, flags) != 0) return 5;
+    if (close(fd) != 0) return 6;
+    copy_file(input, output);
+    return 0;
+  }
+  if (!strcmp(name, "regular_file_fionbio")) {
+    int fd = open(input, O_RDONLY);
+    if (fd < 0) return 1;
+    int enabled = 1;
+    if (ioctl(fd, FIONBIO, &enabled) != 0) return 2;
+    char buffer[16];
+    if (read(fd, buffer, sizeof(buffer)) <= 0) return 3;
+    if (close(fd) != 0) return 4;
+    copy_file(input, output);
+    return 0;
+  }
+  if (!strcmp(name, "pipe_setfl_nonblock")) {
+    /* A pipe end shares its description with the other end and turns a would-block write into
+       EAGAIN, which a native rerun can observe differently. Must stay refused. */
+    int fds[2];
+    if (pipe(fds) != 0) return 1;
+    int flags = fcntl(fds[0], F_GETFL);
+    if (flags < 0) return 2;
+    if (fcntl(fds[0], F_SETFL, flags | O_NONBLOCK) != 0) return 3;
+    if (write(fds[1], "x", 1) != 1) return 4;
+    char byte;
+    if (read(fds[0], &byte, 1) != 1) return 5;
+    if (close(fds[0]) != 0 || close(fds[1]) != 0) return 6;
+    copy_file(input, output);
+    return 0;
+  }
+  if (!strcmp(name, "regular_file_setfl_append")) {
+    /* O_APPEND changes where the next write lands, so the rewrite is observable and refused. */
+    int fd = open(input, O_RDWR);
+    if (fd < 0) return 1;
+    int flags = fcntl(fd, F_GETFL);
+    if (flags < 0) return 2;
+    if (fcntl(fd, F_SETFL, flags | O_APPEND) != 0) return 3;
+    if (close(fd) != 0) return 4;
     copy_file(input, output);
     return 0;
   }

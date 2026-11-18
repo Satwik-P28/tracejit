@@ -298,12 +298,15 @@ int main(void) {
     assert_eq!(cold_report["classification"], "Unknown", "{cold_report}");
     assert_eq!(cold_report["eligible_for_reuse"], false, "{cold_report}");
     let reasons = cold_report["reasons"].as_array().unwrap();
+    // `O_APPEND` changes where the next write lands. The status-flag rule admits only an
+    // `O_NONBLOCK` change on a private regular file, so this rewrite must still refuse and name
+    // the flag it rejected.
     assert!(
         reasons.iter().any(|reason| {
             let text = reason.as_str().unwrap_or_default();
-            text.contains("fcntl command") && text.contains("not modeled")
+            text.contains("status-flag change") && text.contains("beyond O_NONBLOCK")
         }),
-        "expected fcntl refuse, got {cold_report}"
+        "expected the O_APPEND rewrite to be refused, got {cold_report}"
     );
     assert!(
         reasons.iter().all(|reason| {
@@ -2463,6 +2466,98 @@ fn regular_file_stdin_seek_is_reused_as_an_offset_stream() {
         b"input one\n"
     );
     eprintln!("RESULT substituted-dev-null PASS");
+}
+
+/// Runs one fixture case under a fresh-from-JSON report with the census's allocator tuning, so
+/// the glibc tcache probe cannot mask a descriptor decision under test.
+fn observation_report(fixture: &Fixture, case: &str) -> Value {
+    let output = Command::new(tracejit())
+        .args([
+            "run",
+            "--json",
+            "--",
+            fixture.binary_arg(),
+            case,
+            fixture.root(),
+        ])
+        .env("TRACEJIT_CACHE_DIR", &fixture.cache)
+        .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0")
+        .output()
+        .unwrap();
+    assert!(output.status.success(), "{}", stderr_of(&output));
+    serde_json::from_slice(&output.stdout).unwrap()
+}
+
+/// The null device is a content-free source and sink, so opening it must not refuse reuse.
+#[test]
+fn null_device_open_is_reusable() {
+    let fixture = Fixture::new();
+    let first = observation_report(&fixture, "dev_null_open_write");
+    assert_eq!(first["kind"], "Executed", "{first}");
+    let second = observation_report(&fixture, "dev_null_open_write");
+    assert_eq!(second["kind"], "Reused", "{second}");
+    assert_eq!(
+        fs::read(fixture.input("output.txt")).unwrap(),
+        fs::read(fixture.input("input.txt")).unwrap()
+    );
+    eprintln!("RESULT null-device-reuse PASS");
+}
+
+/// A create-only epoll instance is process-internal: nothing can observe it before close.
+#[test]
+fn create_only_epoll_is_reusable() {
+    let fixture = Fixture::new();
+    assert_eq!(
+        observation_report(&fixture, "epoll_create_close")["kind"],
+        "Executed"
+    );
+    let second = observation_report(&fixture, "epoll_create_close");
+    assert_eq!(second["kind"], "Reused", "{second}");
+    eprintln!("RESULT epoll-create-reuse PASS");
+}
+
+/// Registering a descriptor makes readiness observable, so `epoll_ctl` must keep refusing.
+#[test]
+fn epoll_registration_is_refused() {
+    let fixture = Fixture::new();
+    let first = observation_report(&fixture, "epoll_ctl_use");
+    assert_eq!(first["eligible_for_reuse"], false, "{first}");
+    let second = observation_report(&fixture, "epoll_ctl_use");
+    assert_eq!(second["eligible_for_reuse"], false, "{second}");
+    assert_ne!(second["kind"], "Reused", "{second}");
+    eprintln!("RESULT epoll-registration-refused PASS");
+}
+
+/// `O_NONBLOCK` on a private regular-file descriptor cannot change anything the program sees.
+#[test]
+fn regular_file_blocking_bit_is_reusable() {
+    for case in ["regular_file_setfl_nonblock", "regular_file_fionbio"] {
+        let fixture = Fixture::new();
+        assert_eq!(
+            observation_report(&fixture, case)["kind"],
+            "Executed",
+            "{case}"
+        );
+        let second = observation_report(&fixture, case);
+        assert_eq!(second["kind"], "Reused", "{case}: {second}");
+    }
+    eprintln!("RESULT regular-file-blocking-bit PASS");
+}
+
+/// The same rewrite on a pipe, and an `O_APPEND` rewrite on a regular file, stay refused.
+#[test]
+fn observable_status_flag_rewrites_are_refused() {
+    for case in ["pipe_setfl_nonblock", "regular_file_setfl_append"] {
+        let fixture = Fixture::new();
+        assert_eq!(
+            observation_report(&fixture, case)["eligible_for_reuse"],
+            false,
+            "{case} must not be eligible"
+        );
+        let second = observation_report(&fixture, case);
+        assert_ne!(second["kind"], "Reused", "{case}: {second}");
+    }
+    eprintln!("RESULT observable-status-flags-refused PASS");
 }
 
 #[test]

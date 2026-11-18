@@ -51,6 +51,11 @@ struct ProcessState {
     stdin_stream: Option<InheritedStreamState>,
     /// False after exec until vDSO time entry points are redirected to syscalls.
     vdso_disarmed: bool,
+    /// True once this process has created a child. A child inherits the parent's descriptor
+    /// table and both then reach the same open file descriptions, so a descriptor that was
+    /// private before a fork is not private afterwards. Status-flag rewrites are admitted only
+    /// while this is false.
+    descriptor_sharing: bool,
 }
 
 /// Records one directory's entry stream while the program reads it.
@@ -441,9 +446,16 @@ fn adopt_child(
             // A child shares the open file description but not this model's consumption
             // accounting, so it must not silently read stdin.
             stdin_stream: None,
+            // From here on both processes reach the inherited descriptions.
+            descriptor_sharing: true,
             ..inherited
         },
     );
+    // The parent's descriptors are now reachable from the child as well, so a description that
+    // was private to the parent before the fork is no longer private.
+    if let Some(parent_state) = states.get_mut(&parent) {
+        parent_state.descriptor_sharing = true;
+    }
     if !processes
         .iter()
         .any(|process| process.pid == child.as_raw() as u32)
@@ -732,6 +744,7 @@ pub(super) fn trace_command(request: TraceRequest) -> Result<TraceOutcome, Trace
             enumerations: HashMap::new(),
             stdin_stream,
             vdso_disarmed: true,
+            descriptor_sharing: false,
         },
     )]);
     let mut processes = vec![ProcessNode {
@@ -2234,7 +2247,10 @@ fn complete_syscall(
                 // every read reaches EOF and every write is discarded. The device identity is
                 // checked on the opened descriptor, so a bind mount or substituted node that makes
                 // `/dev/null` resolve to a regular file takes the ordinary path below instead.
-                match before_fingerprint.clone().or_else(|| fingerprint(&path).ok()) {
+                match before_fingerprint
+                    .clone()
+                    .or_else(|| fingerprint(&path).ok())
+                {
                     Some(fingerprint) => {
                         state.fds.insert(fd, FdState::NullDevice(path.clone()));
                         collector.push(
@@ -4114,17 +4130,17 @@ fn status_flag_change(
     requested: Option<i32>,
     number: i64,
 ) -> Result<PendingSyscall, TraceError> {
-    let refuse = |detail: String| {
-        Ok(PendingSyscall::Unknown {
-            number,
-            detail,
-        })
-    };
+    let refuse = |detail: String| Ok(PendingSyscall::Unknown { number, detail });
     let Some(FdState::File(path)) = state.fds.get(&fd) else {
         return refuse(format!(
             "status-flag change on fd {fd} whose open file description is shared or unclassified"
         ));
     };
+    if state.descriptor_sharing {
+        return refuse(format!(
+            "status-flag change on fd {fd} after the process created a child, which reaches the same open file description"
+        ));
+    }
     let Ok(metadata) = fs::metadata(format!("/proc/{}/fd/{fd}", pid.as_raw())) else {
         return refuse(format!(
             "status-flag change on fd {fd} whose open object cannot be inspected"
@@ -4437,6 +4453,7 @@ mod tests {
             enumerations: HashMap::new(),
             stdin_stream: None,
             vdso_disarmed: false,
+            descriptor_sharing: false,
         };
         state.fds.insert(7, FdState::File(PathBuf::from("/tmp")));
         state.close_on_exec.insert(7);
@@ -4472,6 +4489,7 @@ mod tests {
                 enumerations: HashMap::new(),
                 stdin_stream: None,
                 vdso_disarmed: false,
+                descriptor_sharing: false,
             };
             state.fds.insert(7, FdState::File(PathBuf::from("/tmp")));
             state.enumerations.insert(
@@ -4554,6 +4572,7 @@ mod tests {
             enumerations: HashMap::new(),
             stdin_stream: None,
             vdso_disarmed: false,
+            descriptor_sharing: false,
         };
         file.fds
             .insert(7, FdState::File(PathBuf::from("/tmp/file")));
@@ -4586,6 +4605,7 @@ mod tests {
             enumerations: HashMap::new(),
             stdin_stream: None,
             vdso_disarmed: false,
+            descriptor_sharing: false,
         };
         directory
             .fds
@@ -4626,6 +4646,7 @@ mod tests {
             enumerations: HashMap::new(),
             stdin_stream: None,
             vdso_disarmed: false,
+            descriptor_sharing: false,
         };
         pipe.fds.insert(
             7,
@@ -4676,6 +4697,7 @@ mod tests {
                 enumerations: HashMap::new(),
                 stdin_stream: None,
                 vdso_disarmed: false,
+                descriptor_sharing: false,
             };
             state.fds.insert(7, FdState::File(PathBuf::from("/source")));
             let reused = destination.unwrap_or(result as i32);
