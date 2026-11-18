@@ -29,10 +29,10 @@ non-CLOEXEC descriptor above stderr, still rescans after `Cache::open`, and stil
 
 - Pipes are created with `pipe2(O_CLOEXEC)`; the child still receives the bytes because
   `run_with_fd9` installs descriptor 9 itself in `pre_exec`.
-- No harness code closes a descriptor it does not own. Instead, once per process, every
-  descriptor the harness *inherited* is marked `FD_CLOEXEC`, so it is dropped from every child
-  at `exec`. Marking is idempotent and, unlike closing, cannot invalidate a descriptor another
-  thread is using, so it is safe beside concurrent spawning.
+- No harness code closes a descriptor it does not own, and the shared test process's descriptor
+  table is not modified at all. Each spawn marks its *own forked child's* descriptors
+  `FD_CLOEXEC` in `pre_exec` (`close_range`, Phase U2 below), so anything the harness did not
+  hand that child is dropped at `exec` without any other test or thread observing the change.
 - `pre_exec` closures touch only descriptor 9.
 - The two tests that deliberately manipulate descriptor 9 run in a re-executed copy of the
   test binary (`--exact`, `--test-threads=1`, guarded by `TRACEJIT_ISOLATED_TEST_CHILD`).
@@ -50,13 +50,13 @@ descriptor restores reuse.
 
 | configuration | result |
 | --- | --- |
-| `--test-threads=1` | 68/68 (25.9 s) |
-| `--test-threads=2` | 68/68 (12.0 s) |
-| `--test-threads=4` | 68/68 (7.1 s) |
-| `--test-threads=8` | 68/68 (5.2 s) |
-| default parallelism, 10 consecutive runs | 68/68 each |
-| default parallelism with CI-style inherited descriptors (`142`, `145` held non-CLOEXEC), 12 runs | 68/68 each |
-| `--test-threads=16` (2× oversubscribed) | 68/68 |
+| `--test-threads=1` | 69/69 (25.6 s) |
+| `--test-threads=2` | 69/69 (11.2 s) |
+| `--test-threads=4` | 69/69 (6.4 s) |
+| `--test-threads=8` | 69/69 (4.2 s) |
+| `--test-threads=16` (2× oversubscribed) | 69/69 (3.9 s) |
+| default parallelism, 10 consecutive runs | 69/69 each |
+| default parallelism, `142` and `145` held non-CLOEXEC (the CI condition), 10 consecutive runs | 69/69 each |
 
 ### Hotfix: descriptors inherited from the CI runner (run `44235001207`)
 
@@ -68,11 +68,39 @@ any test, and nothing in the harness owns them.
 
 The assertion was the wrong instrument: it cannot be race-free (it observes whatever the shape of
 the process happens to be) and it made the run red without fixing the consequence, which is that
-the traced child inherits those descriptors too and must refuse. `mark_inherited_descriptors_close_on_exec`
-now marks them `FD_CLOEXEC` once per process: they stay open and valid for whoever owns them, and
-they never reach a child. Reproduced locally with `bash -c 'exec 142>…; exec 145>…; cargo test …'`:
-before the change the run failed, after it 12/12 default-parallelism runs were green with no
-`inherited descriptor` refusal anywhere.
+the traced child inherits those descriptors too and must refuse. Reproduced locally with
+`bash -c 'exec 142>…; exec 145>…; cargo test …'`: before the change the run failed, after it the
+suite was green with no `inherited descriptor` refusal anywhere.
+
+### Phase U2: the sweep belongs to the child
+
+The first repair marked those descriptors `FD_CLOEXEC` once per test process from a `Once`. That
+is still a process-wide mutation during parallel execution, and it has real defects: another
+thread's live descriptor can be flag-flipped, another test's intended child inheritance can
+change, the scan stops at descriptor 1023, and a slot can be closed and reused between
+`F_GETFD` and `F_SETFD`. Moving the same call into the shared process would not fix the ownership
+problem, so the placement changed rather than the syscall.
+
+Each spawn now sweeps its own fork. `pre_exec` calls
+`close_range(3, UINT_MAX, CLOSE_RANGE_CLOEXEC)`: one kernel call, after `fork` and before `exec`,
+in a process with exactly one thread and a private copy of the descriptor table. It closes
+nothing (every descriptor stays valid for its owner and is merely dropped from the `exec`),
+reaches every descriptor the process can own, and is invisible to the parent and to every other
+test — no lock, and no cooperation from `std::process`, is required. `Command`'s spawn-error and
+stdio pipes are already close-on-exec and are installed with `dup2`, which clears the flag on the
+new 0/1/2, so marking them is a no-op. Kernels before 5.11 fall back to an `F_GETFD`/`F_SETFD`
+loop bounded by `RLIMIT_NOFILE` (read in the parent, because `/proc` is not async-signal-safe);
+the loop is race-free for the same reason, since it also runs in a single-threaded forked child.
+
+Spawning with the table left alone is now explicit: `invoke_inheriting` is used only by the
+regressions that must present TraceJIT with a descriptor the hash does not model.
+
+`runner_inherited_descriptors_do_not_contaminate_runs_and_are_still_refused` reproduces the runner
+across a real `exec`: the parent re-executes the test binary with 142, 145 and 1500 open and
+inheritable, and the child asserts that they arrived inheritable; that an ordinary spawn reuses
+with no `EBADF`; that handing the table over is refused with `eligible_for_reuse: false` and an
+`inherited descriptor <fd>` reason; that the fallback's exit status and stdout match a native run;
+that leaving only 1500 open is still refused by that number; and that closing it restores reuse.
 
 The isolation policy is unchanged: the tests that deliberately create a non-CLOEXEC descriptor
 (`an_inheritable_parent_descriptor_is_refused`, `cloexec_source_already_on_fd9_still_reaches_the_child`)
@@ -183,9 +211,12 @@ risk. Guards stay as they are, and the limitation is recorded.
 | `cargo fmt --all -- --check` | clean |
 | `cargo clippy --workspace --all-targets --all-features -- -D warnings` | 0 warnings |
 | `cargo test --workspace --no-fail-fast` | 224 tests, 0 failed (includes `execution_fidelity`, `phase_d_verification`, `phase_k_modelcheck`, `phase_k_crash_recovery`) |
-| `cargo build --workspace --release` | ok, `target/release/tracejit` = `c5f9151b…` |
+| `cargo build --workspace --release` | ok, `target/release/tracejit` = `31898b97…`, byte-identical to `f41c3b1`, so Phase U2 changed no production semantics |
 | `cargo audit` | 0 vulnerabilities (1527 advisories) |
-| integration matrix | see §1 |
+| `scripts/modelcheck/check_state_machines.py` | `RESULT phase-k3-modelcheck PASS`, 0 legal-state violations |
+| `scripts/demo.sh` | direct / miss / HIT / explain / mutation-DEOPT all PASS |
+| `scripts/phase_k4_restore_fault.sh` | soft fail-and-retrace and hard-kill recovery PASS |
+| integration matrix | 69/69, see §1 |
 | both compatibility corpora | see below |
 
 Corpora (candidate, commit `5e2ca1d`):
@@ -208,6 +239,9 @@ Not run: Landlock-dependent `PROVEN`/sandbox tests (this host's LSMs are
 
 - `d2c1725` harness repair + `an_inheritable_parent_descriptor_is_refused`
 - `5e2ca1d` refuse descriptor-flag queries on inherited descriptors + unit regression
+- `5071037` Phase U1 evidence and report
+- `f41c3b1` stop failing CI on runner-held descriptors
+- `c686d27` child-local `close_range` sweep + runner-descriptor regression
 
 Both are pushed to `origin/development/v0.3`. `main` and tag `v0.2.0-beta.1` are untouched;
 no v0.3 tag or release was created.

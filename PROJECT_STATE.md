@@ -35,6 +35,11 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 - New corpus: `benchmarks/realworld/census_v03.py` (20 held-out workloads).
 - Docs: `docs/COMPATIBILITY_V03.md` (blocker analysis, accepted/rejected models), `docs/PHASE_U_REPORT.md`.
 - Evidence: `benchmarks/results/phaseu/`.
+- Harness (Phase U2): no descriptor in the shared test process is modified. Each spawn marks its
+  own forked child's descriptors `FD_CLOEXEC` with one `close_range` call in `pre_exec`, and
+  `invoke_inheriting` is the only way to hand TraceJIT a deliberately inherited descriptor. A
+  regression re-executes the binary with 142/145/1500 inheritable to reproduce the CI condition.
+  Production is unchanged (release binary byte-identical).
 
 ## Known limitations
 
