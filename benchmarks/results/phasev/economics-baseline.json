@@ -1,0 +1,373 @@
+{
+  "tracejit": "/workspace/chats/24375cea864939ae012511ac/target/release/tracejit",
+  "seed": 11,
+  "reps": 15,
+  "host": {
+    "cpus": 8,
+    "kernel": "6.1.102"
+  },
+  "results": [
+    {
+      "workload": "cc_o2_compile",
+      "argv": [
+        "cc",
+        "-O2",
+        "-c",
+        "unit.c",
+        "-o",
+        "unit.o"
+      ],
+      "contract": "compiler-runtime-v1",
+      "classification": "Guarded",
+      "reusable": true,
+      "direct": {
+        "n": 15,
+        "median_ms": 1536.951,
+        "p95_ms": 1568.637,
+        "min_ms": 1482.227,
+        "max_ms": 1596.719,
+        "stdev_ms": 27.414
+      },
+      "cold": {
+        "trace_ms": 1756.412
+      },
+      "warm": {
+        "n": 15,
+        "median_ms": 115.135,
+        "p95_ms": 130.983,
+        "min_ms": 104.076,
+        "max_ms": 132.581,
+        "stdev_ms": 8.87
+      },
+      "hit_share_of_direct": 7.5,
+      "break_even_repetitions": 1.15,
+      "session_savings_ms": {
+        "2": 1202.4,
+        "5": 5467.8,
+        "10": 12576.9,
+        "50": 69449.5,
+        "200": 282721.9
+      }
+    },
+    {
+      "workload": "gzip_9_small",
+      "argv": [
+        "gzip",
+        "-9",
+        "-c",
+        "small.bin"
+      ],
+      "contract": null,
+      "classification": "Guarded",
+      "reusable": true,
+      "direct": {
+        "n": 15,
+        "median_ms": 5.031,
+        "p95_ms": 6.228,
+        "min_ms": 2.716,
+        "max_ms": 6.423,
+        "stdev_ms": 1.081
+      },
+      "cold": {
+        "trace_ms": 22.873
+      },
+      "warm": {
+        "n": 15,
+        "median_ms": 14.077,
+        "p95_ms": 16.742,
+        "min_ms": 8.633,
+        "max_ms": 19.881,
+        "stdev_ms": 2.899
+      },
+      "hit_share_of_direct": 279.8,
+      "break_even_repetitions": null,
+      "session_savings_ms": {
+        "2": -26.9,
+        "5": -54.0,
+        "10": -99.3,
+        "50": -461.1,
+        "200": -1818.0
+      }
+    },
+    {
+      "workload": "gzip_9_8mib",
+      "argv": [
+        "gzip",
+        "-9",
+        "-c",
+        "data.bin"
+      ],
+      "contract": null,
+      "classification": "Guarded",
+      "reusable": true,
+      "direct": {
+        "n": 15,
+        "median_ms": 229.876,
+        "p95_ms": 253.264,
+        "min_ms": 226.226,
+        "max_ms": 253.32,
+        "stdev_ms": 10.014
+      },
+      "cold": {
+        "trace_ms": 576.615
+      },
+      "warm": {
+        "n": 15,
+        "median_ms": 264.462,
+        "p95_ms": 282.396,
+        "min_ms": 254.69,
+        "max_ms": 283.711,
+        "stdev_ms": 9.505
+      },
+      "hit_share_of_direct": 115.0,
+      "break_even_repetitions": null,
+      "session_savings_ms": {
+        "2": -381.3,
+        "5": -485.1,
+        "10": -658.0,
+        "50": -2041.5,
+        "200": -7229.4
+      }
+    },
+    {
+      "workload": "sort_300k_lines",
+      "argv": [
+        "sort",
+        "lines.txt"
+      ],
+      "contract": null,
+      "classification": "Unknown",
+      "reusable": false,
+      "reasons": [
+        "clone file-descriptor and cwd sharing semantics are not eligible for V1 reuse",
+        "clone file-descriptor and cwd sharing semantics are not eligible for V1 reuse",
+        "clone file-descriptor and cwd sharing semantics are not eligible for V1 reuse"
+      ],
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "direct": {
+        "n": 3,
+        "median_ms": 68.723,
+        "p95_ms": 71.275,
+        "min_ms": 62.192,
+        "max_ms": 71.275,
+        "stdev_ms": 4.685
+      },
+      "cold": {
+        "trace_ms": 578.315
+      }
+    },
+    {
+      "workload": "sha256sum_8mib",
+      "argv": [
+        "sha256sum",
+        "data.bin"
+      ],
+      "contract": "allocator-entropy-v1",
+      "classification": "Guarded",
+      "reusable": true,
+      "direct": {
+        "n": 15,
+        "median_ms": 14.187,
+        "p95_ms": 16.603,
+        "min_ms": 9.913,
+        "max_ms": 16.611,
+        "stdev_ms": 2.571
+      },
+      "cold": {
+        "trace_ms": 51.806
+      },
+      "warm": {
+        "n": 15,
+        "median_ms": 41.683,
+        "p95_ms": 49.721,
+        "min_ms": 30.115,
+        "max_ms": 64.119,
+        "stdev_ms": 7.918
+      },
+      "hit_share_of_direct": 293.8,
+      "break_even_repetitions": null,
+      "session_savings_ms": {
+        "2": -65.1,
+        "5": -147.6,
+        "10": -285.1,
+        "50": -1384.9,
+        "200": -5509.3
+      }
+    },
+    {
+      "workload": "tar_source_tree",
+      "argv": [
+        "tar",
+        "-cf",
+        "tree.tar",
+        "unit.c",
+        "lines.txt",
+        "small.bin"
+      ],
+      "contract": null,
+      "classification": "Unknown",
+      "reusable": false,
+      "reasons": [
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded"
+      ],
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "direct": {
+        "n": 3,
+        "median_ms": 15.126,
+        "p95_ms": 19.347,
+        "min_ms": 14.905,
+        "max_ms": 19.347,
+        "stdev_ms": 2.503
+      },
+      "cold": {
+        "trace_ms": 191.972
+      }
+    },
+    {
+      "workload": "strip_object",
+      "argv": [
+        "strip",
+        "-o",
+        "unit.stripped.o",
+        "unit.o"
+      ],
+      "contract": "allocator-entropy-v1",
+      "classification": "Guarded",
+      "reusable": false,
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "decision_reason": "cached execution deoptimized",
+      "direct": {
+        "n": 3,
+        "median_ms": 2.418,
+        "p95_ms": 3.218,
+        "min_ms": 2.131,
+        "max_ms": 3.218,
+        "stdev_ms": 0.563
+      },
+      "cold": {
+        "trace_ms": 46.268
+      }
+    },
+    {
+      "workload": "md5sum_8mib",
+      "argv": [
+        "md5sum",
+        "data.bin"
+      ],
+      "contract": "allocator-entropy-v1",
+      "classification": "Guarded",
+      "reusable": true,
+      "direct": {
+        "n": 15,
+        "median_ms": 18.136,
+        "p95_ms": 26.241,
+        "min_ms": 14.276,
+        "max_ms": 30.85,
+        "stdev_ms": 4.496
+      },
+      "cold": {
+        "trace_ms": 77.889
+      },
+      "warm": {
+        "n": 15,
+        "median_ms": 30.738,
+        "p95_ms": 43.033,
+        "min_ms": 27.994,
+        "max_ms": 43.674,
+        "stdev_ms": 5.483
+      },
+      "hit_share_of_direct": 169.5,
+      "break_even_repetitions": null,
+      "session_savings_ms": {
+        "2": -72.4,
+        "5": -110.2,
+        "10": -173.2,
+        "50": -677.3,
+        "200": -2567.6
+      }
+    },
+    {
+      "workload": "sed_rewrite_8mib",
+      "argv": [
+        "sed",
+        "s/a/b/g",
+        "data.bin"
+      ],
+      "contract": "allocator-entropy-v1",
+      "classification": "Guarded",
+      "reusable": true,
+      "direct": {
+        "n": 15,
+        "median_ms": 65.902,
+        "p95_ms": 74.139,
+        "min_ms": 60.99,
+        "max_ms": 83.673,
+        "stdev_ms": 6.368
+      },
+      "cold": {
+        "trace_ms": 728.985
+      },
+      "warm": {
+        "n": 15,
+        "median_ms": 395.55,
+        "p95_ms": 554.252,
+        "min_ms": 377.097,
+        "max_ms": 555.768,
+        "stdev_ms": 57.309
+      },
+      "hit_share_of_direct": 600.2,
+      "break_even_repetitions": null,
+      "session_savings_ms": {
+        "2": -992.7,
+        "5": -1981.7,
+        "10": -3629.9,
+        "50": -16815.8,
+        "200": -66263.0
+      }
+    },
+    {
+      "workload": "wc_bytes_8mib",
+      "argv": [
+        "wc",
+        "-c",
+        "data.bin"
+      ],
+      "contract": "allocator-entropy-v1",
+      "classification": "Guarded",
+      "reusable": true,
+      "direct": {
+        "n": 15,
+        "median_ms": 1.442,
+        "p95_ms": 1.51,
+        "min_ms": 1.156,
+        "max_ms": 1.632,
+        "stdev_ms": 0.127
+      },
+      "cold": {
+        "trace_ms": 30.635
+      },
+      "warm": {
+        "n": 15,
+        "median_ms": 24.764,
+        "p95_ms": 27.948,
+        "min_ms": 19.97,
+        "max_ms": 34.059,
+        "stdev_ms": 3.596
+      },
+      "hit_share_of_direct": 1717.3,
+      "break_even_repetitions": null,
+      "session_savings_ms": {
+        "2": -52.5,
+        "5": -122.5,
+        "10": -239.1,
+        "50": -1172.0,
+        "200": -4670.3
+      }
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "rounds": 16,
+  "edit_rounds": [
+    7,
+    12
+  ],
+  "compiles_per_round": 3,
+  "total_invocations": 48,
+  "direct_seconds": 23.822,
+  "traced_seconds": 13.758,
+  "speedup": 1.73,
+  "saved_seconds": 10.063,
+  "saved_percent": 42.2,
+  "traced_decisions": {
+    "Executed": 3,
+    "Reused": 33,
+    "Deoptimized": 12
+  },
+  "objects_match_native": true,
+  "contract": "compiler-runtime-v1",
+  "tracejit": "/workspace/chats/24375cea864939ae012511ac/target/release/tracejit"
+}
