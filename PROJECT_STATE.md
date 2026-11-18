@@ -41,9 +41,32 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
   regression re-executes the binary with 142/145/1500 inheritable to reproduce the CI condition.
   Production is unchanged (release binary byte-identical).
 
+## Research line (`research/phase-w`, from `cb4783f`)
+
+- The two-deoptimisation penalty after an input edit was **record construction**, not the contract.
+  The tracer's own pre-`unlink`/pre-`rename` snapshot was recorded as an ordinary `Read(File)` input
+  dependency, so every record was pinned to the bytes it destroyed (the object `cc` replaces).
+  `FileRead`/`FileMetadataRead` now carry `prestate_snapshot`; `reconstruct_dependencies` drops such
+  a snapshot only when the same execution recreates the path (its last write is not `Delete`). A
+  path deleted for good keeps the exact content guard. Old records deserialize as program reads.
+- Measured: 27-invocation rebuild session 13.544 s → 9.239 s (`main` → candidate, native 14.774 s),
+  1.09× → 1.60×; one deopt per edit instead of two. `docs/PHASE_W_REPORT.md`,
+  `benchmarks/phase_w/{transitions,session}.py`, `benchmarks/results/phasew/`.
+- Competition, measured: ccache 5.371 s and sccache 5.860 s on the same 27 invocations. TraceJIT's
+  whole-command contract cannot beat a compiler-specific cache on compile workloads; the report says
+  so explicitly.
+- Revisiting an earlier *input state* still deoptimises for `cc`, and correctly so: gcc `stat`s its
+  header (PCH probe) and that metadata-only guard has no content fallback. The barrier is the
+  compiler's own observation, not candidate selection (records are retained per identity).
+- Rejected: parallel guard validation (8 threads hashed 45.7 MB in 15 ms instead of 30 ms, but the
+  354-guard sequential walk dominated; 111.7 → 110.6 ms median). Reverted.
+- New tests: `superseded_delete_does_not_pin_the_next_run_to_the_old_bytes`,
+  `terminal_delete_still_requires_the_deleted_bytes`, and three dependency unit tests.
+
 ## Known limitations
 
-- Metadata guards include `accessed_ns`, which the traced command's own reads update. Commands that `stat` an input before reading it (`strip`, `objcopy`, `unzip`) classify `Guarded` and then deoptimize on the next run. Sound, but a permanent miss until guards become field-precise.
+- Metadata guards include `accessed_ns`, which the traced command's own reads update. Commands that
+  `stat` an input before reading it (`strip`, `objcopy`, `unzip`) classify `Guarded` and then deoptimize on the next run. Sound, but a permanent miss until guards become field-precise. Phase W measured the same effect for `cc`: gcc's PCH probe `stat`s the header, so a byte-identical rewrite (new mtime) deoptimises even with the candidate fix applied.
 - Cache-hit fixed cost on this host is ~11 ms plus ~6 ms of strict dependency hashing; commands under ~15 ms are net losses on a hit, which is what `--admission auto` exists for.
 - Large-output restoration remains the dominant cost for big outputs; reflink is unavailable on ext4 and was not adopted without a measurable gain.
 - Multi-output restore: single-path rename atomic; soft rollback verified; hard-kill not crash-atomic / not inode-preserving. Restore-intent refuses the next HIT.

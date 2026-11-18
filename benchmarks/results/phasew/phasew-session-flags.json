@@ -1,0 +1,132 @@
+{
+  "scenario": "flags",
+  "rounds": 10,
+  "units": 3,
+  "functions_per_unit": 120,
+  "edit_rounds": [
+    3,
+    6
+  ],
+  "total_invocations": 30,
+  "reference_objects": {
+    "unit0.o": "a3a74e4606700ce796873803ff187ae4",
+    "unit1.o": "69690e933be652ba22732726e6b88c35",
+    "unit2.o": "f98cbc3822e7750dea609f130b123cf6"
+  },
+  "arms": {
+    "native": {
+      "arm": "native",
+      "seconds": 9.141,
+      "decisions": {},
+      "objects": {
+        "unit0.o": "a3a74e4606700ce796873803ff187ae4",
+        "unit1.o": "69690e933be652ba22732726e6b88c35",
+        "unit2.o": "f98cbc3822e7750dea609f130b123cf6"
+      },
+      "cache_bytes": 0,
+      "tool_stats": [],
+      "objects_match_native": true
+    },
+    "tracejit-main": {
+      "arm": "tracejit-main",
+      "seconds": 6.842,
+      "decisions": {
+        "miss": 6,
+        "hit": 24
+      },
+      "objects": {
+        "unit0.o": "a3a74e4606700ce796873803ff187ae4",
+        "unit1.o": "69690e933be652ba22732726e6b88c35",
+        "unit2.o": "f98cbc3822e7750dea609f130b123cf6"
+      },
+      "cache_bytes": 7649780,
+      "tool_stats": [],
+      "objects_match_native": true
+    },
+    "tracejit-fix": {
+      "arm": "tracejit-fix",
+      "seconds": 6.024,
+      "decisions": {
+        "miss": 6,
+        "hit": 24
+      },
+      "objects": {
+        "unit0.o": "a3a74e4606700ce796873803ff187ae4",
+        "unit1.o": "69690e933be652ba22732726e6b88c35",
+        "unit2.o": "f98cbc3822e7750dea609f130b123cf6"
+      },
+      "cache_bytes": 7771054,
+      "tool_stats": [],
+      "objects_match_native": true
+    },
+    "ccache": {
+      "arm": "ccache",
+      "seconds": 2.057,
+      "decisions": {},
+      "objects": {
+        "unit0.o": "a3a74e4606700ce796873803ff187ae4",
+        "unit1.o": "69690e933be652ba22732726e6b88c35",
+        "unit2.o": "f98cbc3822e7750dea609f130b123cf6"
+      },
+      "cache_bytes": 5945459,
+      "tool_stats": [
+        "Cacheable calls:     30 /  30 (100.0%)\n  Hits:              24 /  30 (80.00%)\n    Direct:          24 /  24 (100.0%)\n    Preprocessed:     0 /  24 ( 0.00%)\n  Misses:             6 /  30 (20.00%)\nLocal storage:\n  Cache size (GiB): 0.0 / 5.0 ( 0.00%)\n  Hits:              24 /  30 (80.00%)\n  Misses:             6 /  30 (20.00%)"
+      ],
+      "objects_match_native": true
+    },
+    "sccache": {
+      "arm": "sccache",
+      "seconds": 2.261,
+      "decisions": {},
+      "objects": {
+        "unit0.o": "a3a74e4606700ce796873803ff187ae4",
+        "unit1.o": "69690e933be652ba22732726e6b88c35",
+        "unit2.o": "f98cbc3822e7750dea609f130b123cf6"
+      },
+      "cache_bytes": 66431,
+      "tool_stats": [
+        "Compile requests                     30",
+        "Compile requests executed            30",
+        "Cache hits                           24",
+        "Cache hits (C/C++)                   24",
+        "Cache misses                          6",
+        "Cache misses (C/C++)                  6",
+        "Cache hits rate                   80.00 %",
+        "Cache hits rate (C/C++)           80.00 %"
+      ],
+      "objects_match_native": true
+    },
+    "make": {
+      "arm": "make",
+      "seconds": 0.925,
+      "decisions": {
+        "rebuild": 1,
+        "up-to-date": 9
+      },
+      "objects": {
+        "unit0.o": "a3a74e4606700ce796873803ff187ae4",
+        "unit1.o": "69690e933be652ba22732726e6b88c35",
+        "unit2.o": "f98cbc3822e7750dea609f130b123cf6"
+      },
+      "cache_bytes": 0,
+      "tool_stats": [],
+      "objects_match_native": true
+    },
+    "ninja": {
+      "arm": "ninja",
+      "seconds": 0.934,
+      "decisions": {
+        "rebuild": 1,
+        "up-to-date": 9
+      },
+      "objects": {
+        "unit0.o": "a3a74e4606700ce796873803ff187ae4",
+        "unit1.o": "69690e933be652ba22732726e6b88c35",
+        "unit2.o": "f98cbc3822e7750dea609f130b123cf6"
+      },
+      "cache_bytes": 0,
+      "tool_stats": [],
+      "objects_match_native": true
+    }
+  }
+}

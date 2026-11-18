@@ -1,0 +1,6340 @@
+{
+ "rounds": 6,
+ "edit_rounds": [
+  2,
+  4
+ ],
+ "units": 3,
+ "functions_per_unit": 220,
+ "contract": "compiler-runtime-v1",
+ "decisions": {
+  "Executed": 3,
+  "Reused": 9,
+  "Deoptimized": 6
+ },
+ "final_objects": {
+  "unit0.o": "acd559e06f631a12",
+  "unit1.o": "3dea40fbe1cc1765",
+  "unit2.o": "eebccb67895eb393"
+ },
+ "timeline": [
+  {
+   "round": 0,
+   "unit": 0,
+   "inputs": {
+    "common.h": "9c1adef57e8a4153",
+    "unit0.c": "c98118ee86727235"
+   },
+   "pre_state": null,
+   "post_state": "e7a0acab22e0283c",
+   "decision": "Executed",
+   "decision_reason": "no eligible cached execution matched the pre-execution identity",
+   "execution_id": "71a4caff15b397de",
+   "kind": "Executed",
+   "classification": "Guarded",
+   "elapsed_ms": 781.535,
+   "guard_counts": {
+    "checked": null,
+    "passed": null
+   },
+   "failure": null,
+   "records_after": [
+    {
+     "execution_id": "71a4caff15b397de",
+     "decision": "Executed",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccJrpAzb.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "9d6a92319d988c6d"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "round": 0,
+   "unit": 1,
+   "inputs": {
+    "common.h": "9c1adef57e8a4153",
+    "unit1.c": "768ad4c6c19c69f3"
+   },
+   "pre_state": null,
+   "post_state": "9998ea8665e434ca",
+   "decision": "Executed",
+   "decision_reason": "no eligible cached execution matched the pre-execution identity",
+   "execution_id": "23f37c2599099806",
+   "kind": "Executed",
+   "classification": "Guarded",
+   "elapsed_ms": 797.066,
+   "guard_counts": {
+    "checked": null,
+    "passed": null
+   },
+   "failure": null,
+   "records_after": [
+    {
+     "execution_id": "71a4caff15b397de",
+     "decision": "Executed",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccJrpAzb.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "9d6a92319d988c6d"
+      }
+     ]
+    },
+    {
+     "execution_id": "23f37c2599099806",
+     "decision": "Executed",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccHCqVqh.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "c743bb933762f84f"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "round": 0,
+   "unit": 2,
+   "inputs": {
+    "common.h": "9c1adef57e8a4153",
+    "unit2.c": "bed21e3a33894a54"
+   },
+   "pre_state": null,
+   "post_state": "b091842b41475db4",
+   "decision": "Executed",
+   "decision_reason": "no eligible cached execution matched the pre-execution identity",
+   "execution_id": "53c8dea866cf7bbd",
+   "kind": "Executed",
+   "classification": "Guarded",
+   "elapsed_ms": 740.336,
+   "guard_counts": {
+    "checked": null,
+    "passed": null
+   },
+   "failure": null,
+   "records_after": [
+    {
+     "execution_id": "71a4caff15b397de",
+     "decision": "Executed",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccJrpAzb.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "9d6a92319d988c6d"
+      }
+     ]
+    },
+    {
+     "execution_id": "23f37c2599099806",
+     "decision": "Executed",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccHCqVqh.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "c743bb933762f84f"
+      }
+     ]
+    },
+    {
+     "execution_id": "53c8dea866cf7bbd",
+     "decision": "Executed",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccNEScYN.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "5ce402acb733b71a"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "round": 1,
+   "unit": 0,
+   "inputs": {
+    "common.h": "9c1adef57e8a4153",
+    "unit0.c": "c98118ee86727235"
+   },
+   "pre_state": "e7a0acab22e0283c",
+   "post_state": "e7a0acab22e0283c",
+   "decision": "Reused",
+   "decision_reason": "all guards passed and cached outputs were restored",
+   "execution_id": "71a4caff15b397de",
+   "kind": "Reused",
+   "classification": "Guarded",
+   "elapsed_ms": 143.839,
+   "guard_counts": {
+    "checked": 411,
+    "passed": 411
+   },
+   "failure": null,
+   "records_after": [
+    {
+     "execution_id": "23f37c2599099806",
+     "decision": "Executed",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccHCqVqh.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "c743bb933762f84f"
+      }
+     ]
+    },
+    {
+     "execution_id": "53c8dea866cf7bbd",
+     "decision": "Executed",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccNEScYN.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "5ce402acb733b71a"
+      }
+     ]
+    },
+    {
+     "execution_id": "71a4caff15b397de",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccJrpAzb.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "9d6a92319d988c6d"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "round": 1,
+   "unit": 1,
+   "inputs": {
+    "common.h": "9c1adef57e8a4153",
+    "unit1.c": "768ad4c6c19c69f3"
+   },
+   "pre_state": "9998ea8665e434ca",
+   "post_state": "9998ea8665e434ca",
+   "decision": "Reused",
+   "decision_reason": "all guards passed and cached outputs were restored",
+   "execution_id": "23f37c2599099806",
+   "kind": "Reused",
+   "classification": "Guarded",
+   "elapsed_ms": 136.421,
+   "guard_counts": {
+    "checked": 411,
+    "passed": 411
+   },
+   "failure": null,
+   "records_after": [
+    {
+     "execution_id": "53c8dea866cf7bbd",
+     "decision": "Executed",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccNEScYN.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "5ce402acb733b71a"
+      }
+     ]
+    },
+    {
+     "execution_id": "71a4caff15b397de",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccJrpAzb.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "9d6a92319d988c6d"
+      }
+     ]
+    },
+    {
+     "execution_id": "23f37c2599099806",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccHCqVqh.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "c743bb933762f84f"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "round": 1,
+   "unit": 2,
+   "inputs": {
+    "common.h": "9c1adef57e8a4153",
+    "unit2.c": "bed21e3a33894a54"
+   },
+   "pre_state": "b091842b41475db4",
+   "post_state": "b091842b41475db4",
+   "decision": "Reused",
+   "decision_reason": "all guards passed and cached outputs were restored",
+   "execution_id": "53c8dea866cf7bbd",
+   "kind": "Reused",
+   "classification": "Guarded",
+   "elapsed_ms": 124.805,
+   "guard_counts": {
+    "checked": 411,
+    "passed": 411
+   },
+   "failure": null,
+   "records_after": [
+    {
+     "execution_id": "71a4caff15b397de",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccJrpAzb.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "9d6a92319d988c6d"
+      }
+     ]
+    },
+    {
+     "execution_id": "23f37c2599099806",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccHCqVqh.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "c743bb933762f84f"
+      }
+     ]
+    },
+    {
+     "execution_id": "53c8dea866cf7bbd",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccNEScYN.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "5ce402acb733b71a"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "round": 2,
+   "unit": 0,
+   "inputs": {
+    "common.h": "071e266acfbaff76",
+    "unit0.c": "c98118ee86727235"
+   },
+   "pre_state": "e7a0acab22e0283c",
+   "post_state": "142065961c2914cd",
+   "decision": "Deoptimized",
+   "decision_reason": "cached execution deoptimized",
+   "execution_id": "aae27c977a916ffa",
+   "kind": "Executed",
+   "classification": "Guarded",
+   "elapsed_ms": 740.305,
+   "guard_counts": {
+    "checked": 43,
+    "passed": 41
+   },
+   "failure": {
+    "reason": "file content changed",
+    "expected": "26db04b12d89b04a604e1a66946f2c33cef94235ce81409dcaf32d4b2758a61a",
+    "actual": "1fac89382bd2b99c436354e9129a0bff0d82360c372b67082fd2f55f2c342bde",
+    "guard": {
+     "kind": "FileHash",
+     "path": "/tmp/tracejit-phase-w-transitions/work/common.h",
+     "expected": [
+      38,
+      219,
+      4,
+      177,
+      45,
+      137,
+      176,
+      74,
+      96,
+      78,
+      26,
+      102,
+      148,
+      111,
+      44,
+      51,
+      206,
+      249,
+      66,
+      53,
+      206,
+      129,
+      64,
+      157,
+      202,
+      243,
+      45,
+      75,
+      39,
+      88,
+      166,
+      26
+     ]
+    }
+   },
+   "records_after": [
+    {
+     "execution_id": "71a4caff15b397de",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccJrpAzb.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "9d6a92319d988c6d"
+      }
+     ]
+    },
+    {
+     "execution_id": "23f37c2599099806",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccHCqVqh.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "c743bb933762f84f"
+      }
+     ]
+    },
+    {
+     "execution_id": "53c8dea866cf7bbd",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccNEScYN.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "5ce402acb733b71a"
+      }
+     ]
+    },
+    {
+     "execution_id": "aae27c977a916ffa",
+     "decision": "Deoptimized",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "cchsp4YE.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "dc6f5b836e5d0d33"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "round": 2,
+   "unit": 1,
+   "inputs": {
+    "common.h": "071e266acfbaff76",
+    "unit1.c": "768ad4c6c19c69f3"
+   },
+   "pre_state": "9998ea8665e434ca",
+   "post_state": "3da4e2f9d09311e5",
+   "decision": "Deoptimized",
+   "decision_reason": "cached execution deoptimized",
+   "execution_id": "6a4e103e3333bb6e",
+   "kind": "Executed",
+   "classification": "Guarded",
+   "elapsed_ms": 746.298,
+   "guard_counts": {
+    "checked": 43,
+    "passed": 41
+   },
+   "failure": {
+    "reason": "file content changed",
+    "expected": "26db04b12d89b04a604e1a66946f2c33cef94235ce81409dcaf32d4b2758a61a",
+    "actual": "1fac89382bd2b99c436354e9129a0bff0d82360c372b67082fd2f55f2c342bde",
+    "guard": {
+     "kind": "FileHash",
+     "path": "/tmp/tracejit-phase-w-transitions/work/common.h",
+     "expected": [
+      38,
+      219,
+      4,
+      177,
+      45,
+      137,
+      176,
+      74,
+      96,
+      78,
+      26,
+      102,
+      148,
+      111,
+      44,
+      51,
+      206,
+      249,
+      66,
+      53,
+      206,
+      129,
+      64,
+      157,
+      202,
+      243,
+      45,
+      75,
+      39,
+      88,
+      166,
+      26
+     ]
+    }
+   },
+   "records_after": [
+    {
+     "execution_id": "71a4caff15b397de",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccJrpAzb.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "9d6a92319d988c6d"
+      }
+     ]
+    },
+    {
+     "execution_id": "23f37c2599099806",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccHCqVqh.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "c743bb933762f84f"
+      }
+     ]
+    },
+    {
+     "execution_id": "53c8dea866cf7bbd",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccNEScYN.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "5ce402acb733b71a"
+      }
+     ]
+    },
+    {
+     "execution_id": "aae27c977a916ffa",
+     "decision": "Deoptimized",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "cchsp4YE.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "dc6f5b836e5d0d33"
+      }
+     ]
+    },
+    {
+     "execution_id": "6a4e103e3333bb6e",
+     "decision": "Deoptimized",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccq2toZ5.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "a036beb6f72d1935"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "round": 2,
+   "unit": 2,
+   "inputs": {
+    "common.h": "071e266acfbaff76",
+    "unit2.c": "bed21e3a33894a54"
+   },
+   "pre_state": "b091842b41475db4",
+   "post_state": "45bcde0880ed0c39",
+   "decision": "Deoptimized",
+   "decision_reason": "cached execution deoptimized",
+   "execution_id": "e5b883df130052bc",
+   "kind": "Executed",
+   "classification": "Guarded",
+   "elapsed_ms": 782.875,
+   "guard_counts": {
+    "checked": 43,
+    "passed": 41
+   },
+   "failure": {
+    "reason": "file content changed",
+    "expected": "26db04b12d89b04a604e1a66946f2c33cef94235ce81409dcaf32d4b2758a61a",
+    "actual": "1fac89382bd2b99c436354e9129a0bff0d82360c372b67082fd2f55f2c342bde",
+    "guard": {
+     "kind": "FileHash",
+     "path": "/tmp/tracejit-phase-w-transitions/work/common.h",
+     "expected": [
+      38,
+      219,
+      4,
+      177,
+      45,
+      137,
+      176,
+      74,
+      96,
+      78,
+      26,
+      102,
+      148,
+      111,
+      44,
+      51,
+      206,
+      249,
+      66,
+      53,
+      206,
+      129,
+      64,
+      157,
+      202,
+      243,
+      45,
+      75,
+      39,
+      88,
+      166,
+      26
+     ]
+    }
+   },
+   "records_after": [
+    {
+     "execution_id": "71a4caff15b397de",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccJrpAzb.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "9d6a92319d988c6d"
+      }
+     ]
+    },
+    {
+     "execution_id": "23f37c2599099806",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccHCqVqh.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "c743bb933762f84f"
+      }
+     ]
+    },
+    {
+     "execution_id": "53c8dea866cf7bbd",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccNEScYN.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "5ce402acb733b71a"
+      }
+     ]
+    },
+    {
+     "execution_id": "aae27c977a916ffa",
+     "decision": "Deoptimized",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "cchsp4YE.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "dc6f5b836e5d0d33"
+      }
+     ]
+    },
+    {
+     "execution_id": "6a4e103e3333bb6e",
+     "decision": "Deoptimized",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccq2toZ5.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "a036beb6f72d1935"
+      }
+     ]
+    },
+    {
+     "execution_id": "e5b883df130052bc",
+     "decision": "Deoptimized",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccdKufR7.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "6772a00592edbb04"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "round": 3,
+   "unit": 0,
+   "inputs": {
+    "common.h": "071e266acfbaff76",
+    "unit0.c": "c98118ee86727235"
+   },
+   "pre_state": "142065961c2914cd",
+   "post_state": "142065961c2914cd",
+   "decision": "Reused",
+   "decision_reason": "all guards passed and cached outputs were restored",
+   "execution_id": "aae27c977a916ffa",
+   "kind": "Reused",
+   "classification": "Guarded",
+   "elapsed_ms": 128.633,
+   "guard_counts": {
+    "checked": 412,
+    "passed": 412
+   },
+   "failure": null,
+   "records_after": [
+    {
+     "execution_id": "71a4caff15b397de",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccJrpAzb.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "9d6a92319d988c6d"
+      }
+     ]
+    },
+    {
+     "execution_id": "23f37c2599099806",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccHCqVqh.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "c743bb933762f84f"
+      }
+     ]
+    },
+    {
+     "execution_id": "53c8dea866cf7bbd",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccNEScYN.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "5ce402acb733b71a"
+      }
+     ]
+    },
+    {
+     "execution_id": "6a4e103e3333bb6e",
+     "decision": "Deoptimized",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccq2toZ5.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "a036beb6f72d1935"
+      }
+     ]
+    },
+    {
+     "execution_id": "e5b883df130052bc",
+     "decision": "Deoptimized",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccdKufR7.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "6772a00592edbb04"
+      }
+     ]
+    },
+    {
+     "execution_id": "aae27c977a916ffa",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "cchsp4YE.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "dc6f5b836e5d0d33"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "round": 3,
+   "unit": 1,
+   "inputs": {
+    "common.h": "071e266acfbaff76",
+    "unit1.c": "768ad4c6c19c69f3"
+   },
+   "pre_state": "3da4e2f9d09311e5",
+   "post_state": "3da4e2f9d09311e5",
+   "decision": "Reused",
+   "decision_reason": "all guards passed and cached outputs were restored",
+   "execution_id": "6a4e103e3333bb6e",
+   "kind": "Reused",
+   "classification": "Guarded",
+   "elapsed_ms": 122.648,
+   "guard_counts": {
+    "checked": 412,
+    "passed": 412
+   },
+   "failure": null,
+   "records_after": [
+    {
+     "execution_id": "71a4caff15b397de",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccJrpAzb.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "9d6a92319d988c6d"
+      }
+     ]
+    },
+    {
+     "execution_id": "23f37c2599099806",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccHCqVqh.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "c743bb933762f84f"
+      }
+     ]
+    },
+    {
+     "execution_id": "53c8dea866cf7bbd",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccNEScYN.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "5ce402acb733b71a"
+      }
+     ]
+    },
+    {
+     "execution_id": "e5b883df130052bc",
+     "decision": "Deoptimized",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccdKufR7.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "6772a00592edbb04"
+      }
+     ]
+    },
+    {
+     "execution_id": "aae27c977a916ffa",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "cchsp4YE.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "dc6f5b836e5d0d33"
+      }
+     ]
+    },
+    {
+     "execution_id": "6a4e103e3333bb6e",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccq2toZ5.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "a036beb6f72d1935"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "round": 3,
+   "unit": 2,
+   "inputs": {
+    "common.h": "071e266acfbaff76",
+    "unit2.c": "bed21e3a33894a54"
+   },
+   "pre_state": "45bcde0880ed0c39",
+   "post_state": "45bcde0880ed0c39",
+   "decision": "Reused",
+   "decision_reason": "all guards passed and cached outputs were restored",
+   "execution_id": "e5b883df130052bc",
+   "kind": "Reused",
+   "classification": "Guarded",
+   "elapsed_ms": 139.073,
+   "guard_counts": {
+    "checked": 412,
+    "passed": 412
+   },
+   "failure": null,
+   "records_after": [
+    {
+     "execution_id": "71a4caff15b397de",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccJrpAzb.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "9d6a92319d988c6d"
+      }
+     ]
+    },
+    {
+     "execution_id": "23f37c2599099806",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccHCqVqh.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "c743bb933762f84f"
+      }
+     ]
+    },
+    {
+     "execution_id": "53c8dea866cf7bbd",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccNEScYN.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "5ce402acb733b71a"
+      }
+     ]
+    },
+    {
+     "execution_id": "aae27c977a916ffa",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "cchsp4YE.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "dc6f5b836e5d0d33"
+      }
+     ]
+    },
+    {
+     "execution_id": "6a4e103e3333bb6e",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccq2toZ5.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "a036beb6f72d1935"
+      }
+     ]
+    },
+    {
+     "execution_id": "e5b883df130052bc",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccdKufR7.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "6772a00592edbb04"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "round": 4,
+   "unit": 0,
+   "inputs": {
+    "common.h": "794a8cce758e3c7d",
+    "unit0.c": "c98118ee86727235"
+   },
+   "pre_state": "142065961c2914cd",
+   "post_state": "acd559e06f631a12",
+   "decision": "Deoptimized",
+   "decision_reason": "cached execution deoptimized",
+   "execution_id": "8748ccfe824e5789",
+   "kind": "Executed",
+   "classification": "Guarded",
+   "elapsed_ms": 795.348,
+   "guard_counts": {
+    "checked": 43,
+    "passed": 41
+   },
+   "failure": {
+    "reason": "file content changed",
+    "expected": "1fac89382bd2b99c436354e9129a0bff0d82360c372b67082fd2f55f2c342bde",
+    "actual": "c4c8e108a5257b4759268456426f6a52fe7edcbf2142742b054cbe57e8f0fedc",
+    "guard": {
+     "kind": "FileHash",
+     "path": "/tmp/tracejit-phase-w-transitions/work/common.h",
+     "expected": [
+      31,
+      172,
+      137,
+      56,
+      43,
+      210,
+      185,
+      156,
+      67,
+      99,
+      84,
+      233,
+      18,
+      154,
+      11,
+      255,
+      13,
+      130,
+      54,
+      12,
+      55,
+      43,
+      103,
+      8,
+      47,
+      210,
+      245,
+      95,
+      44,
+      52,
+      43,
+      222
+     ]
+    }
+   },
+   "records_after": [
+    {
+     "execution_id": "71a4caff15b397de",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccJrpAzb.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "9d6a92319d988c6d"
+      }
+     ]
+    },
+    {
+     "execution_id": "23f37c2599099806",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccHCqVqh.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "c743bb933762f84f"
+      }
+     ]
+    },
+    {
+     "execution_id": "53c8dea866cf7bbd",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccNEScYN.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "5ce402acb733b71a"
+      }
+     ]
+    },
+    {
+     "execution_id": "aae27c977a916ffa",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "cchsp4YE.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "dc6f5b836e5d0d33"
+      }
+     ]
+    },
+    {
+     "execution_id": "6a4e103e3333bb6e",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccq2toZ5.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "a036beb6f72d1935"
+      }
+     ]
+    },
+    {
+     "execution_id": "e5b883df130052bc",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccdKufR7.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "6772a00592edbb04"
+      }
+     ]
+    },
+    {
+     "execution_id": "8748ccfe824e5789",
+     "decision": "Deoptimized",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccU5xoeM.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "1633dcf028025471"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "round": 4,
+   "unit": 1,
+   "inputs": {
+    "common.h": "794a8cce758e3c7d",
+    "unit1.c": "768ad4c6c19c69f3"
+   },
+   "pre_state": "3da4e2f9d09311e5",
+   "post_state": "3dea40fbe1cc1765",
+   "decision": "Deoptimized",
+   "decision_reason": "cached execution deoptimized",
+   "execution_id": "f9723aa3152ff3c8",
+   "kind": "Executed",
+   "classification": "Guarded",
+   "elapsed_ms": 776.103,
+   "guard_counts": {
+    "checked": 43,
+    "passed": 41
+   },
+   "failure": {
+    "reason": "file content changed",
+    "expected": "1fac89382bd2b99c436354e9129a0bff0d82360c372b67082fd2f55f2c342bde",
+    "actual": "c4c8e108a5257b4759268456426f6a52fe7edcbf2142742b054cbe57e8f0fedc",
+    "guard": {
+     "kind": "FileHash",
+     "path": "/tmp/tracejit-phase-w-transitions/work/common.h",
+     "expected": [
+      31,
+      172,
+      137,
+      56,
+      43,
+      210,
+      185,
+      156,
+      67,
+      99,
+      84,
+      233,
+      18,
+      154,
+      11,
+      255,
+      13,
+      130,
+      54,
+      12,
+      55,
+      43,
+      103,
+      8,
+      47,
+      210,
+      245,
+      95,
+      44,
+      52,
+      43,
+      222
+     ]
+    }
+   },
+   "records_after": [
+    {
+     "execution_id": "71a4caff15b397de",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccJrpAzb.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "9d6a92319d988c6d"
+      }
+     ]
+    },
+    {
+     "execution_id": "23f37c2599099806",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccHCqVqh.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "c743bb933762f84f"
+      }
+     ]
+    },
+    {
+     "execution_id": "53c8dea866cf7bbd",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccNEScYN.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "5ce402acb733b71a"
+      }
+     ]
+    },
+    {
+     "execution_id": "aae27c977a916ffa",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "cchsp4YE.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "dc6f5b836e5d0d33"
+      }
+     ]
+    },
+    {
+     "execution_id": "6a4e103e3333bb6e",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccq2toZ5.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "a036beb6f72d1935"
+      }
+     ]
+    },
+    {
+     "execution_id": "e5b883df130052bc",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccdKufR7.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "6772a00592edbb04"
+      }
+     ]
+    },
+    {
+     "execution_id": "8748ccfe824e5789",
+     "decision": "Deoptimized",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccU5xoeM.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "1633dcf028025471"
+      }
+     ]
+    },
+    {
+     "execution_id": "f9723aa3152ff3c8",
+     "decision": "Deoptimized",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccAHmi79.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "dde03da16793376b"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "round": 4,
+   "unit": 2,
+   "inputs": {
+    "common.h": "794a8cce758e3c7d",
+    "unit2.c": "bed21e3a33894a54"
+   },
+   "pre_state": "45bcde0880ed0c39",
+   "post_state": "eebccb67895eb393",
+   "decision": "Deoptimized",
+   "decision_reason": "cached execution deoptimized",
+   "execution_id": "525eeb0e363a1110",
+   "kind": "Executed",
+   "classification": "Guarded",
+   "elapsed_ms": 731.494,
+   "guard_counts": {
+    "checked": 43,
+    "passed": 41
+   },
+   "failure": {
+    "reason": "file content changed",
+    "expected": "1fac89382bd2b99c436354e9129a0bff0d82360c372b67082fd2f55f2c342bde",
+    "actual": "c4c8e108a5257b4759268456426f6a52fe7edcbf2142742b054cbe57e8f0fedc",
+    "guard": {
+     "kind": "FileHash",
+     "path": "/tmp/tracejit-phase-w-transitions/work/common.h",
+     "expected": [
+      31,
+      172,
+      137,
+      56,
+      43,
+      210,
+      185,
+      156,
+      67,
+      99,
+      84,
+      233,
+      18,
+      154,
+      11,
+      255,
+      13,
+      130,
+      54,
+      12,
+      55,
+      43,
+      103,
+      8,
+      47,
+      210,
+      245,
+      95,
+      44,
+      52,
+      43,
+      222
+     ]
+    }
+   },
+   "records_after": [
+    {
+     "execution_id": "71a4caff15b397de",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccJrpAzb.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "9d6a92319d988c6d"
+      }
+     ]
+    },
+    {
+     "execution_id": "23f37c2599099806",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccHCqVqh.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "c743bb933762f84f"
+      }
+     ]
+    },
+    {
+     "execution_id": "53c8dea866cf7bbd",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccNEScYN.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "5ce402acb733b71a"
+      }
+     ]
+    },
+    {
+     "execution_id": "aae27c977a916ffa",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "cchsp4YE.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "dc6f5b836e5d0d33"
+      }
+     ]
+    },
+    {
+     "execution_id": "6a4e103e3333bb6e",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccq2toZ5.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "a036beb6f72d1935"
+      }
+     ]
+    },
+    {
+     "execution_id": "e5b883df130052bc",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccdKufR7.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "6772a00592edbb04"
+      }
+     ]
+    },
+    {
+     "execution_id": "8748ccfe824e5789",
+     "decision": "Deoptimized",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccU5xoeM.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "1633dcf028025471"
+      }
+     ]
+    },
+    {
+     "execution_id": "f9723aa3152ff3c8",
+     "decision": "Deoptimized",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccAHmi79.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "dde03da16793376b"
+      }
+     ]
+    },
+    {
+     "execution_id": "525eeb0e363a1110",
+     "decision": "Deoptimized",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccyUmVFb.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "e25f75373f90a316"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "round": 5,
+   "unit": 0,
+   "inputs": {
+    "common.h": "794a8cce758e3c7d",
+    "unit0.c": "c98118ee86727235"
+   },
+   "pre_state": "acd559e06f631a12",
+   "post_state": "acd559e06f631a12",
+   "decision": "Reused",
+   "decision_reason": "all guards passed and cached outputs were restored",
+   "execution_id": "8748ccfe824e5789",
+   "kind": "Reused",
+   "classification": "Guarded",
+   "elapsed_ms": 120.996,
+   "guard_counts": {
+    "checked": 412,
+    "passed": 412
+   },
+   "failure": null,
+   "records_after": [
+    {
+     "execution_id": "71a4caff15b397de",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccJrpAzb.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "9d6a92319d988c6d"
+      }
+     ]
+    },
+    {
+     "execution_id": "23f37c2599099806",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccHCqVqh.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "c743bb933762f84f"
+      }
+     ]
+    },
+    {
+     "execution_id": "53c8dea866cf7bbd",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccNEScYN.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "5ce402acb733b71a"
+      }
+     ]
+    },
+    {
+     "execution_id": "aae27c977a916ffa",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "cchsp4YE.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "dc6f5b836e5d0d33"
+      }
+     ]
+    },
+    {
+     "execution_id": "6a4e103e3333bb6e",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccq2toZ5.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "a036beb6f72d1935"
+      }
+     ]
+    },
+    {
+     "execution_id": "e5b883df130052bc",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccdKufR7.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "6772a00592edbb04"
+      }
+     ]
+    },
+    {
+     "execution_id": "f9723aa3152ff3c8",
+     "decision": "Deoptimized",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccAHmi79.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "dde03da16793376b"
+      }
+     ]
+    },
+    {
+     "execution_id": "525eeb0e363a1110",
+     "decision": "Deoptimized",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccyUmVFb.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "e25f75373f90a316"
+      }
+     ]
+    },
+    {
+     "execution_id": "8748ccfe824e5789",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccU5xoeM.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "1633dcf028025471"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "round": 5,
+   "unit": 1,
+   "inputs": {
+    "common.h": "794a8cce758e3c7d",
+    "unit1.c": "768ad4c6c19c69f3"
+   },
+   "pre_state": "3dea40fbe1cc1765",
+   "post_state": "3dea40fbe1cc1765",
+   "decision": "Reused",
+   "decision_reason": "all guards passed and cached outputs were restored",
+   "execution_id": "f9723aa3152ff3c8",
+   "kind": "Reused",
+   "classification": "Guarded",
+   "elapsed_ms": 120.185,
+   "guard_counts": {
+    "checked": 412,
+    "passed": 412
+   },
+   "failure": null,
+   "records_after": [
+    {
+     "execution_id": "71a4caff15b397de",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccJrpAzb.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "9d6a92319d988c6d"
+      }
+     ]
+    },
+    {
+     "execution_id": "23f37c2599099806",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccHCqVqh.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "c743bb933762f84f"
+      }
+     ]
+    },
+    {
+     "execution_id": "53c8dea866cf7bbd",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccNEScYN.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "5ce402acb733b71a"
+      }
+     ]
+    },
+    {
+     "execution_id": "aae27c977a916ffa",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "cchsp4YE.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "dc6f5b836e5d0d33"
+      }
+     ]
+    },
+    {
+     "execution_id": "6a4e103e3333bb6e",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccq2toZ5.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "a036beb6f72d1935"
+      }
+     ]
+    },
+    {
+     "execution_id": "e5b883df130052bc",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccdKufR7.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "6772a00592edbb04"
+      }
+     ]
+    },
+    {
+     "execution_id": "525eeb0e363a1110",
+     "decision": "Deoptimized",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccyUmVFb.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "e25f75373f90a316"
+      }
+     ]
+    },
+    {
+     "execution_id": "8748ccfe824e5789",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccU5xoeM.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "1633dcf028025471"
+      }
+     ]
+    },
+    {
+     "execution_id": "f9723aa3152ff3c8",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccAHmi79.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "dde03da16793376b"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "round": 5,
+   "unit": 2,
+   "inputs": {
+    "common.h": "794a8cce758e3c7d",
+    "unit2.c": "bed21e3a33894a54"
+   },
+   "pre_state": "eebccb67895eb393",
+   "post_state": "eebccb67895eb393",
+   "decision": "Reused",
+   "decision_reason": "all guards passed and cached outputs were restored",
+   "execution_id": "525eeb0e363a1110",
+   "kind": "Reused",
+   "classification": "Guarded",
+   "elapsed_ms": 107.665,
+   "guard_counts": {
+    "checked": 412,
+    "passed": 412
+   },
+   "failure": null,
+   "records_after": [
+    {
+     "execution_id": "71a4caff15b397de",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccJrpAzb.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "9d6a92319d988c6d"
+      }
+     ]
+    },
+    {
+     "execution_id": "23f37c2599099806",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccHCqVqh.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "c743bb933762f84f"
+      }
+     ]
+    },
+    {
+     "execution_id": "53c8dea866cf7bbd",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 411,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccNEScYN.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "5ce402acb733b71a"
+      }
+     ]
+    },
+    {
+     "execution_id": "aae27c977a916ffa",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "cchsp4YE.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "dc6f5b836e5d0d33"
+      }
+     ]
+    },
+    {
+     "execution_id": "6a4e103e3333bb6e",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccq2toZ5.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "a036beb6f72d1935"
+      }
+     ]
+    },
+    {
+     "execution_id": "e5b883df130052bc",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccdKufR7.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "6772a00592edbb04"
+      }
+     ]
+    },
+    {
+     "execution_id": "8748ccfe824e5789",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccU5xoeM.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit0.o",
+       "kind": "File",
+       "content": "1633dcf028025471"
+      }
+     ]
+    },
+    {
+     "execution_id": "f9723aa3152ff3c8",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccAHmi79.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit1.o",
+       "kind": "File",
+       "content": "dde03da16793376b"
+      }
+     ]
+    },
+    {
+     "execution_id": "525eeb0e363a1110",
+     "decision": "Reused",
+     "classification": "Guarded",
+     "guard_count": 412,
+     "unit_guards": [
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      },
+      {
+       "kind": "kind"
+      }
+     ],
+     "outputs": [
+      {
+       "path": "ccyUmVFb.s",
+       "kind": "Deleted",
+       "content": null
+      },
+      {
+       "path": "unit2.o",
+       "kind": "File",
+       "content": "e25f75373f90a316"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

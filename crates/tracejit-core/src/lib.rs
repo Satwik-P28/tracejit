@@ -1621,6 +1621,7 @@ mod tests {
                 sequence: 0,
                 pid: 1,
                 effect: Effect::Read(ReadEffect::File(FileRead {
+                    prestate_snapshot: false,
                     path: path.clone(),
                     hash: Some(hash),
                     fingerprint: None,
@@ -1659,6 +1660,7 @@ mod tests {
                 sequence: 1,
                 pid: 1,
                 effect: Effect::Read(ReadEffect::File(tracejit_effects::FileRead {
+                    prestate_snapshot: false,
                     path,
                     hash: Some(Hash::from(blake3::hash(b"output"))),
                     fingerprint: None,

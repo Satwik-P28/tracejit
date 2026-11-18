@@ -1989,6 +1989,7 @@ fn record_snapshot(pid: Pid, path: PathBuf, snapshot: PathSnapshot, collector: &
         PathSnapshot::File { hash, fingerprint } => collector.push(
             pid,
             Effect::Read(ReadEffect::File(FileRead {
+                prestate_snapshot: true,
                 path,
                 hash: Some(hash),
                 fingerprint: Some(fingerprint),
@@ -1997,6 +1998,7 @@ fn record_snapshot(pid: Pid, path: PathBuf, snapshot: PathSnapshot, collector: &
         PathSnapshot::Metadata(fingerprint) => collector.push(
             pid,
             Effect::Read(ReadEffect::FileMetadata(FileMetadataRead {
+                prestate_snapshot: true,
                 path,
                 fingerprint: Some(fingerprint),
                 audited_toolchain: audited_toolchain(pid).is_some(),
@@ -2005,6 +2007,7 @@ fn record_snapshot(pid: Pid, path: PathBuf, snapshot: PathSnapshot, collector: &
         PathSnapshot::Absent => collector.push(
             pid,
             Effect::Read(ReadEffect::FileMetadata(FileMetadataRead {
+                prestate_snapshot: true,
                 path,
                 fingerprint: Some(tracejit_effects::FileFingerprint::absent()),
                 audited_toolchain: audited_toolchain(pid).is_some(),
@@ -2054,6 +2057,7 @@ fn record_metadata(pid: Pid, path: PathBuf, collector: &mut Collector) {
         Ok(value) => collector.push(
             pid,
             Effect::Read(ReadEffect::FileMetadata(FileMetadataRead {
+                prestate_snapshot: false,
                 fingerprint: Some(value),
                 path,
                 audited_toolchain: audited_toolchain(pid).is_some(),
@@ -2077,6 +2081,7 @@ fn record_symlink_metadata(pid: Pid, path: PathBuf, collector: &mut Collector) {
         Ok(value) => collector.push(
             pid,
             Effect::Read(ReadEffect::SymlinkMetadata(FileMetadataRead {
+                prestate_snapshot: false,
                 fingerprint: Some(value),
                 path,
                 audited_toolchain: audited_toolchain(pid).is_some(),
@@ -2274,6 +2279,7 @@ fn complete_syscall(
                         collector.push(
                             pid,
                             Effect::Read(ReadEffect::FileMetadata(FileMetadataRead {
+                                prestate_snapshot: false,
                                 path,
                                 fingerprint: Some(fingerprint),
                                 audited_toolchain: audited_toolchain(pid).is_some(),
@@ -2298,6 +2304,7 @@ fn complete_syscall(
                         collector.push(
                             pid,
                             Effect::Read(ReadEffect::File(FileRead {
+                                prestate_snapshot: false,
                                 path: path.clone(),
                                 hash: Some(hash),
                                 fingerprint: before_fingerprint.clone(),
@@ -2307,6 +2314,7 @@ fn complete_syscall(
                         collector.push(
                             pid,
                             Effect::Read(ReadEffect::FileMetadata(FileMetadataRead {
+                                prestate_snapshot: false,
                                 path: path.clone(),
                                 fingerprint: Some(tracejit_effects::FileFingerprint::absent()),
                                 audited_toolchain: audited_toolchain(pid).is_some(),
@@ -2327,6 +2335,7 @@ fn complete_syscall(
                 collector.push(
                     pid,
                     Effect::Read(ReadEffect::File(FileRead {
+                        prestate_snapshot: false,
                         path,
                         hash: Some(hash),
                         fingerprint: before_fingerprint,
@@ -2748,6 +2757,7 @@ fn complete_syscall(
                         collector.push(
                             pid,
                             Effect::Read(ReadEffect::File(FileRead {
+                                prestate_snapshot: false,
                                 path,
                                 hash: Some(hash),
                                 fingerprint: file_fingerprint,
@@ -3015,6 +3025,7 @@ fn complete_failed_syscall(
             collector.push(
                 pid,
                 Effect::Read(ReadEffect::FileMetadata(FileMetadataRead {
+                    prestate_snapshot: false,
                     path,
                     fingerprint: Some(tracejit_effects::FileFingerprint::absent()),
                     audited_toolchain: audited_toolchain(pid).is_some(),
@@ -3027,6 +3038,7 @@ fn complete_failed_syscall(
             collector.push(
                 pid,
                 Effect::Read(ReadEffect::SymlinkMetadata(FileMetadataRead {
+                    prestate_snapshot: false,
                     path,
                     fingerprint: Some(tracejit_effects::FileFingerprint::absent()),
                     audited_toolchain: audited_toolchain(pid).is_some(),
@@ -3064,6 +3076,7 @@ fn complete_failed_syscall(
             collector.push(
                 pid,
                 Effect::Read(ReadEffect::FileMetadata(FileMetadataRead {
+                    prestate_snapshot: false,
                     path,
                     fingerprint: Some(tracejit_effects::FileFingerprint::absent()),
                     audited_toolchain: audited_toolchain(pid).is_some(),
@@ -3075,6 +3088,7 @@ fn complete_failed_syscall(
                 collector.push(
                     pid,
                     Effect::Read(ReadEffect::FileMetadata(FileMetadataRead {
+                        prestate_snapshot: false,
                         path,
                         fingerprint: Some(value),
                         audited_toolchain: audited_toolchain(pid).is_some(),

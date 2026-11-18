@@ -1281,6 +1281,121 @@ fn alternating_inputs_reuse_a_retained_candidate() {
     eprintln!("RESULT alternate-candidate-replay PASS");
 }
 
+/// A delete that the same execution replaces must not pin the next run to the old bytes.
+///
+/// This is the compiler pattern (`cc` removes its object, then recreates it). The tracer takes a
+/// pre-`unlink` snapshot for its own bookkeeping; recording that snapshot as an input dependency
+/// made every record describe the bytes it destroyed, so after a source edit the *next* run
+/// deoptimised again because the object on disk was now the one the previous execution had just
+/// produced. Two deoptimisations per edit, for one real input change.
+#[test]
+fn superseded_delete_does_not_pin_the_next_run_to_the_old_bytes() {
+    let temporary = tempfile::tempdir().unwrap();
+    workspace(temporary.path());
+    let binary = compile_fixture(temporary.path());
+    let cache = temporary.path().join("cache");
+    let args = [
+        "run",
+        "--json",
+        "--",
+        binary.to_str().unwrap(),
+        "replace_output",
+        temporary.path().to_str().unwrap(),
+    ];
+    let input = temporary.path().join("input.txt");
+    let output = temporary.path().join("output.txt");
+    // A previous build's result: the command's unlink succeeds, exactly as `cc -o` removes an
+    // object it is about to replace. Deleting a path that does not exist is an unguardable failed
+    // effect and correctly classifies the run as Unknown.
+    fs::write(&output, b"stale result\n").unwrap();
+
+    let first = invoke(&cache, &args, None);
+    assert!(
+        first.status.success(),
+        "{}",
+        String::from_utf8_lossy(&first.stderr)
+    );
+    let first: Value = serde_json::from_slice(&first.stdout).unwrap();
+    assert_eq!(first["kind"], "Executed", "{first}");
+    assert_eq!(first["classification"], "Guarded", "{first}");
+    assert_eq!(fs::read(&output).unwrap(), b"input one\n");
+
+    // One real input change: the next run must execute and produce the new bytes.
+    fs::write(&input, b"input two\n").unwrap();
+    let second = invoke(&cache, &args, None);
+    assert!(second.status.success());
+    let second: Value = serde_json::from_slice(&second.stdout).unwrap();
+    assert_ne!(second["kind"], "Reused", "{second}");
+    assert_eq!(fs::read(&output).unwrap(), b"input two\n");
+
+    // Nothing changed since that execution. The record it produced describes this exact workspace
+    // state; the bytes it removed on the way are not an input.
+    let third = invoke(&cache, &args, None);
+    assert!(third.status.success());
+    let third: Value = serde_json::from_slice(&third.stdout).unwrap();
+    assert_eq!(
+        third["kind"], "Reused",
+        "a replaced pre-state must not force a second deoptimisation: {third}"
+    );
+    assert_eq!(fs::read(&output).unwrap(), b"input two\n");
+
+    // A destructive external change to the output is still restored, because the record only
+    // claims the pre-state class it actually needs.
+    fs::write(&output, b"externally corrupted\n").unwrap();
+    let restored = invoke(&cache, &args, None);
+    assert!(restored.status.success());
+    let restored: Value = serde_json::from_slice(&restored.stdout).unwrap();
+    assert_eq!(restored["kind"], "Reused", "{restored}");
+    assert_eq!(fs::read(&output).unwrap(), b"input two\n");
+    eprintln!("RESULT superseded-delete PASS");
+}
+
+/// A terminal deletion still depends on the bytes it removed.
+///
+/// The complementary rule to the test above: when the execution leaves the path absent, the
+/// content that existed before it is part of the recorded effect, so a path that now holds
+/// different data must deoptimise rather than be silently deleted from a stale record.
+#[test]
+fn terminal_delete_still_requires_the_deleted_bytes() {
+    let temporary = tempfile::tempdir().unwrap();
+    workspace(temporary.path());
+    let binary = compile_fixture(temporary.path());
+    let cache = temporary.path().join("cache");
+    let output = temporary.path().join("output.txt");
+    fs::write(&output, b"keep one\n").unwrap();
+    let args = [
+        "run",
+        "--json",
+        "--",
+        binary.to_str().unwrap(),
+        "delete_only",
+        temporary.path().to_str().unwrap(),
+    ];
+
+    let first = invoke(&cache, &args, None);
+    assert!(
+        first.status.success(),
+        "{}",
+        String::from_utf8_lossy(&first.stderr)
+    );
+    let first: Value = serde_json::from_slice(&first.stdout).unwrap();
+    assert_eq!(first["kind"], "Executed", "{first}");
+    assert!(!output.exists());
+
+    // Re-create the path with different bytes. A HIT here would delete data the traced run never
+    // observed, so the record must refuse.
+    fs::write(&output, b"keep two\n").unwrap();
+    let second = invoke(&cache, &args, None);
+    assert!(second.status.success());
+    let second: Value = serde_json::from_slice(&second.stdout).unwrap();
+    assert_eq!(
+        second["cache_decision"], "Deoptimized",
+        "a terminal deletion must validate the bytes it removes: {second}"
+    );
+    assert!(!output.exists());
+    eprintln!("RESULT terminal-delete PASS");
+}
+
 #[test]
 fn metadata_symlink_and_environment_changes_miss() {
     let temporary = tempfile::tempdir().unwrap();

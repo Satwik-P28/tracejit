@@ -94,6 +94,19 @@ int main(int argc, char **argv) {
   join_path(output, sizeof(output), root, "output.txt");
   join_path(second, sizeof(second), root, "second.txt");
 
+  if (!strcmp(name, "replace_output")) {
+    // The compiler pattern: remove the previous result, then create the new one. The bytes that
+    // existed before the unlink cannot reach the final state, so a record for this execution must
+    // not depend on them.
+    if (unlink(output) != 0 && errno != ENOENT) return 1;
+    copy_file(input, output);
+    return 0;
+  }
+  if (!strcmp(name, "delete_only")) {
+    // A terminal deletion: the result *is* the absence of the path, so the bytes removed by the
+    // unlink stay part of what this execution observed.
+    return unlink(output) == 0 || errno == ENOENT ? 0 : 1;
+  }
   if (!strcmp(name, "vdso_clock")) {
     struct timespec spec;
     struct timeval wall;
