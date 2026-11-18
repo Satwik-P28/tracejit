@@ -317,6 +317,22 @@ Descriptor-inheritance regressions are part of the 72-test integration suite
 (`runner_inherited_descriptors_do_not_contaminate_runs_and_are_still_refused`); the Phase U2
 child-local sweep is untouched.
 
+### 9.1 CI
+
+`.github/workflows/ci.yml` on branch `research/phase-x`: run **#253** on the production commit
+`fac3f0d` completed **successfully** (fmt, clippy, workspace tests, release build, version
+consistency, doctor, single-threaded Linux integration, census, demo).
+
+One runner-side flake was observed: on the documentation-only follow-up `c378b68`, the `Tests`
+step failed at default parallelism because `allocator_entropy_contract_reuses_a_glibc_tool` and
+`inherited_stdin_reuse_is_stable_across_fresh_sessions` saw the allocator-entropy contract
+classify a glibc tool `Nondeterministic` instead of `Guarded`. Both tests pass on this host
+individually and in the full default-parallel suite (72/72), and the *same* code passed that
+same step minutes earlier in #253, so this is the sensitivity to runner process pressure that
+`PROJECT_STATE.md` already records for the default thread count — not a behaviour change. The
+strict single-threaded `Linux integration` step never ran in that attempt because the earlier
+step failed. The branch's final head was re-run and its status is reported with the PR.
+
 ---
 
 ## 10. Remaining bottlenecks
