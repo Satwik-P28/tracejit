@@ -88,7 +88,7 @@ real robustness differences between mtime scheduling and content caching, and th
 such, not as speed.
 
 **ccache and sccache win every compile-caching scenario, by 1.7× to 3.5× against the fixed
-TraceJIT.** A driver-level hit costs TraceJIT 99–114 ms here versus ~35 ms for ccache, and ccache
+TraceJIT.** A driver-level hit costs TraceJIT 99–114 ms here versus ~40 ms for ccache, and ccache
 never re-executes after an edit because it keys on preprocessed source instead of tracing. Make and
 ninja skip whole commands for ~1 ms and are faster still whenever the build graph knows the
 dependencies, but they cannot avoid a rebuild after a header edit and do not detect corrupted
@@ -154,7 +154,20 @@ into batched stat/readlink calls; no evidence yet that it repays the review cost
 * Every benchmark arm asserts object equality with a native build; the harness records decisions,
   cache bytes, and raw timings per arm.
 
-## 7. Recommendation
+## 7. Hypothesis ledger
+
+| hypothesis | evidence | verdict |
+| --- | --- | --- |
+| The two deopts are inherent to the observable contract | failing guard is a `FileHash` on the object the run itself deleted and recreated | **rejected** — record construction |
+| Pre-delete snapshot content is not an input when the same run recreates the path | 45.7 MB/record of guards, contract argument, 3 unit + 2 integration tests, adversarial output corruption still restored | **accepted** |
+| Terminal deletion still needs the exact removed bytes | `terminal_delete_still_requires_the_deleted_bytes` deoptimises on changed bytes | **accepted (unchanged)** |
+| Multi-state retention is missing (one record per identity) | 5 executions produced 5 retained records; newest-first candidate walk | **rejected** — retention exists |
+| Revisiting an earlier input state should reuse its record | A→B→A fails on `FileMetadata` from gcc's own PCH `stat`; the guard is genuine | **rejected** — needs a contract change, not implemented |
+| Parallel guard validation cuts the warm hit | pair hashing 30→15 ms, but the 354-guard walk stays 28–34 ms; 111.7→110.6 ms median, n=7 | **rejected** — no end-to-end gain, reverted |
+| TraceJIT can compete with ccache on compile caching | 27-invocation session 9.239 s vs ccache 5.371 s; per-hit 99–114 ms vs ~40 ms | **rejected** — reported plainly |
+| Output pre-state class guard should be tightened after the change | corrupt/deleted outputs are restored and match native in every arm | **rejected** — no observed need, and tightening costs hits |
+
+## 8. Recommendation
 
 Merge the superseded-delete change as a focused PR against `main` (three production source files:
 the effect shape, the tracer's provenance flag, and the dependency rule; no SQLite schema change,
