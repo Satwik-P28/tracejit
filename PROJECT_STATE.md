@@ -13,6 +13,7 @@ Infer observable dependencies of an unmodified Linux process and reuse computati
 - Path guards replay the pathname the process passed (no lexical `..` collapse). Uncertainty fails closed.
 - Controlled execution (`--contract`) is a separate tier: its results are reproducible under that contract and are never mixed with native records.
 - A status-flag rewrite is admitted only when it changes `O_NONBLOCK` alone, on a regular file this process opened, before it created any child.
+- A descriptor-flag query is process-local only for a description this execution created; on an inherited descriptor the flags belong to whoever started us and are not guarded, so the query refuses.
 
 ## Architecture
 

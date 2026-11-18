@@ -24,6 +24,24 @@ reproduced by existing guards.
   records the measured blocker taxonomy, the accepted and rejected models, and
   the metadata-guard (`atime`) deopt it found.
 
+### Phase U1 (CI stabilisation)
+
+- `fcntl` flag queries (`F_GETFL`, `F_GETFD`, `F_GETOWN`, `F_GETLEASE`,
+  `F_GETPIPE_SZ`) are process-local only for descriptors this execution
+  created. On an inherited descriptor the flags were chosen elsewhere and no
+  guard records them, so the query now refuses instead of replaying the
+  previous run's branch.
+- Integration harness: `pipe2(O_CLOEXEC)` for test-created pipes, no
+  descriptor is ever closed by the harness, `pre_exec` closures touch only
+  descriptor 9, the two tests that install descriptor 9 run in their own
+  re-executed process, and the timing lock recovers from poisoning. The
+  inherited-descriptor enforcement itself is unchanged.
+- New regression `an_inheritable_parent_descriptor_is_refused` proves a real
+  parent-held descriptor is refused by number, cannot produce a HIT, falls
+  back to a native run, and stops blocking reuse once closed.
+- `docs/PHASE_U1_REPORT.md` records the root causes, the syscall-model audit,
+  the warm-hit profile against `v0.2.0-beta.1`, and the `atime` analysis.
+
 ## 0.2.0-beta.1
 
 First independently packaged public beta. No optimization research branch was
