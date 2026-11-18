@@ -97,8 +97,9 @@ worth 1.73× on `cc` and 1.11× on `etl`.
 
 ## 3. Dependency-redundancy analysis
 
-From `benchmarks/results/phasex/redundancy-baseline.json` (385-guard record; the 393-guard record
-of section 2 is the same shape):
+From `benchmarks/results/phasex/redundancy-baseline.json` and the stored compiler record
+`benchmarks/results/phasex/record-compiler.json.gz` (388 and 393 guards depending on the unit and
+its input state; the structure is the same):
 
 1. **Repeated metadata for the same path.** 230 `FileMetadata` guards name 180 distinct paths, and
    **51 of them are byte-identical duplicates** (same path, same expected fingerprint, because the
@@ -107,8 +108,8 @@ of section 2 is the same shape):
    duplicates cost 51 extra `stat` calls, about 0.1 ms.
 2. **Repeated content for the same path.** 57 content guards hash only 52 distinct paths:
    `cc1` is hashed **3×** (once as `ExecutableHash`, twice for `ControlledRuntime` observations),
-   `gcc-13` **3×**, `as` **2×**. A pass therefore reads **107.2 MB for 41.3 MB of distinct
-   content** (2.60×). This is the interesting redundancy, and section 5 explains why it stays.
+   `gcc-13` **3×**, `as` **2×**. A pass therefore reads **107.2 MB for 43.4 MB of distinct
+   content** (2.47×). This is the interesting redundancy, and section 5 explains why it stays.
    One residual duplicate is a path alias: `/lib/x86_64-linux-gnu/libc.so.6` (a `FileHash`) and
    `/usr/lib/x86_64-linux-gnu/libc.so.6` (`ControlledEntropy`) are the same file under two names;
    path-keyed work cannot merge them without resolving symlinks, which the record deliberately does
@@ -320,8 +321,8 @@ child-local sweep is untouched.
 
 ## 10. Remaining bottlenecks
 
-1. **Content hashing: 39.5 ms of 43.5 ms of validation, 107 MB read per hit.** Of that, 66 MB is
-   the same compiler binaries read three times (section 3.2). Removing it needs a soundness proof
+1. **Content hashing: 39.5 ms of 43.5 ms of validation, 107 MB read per hit.** Of that, about
+   64 MB is the same compiler binaries read two or three times (section 3.2). Removing it needs a soundness proof
    that survived the counterexample in section 5; none did in this phase.
 2. **Process start-up: 8.3 ms** — larger than the whole first-pass saving on trivial commands, and
    the floor under every hit (visible in the `true` workload: 8.5 ms for a 1 ms program).
@@ -392,7 +393,7 @@ Raw evidence: `benchmarks/results/phasex/` (`ab-final.json`, `ab-share.json` for
 experiment, `profile-*-guardprofile.json`, `redundancy-baseline.json`, `workloads.json`,
 `session-27.json`, `session-48.json`, `fuzz-29.json`, `census-v03.json`). The profile files carry
 the per-pass measurements and per-run samples but not the embedded record, whose effect list is
-large; the final record is kept gzipped as `record-final.json.gz` (`zcat` it to feed
+large; the compiler record is kept gzipped as `record-compiler.json.gz` (`zcat` it to feed
 `redundancy.py --record`).
 
 ## 13. Files
