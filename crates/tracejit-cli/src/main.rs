@@ -244,6 +244,7 @@ fn run_cli(cli: Cli, process_startup_ns: u64, cli_parse_ns: u64) -> Result<i32> 
                 phases.cli_parse_ns = cli_parse_ns;
                 phases.present_ns =
                     u64::try_from(present_started.elapsed().as_nanos()).unwrap_or(u64::MAX);
+                phases.guard_profile = tracejit_guards::take_guard_profile();
                 write_phase_file(phases)?;
             }
             Ok(report.exit_code)

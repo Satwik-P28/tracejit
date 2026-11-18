@@ -545,10 +545,11 @@ fn interrupted_restore_intent_refuses_hit() {
     );
 }
 
-/// Pre-restore guard recheck must refuse a HIT when inputs change in the validate→restore window.
+/// The pre-restore guard pass must refuse a HIT when an input changed before it ran.
 ///
 /// Uses `TRACEJIT_TEST_PRE_RESTORE_MUTATE_PATH` (test hook; unset in production) to inject the
-/// mutation deterministically. Residual TOCTOU after the recheck remains a documented limitation.
+/// mutation deterministically immediately before that pass. Residual TOCTOU during the restore
+/// remains a documented limitation.
 #[test]
 fn toctou_pre_restore_recheck_deoptimizes_instead_of_false_hit() {
     let fixture = Fixture::new();
