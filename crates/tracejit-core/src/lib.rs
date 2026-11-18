@@ -84,7 +84,10 @@ pub enum Admission {
 
 /// A hit costs process startup, identity, SQLite lookup, guards and restoration. A command whose
 /// native runtime is below this is not worth caching even if it would always hit.
-const HIT_COST_FLOOR_NS: u64 = 6_000_000;
+///
+/// Public so the admission test can state the rule in the same units the policy uses instead of
+/// hard-coding a millisecond value next to a wall-clock assumption about the host.
+pub const HIT_COST_FLOOR_NS: u64 = 6_000_000;
 /// Stale cost samples are discarded rather than trusted forever.
 const ADMISSION_SAMPLE_TTL_MS: u128 = 30 * 24 * 60 * 60 * 1000;
 

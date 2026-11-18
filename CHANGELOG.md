@@ -36,6 +36,15 @@ reproduced by existing guards.
   descriptor 9, the two tests that install descriptor 9 run in their own
   re-executed process, and the timing lock recovers from poisoning. The
   inherited-descriptor enforcement itself is unchanged.
+- Descriptors the test process inherited from its parent (for example the
+  two GitHub Actions hands to the step) are marked `FD_CLOEXEC` once per
+  process, so the traced child never sees them. Nothing is closed, so no
+  component's descriptor becomes invalid; the assertion that used to fail
+  the run on their presence is gone.
+- `auto_admission_skips_short_commands_and_caches_expensive_ones` asserts
+  the admission rule against the cost the measuring run reports, not
+  against an assumption that the host runs `wc` inside the break-even
+  window. `tracejit_core::HIT_COST_FLOOR_NS` is public for that test.
 - New regression `an_inheritable_parent_descriptor_is_refused` proves a real
   parent-held descriptor is refused by number, cannot produce a HIT, falls
   back to a native run, and stops blocking reuse once closed.

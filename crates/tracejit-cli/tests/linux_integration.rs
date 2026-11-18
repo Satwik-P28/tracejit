@@ -49,36 +49,36 @@ fn workspace(directory: &Path) {
     std::os::unix::fs::symlink("input.txt", directory.join("input-link")).unwrap();
 }
 
-/// Asserts, once per test process, that the harness itself holds no inheritable descriptor.
+/// Marks every descriptor the harness *inherited* as close-on-exec, once per test process.
 ///
-/// TraceJIT correctly refuses to reuse when a non-CLOEXEC descriptor above stderr reaches the
-/// child, so a test that leaves one open does not fail its own assertions: it fails whichever
-/// sibling happens to spawn next, and names a descriptor number nobody recognises. That is exactly
-/// how the CI failure appeared (`inherited descriptor 142` from a leaked `pipe()`).
+/// TraceJIT correctly refuses reuse when a non-CLOEXEC descriptor above stderr reaches the traced
+/// child, so a descriptor the test process itself inherited from cargo, the shell or a CI runner
+/// makes every ordinary integration test refuse. GitHub Actions hands the test process descriptors
+/// (142 and 145 in run `44235001207`) that no test created, no test owns, and no test can know
+/// about. Asserting they are absent only fails the run; leaving them alone makes every spawn
+/// refuse.
 ///
-/// The check is read-only on purpose. An earlier version closed the descriptors it found, in
-/// `pre_exec` and later once per process; both are wrong. `std::process` installs the child's
-/// stdio *after* `pre_exec`, so closing a descriptor there can break the spawn itself, and closing
-/// descriptors in the shared process races with live use by other test threads: a `TempDir` drop
-/// then fails in `closedir` with `EBADF`. A harness must never close descriptors it does not own.
-/// CLOEXEC descriptors are the only legitimate kind here (`File::open`, `pipe2(O_CLOEXEC)`,
-/// `File::try_clone`), because the kernel drops them at `exec` and the child never sees them.
-fn assert_no_inheritable_harness_descriptors() {
+/// The fix marks them `FD_CLOEXEC` and nothing else. Marking is idempotent, cannot invalidate a
+/// descriptor, and cannot make another thread's live descriptor unusable, so it is safe beside
+/// concurrent spawning — unlike both earlier approaches. Closing them in `pre_exec` could close a
+/// pipe `std::process` was about to install (`EBADF`), and closing them in the shared process
+/// raced with live use by other threads (`closedir` failing during `TempDir` drop). A harness must
+/// never close a descriptor it does not own; dropping it from `exec` is the ownership-respecting
+/// way to keep children clean.
+fn mark_inherited_descriptors_close_on_exec() {
     static ONCE: std::sync::Once = std::sync::Once::new();
     ONCE.call_once(|| {
-        let inherited: Vec<i32> = (3..1024)
-            .filter(|&fd| {
-                // SAFETY: F_GETFD only reads descriptor flags; EBADF means the slot is empty.
-                let flags = unsafe { libc::fcntl(fd, libc::F_GETFD) };
-                flags >= 0 && flags & libc::FD_CLOEXEC == 0
-            })
-            .collect();
-        assert!(
-            inherited.is_empty(),
-            "the test process holds inheritable descriptors {inherited:?}; TraceJIT will and \
-             should refuse them. Open test descriptors with O_CLOEXEC (or `File::open`, which is \
-             CLOEXEC) so only the intended inherited-descriptor test needs an exception."
-        );
+        for fd in 3..1024 {
+            // SAFETY: both calls only read or set descriptor flags; EBADF means the slot is empty.
+            let flags = unsafe { libc::fcntl(fd, libc::F_GETFD) };
+            if flags < 0 || flags & libc::FD_CLOEXEC != 0 {
+                continue;
+            }
+            // SAFETY: the descriptor is open, so setting its descriptor flags is well defined.
+            unsafe {
+                libc::fcntl(fd, libc::F_SETFD, flags | libc::FD_CLOEXEC);
+            }
+        }
     });
 }
 
@@ -88,9 +88,11 @@ fn assert_no_inheritable_harness_descriptors() {
 /// run; a concurrent compilation can push a short command over its 6 ms threshold and change the
 /// decision for reasons that have nothing to do with the policy under test.
 ///
-/// Poisoning is recovered rather than propagated: a panic in one of these tests must not turn
-/// every later test into a `PoisonError` failure, which hides the real defect behind six
-/// meaningless panics. The assertions inside each test are unchanged.
+/// Poisoning is recovered rather than propagated. The guarded value is `()`: this lock orders
+/// execution and protects no data, so there is no state that could be left inconsistent and
+/// nothing a poisoned guard could hide. Propagating the poison would instead turn one real panic
+/// into one failure plus a `PoisonError` panic in every later test that needs the lock, burying
+/// the original defect. libtest still reports the test that actually panicked.
 fn serial_timing_lock() -> std::sync::MutexGuard<'static, ()> {
     static LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
     LOCK.lock()
@@ -134,7 +136,7 @@ fn set_cloexec(file: &File) {
 }
 
 fn tracejit_command() -> Command {
-    assert_no_inheritable_harness_descriptors();
+    mark_inherited_descriptors_close_on_exec();
     Command::new(tracejit())
 }
 
@@ -149,7 +151,7 @@ fn invoke(cache: &Path, args: &[&str], extra_env: Option<(&str, &str)>) -> Outpu
     if let Some((key, value)) = extra_env {
         command.env(key, value);
     }
-    assert_no_inheritable_harness_descriptors();
+    mark_inherited_descriptors_close_on_exec();
     command.output().unwrap()
 }
 
@@ -1487,7 +1489,7 @@ struct Fixture {
 
 impl Fixture {
     fn new() -> Self {
-        assert_no_inheritable_harness_descriptors();
+        mark_inherited_descriptors_close_on_exec();
         let directory = tempfile::tempdir().unwrap();
         workspace(directory.path());
         let binary = compile_fixture(directory.path());
@@ -1944,7 +1946,7 @@ fn run_with_stdin(fixture: &Fixture, case: &str, stdin: &Path) -> Output {
         .env("TRACEJIT_CACHE_DIR", &fixture.cache)
         .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0")
         .stdin(Stdio::from(File::open(stdin).unwrap()));
-    assert_no_inheritable_harness_descriptors();
+    mark_inherited_descriptors_close_on_exec();
     command.output().unwrap()
 }
 
@@ -1972,7 +1974,7 @@ fn run_with_fd9(fixture: &Fixture, case: &str, source: Option<&File>, traced: bo
         command
     };
     command.stdin(Stdio::null());
-    assert_no_inheritable_harness_descriptors();
+    mark_inherited_descriptors_close_on_exec();
     // SAFETY: pre_exec runs between fork and exec; dup2/fcntl/close are async-signal-safe and the
     // source descriptor remains open in the parent until the child has exec'd. Only descriptor 9
     // is touched: the rest of the child's table was sanitised above, so nothing has to be guessed
@@ -2253,7 +2255,7 @@ fn close_on_exec_descriptor_is_not_an_inherited_boundary() {
         ]);
         command.env("TRACEJIT_CACHE_DIR", &fixture.cache);
         command.env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0");
-        assert_no_inheritable_harness_descriptors();
+        mark_inherited_descriptors_close_on_exec();
         // SAFETY: pre_exec runs between fork and exec; helpers only use async-signal-safe calls.
         unsafe {
             command.pre_exec(move || {
@@ -3077,7 +3079,7 @@ fn inherited_stdin_reuse_is_stable_across_fresh_sessions() {
                 .args(args)
                 .env("TRACEJIT_CACHE_DIR", cache)
                 .stdin(std::process::Stdio::from(source));
-            assert_no_inheritable_harness_descriptors();
+            mark_inherited_descriptors_close_on_exec();
             let output = command.output().unwrap();
             serde_json::from_slice::<Value>(&output.stdout).unwrap()
         };
@@ -3178,9 +3180,31 @@ fn auto_admission_skips_short_commands_and_caches_expensive_ones() {
         small.to_str().unwrap(),
     ];
     let first: Value = serde_json::from_slice(&invoke(&cache, &short, None).stdout).unwrap();
+    // The first run never pays for a trace: it only measures the direct cost. That is independent
+    // of how fast the host is.
     assert_eq!(first["cache_decision"], "Skipped", "{first}");
+    // The second run applies the policy to the cost the first run measured
+    // (`admission_is_worth_tracing`: a trace must repay twice the hit-cost floor). Assert *that*
+    // rule rather than assuming this host can run `wc` inside the break-even window: under default
+    // test parallelism on an oversubscribed machine the same command measures 11-25 ms, and then
+    // paying for one trace is the correct decision, not a defect. Both branches assert the policy;
+    // neither is skipped.
+    let measured_direct = first["baseline_runtime_ns"]
+        .as_u64()
+        .expect("the measuring run must report the direct runtime it sampled");
+    let break_even = 2 * tracejit_core::HIT_COST_FLOOR_NS;
     let second: Value = serde_json::from_slice(&invoke(&cache, &short, None).stdout).unwrap();
-    assert_eq!(second["cache_decision"], "Skipped", "{second}");
+    if measured_direct < break_even {
+        assert_eq!(
+            second["cache_decision"], "Skipped",
+            "a command measured at {measured_direct} ns cannot repay a trace: {second}"
+        );
+    } else {
+        assert_ne!(
+            second["cache_decision"], "Skipped",
+            "a command measured at {measured_direct} ns must be traced: {second}"
+        );
+    }
     assert_eq!(first["stdout_bytes"], second["stdout_bytes"]);
     assert_eq!(first["exit_code"], second["exit_code"]);
 
@@ -3267,7 +3291,7 @@ fn inherited_stdin_seek_model_reproduces_offsets_and_refuses_unsound_cases() {
         // harness never has to close anything the spawn machinery is using.
         set_cloexec(&stdin);
         set_cloexec(&duplicate);
-        assert_no_inheritable_harness_descriptors();
+        mark_inherited_descriptors_close_on_exec();
         let mut command = Command::new(tracejit());
         command
             .args([
@@ -3281,7 +3305,7 @@ fn inherited_stdin_seek_model_reproduces_offsets_and_refuses_unsound_cases() {
             ])
             .env("TRACEJIT_CACHE_DIR", cache)
             .stdin(std::process::Stdio::from(duplicate));
-        assert_no_inheritable_harness_descriptors();
+        mark_inherited_descriptors_close_on_exec();
         let output = command.output().unwrap();
         assert!(
             output.status.success(),

@@ -29,9 +29,10 @@ non-CLOEXEC descriptor above stderr, still rescans after `Cache::open`, and stil
 
 - Pipes are created with `pipe2(O_CLOEXEC)`; the child still receives the bytes because
   `run_with_fd9` installs descriptor 9 itself in `pre_exec`.
-- No harness code closes a descriptor it does not own. A read-only invariant
-  (`assert_no_inheritable_harness_descriptors`, once per process) turns a future leak into one
-  precise message instead of a mystery refusal in a sibling test.
+- No harness code closes a descriptor it does not own. Instead, once per process, every
+  descriptor the harness *inherited* is marked `FD_CLOEXEC`, so it is dropped from every child
+  at `exec`. Marking is idempotent and, unlike closing, cannot invalidate a descriptor another
+  thread is using, so it is safe beside concurrent spawning.
 - `pre_exec` closures touch only descriptor 9.
 - The two tests that deliberately manipulate descriptor 9 run in a re-executed copy of the
   test binary (`--exact`, `--test-threads=1`, guarded by `TRACEJIT_ISOLATED_TEST_CHILD`).
@@ -53,13 +54,44 @@ descriptor restores reuse.
 | `--test-threads=2` | 68/68 (12.0 s) |
 | `--test-threads=4` | 68/68 (7.1 s) |
 | `--test-threads=8` | 68/68 (5.2 s) |
-| default parallelism, 12 consecutive runs | 68/68 each |
-| `--test-threads=16` (2× oversubscribed) | 67/68: `auto_admission_skips_short_commands_and_caches_expensive_ones` |
+| default parallelism, 10 consecutive runs | 68/68 each |
+| default parallelism with CI-style inherited descriptors (`142`, `145` held non-CLOEXEC), 12 runs | 68/68 each |
+| `--test-threads=16` (2× oversubscribed) | 68/68 |
 
-The 16-thread failure is a measurement limit, not a correctness defect: the test measures a
-short direct run against a 6 ms admission threshold and this host reported 46–50 ms under 16
-threads compiling C and spawning TraceJIT. The same test passes at 1/2/4/8 threads and at
-default parallelism on an otherwise idle host. No assertion was weakened.
+### Hotfix: descriptors inherited from the CI runner (run `44235001207`)
+
+`assert_no_inheritable_harness_descriptors` failed on GitHub Actions with `[142, 145]`. Those
+descriptors were present before the first spawn: `Fixture::new` is the first thing any test does,
+and run `44235001207` panicked in `a_corrupted_cached_output_fails_closed` at the assertion, not
+in a test that had created anything. They are inherited from the runner process, not created by
+any test, and nothing in the harness owns them.
+
+The assertion was the wrong instrument: it cannot be race-free (it observes whatever the shape of
+the process happens to be) and it made the run red without fixing the consequence, which is that
+the traced child inherits those descriptors too and must refuse. `mark_inherited_descriptors_close_on_exec`
+now marks them `FD_CLOEXEC` once per process: they stay open and valid for whoever owns them, and
+they never reach a child. Reproduced locally with `bash -c 'exec 142>…; exec 145>…; cargo test …'`:
+before the change the run failed, after it 12/12 default-parallelism runs were green with no
+`inherited descriptor` refusal anywhere.
+
+The isolation policy is unchanged: the tests that deliberately create a non-CLOEXEC descriptor
+(`an_inheritable_parent_descriptor_is_refused`, `cloexec_source_already_on_fd9_still_reaches_the_child`)
+still run in their own re-executed process, and `run_with_fd9` still installs descriptor 9 in
+`pre_exec`. The regression still shows baseline reuse, refusal by descriptor number, no HIT on
+repetition, a native-identical fallback, and reuse restored after the descriptor is closed.
+
+### Scheduling-sensitive wall-clock assertions
+
+`auto_admission_skips_short_commands_and_caches_expensive_ones` is the only test whose assertion
+depended on how fast the host is. Run 1 always measures (`Skipped`); run 2 applies
+`admission_is_worth_tracing`, which pays for a trace when the measured direct cost reaches twice
+the 6 ms hit-cost floor. Under 68-way parallel execution `wc -c` measured 11–25 ms, so paying for
+the trace was the correct decision and the old fixed `Skipped` expectation was wrong, not the
+policy. The test now asserts the policy against the cost the measuring run itself reports
+(`tracejit_core::HIT_COST_FLOOR_NS`), asserting both directions rather than assuming an idle
+machine; on the strict `--test-threads=1` CI job the sub-threshold branch is the one that runs.
+The poisoned-lock recovery is kept and justified: the guarded value is `()`, so no data can be
+inconsistent, and propagating the poison would bury the one real panic under six `PoisonError`s.
 
 ## 2. Descriptor and syscall-model audit
 
