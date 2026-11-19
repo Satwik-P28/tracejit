@@ -1,0 +1,2044 @@
+{
+  "tracejit": "/tmp/tj-share4",
+  "workload": "repeat",
+  "rounds": 6,
+  "units": 3,
+  "functions_per_unit": 220,
+  "cold": [
+    {
+      "wall_ns": 925679374,
+      "decision": "miss",
+      "phases": null
+    },
+    {
+      "wall_ns": 744154107,
+      "decision": "miss",
+      "phases": null
+    },
+    {
+      "wall_ns": 915168485,
+      "decision": "miss",
+      "phases": null
+    }
+  ],
+  "warm": {
+    "runs": 18,
+    "decisions": {
+      "hit": 17,
+      "miss": 1
+    },
+    "wall_ms": {
+      "median": 51.966,
+      "p95": 90.25,
+      "samples": [
+        72.558,
+        52.229,
+        938.461,
+        52.748,
+        44.017,
+        59.125,
+        44.183,
+        49.571,
+        44.521,
+        39.785,
+        90.25,
+        51.703,
+        52.933,
+        41.045,
+        51.67,
+        60.768,
+        51.43,
+        56.132
+      ]
+    },
+    "phases_ms": {
+      "cache_prepare_ns": {
+        "median_ms": 0.027
+      },
+      "cas_restore_ns": {
+        "median_ms": 6.622
+      },
+      "cli_parse_ns": {
+        "median_ms": 0.196
+      },
+      "decision_persist_ns": {
+        "median_ms": 0.0
+      },
+      "guard_recheck_ns": {
+        "median_ms": 0.0
+      },
+      "guard_validation_ns": {
+        "median_ms": 24.895
+      },
+      "identity_prepare_ns": {
+        "median_ms": 0.754
+      },
+      "lookup_key_ns": {
+        "median_ms": 0.006
+      },
+      "present_ns": {
+        "median_ms": 0.033
+      },
+      "process_startup_ns": {
+        "median_ms": 8.787
+      },
+      "record_decode_ns": {
+        "median_ms": 3.524
+      },
+      "sqlite_open_ns": {
+        "median_ms": 0.204
+      },
+      "sqlite_query_ns": {
+        "median_ms": 3.088
+      },
+      "sqlite_schema_ns": {
+        "median_ms": 0.454
+      },
+      "stdio_replay_ns": {
+        "median_ms": 0.038
+      }
+    },
+    "guard_profile": {
+      "runs_with_profile": 17,
+      "passes_median": [
+        {
+          "pass": 1,
+          "access_calls_median": 5.0,
+          "access_ns_median": 123661.0,
+          "bytes_hashed_median": 43392658.0,
+          "content_calls_median": 52.0,
+          "content_ns_median": 19824916.0,
+          "directory_probes_median": 19.0,
+          "env_calls_median": 13.0,
+          "guards_median": 393.0,
+          "open_calls_median": 52.0,
+          "open_ns_median": 306941.0,
+          "passed_median": 393.0,
+          "read_syscalls_median": 756.0,
+          "readlink_calls_median": 60.0,
+          "readlink_ns_median": 143040.0,
+          "shared_content_calls_median": 5.0,
+          "stat_calls_median": 311.0,
+          "stat_ns_median": 775531.0,
+          "total_ns_median": 24892902.0
+        }
+      ],
+      "guards_by_kind": {
+        "AccessCheck": 5,
+        "ControlledEntropy": 1,
+        "ControlledRuntime": 4,
+        "DirectoryOpened": 19,
+        "EnvironmentValue": 13,
+        "FileMetadata": 234,
+        "NoUnexpectedEffects": 1,
+        "OutputPrestate": 2,
+        "RuntimeIdentity": 1,
+        "SymlinkTarget": 60,
+        "WorkingDirectory": 1
+      },
+      "unique_paths_by_kind": {
+        "AccessCheck": 4,
+        "ControlledEntropy": 1,
+        "ControlledRuntime": 3,
+        "DirectoryOpened": 19,
+        "FileMetadata": 184,
+        "OutputPrestate": 2,
+        "SymlinkTarget": 60
+      },
+      "peak_rss_kb_median": 10688.0,
+      "samples": [
+        {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 23273950,
+              "stat_calls": 311,
+              "stat_ns": 789991,
+              "open_calls": 52,
+              "open_ns": 280689,
+              "content_calls": 52,
+              "content_ns": 17670737,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 149090,
+              "access_calls": 5,
+              "access_ns": 146862,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 11152
+        },
+        {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 21898438,
+              "stat_calls": 311,
+              "stat_ns": 663332,
+              "open_calls": 52,
+              "open_ns": 273226,
+              "content_calls": 52,
+              "content_ns": 17552047,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 114390,
+              "access_calls": 5,
+              "access_ns": 99059,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 11152
+        },
+        {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 31135127,
+              "stat_calls": 311,
+              "stat_ns": 1144055,
+              "open_calls": 52,
+              "open_ns": 715941,
+              "content_calls": 52,
+              "content_ns": 24378911,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 143040,
+              "access_calls": 5,
+              "access_ns": 142368,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 10664
+        },
+        {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 24545911,
+              "stat_calls": 311,
+              "stat_ns": 775531,
+              "open_calls": 52,
+              "open_ns": 333980,
+              "content_calls": 52,
+              "content_ns": 19794877,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 113660,
+              "access_calls": 5,
+              "access_ns": 106440,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 10700
+        },
+        {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 23859930,
+              "stat_calls": 311,
+              "stat_ns": 729632,
+              "open_calls": 52,
+              "open_ns": 278695,
+              "content_calls": 52,
+              "content_ns": 19162398,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 122760,
+              "access_calls": 5,
+              "access_ns": 103510,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 12632
+        },
+        {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 22680709,
+              "stat_calls": 311,
+              "stat_ns": 718910,
+              "open_calls": 52,
+              "open_ns": 261279,
+              "content_calls": 52,
+              "content_ns": 18355900,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 116233,
+              "access_calls": 5,
+              "access_ns": 100512,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 10548
+        },
+        {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 25769381,
+              "stat_calls": 311,
+              "stat_ns": 918216,
+              "open_calls": 52,
+              "open_ns": 331821,
+              "content_calls": 52,
+              "content_ns": 20057059,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 130773,
+              "access_calls": 5,
+              "access_ns": 123661,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 10584
+        },
+        {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 24892902,
+              "stat_calls": 311,
+              "stat_ns": 766712,
+              "open_calls": 52,
+              "open_ns": 267238,
+              "content_calls": 52,
+              "content_ns": 19824916,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 132571,
+              "access_calls": 5,
+              "access_ns": 109678,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 12776
+        },
+        {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 22545259,
+              "stat_calls": 311,
+              "stat_ns": 713102,
+              "open_calls": 52,
+              "open_ns": 284559,
+              "content_calls": 52,
+              "content_ns": 17937385,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 121403,
+              "access_calls": 5,
+              "access_ns": 103512,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 10688
+        },
+        {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 24300231,
+              "stat_calls": 311,
+              "stat_ns": 728720,
+              "open_calls": 52,
+              "open_ns": 278992,
+              "content_calls": 52,
+              "content_ns": 19274825,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 184690,
+              "access_calls": 5,
+              "access_ns": 120658,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 10564
+        },
+        {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 26776143,
+              "stat_calls": 311,
+              "stat_ns": 904908,
+              "open_calls": 52,
+              "open_ns": 314622,
+              "content_calls": 52,
+              "content_ns": 20639850,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 148070,
+              "access_calls": 5,
+              "access_ns": 150901,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 12824
+        },
+        {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 28982775,
+              "stat_calls": 311,
+              "stat_ns": 938468,
+              "open_calls": 52,
+              "open_ns": 345250,
+              "content_calls": 52,
+              "content_ns": 22677509,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 182230,
+              "access_calls": 5,
+              "access_ns": 142867,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 10624
+        },
+        {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 22576799,
+              "stat_calls": 311,
+              "stat_ns": 728748,
+              "open_calls": 52,
+              "open_ns": 252702,
+              "content_calls": 52,
+              "content_ns": 17671176,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 147350,
+              "access_calls": 5,
+              "access_ns": 127769,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 10668
+        },
+        {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 28414134,
+              "stat_calls": 311,
+              "stat_ns": 920032,
+              "open_calls": 52,
+              "open_ns": 306941,
+              "content_calls": 52,
+              "content_ns": 22235831,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 149460,
+              "access_calls": 5,
+              "access_ns": 135841,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 12784
+        },
+        {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 40214514,
+              "stat_calls": 311,
+              "stat_ns": 744673,
+              "open_calls": 52,
+              "open_ns": 344650,
+              "content_calls": 52,
+              "content_ns": 35128172,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 120032,
+              "access_calls": 5,
+              "access_ns": 103519,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 10612
+        },
+        {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 29918955,
+              "stat_calls": 311,
+              "stat_ns": 898310,
+              "open_calls": 52,
+              "open_ns": 324990,
+              "content_calls": 52,
+              "content_ns": 23080291,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 153040,
+              "access_calls": 5,
+              "access_ns": 142121,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 10628
+        },
+        {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 29354795,
+              "stat_calls": 311,
+              "stat_ns": 1018077,
+              "open_calls": 52,
+              "open_ns": 343848,
+              "content_calls": 52,
+              "content_ns": 22469700,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 179730,
+              "access_calls": 5,
+              "access_ns": 143880,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 12668
+        }
+      ]
+    },
+    "raw_phases": [
+      {
+        "process_startup_ns": 11661384,
+        "cli_parse_ns": 122140,
+        "identity_prepare_ns": 569720,
+        "cache_prepare_ns": 19041,
+        "sqlite_open_ns": 150310,
+        "sqlite_schema_ns": 269880,
+        "lookup_key_ns": 4980,
+        "sqlite_query_ns": 2358052,
+        "record_decode_ns": 2643322,
+        "guard_validation_ns": 23275200,
+        "guard_recheck_ns": 0,
+        "cas_restore_ns": 21795799,
+        "stdio_replay_ns": 27460,
+        "decision_persist_ns": 12968831,
+        "present_ns": 33941,
+        "guard_profile": {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 23273950,
+              "stat_calls": 311,
+              "stat_ns": 789991,
+              "open_calls": 52,
+              "open_ns": 280689,
+              "content_calls": 52,
+              "content_ns": 17670737,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 149090,
+              "access_calls": 5,
+              "access_ns": 146862,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 11152
+        }
+      },
+      {
+        "process_startup_ns": 4734407,
+        "cli_parse_ns": 160190,
+        "identity_prepare_ns": 659330,
+        "cache_prepare_ns": 17050,
+        "sqlite_open_ns": 168240,
+        "sqlite_schema_ns": 332210,
+        "lookup_key_ns": 5660,
+        "sqlite_query_ns": 2838012,
+        "record_decode_ns": 2827793,
+        "guard_validation_ns": 21899598,
+        "guard_recheck_ns": 0,
+        "cas_restore_ns": 5736285,
+        "stdio_replay_ns": 27571,
+        "decision_persist_ns": 9946189,
+        "present_ns": 27500,
+        "guard_profile": {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 21898438,
+              "stat_calls": 311,
+              "stat_ns": 663332,
+              "open_calls": 52,
+              "open_ns": 273226,
+              "content_calls": 52,
+              "content_ns": 17552047,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 114390,
+              "access_calls": 5,
+              "access_ns": 99059,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 11152
+        }
+      },
+      null,
+      {
+        "process_startup_ns": 7454668,
+        "cli_parse_ns": 221910,
+        "identity_prepare_ns": 856081,
+        "cache_prepare_ns": 37800,
+        "sqlite_open_ns": 268910,
+        "sqlite_schema_ns": 511601,
+        "lookup_key_ns": 5700,
+        "sqlite_query_ns": 3634803,
+        "record_decode_ns": 3756093,
+        "guard_validation_ns": 31137777,
+        "guard_recheck_ns": 0,
+        "cas_restore_ns": 5764605,
+        "stdio_replay_ns": 45780,
+        "decision_persist_ns": 0,
+        "present_ns": 32230,
+        "guard_profile": {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 31135127,
+              "stat_calls": 311,
+              "stat_ns": 1144055,
+              "open_calls": 52,
+              "open_ns": 715941,
+              "content_calls": 52,
+              "content_ns": 24378911,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 143040,
+              "access_calls": 5,
+              "access_ns": 142368,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 10664
+        }
+      },
+      {
+        "process_startup_ns": 9647953,
+        "cli_parse_ns": 182440,
+        "identity_prepare_ns": 737000,
+        "cache_prepare_ns": 25660,
+        "sqlite_open_ns": 199370,
+        "sqlite_schema_ns": 453750,
+        "lookup_key_ns": 5600,
+        "sqlite_query_ns": 3129393,
+        "record_decode_ns": 3833003,
+        "guard_validation_ns": 24547860,
+        "guard_recheck_ns": 0,
+        "cas_restore_ns": 5594105,
+        "stdio_replay_ns": 30900,
+        "decision_persist_ns": 0,
+        "present_ns": 27539,
+        "guard_profile": {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 24545911,
+              "stat_calls": 311,
+              "stat_ns": 775531,
+              "open_calls": 52,
+              "open_ns": 333980,
+              "content_calls": 52,
+              "content_ns": 19794877,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 113660,
+              "access_calls": 5,
+              "access_ns": 106440,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 10700
+        }
+      },
+      {
+        "process_startup_ns": 4186451,
+        "cli_parse_ns": 170130,
+        "identity_prepare_ns": 764401,
+        "cache_prepare_ns": 41980,
+        "sqlite_open_ns": 201620,
+        "sqlite_schema_ns": 391140,
+        "lookup_key_ns": 6080,
+        "sqlite_query_ns": 5846944,
+        "record_decode_ns": 3524493,
+        "guard_validation_ns": 23862180,
+        "guard_recheck_ns": 0,
+        "cas_restore_ns": 5568695,
+        "stdio_replay_ns": 44430,
+        "decision_persist_ns": 9507048,
+        "present_ns": 29800,
+        "guard_profile": {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 23859930,
+              "stat_calls": 311,
+              "stat_ns": 729632,
+              "open_calls": 52,
+              "open_ns": 278695,
+              "content_calls": 52,
+              "content_ns": 19162398,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 122760,
+              "access_calls": 5,
+              "access_ns": 103510,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 12632
+        }
+      },
+      {
+        "process_startup_ns": 4027763,
+        "cli_parse_ns": 241869,
+        "identity_prepare_ns": 913690,
+        "cache_prepare_ns": 30999,
+        "sqlite_open_ns": 204130,
+        "sqlite_schema_ns": 434760,
+        "lookup_key_ns": 6300,
+        "sqlite_query_ns": 3019293,
+        "record_decode_ns": 4658105,
+        "guard_validation_ns": 22682159,
+        "guard_recheck_ns": 0,
+        "cas_restore_ns": 6020705,
+        "stdio_replay_ns": 40790,
+        "decision_persist_ns": 0,
+        "present_ns": 38710,
+        "guard_profile": {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 22680709,
+              "stat_calls": 311,
+              "stat_ns": 718910,
+              "open_calls": 52,
+              "open_ns": 261279,
+              "content_calls": 52,
+              "content_ns": 18355900,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 116233,
+              "access_calls": 5,
+              "access_ns": 100512,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 10548
+        }
+      },
+      {
+        "process_startup_ns": 8441010,
+        "cli_parse_ns": 218510,
+        "identity_prepare_ns": 821000,
+        "cache_prepare_ns": 25981,
+        "sqlite_open_ns": 230310,
+        "sqlite_schema_ns": 495670,
+        "lookup_key_ns": 5780,
+        "sqlite_query_ns": 3054023,
+        "record_decode_ns": 4171623,
+        "guard_validation_ns": 25772013,
+        "guard_recheck_ns": 0,
+        "cas_restore_ns": 8947757,
+        "stdio_replay_ns": 37630,
+        "decision_persist_ns": 0,
+        "present_ns": 32909,
+        "guard_profile": {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 25769381,
+              "stat_calls": 311,
+              "stat_ns": 918216,
+              "open_calls": 52,
+              "open_ns": 331821,
+              "content_calls": 52,
+              "content_ns": 20057059,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 130773,
+              "access_calls": 5,
+              "access_ns": 123661,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 10584
+        }
+      },
+      {
+        "process_startup_ns": 7775713,
+        "cli_parse_ns": 146560,
+        "identity_prepare_ns": 629211,
+        "cache_prepare_ns": 22090,
+        "sqlite_open_ns": 178070,
+        "sqlite_schema_ns": 416570,
+        "lookup_key_ns": 4610,
+        "sqlite_query_ns": 3746253,
+        "record_decode_ns": 2405731,
+        "guard_validation_ns": 24894732,
+        "guard_recheck_ns": 0,
+        "cas_restore_ns": 6426745,
+        "stdio_replay_ns": 28100,
+        "decision_persist_ns": 0,
+        "present_ns": 51539,
+        "guard_profile": {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 24892902,
+              "stat_calls": 311,
+              "stat_ns": 766712,
+              "open_calls": 52,
+              "open_ns": 267238,
+              "content_calls": 52,
+              "content_ns": 19824916,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 132571,
+              "access_calls": 5,
+              "access_ns": 109678,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 12776
+        }
+      },
+      {
+        "process_startup_ns": 12695112,
+        "cli_parse_ns": 178881,
+        "identity_prepare_ns": 628730,
+        "cache_prepare_ns": 22330,
+        "sqlite_open_ns": 176390,
+        "sqlite_schema_ns": 404341,
+        "lookup_key_ns": 5470,
+        "sqlite_query_ns": 2281093,
+        "record_decode_ns": 2439282,
+        "guard_validation_ns": 22547179,
+        "guard_recheck_ns": 0,
+        "cas_restore_ns": 5877795,
+        "stdio_replay_ns": 28040,
+        "decision_persist_ns": 0,
+        "present_ns": 25421,
+        "guard_profile": {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 22545259,
+              "stat_calls": 311,
+              "stat_ns": 713102,
+              "open_calls": 52,
+              "open_ns": 284559,
+              "content_calls": 52,
+              "content_ns": 17937385,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 121403,
+              "access_calls": 5,
+              "access_ns": 103512,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 10688
+        }
+      },
+      {
+        "process_startup_ns": 13264976,
+        "cli_parse_ns": 196350,
+        "identity_prepare_ns": 739821,
+        "cache_prepare_ns": 32950,
+        "sqlite_open_ns": 187780,
+        "sqlite_schema_ns": 426380,
+        "lookup_key_ns": 5450,
+        "sqlite_query_ns": 2658672,
+        "record_decode_ns": 3069383,
+        "guard_validation_ns": 24301871,
+        "guard_recheck_ns": 0,
+        "cas_restore_ns": 52453806,
+        "stdio_replay_ns": 32250,
+        "decision_persist_ns": 0,
+        "present_ns": 38720,
+        "guard_profile": {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 24300231,
+              "stat_calls": 311,
+              "stat_ns": 728720,
+              "open_calls": 52,
+              "open_ns": 278992,
+              "content_calls": 52,
+              "content_ns": 19274825,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 184690,
+              "access_calls": 5,
+              "access_ns": 120658,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 10564
+        }
+      },
+      {
+        "process_startup_ns": 14393324,
+        "cli_parse_ns": 192380,
+        "identity_prepare_ns": 850180,
+        "cache_prepare_ns": 40010,
+        "sqlite_open_ns": 238890,
+        "sqlite_schema_ns": 538330,
+        "lookup_key_ns": 6620,
+        "sqlite_query_ns": 5327185,
+        "record_decode_ns": 3854023,
+        "guard_validation_ns": 26778893,
+        "guard_recheck_ns": 0,
+        "cas_restore_ns": 7271106,
+        "stdio_replay_ns": 39350,
+        "decision_persist_ns": 0,
+        "present_ns": 57929,
+        "guard_profile": {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 26776143,
+              "stat_calls": 311,
+              "stat_ns": 904908,
+              "open_calls": 52,
+              "open_ns": 314622,
+              "content_calls": 52,
+              "content_ns": 20639850,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 148070,
+              "access_calls": 5,
+              "access_ns": 150901,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 12824
+        }
+      },
+      {
+        "process_startup_ns": 5870118,
+        "cli_parse_ns": 195580,
+        "identity_prepare_ns": 792200,
+        "cache_prepare_ns": 27181,
+        "sqlite_open_ns": 212691,
+        "sqlite_schema_ns": 477951,
+        "lookup_key_ns": 5680,
+        "sqlite_query_ns": 2755332,
+        "record_decode_ns": 3945394,
+        "guard_validation_ns": 28985085,
+        "guard_recheck_ns": 0,
+        "cas_restore_ns": 9594878,
+        "stdio_replay_ns": 38370,
+        "decision_persist_ns": 0,
+        "present_ns": 32320,
+        "guard_profile": {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 28982775,
+              "stat_calls": 311,
+              "stat_ns": 938468,
+              "open_calls": 52,
+              "open_ns": 345250,
+              "content_calls": 52,
+              "content_ns": 22677509,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 182230,
+              "access_calls": 5,
+              "access_ns": 142867,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 10624
+        }
+      },
+      {
+        "process_startup_ns": 8787204,
+        "cli_parse_ns": 158090,
+        "identity_prepare_ns": 644771,
+        "cache_prepare_ns": 22551,
+        "sqlite_open_ns": 179150,
+        "sqlite_schema_ns": 425330,
+        "lookup_key_ns": 6120,
+        "sqlite_query_ns": 2429912,
+        "record_decode_ns": 2462322,
+        "guard_validation_ns": 22579020,
+        "guard_recheck_ns": 0,
+        "cas_restore_ns": 6621756,
+        "stdio_replay_ns": 30421,
+        "decision_persist_ns": 0,
+        "present_ns": 33230,
+        "guard_profile": {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 22576799,
+              "stat_calls": 311,
+              "stat_ns": 728748,
+              "open_calls": 52,
+              "open_ns": 252702,
+              "content_calls": 52,
+              "content_ns": 17671176,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 147350,
+              "access_calls": 5,
+              "access_ns": 127769,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 10668
+        }
+      },
+      {
+        "process_startup_ns": 11112200,
+        "cli_parse_ns": 207630,
+        "identity_prepare_ns": 714551,
+        "cache_prepare_ns": 25960,
+        "sqlite_open_ns": 246310,
+        "sqlite_schema_ns": 459351,
+        "lookup_key_ns": 5550,
+        "sqlite_query_ns": 4817654,
+        "record_decode_ns": 3356473,
+        "guard_validation_ns": 28416814,
+        "guard_recheck_ns": 0,
+        "cas_restore_ns": 6739596,
+        "stdio_replay_ns": 42350,
+        "decision_persist_ns": 0,
+        "present_ns": 31530,
+        "guard_profile": {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 28414134,
+              "stat_calls": 311,
+              "stat_ns": 920032,
+              "open_calls": 52,
+              "open_ns": 306941,
+              "content_calls": 52,
+              "content_ns": 22235831,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 149460,
+              "access_calls": 5,
+              "access_ns": 135841,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 12784
+        }
+      },
+      {
+        "process_startup_ns": 12702075,
+        "cli_parse_ns": 227300,
+        "identity_prepare_ns": 940611,
+        "cache_prepare_ns": 31980,
+        "sqlite_open_ns": 313620,
+        "sqlite_schema_ns": 525620,
+        "lookup_key_ns": 8310,
+        "sqlite_query_ns": 3088293,
+        "record_decode_ns": 3465763,
+        "guard_validation_ns": 40216725,
+        "guard_recheck_ns": 0,
+        "cas_restore_ns": 6074905,
+        "stdio_replay_ns": 38730,
+        "decision_persist_ns": 0,
+        "present_ns": 33600,
+        "guard_profile": {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 40214514,
+              "stat_calls": 311,
+              "stat_ns": 744673,
+              "open_calls": 52,
+              "open_ns": 344650,
+              "content_calls": 52,
+              "content_ns": 35128172,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 120032,
+              "access_calls": 5,
+              "access_ns": 103519,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 10612
+        }
+      },
+      {
+        "process_startup_ns": 13680327,
+        "cli_parse_ns": 201190,
+        "identity_prepare_ns": 753940,
+        "cache_prepare_ns": 26851,
+        "sqlite_open_ns": 214560,
+        "sqlite_schema_ns": 481630,
+        "lookup_key_ns": 5510,
+        "sqlite_query_ns": 3365093,
+        "record_decode_ns": 3848793,
+        "guard_validation_ns": 29921975,
+        "guard_recheck_ns": 0,
+        "cas_restore_ns": 6840636,
+        "stdio_replay_ns": 39221,
+        "decision_persist_ns": 0,
+        "present_ns": 32881,
+        "guard_profile": {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 29918955,
+              "stat_calls": 311,
+              "stat_ns": 898310,
+              "open_calls": 52,
+              "open_ns": 324990,
+              "content_calls": 52,
+              "content_ns": 23080291,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 153040,
+              "access_calls": 5,
+              "access_ns": 142121,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 10628
+        }
+      },
+      {
+        "process_startup_ns": 6241122,
+        "cli_parse_ns": 197460,
+        "identity_prepare_ns": 803601,
+        "cache_prepare_ns": 31240,
+        "sqlite_open_ns": 245560,
+        "sqlite_schema_ns": 537700,
+        "lookup_key_ns": 6620,
+        "sqlite_query_ns": 5659684,
+        "record_decode_ns": 3888554,
+        "guard_validation_ns": 29358195,
+        "guard_recheck_ns": 0,
+        "cas_restore_ns": 8323677,
+        "stdio_replay_ns": 53030,
+        "decision_persist_ns": 0,
+        "present_ns": 37471,
+        "guard_profile": {
+          "passes": [
+            {
+              "guards": 393,
+              "passed": 393,
+              "total_ns": 29354795,
+              "stat_calls": 311,
+              "stat_ns": 1018077,
+              "open_calls": 52,
+              "open_ns": 343848,
+              "content_calls": 52,
+              "content_ns": 22469700,
+              "shared_content_calls": 5,
+              "read_syscalls": 756,
+              "bytes_hashed": 43392658,
+              "readlink_calls": 60,
+              "readlink_ns": 179730,
+              "access_calls": 5,
+              "access_ns": 143880,
+              "directory_probes": 19,
+              "env_calls": 13
+            }
+          ],
+          "guards_by_kind": {
+            "AccessCheck": 5,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 4,
+            "DirectoryOpened": 19,
+            "EnvironmentValue": 13,
+            "FileMetadata": 234,
+            "NoUnexpectedEffects": 1,
+            "OutputPrestate": 2,
+            "RuntimeIdentity": 1,
+            "SymlinkTarget": 60,
+            "WorkingDirectory": 1
+          },
+          "unique_paths_by_kind": {
+            "AccessCheck": 4,
+            "ControlledEntropy": 1,
+            "ControlledRuntime": 3,
+            "DirectoryOpened": 19,
+            "FileMetadata": 184,
+            "OutputPrestate": 2,
+            "SymlinkTarget": 60
+          },
+          "peak_rss_kb": 12668
+        }
+      }
+    ]
+  },
+  "record_path": "/tmp/tracejit-phase-x-profile/record.json"
+}

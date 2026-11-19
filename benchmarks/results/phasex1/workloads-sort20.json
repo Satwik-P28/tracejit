@@ -1,0 +1,80 @@
+{
+  "arms": {
+    "baseline": "/tmp/tj-baseline",
+    "candidate": "/tmp/tj-candidate"
+  },
+  "workloads": {
+    "sort-small": {
+      "argv": [
+        "sort",
+        "input.txt",
+        "-o",
+        "sorted.txt"
+      ],
+      "cwd": "/tmp/tracejit-phase-x-workloads/sort-small/candidate/work",
+      "arms": {
+        "baseline": {
+          "median_ms": 40.008,
+          "min_ms": 30.131,
+          "max_ms": 44.354,
+          "decisions": [
+            "miss"
+          ],
+          "samples_ms": [
+            40.959,
+            41.682,
+            40.892,
+            39.217,
+            39.37,
+            43.493,
+            39.95,
+            30.752,
+            30.131,
+            35.277,
+            35.786,
+            37.657,
+            30.932,
+            40.465,
+            43.273,
+            42.007,
+            44.354,
+            41.889,
+            38.86,
+            40.067
+          ]
+        },
+        "candidate": {
+          "median_ms": 37.345,
+          "min_ms": 27.614,
+          "max_ms": 48.181,
+          "decisions": [
+            "miss"
+          ],
+          "samples_ms": [
+            39.009,
+            41.719,
+            28.974,
+            29.202,
+            39.78,
+            35.951,
+            29.941,
+            37.48,
+            30.638,
+            42.359,
+            40.315,
+            48.181,
+            27.614,
+            40.733,
+            37.388,
+            34.72,
+            42.924,
+            32.596,
+            37.303,
+            34.484
+          ]
+        }
+      },
+      "candidate_vs_baseline": 1.071
+    }
+  }
+}

@@ -9,8 +9,9 @@ these would be dishonest.
 
 - **Validate-to-restore TOCTOU.** Guards are checked, then cached outputs are
   materialised. Another process can modify an input in the window between the
-  two steps. There is a recheck, not a filesystem freeze. A wrong hit is
-  possible in principle; report it with the Break TraceJIT template.
+  two steps. Guards are validated once, immediately before the restore; that is
+  the last observation point, not a filesystem freeze. A wrong hit is possible in
+  principle; report it with the Break TraceJIT template.
 - **No hard-kill atomicity for multi-output restores.** A single output is
   renamed into place atomically. Multiple outputs are staged, recorded with a
   restore intent, and rolled back on a detected soft failure. A hard kill
