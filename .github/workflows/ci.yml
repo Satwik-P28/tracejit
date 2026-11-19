@@ -21,6 +21,14 @@ jobs:
           uname -a
           test "$(uname -s)" = "Linux"
           test "$(uname -m)" = "x86_64"
+          # The allocator-entropy contract admits exactly one audited glibc build (build ID, call
+          # site, destination, instruction bytes). A patched runner image is legitimately refused,
+          # so publish the runner's runtime identity as an annotation: annotations are public,
+          # step logs are not, and this is what makes such a refusal auditable from the run page.
+          version=$(ldd --version | head -1)
+          build_id=$(readelf -n /lib/x86_64-linux-gnu/libc.so.6 2>/dev/null |
+            awk '/Build ID/ {print $3}')
+          echo "::notice title=Runner glibc::$version build_id=${build_id:-unknown}"
       - name: Formatting
         run: cargo fmt --all -- --check
       - name: Clippy

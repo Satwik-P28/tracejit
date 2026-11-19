@@ -300,20 +300,22 @@ impl PassScope {
             passed,
             total_ns: u64::try_from(end.at.duration_since(self.start.at).as_nanos())
                 .unwrap_or(u64::MAX),
-            stat_calls: end.stat_calls - self.start.stat_calls,
-            stat_ns: end.stat_ns - self.start.stat_ns,
-            open_calls: end.open_calls - self.start.open_calls,
-            open_ns: end.open_ns - self.start.open_ns,
-            content_calls: end.content_calls - self.start.content_calls,
-            content_ns: end.content_ns - self.start.content_ns,
-            read_syscalls: end.read_syscalls - self.start.read_syscalls,
-            bytes_hashed: end.bytes_hashed - self.start.bytes_hashed,
-            readlink_calls: end.readlink_calls - self.start.readlink_calls,
-            readlink_ns: end.readlink_ns - self.start.readlink_ns,
-            access_calls: end.access_calls - self.start.access_calls,
-            access_ns: end.access_ns - self.start.access_ns,
-            directory_probes: end.directory_probes - self.start.directory_probes,
-            env_calls: end.env_calls - self.start.env_calls,
+            // Saturating deltas: `take()` resets the counters, so a caller that reports while a
+            // pass is still in flight must record zero rather than underflow.
+            stat_calls: delta(end.stat_calls, self.start.stat_calls),
+            stat_ns: delta(end.stat_ns, self.start.stat_ns),
+            open_calls: delta(end.open_calls, self.start.open_calls),
+            open_ns: delta(end.open_ns, self.start.open_ns),
+            content_calls: delta(end.content_calls, self.start.content_calls),
+            content_ns: delta(end.content_ns, self.start.content_ns),
+            read_syscalls: delta(end.read_syscalls, self.start.read_syscalls),
+            bytes_hashed: delta(end.bytes_hashed, self.start.bytes_hashed),
+            readlink_calls: delta(end.readlink_calls, self.start.readlink_calls),
+            readlink_ns: delta(end.readlink_ns, self.start.readlink_ns),
+            access_calls: delta(end.access_calls, self.start.access_calls),
+            access_ns: delta(end.access_ns, self.start.access_ns),
+            directory_probes: delta(end.directory_probes, self.start.directory_probes),
+            env_calls: delta(end.env_calls, self.start.env_calls),
             first_failure_checked: first_failure.map(|(checked, _)| checked),
             first_failure_kind: first_failure.map(|(_, kind)| KIND_NAMES[kind].to_owned()),
         };
@@ -321,6 +323,10 @@ impl PassScope {
             passes.push(stats);
         }
     }
+}
+
+fn delta(end: u64, start: u64) -> u64 {
+    end.saturating_sub(start)
 }
 
 fn passes() -> &'static Mutex<Vec<PassStats>> {
@@ -371,19 +377,41 @@ pub fn take() -> Option<GuardProfile> {
         .unwrap_or_default();
     let mut guards_by_kind = BTreeMap::new();
     for (index, name) in KIND_NAMES.iter().enumerate() {
-        let count = COUNTERS.kind[index].load(Ordering::Relaxed);
+        let count = COUNTERS.kind[index].swap(0, Ordering::Relaxed);
         if count > 0 {
             guards_by_kind.insert((*name).to_owned(), count);
         }
     }
+    // Reset the scalar counters in the same step that reports them, so a second `take()` in one
+    // process measures its own window instead of repeating the first.
+    for counter in [
+        &COUNTERS.stat_calls,
+        &COUNTERS.stat_ns,
+        &COUNTERS.open_calls,
+        &COUNTERS.open_ns,
+        &COUNTERS.content_calls,
+        &COUNTERS.content_ns,
+        &COUNTERS.read_syscalls,
+        &COUNTERS.bytes_hashed,
+        &COUNTERS.readlink_calls,
+        &COUNTERS.readlink_ns,
+        &COUNTERS.access_calls,
+        &COUNTERS.access_ns,
+        &COUNTERS.directory_probes,
+        &COUNTERS.env_calls,
+    ] {
+        counter.store(0, Ordering::Relaxed);
+    }
     let unique_paths_by_kind = observed_paths()
         .lock()
-        .map(|paths| {
-            paths
+        .map(|mut paths| {
+            let observed = paths
                 .iter()
                 .filter(|(_, paths)| !paths.is_empty())
                 .map(|(kind, paths)| ((*kind).to_owned(), paths.len() as u64))
-                .collect::<BTreeMap<_, _>>()
+                .collect::<BTreeMap<_, _>>();
+            paths.clear();
+            observed
         })
         .unwrap_or_default();
     Some(GuardProfile {

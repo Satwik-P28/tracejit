@@ -114,17 +114,56 @@ fn admission_is_worth_tracing(cost: &AdmissionCost) -> bool {
 /// the variable unset. This exists so integration tests can prove the pass fails closed without
 /// relying on a flaky external race.
 mod toctou {
+    use std::ffi::OsString;
     use std::fs;
     use std::path::Path;
 
+    /// Test-only: mutate a dependency before the candidate's cached streams are loaded.
+    ///
+    /// This sits in the window the first validation pass used to cover, so it models the class
+    /// Phase X newly accepts. With `TRACEJIT_TEST_PRE_LOAD_RESTORE_HEX` set, the mutated content
+    /// is immediately put back, which models a change that is reverted before the surviving pass:
+    /// that hit must be served, and its bytes must equal native execution.
+    pub fn maybe_test_mutate_before_load() {
+        mutate(
+            std::env::var_os("TRACEJIT_TEST_PRE_LOAD_MUTATE_PATH"),
+            "TRACEJIT_TEST_PRE_LOAD_RESTORE_HEX",
+        );
+    }
+
+    /// Test-only: mutate a dependency immediately before the surviving guard pass.
     pub fn maybe_test_mutate_before_validation() {
-        let Some(value) = std::env::var_os("TRACEJIT_TEST_PRE_RESTORE_MUTATE_PATH") else {
+        mutate(
+            std::env::var_os("TRACEJIT_TEST_PRE_RESTORE_MUTATE_PATH"),
+            "TRACEJIT_TEST_PRE_RESTORE_RESTORE_HEX",
+        );
+    }
+
+    fn mutate(value: Option<OsString>, restore_variable: &str) {
+        let Some(value) = value else {
             return;
         };
         let path = Path::new(&value);
-        if path.is_absolute() {
-            let _ = fs::write(path, b"TOCTOU-MUTATED\n");
+        if !path.is_absolute() {
+            return;
         }
+        let _ = fs::write(path, b"TOCTOU-MUTATED\n");
+        if let Some(hex) = std::env::var_os(restore_variable) {
+            if let Some(bytes) = decode_hex(&hex.to_string_lossy()) {
+                let _ = fs::write(path, bytes);
+            }
+        }
+    }
+
+    fn decode_hex(text: &str) -> Option<Vec<u8>> {
+        let text = text.trim();
+        if text.is_empty() || text.len() % 2 != 0 {
+            return None;
+        }
+        (0..text.len())
+            .step_by(2)
+            .map(|at| u8::from_str_radix(text.get(at..at + 2)?, 16).ok())
+            .collect()
     }
 }
 
@@ -439,6 +478,9 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
             }
             continue;
         }
+
+        // Test-only injection point in the window the removed first pass used to cover.
+        toctou::maybe_test_mutate_before_load();
 
         // Load and verify both stream objects before restoring any output. A corrupt stdout
         // object used to be discovered after files had already been replaced, which forced a
