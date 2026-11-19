@@ -1,0 +1,65 @@
+{
+  "scenario": "edits",
+  "rounds": 16,
+  "units": 3,
+  "functions_per_unit": 220,
+  "edit_rounds": [
+    7,
+    12
+  ],
+  "total_invocations": 48,
+  "reference_objects": {
+    "unit0.o": "e86cf16cfcd62388e383b80a6f162e58",
+    "unit1.o": "a5ebec4ac0d4518929d595257d0ca3e7",
+    "unit2.o": "74cab575db368f9880fd6141ee564dd0"
+  },
+  "arms": {
+    "native": {
+      "arm": "native",
+      "seconds": 26.801,
+      "decisions": {},
+      "objects": {
+        "unit0.o": "e86cf16cfcd62388e383b80a6f162e58",
+        "unit1.o": "a5ebec4ac0d4518929d595257d0ca3e7",
+        "unit2.o": "74cab575db368f9880fd6141ee564dd0"
+      },
+      "cache_bytes": 0,
+      "tool_stats": [],
+      "objects_match_native": true
+    },
+    "tracejit-main": {
+      "arm": "tracejit-main",
+      "seconds": 13.096,
+      "decisions": {
+        "miss": 3,
+        "hit": 39,
+        "deopt": 6
+      },
+      "objects": {
+        "unit0.o": "e86cf16cfcd62388e383b80a6f162e58",
+        "unit1.o": "a5ebec4ac0d4518929d595257d0ca3e7",
+        "unit2.o": "74cab575db368f9880fd6141ee564dd0"
+      },
+      "cache_bytes": 11562071,
+      "tool_stats": [],
+      "objects_match_native": true
+    },
+    "tracejit-fix": {
+      "arm": "tracejit-fix",
+      "seconds": 12.837,
+      "decisions": {
+        "miss": 3,
+        "hit": 37,
+        "deopt": 8
+      },
+      "objects": {
+        "unit0.o": "e86cf16cfcd62388e383b80a6f162e58",
+        "unit1.o": "a5ebec4ac0d4518929d595257d0ca3e7",
+        "unit2.o": "74cab575db368f9880fd6141ee564dd0"
+      },
+      "cache_bytes": 13843998,
+      "tool_stats": [],
+      "objects_match_native": true
+    }
+  }
+}

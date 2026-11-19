@@ -101,6 +101,27 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
   read three times under different guard kinds; 8.3 ms of process start-up; 2.4 ms of candidate
   decode (records carry their effect list). `docs/PHASE_X_REPORT.md`.
 
+## Phase X1 audit (`research/phase-x`, from `e8abc16`)
+
+- Single-pass validation audited: the removed pass could only reject executions that matched at the
+  pre-restore pass but not earlier, and the one newly accepted class (an input changed and put back
+  before the surviving pass) is safe because every guard is a state predicate. Argument, hit-path
+  state machine and the 16-row adversarial matrix: `docs/PHASE_X1_AUDIT.md`.
+- Fixed: a missing CAS object was a fatal error for a command that succeeds when simply re-run (now
+  deopts and retraces; `get_bytes` maps `ENOENT` to `CorruptObject`). Also fixed: the guard profiler
+  did not reset its counters in `take()` and used unsigned deltas that could underflow (now
+  `swap(0)` plus saturating deltas).
+- CI instability classified: `allocator_entropy_contract_reuses_a_glibc_tool` and
+  `inherited_stdin_reuse_is_stable_across_fresh_sessions` need the single audited glibc build
+  (`2.39-0ubuntu8.9`); a runner image with a patched libc is legitimately refused and reported as
+  `Nondeterministic`. The tests now assert that refusal on an unaudited runtime, and `ci.yml`
+  publishes the runner's libc build ID as a notice annotation. Root cause is a strongly supported
+  hypothesis, not a closed loop, until such a run is observed.
+- Re-verified here: paired warm hit 126.5 → 79.2 ms (**1.60×**), 27-inv 8.40 → 6.66 s, 48-inv
+  12.44 → 10.60 s; ETL 1.16×, `true` 1.35×, `sort-small` 1.07×. Gates: 241 tests, integration 75/75
+  at 1/2/4/8 threads and 10/10 default runs, fuzz seed 29 (0 incorrect hits), model check, fault
+  injection, audit clean. Phase Y plan: `docs/PHASE_Y_RESEARCH_PLAN.md` (fs-verity first).
+
 ## Known limitations
 
 - Metadata guards include `accessed_ns`, which the traced command's own reads update. Commands that
