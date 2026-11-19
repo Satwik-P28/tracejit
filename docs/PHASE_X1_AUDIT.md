@@ -243,27 +243,33 @@ threads. The failure is therefore not about concurrency, descriptor inheritance,
 or scheduling pressure: it is the *runtime identity* of the runner image.
 
 **Classification.** **B + C, triggered by D.** The product did the right thing (B: a legitimate
-contract refusal — an unaudited runtime must never be absorbed). The test made an unsound assumption
-(C: "the runner's glibc is the audited build"). The trigger is image drift (D): GitHub's
-`ubuntu-24.04` image is periodically rebuilt with glibc patch updates, each of which changes the
-build ID, and different VMs in the pool can be on either side of a rollout — which is exactly how
-two identical-code runs minutes apart can disagree.
+contract refusal — an unaudited runtime must never be absorbed), and the test made an unsound
+assumption (C: that a controlled HIT is always available on the runner). Two mechanisms produce the
+identical refusal and the artifacts of #254 cannot distinguish them:
+
+* **(a) runtime drift.** GitHub's `ubuntu-24.04` image is rebuilt with glibc patch updates, each of
+  which changes the build ID, and a rollout leaves different VMs on either side for a while.
+* **(b) allocator-probe fallback.** glibc issues a second, blocking `getrandom` when the
+  `GRND_NONBLOCK` probe returns `EAGAIN`, which happens before the kernel's CRNG is initialised on a
+  freshly booted VM. Only the audited probe shape is absorbed, so the fallback call is refused. This
+  is timing dependent, which matches two identical-code runs disagreeing four minutes apart.
+
+Run #257's annotation (added by this fix) reports `2.39-0ubuntu8.9`, build ID `a4a7…ea65` — the
+*audited* build — so (a) is not universal; a future failing run whose annotation shows the audited
+build ID identifies (b).
 
 **Fix (without weakening fail-closed logic).** `ci.yml` now publishes the runner's runtime identity
 as a notice annotation (`Runner glibc: <version> build_id=<id>`), because step logs are not public
 but annotations are. The two tests read this host's libc build ID and, when it is not the audited
 one, assert the *refusal* — classification `Nondeterministic`, no reuse, identical bytes — and print
 `RESULT controlled-sed SKIP unaudited runtime <id>` instead of asserting a HIT the contract correctly
-forbids. On an audited runner the full reuse path still runs. Nothing about the product's admission
-logic changed; the only production-side effect is the missing-CAS fix from §6.
+forbids. On an audited runner the full reuse path still runs, and run #257 did. Nothing about the
+product's admission logic changed; the only production-side effect is the missing-CAS fix from §6.
 
-**Honest limitation.** The role of the build ID is established by code reading and by this host
-matching the audited profile exactly, not by capturing the failing runner's `readelf` output, which
-is not retrievable after the fact. The next CI run on an unaudited image will now state its build ID
-in a public annotation, which settles the question with no further ambiguity. Until such a run has
-been observed, this is a strongly supported hypothesis rather than a closed loop, and it is
-recorded here as such. If a future failing run reports the audited build ID, the cause is elsewhere
-and this section is wrong.
+Because glibc's fallback probe is collapsed into the same generic reason, case (b) cannot be told
+apart from case (a) at the point of refusal. Emitting a distinct reason when the audited probe was
+admitted but a fallback call followed is a small, useful diagnostic, and is recorded as a follow-up
+rather than smuggled into this audit's fix set.
 
 ## 9. Verification run on this host
 
@@ -320,8 +326,12 @@ reads; peak RSS 10.7 MB. That is the budget Phase Y has to attack.
 
 ## 11. PR and merge status
 
+CI on the branch's final head `a648c6d`: run **#257** (push) success, 3 m 12 s, and run **#258**
+(`pull_request`) success — including the `Tests` step that had failed in #254, and the strict
+single-threaded `Linux integration` step that #254 never reached.
+
 PR #41 (`Phase X: eliminate duplicate warm-hit validation pass`) is open, **draft**, base `main`
-at `c720112`, head `e8abc16`, `mergeable_state: clean`, 4 commits. This workspace has no GitHub
+at `c720112`, head `a648c6d`, `mergeable_state: clean`. This workspace has no GitHub
 write credentials (`cloud_git` performs fetch/pull/push only; `gh` is unauthenticated; no token is
 present in the environment), so **marking the PR ready, editing its description, and pressing
 merge are blocked here**. The branch is pushed; merging a fast-forward into `main` is technically
