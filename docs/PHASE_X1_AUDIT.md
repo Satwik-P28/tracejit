@@ -255,16 +255,30 @@ identical refusal and the artifacts of #254 cannot distinguish them:
   is timing dependent, which matches two identical-code runs disagreeing four minutes apart.
 
 Run #257's annotation (added by this fix) reports `2.39-0ubuntu8.9`, build ID `a4a7…ea65` — the
-*audited* build — so (a) is not universal; a future failing run whose annotation shows the audited
-build ID identifies (b).
+*audited* build. **This was tested further and (a) is now largely ruled out:** after the fix landed,
+run #259 failed at a *different* step (single-threaded `Linux integration`) on a runner whose
+annotation is the same audited build, while the `pull_request` run #260 on the identical commit tree
+passed. So the instability is not only about the runtime identity, and it is not only about the
+`Tests` step.
+
+**Unresolved part, stated as unresolved.** #259's failing test name is not retrievable: the step
+prints the log, but step logs are not public and the failing-test annotation that the `Tests` step
+already emits did not exist for the integration step. Rather than label it environmental, the
+integration step now emits `::error title=Linux integration failed::<failing tests>` — the next
+failure names the test on the public run page. Locally the same tree passes 10/10 default-parallel
+runs, 1/2/4/8-thread runs, and repeated single-threaded runs, so no local reproduction exists. Until
+a named failure is captured, the honest classification for #259 is **D, unresolved** — resource or
+scheduling sensitivity on the runner — and not a product defect (both the flaky runs' step contents
+are the *same* code that passed on sibling runners minutes apart).
 
 **Fix (without weakening fail-closed logic).** `ci.yml` now publishes the runner's runtime identity
 as a notice annotation (`Runner glibc: <version> build_id=<id>`), because step logs are not public
-but annotations are. The two tests read this host's libc build ID and, when it is not the audited
-one, assert the *refusal* — classification `Nondeterministic`, no reuse, identical bytes — and print
+but annotations are, and it now annotates a failing integration test by name. The two contract tests
+read this host's libc build ID and, when it is not the audited one, assert the *refusal* —
+classification `Nondeterministic`, no reuse, identical bytes — and print
 `RESULT controlled-sed SKIP unaudited runtime <id>` instead of asserting a HIT the contract correctly
-forbids. On an audited runner the full reuse path still runs, and run #257 did. Nothing about the
-product's admission logic changed; the only production-side effect is the missing-CAS fix from §6.
+forbids. On an audited runner the full reuse path still runs. Nothing about the product's admission
+logic changed; the only production-side effect is the missing-CAS fix from §6.
 
 Because glibc's fallback probe is collapsed into the same generic reason, case (b) cannot be told
 apart from case (a) at the point of refusal. Emitting a distinct reason when the audited probe was
@@ -326,9 +340,12 @@ reads; peak RSS 10.7 MB. That is the budget Phase Y has to attack.
 
 ## 11. PR and merge status
 
-CI on the branch's final head `a648c6d`: run **#257** (push) success, 3 m 12 s, and run **#258**
-(`pull_request`) success — including the `Tests` step that had failed in #254, and the strict
-single-threaded `Linux integration` step that #254 never reached.
+CI history on this branch: **#253** success; **#254** failure (`Tests`: the two allocator-entropy
+tests); **#255** success; **#257** (push) and **#258** (`pull_request`) success on `a648c6d`, both
+including the `Tests` step that had failed in #254 and the strict single-threaded `Linux integration`
+step; **#259** failure (single-threaded `Linux integration`) with **#260** (`pull_request`) success on
+the same commit tree. Two different steps have now flaked on audited runners while sibling runs of
+the same tree passed, which is why §8 does not claim a closed root cause.
 
 PR #41 (`Phase X: eliminate duplicate warm-hit validation pass`) is open, **draft**, base `main`
 at `c720112`, head `a648c6d`, `mergeable_state: clean`. This workspace has no GitHub

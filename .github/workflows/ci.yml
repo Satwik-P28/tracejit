@@ -78,6 +78,14 @@ jobs:
           set -e
           cat "$log"
           if [ "$status" -ne 0 ]; then
+            # Annotate the failing tests: step logs are not public, annotations are, and a
+            # named test is the difference between diagnosing a flake and guessing at one.
+            summary=$(grep -n -E -A 25 '^---- .* stdout ----|^thread .* panicked|^test .* FAILED$|^failures:$' "$log" 2>/dev/null | tail -c 3900 || true)
+            if [ -z "$summary" ]; then
+              summary=$(tail -c 3900 "$log")
+            fi
+            summary=$(printf '%s' "$summary" | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')
+            echo "::error title=Linux integration failed::${summary}"
             echo "RESULT integration FAIL" >&2
             exit "$status"
           fi

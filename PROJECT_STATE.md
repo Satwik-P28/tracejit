@@ -111,12 +111,12 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
   deopts and retraces; `get_bytes` maps `ENOENT` to `CorruptObject`). Also fixed: the guard profiler
   did not reset its counters in `take()` and used unsigned deltas that could underflow (now
   `swap(0)` plus saturating deltas).
-- CI instability classified: `allocator_entropy_contract_reuses_a_glibc_tool` and
-  `inherited_stdin_reuse_is_stable_across_fresh_sessions` need the single audited glibc build
-  (`2.39-0ubuntu8.9`); a runner image with a patched libc is legitimately refused and reported as
-  `Nondeterministic`. The tests now assert that refusal on an unaudited runtime, and `ci.yml`
-  publishes the runner's libc build ID as a notice annotation. Root cause is a strongly supported
-  hypothesis, not a closed loop, until such a run is observed.
+- CI flakiness: two *different* steps have failed on runners whose published annotation is the
+  audited glibc build (`2.39-0ubuntu8.9`) while sibling runs of the same tree passed — #254 (`Tests`,
+  the two allocator-entropy tests) and #259 (single-threaded integration, test name not public). The
+  contract tests now assert the documented refusal when the runtime is unaudited; `ci.yml` publishes
+  the runner's libc build ID and annotates a failing integration test by name. #259's root cause is
+  unresolved (no public log) and recorded as runner-side resource sensitivity, not a product defect.
 - Re-verified here: paired warm hit 126.5 → 79.2 ms (**1.60×**), 27-inv 8.40 → 6.66 s, 48-inv
   12.44 → 10.60 s; ETL 1.16×, `true` 1.35×, `sort-small` 1.07×. Gates: 241 tests, integration 75/75
   at 1/2/4/8 threads and 10/10 default runs, fuzz seed 29 (0 incorrect hits), model check, fault
