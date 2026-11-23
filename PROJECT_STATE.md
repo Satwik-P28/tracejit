@@ -122,6 +122,29 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
   at 1/2/4/8 threads and 10/10 default runs, fuzz seed 29 (0 incorrect hits), model check, fault
   injection, audit clean. Phase Y plan: `docs/PHASE_Y_RESEARCH_PLAN.md` (fs-verity first).
 
+## Research line, Phase Y (`research/phase-y`, from `6bab00b`)
+
+- Question: can a warm hit replace 105 MB of dependency hashing with an equally defensible proof of
+  content identity? **Design sound, mechanism absent, nothing promoted.** Report
+  `docs/PHASE_Y_REPORT.md`; matrix `docs/VERITY_CAPABILITY_MATRIX.md`; ledger `docs/PHASE_Y_LEDGER.md`.
+- fs-verity is the only per-file, constant-time, unprivileged-to-observe content identity on Linux,
+  and this host has none of it: `CONFIG_FS_VERITY` is unset and the ext4 root has no `verity`
+  feature, so `FS_IOC_MEASURE_VERITY` returns `EOPNOTSUPP` (a mis-numbered request returns `ENOTTY`).
+  `scripts/phase_y_verity_probe.py` reproduces this; no verity-capable guest was reachable (no root,
+  no `CAP_SYS_ADMIN`, `/dev/kvm` group-restricted, ext4 is not `FS_USERNS_MOUNT`).
+- Added `Guard::VerityContentIdentity` (pinned kernel digest + BLAKE3; `Proven` / `Contradicted` /
+  fall-back-to-hash), a pure decision function, a `doctor` capability line and 12 regressions. It
+  never becomes a metadata-only check: without a kernel answer it hashes, at 493 ns of ioctl each.
+- Cost ledger: `cc1` is hashed **3×** per compiler pass and is **87 %** of the 105,031,035 content
+  bytes (56 guards, 41.3 MB distinct, 2.545× redundant, ≈47.4 ms) — the redundancy Phase X proved
+  unsound to remove and fs-verity would make sound. Promotion rejected on gates 4 and 5 (no
+  measurable gain, ~0 applicability). No-regression measured instead: ETL 0.987×, `true` 0.996×.
+- Compiler warm hits no longer reproduce here: glibc moved from the audited `2.39-0ubuntu8.9` to
+  `2.39-0ubuntu8.12`, so `allocator-entropy-v1` refuses and the 48-invocation session is 48 misses on
+  both arms — direct evidence that the audited profile goes stale.
+- Gates: 253 tests, integration 75/75 at 1/2/4/8 threads, fuzz seed 29 (0 incorrect hits), model
+  check, fault injection, `cargo audit` clean.
+
 ## Known limitations
 
 - Metadata guards include `accessed_ns`, which the traced command's own reads update. Commands that

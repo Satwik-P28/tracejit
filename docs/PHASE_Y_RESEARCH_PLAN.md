@@ -1,5 +1,9 @@
 # Phase Y research plan: the content-validation bottleneck
 
+> **Status: executed.** Results are in [`docs/PHASE_Y_REPORT.md`](PHASE_Y_REPORT.md): H1's design is
+> sound but no reachable host has fs-verity, H2 is subsumed by H1, and nothing was promoted. This
+> document is kept as the pre-registered plan the report is measured against.
+
 Phase X removed the duplicate validation pass; Phase X1 proved that removal sound and measured what
 is left. This is a *plan*, not an implementation. No Phase Y production change is contained here,
 and none is allowed until Phase X is merged and post-merge `main` CI is verified.
