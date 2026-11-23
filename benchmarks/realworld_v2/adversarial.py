@@ -311,6 +311,11 @@ def main() -> int:
             "suite": "benchmarks/phase_w1/audit.py",
             "exit_status": completed.returncode,
             "tail": completed.stdout.strip().splitlines()[-1] if completed.stdout.strip() else "",
+            # A crashed suite produced no JSON and an empty stdout tail, so the
+            # reason was invisible in the artifact. Keep the last stderr lines.
+            "stderr_tail": (
+                completed.stderr.strip().splitlines()[-5:] if completed.stderr.strip() else []
+            ),
             "results": json.loads(w1_output.read_text()) if w1_output.is_file() else None,
         }
 

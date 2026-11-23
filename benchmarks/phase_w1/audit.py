@@ -20,6 +20,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 IGNORED = {"cache", "fixture-driver", "fixture-interpreter", "fixture-script"}
@@ -269,13 +270,20 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--tracejit", default="target/release/tracejit")
     parser.add_argument("--output", required=True)
-    parser.add_argument("--root", default="/tmp/tracejit-phase-w1-audit")
+    # A fixed default root is not re-runnable: on a shared /tmp another user can
+    # own the directory, `rmtree(ignore_errors=True)` then silently leaves it and
+    # `mkdir` fails with FileExistsError. The audit is part of the Phase AA
+    # adversarial gate, so that made the gate fail on any second environment.
+    parser.add_argument("--root", default="")
     options = parser.parse_args()
 
     repository = Path(__file__).resolve().parents[2]
-    root = Path(options.root)
-    shutil.rmtree(root, ignore_errors=True)
-    root.mkdir(parents=True)
+    if options.root:
+        root = Path(options.root)
+        shutil.rmtree(root, ignore_errors=True)
+        root.mkdir(parents=True, exist_ok=True)
+    else:
+        root = Path(tempfile.mkdtemp(prefix="tracejit-phase-w1-audit-"))
     binary = build_fixture(repository, root)
     tracejit = Path(options.tracejit).resolve()
 
