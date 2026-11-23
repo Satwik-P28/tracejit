@@ -3888,11 +3888,8 @@ fn allocator_contract_preserves_allocator_diagnostics_byte_for_byte() {
             traced_text, native_text,
             "{name}: the contract changed the allocator's diagnostic"
         );
-        assert_ne!(
-            report["exit_code"].as_i64().unwrap_or(0),
-            0,
-            "{name}: {report}"
-        );
+        // glibc calls abort(), so the traced exit status is SIGABRT's 134 in both arms.
+        assert_eq!(report["exit_code"], 134, "{name}: {report}");
         // A fixed key is not a secret, but it stays in allocator state: no diagnostic may print it.
         assert!(!traced_text.contains("9e3779b9"), "{name}: {traced_text}");
         assert!(!traced_text.contains("7f4a7c15"), "{name}: {traced_text}");

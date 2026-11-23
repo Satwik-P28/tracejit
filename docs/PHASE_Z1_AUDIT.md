@@ -280,11 +280,16 @@ repeat.
 
 | item | value |
 |---|---|
-| PR | [#42](https://github.com/Satwik-P28/tracejit/pull/42) (`research/phase-z` → `main`) |
+| PR | [#42](https://github.com/Satwik-P28/tracejit/pull/42) (`research/phase-z` → `main`), still a draft at hand-off |
 | Phase Z production change | `7f013a5` |
 | Phase Z evidence | `87c175c` |
-| Phase Z1 (this audit) | see `git log` on the branch; the doc is committed with the code it describes |
-| CI on the Phase Z1 head | recorded in `PROJECT_STATE.md` and in the PR |
+| Phase Z1 code, tests and this document | `e7d30b5` |
+| CI on `e7d30b5` | run **#270**, success, 3 m 16 s (fmt, clippy, workspace tests, release build, version consistency, doctor, Linux integration) |
+| earlier heads | `87c175c` run #268 success; PR event for #42 run #269 success |
+
+Marking the PR ready and merging need GitHub write access, which this environment does not have
+(`gh` is logged out, no token in the environment, the REST API is rate-limited for anonymous
+callers). The branch tip and its required check are green; the merge is a maintainer action.
 
 ## 11. Reproduce
 

@@ -141,7 +141,9 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
   explicit exclusions; allocator diagnostics are byte-identical to native on both double-free paths;
   an unaudited `.so` issuing the same probe is refused; four concurrent initialisations replay.
 - Gates on the final head: **269 tests**, integration 80/80 at 1/8/default threads, fuzz seed 29
-  (0 incorrect hits), model check, fault injection, `cargo audit`, fmt and clippy clean.
+  (0 incorrect hits), model check, fault injection, `cargo audit`, fmt and clippy clean. CI run
+  #270 on `e7d30b5` succeeded; PR #42 is pushed and green but still a draft — flipping it and
+  merging need GitHub write access, which this environment does not have.
 
 ## Known limitations
 
