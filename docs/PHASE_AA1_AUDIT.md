@@ -371,7 +371,7 @@ not need it when `AA_SKIP_BUILD=1` and an explicit binary are given.
 | Oracle adversarial suite (W1) | 13/13, twice in a row |
 | Model check (`scripts/modelcheck`) | PASS, `restore_crash` 2 mixed-kill states recorded as a limitation |
 | Schema + accounting validation | pass on the full 177-row file and on the clean-clone smoke file |
-| Packaging | build refused on a dirty tree (correct); run after the final commit |
+| Packaging | pass: archive, `RELEASE_MANIFEST.json`, `SHA256SUMS`, SBOM (110 components); installer test pass |
 | Differential fuzz, restore fault injection, `cargo audit` | **not run in this phase** |
 | GitHub CI | **not verifiable here**: no credentials; REST API rate-limited |
 

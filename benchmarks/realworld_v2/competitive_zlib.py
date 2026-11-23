@@ -32,6 +32,7 @@ import shutil
 import statistics
 import subprocess
 import sys
+import tarfile
 import tempfile
 import time
 from pathlib import Path
@@ -45,6 +46,29 @@ CCACHE_HITS = ("direct_cache_hit", "preprocessed_cache_hit")
 
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def resolve_zlib(path: Path, root: Path) -> Path:
+    """Accept an extracted tree or the pinned archive beside it.
+
+    `fetch_inputs.py` downloads and verifies `zlib-1.3.1.tar.gz` but does not
+    extract it; the corpus extracts it on first use. A standalone comparison may
+    run before that, so extract here when only the archive exists.
+    """
+
+    if (path / "deflate.c").is_file():
+        return path
+    archive = path.parent / f"{path.name}.tar.gz"
+    if archive.is_file():
+        with tarfile.open(archive) as tar:
+            try:
+                tar.extractall(root, filter="data")
+            except TypeError:  # Python < 3.11.4 has no extraction filter
+                tar.extractall(root)
+        extracted = root / path.name
+        if (extracted / "deflate.c").is_file():
+            return extracted
+    return path
 
 
 def first_line(command: list[str]) -> str | None:
@@ -116,16 +140,17 @@ def main() -> int:
     parser.add_argument("--seed", type=int, default=20261123)
     options = parser.parse_args()
 
-    zlib = Path(options.zlib_src).resolve()
-    source = zlib / "deflate.c"
-    if not source.is_file():
-        print(f"missing {source}", file=sys.stderr)
-        return 2
     tracejit = Path(options.tracejit).resolve()
     ccache = Path(options.ccache).resolve() if options.ccache else None
     arms = [arm for arm in ARMS if arm != "ccache" or ccache is not None]
 
     root = Path(tempfile.mkdtemp(prefix="aa1-competitive-"))
+    zlib = resolve_zlib(Path(options.zlib_src).resolve(), root)
+    source = zlib / "deflate.c"
+    if not source.is_file():
+        print(f"missing {source}", file=sys.stderr)
+        shutil.rmtree(root, ignore_errors=True)
+        return 2
     work = root / "work"
     work.mkdir()
     command = ["gcc", "-O2", "-I", str(zlib), "-c", str(source), "-o", "deflate.o"]
