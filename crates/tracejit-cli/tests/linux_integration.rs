@@ -728,6 +728,67 @@ fn a_missing_cached_object_retraces_instead_of_aborting() {
     eprintln!("RESULT missing-object-retrace PASS");
 }
 
+/// A pruned **output** object must retrace, exactly like a pruned stdout object.
+///
+/// The stream path already mapped a missing object to `CorruptObject`; the output
+/// materialisation path opened the CAS object directly and surfaced `cache I/O
+/// failed`, so `tracejit run` exited 1 without ever executing the command. Found by
+/// the Phase AA real-world harness on `gzip -9 -k`.
+#[test]
+fn a_missing_cached_output_object_retraces_instead_of_aborting() {
+    let fixture = Fixture::new();
+    let output = fixture.input("output.txt");
+    let _ = fs::remove_file(&output);
+    let args = [
+        "run",
+        "--json",
+        "--",
+        fixture.binary_arg(),
+        "output_presence_stdout",
+        fixture.root(),
+    ];
+    let first = invoke(&fixture.cache, &args, None);
+    assert!(first.status.success(), "{}", stderr_of(&first));
+    assert_eq!(fs::read(&output).unwrap(), b"ABSENT\n");
+
+    let explanation = invoke(&fixture.cache, &["explain", "--json"], None);
+    let record: Value = serde_json::from_slice(&explanation.stdout).unwrap();
+    let hash = record["outputs"]
+        .as_array()
+        .and_then(|outputs| {
+            outputs.iter().find_map(|entry| {
+                let path = entry["path"].as_str().unwrap_or_default();
+                if !path.ends_with("output.txt") {
+                    return None;
+                }
+                match &entry["content"] {
+                    Value::String(hex) => Some(hex.clone()),
+                    Value::Array(bytes) => Some(
+                        bytes
+                            .iter()
+                            .map(|byte| format!("{:02x}", byte.as_u64().unwrap() as u8))
+                            .collect::<String>(),
+                    ),
+                    _ => None,
+                }
+            })
+        })
+        .unwrap_or_else(|| panic!("no recorded output object: {record}"));
+    fs::remove_file(fixture.cache.join("objects").join(hash)).unwrap();
+    fs::remove_file(&output).unwrap();
+
+    let run = invoke(&fixture.cache, &args, None);
+    assert!(
+        run.status.success(),
+        "a pruned output object must not make the command fatal: {}",
+        stderr_of(&run)
+    );
+    let report: Value = serde_json::from_slice(&run.stdout).unwrap();
+    assert_ne!(report["kind"], "Reused", "{report}");
+    assert_eq!(fs::read(&output).unwrap(), b"ABSENT\n");
+    eprintln!("RESULT missing-output-object-retrace PASS");
+}
+
 /// Retained candidates whose inputs no longer match must never be selected by process of
 /// elimination. The third content is recorded by neither candidate, so the only sound outcome is
 /// a retrace that observes it.

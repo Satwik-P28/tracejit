@@ -638,8 +638,19 @@ impl Cache {
                 // Stream CAS → staging while hashing so large objects are not held twice in
                 // memory. The digest must match the object name before any destination mutate.
                 let source_path = self.objects.join(hash.to_string());
-                let mut source =
-                    File::open(&source_path).map_err(|source| io_error(&source_path, source))?;
+                // Same rule as `get_bytes`: a missing object is a record that cannot be served,
+                // not an operational failure. Without this mapping a pruned, partially copied or
+                // interrupted-eviction object aborts the user's command instead of retracing it,
+                // so the command never runs at all. The Phase AA real-world harness found this on
+                // an output-file workload (gzip -9 -k); the stream path already retraced, the
+                // output path did not. Regression: `a_missing_cached_output_object_retraces`.
+                let mut source = match File::open(&source_path) {
+                    Ok(file) => file,
+                    Err(source) if source.kind() == io::ErrorKind::NotFound => {
+                        return Err(CacheError::CorruptObject { hash });
+                    }
+                    Err(source) => return Err(io_error(&source_path, source)),
+                };
                 let mut temporary =
                     NamedTempFile::new_in(parent).map_err(|source| io_error(parent, source))?;
                 let mut hasher = blake3::Hasher::new();
