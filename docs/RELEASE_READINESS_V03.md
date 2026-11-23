@@ -71,7 +71,7 @@ firebuild (no root, no prebuilt archives).
    usefulness for compiler workloads without that comparison is not defensible in
    a release note.
 7. **The product is slower than native for most real commands.** 8 of 13 timed
-   workloads lose, some by 6–7×, and the 13–16 ms warm-hit floor excludes every
+   workloads lose, some by 6–7×, and the 11–17 ms warm-hit floor excludes every
    cheap command. That is a documentation constraint (users must be told when *not*
    to use it), and `README.md` now carries the table, but a release note that
    omits it would mislead.

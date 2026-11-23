@@ -75,7 +75,7 @@ Measured rows only (13 workloads, warm-page-cache, direct vs warm HIT median):
 | `sed-substitute-file` | 14.0 ms | 79.9 ms | 0.17× | — | 0.17× |
 | `readelf-header` | 2.5 ms | 16.1 ms | 0.15× | — | 0.15× |
 
-Aggregate, stated plainly: **4 workloads with positive cumulative savings, 8 slower than native, 0 incorrect HITs.** The warm-hit floor on this host is 13–16 ms, so every command cheaper than that loses. `make`, CPython, Node and `perl` workloads are refused and stay in the tables as negative results.
+Aggregate, stated plainly: **4 workloads with positive cumulative savings, 8 slower than native, 0 incorrect HITs.** The cheapest warm hit measured on this host was 11.4 ms and a small command's floor is 13–17 ms, so every command cheaper than that loses. `make`, CPython, Node and `perl` workloads are refused and stay in the tables as negative results.
 
 **Historical pre-beta `main`** (measured `4ffde9a`, product `crates/` ≡ `ed3bd39`/`7b9e7ca`; `benchmarks/results/final_stab_pr3/mandate_s4/`, n=30, bootstrap 95% CI). These are **not** beta or current-`main` numbers; the `c-transform` row is a synthetic 250 M-round busy loop, not a real workload:
 
