@@ -106,6 +106,16 @@ and is never silently folded into a "hit" latency. If a warm sample is not a
 HIT the timing row is aborted and recorded as `hit_lost_during_timing`; it is not
 averaged with the rest.
 
+The timed arm runs **plain mode**. `--json` serialises the entire cached stdout as
+a JSON byte array and makes the harness parse it, which added 22 ms of
+serialisation and ~40 ms of Python decoding to a 70 ms `sed` hit in Phase AA. One
+`--json` calibration per row, outside the timed region, supplies the
+authoritative identity and decision fields. Every timed sample's stdout is hashed
+and compared with a reference run; any mismatch is an `incorrect_hit`, not a
+latency sample. A row that loses its HIT to a classification refusal keeps the
+failed attempt in `timing_attempts` and is retried at most once, with both
+outcomes published.
+
 ### 4.3 Statistics
 
 - Median, mean, p05, p95, min, max, and the raw nanosecond samples.
@@ -127,13 +137,39 @@ One instrumented two-run session per eligible workload with
 `sqlite_query_ns`, `record_decode_ns`, `guard_validation_ns`, `cas_restore_ns`,
 `stdio_replay_ns`, `decision_persist_ns` and `present_ns`.
 
-Two properties of this probe are recorded because they matter:
+Three properties of this probe are recorded because they matter:
 
 1. TraceJIT hashes the inherited environment into the cache key. Enabling
    instrumentation on an already-populated cache turns the probe into a miss, so
    the probe runs its own session with instrumentation on for both runs.
 2. Instrumentation costs time, so these numbers are a *breakdown*, never the
    headline hit latency.
+3. **The stages are only additive on their own intervals.** `runtime_ns` is
+   captured before the decision is persisted, so persistence is additional to it,
+   not part of it; subtracting it from a wall that contains persistence produces
+   negative residuals. `process_startup_ns` comes from tick-granular
+   `/proc/self/stat` (10 ms quantum) and is never summed. The published model is
+   `wall = pre_runtime + runtime_ns + post_runtime + present`, with the measured
+   hit path inside `runtime_ns` and its unbroken-down remainder published as a
+   residual. No bottleneck percentage may be derived across those boundaries.
+
+### 4.5 Accounting invariants
+
+Every results file carries `aggregate.accounting`, recomputed from the rows rather
+than accumulated during the run: declared cells and workloads, attempted cells,
+refused, eligible-but-no-hit, verified HITs, timed rows, and the per-policy
+policies list. `validate.py` recomputes it independently and refuses a file whose
+`workloads` array does not reproduce it, so a summary cannot drift from its raw
+data. Eligibility and reuse are separate fields per row (`eligible_for_reuse` and
+`status`); a report must never divide one by the other's denominator.
+
+### 4.6 Re-runnability
+
+Every artifact path is either caller-supplied or unique: scratch roots, cache
+directories and the preserved-counterexample audit use `mkdtemp` when no explicit
+root is given. A fixed path under `/tmp` is not allowed, because a shared `/tmp`
+lets another user own it and turns a silent `rmtree(ignore_errors=True)` into a
+`FileExistsError` on the second run.
 
 ## 5. Environment fingerprint and what is not controlled
 
@@ -174,7 +210,13 @@ reproduce them, and a benchmark that scored them would be measuring the wrong
 thing.
 
 Byte equality of one output file is never accepted as proof of equivalence: the
-whole workspace is fingerprinted, including deleted and created paths.
+whole workspace is fingerprinted, including deleted and created paths, and a
+replay is rejected when its pre-state differs from the native twin's — otherwise a
+stale output left by an earlier build would pass. Hard-link group identity is part
+of the digest, so replacing a link with a copy fails. The regression suite
+constructs wrong replays (stale, missing and extra files, mode, symlink, hard
+link, directory, stdout, stderr, exit status) and asserts each is rejected, plus an
+advisory-only difference that must not fail.
 
 ## 7. Cache-state transitions
 

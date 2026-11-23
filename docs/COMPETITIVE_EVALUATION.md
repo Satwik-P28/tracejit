@@ -9,30 +9,42 @@ comparison actually shows. Machine-readable evidence:
 
 | Tool | Role | Available | Pinned version for comparison | Why it matters |
 | --- | --- | --- | --- | --- |
-| ccache | compiler cache | **no** | 4.9.1 | The direct competitor for the one niche where TraceJIT wins |
-| sccache | compiler cache | **no** | 0.8.2 | Same, with remote storage |
+| ccache | compiler cache | **yes, measured** | 4.10.2 (user-space static build) | The direct competitor for the one niche where TraceJIT wins |
+| sccache | compiler cache | downloadable, **not run** | 0.8.2 | Same, with remote storage |
 | ninja | build scheduler | **no** | 1.11.1 | Scheduler comparison, like `make` |
 | firebuild | process-level build accelerator | **no** | 0.9.0 | Closest in mechanism to TraceJIT |
 | zstd | compression | **no** | 1.5.5 | Corpus workload, not a competitor |
 | perf | hardware counters | **no** | kernel-tools | Independent counter cross-check |
-| hyperfine | independent wall clock | **yes** | 1.19.0 | Used for the cross-check in §5 |
+| hyperfine | independent wall clock | **installable, not run in AA1** | 1.19.0 | Cross-check in §5 was Phase AA only |
 | make | build scheduler | **yes** | GNU Make 4.3 | Scheduler baseline on the same command |
 
-The image has no root and no prebuilt static archives for ccache, sccache, ninja
-or firebuild. **No relative-speed claim is made about any of them.** An
-uninstalled tool cannot be shown to be slower, and a tool run with a materially
-different configuration is not a fair comparison. This is the single largest gap
-in the competitive evidence and it is reported as such rather than filled with an
-estimate.
+Phase AA had no root and no prebuilt archives, and made "measure ccache" a
+release blocker. Phase AA1 cleared that blocker: ccache 4.10.2 is published as a
+user-space static archive, runs without root, and was measured with
+`benchmarks/realworld_v2/competitive_zlib.py` (evidence:
+`benchmarks/results/phaseaa1/competitive_zlib.json`). sccache and ninja are also
+downloadable as static binaries but were not run; firebuild was not available;
+`perf` is absent. **No claim is made about sccache, ninja or firebuild.**
 
-Consequences for interpretation: the Phase AA result "TraceJIT reuses 17/49
-compiler workloads at 6.9–7.4× over direct execution" says nothing about whether
-ccache would do better on the same commands at a fraction of the hit cost. On
-mechanism alone, a compiler cache keyed on inputs plus preprocessed source
-normally costs single-digit milliseconds and stores exactly the compiler's
-output; that is the burden of proof TraceJIT has to meet, and Phase AA cannot
-settle it. Phase AB should treat "measure ccache on `gcc-cc-heavy-tu`" as a
-release blocker for any competitive claim.
+### 1.1 Measured: ccache versus TraceJIT on one real compile
+
+Same command (`gcc -O2 -I zlib-1.3.1 -c zlib-1.3.1/deflate.c -o deflate.o`), same
+directory, same host, interleaved randomised order, output deleted before every
+sample, every sample's object hashed against a native reference, 20 samples per
+arm:
+
+| Arm | Median | Speedup vs native (CI95) | Hits | Cache population |
+| --- | ---: | ---: | ---: | ---: |
+| native | 490.6 ms | 1.00 | — | — |
+| ccache 4.10.2 | **4.54 ms** | **108.1×** (97.2–116.6) | 20/20 | 556.5 ms |
+| TraceJIT, `compiler-runtime-v1` | 65.18 ms | 7.53× (7.16–8.00) | 20/20 | 735.2 ms |
+
+All 60 samples produced a byte-identical object. ccache's fixed hit cost is 14×
+lower than TraceJIT's, and its population cost is lower too. On a single compiler
+invocation — the case this corpus presents as TraceJIT's best — a compiler cache
+wins on both axes. The remaining question is not speed; it is whether there is a
+class of commands ccache cannot see, or an output-integrity guarantee it does not
+provide, that justifies TraceJIT. `docs/PHASE_AB_PLAN.md` P4 is that experiment.
 
 ## 2. Mechanism taxonomy
 
@@ -96,7 +108,9 @@ slower.
 
 ## 5. Independent wall-clock cross-check
 
-hyperfine 1.19.0, same pinned input, `gzip -6 -n -c corpus.txt`:
+Phase AA ran this cross-check with hyperfine 1.19.0. hyperfine is not installed in
+the AA1 VM; its pinned static build is installable, but the cross-check below was
+not repeated and is a Phase AA measurement, not an AA1 one.
 
 | Command | Median | Mean |
 | --- | ---: | ---: |
@@ -131,5 +145,6 @@ schema. Not fixed in Phase AA; listed in the release-readiness blockers.
 - Whether that is worth 80 ms per hit depends entirely on the command's direct
   cost. On this corpus it pays for compute-heavy work and large translation
   units, and loses for everything cheap.
-- No claim is made about ccache, sccache, ninja or firebuild. That comparison
-  requires installing them, which this environment cannot do.
+- ccache **was** measured after this document was written: 108× vs TraceJIT's
+  7.5× on the same compile, at a 14× lower hit cost (§1.1). No claim is made about
+  sccache, ninja or firebuild; that comparison requires installing them.

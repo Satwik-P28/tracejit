@@ -12,13 +12,20 @@ Run everything:
 ./benchmarks/realworld_v2/run.sh
 ```
 
-Evidence lands in `benchmarks/results/phaseaa/`: `results.json` (raw samples),
-`results.md`, `environment.json`, `adversarial.json`, `competitive.json`, and one
+Evidence lands in `benchmarks/results/phaseaa/` (Phase AA) and
+`benchmarks/results/phaseaa1/` (the Phase AA1 re-measurement): `results.json`
+(raw samples), `results.md`, `environment.json`, `adversarial.json`,
+`competitive_zlib.json`, `repro/` (a clean-checkout run), and one
 `raw/<workload>__<policy>.json` per measurement.
+
+Every results file carries `aggregate.accounting`, recomputed from its own rows by
+`runner.py` and independently checked by `validate.py`: declared cells, attempted
+cells, refusals, eligible-but-no-hit rows, verified HITs and timed rows. Eligibility
+and reuse are different fields; do not divide one by the other's denominator.
 
 ## What is measured
 
-Fifty-nine workload configurations across eleven families: compilers and build
+Fifty-nine workload configurations across twelve families: compilers and build
 systems, static analysis, compression and packaging, data processing, scientific
 compute, interpreters and developer tooling, filesystem-sensitive workflows, and
 four workloads built from the pinned upstream zlib 1.3.1 tree. Five of the
@@ -69,9 +76,16 @@ reuse after that corruption. Every decision is recorded verbatim in the row's
 Requirements: Linux x86_64, `ptrace` permitted, Rust 1.85+, `gcc`, `make`,
 `python3` 3.11+, and the usual coreutils plus `gzip`, `bzip2`, `xz`, `tar`,
 `zip`, `unzip`, `jq`, `perl`, `node`. Optional: `hyperfine` for the independent
-wall-clock cross-check. `ccache`, `sccache`, `ninja`, `firebuild`, `perf`,
-`zstd`, `clang-tidy`, `cppcheck`, `shellcheck`, `ruff` are recorded as
-unavailable when absent; absence is not a result about TraceJIT.
+wall-clock cross-check and a ccache binary for `competitive_zlib.py`.
+`ccache`, `sccache`, `ninja`, `firebuild`, `perf`, `zstd`, `clang-tidy`,
+`cppcheck`, `shellcheck`, `ruff` are recorded as unavailable when absent;
+absence is not a result about TraceJIT.
+
+The harness is re-runnable: scratch roots, cache directories and the preserved
+counterexample audit use unique temporary paths, and `test_harness.py` (29 tests)
+asserts the oracle rejects wrong replays and the accounting rejects tampered rows.
+`competitive_zlib.py` measures one compile under native, ccache and TraceJIT with
+the same command, mixed order and byte-verified objects.
 
 ```bash
 cargo build --workspace --release

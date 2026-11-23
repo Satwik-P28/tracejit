@@ -41,6 +41,29 @@ branch's own CI can be read. What can be stated:
 
 No claim of "CI is green" is made anywhere in these documents.
 
+## 2.1 Corrections from Phase AA1 (these supersede the numbers below)
+
+Phase AA1 re-derived every claim below from the raw rows and found three defects.
+The authoritative numbers are in [PHASE_AA1_AUDIT.md](PHASE_AA1_AUDIT.md), and
+`benchmarks/results/phaseaa1/` contains the re-measured data. Read this section
+before quoting anything from §5, §7, §8 or §13.
+
+| Published here | Verified in AA1 | Cause |
+| --- | --- | --- |
+| Eligibility 2.0 / 20.4 / 34.7 % (native / allocator / compiler) | **4.1 / 24.5 / 38.8 %** (2/49, 12/49, 19/49) | The table divided *reused* cells by attempted cells and called it eligibility. Reuse rates are 2.0 / 20.4 / 34.7 %; one native, two allocator and two compiler cells are eligible but never hit. |
+| `sed` 0.17–0.18×, `cut` 0.15–0.16×, `gzip -6` 0.44–0.50× | **0.64–0.70×, 0.20–0.25×, 0.64–0.77×** | The hit arm was timed with `--json`; TraceJIT serialised the cached stdout (1.4 MB for `sed`) and the harness parsed it inside the timer. |
+| `c-numeric` 30.6× (24.1–39.5), `deflate` 6.92×, `adler` 1.32× (break-even 12) | **30.2–33.7× (22.6–45.7), 7.24×, 1.28× (break-even 14)** | Same channel effect, smaller for small stdout; CI recomputed. |
+| `gcc-noopt` 1.02×, "indistinguishable" | **0.84×, CI 0.70–0.95 (slower)** | The interval was wide enough to hide a real loss at 60 ms direct cost. |
+| Stage totals non-additive; 15–50 ms unattributed; 21.6 ms of stages against an 11.4 ms wall | **Every row reconciles within 7 ms**; the unattributed time was the `--json` presentation channel, and persistence is outside `runtime_ns` | See AA1 §5. `wall = pre + runtime + persist + present` on disjoint intervals. |
+| ccache/sccache/ninja/firebuild unavailable; ccache comparison listed as a release blocker | **ccache 4.10.2 measured**: 4.54 ms per hit vs TraceJIT 65.18 ms on the same zlib compile (108× vs 7.5×, 20/20 hits each, all objects byte-identical) | A static ccache build was installable in user space. |
+| Warm-hit floor 11–17 ms | **8.1–17.3 ms**; gcc-shaped rows 59.7–70.7 ms | The floor is lower than published, not higher. |
+| 13 workloads timed, 8 slower | **13 workloads timed, 9 slower** (20 rows) | `gcc-noopt` is a loss by CI; one row was lost to a classification refusal in the first pass and retried. |
+
+Unchanged by the audit: the corpus, tiers, splits, the refusal ledger, the
+oracle's covered/out-of-contract split, the missing-CAS product fix, 0 incorrect
+HITs, the 7.35× result for `gcc-cc-heavy-tu`, the 0.15× `readelf` floor, and the
+conclusion that strict native execution is not usable for real workloads.
+
 ## 3. Environment
 
 `benchmarks/results/phaseaa/environment.json` records the full fingerprint.
@@ -83,9 +106,17 @@ cached safely. Those rows are the negative result and are not dropped.
 
 ## 5. Eligibility
 
-177 rows = 59 workloads × 3 policies, minus unavailable-tool rows.
+177 *declared* cells = 59 workloads × 3 policies. 15 of them are
+`tool_unavailable` (5 workloads × 3 policies), so **162 cells were attempted**
+= 54 available workloads × 3. Of those: 129 refused, 5 eligible but no HIT, 28
+verified HITs. The cell-level ledger is recomputed from the rows on every run and
+validated by `validate.py`; the full reconciliation is in AA1 §1.
 
-| Tier / policy | Attempted | Reused | Refused | Other failure | Rate |
+The rate column below is the **reuse** rate, not the eligibility rate. Eligible
+cells are 2/49 native, 12/49 `allocator-entropy-v1` and 19/49
+`compiler-runtime-v1`; the difference is the "eligible but no HIT" column.
+
+| Tier / policy | Attempted | Reused | Refused | Eligible but no HIT | Reuse rate |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | A, native | 49 | 1 | 47 | 1 | **2.0 %** |
 | A, `allocator-entropy-v1` | 49 | 10 | 37 | 2 | **20.4 %** |
@@ -310,15 +341,15 @@ justifies it so Phase AB can be judged against the same protocol.
 | --- | --- | --- |
 | 1 | Starting / final commit | `e4f80adcbf3d1184bf27babc870a62c4daa8ff89` / `d2163e1` plus its documentation-only descendants on `research/phase-aa` |
 | 2 | CI status | **not verifiable here** (no GitHub access); workflow committed, local run green |
-| 3 | Workloads tested | 59 configurations (50 tier A, 9 tier C), 177 policy rows, 13 workloads timed |
-| 4 | Native eligibility | 1/49 = **2.0 %** |
-| 5 | Controlled-contract eligibility | 10/49 = 20.4 % (`allocator-entropy-v1`), 17/49 = 34.7 % (`compiler-runtime-v1`); tier C 0/5 for all |
+| 3 | Workloads tested | 59 configurations (50 tier A, 9 tier C), 177 declared cells, **162 attempted**, 13 workloads timed (20 rows) |
+| 4 | Native eligibility | **2/49 = 4.1 %** (1 reused) |
+| 5 | Controlled-contract eligibility | **12/49 = 24.5 %** (`allocator-entropy-v1`, 10 reused), **19/49 = 38.8 %** (`compiler-runtime-v1`, 17 reused); tier C 0/5 for all |
 | 6 | Positive cumulative savings | **4** workloads (`c-numeric`, `gcc-cc-heavy-tu`, `zlib-compile-deflate`, `zlib-compile-adler32`) |
-| 7 | Slower than native | **8** workloads (14 rows) |
+| 7 | Slower than native | **9** workloads (by CI, AA1; AA said 8) |
 | 8 | Incorrect HITs | **0** |
-| 9 | Best reproducible speedup | **30.6×** warm (CI 24.1–39.5), 13.1× over a 25-repeat session, `c-numeric-integration` under `allocator-entropy-v1` |
-| 10 | Worst regression | **7.1× slower** by the paired geometric mean (`readelf-header`, medians 2.47 ms → 16.95 ms) |
-| 11 | Competitor comparison | ccache, sccache, ninja, firebuild, perf, zstd unavailable and never scored; `make` is a scheduler, not a cache: it skips in 2.3 ms where TraceJIT restores in ~80 ms, and it cannot detect a corrupted output; after an output deletion TraceJIT is 1.29× cheaper than make+gcc; wrapping an ineligible `make` costs +460 ms/invocation |
+| 9 | Best reproducible speedup | **30.2–33.7×** warm (CI 22.6–45.7), 13.6× over a 25-repeat session, `c-numeric-integration` (AA1 plain-mode timing) |
+| 10 | Worst regression | **6.7× slower** (0.15×) (`readelf-header`, medians 2.1–2.2 ms → 13.2–14.6 ms) |
+| 11 | Competitor comparison | **ccache 4.10.2 measured in AA1**: 4.54 ms per hit vs TraceJIT 65.18 ms on the same zlib compile (108× vs 7.5×), all objects byte-identical. sccache/ninja/firebuild/perf not run or unavailable. `make` is a scheduler, not a cache: it skips in 2.3 ms where TraceJIT restores in ~80 ms, and it cannot detect a corrupted output; after an output deletion TraceJIT is 1.29× cheaper than make+gcc; wrapping an ineligible `make` costs +460 ms/invocation |
 | 12 | External reproducibility | package + one-command entry point + schema validator; smoke run reproduced from a fresh clone with a clean cache (see reproduction guide) |
 | 13 | Remaining correctness risks | validate→restore TOCTOU window; classification instability (§9.5); atime/metadata guards; cache relocation invalidates records; no proof for the same-timestamp rewrite hazard beyond ctime protection |
 | 14 | v0.3 release verdict | **not qualified** — see the readiness document for blockers |
