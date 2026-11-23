@@ -312,8 +312,9 @@ than a hazard — but it is also why the fallback is not a strategy: it pays 28 
 ### 6.3 The ceiling, derived and labelled as derived
 
 Phase X1 measured a 79.246 ms compiler warm hit with 48.343 ms of content time. Replace the content
-time with 56 measurements (56 × 493 ns ≈ 28 µs) and the hit lands at **≈ 31.9 ms**, i.e. **2.49×**
-faster than Phase X1's single-pass candidate and **3.97×** faster than the two-pass baseline.
+time with 56 measurements (56 × 493 ns ≈ 28 µs) and the hit lands at **≈ 30.9 ms**, i.e. **2.56×**
+faster than Phase X1's single-pass candidate and **4.09×** faster than the two-pass 126.507 ms
+baseline.
 
 This is arithmetic on two measured components, **not a measurement of arm B**, and it is valid only
 while all of the following hold: fs-verity is present; every one of the 56 files is verity-enabled;
