@@ -372,8 +372,10 @@ not need it when `AA_SKIP_BUILD=1` and an explicit binary are given.
 | Model check (`scripts/modelcheck`) | PASS, `restore_crash` 2 mixed-kill states recorded as a limitation |
 | Schema + accounting validation | pass on the full 177-row file and on the clean-clone smoke file |
 | Packaging | pass: archive, `RELEASE_MANIFEST.json`, `SHA256SUMS`, SBOM (110 components); installer test pass |
-| Differential fuzz, restore fault injection, `cargo audit` | **not run in this phase** |
-| GitHub CI | **not verifiable here**: no credentials; REST API rate-limited |
+| Differential fuzz, seed 29 | PASS: 120 cases ok, 0 incorrect HITs |
+| Restore fault injection (`scripts/phase_k4_restore_fault.sh`) | PASS: soft-fail retrace and hard-kill recovery |
+| `cargo audit` | pass, exit 0, 110 crates, no advisory reported |
+| GitHub CI | smoke and correctness **passed** on the pushed head `c144efd`; the repository's `CI` workflow (`validate`) was still running at the last readable poll, after which the shared egress IP hit the unauthenticated API rate limit. PR #43 remains a draft: marking it ready or merging needs write credentials this environment does not have |
 
 ## 10. Remaining risks and unproven claims
 
