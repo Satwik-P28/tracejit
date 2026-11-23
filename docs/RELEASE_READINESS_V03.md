@@ -30,7 +30,7 @@ and "shippable release" are different gates, and only the first is met.
 | Version consistency | `scripts/check-version-consistency.sh` | pass (`0.2.0-beta.1`) |
 | Real-world benchmark | `benchmarks/realworld_v2/run.sh` | pass, 177 rows, schema-validated, 0 incorrect hits |
 | Adversarial | `adversarial.py --trials 12` | pass, W1 13/13, 0 incorrect hits, 0 stale race observations |
-| Fresh checkout reproduction | clone + `AA_MODE=smoke run.sh` | pass — see [reproduction guide](BENCHMARK_REPRODUCTION.md#phase-aa-fresh-checkout-check) |
+| Fresh checkout reproduction | clean clone at `01e963f`, empty `HOME`, fresh scratch and vendor, `AA_MODE=smoke run.sh` | pass: exit 0, schema OK, 42 rows, 9 reused, 0 incorrect hits. The first attempt exposed a fingerprint probe that hangs with an empty `HOME`; fixed in `01e963f` |
 | CI on this head | GitHub Actions | **not run / not verifiable from the authoring environment** |
 
 Not run, and why: hardware counters (`perf` absent), cold-page-cache runs (this VM

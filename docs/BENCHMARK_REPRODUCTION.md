@@ -165,7 +165,20 @@ HOME=/tmp/fresh-home AA_MODE=smoke \
 
 `HOME` is pointed at an empty directory so no user-level cache, cargo config or
 `$HOME/.tracejit` state can be inherited. `AA_SCRATCH` and `AA_OUTPUT` are new
-directories. Result: see below.
+directories.
+
+Result at `01e963f` (clean clone, empty `HOME`, fresh scratch, vendor and cache):
+**exit 0**, `validate.py` reports `OK: … satisfies tracejit.realworld.results/v1`,
+42 rows on the dev split × 2 policies, 31 refused / 9 reused / 2 tool-unavailable,
+**0 incorrect hits**, 6 workloads timed. The counts on dev with two policies are
+not comparable to the full run's 177 rows — that is expected.
+
+That check is not decoration. Its first attempt hung for nine minutes at 0 % CPU
+on `cargo --version`: under rustup with an empty `HOME` that command waits on a
+toolchain lock, and the fingerprint ran it unguarded. Version probes now time out
+and record a missing version (`01e963f`). A benchmark that can wedge on a
+cosmetic probe is not reproducible, and no amount of local green runs would have
+shown it.
 
 ## Unsupported environments
 
