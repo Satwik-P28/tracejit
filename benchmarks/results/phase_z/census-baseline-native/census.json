@@ -1,0 +1,2579 @@
+{
+  "admission": "always",
+  "aggregate": {
+    "attempted": 30,
+    "blocked_missing_tool": 2,
+    "blocker_ranking": [
+      {
+        "blocker": "randomness",
+        "count": 16,
+        "occurrences": 17,
+        "workloads": [
+          "ar-static-archive",
+          "awk-codegen",
+          "awk-scientific-iter",
+          "awk-sum-stdout",
+          "bzip2-compress-stdout",
+          "cc-syntax-only-lint",
+          "dd-copy-file",
+          "jq-sum-values",
+          "objcopy-strip-unneeded",
+          "od-hex-prefix",
+          "openssl-sha256",
+          "perl-sum-values",
+          "sed-rewrite-stdout",
+          "sha256sum-blob",
+          "sort-numbers",
+          "wc-line-count"
+        ]
+      },
+      {
+        "blocker": "clock",
+        "count": 7,
+        "occurrences": 7,
+        "workloads": [
+          "ar-static-archive",
+          "awk-codegen",
+          "awk-scientific-iter",
+          "awk-sum-stdout",
+          "cc-syntax-only-lint",
+          "dd-copy-file",
+          "perl-sum-values"
+        ]
+      },
+      {
+        "blocker": "system_information",
+        "count": 2,
+        "occurrences": 5,
+        "workloads": [
+          "cc-syntax-only-lint",
+          "sort-numbers"
+        ]
+      },
+      {
+        "blocker": "process_identity",
+        "count": 1,
+        "occurrences": 2,
+        "workloads": [
+          "awk-codegen"
+        ]
+      },
+      {
+        "blocker": "other:pipe 1: a read returned less than it requested and more data",
+        "count": 1,
+        "occurrences": 1,
+        "workloads": [
+          "groff-manpage-html"
+        ]
+      },
+      {
+        "blocker": "other:pipe 2: a read returned less than it requested and more data",
+        "count": 1,
+        "occurrences": 1,
+        "workloads": [
+          "shell-pipeline"
+        ]
+      },
+      {
+        "blocker": "other:pipe 3: a read returned less than it requested and more data",
+        "count": 1,
+        "occurrences": 1,
+        "workloads": [
+          "shell-pipeline"
+        ]
+      }
+    ],
+    "denominator_definition": "attempted = every requested workload whose required tools were present and whose direct execution succeeded. Tool-missing and workload-failed entries are excluded from the rate and listed separately.",
+    "eligibility_rate": 0.03333333333333333,
+    "refused": 29,
+    "requested": 32,
+    "reused": 1,
+    "unmodeled_syscall_ranking": [
+      {
+        "count": 6,
+        "name": "72: fcntl",
+        "syscall": 72,
+        "workloads": [
+          "make-awk-target",
+          "pil-image-transform",
+          "python-csv-json",
+          "python-csv-json-seeded",
+          "tar-create-archive",
+          "xz-compress-stdout"
+        ]
+      },
+      {
+        "count": 4,
+        "name": "98: getrusage",
+        "syscall": 98,
+        "workloads": [
+          "cc-compile-fixture",
+          "cc-compile-large",
+          "cc-link-binary",
+          "multi-file-compile-ar-hash"
+        ]
+      },
+      {
+        "count": 3,
+        "name": "5: fstat",
+        "syscall": 5,
+        "workloads": [
+          "groff-manpage-html",
+          "gzip-roundtrip-file",
+          "shell-pipeline"
+        ]
+      }
+    ],
+    "workload_failed": 0
+  },
+  "commit": "7f013a5490b5566d6b18fbd5d2a29463a4842ba5",
+  "contract": null,
+  "environment": {
+    "architecture": "x86_64",
+    "commit": "7f013a5490b5566d6b18fbd5d2a29463a4842ba5",
+    "cpu": "Architecture:                         x86_64\nCPU op-mode(s):                       32-bit, 64-bit\nAddress sizes:                        48 bits physical, 48 bits virtual\nByte Order:                           Little Endian\nCPU(s):                               2\nOn-line CPU(s) list:                  0,1\nVendor ID:                            AuthenticAMD\nModel name:                           AMD EPYC 7003 (Milan)\nCPU family:                           25\nModel:                                1\nThread(s) per core:                   1\nCore(s) per socket:                   2\nSocket(s):                            1\nStepping:                             1\nBogoMIPS:                             1999.99\nFlags:                                fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy svm cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw topoext perfctr_core invpcid_single ssbd ibrs ibpb stibp vmmcall fsgsbase tsc_adjust bmi1 avx2 smep bmi2 invpcid rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves clzero xsaveerptr wbnoinvd arat npt nrip_save tsc_scale vmcb_clean flushbyasid pausefilter pfthreshold v_vmsave_vmload vgif umip pku ospke vaes vpclmulqdq rdpid arch_capabilities\nVirtualization:                       AMD-V\nHypervisor vendor:                    KVM\nVirtualization type:                  full\nL1d cache:                            32 KiB (1 instance)\nL1i cache:                            32 KiB (1 instance)\nL2 cache:                             512 KiB (1 instance)\nL3 cache:                             16 MiB (1 instance)\nNUMA node(s):                         1\nNUMA node0 CPU(s):                    0,1\nVulnerability Gather data sampling:   Not affected\nVulnerability Itlb multihit:          Not affected\nVulnerability L1tf:                   Not affected\nVulnerability Mds:                    Not affected\nVulnerability Meltdown:               Not affected\nVulnerability Mmio stale data:        Not affected\nVulnerability Reg file data sampling: Not affected\nVulnerability Retbleed:               Not affected\nVulnerability Spec rstack overflow:   Mitigation; safe RET\nVulnerability Spec store bypass:      Mitigation; Speculative Store Bypass disabled via prctl\nVulnerability Spectre v1:             Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:             Mitigation; Retpolines; IBPB conditional; IBRS_FW; STIBP disabled; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected\nVulnerability Srbds:                  Not affected\nVulnerability Tsx async abort:        Not affected",
+    "filesystem": "Filesystem     Type 1K-blocks     Used Available Use% Mounted on\n/dev/root      ext4  16337788 10658760   4823784  69% /",
+    "kernel": "6.1.102",
+    "memory": "total        used        free      shared  buff/cache   available\nMem:           3.8Gi       458Mi       568Mi       1.1Mi       3.1Gi       3.4Gi\nSwap:             0B          0B          0B",
+    "os_release": "PRETTY_NAME=\"Ubuntu 24.04.5 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"24.04\"\nVERSION=\"24.04.5 LTS (Noble Numbat)\"\nVERSION_CODENAME=noble\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=noble\nLOGO=ubuntu-logo",
+    "python": "Python 3.12.3",
+    "uname": "Linux freestyle-vm 6.1.102 #1 SMP PREEMPT_DYNAMIC Sun Nov  8 09:00:04 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux",
+    "working_tree_dirty": true
+  },
+  "generated_unix_ms": 1795404108434,
+  "runs": {
+    "measured": 1,
+    "warmups": 0
+  },
+  "syscall_name_source": "host kernel headers",
+  "workloads": [
+    {
+      "blockers": [
+        "unmodeled_syscall:98"
+      ],
+      "category": "compiler",
+      "classification": "Unknown",
+      "command": [
+        "cc",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-c",
+        "/workspace/chats/24375cea864939ae012511ac/tests/fixtures/fixture_driver.c",
+        "-o",
+        "/tmp/tracejit-census-0upffb_8/cc-compile-fixture/fixture.o"
+      ],
+      "cwd": "/workspace/chats/24375cea864939ae012511ac",
+      "dependency_count": 1283,
+      "direct": {
+        "maximum_ns": 228433468,
+        "median_ns": 228433468,
+        "minimum_ns": 228433468,
+        "p95_ns": 228433468,
+        "runs": 1,
+        "samples_ns": [
+          228433468
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/cc-compile-fixture/fixture.o": "45fa34d6aaf36b5bfe0ca34c1b9aa52e98eb4b236adc658d7b31738492313883"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 5,
+        "reads": 4776,
+        "unknown": 1,
+        "writes": 32
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "cc-compile-fixture",
+      "note": "Compiles the repository's own adversarial C fixture with the system compiler.",
+      "output_count": 2,
+      "output_equivalence": "PASS",
+      "process_count": 3,
+      "reason_counts": {
+        "unmodeled_syscall:98": 1
+      },
+      "reasons": [
+        "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffe5bdc64c0, 0x7ffe5bdc6a48, 0x7ffe5bdc6610, 0x0, 0x7fc335df2380]"
+      ],
+      "required_tools": [
+        "cc"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 602312553,
+        "median_ns": 602312553,
+        "minimum_ns": 602312553,
+        "p95_ns": 602312553,
+        "runs": 1,
+        "samples_ns": [
+          602312553
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/cc-compile-fixture/fixture.o": "45fa34d6aaf36b5bfe0ca34c1b9aa52e98eb4b236adc658d7b31738492313883"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "98: getrusage"
+      ],
+      "unsupported_syscalls": [
+        98
+      ]
+    },
+    {
+      "blockers": [
+        "unmodeled_syscall:98"
+      ],
+      "category": "compiler",
+      "classification": "Unknown",
+      "command": [
+        "cc",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-c",
+        "/tmp/tracejit-census-0upffb_8/cc-compile-large/source.c",
+        "-o",
+        "/tmp/tracejit-census-0upffb_8/cc-compile-large/source.o"
+      ],
+      "cwd": "/workspace/chats/24375cea864939ae012511ac",
+      "dependency_count": 247,
+      "direct": {
+        "maximum_ns": 48692869,
+        "median_ns": 48692869,
+        "minimum_ns": 48692869,
+        "p95_ns": 48692869,
+        "runs": 1,
+        "samples_ns": [
+          48692869
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/cc-compile-large/source.o": "7bd4395628c638f9b0250f3f85b5e1d12a638488b53144dbe3e4dd323d55db3b"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 5,
+        "reads": 663,
+        "unknown": 1,
+        "writes": 13
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "cc-compile-large",
+      "note": "Compiles a generated 300-function C translation unit: a real whole-file compile, not a busy loop.",
+      "output_count": 2,
+      "output_equivalence": "PASS",
+      "process_count": 3,
+      "reason_counts": {
+        "unmodeled_syscall:98": 1
+      },
+      "reasons": [
+        "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fff2827b1a0, 0x7fff2827b728, 0x7fff2827b2f0, 0x0, 0x7f497cdb5380]"
+      ],
+      "required_tools": [
+        "cc"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 150919791,
+        "median_ns": 150919791,
+        "minimum_ns": 150919791,
+        "p95_ns": 150919791,
+        "runs": 1,
+        "samples_ns": [
+          150919791
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/cc-compile-large/source.o": "7bd4395628c638f9b0250f3f85b5e1d12a638488b53144dbe3e4dd323d55db3b"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "98: getrusage"
+      ],
+      "unsupported_syscalls": [
+        98
+      ]
+    },
+    {
+      "category": "compiler",
+      "missing_tools": [
+        "clang"
+      ],
+      "name": "clang-compile-large",
+      "note": "Same generated TU compiled with clang (linker/tooling family coverage).",
+      "required_tools": [
+        "clang"
+      ],
+      "status": "blocked_missing_tool"
+    },
+    {
+      "blockers": [
+        "unmodeled_syscall:98"
+      ],
+      "category": "linker",
+      "classification": "Unknown",
+      "command": [
+        "cc",
+        "/tmp/tracejit-census-0upffb_8/cc-link-binary/link.o",
+        "-o",
+        "/tmp/tracejit-census-0upffb_8/cc-link-binary/linked"
+      ],
+      "cwd": "/tmp/tracejit-census-0upffb_8/cc-link-binary",
+      "dependency_count": 225,
+      "direct": {
+        "maximum_ns": 22705892,
+        "median_ns": 22705892,
+        "minimum_ns": 22705892,
+        "p95_ns": 22705892,
+        "runs": 1,
+        "samples_ns": [
+          22705892
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/cc-link-binary/linked": "3140c8d35265009f0c871cc948f1039abff00670db2bef1b724ba8b934ae224c"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 5,
+        "reads": 533,
+        "unknown": 1,
+        "writes": 53
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "cc-link-binary",
+      "note": "Compile then link a generated TU into an executable with the system linker via cc.",
+      "output_count": 4,
+      "output_equivalence": "PASS",
+      "process_count": 3,
+      "reason_counts": {
+        "unmodeled_syscall:98": 1
+      },
+      "reasons": [
+        "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffd40b27030, 0x7ffd40b27500, 0x7ffd40b26f60, 0x0, 0x7fd7b685c380]"
+      ],
+      "required_tools": [
+        "cc"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 136188316,
+        "median_ns": 136188316,
+        "minimum_ns": 136188316,
+        "p95_ns": 136188316,
+        "runs": 1,
+        "samples_ns": [
+          136188316
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/cc-link-binary/linked": "3140c8d35265009f0c871cc948f1039abff00670db2bef1b724ba8b934ae224c"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "98: getrusage"
+      ],
+      "unsupported_syscalls": [
+        98
+      ]
+    },
+    {
+      "blockers": [
+        "clock",
+        "randomness"
+      ],
+      "category": "archiver",
+      "classification": "Nondeterministic",
+      "command": [
+        "ar",
+        "rcs",
+        "/tmp/tracejit-census-0upffb_8/ar-static-archive/libmember.a",
+        "/tmp/tracejit-census-0upffb_8/ar-static-archive/member.o"
+      ],
+      "cwd": "/tmp/tracejit-census-0upffb_8/ar-static-archive",
+      "dependency_count": 56,
+      "direct": {
+        "maximum_ns": 3436943,
+        "median_ns": 3436943,
+        "minimum_ns": 3436943,
+        "p95_ns": 3436943,
+        "runs": 1,
+        "samples_ns": [
+          3436943
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/ar-static-archive/libmember.a": "15ab4791a612f7b79ac052debeb01836bfeebad771fc53a7d542a6142afd944d"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 106,
+        "unknown": 0,
+        "writes": 12
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "ar-static-archive",
+      "note": "Archive a compiled object into a static library with ar.",
+      "output_count": 2,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "clock": 1,
+        "randomness": 1
+      },
+      "reasons": [
+        "process read randomness via getrandom",
+        "process read system clock: monotonic"
+      ],
+      "required_tools": [
+        "cc",
+        "ar"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 35499255,
+        "median_ns": 35499255,
+        "minimum_ns": 35499255,
+        "p95_ns": 35499255,
+        "runs": 1,
+        "samples_ns": [
+          35499255
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/ar-static-archive/libmember.a": "15ab4791a612f7b79ac052debeb01836bfeebad771fc53a7d542a6142afd944d"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "randomness"
+      ],
+      "category": "toolchain",
+      "classification": "Nondeterministic",
+      "command": [
+        "objcopy",
+        "--strip-unneeded",
+        "/tmp/tracejit-census-0upffb_8/objcopy-strip-unneeded/obj.o",
+        "/tmp/tracejit-census-0upffb_8/objcopy-strip-unneeded/obj.stripped.o"
+      ],
+      "cwd": "/tmp/tracejit-census-0upffb_8/objcopy-strip-unneeded",
+      "dependency_count": 32,
+      "direct": {
+        "maximum_ns": 2530613,
+        "median_ns": 2530613,
+        "minimum_ns": 2530613,
+        "p95_ns": 2530613,
+        "runs": 1,
+        "samples_ns": [
+          2530613
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/objcopy-strip-unneeded/obj.stripped.o": "9aeade8e2c3d3f0ca70c3da1c8cd4956d2464a8e7bb81ab18231e8b6ad8277eb"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 55,
+        "unknown": 0,
+        "writes": 14
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "objcopy-strip-unneeded",
+      "note": "objcopy --strip-unneeded on a compiled object (metadata rewrite).",
+      "output_count": 1,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "randomness": 1
+      },
+      "reasons": [
+        "process read randomness via getrandom"
+      ],
+      "required_tools": [
+        "cc",
+        "objcopy"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 26221526,
+        "median_ns": 26221526,
+        "minimum_ns": 26221526,
+        "p95_ns": 26221526,
+        "runs": 1,
+        "samples_ns": [
+          26221526
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/objcopy-strip-unneeded/obj.stripped.o": "9aeade8e2c3d3f0ca70c3da1c8cd4956d2464a8e7bb81ab18231e8b6ad8277eb"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "other:pipe 2: a read returned less than it requested and more data",
+        "other:pipe 3: a read returned less than it requested and more data",
+        "unmodeled_syscall:5"
+      ],
+      "category": "shell",
+      "classification": "Unknown",
+      "command": [
+        "sh",
+        "-c",
+        "awk '{ digest = (digest * 1315423911 + $1) % 4294967296 } END { printf \"%08x\\n\", digest }' /tmp/tracejit-census-0upffb_8/shell-pipeline/numbers.txt | sort | uniq -c | awk '{ print $2 }' > /tmp/tracejit-census-0upffb_8/shell-pipeline/pipeline.out"
+      ],
+      "cwd": "/workspace/chats/24375cea864939ae012511ac",
+      "dependency_count": 78,
+      "direct": {
+        "maximum_ns": 4733334,
+        "median_ns": 4733334,
+        "minimum_ns": 4733334,
+        "p95_ns": 4733334,
+        "runs": 1,
+        "samples_ns": [
+          4733334
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/shell-pipeline/pipeline.out": "10d33aaea2ca9966ce60e7e5a5c0c1af3b01b7f9b8f708bbf160d656e8822dc7"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 9,
+        "reads": 201,
+        "unknown": 8,
+        "writes": 2
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "shell-pipeline",
+      "note": "Deterministic awk | sort | uniq -c kernel pipeline over a generated integer list.",
+      "output_count": 1,
+      "output_equivalence": "PASS",
+      "process_count": 5,
+      "reason_counts": {
+        "other:pipe 2: a read returned less than it requested and more data": 1,
+        "other:pipe 3: a read returned less than it requested and more data": 1,
+        "unmodeled_syscall:5": 6
+      },
+      "reasons": [
+        "unmodeled successful syscall 5: fstat on pipe descriptor 1 reports buffered byte counts, which depend on scheduling",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 0 reports buffered byte counts, which depend on scheduling",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 0 reports buffered byte counts, which depend on scheduling",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 0 reports buffered byte counts, which depend on scheduling",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 1 reports buffered byte counts, which depend on scheduling",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 1 reports buffered byte counts, which depend on scheduling",
+        "pipe 2: a read returned less than it requested and more data followed, so the reader's observations depend on scheduling",
+        "pipe 3: a read returned less than it requested and more data followed, so the reader's observations depend on scheduling"
+      ],
+      "required_tools": [
+        "sh",
+        "awk",
+        "sort",
+        "uniq"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 47736288,
+        "median_ns": 47736288,
+        "minimum_ns": 47736288,
+        "p95_ns": 47736288,
+        "runs": 1,
+        "samples_ns": [
+          47736288
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/shell-pipeline/pipeline.out": "10d33aaea2ca9966ce60e7e5a5c0c1af3b01b7f9b8f708bbf160d656e8822dc7"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "5: fstat"
+      ],
+      "unsupported_syscalls": [
+        5
+      ]
+    },
+    {
+      "blockers": [
+        "unmodeled_syscall:98"
+      ],
+      "category": "multi_file",
+      "classification": "Unknown",
+      "command": [
+        "sh",
+        "-c",
+        "cc -O2 -c /tmp/tracejit-census-0upffb_8/multi-file-compile-ar-hash/source.c -o /tmp/tracejit-census-0upffb_8/multi-file-compile-ar-hash/a.o && ar rcs /tmp/tracejit-census-0upffb_8/multi-file-compile-ar-hash/liba.a /tmp/tracejit-census-0upffb_8/multi-file-compile-ar-hash/a.o && sha256sum /tmp/tracejit-census-0upffb_8/multi-file-compile-ar-hash/liba.a > /tmp/tracejit-census-0upffb_8/multi-file-compile-ar-hash/liba.sha256"
+      ],
+      "cwd": "/tmp/tracejit-census-0upffb_8/multi-file-compile-ar-hash",
+      "dependency_count": 314,
+      "direct": {
+        "maximum_ns": 51142211,
+        "median_ns": 51142211,
+        "minimum_ns": 51142211,
+        "p95_ns": 51142211,
+        "runs": 1,
+        "samples_ns": [
+          51142211
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/multi-file-compile-ar-hash/liba.sha256": "438d8a4169368a796a56b3580c088aa89614aea9ec2f2d7df68ac0d91763f07c"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 11,
+        "reads": 840,
+        "unknown": 1,
+        "writes": 20
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "multi-file-compile-ar-hash",
+      "note": "Multi-step compile \u2192 ar \u2192 sha256sum pipeline over generated sources.",
+      "output_count": 5,
+      "output_equivalence": "PASS",
+      "process_count": 6,
+      "reason_counts": {
+        "unmodeled_syscall:98": 1
+      },
+      "reasons": [
+        "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fff1e2989e0, 0x7fff1e298f68, 0x7fff1e298b30, 0x0, 0x7f09218b6380]"
+      ],
+      "required_tools": [
+        "sh",
+        "cc",
+        "ar",
+        "sha256sum"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 192181642,
+        "median_ns": 192181642,
+        "minimum_ns": 192181642,
+        "p95_ns": 192181642,
+        "runs": 1,
+        "samples_ns": [
+          192181642
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/multi-file-compile-ar-hash/liba.sha256": "438d8a4169368a796a56b3580c088aa89614aea9ec2f2d7df68ac0d91763f07c"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "98: getrusage"
+      ],
+      "unsupported_syscalls": [
+        98
+      ]
+    },
+    {
+      "blockers": [
+        "unmodeled_syscall:72"
+      ],
+      "category": "python",
+      "classification": "Unknown",
+      "command": [
+        "/opt/freestyle/python/bin/python3",
+        "/workspace/chats/24375cea864939ae012511ac/benchmarks/realworld/workloads/etl.py",
+        "/tmp/tracejit-census-0upffb_8/python-csv-json/sales.csv",
+        "/tmp/tracejit-census-0upffb_8/python-csv-json/customers.csv",
+        "/tmp/tracejit-census-0upffb_8/python-csv-json/report.json"
+      ],
+      "cwd": "/workspace/chats/24375cea864939ae012511ac",
+      "dependency_count": 199,
+      "direct": {
+        "maximum_ns": 28897779,
+        "median_ns": 28897779,
+        "minimum_ns": 28897779,
+        "p95_ns": 28897779,
+        "runs": 1,
+        "samples_ns": [
+          28897779
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/python-csv-json/report.json": "28bc8fa9e7c25a10aa121654b5df07381a78fd5d45873ef077c4132cf51054e8"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "1016b3f0b3c479d23e5b48a4ac116554f8ae782801a3e00c62a1446b4ae7e6b4"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 1185,
+        "unknown": 3,
+        "writes": 2
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "python-csv-json",
+      "note": "CPython CSV to JSON aggregation with PYTHONHASHSEED unset (interpreter defaults).",
+      "output_count": 1,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "unmodeled_syscall:72": 3
+      },
+      "reasons": [
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded"
+      ],
+      "required_tools": [
+        "/opt/freestyle/python/bin/python3"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 150064559,
+        "median_ns": 150064559,
+        "minimum_ns": 150064559,
+        "p95_ns": 150064559,
+        "runs": 1,
+        "samples_ns": [
+          150064559
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/python-csv-json/report.json": "28bc8fa9e7c25a10aa121654b5df07381a78fd5d45873ef077c4132cf51054e8"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "1016b3f0b3c479d23e5b48a4ac116554f8ae782801a3e00c62a1446b4ae7e6b4"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "72: fcntl"
+      ],
+      "unsupported_syscalls": [
+        72
+      ]
+    },
+    {
+      "blockers": [
+        "unmodeled_syscall:72"
+      ],
+      "category": "python",
+      "classification": "Unknown",
+      "command": [
+        "/opt/freestyle/python/bin/python3",
+        "/workspace/chats/24375cea864939ae012511ac/benchmarks/realworld/workloads/etl.py",
+        "/tmp/tracejit-census-0upffb_8/python-csv-json-seeded/sales.csv",
+        "/tmp/tracejit-census-0upffb_8/python-csv-json-seeded/customers.csv",
+        "/tmp/tracejit-census-0upffb_8/python-csv-json-seeded/report.json"
+      ],
+      "cwd": "/workspace/chats/24375cea864939ae012511ac",
+      "dependency_count": 199,
+      "direct": {
+        "maximum_ns": 29651780,
+        "median_ns": 29651780,
+        "minimum_ns": 29651780,
+        "p95_ns": 29651780,
+        "runs": 1,
+        "samples_ns": [
+          29651780
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/python-csv-json-seeded/report.json": "28bc8fa9e7c25a10aa121654b5df07381a78fd5d45873ef077c4132cf51054e8"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "dac78025d3b70497028cd48c5cdc0a5318ccb1d32d2e80aa1989ddf54b2858ba"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 1186,
+        "unknown": 3,
+        "writes": 2
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "python-csv-json-seeded",
+      "note": "Same CPython workload with PYTHONHASHSEED=0 and PYTHONDONTWRITEBYTECODE=1.",
+      "output_count": 1,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "unmodeled_syscall:72": 3
+      },
+      "reasons": [
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded"
+      ],
+      "required_tools": [
+        "/opt/freestyle/python/bin/python3"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 157465147,
+        "median_ns": 157465147,
+        "minimum_ns": 157465147,
+        "p95_ns": 157465147,
+        "runs": 1,
+        "samples_ns": [
+          157465147
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/python-csv-json-seeded/report.json": "28bc8fa9e7c25a10aa121654b5df07381a78fd5d45873ef077c4132cf51054e8"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "dac78025d3b70497028cd48c5cdc0a5318ccb1d32d2e80aa1989ddf54b2858ba"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "72: fcntl"
+      ],
+      "unsupported_syscalls": [
+        72
+      ]
+    },
+    {
+      "blockers": [
+        "clock",
+        "process_identity",
+        "randomness"
+      ],
+      "category": "codegen",
+      "classification": "Nondeterministic",
+      "command": [
+        "sh",
+        "-c",
+        "awk -f /workspace/chats/24375cea864939ae012511ac/benchmarks/realworld/workloads/codegen.awk /tmp/tracejit-census-0upffb_8/awk-codegen/schema.tsv > /tmp/tracejit-census-0upffb_8/awk-codegen/generated.h"
+      ],
+      "cwd": "/workspace/chats/24375cea864939ae012511ac",
+      "dependency_count": 31,
+      "direct": {
+        "maximum_ns": 2267042,
+        "median_ns": 2267042,
+        "minimum_ns": 2267042,
+        "p95_ns": 2267042,
+        "runs": 1,
+        "samples_ns": [
+          2267042
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/awk-codegen/generated.h": "1dc9988dbc519180d112e90d139b9a7f44162f04124ab5cf36e9b8d92eadd409"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 3,
+        "reads": 63,
+        "unknown": 0,
+        "writes": 2
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "awk-codegen",
+      "note": "Generates a C header from a TSV schema with awk, the code-generation tool available here.",
+      "output_count": 1,
+      "output_equivalence": "PASS",
+      "process_count": 2,
+      "reason_counts": {
+        "clock": 1,
+        "process_identity": 2,
+        "randomness": 1
+      },
+      "reasons": [
+        "process read process identity via getpid",
+        "process read randomness via getrandom",
+        "process read process identity via getppid",
+        "process read system clock: realtime"
+      ],
+      "required_tools": [
+        "awk",
+        "sh"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 21546532,
+        "median_ns": 21546532,
+        "minimum_ns": 21546532,
+        "p95_ns": 21546532,
+        "runs": 1,
+        "samples_ns": [
+          21546532
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/awk-codegen/generated.h": "1dc9988dbc519180d112e90d139b9a7f44162f04124ab5cf36e9b8d92eadd409"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "other:pipe 1: a read returned less than it requested and more data",
+        "unmodeled_syscall:5"
+      ],
+      "category": "documentation",
+      "classification": "Unknown",
+      "command": [
+        "sh",
+        "-c",
+        "groff -Tutf8 -man /tmp/tracejit-census-0upffb_8/groff-manpage-html/census.1 > /tmp/tracejit-census-0upffb_8/groff-manpage-html/census.out"
+      ],
+      "cwd": "/workspace/chats/24375cea864939ae012511ac",
+      "dependency_count": 115,
+      "direct": {
+        "maximum_ns": 14651725,
+        "median_ns": 14651725,
+        "minimum_ns": 14651725,
+        "p95_ns": 14651725,
+        "runs": 1,
+        "samples_ns": [
+          14651725
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/groff-manpage-html/census.out": "1de5c6e2f0874e9cebacce026a5625c42a42088b8692a2f500e6b1b0c53ceb51"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 7,
+        "reads": 200,
+        "unknown": 3,
+        "writes": 2
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "groff-manpage-html",
+      "note": "Converts a troff man page with the first installed groff output device (html, then utf8, then ascii).",
+      "output_count": 1,
+      "output_equivalence": "PASS",
+      "process_count": 4,
+      "reason_counts": {
+        "other:pipe 1: a read returned less than it requested and more data": 1,
+        "unmodeled_syscall:5": 2
+      },
+      "reasons": [
+        "unmodeled successful syscall 5: fstat on pipe descriptor 0 reports buffered byte counts, which depend on scheduling",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 1 reports buffered byte counts, which depend on scheduling",
+        "pipe 1: a read returned less than it requested and more data followed, so the reader's observations depend on scheduling"
+      ],
+      "required_tools": [
+        "groff",
+        "sh"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 68802749,
+        "median_ns": 68802749,
+        "minimum_ns": 68802749,
+        "p95_ns": 68802749,
+        "runs": 1,
+        "samples_ns": [
+          68802749
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/groff-manpage-html/census.out": "1de5c6e2f0874e9cebacce026a5625c42a42088b8692a2f500e6b1b0c53ceb51"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "5: fstat"
+      ],
+      "unsupported_syscalls": [
+        5
+      ]
+    },
+    {
+      "blockers": [
+        "unmodeled_syscall:72"
+      ],
+      "category": "image",
+      "classification": "Unknown",
+      "command": [
+        "/opt/freestyle/python/bin/python3",
+        "/workspace/chats/24375cea864939ae012511ac/benchmarks/realworld/workloads/image_transform.py",
+        "/tmp/tracejit-census-0upffb_8/pil-image-transform/source.png",
+        "/tmp/tracejit-census-0upffb_8/pil-image-transform/transformed.png"
+      ],
+      "cwd": "/workspace/chats/24375cea864939ae012511ac",
+      "dependency_count": 444,
+      "direct": {
+        "maximum_ns": 67331698,
+        "median_ns": 67331698,
+        "minimum_ns": 67331698,
+        "p95_ns": 67331698,
+        "runs": 1,
+        "samples_ns": [
+          67331698
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/pil-image-transform/transformed.png": "9051d93b033ab24a02917a5af4a1b4c95c3104dc6a18c7841ad4cac9f2d3f446"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "a1f35f4f3eaaeb689fa2901984a7e3b326950d20e27537035dd312cf5473fdc7"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 2667,
+        "unknown": 3,
+        "writes": 2
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "pil-image-transform",
+      "note": "Grayscale plus posterize plus resize of a generated PNG with Pillow.",
+      "output_count": 1,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "unmodeled_syscall:72": 3
+      },
+      "reasons": [
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded"
+      ],
+      "required_tools": [
+        "/opt/freestyle/python/bin/python3"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 307365567,
+        "median_ns": 307365567,
+        "minimum_ns": 307365567,
+        "p95_ns": 307365567,
+        "runs": 1,
+        "samples_ns": [
+          307365567
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/pil-image-transform/transformed.png": "9051d93b033ab24a02917a5af4a1b4c95c3104dc6a18c7841ad4cac9f2d3f446"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "a1f35f4f3eaaeb689fa2901984a7e3b326950d20e27537035dd312cf5473fdc7"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "72: fcntl"
+      ],
+      "unsupported_syscalls": [
+        72
+      ]
+    },
+    {
+      "blockers": [
+        "clock",
+        "randomness",
+        "system_information"
+      ],
+      "category": "lint",
+      "classification": "Nondeterministic",
+      "command": [
+        "cc",
+        "-fsyntax-only",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "/workspace/chats/24375cea864939ae012511ac/tests/fixtures/fixture_driver.c"
+      ],
+      "cwd": "/workspace/chats/24375cea864939ae012511ac",
+      "dependency_count": 1195,
+      "direct": {
+        "maximum_ns": 41544511,
+        "median_ns": 41544511,
+        "minimum_ns": 41544511,
+        "p95_ns": 41544511,
+        "runs": 1,
+        "samples_ns": [
+          41544511
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 3,
+        "reads": 4438,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "cc-syntax-only-lint",
+      "note": "Compiler front-end lint pass (cc -fsyntax-only -Wall -Wextra -Werror) over the C fixture.",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 2,
+      "reason_counts": {
+        "clock": 1,
+        "randomness": 1,
+        "system_information": 2
+      },
+      "reasons": [
+        "process read randomness via getrandom",
+        "process read system information via prlimit64",
+        "process read system information via sysinfo",
+        "process read system clock: realtime"
+      ],
+      "required_tools": [
+        "cc"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 356694297,
+        "median_ns": 356694297,
+        "minimum_ns": 356694297,
+        "p95_ns": 356694297,
+        "runs": 1,
+        "samples_ns": [
+          356694297
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [],
+      "cache_hit": {
+        "maximum_ns": 6766417,
+        "median_ns": 6766417,
+        "minimum_ns": 6766417,
+        "p95_ns": 6766417,
+        "runs": 1,
+        "samples_ns": [
+          6766417
+        ]
+      },
+      "category": "compress",
+      "classification": "Guarded",
+      "command": [
+        "gzip",
+        "-c",
+        "-n",
+        "/tmp/tracejit-census-0upffb_8/gzip-compress-stdout/blob.bin"
+      ],
+      "cwd": "/tmp/tracejit-census-0upffb_8/gzip-compress-stdout",
+      "dependency_count": 9,
+      "direct": {
+        "maximum_ns": 1820622,
+        "median_ns": 1820622,
+        "minimum_ns": 1820622,
+        "p95_ns": 1820622,
+        "runs": 1,
+        "samples_ns": [
+          1820622
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "9a01960b07da228b96fdc020696b6d5003726b36e413389fcafd78a8d87828ea"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 25,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": true,
+      "hit_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "9a01960b07da228b96fdc020696b6d5003726b36e413389fcafd78a8d87828ea"
+      },
+      "hit_obtained": true,
+      "name": "gzip-compress-stdout",
+      "note": "gzip -c -n of a 64KiB deterministic blob (stdout capture; timestamps suppressed).",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {},
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs"
+      ],
+      "required_tools": [
+        "gzip"
+      ],
+      "speedup": 0.26906736608163523,
+      "status": "reused",
+      "time_saved_ns": -4945795,
+      "traced_cold": {
+        "maximum_ns": 13630023,
+        "median_ns": 13630023,
+        "minimum_ns": 13630023,
+        "p95_ns": 13630023,
+        "runs": 1,
+        "samples_ns": [
+          13630023
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "9a01960b07da228b96fdc020696b6d5003726b36e413389fcafd78a8d87828ea"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "unmodeled_syscall:5"
+      ],
+      "category": "compress",
+      "classification": "Unknown",
+      "command": [
+        "sh",
+        "-c",
+        "gzip -c -n /tmp/tracejit-census-0upffb_8/gzip-roundtrip-file/blob.bin | gzip -dc > /tmp/tracejit-census-0upffb_8/gzip-roundtrip-file/gunzip.bin"
+      ],
+      "cwd": "/tmp/tracejit-census-0upffb_8/gzip-roundtrip-file",
+      "dependency_count": 18,
+      "direct": {
+        "maximum_ns": 2456423,
+        "median_ns": 2456423,
+        "minimum_ns": 2456423,
+        "p95_ns": 2456423,
+        "runs": 1,
+        "samples_ns": [
+          2456423
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/gzip-roundtrip-file/gunzip.bin": "e32d92510f7e1c6acbf14afec28643fb51ef2a877202d3f1d73105425891775d"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 5,
+        "reads": 52,
+        "unknown": 1,
+        "writes": 3
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "gzip-roundtrip-file",
+      "note": "gzip | gunzip round-trip into a scratch file via sh.",
+      "output_count": 1,
+      "output_equivalence": "PASS",
+      "process_count": 3,
+      "reason_counts": {
+        "unmodeled_syscall:5": 1
+      },
+      "reasons": [
+        "unmodeled successful syscall 5: fstat on pipe descriptor 0 reports buffered byte counts, which depend on scheduling"
+      ],
+      "required_tools": [
+        "gzip",
+        "sh"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 20648290,
+        "median_ns": 20648290,
+        "minimum_ns": 20648290,
+        "p95_ns": 20648290,
+        "runs": 1,
+        "samples_ns": [
+          20648290
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/gzip-roundtrip-file/gunzip.bin": "e32d92510f7e1c6acbf14afec28643fb51ef2a877202d3f1d73105425891775d"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "5: fstat"
+      ],
+      "unsupported_syscalls": [
+        5
+      ]
+    },
+    {
+      "blockers": [
+        "randomness"
+      ],
+      "category": "compress",
+      "classification": "Nondeterministic",
+      "command": [
+        "bzip2",
+        "-c",
+        "/tmp/tracejit-census-0upffb_8/bzip2-compress-stdout/blob.bin"
+      ],
+      "cwd": "/tmp/tracejit-census-0upffb_8/bzip2-compress-stdout",
+      "dependency_count": 10,
+      "direct": {
+        "maximum_ns": 9905140,
+        "median_ns": 9905140,
+        "minimum_ns": 9905140,
+        "p95_ns": 9905140,
+        "runs": 1,
+        "samples_ns": [
+          9905140
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "9aa00046fa3ef59ec6daec16103b11963c21933a9db2d07a26e266fb6240b029"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 29,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "bzip2-compress-stdout",
+      "note": "bzip2 -c of the same deterministic blob.",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "randomness": 1
+      },
+      "reasons": [
+        "process read randomness via getrandom"
+      ],
+      "required_tools": [
+        "bzip2"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 23418624,
+        "median_ns": 23418624,
+        "minimum_ns": 23418624,
+        "p95_ns": 23418624,
+        "runs": 1,
+        "samples_ns": [
+          23418624
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "9aa00046fa3ef59ec6daec16103b11963c21933a9db2d07a26e266fb6240b029"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "unmodeled_syscall:72"
+      ],
+      "category": "compress",
+      "classification": "Unknown",
+      "command": [
+        "xz",
+        "-c",
+        "-0",
+        "/tmp/tracejit-census-0upffb_8/xz-compress-stdout/blob.bin"
+      ],
+      "cwd": "/tmp/tracejit-census-0upffb_8/xz-compress-stdout",
+      "dependency_count": 54,
+      "direct": {
+        "maximum_ns": 2603182,
+        "median_ns": 2603182,
+        "minimum_ns": 2603182,
+        "p95_ns": 2603182,
+        "runs": 1,
+        "samples_ns": [
+          2603182
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "045c7f5401717a66bd947819605634bcd9837591d24d6402321ecb90ee1b8830"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 75,
+        "unknown": 8,
+        "writes": 0
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "xz-compress-stdout",
+      "note": "xz -c -0 of the deterministic blob (fast preset; not tuned for TraceJIT).",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "unmodeled_syscall:72": 8
+      },
+      "reasons": [
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded",
+        "unmodeled successful syscall 72: status-flag change on fd 3 whose open file description is shared or unclassified",
+        "unmodeled successful syscall 72: status-flag change on fd 4 whose open file description is shared or unclassified",
+        "unmodeled successful syscall 72: fcntl query 3 on inherited or unclassified fd 1, whose flags are not guarded",
+        "unmodeled successful syscall 72: status-flag change on fd 1 whose open file description is shared or unclassified",
+        "unmodeled successful syscall 72: status-flag change on fd 1 whose open file description is shared or unclassified"
+      ],
+      "required_tools": [
+        "xz"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 21936512,
+        "median_ns": 21936512,
+        "minimum_ns": 21936512,
+        "p95_ns": 21936512,
+        "runs": 1,
+        "samples_ns": [
+          21936512
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "045c7f5401717a66bd947819605634bcd9837591d24d6402321ecb90ee1b8830"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "72: fcntl"
+      ],
+      "unsupported_syscalls": [
+        72
+      ]
+    },
+    {
+      "blockers": [
+        "unmodeled_syscall:72"
+      ],
+      "category": "archiver",
+      "classification": "Unknown",
+      "command": [
+        "tar",
+        "-cf",
+        "/tmp/tracejit-census-0upffb_8/tar-create-archive/bundle.tar",
+        "-C",
+        "/tmp/tracejit-census-0upffb_8/tar-create-archive",
+        "lines.txt",
+        "blob.bin"
+      ],
+      "cwd": "/tmp/tracejit-census-0upffb_8/tar-create-archive",
+      "dependency_count": 72,
+      "direct": {
+        "maximum_ns": 2522843,
+        "median_ns": 2522843,
+        "minimum_ns": 2522843,
+        "p95_ns": 2522843,
+        "runs": 1,
+        "samples_ns": [
+          2522843
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/tar-create-archive/bundle.tar": "5743b08f6012e2aebec62a2cf37707c444a12eb88156654f32108d785666390f"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 100,
+        "unknown": 3,
+        "writes": 14
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "tar-create-archive",
+      "note": "tar -cf bundling text + binary fixtures (multi-file archive).",
+      "output_count": 1,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "unmodeled_syscall:72": 3
+      },
+      "reasons": [
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded"
+      ],
+      "required_tools": [
+        "tar"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 24512134,
+        "median_ns": 24512134,
+        "minimum_ns": 24512134,
+        "p95_ns": 24512134,
+        "runs": 1,
+        "samples_ns": [
+          24512134
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/tar-create-archive/bundle.tar": "5743b08f6012e2aebec62a2cf37707c444a12eb88156654f32108d785666390f"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "72: fcntl"
+      ],
+      "unsupported_syscalls": [
+        72
+      ]
+    },
+    {
+      "blockers": [
+        "randomness"
+      ],
+      "category": "text",
+      "classification": "Nondeterministic",
+      "command": [
+        "sed",
+        "s/value=/v=/g",
+        "/tmp/tracejit-census-0upffb_8/sed-rewrite-stdout/lines.txt"
+      ],
+      "cwd": "/tmp/tracejit-census-0upffb_8/sed-rewrite-stdout",
+      "dependency_count": 60,
+      "direct": {
+        "maximum_ns": 1926522,
+        "median_ns": 1926522,
+        "minimum_ns": 1926522,
+        "p95_ns": 1926522,
+        "runs": 1,
+        "samples_ns": [
+          1926522
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "924e52951a6b240fdd74d6642b57bbeff075411516166eb116d8ca03fc4e2d65"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 78,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "sed-rewrite-stdout",
+      "note": "sed substitution over a generated text file to stdout.",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "randomness": 1
+      },
+      "reasons": [
+        "process read randomness via getrandom"
+      ],
+      "required_tools": [
+        "sed"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 20592831,
+        "median_ns": 20592831,
+        "minimum_ns": 20592831,
+        "p95_ns": 20592831,
+        "runs": 1,
+        "samples_ns": [
+          20592831
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "924e52951a6b240fdd74d6642b57bbeff075411516166eb116d8ca03fc4e2d65"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "clock",
+        "randomness"
+      ],
+      "category": "text",
+      "classification": "Nondeterministic",
+      "command": [
+        "awk",
+        "{ s += $2 } END { printf \"%d\\n\", s }",
+        "/tmp/tracejit-census-0upffb_8/awk-sum-stdout/lines.txt"
+      ],
+      "cwd": "/tmp/tracejit-census-0upffb_8/awk-sum-stdout",
+      "dependency_count": 22,
+      "direct": {
+        "maximum_ns": 1412931,
+        "median_ns": 1412931,
+        "minimum_ns": 1412931,
+        "p95_ns": 1412931,
+        "runs": 1,
+        "samples_ns": [
+          1412931
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 40,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "awk-sum-stdout",
+      "note": "awk numeric reduction over generated lines (scientific-style transform).",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "clock": 1,
+        "randomness": 1
+      },
+      "reasons": [
+        "process read randomness via getrandom",
+        "process read system clock: realtime"
+      ],
+      "required_tools": [
+        "awk"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 16635737,
+        "median_ns": 16635737,
+        "minimum_ns": 16635737,
+        "p95_ns": 16635737,
+        "runs": 1,
+        "samples_ns": [
+          16635737
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "clock",
+        "randomness"
+      ],
+      "category": "scientific",
+      "classification": "Nondeterministic",
+      "command": [
+        "awk",
+        "BEGIN { x=1.0 } { x = x * 1.0000007 + ($1 % 97) } END { printf \"%.10f\\n\", x }",
+        "/tmp/tracejit-census-0upffb_8/awk-scientific-iter/numbers.txt"
+      ],
+      "cwd": "/tmp/tracejit-census-0upffb_8/awk-scientific-iter",
+      "dependency_count": 22,
+      "direct": {
+        "maximum_ns": 1245521,
+        "median_ns": 1245521,
+        "minimum_ns": 1245521,
+        "p95_ns": 1245521,
+        "runs": 1,
+        "samples_ns": [
+          1245521
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "2680ee97ab15ed0500de8eb51ced5470d5501649a3fba7d39670155d128ac9bf"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 40,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "awk-scientific-iter",
+      "note": "Iterative floating-point reduction over a generated integer stream.",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "clock": 1,
+        "randomness": 1
+      },
+      "reasons": [
+        "process read randomness via getrandom",
+        "process read system clock: realtime"
+      ],
+      "required_tools": [
+        "awk"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 16598657,
+        "median_ns": 16598657,
+        "minimum_ns": 16598657,
+        "p95_ns": 16598657,
+        "runs": 1,
+        "samples_ns": [
+          16598657
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "2680ee97ab15ed0500de8eb51ced5470d5501649a3fba7d39670155d128ac9bf"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "randomness",
+        "system_information"
+      ],
+      "category": "text",
+      "classification": "Nondeterministic",
+      "command": [
+        "sort",
+        "/tmp/tracejit-census-0upffb_8/sort-numbers/numbers.txt"
+      ],
+      "cwd": "/tmp/tracejit-census-0upffb_8/sort-numbers",
+      "dependency_count": 55,
+      "direct": {
+        "maximum_ns": 1898992,
+        "median_ns": 1898992,
+        "minimum_ns": 1898992,
+        "p95_ns": 1898992,
+        "runs": 1,
+        "samples_ns": [
+          1898992
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "f3010c855d75c875bcbe20dacb9e4b2cd2baed4a8f35558c5d49bb91f8968fc1"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 82,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "sort-numbers",
+      "note": "sort of a generated integer list to stdout.",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "randomness": 1,
+        "system_information": 3
+      },
+      "reasons": [
+        "process read randomness via getrandom",
+        "process read system information via sched_getaffinity",
+        "process read system information via prlimit64",
+        "process read system information via sysinfo"
+      ],
+      "required_tools": [
+        "sort"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 217476098,
+        "median_ns": 217476098,
+        "minimum_ns": 217476098,
+        "p95_ns": 217476098,
+        "runs": 1,
+        "samples_ns": [
+          217476098
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "f3010c855d75c875bcbe20dacb9e4b2cd2baed4a8f35558c5d49bb91f8968fc1"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "randomness"
+      ],
+      "category": "text",
+      "classification": "Nondeterministic",
+      "command": [
+        "wc",
+        "-l",
+        "/tmp/tracejit-census-0upffb_8/wc-line-count/lines.txt"
+      ],
+      "cwd": "/tmp/tracejit-census-0upffb_8/wc-line-count",
+      "dependency_count": 51,
+      "direct": {
+        "maximum_ns": 1432182,
+        "median_ns": 1432182,
+        "minimum_ns": 1432182,
+        "p95_ns": 1432182,
+        "runs": 1,
+        "samples_ns": [
+          1432182
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "29123a9568d95316623fa78fabbcc2db612cc41c6e2b7f6dc78753e99c32d70e"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 68,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "wc-line-count",
+      "note": "wc -l over generated text.",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "randomness": 1
+      },
+      "reasons": [
+        "process read randomness via getrandom"
+      ],
+      "required_tools": [
+        "wc"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 130662110,
+        "median_ns": 130662110,
+        "minimum_ns": 130662110,
+        "p95_ns": 130662110,
+        "runs": 1,
+        "samples_ns": [
+          130662110
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "29123a9568d95316623fa78fabbcc2db612cc41c6e2b7f6dc78753e99c32d70e"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "randomness"
+      ],
+      "category": "digest",
+      "classification": "Nondeterministic",
+      "command": [
+        "sha256sum",
+        "/tmp/tracejit-census-0upffb_8/sha256sum-blob/blob.bin"
+      ],
+      "cwd": "/tmp/tracejit-census-0upffb_8/sha256sum-blob",
+      "dependency_count": 54,
+      "direct": {
+        "maximum_ns": 2368902,
+        "median_ns": 2368902,
+        "minimum_ns": 2368902,
+        "p95_ns": 2368902,
+        "runs": 1,
+        "samples_ns": [
+          2368902
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "d0e0d0a47456cb8f12bfd2088c26ccdf8ae59e913cbf9a839e5ee9aa68c683d0"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 71,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "sha256sum-blob",
+      "note": "sha256sum of a deterministic binary blob.",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "randomness": 1
+      },
+      "reasons": [
+        "process read randomness via getrandom"
+      ],
+      "required_tools": [
+        "sha256sum"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 44581165,
+        "median_ns": 44581165,
+        "minimum_ns": 44581165,
+        "p95_ns": 44581165,
+        "runs": 1,
+        "samples_ns": [
+          44581165
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "d0e0d0a47456cb8f12bfd2088c26ccdf8ae59e913cbf9a839e5ee9aa68c683d0"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "randomness"
+      ],
+      "category": "digest",
+      "classification": "Nondeterministic",
+      "command": [
+        "openssl",
+        "dgst",
+        "-sha256",
+        "/tmp/tracejit-census-0upffb_8/openssl-sha256/blob.bin"
+      ],
+      "cwd": "/tmp/tracejit-census-0upffb_8/openssl-sha256",
+      "dependency_count": 15,
+      "direct": {
+        "maximum_ns": 5429715,
+        "median_ns": 5429715,
+        "minimum_ns": 5429715,
+        "p95_ns": 5429715,
+        "runs": 1,
+        "samples_ns": [
+          5429715
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "aa1b5d2b4c88b3154b167abf15d319050e57b3ab656cb789864548b024a45d95"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 32,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "openssl-sha256",
+      "note": "openssl dgst -sha256 of the same blob.",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "randomness": 1
+      },
+      "reasons": [
+        "process read randomness via getrandom"
+      ],
+      "required_tools": [
+        "openssl"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 27996928,
+        "median_ns": 27996928,
+        "minimum_ns": 27996928,
+        "p95_ns": 27996928,
+        "runs": 1,
+        "samples_ns": [
+          27996928
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "aa1b5d2b4c88b3154b167abf15d319050e57b3ab656cb789864548b024a45d95"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "randomness"
+      ],
+      "category": "inspect",
+      "classification": "Nondeterministic",
+      "command": [
+        "od",
+        "-An",
+        "-tx1",
+        "-N",
+        "256",
+        "/tmp/tracejit-census-0upffb_8/od-hex-prefix/blob.bin"
+      ],
+      "cwd": "/tmp/tracejit-census-0upffb_8/od-hex-prefix",
+      "dependency_count": 51,
+      "direct": {
+        "maximum_ns": 1893622,
+        "median_ns": 1893622,
+        "minimum_ns": 1893622,
+        "p95_ns": 1893622,
+        "runs": 1,
+        "samples_ns": [
+          1893622
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "60d844103c0cd90a856a62c8874912401a53000ee13ae36e1859055e5f7992b1"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 68,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "od-hex-prefix",
+      "note": "od hex dump of the first 256 bytes of the blob.",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "randomness": 1
+      },
+      "reasons": [
+        "process read randomness via getrandom"
+      ],
+      "required_tools": [
+        "od"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 21837392,
+        "median_ns": 21837392,
+        "minimum_ns": 21837392,
+        "p95_ns": 21837392,
+        "runs": 1,
+        "samples_ns": [
+          21837392
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "60d844103c0cd90a856a62c8874912401a53000ee13ae36e1859055e5f7992b1"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "clock",
+        "randomness"
+      ],
+      "category": "io",
+      "classification": "Nondeterministic",
+      "command": [
+        "dd",
+        "if=/tmp/tracejit-census-0upffb_8/dd-copy-file/blob.bin",
+        "of=/tmp/tracejit-census-0upffb_8/dd-copy-file/copy.bin",
+        "bs=4096",
+        "status=none"
+      ],
+      "cwd": "/tmp/tracejit-census-0upffb_8/dd-copy-file",
+      "dependency_count": 51,
+      "direct": {
+        "maximum_ns": 2079313,
+        "median_ns": 2079313,
+        "minimum_ns": 2079313,
+        "p95_ns": 2079313,
+        "runs": 1,
+        "samples_ns": [
+          2079313
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/dd-copy-file/copy.bin": "e32d92510f7e1c6acbf14afec28643fb51ef2a877202d3f1d73105425891775d"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 69,
+        "unknown": 0,
+        "writes": 17
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "dd-copy-file",
+      "note": "dd file copy of the blob into scratch (status=none).",
+      "output_count": 1,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "clock": 1,
+        "randomness": 1
+      },
+      "reasons": [
+        "process read randomness via getrandom",
+        "process read system clock: monotonic"
+      ],
+      "required_tools": [
+        "dd"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 124704364,
+        "median_ns": 124704364,
+        "minimum_ns": 124704364,
+        "p95_ns": 124704364,
+        "runs": 1,
+        "samples_ns": [
+          124704364
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/dd-copy-file/copy.bin": "e32d92510f7e1c6acbf14afec28643fb51ef2a877202d3f1d73105425891775d"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "randomness"
+      ],
+      "category": "data",
+      "classification": "Nondeterministic",
+      "command": [
+        "jq",
+        "[.[].value] | add",
+        "/tmp/tracejit-census-0upffb_8/jq-sum-values/rows.json"
+      ],
+      "cwd": "/tmp/tracejit-census-0upffb_8/jq-sum-values",
+      "dependency_count": 64,
+      "direct": {
+        "maximum_ns": 4777785,
+        "median_ns": 4777785,
+        "minimum_ns": 4777785,
+        "p95_ns": 4777785,
+        "runs": 1,
+        "samples_ns": [
+          4777785
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "10a03e53e6b69516aae2e6c0f9cfef7482093c4f5d7a3f6617413f1189fda3c2"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 91,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "jq-sum-values",
+      "note": "jq sum over a generated JSON array (data preprocessing).",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "randomness": 1
+      },
+      "reasons": [
+        "process read randomness via getrandom"
+      ],
+      "required_tools": [
+        "jq"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 31408951,
+        "median_ns": 31408951,
+        "minimum_ns": 31408951,
+        "p95_ns": 31408951,
+        "runs": 1,
+        "samples_ns": [
+          31408951
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "10a03e53e6b69516aae2e6c0f9cfef7482093c4f5d7a3f6617413f1189fda3c2"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "clock",
+        "randomness"
+      ],
+      "category": "script",
+      "classification": "Nondeterministic",
+      "command": [
+        "perl",
+        "-lne",
+        "$s += $1 if /value=(\\d+)/; END { print $s+0 }",
+        "/tmp/tracejit-census-0upffb_8/perl-sum-values/lines.txt"
+      ],
+      "cwd": "/tmp/tracejit-census-0upffb_8/perl-sum-values",
+      "dependency_count": 63,
+      "direct": {
+        "maximum_ns": 5528726,
+        "median_ns": 5528726,
+        "minimum_ns": 5528726,
+        "p95_ns": 5528726,
+        "runs": 1,
+        "samples_ns": [
+          5528726
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "027493f283b91f830b3e076ec455a40ee3762e87b49a645364d31eccda5d96d8"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 98,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "perl-sum-values",
+      "note": "perl -lne reduction over generated text (repo-script stand-in).",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "clock": 1,
+        "randomness": 2
+      },
+      "reasons": [
+        "process read randomness via getrandom",
+        "process read randomness via /dev/urandom",
+        "process read system clock: realtime"
+      ],
+      "required_tools": [
+        "perl"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 38481638,
+        "median_ns": 38481638,
+        "minimum_ns": 38481638,
+        "p95_ns": 38481638,
+        "runs": 1,
+        "samples_ns": [
+          38481638
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "027493f283b91f830b3e076ec455a40ee3762e87b49a645364d31eccda5d96d8"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "unmodeled_syscall:72"
+      ],
+      "category": "build",
+      "classification": "Unknown",
+      "command": [
+        "make",
+        "-C",
+        "/tmp/tracejit-census-0upffb_8/make-awk-target",
+        "all"
+      ],
+      "cwd": "/tmp/tracejit-census-0upffb_8/make-awk-target",
+      "dependency_count": 62,
+      "direct": {
+        "maximum_ns": 4091094,
+        "median_ns": 4091094,
+        "minimum_ns": 4091094,
+        "p95_ns": 4091094,
+        "runs": 1,
+        "samples_ns": [
+          4091094
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/make-awk-target/out.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "0aaaa77ddb896c0e0146d80fecd9e978d8207eea02f58b20b95f97d06eae7c22"
+      },
+      "effect_counts": {
+        "controls": 3,
+        "reads": 83,
+        "unknown": 5,
+        "writes": 0
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "make-awk-target",
+      "note": "make -C scratch all: declared single-target awk reduction (build-system baseline).",
+      "output_count": 0,
+      "output_equivalence": "FAIL",
+      "process_count": 1,
+      "reason_counts": {
+        "unmodeled_syscall:72": 5
+      },
+      "reasons": [
+        "unmodeled successful syscall 72: fcntl query 3 on inherited or unclassified fd 1, whose flags are not guarded",
+        "unmodeled successful syscall 72: status-flag change on fd 1 whose open file description is shared or unclassified",
+        "unmodeled successful syscall 72: fcntl query 3 on inherited or unclassified fd 2, whose flags are not guarded",
+        "unmodeled successful syscall 72: status-flag change on fd 2 whose open file description is shared or unclassified",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded"
+      ],
+      "required_tools": [
+        "make",
+        "awk"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 36955477,
+        "median_ns": 36955477,
+        "minimum_ns": 36955477,
+        "p95_ns": 36955477,
+        "runs": 1,
+        "samples_ns": [
+          36955477
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-0upffb_8/make-awk-target/out.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "64e2ac13beb1d2e17d46c37156fd6c82b49f36e145e3844e0e4cdf61dfe8bc27"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "72: fcntl"
+      ],
+      "unsupported_syscalls": [
+        72
+      ]
+    },
+    {
+      "category": "rust",
+      "missing_tools": [
+        "rustc"
+      ],
+      "name": "rustc-hello",
+      "note": "rustc -O of a tiny deterministic Rust program (Rust-related workflow).",
+      "required_tools": [
+        "rustc"
+      ],
+      "status": "blocked_missing_tool"
+    }
+  ]
+}

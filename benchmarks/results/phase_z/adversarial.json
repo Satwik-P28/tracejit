@@ -1,0 +1,502 @@
+{
+  "cases": [
+    {
+      "case": "baseline-sed",
+      "expect": "reusable",
+      "note": "",
+      "command": [
+        "sed",
+        "s/alpha/ALPHA/",
+        "input.txt"
+      ],
+      "contract": "allocator-entropy-v1",
+      "cold_decision": "Executed",
+      "warm_decision": "Reused",
+      "cold_classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guard_failure": null,
+      "oracle_seconds": 0.0016,
+      "cold_seconds": 0.0284,
+      "warm_seconds": 0.0129,
+      "comparison": {
+        "stdout_equal": true,
+        "stderr_equal": true,
+        "exit_equal": true,
+        "files_equal": true,
+        "observationally_equal": true
+      },
+      "incorrect_hit": false,
+      "satisfied": true,
+      "error": null
+    },
+    {
+      "case": "app-entropy-stdout",
+      "expect": "refused",
+      "note": "",
+      "command": [
+        "./app_random_out"
+      ],
+      "contract": "allocator-entropy-v1",
+      "cold_decision": "Ineligible",
+      "warm_decision": "Ineligible",
+      "cold_classification": "Nondeterministic",
+      "reasons": [
+        "process read randomness via getrandom",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guard_failure": null,
+      "oracle_seconds": 0.0008,
+      "cold_seconds": 0.0158,
+      "warm_seconds": 0.012,
+      "comparison": {
+        "stdout_equal": false,
+        "stderr_equal": true,
+        "exit_equal": true,
+        "files_equal": true,
+        "observationally_equal": false
+      },
+      "incorrect_hit": false,
+      "satisfied": true,
+      "error": null
+    },
+    {
+      "case": "app-entropy-filename",
+      "expect": "refused",
+      "note": "",
+      "command": [
+        "./app_random_filename"
+      ],
+      "contract": "allocator-entropy-v1",
+      "cold_decision": "Ineligible",
+      "warm_decision": "Ineligible",
+      "cold_classification": "Nondeterministic",
+      "reasons": [
+        "process read randomness via getrandom",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guard_failure": null,
+      "oracle_seconds": 0.0007,
+      "cold_seconds": 0.017,
+      "warm_seconds": 0.0124,
+      "comparison": {
+        "stdout_equal": false,
+        "stderr_equal": true,
+        "exit_equal": true,
+        "files_equal": false,
+        "observationally_equal": false
+      },
+      "incorrect_hit": false,
+      "satisfied": true,
+      "error": null
+    },
+    {
+      "case": "app-entropy-seeds-prng",
+      "expect": "refused",
+      "note": "",
+      "command": [
+        "./app_random_prng"
+      ],
+      "contract": "allocator-entropy-v1",
+      "cold_decision": "Ineligible",
+      "warm_decision": "Ineligible",
+      "cold_classification": "Nondeterministic",
+      "reasons": [
+        "process read randomness via getrandom",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guard_failure": null,
+      "oracle_seconds": 0.0007,
+      "cold_seconds": 0.0158,
+      "warm_seconds": 0.0118,
+      "comparison": {
+        "stdout_equal": false,
+        "stderr_equal": true,
+        "exit_equal": true,
+        "files_equal": true,
+        "observationally_equal": false
+      },
+      "incorrect_hit": false,
+      "satisfied": true,
+      "error": null
+    },
+    {
+      "case": "two-threads",
+      "expect": "either",
+      "note": "threads created with CLONE_FILES; the record must not reuse across them",
+      "command": [
+        "./threads"
+      ],
+      "contract": "allocator-entropy-v1",
+      "cold_decision": "Ineligible",
+      "warm_decision": "Ineligible",
+      "cold_classification": "Unknown",
+      "reasons": [
+        "clone file-descriptor and cwd sharing semantics are not eligible for V1 reuse",
+        "clone file-descriptor and cwd sharing semantics are not eligible for V1 reuse",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guard_failure": null,
+      "oracle_seconds": 0.0008,
+      "cold_seconds": 0.016,
+      "warm_seconds": 0.0133,
+      "comparison": {
+        "stdout_equal": false,
+        "stderr_equal": true,
+        "exit_equal": true,
+        "files_equal": true,
+        "observationally_equal": false
+      },
+      "incorrect_hit": false,
+      "satisfied": true,
+      "error": null
+    },
+    {
+      "case": "two-children",
+      "expect": "either",
+      "note": "",
+      "command": [
+        "./children"
+      ],
+      "contract": null,
+      "cold_decision": "Ineligible",
+      "warm_decision": "Ineligible",
+      "cold_classification": "Nondeterministic",
+      "reasons": [
+        "process read randomness via getrandom"
+      ],
+      "guard_failure": null,
+      "oracle_seconds": 0.0013,
+      "cold_seconds": 0.0146,
+      "warm_seconds": 0.011,
+      "comparison": {
+        "stdout_equal": true,
+        "stderr_equal": true,
+        "exit_equal": true,
+        "files_equal": false,
+        "observationally_equal": false
+      },
+      "incorrect_hit": false,
+      "satisfied": true,
+      "error": null
+    },
+    {
+      "case": "unaudited-library-probe",
+      "expect": "refused",
+      "note": "a shared library issuing the same 8-byte GRND_NONBLOCK probe as glibc",
+      "command": [
+        "./loads_probe"
+      ],
+      "contract": "allocator-entropy-v1",
+      "cold_decision": "Ineligible",
+      "warm_decision": "Ineligible",
+      "cold_classification": "Nondeterministic",
+      "reasons": [
+        "process read randomness via getrandom",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guard_failure": null,
+      "oracle_seconds": 0.0008,
+      "cold_seconds": 0.0171,
+      "warm_seconds": 0.0127,
+      "comparison": {
+        "stdout_equal": false,
+        "stderr_equal": true,
+        "exit_equal": true,
+        "files_equal": true,
+        "observationally_equal": false
+      },
+      "incorrect_hit": false,
+      "satisfied": true,
+      "error": null
+    },
+    {
+      "case": "crash-during-startup",
+      "expect": "either",
+      "note": "",
+      "command": [
+        "./crash"
+      ],
+      "contract": "allocator-entropy-v1",
+      "cold_decision": "Ineligible",
+      "warm_decision": "Ineligible",
+      "cold_classification": "Nondeterministic",
+      "reasons": [
+        "process read randomness via getrandom",
+        "process read process identity via gettid",
+        "process read process identity via getpid",
+        "process sent signal 6",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guard_failure": null,
+      "oracle_seconds": 0.0007,
+      "cold_seconds": 0.0114,
+      "warm_seconds": 0.0102,
+      "comparison": {
+        "stdout_equal": true,
+        "stderr_equal": true,
+        "exit_equal": false,
+        "files_equal": true,
+        "observationally_equal": false
+      },
+      "incorrect_hit": false,
+      "satisfied": true,
+      "error": null
+    },
+    {
+      "case": "runtime-reached-by-another-path",
+      "expect": "reusable",
+      "note": "the same audited build ID, loaded from a copy: portability of the audit",
+      "command": [
+        "sed",
+        "s/alpha/ALPHA/",
+        "input.txt"
+      ],
+      "contract": "allocator-entropy-v1",
+      "cold_decision": "Executed",
+      "warm_decision": "Reused",
+      "cold_classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guard_failure": null,
+      "oracle_seconds": 0.002,
+      "cold_seconds": 0.0295,
+      "warm_seconds": 0.0132,
+      "comparison": {
+        "stdout_equal": true,
+        "stderr_equal": true,
+        "exit_equal": true,
+        "files_equal": true,
+        "observationally_equal": true
+      },
+      "incorrect_hit": false,
+      "satisfied": true,
+      "error": null
+    },
+    {
+      "case": "replacement-compiler",
+      "expect": "either",
+      "note": "the same command path, replaced between the recording and the reuse",
+      "command": [
+        "/tmp/tracejit-phase-z/adversarial/fixtures/compiler-copy/gcc",
+        "-O2",
+        "-c",
+        "input.c",
+        "-o",
+        "input.o"
+      ],
+      "contract": "compiler-runtime-v1",
+      "cold_decision": "Ineligible",
+      "warm_decision": "Ineligible",
+      "cold_classification": "Nondeterministic",
+      "reasons": [
+        "process read system information via prlimit64",
+        "process read system clock: monotonic",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guard_failure": null,
+      "oracle_seconds": 0.002,
+      "cold_seconds": 0.0261,
+      "warm_seconds": 0.0228,
+      "comparison": {
+        "stdout_equal": true,
+        "stderr_equal": true,
+        "exit_equal": true,
+        "files_equal": true,
+        "observationally_equal": true
+      },
+      "incorrect_hit": false,
+      "satisfied": true,
+      "error": null
+    },
+    {
+      "case": "inherited-descriptor",
+      "expect": "either",
+      "note": "an inherited descriptor whose flags belong to whoever started us",
+      "command": [
+        "sed",
+        "s/alpha/ALPHA/",
+        "input.txt"
+      ],
+      "contract": "allocator-entropy-v1",
+      "cold_decision": "Skipped",
+      "warm_decision": "Skipped",
+      "cold_classification": "Unknown",
+      "reasons": [
+        "inherited descriptor 3 beyond stdin is not modelled; reuse refused"
+      ],
+      "guard_failure": null,
+      "oracle_seconds": 0.0016,
+      "cold_seconds": 0.0085,
+      "warm_seconds": 0.0052,
+      "comparison": {
+        "stdout_equal": true,
+        "stderr_equal": true,
+        "exit_equal": true,
+        "files_equal": true,
+        "observationally_equal": true
+      },
+      "incorrect_hit": false,
+      "satisfied": true,
+      "error": null
+    },
+    {
+      "case": "compiler-contract-sed",
+      "expect": "either",
+      "note": "the broader contract admits the same libc probe for a non-compiler command",
+      "command": [
+        "sed",
+        "s/alpha/ALPHA/",
+        "input.txt"
+      ],
+      "contract": "compiler-runtime-v1",
+      "cold_decision": "Executed",
+      "warm_decision": "Reused",
+      "cold_classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guard_failure": null,
+      "oracle_seconds": 0.0014,
+      "cold_seconds": 0.0252,
+      "warm_seconds": 0.0128,
+      "comparison": {
+        "stdout_equal": true,
+        "stderr_equal": true,
+        "exit_equal": true,
+        "files_equal": true,
+        "observationally_equal": true
+      },
+      "incorrect_hit": false,
+      "satisfied": true,
+      "error": null
+    },
+    {
+      "case": "recorded-under-other-contract",
+      "expect": "refused",
+      "note": "a record made under allocator-entropy-v1, attempted under compiler-runtime-v1",
+      "command": [
+        "sed",
+        "s/alpha/ALPHA/",
+        "input.txt"
+      ],
+      "contract": "compiler-runtime-v1",
+      "cold_decision": "Executed",
+      "warm_decision": "Executed",
+      "cold_classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guard_failure": null,
+      "comparison": {
+        "present": true
+      },
+      "incorrect_hit": false,
+      "satisfied": true,
+      "error": null
+    },
+    {
+      "case": "loader-path-changed",
+      "expect": "either",
+      "note": "recorded with the system libc, replayed with the same build loaded from a copy",
+      "command": [
+        "sed",
+        "s/alpha/ALPHA/",
+        "input.txt"
+      ],
+      "contract": "allocator-entropy-v1",
+      "cold_decision": "Executed",
+      "warm_decision": "Executed",
+      "cold_classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guard_failure": null,
+      "comparison": {
+        "stdout_equal": true,
+        "stderr_equal": true,
+        "exit_equal": true,
+        "files_equal": true,
+        "observationally_equal": true
+      },
+      "incorrect_hit": false,
+      "satisfied": true,
+      "error": null
+    },
+    {
+      "case": "corrupt-cache-object",
+      "expect": "refused",
+      "note": "1 stored object(s) flipped mid-file",
+      "command": [
+        "sed",
+        "s/alpha/ALPHA/",
+        "input.txt"
+      ],
+      "contract": "allocator-entropy-v1",
+      "cold_decision": null,
+      "warm_decision": "Executed",
+      "cold_classification": null,
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guard_failure": null,
+      "comparison": {
+        "stdout_equal": true,
+        "stderr_equal": true,
+        "exit_equal": true,
+        "files_equal": true,
+        "observationally_equal": true
+      },
+      "incorrect_hit": false,
+      "satisfied": true,
+      "error": null
+    },
+    {
+      "case": "interrupted-recording",
+      "expect": "either",
+      "note": "SIGKILL 40 ms into a recording that takes ~130 ms",
+      "command": [
+        "sed",
+        "-E",
+        "-n",
+        "s/[0-9]+/N/g;w out.txt",
+        "big.txt"
+      ],
+      "contract": "allocator-entropy-v1",
+      "cold_decision": null,
+      "warm_decision": "Executed",
+      "cold_classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guard_failure": null,
+      "comparison": {
+        "stdout_equal": true,
+        "stderr_equal": true,
+        "exit_equal": true,
+        "files_equal": true,
+        "observationally_equal": true
+      },
+      "incorrect_hit": false,
+      "satisfied": true,
+      "error": null
+    }
+  ],
+  "incorrect_hits": [],
+  "unsatisfied": [],
+  "summary": {
+    "cases": 16,
+    "reused": 3,
+    "refused": 13,
+    "incorrect_hits": 0
+  }
+}
