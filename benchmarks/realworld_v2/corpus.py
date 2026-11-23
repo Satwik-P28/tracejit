@@ -857,18 +857,20 @@ def manifest_entries(vendor: Path | None = None) -> list[dict]:
                 ),
             }
         )
-    if vendor is not None:
-        archive = vendor / "zlib-1.3.1.tar.gz"
-        if archive.is_file():
-            for entry in entries:
-                if entry["provenance"].startswith("zlib-1.3.1"):
-                    entry["source"] = {
-                        "kind": "upstream-archive",
-                        "name": "zlib",
-                        "version": "1.3.1",
-                        "url": ZLIB_URL,
-                        "sha256": ZLIB_SHA256,
-                    }
+    # The pinned source metadata is a constant, so it is emitted whether or not
+    # the archive happens to be present locally. Gating it on a local file made
+    # `runner.py --mode manifest` produce two different manifests depending on
+    # cache state, which is precisely the kind of hidden state a fresh checkout
+    # must not depend on.
+    for entry in entries:
+        if entry["provenance"].startswith("zlib-1.3.1"):
+            entry["source"] = {
+                "kind": "upstream-archive",
+                "name": "zlib",
+                "version": "1.3.1",
+                "url": ZLIB_URL,
+                "sha256": ZLIB_SHA256,
+            }
     return entries
 
 

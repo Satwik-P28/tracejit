@@ -1,5 +1,5 @@
 {
-  "corpus_source_sha256": "0fd8cfa62bfc3530642744d46d2d61883b66542a66365d5897465b0bdad0f08a",
+  "corpus_source_sha256": "3650df662916e39f001b7200013adb55304f6f39c017e240e6402d20039d8d94",
   "manifest_version": "tracejit.realworld.corpus/v2",
   "tiers": {
     "A": "strict native: no workload adaptation, no execution contract",
@@ -21,7 +21,7 @@
         "small.o"
       ],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "gcc"
       ],
@@ -72,7 +72,7 @@
         "app"
       ],
       "planned_repetitions": 10,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "gcc"
       ],
@@ -94,7 +94,7 @@
         "main.i"
       ],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "gcc"
       ],
@@ -114,7 +114,7 @@
       "note": "Front-end-only lint pass with -Wall -Wextra -Werror -fsyntax-only.",
       "outputs": [],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "gcc"
       ],
@@ -136,7 +136,7 @@
         "libutil.a"
       ],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "ar"
       ],
@@ -158,7 +158,7 @@
         "app"
       ],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "gcc"
       ],
@@ -211,7 +211,7 @@
         "util.o"
       ],
       "planned_repetitions": 10,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "make",
         "gcc"
@@ -232,7 +232,7 @@
       "note": "make clean: removes build products. A command whose observable effect is deletion.",
       "outputs": [],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "make"
       ],
@@ -256,7 +256,7 @@
         "util.o"
       ],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "make",
         "gcc"
@@ -281,7 +281,7 @@
         "util.o"
       ],
       "planned_repetitions": 10,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "make",
         "gcc"
@@ -304,7 +304,7 @@
         "util.o"
       ],
       "planned_repetitions": 5,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "gcc"
       ],
@@ -324,7 +324,7 @@
       "note": "cppcheck over the C project. Not installed on every image; a missing tool is not a refusal.",
       "outputs": [],
       "planned_repetitions": 10,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "cppcheck"
       ],
@@ -344,7 +344,7 @@
       "note": "shellcheck over a shell script (deterministic static analysis).",
       "outputs": [],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "shellcheck"
       ],
@@ -364,7 +364,7 @@
       "note": "ruff check over a Python package (fast deterministic linter).",
       "outputs": [],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "ruff"
       ],
@@ -392,7 +392,7 @@
         "__pycache__"
       ],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "python3"
       ],
@@ -420,7 +420,7 @@
         "pkg/__pycache__"
       ],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "python3"
       ],
@@ -440,7 +440,7 @@
       "note": "gzip -6 -n of 256 KiB of real upstream text to stdout.",
       "outputs": [],
       "planned_repetitions": 10,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "gzip"
       ],
@@ -462,7 +462,7 @@
         "corpus.bin.gz"
       ],
       "planned_repetitions": 10,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "gzip"
       ],
@@ -484,7 +484,7 @@
         "corpus.bin.bz2"
       ],
       "planned_repetitions": 5,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "bzip2"
       ],
@@ -506,7 +506,7 @@
         "corpus.bin.xz"
       ],
       "planned_repetitions": 5,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "xz"
       ],
@@ -528,7 +528,7 @@
         "corpus.bin.xz"
       ],
       "planned_repetitions": 10,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "xz"
       ],
@@ -548,7 +548,7 @@
       "note": "zstd -19 of the blob, the modern default a build actually uses.",
       "outputs": [],
       "planned_repetitions": 5,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "zstd"
       ],
@@ -570,7 +570,7 @@
         "bundle.tar"
       ],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "tar"
       ],
@@ -621,7 +621,7 @@
         "bundle.zip"
       ],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "zip"
       ],
@@ -643,7 +643,7 @@
         "extracted"
       ],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "unzip",
         "zip"
@@ -666,7 +666,7 @@
         "roundtrip.bin"
       ],
       "planned_repetitions": 10,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "gzip",
         "sh"
@@ -687,7 +687,7 @@
       "note": "jq reduction over 3000 JSON records to stdout.",
       "outputs": [],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "jq"
       ],
@@ -709,7 +709,7 @@
         "filtered.json"
       ],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "jq",
         "sh"
@@ -730,7 +730,7 @@
       "note": "awk numeric reduction over 20000 lines.",
       "outputs": [],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "awk"
       ],
@@ -750,7 +750,7 @@
       "note": "sed substitution over 20000 lines to stdout.",
       "outputs": [],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "sed"
       ],
@@ -770,7 +770,7 @@
       "note": "sort of 20000 lines to stdout.",
       "outputs": [],
       "planned_repetitions": 10,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "sort"
       ],
@@ -792,7 +792,7 @@
         "frequencies.txt"
       ],
       "planned_repetitions": 10,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "sh",
         "sort",
@@ -814,7 +814,7 @@
       "note": "cut two columns out of a 5000-row CSV.",
       "outputs": [],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "cut"
       ],
@@ -842,7 +842,7 @@
         "report.json"
       ],
       "planned_repetitions": 10,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "python3"
       ],
@@ -873,7 +873,7 @@
       "note": "NumPy matrix products on 420x420 deterministic matrices, single-threaded.",
       "outputs": [],
       "planned_repetitions": 5,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "python3"
       ],
@@ -893,7 +893,7 @@
       "note": "CSV to Parquet conversion. Requires pyarrow, which is not on every image.",
       "outputs": [],
       "planned_repetitions": 10,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "python3"
       ],
@@ -913,7 +913,7 @@
       "note": "A 60-million-step numeric reduction compiled and run: small output, large compute.",
       "outputs": [],
       "planned_repetitions": 5,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "gcc"
       ],
@@ -933,7 +933,7 @@
       "note": "Iterative floating-point reduction in awk over 20000 numbers.",
       "outputs": [],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "awk"
       ],
@@ -961,7 +961,7 @@
         "transformed.png"
       ],
       "planned_repetitions": 10,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "python3"
       ],
@@ -981,7 +981,7 @@
       "note": "Node.js 3-million-round BigInt mixing loop; one line of output.",
       "outputs": [],
       "planned_repetitions": 5,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "node"
       ],
@@ -1001,7 +1001,7 @@
       "note": "Node.js JSON aggregation over 1500 records.",
       "outputs": [],
       "planned_repetitions": 10,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "node"
       ],
@@ -1021,7 +1021,7 @@
       "note": "perl -lne numeric reduction over 20000 lines.",
       "outputs": [],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "perl"
       ],
@@ -1043,7 +1043,7 @@
         "stripped.o"
       ],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "objcopy"
       ],
@@ -1065,7 +1065,7 @@
         "app-stripped"
       ],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "strip"
       ],
@@ -1085,7 +1085,7 @@
       "note": "objdump -d disassembly of a compiled binary to stdout.",
       "outputs": [],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "objdump"
       ],
@@ -1105,7 +1105,7 @@
       "note": "readelf -h ELF header report to stdout.",
       "outputs": [],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "readelf"
       ],
@@ -1125,7 +1125,7 @@
       "note": "nm --defined-only symbol listing to stdout.",
       "outputs": [],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "nm"
       ],
@@ -1147,7 +1147,7 @@
         "out.dat"
       ],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "sh"
       ],
@@ -1169,7 +1169,7 @@
         "out.txt"
       ],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "sh"
       ],
@@ -1192,7 +1192,7 @@
         "alias.txt"
       ],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "sh"
       ],
@@ -1215,7 +1215,7 @@
         "out.txt"
       ],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "cc"
       ],
@@ -1237,7 +1237,7 @@
         "out.txt"
       ],
       "planned_repetitions": 20,
-      "provenance": "corpus.py@0fd8cfa62bfc",
+      "provenance": "corpus.py@3650df662916",
       "required_tools": [
         "sh"
       ],

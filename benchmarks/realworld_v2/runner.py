@@ -284,9 +284,31 @@ def reset_outputs(workload: corpus.Workload, ws: Path) -> list[str]:
 
 
 def is_hit(decision: dict | None) -> bool:
+    """A HIT requires both TraceJIT fields to agree.
+
+    The protocol says a sample is a HIT when the run reports ``kind = Reused``
+    *and* the cache decision agrees.  Checking only one of them would let a
+    product defect that sets ``kind`` without a reuse decision be counted as a
+    cache HIT, so a disagreement is treated as "not a HIT" and surfaced
+    separately as ``hit_accounting_mismatch``.
+    """
+
     if not decision:
         return False
-    return decision.get("kind") == "Reused"
+    if decision.get("kind") != "Reused":
+        return False
+    return decision.get("cache_decision") in (None, "Reused")
+
+
+def hit_accounting_disagrees(decision: dict | None) -> bool:
+    """True when TraceJIT's two decision fields tell different stories."""
+
+    if not decision:
+        return False
+    return decision.get("kind") == "Reused" and decision.get("cache_decision") not in (
+        None,
+        "Reused",
+    )
 
 
 def decision_record(decision: dict | None, extra: dict | None = None) -> dict:
@@ -369,9 +391,22 @@ def qualify(
     argv = workload.command(traced_ws, ctx)
     record["argv"] = [Path(item).name if item.startswith(ctx["zlib"]) else item for item in argv]
 
+    # 0. Prove the twins start from the same observable state. Without this the
+    #    final-state comparison could be satisfied by two runs that began from
+    #    different bytes (for example a stale output present only in the traced
+    #    twin), which would not be an equivalence test at all.
+    reset_outputs(workload, native_ws)
+    reset_outputs(workload, traced_ws)
+    prestate = oracle.compare_workspace_trees(
+        oracle.observe_workspace(native_ws), oracle.observe_workspace(traced_ws)
+    )
+    record["prestate_equivalence"] = prestate
+    if not prestate["match"]:
+        record.update(status="prestate_mismatch")
+        return record
+
     # 1. clean native execution in the twin. A nonzero exit is a legitimate
     #    observation and is kept; only "command not found" is a tool problem.
-    reset_outputs(workload, native_ws)
     native_exit, native_stdout, native_stderr = _run_capture(argv, native_ws, env)
     native_tree = oracle.observe_workspace(native_ws)
     native_obs = oracle.process_observation(native_exit, native_stdout, native_stderr, native_tree)
@@ -382,7 +417,6 @@ def qualify(
         return record
 
     # 2. cold traced execution with a fresh cache
-    reset_outputs(workload, traced_ws)
     started = time.perf_counter_ns()
     _, decision, report, stdout, stderr = run_traced(tracejit, argv, traced_ws, env, policy)
     cold_ns = time.perf_counter_ns() - started
@@ -394,6 +428,9 @@ def qualify(
     record["cold_ns"] = cold_ns
     record["decisions"].append(decision_record(decision, {"step": "cold"}))
     record["cold_equivalence"] = cold_compare
+    if hit_accounting_disagrees(decision):
+        record.update(status="hit_accounting_mismatch")
+        return record
     if decision.get("parse_error"):
         record.update(status="tracejit_error", error=decision["parse_error"])
         return record
@@ -778,7 +815,21 @@ def time_workload(
         "cold": cold_summary,
         "additional_hit_overhead": warm_equivalence_failures,
         "warm_ratio": paired_ratio(direct_samples, warm_samples),
-        "cold_ratio": paired_ratio(direct_samples, cold_samples[: len(direct_samples)]),
+        # Cold traces need an empty cache, so they cannot be paired with a
+        # direct run. Reporting a "paired" ratio here would combine samples from
+        # different executions and claim a control the design does not have.
+        "cold_ratio_unpaired": {
+            "design": "independent arms; cold tracing needs a fresh cache and cannot be paired",
+            "median_ratio": (
+                direct_summary["median_ns"] / cold_summary["median_ns"]
+                if cold_summary["median_ns"]
+                else None
+            ),
+            "direct_median_ci95_ns": direct_summary["median_ci95_ns"],
+            "cold_median_ci95_ns": cold_summary["median_ci95_ns"],
+            "direct_samples_ns": direct_samples,
+            "cold_samples_ns": cold_samples,
+        },
         "cache_storage_bytes": storage,
         "break_even_repeats": break_even,
         "session": session,
@@ -814,7 +865,9 @@ def phase_probe(
     reset_outputs(workload, ws)
     run_traced(tracejit, argv, ws, env, policy)
     reset_outputs(workload, ws)
-    _, decision, _, _, _ = run_traced(tracejit, argv, ws, env, policy)
+    warm_started = time.perf_counter_ns()
+    _, decision, report, _, _ = run_traced(tracejit, argv, ws, env, policy)
+    warm_wall_ns = time.perf_counter_ns() - warm_started
     if not is_hit(decision):
         return {
             "available": False,
@@ -844,14 +897,49 @@ def phase_probe(
             "cas_restore_ns",
             "stdio_replay_ns",
             "decision_persist_ns",
+            # `present_ns` is the CLI's own serialisation of the report. It was
+            # missing from the Phase AA stage list, which is exactly why the
+            # report could not attribute 15-50 ms of a stdout-heavy warm hit.
+            "present_ns",
         )
         if key in data
     }
+    runtime_ns = int((report or {}).get("runtime_ns") or 0)
+    hit_path_keys = (
+        "stdio_replay_ns",
+        "guard_validation_ns",
+        "guard_recheck_ns",
+        "cas_restore_ns",
+        "decision_persist_ns",
+    )
+    hit_path_ns = sum(int(stages.get(key) or 0) for key in hit_path_keys)
+    ticks = os.sysconf("SC_CLK_TCK") if hasattr(os, "sysconf") else 100
     return {
         "available": True,
         "stages_ns": stages,
         "instrumented": True,
-        "note": "instrumented two-run session; the breakdown is not a timed sample",
+        # Only the hit path is additive: every stage below is measured inside
+        # the same `runtime_ns` span. The pre-hit remainder is published as one
+        # span and never split into the sub-stages, because `process_startup_ns`
+        # is derived from the kernel's tick-granular process start time.
+        "model": {
+            "wall_ns": warm_wall_ns,
+            "runtime_ns": runtime_ns,
+            "hit_path_stages": list(hit_path_keys),
+            "hit_path_sum_ns": hit_path_ns,
+            "hit_path_residual_ns": runtime_ns - hit_path_ns,
+            "pre_hit_ns": warm_wall_ns - runtime_ns,
+            "present_ns": int(stages.get("present_ns") or 0),
+            "startup_reported_ns": int(stages.get("process_startup_ns") or 0),
+            "startup_quantum_ns": int(1_000_000_000 // ticks),
+            "additive": "hit path only",
+        },
+        "note": (
+            "instrumented two-run session; the breakdown is not a timed sample. "
+            "pre_hit_ns is process creation, startup, CLI parsing, identity preparation, "
+            "cache open/lookup/query, report serialisation and exit, which cannot be "
+            "separated by the phase timers at useful resolution"
+        ),
     }
 
 
@@ -888,17 +976,34 @@ def applicability(row: dict) -> str:
 
 
 def aggregate(rows: list[dict]) -> dict:
+    def verified_hit_rows(row: dict) -> bool:
+        """Rows with at least one decision where both TraceJIT fields agree."""
+
+        return any(
+            decision.get("kind") == "Reused" and decision.get("cache_decision") == "Reused"
+            for decision in row.get("decisions") or []
+        )
+
     def eligibility(tier: str, policy: str) -> dict:
         group = [row for row in rows if row["environment_tier"] == tier and row["policy"] == policy]
+        unavailable = [row for row in group if row["status"] == "tool_unavailable"]
+        skipped = [row for row in group if row["status"] == "skipped_budget"]
         attempted = [row for row in group if row["status"] not in ("tool_unavailable", "skipped_budget")]
         reused = [row for row in attempted if row["status"] == "reused"]
         refused = [row for row in attempted if row["status"] == "refused"]
         return {
+            # `declared` is every cell the corpus defines; `attempted` is what the
+            # harness could actually run. Keeping both is what makes 59 x 3, the
+            # 15 unavailable rows and the 162 attempted rows reconcile.
+            "declared": len(group),
             "workloads": len(group),
+            "tool_unavailable": len(unavailable),
+            "skipped_budget": len(skipped),
             "attempted": len(attempted),
             "reused": len(reused),
             "refused": len(refused),
             "other_failure": len(attempted) - len(reused) - len(refused),
+            "verified_hits": len([row for row in reused if verified_hit_rows(row)]),
             "rate": (len(reused) / len(attempted)) if attempted else None,
         }
 
@@ -909,6 +1014,29 @@ def aggregate(rows: list[dict]) -> dict:
             breakdown[f"{tier}/{policy}"] = eligibility(tier, policy)
 
     measured = [row for row in rows if row.get("timing", {}).get("status") == "measured"]
+
+    def ci_class(row: dict) -> str:
+        low, high = row["timing"]["warm_ratio"]["ratio_ci95"]
+        if low > 1.0:
+            return "faster"
+        if high < 1.0:
+            return "slower"
+        return "indistinguishable"
+
+    assessments = [
+        {
+            "workload_id": row["workload_id"],
+            "policy": row["policy"],
+            "warm_ratio": row["timing"]["warm_ratio"]["geometric_mean_ratio"],
+            "ratio_ci95": row["timing"]["warm_ratio"]["ratio_ci95"],
+            "assessment": ci_class(row),
+        }
+        for row in measured
+    ]
+    statuses: dict[str, int] = {}
+    for row in rows:
+        statuses[row["status"]] = statuses.get(row["status"], 0) + 1
+
     return {
         "requested": len(rows),
         "eligibility_by_tier_and_policy": breakdown,
@@ -916,11 +1044,30 @@ def aggregate(rows: list[dict]) -> dict:
         "refused": [row["workload_id"] for row in rows if row["status"] == "refused"],
         "incorrect_hits": [row["workload_id"] for row in rows if row["status"] == "incorrect_hit"],
         "timed_workloads": len({row["workload_id"] for row in measured}),
+        # Descriptive only: a median comparison with no interval. Use the
+        # `*_by_ci` lists for any claim about being faster or slower.
         "faster_than_native": sorted(
-            {row["workload_id"] for row in measured if row["timing"]["warm"]["median_ns"] < row["timing"]["direct"]["median_ns"]}
+            {
+                row["workload_id"]
+                for row in measured
+                if row["timing"]["warm"]["median_ns"] < row["timing"]["direct"]["median_ns"]
+            }
         ),
         "slower_than_native": sorted(
-            {row["workload_id"] for row in measured if row["timing"]["warm"]["median_ns"] >= row["timing"]["direct"]["median_ns"]}
+            {
+                row["workload_id"]
+                for row in measured
+                if row["timing"]["warm"]["median_ns"] >= row["timing"]["direct"]["median_ns"]
+            }
+        ),
+        "faster_than_native_by_ci": sorted(
+            {row["workload_id"] for row in measured if ci_class(row) == "faster"}
+        ),
+        "slower_than_native_by_ci": sorted(
+            {row["workload_id"] for row in measured if ci_class(row) == "slower"}
+        ),
+        "indistinguishable": sorted(
+            {row["workload_id"] for row in measured if ci_class(row) == "indistinguishable"}
         ),
         "positive_session_savings_at_25": sorted(
             {
@@ -929,6 +1076,21 @@ def aggregate(rows: list[dict]) -> dict:
                 if row["timing"]["session"]["25"]["speedup"] > 1.0
             }
         ),
+        "accounting": {
+            "declared_rows": len(rows),
+            "declared_workloads": len({row["workload_id"] for row in rows}),
+            "policies": present_policies,
+            "rows_by_status": dict(sorted(statuses.items())),
+            "timed_rows": len(measured),
+            "verified_hit_rows": len([row for row in rows if verified_hit_rows(row)]),
+            "verified_hit_decisions": sum(
+                1
+                for row in rows
+                for decision in row.get("decisions") or []
+                if decision.get("kind") == "Reused" and decision.get("cache_decision") == "Reused"
+            ),
+            "row_assessments": assessments,
+        },
     }
 
 

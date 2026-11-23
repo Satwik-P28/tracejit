@@ -20,6 +20,13 @@ Two classes of observation are kept apart on purpose:
     recorded so a reader can see them, and a mismatch is reported as an
     ``out_of_contract`` difference, never folded into a pass or a failure.
 
+Deliberately not observed, and therefore never scored: effects outside the
+workspace directory (a command writing to ``/tmp`` or ``$HOME``), the
+interleaving of stdout and stderr (each stream is hashed separately), extended
+attributes, and inode identity across the two twin directories (which cannot be
+compared and is not part of the contract).  Corpus workloads that leave the
+workspace are out of scope for this oracle.
+
 Usage (programmatic)::
 
     obs = observe_workspace(root)
@@ -156,17 +163,19 @@ def process_observation(
     }
 
 
-def compare(native: dict[str, Any], traced: dict[str, Any]) -> dict[str, Any]:
-    """Compares two process observations and separates covered from advisory."""
+def compare_workspace_trees(
+    native_tree: dict[str, Any], traced_tree: dict[str, Any]
+) -> dict[str, Any]:
+    """Compares two workspace fingerprints on covered fields only.
+
+    Called twice per workload: once to prove the two twins start from the same
+    observable pre-state, and once on the post-execution state.  The pre-state
+    check matters because a "match" between runs that started from different
+    bytes would say nothing about replay correctness -- a stale output left in
+    the traced twin could hide a replay that never restored it.
+    """
 
     differences: list[dict[str, Any]] = []
-    for field in ("exit_status", "stdout_sha256", "stderr_sha256", "stdout_bytes", "stderr_bytes"):
-        if native[field] != traced[field]:
-            differences.append({"field": field, "native": native[field], "traced": traced[field]})
-
-    native_tree = native["workspace"]
-    traced_tree = traced["workspace"]
-
     native_paths = set(native_tree["paths"])
     traced_paths = set(traced_tree["paths"])
     for path in sorted(native_paths - traced_paths):
@@ -190,6 +199,25 @@ def compare(native: dict[str, Any], traced: dict[str, Any]) -> dict[str, Any]:
                 "traced": traced_tree["hardlink_groups"],
             }
         )
+
+    return {"match": not differences, "covered_differences": differences}
+
+
+def compare(native: dict[str, Any], traced: dict[str, Any]) -> dict[str, Any]:
+    """Compares two process observations and separates covered from advisory."""
+
+    differences: list[dict[str, Any]] = []
+    for field in ("exit_status", "stdout_sha256", "stderr_sha256", "stdout_bytes", "stderr_bytes"):
+        if native[field] != traced[field]:
+            differences.append({"field": field, "native": native[field], "traced": traced[field]})
+
+    native_tree = native["workspace"]
+    traced_tree = traced["workspace"]
+
+    differences.extend(compare_workspace_trees(native_tree, traced_tree)["covered_differences"])
+
+    native_paths = set(native_tree["paths"])
+    traced_paths = set(traced_tree["paths"])
 
     advisory: list[dict[str, Any]] = []
     for path in sorted(native_paths & traced_paths):

@@ -50,9 +50,11 @@ jobs:
         run: cargo build --workspace --release
       - name: Pinned inputs
         run: python3 benchmarks/realworld_v2/fetch_inputs.py --vendor "$AA_SCRATCH/vendor"
+      - name: Harness self-tests (oracle rejects wrong replays, accounting closes)
+        run: python3 -m unittest discover -s benchmarks/realworld_v2 -p 'test_*.py' -v
       - name: Manifest is current
         run: |
-          python3 benchmarks/realworld_v2/runner.py --mode manifest
+          python3 benchmarks/realworld_v2/runner.py --mode manifest --vendor "$AA_SCRATCH/vendor"
           git diff --exit-code benchmarks/realworld_v2/manifest.json
       - name: Smoke benchmark (dev split, native + compiler contract)
         run: |
@@ -108,6 +110,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo build --workspace --release
       - run: python3 benchmarks/realworld_v2/fetch_inputs.py --vendor "$AA_SCRATCH/vendor"
+      - name: Harness self-tests (oracle rejects wrong replays, accounting closes)
+        run: python3 -m unittest discover -s benchmarks/realworld_v2 -p 'test_*.py' -v
       - name: Adversarial suite (preserved counterexamples, mutations, race probe)
         run: |
           python3 benchmarks/realworld_v2/adversarial.py \

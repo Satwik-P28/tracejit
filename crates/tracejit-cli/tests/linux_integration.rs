@@ -789,6 +789,188 @@ fn a_missing_cached_output_object_retraces_instead_of_aborting() {
     eprintln!("RESULT missing-output-object-retrace PASS");
 }
 
+/// A pruned **stderr** object must retrace, exactly like a pruned stdout object.
+///
+/// The stdout path was covered by `a_missing_cached_object_retraces_instead_of_aborting`;
+/// stderr is loaded through the same `get_bytes` call but is a separate object, and
+/// a benchmark that only ever prunes stdout would not notice a regression there.
+#[test]
+fn a_missing_cached_stderr_object_retraces_instead_of_aborting() {
+    let fixture = Fixture::new();
+    let output = fixture.input("output.txt");
+    let _ = fs::remove_file(&output);
+    let args = [
+        "run",
+        "--json",
+        "--",
+        fixture.binary_arg(),
+        "output_presence_stderr",
+        fixture.root(),
+    ];
+    let first = invoke(&fixture.cache, &args, None);
+    assert!(first.status.success(), "{}", stderr_of(&first));
+    assert_eq!(fs::read(&output).unwrap(), b"ABSENT\n");
+
+    let explanation = invoke(&fixture.cache, &["explain", "--json"], None);
+    let record: Value = serde_json::from_slice(&explanation.stdout).unwrap();
+    let hash = record["stderr"]
+        .as_array()
+        .map(|bytes| {
+            bytes
+                .iter()
+                .map(|byte| format!("{:02x}", byte.as_u64().unwrap() as u8))
+                .collect::<String>()
+        })
+        .unwrap_or_else(|| panic!("no recorded stderr object: {record}"));
+    fs::remove_file(fixture.cache.join("objects").join(hash)).unwrap();
+    fs::remove_file(&output).unwrap();
+
+    let run = invoke(&fixture.cache, &args, None);
+    assert!(
+        run.status.success(),
+        "a pruned stderr object must not make the command fatal: {}",
+        stderr_of(&run)
+    );
+    let report: Value = serde_json::from_slice(&run.stdout).unwrap();
+    assert_ne!(report["kind"], "Reused", "{report}");
+    let stderr: Vec<u8> = report["stderr_bytes"]
+        .as_array()
+        .expect("stderr_bytes must be an array")
+        .iter()
+        .map(|byte| byte.as_u64().expect("byte") as u8)
+        .collect();
+    assert_eq!(stderr, b"stream fixture\n");
+    assert_eq!(fs::read(&output).unwrap(), b"ABSENT\n");
+    eprintln!("RESULT missing-stderr-object-retrace PASS");
+}
+
+/// An unreadable CAS object is not a missing one: the record cannot be verified
+/// and the only safe outcome is to fail closed **without executing the command**.
+///
+/// Retracing would run the user's command, but the cache may still be unreadable
+/// for a reason unrelated to this record (a permission fault, a broken mount), so
+/// the operational error is surfaced instead of being converted into a miss.
+/// Nothing may be restored before the failure: the output path must not exist
+/// afterwards because the command never ran.
+#[test]
+fn a_permission_denied_cached_object_fails_closed_without_running_the_command() {
+    #[cfg(unix)]
+    use std::os::unix::fs::PermissionsExt as _;
+
+    let fixture = Fixture::new();
+    let output = fixture.input("output.txt");
+    let _ = fs::remove_file(&output);
+    let args = [
+        "run",
+        "--json",
+        "--",
+        fixture.binary_arg(),
+        "output_presence_stdout",
+        fixture.root(),
+    ];
+    let first = invoke(&fixture.cache, &args, None);
+    assert!(first.status.success(), "{}", stderr_of(&first));
+    assert_eq!(fs::read(&output).unwrap(), b"ABSENT\n");
+
+    let objects = fixture.cache.join("objects");
+    let captured = fs::read_dir(&objects)
+        .unwrap()
+        .filter_map(|entry| entry.ok())
+        .map(|entry| entry.path())
+        .find(|path| fs::read(path).unwrap_or_default() == b"stream fixture\n")
+        .expect("the captured stdout object");
+    fs::set_permissions(&captured, fs::Permissions::from_mode(0o000)).unwrap();
+    // Running with permission to read mode 000 (root, or a capability) means the
+    // precondition cannot be created; report the skip instead of a false pass.
+    if fs::File::open(&captured).is_ok() {
+        fs::set_permissions(&captured, fs::Permissions::from_mode(0o600)).unwrap();
+        eprintln!("RESULT permission-denied-object SKIP (mode 000 is still readable here)");
+        return;
+    }
+    fs::remove_file(&output).unwrap();
+
+    let run = invoke(&fixture.cache, &args, None);
+    assert!(
+        !run.status.success(),
+        "an unreadable cache object must fail closed, not run the command: {}",
+        stderr_of(&run)
+    );
+    assert!(!hit(&run), "{}", stderr_of(&run));
+    assert!(
+        !output.exists(),
+        "the command must not execute when the cache cannot be read"
+    );
+    fs::set_permissions(&captured, fs::Permissions::from_mode(0o600)).unwrap();
+    eprintln!("RESULT permission-denied-object-fail-closed PASS");
+}
+
+/// A record with several outputs must be restored all-or-nothing.
+///
+/// `restore_outputs` stages and verifies every object before it renames anything,
+/// so a missing object in the *second* output must leave the first one untouched and
+/// retrace. A restore that applied outputs one at a time would leave a half-restored
+/// workspace, which no retrace may start from.
+#[test]
+fn a_missing_object_in_a_multi_output_record_never_partially_restores() {
+    let fixture = Fixture::new();
+    let output = fixture.input("output.txt");
+    let second = fixture.input("second.txt");
+    fs::write(&output, b"previous\n").unwrap();
+    let args = [
+        "run",
+        "--json",
+        "--",
+        fixture.binary_arg(),
+        "rename_aside_recreate",
+        fixture.root(),
+    ];
+    let first = invoke(&fixture.cache, &args, None);
+    assert!(first.status.success(), "{}", stderr_of(&first));
+    assert_eq!(fs::read(&output).unwrap(), b"fresh\n");
+    assert_eq!(fs::read(&second).unwrap(), b"previous\n");
+
+    let explanation = invoke(&fixture.cache, &["explain", "--json"], None);
+    let record: Value = serde_json::from_slice(&explanation.stdout).unwrap();
+    let hash = record["outputs"]
+        .as_array()
+        .and_then(|outputs| {
+            outputs.iter().find_map(|entry| {
+                let path = entry["path"].as_str().unwrap_or_default();
+                if !path.ends_with("second.txt") {
+                    return None;
+                }
+                match &entry["content"] {
+                    Value::String(hex) => Some(hex.clone()),
+                    Value::Array(bytes) => Some(
+                        bytes
+                            .iter()
+                            .map(|byte| format!("{:02x}", byte.as_u64().unwrap() as u8))
+                            .collect::<String>(),
+                    ),
+                    _ => None,
+                }
+            })
+        })
+        .unwrap_or_else(|| panic!("no recorded object for second.txt: {record}"));
+    fs::remove_file(fixture.cache.join("objects").join(hash)).unwrap();
+
+    let run = invoke(&fixture.cache, &args, None);
+    assert!(
+        run.status.success(),
+        "a missing object in a multi-output record must retrace, not abort: {}",
+        stderr_of(&run)
+    );
+    let report: Value = serde_json::from_slice(&run.stdout).unwrap();
+    assert_ne!(report["kind"], "Reused", "{report}");
+    // The retrace ran the command again from the workspace the failed HIT left
+    // behind: output.txt was never replaced, so the rename moved the fresh bytes
+    // aside and recreated output.txt. A partial restore would have changed
+    // output.txt before the missing object was discovered.
+    assert_eq!(fs::read(&output).unwrap(), b"fresh\n");
+    assert_eq!(fs::read(&second).unwrap(), b"fresh\n");
+    eprintln!("RESULT multi-output-missing-object PASS");
+}
+
 /// Retained candidates whose inputs no longer match must never be selected by process of
 /// elimination. The third content is recorded by neither candidate, so the only sound outcome is
 /// a retrace that observes it.
