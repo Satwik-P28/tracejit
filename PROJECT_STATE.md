@@ -22,9 +22,19 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 
 ## Current main
 
-- `origin/main` tip: `6bab00b` (merge of PR #41, Phase X). Published beta: tag `v0.2.0-beta.1` at `7a594b9` (merge of `release/v0.2.0-beta.1` into `main`; `origin/main` was not advanced past the release merge point in this workspace's refs).
+- `origin/main` tip at the start of Phase AA: `e4f80adcbf3d1184bf27babc870a62c4daa8ff89` (PR #42 merged). Its CI status could not be queried from the authoring environment; see `docs/PHASE_AA_REPORT.md` §2. Published beta: tag `v0.2.0-beta.1` at `7a594b9`.
 - Releases: `v0.1.0` (`cf0ddb2`), `v0.1.1` (`31c36d1`), `v0.2.0-beta.1` (`7a594b9`). Do not move tags.
 - Research PRs #6/#7/#9/#10 stay isolated from `main`.
+
+## Phase AA (`research/phase-aa`): real-world qualification
+
+- Benchmark system is qualified; the product's real-world applicability is narrow and contract-dependent. Full evidence: `benchmarks/results/phaseaa/`, report: `docs/PHASE_AA_REPORT.md`.
+- 59 workloads (50 tier A strict-native, 9 tier C declared adaptations), 177 (tier × policy) rows, splits frozen before the run (dev 21 / validation 22 / held-out 16).
+- Eligibility, per cell and never summed: native **1/49** (2.0 %), `allocator-entropy-v1` **10/49** (20.4 %), `compiler-runtime-v1` **17/49** (34.7 %), tier C **0/5** under every policy. The beta's "1/32" is the native cell, not a general rate.
+- Measured: 4 workloads with positive cumulative savings (best 30.6× warm, 13.1× over a 25-repeat session), 8 slower than native (worst 7.1×), 0 incorrect HITs, warm-hit floor 13–16 ms.
+- Product fix: a missing output CAS object aborted the command instead of retracing (`c3f77d8`), with regression.
+- Open findings: `TRACEJIT_CACHE_DIR` relocation invalidates every record; one `gcc` workload's classification flipped between identical runs; validate→restore TOCTOU unchanged; tracing an ineligible `make` costs +460 ms/invocation.
+- Version label is unchanged (`0.2.0-beta.1`) while `main` carries post-beta contracts, so no artifact should be published from this line until it is bumped. v0.3 is **not** qualified: `docs/RELEASE_READINESS_V03.md`.
 
 ## Development line (`development/v0.3`, Phase U)
 

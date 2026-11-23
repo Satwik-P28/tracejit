@@ -220,7 +220,8 @@ decide correctness; TraceJIT's own declarations are used only to separate
 2. **Relocating `TRACEJIT_CACHE_DIR` invalidates every record**, because the
    inherited environment — including that variable — is hashed into the identity.
    A copied cache produces `Executed`, not a hit. Reproduced twice; not fixed;
-   documented in [LIMITATIONS](LIMITATIONS.md)-adjacent notes and the ledger (A8).
+   recorded as A8 in [the ledger](PHASE_AA_LEDGER.md) and as a blocker in
+   [release readiness](RELEASE_READINESS_V03.md).
 3. **`fs-identical-rewrite` is eligible and can never warm**: it rewrites its own
    input, so the recorded pre-state no longer holds once it has run.
 4. **`nm-symbols` is `Guarded`, gets no hit**, and reproduces the documented

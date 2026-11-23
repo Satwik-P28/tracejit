@@ -1,6 +1,5 @@
 {
   "corpus_source_sha256": "0fd8cfa62bfc3530642744d46d2d61883b66542a66365d5897465b0bdad0f08a",
-  "generated_from_commit": "e4f80adcbf3d1184bf27babc870a62c4daa8ff89",
   "manifest_version": "tracejit.realworld.corpus/v2",
   "tiers": {
     "A": "strict native: no workload adaptation, no execution contract",

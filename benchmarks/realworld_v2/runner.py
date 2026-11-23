@@ -164,7 +164,13 @@ def fingerprint(tracejit: Path) -> dict:
                  "node", "python3", "cargo", "rustc", "objcopy", "strip", "objdump",
                  "readelf", "nm", "cppcheck", "shellcheck", "ruff", "firebuild"):
         path = shutil.which(tool)
-        tools[tool] = {"path": path, "version": _text([tool, "--version"]).splitlines()[0] if path else None}
+        # A tool that is present but wedges (`cargo --version` under rustup with an
+        # empty HOME blocks on its toolchain lock) must not stall the whole run.
+        version = _text_optional([tool, "--version"], timeout=20)
+        tools[tool] = {
+            "path": path,
+            "version": version.splitlines()[0] if version else None,
+        }
     cpuinfo = {}
     try:
         for line in Path("/proc/cpuinfo").read_text().splitlines():
@@ -1022,7 +1028,9 @@ def main() -> int:
     if args.mode == "manifest":
         manifest = {
             "manifest_version": "tracejit.realworld.corpus/v2",
-            "generated_from_commit": _text_safe(["git", "rev-parse", "HEAD"]),
+            # Identifying the corpus by its own source hash, not by HEAD: a
+            # manifest cannot name the commit that contains it, so a HEAD field
+            # would make every checkout look modified.
             "corpus_source_sha256": hashlib.sha256(Path(corpus.__file__).read_bytes()).hexdigest(),
             "tiers": {
                 "A": "strict native: no workload adaptation, no execution contract",
@@ -1156,6 +1164,19 @@ def _text_safe(command: list[str]) -> str:
         return _text(command)
     except FileNotFoundError:
         return "unavailable"
+
+
+def _text_optional(command: list[str], timeout: float) -> str | None:
+    """Run a version probe; return None on absence, timeout or failure."""
+
+    try:
+        result = subprocess.run(
+            command, capture_output=True, text=True, errors="replace", timeout=timeout
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    text = (result.stdout or result.stderr or "").strip()
+    return text or None
 
 
 if __name__ == "__main__":
