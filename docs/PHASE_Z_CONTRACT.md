@@ -70,11 +70,40 @@ was not admissible at record time.
    key from `CLOCK_MONOTONIC` and the stack when the read is not exactly eight bytes — and every
    audited build is checked to contain that fallback immediately after the `cmp $0x8,%rax; je`
    (condition 5's tail check).
-3. *What the value can influence is the allocator's own state.* `tcache_key` is used to perturb
-   safe-linking pointers. Fixing it changes heap layout; it does not change what the program is
-   asked to compute. That is exactly the contract's declared limitation, and records from the
-   contract are never mixed with native records (`RunReport.contract`, `ExecutionIdentity`, and the
-   `--contract` key on the cache row).
+3. *What the value can influence is two words of allocator bookkeeping, not program data.* glibc
+   2.39 reads `tcache_key` in exactly two roles (`malloc/malloc.c`): `tcache_put` stores it in the
+   `key` field of a chunk being freed into a thread cache, and `_int_free` compares it there to
+   decide whether to walk the tcache list looking for a double free. It does **not** feed
+   safe-linking — `PROTECT_PTR` masks each `next` pointer with `(address_of_the_field >> 12)`,
+   which is ASLR-derived and independent of the key — and it does not select an allocation. So
+   fixing it moves no heap object, changes no address, and leaves allocation decisions, sizes and
+   counts identical. The memory whose contents change is the second word of a freed chunk's user
+   area (the `key` field, `chunk + 0x10 + 8` on x86-64); `tcache_get_n` zeroes it again when the
+   chunk is allocated. A defined program cannot read that word before writing it, so the value
+   cannot reach a defined observable. Records from the contract are never mixed with native records
+   (`RunReport.contract`, `ExecutionIdentity`, and the `--contract` key on the cache row).
+
+### 3.1 What the contract excludes
+
+The guarantee above is about *defined* programs. Three classes are outside it, and the contract
+must not be read as covering them:
+
+1. **Programs that read freed or uninitialized memory.** A use-after-free, or a partially written
+   buffer that is then written out, can disclose the `key` field or other allocator state. Such a
+   program is already nondeterministic without the contract (the value differs per process), but
+   under the contract it becomes *stable*: the bytes it emits are the contract's bytes, not the
+   ones a native run would produce. TraceJIT cannot detect this from outside; it is a property of
+   the program.
+2. **Programs that forge allocator metadata or exploit the allocator.** The key check is a
+   double-free heuristic, not authentication. A program that deliberately writes the key field, or
+   corrupts chunk headers, gets contract-specific behaviour — and under a fixed key, a tcache
+   poisoning primitive is easier to construct than natively. The contract is not appropriate for
+   untrusted programs.
+3. **Programs whose output depends on allocator diagnostics.** glibc's messages
+   (`free(): double free detected in tcache 2`, `free(): invalid pointer`, `malloc(): unaligned
+   tcache chunk detected`) depend on list membership and chunk state, never on the key's value;
+   they are unchanged by the contract and are covered by tests. A program that *parses* those
+   messages to make decisions is reading allocator internals and is outside the guarantee.
 4. *Replay does not re-execute the command.* A hit restores recorded stdout/stderr/outputs after the
    guards pass. The guards are state predicates on the recorded dependencies; condition 7 makes the
    runtime library itself one of them, so a different runtime build (or a modified one at a different

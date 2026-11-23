@@ -3,6 +3,10 @@
 Branch `research/phase-z`, cut from `main` at `6bab00b`. Production change in one commit; evidence in
 the rest. No release was tagged and nothing was merged.
 
+*Read with `docs/PHASE_Z1_AUDIT.md`, which re-derives the contract from glibc's source and corrects
+two claims in this report: `tcache_key` does not feed safe-linking, and fixing it does not change
+heap layout. The admission rule and the measured results below are unaffected.*
+
 Phase Y ended with a negative result: the allocator-entropy contract was pinned to a single glibc
 build, that build had been superseded, and real compiler workloads no longer reached a hit. The
 question here was narrower and harder than "add the new build ID": *can another build be admitted on
@@ -110,7 +114,11 @@ contract does not share.
   whose address is unchanged is `_IO_file_fopen` at `0x91cb0`.
 - The changelog (`/usr/share/doc/libc6/changelog.Debian.gz`) lists 8.10–8.12 as security updates in
   `libio/fileops.c` (CVE-2026-18374), `resolv/resolv_conf.c`, `elf/dl-load.c`, `nscd`,
-  `sysdeps/powerpc`, `iconvdata` — **no malloc, no `getrandom`, no `tcache` change**.
+  `sysdeps/powerpc` and `iconvdata`. The source package's patch series contains exactly one patch
+  against `malloc/malloc.c` (`CVE-2026-0861.patch`), and it touches only `_int_memalign`'s
+  alignment-overflow check; nothing in the series mentions `tcache`, the key initializer, or
+  `getrandom`. (Phase Z's first draft said "no malloc change"; that was wrong in the small.
+  `docs/PHASE_Z1_AUDIT.md` §3 has the source-level audit.)
 
 So the byte shift is a downstream layout effect of the libio fix, and the allocator code itself is
 the same instructions. That is what admits the build.
@@ -308,9 +316,16 @@ a successful HIT in CI, which is what the phase required before calling it verif
    library's `.bss` and the only other writer is the same function's clock-derived fallback for a
    short read; verified per build by the derived-instruction check and per record by the
    destination/writable-segment check at trace time.
-2. **Fixed entropy cannot change an observable.** `tcache_key` is used to perturb safe-linking
-   pointers, so fixing it changes heap layout. That is the contract's declared claim — reproducible
-   *within* the contract — not native equivalence, and the compiler contract's report text says so.
+2. **Fixed entropy cannot change a defined observable.** The key is stored in the `key` field of a
+   chunk being freed into a thread cache and compared there by `_int_free`'s double-free heuristic;
+   that is the whole of its use. It does **not** seed safe-linking (links are masked with the
+   chunk's own address, which is ASLR-derived) and it selects no allocation, so fixing it moves no
+   heap object and changes no address. The only memory whose contents change is the second word of
+   a freed chunk's user area, which `tcache_get_n` zeroes on allocation; a defined program cannot
+   read it before writing it. Reading the value requires undefined behaviour (freed or
+   uninitialized memory) or a forged chunk, which the contract excludes
+   (`docs/PHASE_Z_CONTRACT.md` §3.1). The claim remains reproducibility *within* the contract, not
+   native equivalence.
 3. **The instruction-level equivalence is evidence, not a proof of semantic equivalence.** Two
    functions that decode to the same instructions after relocation normalization are the same code
    with respect to everything the CPU sees; the assumption is that objdump's decoding is complete,

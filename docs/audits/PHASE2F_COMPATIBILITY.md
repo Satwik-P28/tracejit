@@ -64,11 +64,16 @@ getrandom(8, GRND_NONBLOCK)
   <- setlocale
 ```
 
-glibc seeds its per-thread cache/allocator state from the kernel random pool on first use. The
-value perturbs pointer addresses and allocator layout, which a program can observe through
-`malloc`-returned addresses, hash-table iteration order, or output that embeds addresses. It is not
-"entropy that cannot affect output"; it is unguarded mutable process state that the brief
+glibc seeds its per-thread cache/allocator state from the kernel random pool on first use. It is
+not "entropy that cannot affect output": it is unguarded mutable process state that the brief
 explicitly forbids ignoring.
+
+> **Correction (Phase Z1).** The mechanism stated here in Phase 2F — that the value perturbs
+> pointer addresses and allocator layout — is wrong. The value is glibc's `tcache_key`; it is only
+> stored in freed chunks' `key` field and compared by the double-free heuristic. Safe-linking
+> masks links with the chunk's own address, so neither addresses nor layout depend on it. The
+> conclusion is unchanged: it is unguarded mutable state by default, and the contract fixes it
+> deliberately and only on request. See `docs/PHASE_Z1_AUDIT.md` §2.
 
 Attempts made, all negative:
 

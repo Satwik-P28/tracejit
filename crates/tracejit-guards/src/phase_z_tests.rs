@@ -239,6 +239,97 @@ fn a_record_with_a_value_the_contract_did_not_supply_is_refused() {
     }
 }
 
+/// Writes `image` to a fresh file and records the guard against exactly those bytes.
+fn rerecord(runtime: &SyntheticRuntime, image: Vec<u8>) -> (tempfile::NamedTempFile, Guard) {
+    let mut file = tempfile::NamedTempFile::new().unwrap();
+    file.write_all(&image).unwrap();
+    file.flush().unwrap();
+    let mut guard = runtime.guard();
+    if let Guard::ControlledEntropy {
+        library, expected, ..
+    } = &mut guard
+    {
+        *library = file.path().to_path_buf();
+        *expected = hash_file(file.path()).unwrap();
+    }
+    (file, guard)
+}
+
+#[test]
+fn a_decoy_buffer_load_in_the_window_is_refused_rather_than_chosen() {
+    // The decoder scans bytes, so it cannot tell an instruction from an immediate. The rule is
+    // therefore: a second candidate in the window means refusal, never "pick the first match".
+    for profile in profiles() {
+        let runtime = SyntheticRuntime::new(profile);
+        let mut image = std::fs::read(runtime.path()).unwrap();
+        // A plausible `lea disp32(%rip),%rdi` that points at the *right* destination, placed in the
+        // filler between the audited load and the syscall number.
+        let decoy = runtime.load + 8;
+        let displacement = (profile.destination_offset as i64 - (decoy as i64 + 7)) as i32;
+        image[decoy..decoy + 3].copy_from_slice(&LEA_RDI_RIP);
+        image[decoy + 3..decoy + 7].copy_from_slice(&displacement.to_le_bytes());
+        let (file, guard) = rerecord(&runtime, image);
+        let error = guard.validate(GuardMode::Strict).unwrap_err();
+        assert!(file.path().exists());
+        assert!(
+            error.reason.contains("audited call site"),
+            "{}: {}",
+            profile.build_id,
+            error.reason
+        );
+    }
+}
+
+#[test]
+fn a_displaced_syscall_number_is_refused() {
+    for profile in profiles() {
+        let runtime = SyntheticRuntime::new(profile);
+        let mut image = std::fs::read(runtime.path()).unwrap();
+        let number = profile.site_offset as usize - 2 - MOV_EAX_GETRANDOM.len();
+        // 318 (`getrandom`) -> 319 (`memfd_create` on this ABI): the call is no longer the probe.
+        image[number + 1] = 0x3f;
+        let (_file, guard) = rerecord(&runtime, image);
+        assert!(guard.validate(GuardMode::Strict).is_err());
+    }
+}
+
+#[test]
+fn the_same_build_id_with_different_bytes_is_pinned_by_the_recorded_hash() {
+    for profile in profiles() {
+        let runtime = SyntheticRuntime::new(profile);
+        let mut image = std::fs::read(runtime.path()).unwrap();
+        let last = image.len() - 1;
+        image[last] ^= 0xff;
+        let mut file = tempfile::NamedTempFile::new().unwrap();
+        file.write_all(&image).unwrap();
+        file.flush().unwrap();
+
+        // Recorded against the original bytes: the file carrying the same build ID has changed.
+        let mut stale = runtime.guard();
+        if let Guard::ControlledEntropy { library, .. } = &mut stale {
+            *library = file.path().to_path_buf();
+        }
+        assert!(stale.validate(GuardMode::Strict).is_err());
+
+        // Recorded against the bytes as they now are: the audited call site is intact, so the
+        // record admits them and pins this exact file from then on. A build ID is a claim carried
+        // by a file, not a proof of its content; the record is what pins content.
+        let mut fresh = runtime.guard();
+        if let Guard::ControlledEntropy {
+            library, expected, ..
+        } = &mut fresh
+        {
+            *library = file.path().to_path_buf();
+            *expected = hash_file(file.path()).unwrap();
+        }
+        assert!(
+            fresh.validate(GuardMode::Strict).is_ok(),
+            "{}",
+            profile.build_id
+        );
+    }
+}
+
 #[test]
 fn every_audited_profile_names_a_distinct_build_and_site() {
     let all = profiles();

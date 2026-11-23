@@ -1,0 +1,991 @@
+{
+  "scenario": "edits",
+  "invocations": 27,
+  "rounds": 9,
+  "functions_per_unit": 220,
+  "arms": [
+    "native",
+    "tracejit",
+    "make"
+  ],
+  "unavailable_arms": {
+    "ccache": "not installed; this sandbox has no root and no package-manager access",
+    "sccache": "not installed; this sandbox has no root and no package-manager access"
+  },
+  "fingerprint": {
+    "captured_at_unix": 1795414399,
+    "os_release": [
+      "PRETTY_NAME=\"Ubuntu 24.04.5 LTS\"",
+      "NAME=\"Ubuntu\""
+    ],
+    "kernel_release": "6.1.102",
+    "cpu_model": "AMD EPYC 7003 (Milan)",
+    "cpus": 2,
+    "glibc_version": "2.39",
+    "libc_path": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+    "libc_build_id": "8cebda42d140fc2b09639f8b13a5d5f2e617ef09",
+    "libc_sha256": "755a371e86cc9f564ab54f66140747700fb0a103f698f659f2060f707897e09a",
+    "loader_build_id": "231ab65dd867a89dce29cb958fd5ca50abb1aa34",
+    "toolchain": {
+      "cc": {
+        "path": "/usr/bin/x86_64-linux-gnu-gcc-13",
+        "build_id": "9ac130c81c026cf6204ff71a70b526667a09122f",
+        "sha256": "1b99826121ae6682a634e5efe09bd3e3df58ce58e0b28f849114ab5b89139c26"
+      },
+      "cc1": {
+        "path": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1",
+        "build_id": "32e37dd731113376ea74086d0a292046e09c1e92",
+        "sha256": "5d1679131184e2de4435b426eb264bf13472fe026db8e5c6bc97445814e8e2f4"
+      },
+      "as": {
+        "path": "/usr/bin/x86_64-linux-gnu-as",
+        "build_id": "7fc854c85861e94ccc8725eb40d0cddd3d61fab9",
+        "sha256": "21aff249b692b5c31a44007491f922dcb49f41323e362c57d2ada3f52eddb7f0"
+      },
+      "ld": {
+        "path": "/usr/bin/x86_64-linux-gnu-ld",
+        "build_id": "1d35d5872f98465fc425489b11f0b75af2f47df8",
+        "sha256": "e9ceb054c12207970f2726dfc07e9a66b411602748628baf27399f02a9bbb31b"
+      },
+      "collect2": {
+        "path": "/usr/libexec/gcc/x86_64-linux-gnu/13/collect2",
+        "build_id": "33c97059ef7c4872f4ff860caedc0b5b784d5cb0",
+        "sha256": "4d1f341ae5b763b513258ee2812422a45e063c30a2f1924a0cf63d3699f3a158"
+      }
+    },
+    "tracejit": "/workspace/chats/24375cea864939ae012511ac/target/release/tracejit",
+    "tracejit_sha256": "a0d75d8efc78a93142deaedfe53be9f2efe2c2b62eadec99b628ec93e0249c73",
+    "contract": "compiler-runtime-v1",
+    "runtime_contract": "allocator-entropy-v1 audited (8cebda42d140fc2b09639f8b13a5d5f2e617ef09)",
+    "environment": {
+      "GLIBC_TUNABLES": null,
+      "MALLOC_ARENA_MAX": null,
+      "LD_PRELOAD": null,
+      "LD_LIBRARY_PATH": null,
+      "SOURCE_DATE_EPOCH": null,
+      "TZ": null,
+      "LANG": "C.UTF-8",
+      "LC_ALL": null,
+      "PYTHONHASHSEED": null,
+      "TRACEJIT_GUARD_PROFILE": null
+    },
+    "available_arms": {
+      "ccache": false,
+      "sccache": false,
+      "make": true,
+      "ninja": false
+    },
+    "corpus_units": 3,
+    "functions_per_unit": 220
+  },
+  "summary": {
+    "native": {
+      "total_seconds": 14.50843413300754,
+      "median_round_ms": 1607.87,
+      "p95_round_ms": 1660.36,
+      "mean_ci95_ms": [
+        1596.89,
+        1628.29
+      ],
+      "compiler_invocations": 27,
+      "speedup_vs_native": 1.0,
+      "outputs_byte_identical_to_native": true
+    },
+    "tracejit": {
+      "total_seconds": 7.9203657710168045,
+      "median_round_ms": 234.27,
+      "p95_round_ms": 2262.83,
+      "mean_ci95_ms": [
+        415.61,
+        1548.86
+      ],
+      "compiler_invocations": 27,
+      "speedup_vs_native": 1.832,
+      "outputs_byte_identical_to_native": true
+    },
+    "make": {
+      "total_seconds": 4.974984368003788,
+      "median_round_ms": 2.38,
+      "p95_round_ms": 1708.31,
+      "mean_ci95_ms": [
+        181.36,
+        1100.89
+      ],
+      "compiler_invocations": 9,
+      "speedup_vs_native": 2.916,
+      "outputs_byte_identical_to_native": true
+    }
+  },
+  "output_identity": {
+    "native": {
+      "unit0": true,
+      "unit1": true,
+      "unit2": true
+    },
+    "tracejit": {
+      "unit0": true,
+      "unit1": true,
+      "unit2": true
+    },
+    "make": {
+      "unit0": true,
+      "unit1": true,
+      "unit2": true
+    }
+  },
+  "rounds_record": [
+    {
+      "round": 0,
+      "arm": "native",
+      "seconds": 1.5752540509856772,
+      "compiles": 3
+    },
+    {
+      "round": 0,
+      "arm": "tracejit",
+      "seconds": 2.255753649995313,
+      "compiles": 3
+    },
+    {
+      "round": 0,
+      "arm": "make",
+      "seconds": 1.6380118300003232,
+      "compiles": 3
+    },
+    {
+      "round": 1,
+      "arm": "native",
+      "seconds": 1.6078682109946385,
+      "compiles": 3
+    },
+    {
+      "round": 1,
+      "arm": "tracejit",
+      "seconds": 0.2221644740056945,
+      "compiles": 3
+    },
+    {
+      "round": 1,
+      "arm": "make",
+      "seconds": 0.002129587999661453,
+      "compiles": 0
+    },
+    {
+      "round": 2,
+      "arm": "native",
+      "seconds": 1.6217709199991077,
+      "compiles": 3
+    },
+    {
+      "round": 2,
+      "arm": "tracejit",
+      "seconds": 0.1840479269885691,
+      "compiles": 3
+    },
+    {
+      "round": 2,
+      "arm": "make",
+      "seconds": 0.0019949550041928887,
+      "compiles": 0
+    },
+    {
+      "round": 3,
+      "arm": "native",
+      "seconds": 1.5826774279994424,
+      "compiles": 3
+    },
+    {
+      "round": 3,
+      "arm": "tracejit",
+      "seconds": 2.1412501300073927,
+      "compiles": 3
+    },
+    {
+      "round": 3,
+      "arm": "make",
+      "seconds": 1.615440806010156,
+      "compiles": 3
+    },
+    {
+      "round": 4,
+      "arm": "native",
+      "seconds": 1.6286955690156901,
+      "compiles": 3
+    },
+    {
+      "round": 4,
+      "arm": "tracejit",
+      "seconds": 0.2342719760199543,
+      "compiles": 3
+    },
+    {
+      "round": 4,
+      "arm": "make",
+      "seconds": 0.0026837479963432997,
+      "compiles": 0
+    },
+    {
+      "round": 5,
+      "arm": "native",
+      "seconds": 1.6062633679975988,
+      "compiles": 3
+    },
+    {
+      "round": 5,
+      "arm": "tracejit",
+      "seconds": 0.19006732800335158,
+      "compiles": 3
+    },
+    {
+      "round": 5,
+      "arm": "make",
+      "seconds": 0.0020194410026306286,
+      "compiles": 0
+    },
+    {
+      "round": 6,
+      "arm": "native",
+      "seconds": 1.6603587720019277,
+      "compiles": 3
+    },
+    {
+      "round": 6,
+      "arm": "tracejit",
+      "seconds": 2.2628263880033046,
+      "compiles": 3
+    },
+    {
+      "round": 6,
+      "arm": "make",
+      "seconds": 1.708308657995076,
+      "compiles": 3
+    },
+    {
+      "round": 7,
+      "arm": "native",
+      "seconds": 1.6074627770140069,
+      "compiles": 3
+    },
+    {
+      "round": 7,
+      "arm": "tracejit",
+      "seconds": 0.24578867500531487,
+      "compiles": 3
+    },
+    {
+      "round": 7,
+      "arm": "make",
+      "seconds": 0.0023750989930704236,
+      "compiles": 0
+    },
+    {
+      "round": 8,
+      "arm": "native",
+      "seconds": 1.618083036999451,
+      "compiles": 3
+    },
+    {
+      "round": 8,
+      "arm": "tracejit",
+      "seconds": 0.1841952229879098,
+      "compiles": 3
+    },
+    {
+      "round": 8,
+      "arm": "make",
+      "seconds": 0.0020202430023346096,
+      "compiles": 0
+    }
+  ],
+  "tracejit_decision_counts": {
+    "Guarded/Executed": 3,
+    "Guarded/Reused": 18,
+    "Guarded/Deoptimized": 6
+  },
+  "tracejit_deopt_reasons": {
+    "no eligible cached execution matched the pre-execution identity": 3,
+    "cached execution deoptimized | guards {\"checked\": 42, \"failure\": {\"actual\": \"e740917601203309cbcbdf3858e557e0a7608bbf34dcb3936b5bcd8a4321b006\", \"expected\": \"26db04b12d89b04a604e1a66946f2c33cef94235ce81409dcaf32d4b2758a61a\", \"guard\": {\"Fil": 3,
+    "cached execution deoptimized | guards {\"checked\": 42, \"failure\": {\"actual\": \"26db04b12d89b04a604e1a66946f2c33cef94235ce81409dcaf32d4b2758a61a\", \"expected\": \"e740917601203309cbcbdf3858e557e0a7608bbf34dcb3936b5bcd8a4321b006\", \"guard\": {\"Fil": 3
+  },
+  "tracejit_decisions": [
+    {
+      "round": 0,
+      "unit": 0,
+      "cache_decision": "Executed",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": null,
+      "decision_reason": "no eligible cached execution matched the pre-execution identity"
+    },
+    {
+      "round": 0,
+      "unit": 1,
+      "cache_decision": "Executed",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": null,
+      "decision_reason": "no eligible cached execution matched the pre-execution identity"
+    },
+    {
+      "round": 0,
+      "unit": 2,
+      "cache_decision": "Executed",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": null,
+      "decision_reason": "no eligible cached execution matched the pre-execution identity"
+    },
+    {
+      "round": 1,
+      "unit": 0,
+      "cache_decision": "Reused",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": {
+        "checked": 406,
+        "failure": null,
+        "passed": 406
+      },
+      "decision_reason": "all guards passed and cached outputs were restored"
+    },
+    {
+      "round": 1,
+      "unit": 1,
+      "cache_decision": "Reused",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": {
+        "checked": 406,
+        "failure": null,
+        "passed": 406
+      },
+      "decision_reason": "all guards passed and cached outputs were restored"
+    },
+    {
+      "round": 1,
+      "unit": 2,
+      "cache_decision": "Reused",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": {
+        "checked": 406,
+        "failure": null,
+        "passed": 406
+      },
+      "decision_reason": "all guards passed and cached outputs were restored"
+    },
+    {
+      "round": 2,
+      "unit": 0,
+      "cache_decision": "Reused",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": {
+        "checked": 406,
+        "failure": null,
+        "passed": 406
+      },
+      "decision_reason": "all guards passed and cached outputs were restored"
+    },
+    {
+      "round": 2,
+      "unit": 1,
+      "cache_decision": "Reused",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": {
+        "checked": 406,
+        "failure": null,
+        "passed": 406
+      },
+      "decision_reason": "all guards passed and cached outputs were restored"
+    },
+    {
+      "round": 2,
+      "unit": 2,
+      "cache_decision": "Reused",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": {
+        "checked": 406,
+        "failure": null,
+        "passed": 406
+      },
+      "decision_reason": "all guards passed and cached outputs were restored"
+    },
+    {
+      "round": 3,
+      "unit": 0,
+      "cache_decision": "Deoptimized",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": {
+        "checked": 42,
+        "failure": {
+          "actual": "e740917601203309cbcbdf3858e557e0a7608bbf34dcb3936b5bcd8a4321b006",
+          "expected": "26db04b12d89b04a604e1a66946f2c33cef94235ce81409dcaf32d4b2758a61a",
+          "guard": {
+            "FileHash": {
+              "expected": [
+                38,
+                219,
+                4,
+                177,
+                45,
+                137,
+                176,
+                74,
+                96,
+                78,
+                26,
+                102,
+                148,
+                111,
+                44,
+                51,
+                206,
+                249,
+                66,
+                53,
+                206,
+                129,
+                64,
+                157,
+                202,
+                243,
+                45,
+                75,
+                39,
+                88,
+                166,
+                26
+              ],
+              "path": "/tmp/tracejit-phase-z/session-27/tracejit/common.h"
+            }
+          },
+          "reason": "file content changed"
+        },
+        "passed": 40
+      },
+      "decision_reason": "cached execution deoptimized"
+    },
+    {
+      "round": 3,
+      "unit": 1,
+      "cache_decision": "Deoptimized",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": {
+        "checked": 42,
+        "failure": {
+          "actual": "e740917601203309cbcbdf3858e557e0a7608bbf34dcb3936b5bcd8a4321b006",
+          "expected": "26db04b12d89b04a604e1a66946f2c33cef94235ce81409dcaf32d4b2758a61a",
+          "guard": {
+            "FileHash": {
+              "expected": [
+                38,
+                219,
+                4,
+                177,
+                45,
+                137,
+                176,
+                74,
+                96,
+                78,
+                26,
+                102,
+                148,
+                111,
+                44,
+                51,
+                206,
+                249,
+                66,
+                53,
+                206,
+                129,
+                64,
+                157,
+                202,
+                243,
+                45,
+                75,
+                39,
+                88,
+                166,
+                26
+              ],
+              "path": "/tmp/tracejit-phase-z/session-27/tracejit/common.h"
+            }
+          },
+          "reason": "file content changed"
+        },
+        "passed": 40
+      },
+      "decision_reason": "cached execution deoptimized"
+    },
+    {
+      "round": 3,
+      "unit": 2,
+      "cache_decision": "Deoptimized",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": {
+        "checked": 42,
+        "failure": {
+          "actual": "e740917601203309cbcbdf3858e557e0a7608bbf34dcb3936b5bcd8a4321b006",
+          "expected": "26db04b12d89b04a604e1a66946f2c33cef94235ce81409dcaf32d4b2758a61a",
+          "guard": {
+            "FileHash": {
+              "expected": [
+                38,
+                219,
+                4,
+                177,
+                45,
+                137,
+                176,
+                74,
+                96,
+                78,
+                26,
+                102,
+                148,
+                111,
+                44,
+                51,
+                206,
+                249,
+                66,
+                53,
+                206,
+                129,
+                64,
+                157,
+                202,
+                243,
+                45,
+                75,
+                39,
+                88,
+                166,
+                26
+              ],
+              "path": "/tmp/tracejit-phase-z/session-27/tracejit/common.h"
+            }
+          },
+          "reason": "file content changed"
+        },
+        "passed": 40
+      },
+      "decision_reason": "cached execution deoptimized"
+    },
+    {
+      "round": 4,
+      "unit": 0,
+      "cache_decision": "Reused",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": {
+        "checked": 407,
+        "failure": null,
+        "passed": 407
+      },
+      "decision_reason": "all guards passed and cached outputs were restored"
+    },
+    {
+      "round": 4,
+      "unit": 1,
+      "cache_decision": "Reused",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": {
+        "checked": 407,
+        "failure": null,
+        "passed": 407
+      },
+      "decision_reason": "all guards passed and cached outputs were restored"
+    },
+    {
+      "round": 4,
+      "unit": 2,
+      "cache_decision": "Reused",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": {
+        "checked": 407,
+        "failure": null,
+        "passed": 407
+      },
+      "decision_reason": "all guards passed and cached outputs were restored"
+    },
+    {
+      "round": 5,
+      "unit": 0,
+      "cache_decision": "Reused",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": {
+        "checked": 407,
+        "failure": null,
+        "passed": 407
+      },
+      "decision_reason": "all guards passed and cached outputs were restored"
+    },
+    {
+      "round": 5,
+      "unit": 1,
+      "cache_decision": "Reused",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": {
+        "checked": 407,
+        "failure": null,
+        "passed": 407
+      },
+      "decision_reason": "all guards passed and cached outputs were restored"
+    },
+    {
+      "round": 5,
+      "unit": 2,
+      "cache_decision": "Reused",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": {
+        "checked": 407,
+        "failure": null,
+        "passed": 407
+      },
+      "decision_reason": "all guards passed and cached outputs were restored"
+    },
+    {
+      "round": 6,
+      "unit": 0,
+      "cache_decision": "Deoptimized",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": {
+        "checked": 42,
+        "failure": {
+          "actual": "26db04b12d89b04a604e1a66946f2c33cef94235ce81409dcaf32d4b2758a61a",
+          "expected": "e740917601203309cbcbdf3858e557e0a7608bbf34dcb3936b5bcd8a4321b006",
+          "guard": {
+            "FileHash": {
+              "expected": [
+                231,
+                64,
+                145,
+                118,
+                1,
+                32,
+                51,
+                9,
+                203,
+                203,
+                223,
+                56,
+                88,
+                229,
+                87,
+                224,
+                167,
+                96,
+                139,
+                191,
+                52,
+                220,
+                179,
+                147,
+                107,
+                91,
+                205,
+                138,
+                67,
+                33,
+                176,
+                6
+              ],
+              "path": "/tmp/tracejit-phase-z/session-27/tracejit/common.h"
+            }
+          },
+          "reason": "file content changed"
+        },
+        "passed": 40
+      },
+      "decision_reason": "cached execution deoptimized"
+    },
+    {
+      "round": 6,
+      "unit": 1,
+      "cache_decision": "Deoptimized",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": {
+        "checked": 42,
+        "failure": {
+          "actual": "26db04b12d89b04a604e1a66946f2c33cef94235ce81409dcaf32d4b2758a61a",
+          "expected": "e740917601203309cbcbdf3858e557e0a7608bbf34dcb3936b5bcd8a4321b006",
+          "guard": {
+            "FileHash": {
+              "expected": [
+                231,
+                64,
+                145,
+                118,
+                1,
+                32,
+                51,
+                9,
+                203,
+                203,
+                223,
+                56,
+                88,
+                229,
+                87,
+                224,
+                167,
+                96,
+                139,
+                191,
+                52,
+                220,
+                179,
+                147,
+                107,
+                91,
+                205,
+                138,
+                67,
+                33,
+                176,
+                6
+              ],
+              "path": "/tmp/tracejit-phase-z/session-27/tracejit/common.h"
+            }
+          },
+          "reason": "file content changed"
+        },
+        "passed": 40
+      },
+      "decision_reason": "cached execution deoptimized"
+    },
+    {
+      "round": 6,
+      "unit": 2,
+      "cache_decision": "Deoptimized",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": {
+        "checked": 42,
+        "failure": {
+          "actual": "26db04b12d89b04a604e1a66946f2c33cef94235ce81409dcaf32d4b2758a61a",
+          "expected": "e740917601203309cbcbdf3858e557e0a7608bbf34dcb3936b5bcd8a4321b006",
+          "guard": {
+            "FileHash": {
+              "expected": [
+                231,
+                64,
+                145,
+                118,
+                1,
+                32,
+                51,
+                9,
+                203,
+                203,
+                223,
+                56,
+                88,
+                229,
+                87,
+                224,
+                167,
+                96,
+                139,
+                191,
+                52,
+                220,
+                179,
+                147,
+                107,
+                91,
+                205,
+                138,
+                67,
+                33,
+                176,
+                6
+              ],
+              "path": "/tmp/tracejit-phase-z/session-27/tracejit/common.h"
+            }
+          },
+          "reason": "file content changed"
+        },
+        "passed": 40
+      },
+      "decision_reason": "cached execution deoptimized"
+    },
+    {
+      "round": 7,
+      "unit": 0,
+      "cache_decision": "Reused",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": {
+        "checked": 407,
+        "failure": null,
+        "passed": 407
+      },
+      "decision_reason": "all guards passed and cached outputs were restored"
+    },
+    {
+      "round": 7,
+      "unit": 1,
+      "cache_decision": "Reused",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": {
+        "checked": 407,
+        "failure": null,
+        "passed": 407
+      },
+      "decision_reason": "all guards passed and cached outputs were restored"
+    },
+    {
+      "round": 7,
+      "unit": 2,
+      "cache_decision": "Reused",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": {
+        "checked": 407,
+        "failure": null,
+        "passed": 407
+      },
+      "decision_reason": "all guards passed and cached outputs were restored"
+    },
+    {
+      "round": 8,
+      "unit": 0,
+      "cache_decision": "Reused",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": {
+        "checked": 407,
+        "failure": null,
+        "passed": 407
+      },
+      "decision_reason": "all guards passed and cached outputs were restored"
+    },
+    {
+      "round": 8,
+      "unit": 1,
+      "cache_decision": "Reused",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": {
+        "checked": 407,
+        "failure": null,
+        "passed": 407
+      },
+      "decision_reason": "all guards passed and cached outputs were restored"
+    },
+    {
+      "round": 8,
+      "unit": 2,
+      "cache_decision": "Reused",
+      "classification": "Guarded",
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "guards": {
+        "checked": 407,
+        "failure": null,
+        "passed": 407
+      },
+      "decision_reason": "all guards passed and cached outputs were restored"
+    }
+  ],
+  "edit_rounds": "3,6"
+}

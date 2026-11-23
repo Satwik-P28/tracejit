@@ -205,9 +205,16 @@ pub const ALLOCATOR_ENTROPY_CONTRACT: &str = "tracejit.allocator-entropy.v1";
 
 /// Bytes supplied for allocator-internal entropy under that contract.
 ///
-/// The value is fixed so that a trace recorded under the contract can be reproduced exactly. It
-/// never leaves the runtime's own allocator state: the tracer admits a call only when the
-/// destination is a private writable mapping of the shared library that issued it.
+/// The value is fixed so that a trace recorded under the contract can be reproduced exactly.
+/// glibc uses `tcache_key` in exactly two roles: `tcache_put` stores it in the `key` field of a
+/// chunk being freed into a thread cache, and `_int_free` compares it there to decide whether to
+/// scan the tcache list for a double free. It does not feed safe-linking (links are masked with
+/// the chunk's own address, which is ASLR-derived) and it selects no allocation, so a fixed value
+/// moves no heap object and changes no address. What does change is the `key` word of a freed
+/// chunk's user area, which `tcache_get_n` zeroes again on allocation; reading it before writing
+/// it is undefined behaviour, which the contract excludes (`docs/PHASE_Z_CONTRACT.md` §3.1). The
+/// tracer admits the call only when the destination is a private writable mapping of the shared
+/// library that issued it.
 pub const ALLOCATOR_ENTROPY_VALUE: u64 = 0x9e37_79b9_7f4a_7c15;
 
 /// An audited runtime call site the allocator-entropy contract may answer.
@@ -234,6 +241,12 @@ pub struct AllocatorEntropyProfile {
 /// Each entry names one exact build and the exact instructions its allocator probe uses. The
 /// destination is `tcache_key`: the kernel writes the eight random bytes straight into it, and the
 /// only other writer is the same function's clock-derived fallback for a short read.
+///
+/// Attribution is not by symbol name — internal statics are stripped. In both audited images the
+/// destination has exactly three uses, which is what `malloc/malloc.c` says the key has: the
+/// initializer writes it (kernel write, or two stores on the clock path), four inlined `tcache_put`
+/// sites store it into freed chunks, and `_int_free` compares it once. Safe-linking uses that same
+/// region's `next` word with an address mask and never reads this slot.
 ///
 /// `2.39-0ubuntu8.9` (build `a4a7992a8e66555c8141ab2a08a8465ff6e0ea65`): `syscall` at
 /// `libc+0xa9e87`, execution resumes at `libc+0xa9e89`.

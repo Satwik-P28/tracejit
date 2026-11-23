@@ -120,27 +120,28 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
   at 1/2/4/8 threads and 10/10 default runs, fuzz seed 29 (0 incorrect hits), model check, fault
   injection, audit clean. Phase Y plan: `docs/PHASE_Y_RESEARCH_PLAN.md` (fs-verity first).
 
-## Research line, Phase Z (`research/phase-z`, from `6bab00b`)
+## Research line, Phase Z (`research/phase-z`, from `6bab00b`, PR #42)
 
-- Question: can the stale audited build be replaced on evidence, and does the restored reuse survive
-  an independent oracle? **Yes, and admission is stronger than before.** `docs/PHASE_Z_REPORT.md`,
-  `docs/PHASE_Z_GLIBC_DIFF.md`, `docs/PHASE_Z_CONTRACT.md`, `docs/PHASE_Z_LEDGER.md`.
+- The stale audited build is replaced on evidence and admission is stronger:
+  `docs/PHASE_Z_REPORT.md`, `PHASE_Z_GLIBC_DIFF.md`, `PHASE_Z_CONTRACT.md`, `PHASE_Z_LEDGER.md`;
+  source-level audit, corrections and new regressions in `docs/PHASE_Z1_AUDIT.md`.
 - `2.39-0ubuntu8.12` joins `ALLOCATOR_ENTROPY_PROFILES` (`site 0xa9e69`, destination unchanged
-  `0x20b178`): its audited function decodes identically to 8.9 once relocation is normalized, and
-  8.10–8.12 touched no malloc code. The destination is now **derived** from the buffer load's
-  RIP-relative displacement (`audited_allocator_site`) at record *and* guard time instead of
-  asserted; ambiguity refuses. `doctor` reports `runtime allocator-entropy-v1 audited (<build id>)`.
-- Compiler reuse restored: 103.7 → 45.2 ms paired, byte-identical objects; sessions **1.81×** (27
-  invocations) and **2.91×** (48), every arm byte-identical. `make` wins by compiling 9 times, not
-  27. `ccache`/`sccache` are unavailable here, so nothing is claimed against them.
-- Newly eligible (contract tier only): census 1 → **7** of 30, held out 0 → **7** of 20; native tier
-  unchanged at 1/30. Shortlist: `sed` 11.02×, `sort --parallel=1` 8.29×, `gzip -9` 3.80×;
-  `wc`/`sha256sum` rejected as slower on a hit; `awk`, threaded `sort`, `tar`, `python` ineligible.
-- `scripts/phase_z_provenance.py` (an independent ptrace observer) attributes every compiler probe to
-  `libc+0xa9e69 -> libc+0x20b178` and calls application entropy `other`;
-  `benchmarks/phase_z/adversarial.py` runs 16 cases with **0 incorrect hits**.
-- Gates: 261 tests, integration 75/75 at 1/2/8 threads and default, fuzz seed 29 (0 incorrect hits),
-  model check, fault injection, `cargo audit` clean.
+  `0x20b178`); its audited function decodes identically to 8.9, and the only malloc change in
+  8.10–8.12 is `_int_memalign`'s alignment check, which the contract does not touch. The destination
+  is **derived** from the buffer load's displacement at record *and* guard time; ambiguity refuses.
+  `doctor` reports `runtime allocator-entropy-v1 audited (<build id>)`.
+- Compiler reuse restored (103.3 → 47.8 ms paired, byte-identical objects); sessions **1.83×** (27)
+  and **2.82×** (48), all arms byte-identical. Contract tier newly eligible: census 1 → 7/30, held
+  out 0 → 7/20; native tier unchanged at 1/30. Shortlist `sed` 11.02×, `sort --parallel=1` 8.29×,
+  `gzip -9` 3.80×; `wc`/`sha256sum` rejected as slower; `awk`/threaded `sort`/`tar`/`python`
+  ineligible. `ccache`/`sccache` unavailable here, so nothing is claimed against them.
+- Phase Z1 audit: `tcache_key` has exactly two roles — `tcache_put` stores it in a freed chunk's
+  `key` word, `_int_free` compares it there — so it does **not** feed safe-linking (which masks with
+  the chunk address) and does **not** change heap layout. Contract split into claims A/B/C with
+  explicit exclusions; allocator diagnostics are byte-identical to native on both double-free paths;
+  an unaudited `.so` issuing the same probe is refused; four concurrent initialisations replay.
+- Gates on the final head: **269 tests**, integration 80/80 at 1/8/default threads, fuzz seed 29
+  (0 incorrect hits), model check, fault injection, `cargo audit`, fmt and clippy clean.
 
 ## Known limitations
 
