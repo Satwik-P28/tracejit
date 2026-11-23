@@ -143,7 +143,8 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
   `2.39-0ubuntu8.12`, so `allocator-entropy-v1` refuses and the 48-invocation session is 48 misses on
   both arms — direct evidence that the audited profile goes stale.
 - Gates: 253 tests, integration 75/75 at 1/2/4/8 threads, fuzz seed 29 (0 incorrect hits), model
-  check, fault injection, `cargo audit` clean.
+  check, fault injection, `cargo audit` clean. CI run #264 on `da48bae`: success. Its runner is also
+  glibc `2.39-0ubuntu8.12`, so no CI runner exercises the `allocator-entropy-v1` reuse path now.
 
 ## Known limitations
 

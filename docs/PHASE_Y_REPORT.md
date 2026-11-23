@@ -27,6 +27,7 @@ optimization**. Nothing was merged into `main`, and no release was published.
 | Starting `main` | `6bab00bff96f6b461b65874ba3152178f8fea79a` (merge of PR #41) |
 | Post-merge `main` CI | run **#263**, `success`, on `6bab00b` (verified before any work) |
 | Research branch | `research/phase-y`, created at `6bab00b` |
+| Branch CI | run **#264** on `da48bae`: **success**, 14/14 steps (formatting, clippy, tests, release build, version consistency, doctor, Linux integration, real-world census, demo) |
 | Production-behaviour diff | one new guard variant + one new `doctor` line, both inert without fs-verity |
 | Merged into `main` | **nothing**; promotion gate failed (see §9) |
 | Release | none; v0.3 not published |
@@ -130,6 +131,16 @@ rather than hypothesised.
 
 Consequence: content-cost attribution (§2) uses the **recorded guard list**, which is written
 regardless of classification, and end-to-end reuse timing (§6) uses workloads that still reuse.
+
+**The drift is not local.** CI run #264's own annotation reports
+`ldd (Ubuntu GLIBC 2.39-0ubuntu8.12) 2.39 build_id=8cebda42d140fc2b09639f8b13a5d5f2e617ef09` — the
+same build as this sandbox — and the run still passed, because Phase X1 made the two contract tests
+assert the documented refusal on an unaudited runtime instead of asserting a HIT. That fix is the
+only reason the `Tests` step is green on today's runner; without it, run #264 would have failed like
+#254. The cost is coverage: **no current CI runner exercises the `allocator-entropy-v1` compiler
+reuse path at all**, so that contract's happy path is now tested nowhere. Phase X1 §8's mechanism
+(a) is therefore confirmed and universal, while its open question (#259's unnamed integration
+failure on an *audited* runner) remains open for the same reason as before.
 
 ## 4. Design: `VerityContentIdentity`, and the correctness argument
 
