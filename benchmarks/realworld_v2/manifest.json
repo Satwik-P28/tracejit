@@ -1,0 +1,1367 @@
+{
+  "corpus_source_sha256": "0fd8cfa62bfc3530642744d46d2d61883b66542a66365d5897465b0bdad0f08a",
+  "generated_from_commit": "e4f80adcbf3d1184bf27babc870a62c4daa8ff89",
+  "manifest_version": "tracejit.realworld.corpus/v2",
+  "tiers": {
+    "A": "strict native: no workload adaptation, no execution contract",
+    "B": "controlled execution: --contract allocator-entropy-v1 (a policy axis, not a workload property)",
+    "C": "adapted workload: declared environment/input/invocation adaptation",
+    "D": "unsupported: refused by TraceJIT and kept as a negative result"
+  },
+  "workloads": [
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "compiler",
+      "mutation_input": "small.c",
+      "mutator": "append_marker",
+      "note": "Compiles a generated 400-function translation unit with six generated headers (gcc -O2 -c).",
+      "outputs": [
+        "small.o"
+      ],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "gcc"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "dev",
+      "unsupported_tool": null,
+      "workload_id": "gcc-cc-small-tu"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "heavy",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "compiler",
+      "mutation_input": null,
+      "mutator": null,
+      "note": "Compiles zlib's deflate.c at -O2: a real, compute-heavy upstream translation unit.",
+      "outputs": [
+        "deflate.o"
+      ],
+      "planned_repetitions": 5,
+      "provenance": "zlib-1.3.1@9a93b2b7dfda",
+      "required_tools": [
+        "gcc"
+      ],
+      "reset_policy": "delete_outputs",
+      "source": {
+        "kind": "upstream-archive",
+        "name": "zlib",
+        "sha256": "9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23",
+        "url": "https://zlib.net/fossils/zlib-1.3.1.tar.gz",
+        "version": "1.3.1"
+      },
+      "split": "dev",
+      "unsupported_tool": null,
+      "workload_id": "gcc-cc-heavy-tu"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "medium",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "compiler",
+      "mutation_input": "util.c",
+      "mutator": "append_marker",
+      "note": "Compiles two translation units and links them in one gcc invocation.",
+      "outputs": [
+        "app"
+      ],
+      "planned_repetitions": 10,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "gcc"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "dev",
+      "unsupported_tool": null,
+      "workload_id": "gcc-multi-tu-link"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "compiler",
+      "mutation_input": "util.h",
+      "mutator": "append_marker",
+      "note": "gcc -E over a three-file project with a private include directory.",
+      "outputs": [
+        "main.i"
+      ],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "gcc"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "validation",
+      "unsupported_tool": null,
+      "workload_id": "gcc-cpp-preprocess"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "compiler",
+      "mutation_input": "util.h",
+      "mutator": "append_marker",
+      "note": "Front-end-only lint pass with -Wall -Wextra -Werror -fsyntax-only.",
+      "outputs": [],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "gcc"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "validation",
+      "unsupported_tool": null,
+      "workload_id": "gcc-syntax-only"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "archiver",
+      "mutation_input": null,
+      "mutator": null,
+      "note": "ar rcs of a prebuilt object, creating a static library.",
+      "outputs": [
+        "libutil.a"
+      ],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "ar"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "validation",
+      "unsupported_tool": null,
+      "workload_id": "gcc-static-archive"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "linker",
+      "mutation_input": null,
+      "mutator": null,
+      "note": "Links prebuilt objects into an executable with no compilation.",
+      "outputs": [
+        "app"
+      ],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "gcc"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "validation",
+      "unsupported_tool": null,
+      "workload_id": "gcc-link-only"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "medium",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "compiler",
+      "mutation_input": null,
+      "mutator": null,
+      "note": "Compiles zlib's crc32.c at -O0, the debugging build a developer repeats most often.",
+      "outputs": [
+        "crc32.o"
+      ],
+      "planned_repetitions": 10,
+      "provenance": "zlib-1.3.1@9a93b2b7dfda",
+      "required_tools": [
+        "gcc"
+      ],
+      "reset_policy": "delete_outputs",
+      "source": {
+        "kind": "upstream-archive",
+        "name": "zlib",
+        "sha256": "9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23",
+        "url": "https://zlib.net/fossils/zlib-1.3.1.tar.gz",
+        "version": "1.3.1"
+      },
+      "split": "heldout",
+      "unsupported_tool": null,
+      "workload_id": "gcc-noopt-compile"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "medium",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "build",
+      "mutation_input": "util.h",
+      "mutator": "append_marker",
+      "note": "A real Makefile with declared object rules and a link step, run from a clean tree.",
+      "outputs": [
+        "app",
+        "main.o",
+        "util.o"
+      ],
+      "planned_repetitions": 10,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "make",
+        "gcc"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "dev",
+      "unsupported_tool": null,
+      "workload_id": "make-build"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "build",
+      "mutation_input": null,
+      "mutator": null,
+      "note": "make clean: removes build products. A command whose observable effect is deletion.",
+      "outputs": [],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "make"
+      ],
+      "reset_policy": "none",
+      "split": "dev",
+      "unsupported_tool": null,
+      "workload_id": "make-clean"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "build",
+      "mutation_input": null,
+      "mutator": null,
+      "note": "Repeats an already-satisfied make target with outputs present (the true incremental no-op).",
+      "outputs": [
+        "app",
+        "main.o",
+        "util.o"
+      ],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "make",
+        "gcc"
+      ],
+      "reset_policy": "keep_outputs",
+      "split": "validation",
+      "unsupported_tool": null,
+      "workload_id": "make-incremental-noop"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "medium",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "build",
+      "mutation_input": "util.h",
+      "mutator": "append_marker",
+      "note": "Rebuilds after util.h changes; outputs are prebuilt in prepare, so the run recompiles both objects.",
+      "outputs": [
+        "app",
+        "main.o",
+        "util.o"
+      ],
+      "planned_repetitions": 10,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "make",
+        "gcc"
+      ],
+      "reset_policy": "keep_outputs",
+      "split": "heldout",
+      "unsupported_tool": null,
+      "workload_id": "make-header-change"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "heavy",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "analysis",
+      "mutation_input": "util.c",
+      "mutator": "append_marker",
+      "note": "gcc -fanalyzer over a small project: a real static analyser pass.",
+      "outputs": [
+        "util.o"
+      ],
+      "planned_repetitions": 5,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "gcc"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "dev",
+      "unsupported_tool": null,
+      "workload_id": "gcc-fanalyzer"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "medium",
+      "environment_adaptations": {},
+      "environment_tier": "C",
+      "family": "analysis",
+      "mutation_input": null,
+      "mutator": null,
+      "note": "cppcheck over the C project. Not installed on every image; a missing tool is not a refusal.",
+      "outputs": [],
+      "planned_repetitions": 10,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "cppcheck"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "dev",
+      "unsupported_tool": "cppcheck",
+      "workload_id": "cppcheck-project"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "C",
+      "family": "analysis",
+      "mutation_input": null,
+      "mutator": null,
+      "note": "shellcheck over a shell script (deterministic static analysis).",
+      "outputs": [],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "shellcheck"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "validation",
+      "unsupported_tool": "shellcheck",
+      "workload_id": "shellcheck-script"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "C",
+      "family": "analysis",
+      "mutation_input": null,
+      "mutator": null,
+      "note": "ruff check over a Python package (fast deterministic linter).",
+      "outputs": [],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "ruff"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "validation",
+      "unsupported_tool": "ruff",
+      "workload_id": "ruff-check"
+    },
+    {
+      "adaptations": [
+        "PYTHONHASHSEED=0",
+        "PYTHONDONTWRITEBYTECODE=1"
+      ],
+      "cost_class": "light",
+      "environment_adaptations": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONHASHSEED": "0"
+      },
+      "environment_tier": "C",
+      "family": "analysis",
+      "mutation_input": "module.py",
+      "mutator": "append_marker",
+      "note": "CPython bytecode compilation of one module.",
+      "outputs": [
+        "__pycache__"
+      ],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "python3"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "dev",
+      "unsupported_tool": null,
+      "workload_id": "py-compile"
+    },
+    {
+      "adaptations": [
+        "PYTHONHASHSEED=0",
+        "PYTHONDONTWRITEBYTECODE=1"
+      ],
+      "cost_class": "light",
+      "environment_adaptations": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONHASHSEED": "0"
+      },
+      "environment_tier": "C",
+      "family": "analysis",
+      "mutation_input": null,
+      "mutator": null,
+      "note": "python -m compileall over a 24-module package.",
+      "outputs": [
+        "pkg/__pycache__"
+      ],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "python3"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "heldout",
+      "unsupported_tool": null,
+      "workload_id": "py-compileall"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "medium",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "compression",
+      "mutation_input": "corpus.txt",
+      "mutator": "append_marker",
+      "note": "gzip -6 -n of 256 KiB of real upstream text to stdout.",
+      "outputs": [],
+      "planned_repetitions": 10,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "gzip"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "dev",
+      "unsupported_tool": null,
+      "workload_id": "gzip-6-stdout"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "medium",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "compression",
+      "mutation_input": "corpus.bin",
+      "mutator": "append_marker",
+      "note": "gzip -9 -n -k -f of a 1 MiB incompressible blob, producing a file.",
+      "outputs": [
+        "corpus.bin.gz"
+      ],
+      "planned_repetitions": 10,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "gzip"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "dev",
+      "unsupported_tool": null,
+      "workload_id": "gzip-9-file"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "heavy",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "compression",
+      "mutation_input": "corpus.bin",
+      "mutator": "append_marker",
+      "note": "bzip2 -9 of a 1 MiB incompressible blob.",
+      "outputs": [
+        "corpus.bin.bz2"
+      ],
+      "planned_repetitions": 5,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "bzip2"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "validation",
+      "unsupported_tool": null,
+      "workload_id": "bzip2-9-file"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "heavy",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "compression",
+      "mutation_input": "corpus.bin",
+      "mutator": "append_marker",
+      "note": "xz -6 of a 1 MiB incompressible blob (the slow, high-ratio preset).",
+      "outputs": [
+        "corpus.bin.xz"
+      ],
+      "planned_repetitions": 5,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "xz"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "validation",
+      "unsupported_tool": null,
+      "workload_id": "xz-6-file"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "medium",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "compression",
+      "mutation_input": "corpus.bin",
+      "mutator": "append_marker",
+      "note": "xz -0 of the same blob (fast preset), so the ratio/cost trade-off is visible.",
+      "outputs": [
+        "corpus.bin.xz"
+      ],
+      "planned_repetitions": 10,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "xz"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "dev",
+      "unsupported_tool": null,
+      "workload_id": "xz-0-file"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "heavy",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "compression",
+      "mutation_input": null,
+      "mutator": null,
+      "note": "zstd -19 of the blob, the modern default a build actually uses.",
+      "outputs": [],
+      "planned_repetitions": 5,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "zstd"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "validation",
+      "unsupported_tool": "zstd",
+      "workload_id": "zstd-19-file"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "packaging",
+      "mutation_input": "corpus.bin",
+      "mutator": "append_marker",
+      "note": "tar -cf of two files into an uncompressed archive.",
+      "outputs": [
+        "bundle.tar"
+      ],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "tar"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "dev",
+      "unsupported_tool": null,
+      "workload_id": "tar-create"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "medium",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "packaging",
+      "mutation_input": null,
+      "mutator": null,
+      "note": "tar -czf of a real upstream source subset (archive creation with internal zlib).",
+      "outputs": [
+        "zlib-src.tar.gz"
+      ],
+      "planned_repetitions": 10,
+      "provenance": "zlib-1.3.1@9a93b2b7dfda",
+      "required_tools": [
+        "tar"
+      ],
+      "reset_policy": "delete_outputs",
+      "source": {
+        "kind": "upstream-archive",
+        "name": "zlib",
+        "sha256": "9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23",
+        "url": "https://zlib.net/fossils/zlib-1.3.1.tar.gz",
+        "version": "1.3.1"
+      },
+      "split": "validation",
+      "unsupported_tool": null,
+      "workload_id": "tar-gzip"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "packaging",
+      "mutation_input": "corpus.bin",
+      "mutator": "append_marker",
+      "note": "zip -X of two files (timestamps suppressed for reproducibility).",
+      "outputs": [
+        "bundle.zip"
+      ],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "zip"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "validation",
+      "unsupported_tool": null,
+      "workload_id": "zip-create"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "packaging",
+      "mutation_input": null,
+      "mutator": null,
+      "note": "unzip -o extraction of a two-member archive into a new directory.",
+      "outputs": [
+        "extracted"
+      ],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "unzip",
+        "zip"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "heldout",
+      "unsupported_tool": null,
+      "workload_id": "unzip-extract"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "medium",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "compression",
+      "mutation_input": "corpus.bin",
+      "mutator": "append_marker",
+      "note": "gzip -c | gzip -dc round-trip into a file: a two-process pipe.",
+      "outputs": [
+        "roundtrip.bin"
+      ],
+      "planned_repetitions": 10,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "gzip",
+        "sh"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "heldout",
+      "unsupported_tool": null,
+      "workload_id": "gzip-roundtrip"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "data",
+      "mutation_input": "rows.json",
+      "mutator": "append_marker",
+      "note": "jq reduction over 3000 JSON records to stdout.",
+      "outputs": [],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "jq"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "dev",
+      "unsupported_tool": null,
+      "workload_id": "jq-sum"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "data",
+      "mutation_input": "rows.json",
+      "mutator": "append_marker",
+      "note": "jq projection of JSON records into a file (data normalisation shape).",
+      "outputs": [
+        "filtered.json"
+      ],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "jq",
+        "sh"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "validation",
+      "unsupported_tool": null,
+      "workload_id": "jq-transform-file"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "data",
+      "mutation_input": "lines.txt",
+      "mutator": "append_marker",
+      "note": "awk numeric reduction over 20000 lines.",
+      "outputs": [],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "awk"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "dev",
+      "unsupported_tool": null,
+      "workload_id": "awk-reduce"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "data",
+      "mutation_input": "lines.txt",
+      "mutator": "append_marker",
+      "note": "sed substitution over 20000 lines to stdout.",
+      "outputs": [],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "sed"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "dev",
+      "unsupported_tool": null,
+      "workload_id": "sed-substitute-file"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "medium",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "data",
+      "mutation_input": "lines.txt",
+      "mutator": "append_marker",
+      "note": "sort of 20000 lines to stdout.",
+      "outputs": [],
+      "planned_repetitions": 10,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "sort"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "dev",
+      "unsupported_tool": null,
+      "workload_id": "sort-lines"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "medium",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "data",
+      "mutation_input": "lines.txt",
+      "mutator": "append_marker",
+      "note": "sort | uniq -c | sort -k1,1nr frequency table into a file.",
+      "outputs": [
+        "frequencies.txt"
+      ],
+      "planned_repetitions": 10,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "sh",
+        "sort",
+        "uniq"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "validation",
+      "unsupported_tool": null,
+      "workload_id": "sort-uniq-counts"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "data",
+      "mutation_input": "sales.csv",
+      "mutator": "append_marker",
+      "note": "cut two columns out of a 5000-row CSV.",
+      "outputs": [],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "cut"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "heldout",
+      "unsupported_tool": null,
+      "workload_id": "cut-columns"
+    },
+    {
+      "adaptations": [
+        "PYTHONHASHSEED=0",
+        "PYTHONDONTWRITEBYTECODE=1"
+      ],
+      "cost_class": "medium",
+      "environment_adaptations": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONHASHSEED": "0"
+      },
+      "environment_tier": "C",
+      "family": "data",
+      "mutation_input": "sales.csv",
+      "mutator": "append_marker",
+      "note": "CPython CSV-to-JSON aggregation over 5000 rows.",
+      "outputs": [
+        "report.json"
+      ],
+      "planned_repetitions": 10,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "python3"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "heldout",
+      "unsupported_tool": null,
+      "workload_id": "python-csv-json"
+    },
+    {
+      "adaptations": [
+        "PYTHONHASHSEED=0",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "BLAS/OMP threads pinned to 1"
+      ],
+      "cost_class": "heavy",
+      "environment_adaptations": {
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONHASHSEED": "0"
+      },
+      "environment_tier": "C",
+      "family": "scientific",
+      "mutation_input": "matmul.py",
+      "mutator": "append_marker",
+      "note": "NumPy matrix products on 420x420 deterministic matrices, single-threaded.",
+      "outputs": [],
+      "planned_repetitions": 5,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "python3"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "validation",
+      "unsupported_tool": null,
+      "workload_id": "numpy-matmul"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "medium",
+      "environment_adaptations": {},
+      "environment_tier": "C",
+      "family": "data",
+      "mutation_input": null,
+      "mutator": null,
+      "note": "CSV to Parquet conversion. Requires pyarrow, which is not on every image.",
+      "outputs": [],
+      "planned_repetitions": 10,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "python3"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "heldout",
+      "unsupported_tool": "pyarrow",
+      "workload_id": "parquet-convert"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "heavy",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "scientific",
+      "mutation_input": null,
+      "mutator": null,
+      "note": "A 60-million-step numeric reduction compiled and run: small output, large compute.",
+      "outputs": [],
+      "planned_repetitions": 5,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "gcc"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "dev",
+      "unsupported_tool": null,
+      "workload_id": "c-numeric-integration"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "scientific",
+      "mutation_input": "lines.txt",
+      "mutator": "append_marker",
+      "note": "Iterative floating-point reduction in awk over 20000 numbers.",
+      "outputs": [],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "awk"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "validation",
+      "unsupported_tool": null,
+      "workload_id": "awk-float-reduce"
+    },
+    {
+      "adaptations": [
+        "PYTHONHASHSEED=0",
+        "PYTHONDONTWRITEBYTECODE=1"
+      ],
+      "cost_class": "medium",
+      "environment_adaptations": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONHASHSEED": "0"
+      },
+      "environment_tier": "C",
+      "family": "scientific",
+      "mutation_input": "source.png",
+      "mutator": "append_marker",
+      "note": "Deterministic Pillow grayscale/posterize/resize of a generated PNG.",
+      "outputs": [
+        "transformed.png"
+      ],
+      "planned_repetitions": 10,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "python3"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "heldout",
+      "unsupported_tool": null,
+      "workload_id": "pil-image-transform"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "heavy",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "tooling",
+      "mutation_input": "compute.js",
+      "mutator": "append_marker",
+      "note": "Node.js 3-million-round BigInt mixing loop; one line of output.",
+      "outputs": [],
+      "planned_repetitions": 5,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "node"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "dev",
+      "unsupported_tool": null,
+      "workload_id": "node-compute"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "medium",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "tooling",
+      "mutation_input": "records.json",
+      "mutator": "append_marker",
+      "note": "Node.js JSON aggregation over 1500 records.",
+      "outputs": [],
+      "planned_repetitions": 10,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "node"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "validation",
+      "unsupported_tool": null,
+      "workload_id": "node-script-file"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "tooling",
+      "mutation_input": "lines.txt",
+      "mutator": "append_marker",
+      "note": "perl -lne numeric reduction over 20000 lines.",
+      "outputs": [],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "perl"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "validation",
+      "unsupported_tool": null,
+      "workload_id": "perl-reduce"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "tooling",
+      "mutation_input": null,
+      "mutator": null,
+      "note": "objcopy --strip-unneeded on a prebuilt object.",
+      "outputs": [
+        "stripped.o"
+      ],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "objcopy"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "dev",
+      "unsupported_tool": null,
+      "workload_id": "objcopy-strip"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "tooling",
+      "mutation_input": null,
+      "mutator": null,
+      "note": "strip --strip-unneeded of a debug binary (binary rewriting).",
+      "outputs": [
+        "app-stripped"
+      ],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "strip"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "heldout",
+      "unsupported_tool": null,
+      "workload_id": "strip-binary"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "tooling",
+      "mutation_input": null,
+      "mutator": null,
+      "note": "objdump -d disassembly of a compiled binary to stdout.",
+      "outputs": [],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "objdump"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "heldout",
+      "unsupported_tool": null,
+      "workload_id": "objdump-disassemble"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "tooling",
+      "mutation_input": null,
+      "mutator": null,
+      "note": "readelf -h ELF header report to stdout.",
+      "outputs": [],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "readelf"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "heldout",
+      "unsupported_tool": null,
+      "workload_id": "readelf-header"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "tooling",
+      "mutation_input": null,
+      "mutator": null,
+      "note": "nm --defined-only symbol listing to stdout.",
+      "outputs": [],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "nm"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "heldout",
+      "unsupported_tool": null,
+      "workload_id": "nm-symbols"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "filesystem",
+      "mutation_input": "seed.txt",
+      "mutator": "append_marker",
+      "note": "Deletes and recreates an output file in one shell command.",
+      "outputs": [
+        "out.dat"
+      ],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "sh"
+      ],
+      "reset_policy": "none",
+      "split": "dev",
+      "unsupported_tool": null,
+      "workload_id": "fs-delete-recreate"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "filesystem",
+      "mutation_input": "link.txt",
+      "mutator": "replace_symlink_target",
+      "note": "Reads its input through a symlink and writes a regular output.",
+      "outputs": [
+        "out.txt"
+      ],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "sh"
+      ],
+      "reset_policy": "delete_outputs",
+      "split": "validation",
+      "unsupported_tool": null,
+      "workload_id": "fs-symlink-input"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "filesystem",
+      "mutation_input": "real.txt",
+      "mutator": "append_marker",
+      "note": "Creates a hard-link alias of its input and reads through it.",
+      "outputs": [
+        "out.txt",
+        "alias.txt"
+      ],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "sh"
+      ],
+      "reset_policy": "none",
+      "split": "validation",
+      "unsupported_tool": null,
+      "workload_id": "fs-hardlink-alias"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "filesystem",
+      "mutation_input": "in.txt",
+      "mutator": "append_marker",
+      "note": "Rewrites its input with identical bytes (same size, new timestamps) and copies it.",
+      "outputs": [
+        "in.txt",
+        "out.txt"
+      ],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "cc"
+      ],
+      "reset_policy": "none",
+      "split": "heldout",
+      "unsupported_tool": null,
+      "workload_id": "fs-identical-rewrite"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "filesystem",
+      "mutation_input": "seed.txt",
+      "mutator": "append_marker",
+      "note": "Writes an output and changes its permission bits.",
+      "outputs": [
+        "out.txt"
+      ],
+      "planned_repetitions": 20,
+      "provenance": "corpus.py@0fd8cfa62bfc",
+      "required_tools": [
+        "sh"
+      ],
+      "reset_policy": "none",
+      "split": "heldout",
+      "unsupported_tool": null,
+      "workload_id": "fs-chmod-output"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "real-project",
+      "mutation_input": null,
+      "mutator": null,
+      "note": "Compiles zlib 1.3.1 adler32.c -O2 (a small real upstream unit).",
+      "outputs": [
+        "adler32.o"
+      ],
+      "planned_repetitions": 20,
+      "provenance": "zlib-1.3.1@9a93b2b7dfda",
+      "required_tools": [
+        "gcc"
+      ],
+      "reset_policy": "delete_outputs",
+      "source": {
+        "kind": "upstream-archive",
+        "name": "zlib",
+        "sha256": "9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23",
+        "url": "https://zlib.net/fossils/zlib-1.3.1.tar.gz",
+        "version": "1.3.1"
+      },
+      "split": "dev",
+      "unsupported_tool": null,
+      "workload_id": "zlib-compile-adler32"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "heavy",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "real-project",
+      "mutation_input": null,
+      "mutator": null,
+      "note": "Compiles zlib 1.3.1 deflate.c -O2, the heaviest real translation unit in the suite.",
+      "outputs": [
+        "deflate.o"
+      ],
+      "planned_repetitions": 5,
+      "provenance": "zlib-1.3.1@9a93b2b7dfda",
+      "required_tools": [
+        "gcc"
+      ],
+      "reset_policy": "delete_outputs",
+      "source": {
+        "kind": "upstream-archive",
+        "name": "zlib",
+        "sha256": "9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23",
+        "url": "https://zlib.net/fossils/zlib-1.3.1.tar.gz",
+        "version": "1.3.1"
+      },
+      "split": "validation",
+      "unsupported_tool": null,
+      "workload_id": "zlib-compile-deflate"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "light",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "real-project",
+      "mutation_input": null,
+      "mutator": null,
+      "note": "ar rcs of a real zlib object into a static library.",
+      "outputs": [
+        "libz-part.a"
+      ],
+      "planned_repetitions": 20,
+      "provenance": "zlib-1.3.1@9a93b2b7dfda",
+      "required_tools": [
+        "ar"
+      ],
+      "reset_policy": "delete_outputs",
+      "source": {
+        "kind": "upstream-archive",
+        "name": "zlib",
+        "sha256": "9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23",
+        "url": "https://zlib.net/fossils/zlib-1.3.1.tar.gz",
+        "version": "1.3.1"
+      },
+      "split": "validation",
+      "unsupported_tool": null,
+      "workload_id": "zlib-archive"
+    },
+    {
+      "adaptations": [],
+      "cost_class": "heavy",
+      "environment_adaptations": {},
+      "environment_tier": "A",
+      "family": "real-project",
+      "mutation_input": null,
+      "mutator": null,
+      "note": "tar -czf of six real zlib sources (upstream input distribution).",
+      "outputs": [
+        "zlib-src.tar.gz"
+      ],
+      "planned_repetitions": 5,
+      "provenance": "zlib-1.3.1@9a93b2b7dfda",
+      "required_tools": [
+        "tar"
+      ],
+      "reset_policy": "delete_outputs",
+      "source": {
+        "kind": "upstream-archive",
+        "name": "zlib",
+        "sha256": "9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23",
+        "url": "https://zlib.net/fossils/zlib-1.3.1.tar.gz",
+        "version": "1.3.1"
+      },
+      "split": "heldout",
+      "unsupported_tool": null,
+      "workload_id": "zlib-gzip-tarball"
+    }
+  ]
+}
