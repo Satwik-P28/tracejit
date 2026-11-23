@@ -168,6 +168,41 @@ class HitAccounting(unittest.TestCase):
         )
 
 
+class PlainReportDecision(unittest.TestCase):
+    """The timed arm reads TraceJIT's plain report; that parser must be exact."""
+
+    def test_hit(self) -> None:
+        decision = runner.parse_plain_decision(
+            b"\nTraceJIT\n\nguards         3/3 passed\ncache          HIT\nruntime        12.3ms\n"
+        )
+        self.assertEqual(decision["kind"], "Reused")
+        self.assertEqual(decision["cache_decision"], "Reused")
+        self.assertTrue(runner.is_hit(decision))
+
+    def test_miss_deopt_and_skip(self) -> None:
+        for line, expected in (
+            ("cache          MISS", "Ineligible"),
+            ("cache          DEOPT", "Deoptimized"),
+            ("cache          SKIP (admission policy)", "Skipped"),
+        ):
+            decision = runner.parse_plain_decision(f"\nTraceJIT\n\n{line}\n".encode())
+            self.assertEqual(decision["cache_decision"], expected, line)
+            self.assertFalse(runner.is_hit(decision), line)
+
+    def test_no_cache_line_is_not_a_hit(self) -> None:
+        decision = runner.parse_plain_decision(b"\nTraceJIT\n\nclassified     Unknown\n")
+        self.assertIsNone(decision["cache_decision"])
+        self.assertFalse(runner.is_hit(decision))
+
+    def test_workload_cannot_forge_a_hit(self) -> None:
+        # The child prints the marker and the hit line before TraceJIT's own
+        # report; only the last banner block may be read.
+        decision = runner.parse_plain_decision(
+            b"cache          HIT\n\nTraceJIT\n\ncache          MISS\n"
+        )
+        self.assertFalse(runner.is_hit(decision))
+
+
 class ManifestIsIndependentOfLocalState(unittest.TestCase):
     """The manifest must not depend on whether a vendor cache exists."""
 

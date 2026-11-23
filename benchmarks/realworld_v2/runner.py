@@ -268,6 +268,48 @@ def run_traced(
     }, report, raw_stdout, raw_stderr
 
 
+CACHE_HIT_LINE = "cache          HIT"
+
+
+def parse_plain_decision(stderr: bytes) -> dict:
+    """Reads TraceJIT's decision from the plain-mode report on stderr.
+
+    Plain mode is what a user runs, and it is the only channel that does not
+    serialise the entire cached stdout and stderr as JSON byte arrays. The report
+    block is written after the child's own stderr, so only the text from the last
+    ``TraceJIT`` banner is read; a workload cannot forge a HIT by printing the
+    marker itself before that banner.
+    """
+
+    text = stderr.decode(errors="replace")
+    marker = text.rfind("\nTraceJIT\n")
+    report = text[marker:] if marker >= 0 else text
+    if CACHE_HIT_LINE in report:
+        return {"kind": "Reused", "cache_decision": "Reused", "decision_reason": None}
+    if "cache          DEOPT" in report:
+        return {"kind": "Executed", "cache_decision": "Deoptimized", "decision_reason": None}
+    if "cache          SKIP" in report:
+        return {"kind": "Executed", "cache_decision": "Skipped", "decision_reason": None}
+    if "cache          MISS" in report:
+        return {"kind": "Executed", "cache_decision": "Ineligible", "decision_reason": None}
+    return {"kind": "Executed", "cache_decision": None, "decision_reason": None}
+
+
+def run_plain(
+    tracejit: Path, argv: list[str], ws: Path, env: dict, policy: str, timeout: int = 900
+) -> tuple[subprocess.CompletedProcess, dict]:
+    """Runs TraceJIT without ``--json`` and reads the decision from its report."""
+
+    prefix = [str(tracejit), "run"]
+    contract = POLICIES.get(policy)
+    if contract:
+        prefix += ["--contract", contract]
+    completed = subprocess.run(
+        [*prefix, "--", *argv], cwd=ws, env=env, capture_output=True, check=False, timeout=timeout
+    )
+    return completed, parse_plain_decision(completed.stderr)
+
+
 def reset_outputs(workload: corpus.Workload, ws: Path) -> list[str]:
     if workload.reset != "delete_outputs":
         return []
@@ -699,21 +741,24 @@ def time_workload(
     reset_outputs(workload, native_ws)
     reset_outputs(workload, traced_ws)
 
-    # Populate the cache; the first run must not be counted as a hit.
-    _, prime_decision, prime_report, _, _ = run_traced(tracejit, argv, traced_ws, env, policy)
-    if not is_hit(run_traced(tracejit, argv, traced_ws, env, policy)[1]):
+    # Populate the cache with a **plain** run. The JSON report carries the whole
+    # cached stdout and stderr as byte arrays; serialising them inside TraceJIT and
+    # parsing them in this process is harness cost that a user never pays. Phase AA
+    # timed `--json` and attributed up to 60 ms of that channel to a 70 ms sed hit.
+    primed, prime_decision = run_plain(tracejit, argv, traced_ws, env, policy)
+    reference_stdout = hashlib.sha256(primed.stdout).digest()
+
+    # One authoritative decision read per row, outside the timed region. Plain-mode
+    # text and the JSON fields must agree before any sample is timed; otherwise the
+    # channel itself would be the thing being measured.
+    _, calibration_decision, _, _, _ = run_traced(tracejit, argv, traced_ws, env, policy)
+    if not is_hit(calibration_decision):
         return {
             "workload_id": workload.id,
             "policy": policy,
             "status": "not_eligible_for_timing",
             "prime": decision_record(prime_decision),
-        }
-    if not (prime_report or {}).get("eligible_for_reuse"):
-        return {
-            "workload_id": workload.id,
-            "policy": policy,
-            "status": "not_eligible_for_timing",
-            "prime": decision_record(prime_decision),
+            "calibration": decision_record(calibration_decision),
         }
 
     reps = max(3, int(round(workload.reps * reps_scale)))
@@ -724,13 +769,13 @@ def time_workload(
         reset_outputs(workload, native_ws)
         _run_capture(argv, native_ws, env)
         reset_outputs(workload, traced_ws)
-        run_traced(tracejit, argv, traced_ws, env, policy)
+        run_plain(tracejit, argv, traced_ws, env, policy)
 
     rng = random.Random(f"{seed}:{workload.id}:{policy}")
     direct_samples: list[int] = []
     warm_samples: list[int] = []
     warm_decisions: list[dict] = []
-    warm_equivalence_failures = 0
+    warm_stdout_mismatches = 0
 
     for _ in range(reps):
         order = ["direct", "warm"]
@@ -752,7 +797,7 @@ def time_workload(
             else:
                 reset_outputs(workload, traced_ws)
                 started = time.perf_counter_ns()
-                _, decision, report, stdout, stderr = run_traced(tracejit, argv, traced_ws, env, policy)
+                completed, decision = run_plain(tracejit, argv, traced_ws, env, policy)
                 elapsed = time.perf_counter_ns() - started
                 warm_samples.append(elapsed)
                 warm_decisions.append(decision_record(decision))
@@ -764,12 +809,20 @@ def time_workload(
                         "decision": decision_record(decision),
                         "warm_samples_ns": warm_samples,
                     }
-                # The decision is the only thing asserted here. Full oracle
-                # comparison for every timed sample would double the oracle cost
-                # for no extra information, so it is done once per workload in
-                # qualification and once more on the final sample below.
-                if (report or {}).get("cache_decision") not in (None, "Reused"):
-                    warm_equivalence_failures += 1
+                # Cheap per-sample correctness check: the bytes a user would get
+                # are compared to the reference execution's stdout. It costs one
+                # hash of the output that has already been read, not a second run.
+                if hashlib.sha256(completed.stdout).digest() != reference_stdout:
+                    warm_stdout_mismatches += 1
+
+    if warm_stdout_mismatches:
+        return {
+            "workload_id": workload.id,
+            "policy": policy,
+            "status": "incorrect_hit",
+            "warm_stdout_mismatches": warm_stdout_mismatches,
+            "note": "a timed HIT restored stdout that differs from the reference execution",
+        }
 
 
     cold_samples: list[int] = []
@@ -777,8 +830,17 @@ def time_workload(
         fresh = root / f"cold-{index}"
         reset_outputs(workload, traced_ws)
         started = time.perf_counter_ns()
-        run_traced(tracejit, argv, traced_ws, cache_env({**base_env, **workload.env}, fresh), policy)
+        completed, cold_decision = run_plain(
+            tracejit, argv, traced_ws, cache_env({**base_env, **workload.env}, fresh), policy
+        )
         cold_samples.append(time.perf_counter_ns() - started)
+        if is_hit(cold_decision):
+            return {
+                "workload_id": workload.id,
+                "policy": policy,
+                "status": "cold_cache_hit",
+                "decision": decision_record(cold_decision),
+            }
 
     direct_summary = summarise(direct_samples)
     warm_summary = summarise(warm_samples)
@@ -813,7 +875,10 @@ def time_workload(
         "direct": direct_summary,
         "warm": warm_summary,
         "cold": cold_summary,
-        "additional_hit_overhead": warm_equivalence_failures,
+        "timing_channel": "plain (no --json): the JSON byte-array report is harness cost",
+        "calibration_decision": decision_record(calibration_decision),
+        "reference_stdout_sha256": reference_stdout.hex(),
+        "warm_stdout_mismatches": warm_stdout_mismatches,
         "warm_ratio": paired_ratio(direct_samples, warm_samples),
         # Cold traces need an empty cache, so they cannot be paired with a
         # direct run. Reporting a "paired" ratio here would combine samples from
@@ -865,9 +930,28 @@ def phase_probe(
     reset_outputs(workload, ws)
     run_traced(tracejit, argv, ws, env, policy)
     reset_outputs(workload, ws)
+    # Time the process, not this harness's parse of its report. `run_traced`
+    # decodes the JSON inside the timer, which for a stdout-heavy workload is
+    # tens of milliseconds of Python that a user never pays; the report is
+    # decoded after the clock stops here.
+    prefix = [str(tracejit), "run", "--json"]
+    contract = POLICIES.get(policy)
+    if contract:
+        prefix += ["--contract", contract]
     warm_started = time.perf_counter_ns()
-    _, decision, report, _, _ = run_traced(tracejit, argv, ws, env, policy)
+    completed = subprocess.run(
+        [*prefix, "--", *argv], cwd=ws, env=env, capture_output=True, check=False
+    )
     warm_wall_ns = time.perf_counter_ns() - warm_started
+    try:
+        report = json.loads(completed.stdout)
+    except json.JSONDecodeError:
+        return {"available": False, "reason": "unparseable report from the instrumented run"}
+    decision = {
+        "kind": report.get("kind"),
+        "cache_decision": report.get("cache_decision"),
+        "decision_reason": report.get("decision_reason"),
+    }
     if not is_hit(decision):
         return {
             "available": False,
@@ -905,40 +989,46 @@ def phase_probe(
         if key in data
     }
     runtime_ns = int((report or {}).get("runtime_ns") or 0)
+    # `runtime_ns` is captured by the core immediately after the outputs are
+    # restored and the streams are exposed, and *before* the reuse decision is
+    # persisted. A stage measured outside that span cannot be subtracted from it;
+    # including persistence made the Phase AA "additive" sums exceed their own
+    # wall clock by 3-14 ms.
     hit_path_keys = (
         "stdio_replay_ns",
         "guard_validation_ns",
         "guard_recheck_ns",
         "cas_restore_ns",
-        "decision_persist_ns",
     )
     hit_path_ns = sum(int(stages.get(key) or 0) for key in hit_path_keys)
+    post_runtime_ns = int(stages.get("decision_persist_ns") or 0)
+    present_ns = int(stages.get("present_ns") or 0)
     ticks = os.sysconf("SC_CLK_TCK") if hasattr(os, "sysconf") else 100
     return {
         "available": True,
         "stages_ns": stages,
         "instrumented": True,
-        # Only the hit path is additive: every stage below is measured inside
-        # the same `runtime_ns` span. The pre-hit remainder is published as one
-        # span and never split into the sub-stages, because `process_startup_ns`
-        # is derived from the kernel's tick-granular process start time.
+        # Three spans, measured in different clock regions. Only the first is
+        # additive: runtime_ns ends before persistence and presentation.
         "model": {
             "wall_ns": warm_wall_ns,
             "runtime_ns": runtime_ns,
             "hit_path_stages": list(hit_path_keys),
             "hit_path_sum_ns": hit_path_ns,
             "hit_path_residual_ns": runtime_ns - hit_path_ns,
-            "pre_hit_ns": warm_wall_ns - runtime_ns,
-            "present_ns": int(stages.get("present_ns") or 0),
+            "post_runtime_ns": post_runtime_ns,
+            "present_ns": present_ns,
+            "pre_runtime_ns": warm_wall_ns - runtime_ns - post_runtime_ns - present_ns,
             "startup_reported_ns": int(stages.get("process_startup_ns") or 0),
             "startup_quantum_ns": int(1_000_000_000 // ticks),
-            "additive": "hit path only",
+            "additive": "runtime hit path only",
         },
         "note": (
             "instrumented two-run session; the breakdown is not a timed sample. "
-            "pre_hit_ns is process creation, startup, CLI parsing, identity preparation, "
-            "cache open/lookup/query, report serialisation and exit, which cannot be "
-            "separated by the phase timers at useful resolution"
+            "pre_runtime_ns is process creation, startup, CLI parsing, identity preparation, "
+            "cache open/lookup/query and exit, minus the two spans above, and cannot be "
+            "separated further at useful resolution; process_startup_ns is derived from the "
+            "kernel's tick-granular start time and is not used in any sum"
         ),
     }
 
