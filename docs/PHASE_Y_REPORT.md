@@ -378,7 +378,7 @@ Full table with reasoning: `docs/PHASE_Y_LEDGER.md`. Summary:
 | Phase X same-timestamp regression | pass (in the 53 guard tests) |
 | Malformed record / corrupt CAS | pass |
 | Capability probe | ran; `fs_verity_supported_here: false` |
-| Real-world compatibility census | **not run** — unchanged code path; declared, not claimed |
+| Real-world compatibility census | ran in CI on this head (`census.py --runs 3 --warmups 1`, step success); not re-run locally, and unchanged by this phase |
 
 Skipped or unsupported: arm B/C latency (no fs-verity), the compiler warm-hit baseline (glibc
 drift), and any kernel-level assertion about verity enforcement (no verity-capable kernel reachable).
