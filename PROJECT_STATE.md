@@ -81,6 +81,47 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
   48 invocations 17.298 s → 13.748 s (1.58× → 1.98×); 12 → 6 deoptimisations in both,
   one per edit. ccache/sccache/make/ninja remain faster (5.0–6.0 s). No version bump.
 
+## Research line, Phase X (`research/phase-x`, from `c720112`)
+
+- Guard validation was measured, not guessed: `TRACEJIT_GUARD_PROFILE=1` reports per-kind counts,
+  `stat`/`open`/`read`/`readlink`/access/directory-probe counts and time, bytes hashed, and a
+  breakdown per validation pass (`crates/tracejit-guards/src/profile.rs`). A compiler warm hit
+  interpreted 389 guards **twice** (56.1 ms + 49.7 ms), hashing 107.2 MB per pass.
+- Accepted: the initial candidate check and the pre-restore recheck were the same work. A candidate
+  is now validated **once**, immediately before the output restore, with the same typestate gating
+  cached streams. Paired warm hits 116.7 → 67.3 ms (**1.73×**); 27-invocation session 9.44 → 8.67 s,
+  48-invocation 12.53 → 9.94 s; identical decisions, objects byte-identical to native.
+- Rejected with evidence: per-pass digest sharing (107 MB → 43 MB, another 1.5×) is unsound — a
+  same-size rewrite inside one timestamp tick leaves mtime/ctime/size identical, so a cached digest
+  yields a false HIT. The counterexample is now a permanent regression; ccache documents the same
+  hazard and refuses to cache on too-new timestamps. Also rejected on measurement: batched
+  `statx`/`io_uring` (metadata is 0.52 ms of 43.5 ms) and dependency-plan compilation (91 % of the
+  pass is `read`+BLAKE3). `inotify`/`fanotify` invalidation stays research-only.
+- Remaining hit cost is contract: 39.5 ms of hashing for 107 MB, of which 66 MB is the same compiler
+  read three times under different guard kinds; 8.3 ms of process start-up; 2.4 ms of candidate
+  decode (records carry their effect list). `docs/PHASE_X_REPORT.md`.
+
+## Phase X1 audit (`research/phase-x`, from `e8abc16`)
+
+- Single-pass validation audited: the removed pass could only reject executions that matched at the
+  pre-restore pass but not earlier, and the one newly accepted class (an input changed and put back
+  before the surviving pass) is safe because every guard is a state predicate. Argument, hit-path
+  state machine and the 16-row adversarial matrix: `docs/PHASE_X1_AUDIT.md`.
+- Fixed: a missing CAS object was a fatal error for a command that succeeds when simply re-run (now
+  deopts and retraces; `get_bytes` maps `ENOENT` to `CorruptObject`). Also fixed: the guard profiler
+  did not reset its counters in `take()` and used unsigned deltas that could underflow (now
+  `swap(0)` plus saturating deltas).
+- CI flakiness: two *different* steps have failed on runners whose published annotation is the
+  audited glibc build (`2.39-0ubuntu8.9`) while sibling runs of the same tree passed — #254 (`Tests`,
+  the two allocator-entropy tests) and #259 (single-threaded integration, test name not public). The
+  contract tests now assert the documented refusal when the runtime is unaudited; `ci.yml` publishes
+  the runner's libc build ID and annotates a failing integration test by name. #259's root cause is
+  unresolved (no public log) and recorded as runner-side resource sensitivity, not a product defect.
+- Re-verified here: paired warm hit 126.5 → 79.2 ms (**1.60×**), 27-inv 8.40 → 6.66 s, 48-inv
+  12.44 → 10.60 s; ETL 1.16×, `true` 1.35×, `sort-small` 1.07×. Gates: 241 tests, integration 75/75
+  at 1/2/4/8 threads and 10/10 default runs, fuzz seed 29 (0 incorrect hits), model check, fault
+  injection, audit clean. Phase Y plan: `docs/PHASE_Y_RESEARCH_PLAN.md` (fs-verity first).
+
 ## Known limitations
 
 - Metadata guards include `accessed_ns`, which the traced command's own reads update. Commands that
@@ -88,7 +129,7 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 - Cache-hit fixed cost on this host is ~11 ms plus ~6 ms of strict dependency hashing; commands under ~15 ms are net losses on a hit, which is what `--admission auto` exists for.
 - Large-output restoration remains the dominant cost for big outputs; reflink is unavailable on ext4 and was not adopted without a measurable gain.
 - Multi-output restore: single-path rename atomic; soft rollback verified; hard-kill not crash-atomic / not inode-preserving. Restore-intent refuses the next HIT.
-- Validate→restore TOCTOU residual after recheck remains.
+- Validate→restore TOCTOU residual remains; guards run once, immediately before the restore.
 - `rustc` needs `statx`, `prctl`, create-only `eventfd2`, and a decision on process-relative procfs before it can be eligible.
 - Landlock is unavailable on the local host, so `PROVEN`/sandbox tests SKIP here.
 - The integration suite is sensitive to host process pressure: 67/67 pass at `--test-threads=4`; at the default 8 threads the tagged beta already failed 2/62 on this VM.

@@ -1,0 +1,52 @@
+{
+  "scenario": "edits",
+  "rounds": 9,
+  "units": 3,
+  "functions_per_unit": 220,
+  "edit_rounds": [
+    7,
+    12
+  ],
+  "total_invocations": 27,
+  "reference_objects": {
+    "unit0.o": "330982b07c1ac5581ce2620e957a9eb8",
+    "unit1.o": "1143263d81d0d4f48640cf9c373703a2",
+    "unit2.o": "056f78a0ace47ac53395c0a586cff7a9"
+  },
+  "arms": {
+    "tracejit-main": {
+      "arm": "tracejit-main",
+      "seconds": 8.398,
+      "decisions": {
+        "miss": 3,
+        "hit": 20,
+        "deopt": 4
+      },
+      "objects": {
+        "unit0.o": "330982b07c1ac5581ce2620e957a9eb8",
+        "unit1.o": "1143263d81d0d4f48640cf9c373703a2",
+        "unit2.o": "056f78a0ace47ac53395c0a586cff7a9"
+      },
+      "cache_bytes": 8477985,
+      "tool_stats": [],
+      "objects_match_native": true
+    },
+    "tracejit-fix": {
+      "arm": "tracejit-fix",
+      "seconds": 6.66,
+      "decisions": {
+        "miss": 3,
+        "hit": 21,
+        "deopt": 3
+      },
+      "objects": {
+        "unit0.o": "330982b07c1ac5581ce2620e957a9eb8",
+        "unit1.o": "1143263d81d0d4f48640cf9c373703a2",
+        "unit2.o": "056f78a0ace47ac53395c0a586cff7a9"
+      },
+      "cache_bytes": 7903109,
+      "tool_stats": [],
+      "objects_match_native": true
+    }
+  }
+}

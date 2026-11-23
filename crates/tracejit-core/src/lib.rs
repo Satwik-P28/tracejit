@@ -110,21 +110,60 @@ fn admission_is_worth_tracing(cost: &AdmissionCost) -> bool {
 /// Test-only TOCTOU injection for the validate→restore window.
 ///
 /// When `TRACEJIT_TEST_PRE_RESTORE_MUTATE_PATH` is set to an absolute path, the hit path
-/// overwrites that file immediately before the pre-restore guard recheck. Production runs must
-/// leave the variable unset. This exists so integration tests can prove the recheck fails closed
-/// without relying on a flaky external race.
+/// overwrites that file immediately before the pre-restore guard pass. Production runs must leave
+/// the variable unset. This exists so integration tests can prove the pass fails closed without
+/// relying on a flaky external race.
 mod toctou {
+    use std::ffi::OsString;
     use std::fs;
     use std::path::Path;
 
-    pub fn maybe_test_mutate_before_recheck() {
-        let Some(value) = std::env::var_os("TRACEJIT_TEST_PRE_RESTORE_MUTATE_PATH") else {
+    /// Test-only: mutate a dependency before the candidate's cached streams are loaded.
+    ///
+    /// This sits in the window the first validation pass used to cover, so it models the class
+    /// Phase X newly accepts. With `TRACEJIT_TEST_PRE_LOAD_RESTORE_HEX` set, the mutated content
+    /// is immediately put back, which models a change that is reverted before the surviving pass:
+    /// that hit must be served, and its bytes must equal native execution.
+    pub fn maybe_test_mutate_before_load() {
+        mutate(
+            std::env::var_os("TRACEJIT_TEST_PRE_LOAD_MUTATE_PATH"),
+            "TRACEJIT_TEST_PRE_LOAD_RESTORE_HEX",
+        );
+    }
+
+    /// Test-only: mutate a dependency immediately before the surviving guard pass.
+    pub fn maybe_test_mutate_before_validation() {
+        mutate(
+            std::env::var_os("TRACEJIT_TEST_PRE_RESTORE_MUTATE_PATH"),
+            "TRACEJIT_TEST_PRE_RESTORE_RESTORE_HEX",
+        );
+    }
+
+    fn mutate(value: Option<OsString>, restore_variable: &str) {
+        let Some(value) = value else {
             return;
         };
         let path = Path::new(&value);
-        if path.is_absolute() {
-            let _ = fs::write(path, b"TOCTOU-MUTATED\n");
+        if !path.is_absolute() {
+            return;
         }
+        let _ = fs::write(path, b"TOCTOU-MUTATED\n");
+        if let Some(hex) = std::env::var_os(restore_variable) {
+            if let Some(bytes) = decode_hex(&hex.to_string_lossy()) {
+                let _ = fs::write(path, bytes);
+            }
+        }
+    }
+
+    fn decode_hex(text: &str) -> Option<Vec<u8>> {
+        let text = text.trim();
+        if text.is_empty() || text.len() % 2 != 0 {
+            return None;
+        }
+        (0..text.len())
+            .step_by(2)
+            .map(|at| u8::from_str_radix(text.get(at..at + 2)?, 16).ok())
+            .collect()
     }
 }
 
@@ -238,10 +277,18 @@ pub struct PhaseTimings {
     pub sqlite_query_ns: u64,
     pub record_decode_ns: u64,
     pub guard_validation_ns: u64,
+    /// Time spent in any additional validation pass between the first candidate check and the
+    /// restore. Zero when the run validates once.
+    #[serde(default)]
+    pub guard_recheck_ns: u64,
     pub cas_restore_ns: u64,
     pub stdio_replay_ns: u64,
     pub decision_persist_ns: u64,
     pub present_ns: u64,
+    /// Opt-in per-guard cost profile (`TRACEJIT_GUARD_PROFILE=1`). Present only when the
+    /// instrumentation was enabled for this run.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub guard_profile: Option<tracejit_guards::GuardProfile>,
 }
 
 pub fn phase_timing_enabled() -> bool {
@@ -432,22 +479,13 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
             continue;
         }
 
-        let mark = Instant::now();
-        let guards = validate_all(&candidate.guards, options.guard_mode);
-        phases.guard_validation_ns = phase_elapsed(timing, mark);
-        let admitted = match reuse_hit::GuardsPassed::admit(guards) {
-            Ok(admitted) => admitted,
-            Err(failed) => {
-                if last_guard_report.is_none() {
-                    last_guard_report = Some(failed);
-                }
-                continue;
-            }
-        };
+        // Test-only injection point in the window the removed first pass used to cover.
+        toctou::maybe_test_mutate_before_load();
 
-        // Verify both stream objects before restoring any output. A corrupt stdout object used
-        // to be discovered after files had already been replaced, which forced a retrace from a
-        // workspace the command did not start with.
+        // Load and verify both stream objects before restoring any output. A corrupt stdout
+        // object used to be discovered after files had already been replaced, which forced a
+        // retrace from a workspace the command did not start with. Nothing observable is exposed
+        // here: the bytes are plain locals until the guard pass below admits this candidate.
         let mark = Instant::now();
         let loaded = cache.get_bytes(candidate.stdout).and_then(|stdout| {
             cache
@@ -455,19 +493,15 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
                 .map(|stderr| (stdout, stderr))
         });
         phases.stdio_replay_ns = phase_elapsed(timing, mark);
-        let verified = match loaded {
-            Ok((stdout, stderr)) => admitted.with_verified_streams(stdout, stderr),
+        let (stdout, stderr) = match loaded {
+            Ok(streams) => streams,
             Err(CacheError::CorruptObject { hash }) => {
-                drop(admitted);
                 if last_deopt_reason.is_none() {
                     last_deopt_reason = Some(format!("cached object {hash} is corrupt; retracing"));
                 }
                 continue;
             }
-            Err(error) => {
-                drop(admitted);
-                return Err(error.into());
-            }
+            Err(error) => return Err(error.into()),
         };
 
         if let Err(error) = verify_inherited_stream_offsets(&candidate.guards) {
@@ -479,26 +513,31 @@ pub fn run(options: RunOptions) -> Result<RunReport, CoreError> {
             continue;
         }
 
-        // Shrink the validate→restore TOCTOU window: re-check guards immediately before any
-        // workspace mutation. A concurrent edit that lands after the first validate but before
-        // this recheck forces a miss/retrace instead of a false HIT. Residual race after this
-        // recheck (and during restore) remains a documented V1 limitation — this is fail-closed
-        // hardening, not a claim that the window is closed.
-        toctou::maybe_test_mutate_before_recheck();
-        let recheck = validate_all(&candidate.guards, options.guard_mode);
-        if recheck.failure.is_some() {
-            drop(verified);
-            if last_guard_report.is_none() {
-                last_guard_report = Some(recheck);
+        // Exactly one guard pass per candidate, immediately before any workspace mutation.
+        //
+        // It used to run twice: once before the stream objects were loaded, and once here. The
+        // first pass could only shorten a window the second pass already covered, while doubling
+        // every `stat`, `open`, `read` and content hash on the hit path (Phase X measured about
+        // 45 ms of a 130 ms warm hit). Dropping it does not weaken the contract: the surviving
+        // pass observes the same inputs at the same point, adjacent to the restore, and the
+        // typestate below still refuses to attach cached streams unless the pass succeeded. The
+        // residual race during the restore itself stays the documented V1 limitation.
+        toctou::maybe_test_mutate_before_validation();
+        let mark = Instant::now();
+        let guards = validate_all(&candidate.guards, options.guard_mode);
+        phases.guard_validation_ns = phases
+            .guard_validation_ns
+            .saturating_add(phase_elapsed(timing, mark));
+        let admitted = match reuse_hit::GuardsPassed::admit(guards) {
+            Ok(admitted) => admitted,
+            Err(failed) => {
+                if last_guard_report.is_none() {
+                    last_guard_report = Some(failed);
+                }
+                continue;
             }
-            if last_deopt_reason.is_none() {
-                last_deopt_reason = Some(
-                    "inputs changed between guard validation and restore (TOCTOU recheck); retracing"
-                        .into(),
-                );
-            }
-            continue;
-        }
+        };
+        let verified = admitted.with_verified_streams(stdout, stderr);
 
         // Outputs are staged and every object is verified before any destination is mutated, so a
         // corrupt object or precondition failure stops here without changing the workspace.

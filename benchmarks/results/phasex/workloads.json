@@ -1,0 +1,134 @@
+{
+  "arms": {
+    "baseline": "/tmp/tj-baseline",
+    "candidate": "/tmp/tj-final"
+  },
+  "workloads": {
+    "etl": {
+      "argv": [
+        "/tmp/tracejit-phase-x-etl"
+      ],
+      "cwd": "/workspace/chats/24375cea864939ae012511ac",
+      "arms": {
+        "baseline": {
+          "median_ms": 13.698,
+          "min_ms": 12.103,
+          "max_ms": 14.474,
+          "decisions": [
+            "hit"
+          ],
+          "samples_ms": [
+            12.103,
+            13.504,
+            14.474,
+            13.892,
+            13.949,
+            13.267
+          ]
+        },
+        "candidate": {
+          "median_ms": 12.32,
+          "min_ms": 12.123,
+          "max_ms": 13.542,
+          "decisions": [
+            "hit"
+          ],
+          "samples_ms": [
+            12.123,
+            13.542,
+            12.944,
+            12.207,
+            12.254,
+            12.386
+          ]
+        }
+      },
+      "candidate_vs_baseline": 1.112
+    },
+    "sort-small": {
+      "argv": [
+        "sort",
+        "input.txt",
+        "-o",
+        "sorted.txt"
+      ],
+      "cwd": "/tmp/tracejit-phase-x-workloads/sort-small/candidate/work",
+      "arms": {
+        "baseline": {
+          "median_ms": 26.37,
+          "min_ms": 24.77,
+          "max_ms": 33.631,
+          "decisions": [
+            "miss"
+          ],
+          "samples_ms": [
+            33.631,
+            25.595,
+            26.683,
+            26.058,
+            27.638,
+            24.77
+          ]
+        },
+        "candidate": {
+          "median_ms": 25.722,
+          "min_ms": 23.147,
+          "max_ms": 27.261,
+          "decisions": [
+            "miss"
+          ],
+          "samples_ms": [
+            26.785,
+            24.241,
+            23.147,
+            25.925,
+            27.261,
+            25.519
+          ]
+        }
+      },
+      "candidate_vs_baseline": 1.025
+    },
+    "true": {
+      "argv": [
+        "true"
+      ],
+      "cwd": "/tmp/tracejit-phase-x-workloads/true/candidate/work",
+      "arms": {
+        "baseline": {
+          "median_ms": 10.4,
+          "min_ms": 9.415,
+          "max_ms": 10.903,
+          "decisions": [
+            "hit"
+          ],
+          "samples_ms": [
+            9.831,
+            10.903,
+            10.356,
+            10.5,
+            10.444,
+            9.415
+          ]
+        },
+        "candidate": {
+          "median_ms": 8.49,
+          "min_ms": 7.496,
+          "max_ms": 9.551,
+          "decisions": [
+            "hit"
+          ],
+          "samples_ms": [
+            7.496,
+            8.999,
+            8.53,
+            9.551,
+            8.431,
+            8.451
+          ]
+        }
+      },
+      "candidate_vs_baseline": 1.225
+    }
+  }
+}

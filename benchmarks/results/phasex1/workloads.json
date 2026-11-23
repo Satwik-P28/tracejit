@@ -1,0 +1,146 @@
+{
+  "arms": {
+    "baseline": "/tmp/tj-baseline",
+    "candidate": "/tmp/tj-candidate"
+  },
+  "workloads": {
+    "etl": {
+      "argv": [
+        "/tmp/tracejit-phase-x-etl"
+      ],
+      "cwd": "/workspace/chats/24375cea864939ae012511ac",
+      "arms": {
+        "baseline": {
+          "median_ms": 13.575,
+          "min_ms": 9.096,
+          "max_ms": 18.341,
+          "decisions": [
+            "hit"
+          ],
+          "samples_ms": [
+            11.353,
+            18.341,
+            11.599,
+            17.467,
+            9.096,
+            16.229,
+            12.573,
+            14.577
+          ]
+        },
+        "candidate": {
+          "median_ms": 11.733,
+          "min_ms": 8.658,
+          "max_ms": 15.965,
+          "decisions": [
+            "hit"
+          ],
+          "samples_ms": [
+            11.718,
+            11.748,
+            13.095,
+            10.388,
+            8.658,
+            8.664,
+            15.965,
+            13.429
+          ]
+        }
+      },
+      "candidate_vs_baseline": 1.157
+    },
+    "sort-small": {
+      "argv": [
+        "sort",
+        "input.txt",
+        "-o",
+        "sorted.txt"
+      ],
+      "cwd": "/tmp/tracejit-phase-x-workloads/sort-small/candidate/work",
+      "arms": {
+        "baseline": {
+          "median_ms": 35.857,
+          "min_ms": 33.092,
+          "max_ms": 40.005,
+          "decisions": [
+            "miss"
+          ],
+          "samples_ms": [
+            33.092,
+            39.252,
+            35.513,
+            36.002,
+            35.713,
+            33.097,
+            40.005,
+            38.8
+          ]
+        },
+        "candidate": {
+          "median_ms": 37.532,
+          "min_ms": 28.588,
+          "max_ms": 48.016,
+          "decisions": [
+            "miss"
+          ],
+          "samples_ms": [
+            28.588,
+            42.504,
+            48.016,
+            40.769,
+            31.077,
+            42.68,
+            32.532,
+            34.295
+          ]
+        }
+      },
+      "candidate_vs_baseline": 0.955
+    },
+    "true": {
+      "argv": [
+        "true"
+      ],
+      "cwd": "/tmp/tracejit-phase-x-workloads/true/candidate/work",
+      "arms": {
+        "baseline": {
+          "median_ms": 15.065,
+          "min_ms": 10.089,
+          "max_ms": 16.129,
+          "decisions": [
+            "hit"
+          ],
+          "samples_ms": [
+            11.132,
+            16.129,
+            15.582,
+            16.082,
+            10.27,
+            15.614,
+            14.549,
+            10.089
+          ]
+        },
+        "candidate": {
+          "median_ms": 11.123,
+          "min_ms": 7.496,
+          "max_ms": 14.204,
+          "decisions": [
+            "hit"
+          ],
+          "samples_ms": [
+            14.204,
+            9.714,
+            9.121,
+            13.402,
+            12.532,
+            8.942,
+            13.736,
+            7.496
+          ]
+        }
+      },
+      "candidate_vs_baseline": 1.354
+    }
+  }
+}

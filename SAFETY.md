@@ -41,8 +41,10 @@ ownership changes still fail. Metadata is not equivalent to content, so strict
 remains the default.
 
 There is an unavoidable TOCTOU interval between guard validation and output
-restoration. A pre-restore guard recheck shrinks that window but does not close
-it. GUARDED does not prevent another process from mutating an input afterward.
+restoration. A candidate's guards are validated exactly once, immediately before
+any output is restored, so the last observation sits directly against that window;
+validating twice was measured to double the work without changing the window.
+GUARDED does not prevent another process from mutating an input afterward.
 PROVEN narrows the executing process's effect surface, but current Landlock
 policy does not freeze external processes or the filesystem. Use TraceJIT only
 where concurrent mutation is controlled.

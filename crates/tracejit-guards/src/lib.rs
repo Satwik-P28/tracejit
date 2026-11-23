@@ -10,6 +10,10 @@ use tracejit_effects::{
     RuntimeIdentity,
 };
 
+mod profile;
+
+pub use profile::{take as take_guard_profile, GuardProfile, PassStats};
+
 /// Whether a fresh run could open this path for writing at all.
 ///
 /// Content, timestamps and inode are deliberately excluded: only the property that decides
@@ -190,23 +194,31 @@ pub struct GuardReport {
 }
 
 pub fn hash_reader(mut reader: impl Read) -> Result<Hash, io::Error> {
+    let _scope = profile::Scoped::start(profile::Slot::Content);
+    profile::count_content();
     let mut hasher = blake3::Hasher::new();
     let mut buffer = [0_u8; 64 * 1024];
     loop {
         let read = reader.read(&mut buffer)?;
+        profile::count_read();
         if read == 0 {
             break;
         }
+        profile::count_bytes(read as u64);
         hasher.update(&buffer[..read]);
     }
     Ok(Hash::from(hasher.finalize()))
 }
 
 pub fn hash_file(path: &Path) -> Result<Hash, GuardError> {
-    let file = File::open(path).map_err(|source| GuardError::Io {
-        path: path.to_path_buf(),
-        source,
-    })?;
+    profile::count_open();
+    let file = {
+        let _scope = profile::Scoped::start(profile::Slot::Open);
+        File::open(path).map_err(|source| GuardError::Io {
+            path: path.to_path_buf(),
+            source,
+        })?
+    };
     hash_reader(file).map_err(|source| GuardError::Io {
         path: path.to_path_buf(),
         source,
@@ -220,19 +232,27 @@ pub fn canonical_hash<T: Serialize>(value: &T) -> Result<Hash, GuardError> {
 
 #[cfg(unix)]
 pub fn fingerprint(path: &Path) -> Result<FileFingerprint, GuardError> {
-    let metadata = fs::metadata(path).map_err(|source| GuardError::Io {
-        path: path.to_path_buf(),
-        source,
-    })?;
+    profile::count_stat();
+    let metadata = {
+        let _scope = profile::Scoped::start(profile::Slot::Stat);
+        fs::metadata(path).map_err(|source| GuardError::Io {
+            path: path.to_path_buf(),
+            source,
+        })?
+    };
     fingerprint_from_metadata(metadata)
 }
 
 #[cfg(unix)]
 pub fn symlink_fingerprint(path: &Path) -> Result<FileFingerprint, GuardError> {
-    let metadata = fs::symlink_metadata(path).map_err(|source| GuardError::Io {
-        path: path.to_path_buf(),
-        source,
-    })?;
+    profile::count_stat();
+    let metadata = {
+        let _scope = profile::Scoped::start(profile::Slot::Stat);
+        fs::symlink_metadata(path).map_err(|source| GuardError::Io {
+            path: path.to_path_buf(),
+            source,
+        })?
+    };
     fingerprint_from_metadata(metadata)
 }
 
@@ -521,7 +541,58 @@ pub fn current_runtime_identity() -> Result<RuntimeIdentity, GuardError> {
 }
 
 impl Guard {
+    /// Report slot for this guard kind, matching [`profile::KIND_NAMES`].
+    const fn kind_slot(&self) -> usize {
+        match self {
+            Self::ExecutableHash { .. } => 0,
+            Self::FileHash { .. } => 1,
+            Self::FileMetadata { .. } => 2,
+            Self::DirectoryOpened { .. } => 3,
+            Self::OutputPrestate { .. } => 4,
+            Self::DirectoryEnumerated { .. } => 5,
+            Self::FilesystemStats { .. } => 6,
+            Self::InheritedStream { .. } => 7,
+            Self::ControlledEntropy { .. } => 8,
+            Self::ControlledRuntime { .. } => 9,
+            Self::SymlinkTarget { .. } => 10,
+            Self::SymlinkMetadata { .. } => 11,
+            Self::AccessCheck { .. } => 12,
+            Self::EnvironmentValue { .. } => 13,
+            Self::WorkingDirectory { .. } => 14,
+            Self::RuntimeIdentity { .. } => 15,
+            Self::NoUnexpectedEffects => 16,
+        }
+    }
+
+    /// The path this guard observes, when it names one.
+    fn observed_path(&self) -> Option<&Path> {
+        match self {
+            Self::ExecutableHash { path, .. }
+            | Self::FileHash { path, .. }
+            | Self::FileMetadata { path, .. }
+            | Self::DirectoryOpened { path, .. }
+            | Self::OutputPrestate { path, .. }
+            | Self::DirectoryEnumerated { path, .. }
+            | Self::FilesystemStats { path, .. }
+            | Self::InheritedStream { path, .. }
+            | Self::SymlinkTarget { path, .. }
+            | Self::SymlinkMetadata { path, .. }
+            | Self::AccessCheck { path, .. } => Some(path),
+            Self::ControlledEntropy { library, .. } => Some(library),
+            Self::ControlledRuntime { executable, .. } => Some(executable),
+            Self::EnvironmentValue { .. }
+            | Self::WorkingDirectory { .. }
+            | Self::RuntimeIdentity { .. }
+            | Self::NoUnexpectedEffects => None,
+        }
+    }
+
     pub fn validate(&self, mode: GuardMode) -> Result<(), GuardFailure> {
+        let slot = self.kind_slot();
+        profile::count_kind(slot);
+        if let Some(path) = self.observed_path() {
+            profile::observe_path(slot, path);
+        }
         match self {
             Self::ExecutableHash { path, expected } => {
                 validate_executable(path).map_err(|actual| GuardFailure {
@@ -849,7 +920,12 @@ impl Guard {
                 // Replay the observable itself: the recorded execution opened this directory, and
                 // a fresh run would have to do the same. This is what covers permission and ACL
                 // changes that mode bits do not fully express.
-                if let Err(error) = probe_directory_open(path, *flags) {
+                profile::count_directory_probe();
+                let probe = {
+                    let _scope = profile::Scoped::start(profile::Slot::Access);
+                    probe_directory_open(path, *flags)
+                };
+                if let Err(error) = probe {
                     return Err(GuardFailure {
                         guard: Box::new(self.clone()),
                         reason: "directory can no longer be opened".into(),
@@ -1077,7 +1153,12 @@ impl Guard {
                 Ok(())
             }
             Self::SymlinkTarget { path, expected } => {
-                let actual = match fs::read_link(path) {
+                profile::count_readlink();
+                let observed = {
+                    let _scope = profile::Scoped::start(profile::Slot::Readlink);
+                    fs::read_link(path)
+                };
+                let actual = match observed {
                     Ok(target) => Some(target),
                     Err(error) if error.kind() == io::ErrorKind::InvalidInput => None,
                     Err(error) => {
@@ -1129,6 +1210,7 @@ impl Guard {
                 }
             }
             Self::EnvironmentValue { key, expected } => {
+                profile::count_env();
                 let actual = std::env::var_os(key);
                 if &actual == expected {
                     Ok(())
@@ -1193,13 +1275,17 @@ impl Guard {
                         actual: describe_credential(current.as_ref()),
                     });
                 }
-                let actual =
-                    evaluate_access(path, *mode, *flags).map_err(|reason| GuardFailure {
-                        guard: Box::new(self.clone()),
-                        reason: "access check could not be re-evaluated".into(),
-                        expected: describe_access(*expected),
-                        actual: reason,
-                    })?;
+                profile::count_access();
+                let actual = {
+                    let _scope = profile::Scoped::start(profile::Slot::Access);
+                    evaluate_access(path, *mode, *flags)
+                }
+                .map_err(|reason| GuardFailure {
+                    guard: Box::new(self.clone()),
+                    reason: "access check could not be re-evaluated".into(),
+                    expected: describe_access(*expected),
+                    actual: reason,
+                })?;
                 if &actual == expected {
                     Ok(())
                 } else {
@@ -1632,7 +1718,24 @@ fn describe_access(result: Option<i32>) -> String {
     }
 }
 
+/// Validate every guard in record order, reporting the first failure.
+///
+/// The result is identical to [`validate_all_inner`]; this wrapper only adds the opt-in cost
+/// profile, which must not change control flow, guard order, or the reported failure.
 pub fn validate_all(guards: &[Guard], mode: GuardMode) -> GuardReport {
+    let scope = profile::PassScope::start();
+    let report = validate_all_inner(guards, mode);
+    if let Some(scope) = scope {
+        let failure = report
+            .failure
+            .as_ref()
+            .map(|failure| (report.checked as u64, failure.guard.kind_slot()));
+        scope.finish(guards.len() as u64, report.passed as u64, failure);
+    }
+    report
+}
+
+fn validate_all_inner(guards: &[Guard], mode: GuardMode) -> GuardReport {
     let mut index = 0;
     let mut passed = 0;
     while index < guards.len() {
@@ -1768,7 +1871,16 @@ fn validate_metadata_hash_pair(
     hash_guard: &Guard,
     mode: GuardMode,
 ) -> Result<PairResult, PairError> {
-    let file = File::open(path).map_err(|source| {
+    // Both halves of the pair are one admission decision; count the metadata half here because
+    // this path never calls `Guard::validate` for it.
+    profile::count_kind(2);
+    profile::observe_path(2, path);
+    profile::count_open();
+    let file = {
+        let _scope = profile::Scoped::start(profile::Slot::Open);
+        File::open(path)
+    }
+    .map_err(|source| {
         PairError::Metadata(GuardFailure {
             guard: Box::new(Guard::FileMetadata {
                 path: path.to_path_buf(),
@@ -1779,7 +1891,12 @@ fn validate_metadata_hash_pair(
             actual: source.to_string(),
         })
     })?;
-    let actual_meta = fingerprint_from_metadata(file.metadata().map_err(|source| {
+    profile::count_stat();
+    let metadata = {
+        let _scope = profile::Scoped::start(profile::Slot::Stat);
+        file.metadata()
+    }
+    .map_err(|source| {
         PairError::Metadata(GuardFailure {
             guard: Box::new(Guard::FileMetadata {
                 path: path.to_path_buf(),
@@ -1789,8 +1906,8 @@ fn validate_metadata_hash_pair(
             expected: format!("{expected_meta:?}"),
             actual: source.to_string(),
         })
-    })?)
-    .map_err(|error| {
+    })?;
+    let actual_meta = fingerprint_from_metadata(metadata).map_err(|error| {
         PairError::Metadata(GuardFailure {
             guard: Box::new(Guard::FileMetadata {
                 path: path.to_path_buf(),
@@ -1867,6 +1984,9 @@ fn validate_metadata_hash_pair(
     }
     Ok(PairResult::Both)
 }
+
+#[cfg(test)]
+mod phase_x_tests;
 
 fn metadata_change_allows_hash_fallback(path: &Path, expected: &FileFingerprint) -> bool {
     if expected.is_absent() {

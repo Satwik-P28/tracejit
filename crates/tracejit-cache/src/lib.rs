@@ -357,7 +357,18 @@ impl Cache {
 
     pub fn get_bytes(&self, hash: Hash) -> Result<Vec<u8>, CacheError> {
         let path = self.objects.join(hash.to_string());
-        let bytes = fs::read(&path).map_err(|source| io_error(&path, source))?;
+        // A missing object is not an operational failure of the cache: the record that names it
+        // cannot be served, exactly like a corrupted one, so the hit path must deopt and retrace
+        // instead of aborting a command that would succeed when simply executed again. Manual
+        // pruning, a partial copy or an interrupted eviction all produce this state. Phase X1
+        // audit regression: `a_missing_cached_object_retraces_instead_of_aborting`.
+        let bytes = match fs::read(&path) {
+            Ok(bytes) => bytes,
+            Err(source) if source.kind() == io::ErrorKind::NotFound => {
+                return Err(CacheError::CorruptObject { hash });
+            }
+            Err(source) => return Err(io_error(&path, source)),
+        };
         if Hash::from(blake3::hash(&bytes)) != hash {
             return Err(CacheError::CorruptObject { hash });
         }

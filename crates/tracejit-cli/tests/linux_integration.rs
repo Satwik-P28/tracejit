@@ -269,6 +269,14 @@ fn tracejit_command() -> Command {
 }
 
 fn invoke(cache: &Path, args: &[&str], extra_env: Option<(&str, &str)>) -> Output {
+    match extra_env {
+        Some(pair) => invoke_with_env(cache, args, &[pair]),
+        None => invoke_with_env(cache, args, &[]),
+    }
+}
+
+/// [`invoke`] with any number of extra environment variables.
+fn invoke_with_env(cache: &Path, args: &[&str], extra_env: &[(&str, &str)]) -> Output {
     let mut command = tracejit_command();
     command
         .args(args)
@@ -276,10 +284,26 @@ fn invoke(cache: &Path, args: &[&str], extra_env: Option<(&str, &str)>) -> Outpu
         // glibc seeds tcache with getrandom on first allocation. Disable tcache for these
         // syscall-classification fixtures so only fixture-requested randomness is observed.
         .env("GLIBC_TUNABLES", "glibc.malloc.tcache_count=0");
-    if let Some((key, value)) = extra_env {
+    for (key, value) in extra_env {
         command.env(key, value);
     }
     command.output().unwrap()
+}
+
+/// GNU build ID of the runtime libc this host's dynamic linker resolves.
+///
+/// The `allocator-entropy-v1` contract admits exactly one audited build (build ID, call site,
+/// destination and instruction bytes). A runner image whose libc was patched between image
+/// rollouts is *legitimately* refused, which is the fail-closed behaviour itself; a contract test
+/// that asserts a controlled HIT must therefore first establish that this runtime is the audited
+/// one. `ci.yml` publishes this ID as a notice annotation on every run.
+fn runtime_libc_build_id() -> Option<String> {
+    [
+        "/lib/x86_64-linux-gnu/libc.so.6",
+        "/usr/lib/x86_64-linux-gnu/libc.so.6",
+    ]
+    .iter()
+    .find_map(|path| tracejit_effects::elf_build_id(Path::new(path)))
 }
 
 /// Like [`invoke`], but the child keeps this process's descriptor table exactly as it is.
@@ -545,10 +569,11 @@ fn interrupted_restore_intent_refuses_hit() {
     );
 }
 
-/// Pre-restore guard recheck must refuse a HIT when inputs change in the validate→restore window.
+/// The pre-restore guard pass must refuse a HIT when an input changed before it ran.
 ///
 /// Uses `TRACEJIT_TEST_PRE_RESTORE_MUTATE_PATH` (test hook; unset in production) to inject the
-/// mutation deterministically. Residual TOCTOU after the recheck remains a documented limitation.
+/// mutation deterministically immediately before that pass. Residual TOCTOU during the restore
+/// remains a documented limitation.
 #[test]
 fn toctou_pre_restore_recheck_deoptimizes_instead_of_false_hit() {
     let fixture = Fixture::new();
@@ -586,6 +611,152 @@ fn toctou_pre_restore_recheck_deoptimizes_instead_of_false_hit() {
     );
     // Hook overwrote the input; retrace must observe the mutated world rather than stale cache.
     assert_eq!(fs::read(&input).unwrap(), b"TOCTOU-MUTATED\n");
+}
+
+/// The class Phase X newly accepts, proved sound: an input that changes inside the window the
+/// removed first pass used to cover, and is reverted before the surviving pass, is a hit whose
+/// bytes equal native execution.
+///
+/// The pre-load hook mutates `input.txt` and then writes the recorded bytes back, so the surviving
+/// pass sees exactly what the record expects. Under the old two-pass order the first pass would
+/// have refused this (it observed the mutated content); the surviving pass is the one that decides,
+/// and the state it validates is the state the restore runs against.
+#[test]
+fn a_mutation_before_candidate_loading_that_is_restored_is_a_sound_hit() {
+    let fixture = Fixture::new();
+    fixture.acquire("plain_file_read");
+    let input = fixture.input("input.txt");
+    let recorded = fs::read(&input).unwrap();
+    let restored = recorded
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect::<String>();
+    let native = Command::new(fixture.binary_arg())
+        .args(["plain_file_read", fixture.root()])
+        .output()
+        .unwrap();
+    assert!(native.status.success());
+
+    let run = invoke_with_env(
+        &fixture.cache,
+        &[
+            "run",
+            "--json",
+            "--",
+            fixture.binary_arg(),
+            "plain_file_read",
+            fixture.root(),
+        ],
+        &[
+            (
+                "TRACEJIT_TEST_PRE_LOAD_MUTATE_PATH",
+                input.to_str().unwrap(),
+            ),
+            ("TRACEJIT_TEST_PRE_LOAD_RESTORE_HEX", restored.as_str()),
+        ],
+    );
+    assert!(run.status.success(), "{}", stderr_of(&run));
+    let report: Value = serde_json::from_slice(&run.stdout).unwrap();
+    assert_eq!(
+        report["cache_decision"], "Reused",
+        "a mutation reverted before the surviving pass must not poison a hit: {report}"
+    );
+    assert_eq!(
+        stdout_bytes_of(&report),
+        native.stdout,
+        "replayed bytes must equal native execution: {report}"
+    );
+    assert_eq!(
+        report["exit_code"].as_i64(),
+        native.status.code().map(i64::from),
+        "exit status"
+    );
+    assert_eq!(
+        fs::read(&input).unwrap(),
+        recorded,
+        "the input is back to the recorded content"
+    );
+    eprintln!("RESULT pre-load-mutate-restored PASS");
+}
+
+/// A cached object that is missing must deopt and retrace, not abort the command.
+///
+/// Manual pruning, a partial copy or an interrupted eviction leaves a live record naming an
+/// object that is gone. Serving it is impossible; failing the command is also wrong, because the
+/// identical command line succeeds when simply executed again.
+#[test]
+fn a_missing_cached_object_retraces_instead_of_aborting() {
+    let fixture = Fixture::new();
+    let output = fixture.input("output.txt");
+    let _ = fs::remove_file(&output);
+    let args = [
+        "run",
+        "--json",
+        "--",
+        fixture.binary_arg(),
+        "output_presence_stdout",
+        fixture.root(),
+    ];
+    let first = invoke(&fixture.cache, &args, None);
+    assert!(first.status.success(), "{}", stderr_of(&first));
+    assert_eq!(fs::read(&output).unwrap(), b"ABSENT\n");
+
+    let explanation = invoke(&fixture.cache, &["explain", "--json"], None);
+    let record: Value = serde_json::from_slice(&explanation.stdout).unwrap();
+    let hash = record["stdout"]
+        .as_array()
+        .map(|bytes| {
+            bytes
+                .iter()
+                .map(|byte| format!("{:02x}", byte.as_u64().unwrap() as u8))
+                .collect::<String>()
+        })
+        .unwrap_or_else(|| panic!("no recorded stdout object: {record}"));
+    fs::remove_file(fixture.cache.join("objects").join(hash)).unwrap();
+    fs::remove_file(&output).unwrap();
+
+    let run = invoke(&fixture.cache, &args, None);
+    assert!(
+        run.status.success(),
+        "a pruned object must not make the command fatal: {}",
+        stderr_of(&run)
+    );
+    let report: Value = serde_json::from_slice(&run.stdout).unwrap();
+    assert_ne!(report["kind"], "Reused", "{report}");
+    assert_eq!(stdout_bytes_of(&report), b"stream fixture\n");
+    assert_eq!(fs::read(&output).unwrap(), b"ABSENT\n");
+    eprintln!("RESULT missing-object-retrace PASS");
+}
+
+/// Retained candidates whose inputs no longer match must never be selected by process of
+/// elimination. The third content is recorded by neither candidate, so the only sound outcome is
+/// a retrace that observes it.
+#[test]
+fn retained_candidates_with_an_unrecorded_input_never_hit() {
+    let fixture = Fixture::new();
+    let input = fixture.input("input.txt");
+    for content in [b"input one\n".as_slice(), b"second variant\n"] {
+        fs::write(&input, content).unwrap();
+        let run = fixture.run("plain_file_read");
+        assert!(run.status.success(), "{}", stderr_of(&run));
+    }
+    fs::write(&input, b"third variant\n").unwrap();
+    let native = Command::new(fixture.binary_arg())
+        .args(["plain_file_read", fixture.root()])
+        .output()
+        .unwrap();
+    let run = fixture.run("plain_file_read");
+    assert!(run.status.success(), "{}", stderr_of(&run));
+    assert!(
+        !hit(&run),
+        "neither retained candidate describes the current input: {}",
+        stderr_of(&run)
+    );
+    assert_eq!(
+        run.stdout, native.stdout,
+        "the retrace must observe the current input"
+    );
+    eprintln!("RESULT mixed-candidates-unrecorded-input PASS");
 }
 
 /// `renameat2(RENAME_EXCHANGE)` must never become a Guarded hit.
@@ -1704,8 +1875,23 @@ fn allocator_entropy_contract_reuses_a_glibc_tool() {
 
     let first = invoke(&cache, &args, None);
     let first: Value = serde_json::from_slice(&first.stdout).unwrap();
-    assert_eq!(first["classification"], "Guarded", "{first}");
     assert_eq!(first["contract"], "tracejit.allocator-entropy.v1");
+    let second = invoke(&cache, &args, None);
+    let second: Value = serde_json::from_slice(&second.stdout).unwrap();
+    if let Some(build_id) = runtime_libc_build_id()
+        .filter(|build_id| tracejit_effects::allocator_entropy_profile(build_id).is_none())
+    {
+        // An unaudited runtime is refused; that refusal, and the identical bytes, are what the
+        // contract promises. The audited-runtime reuse path is exercised whenever the runner
+        // image carries the audited glibc build.
+        assert_eq!(first["classification"], "Nondeterministic", "{first}");
+        assert_ne!(second["cache_decision"], "Reused", "{second}");
+        assert_eq!(stdout_bytes_of(&first), expected);
+        assert_eq!(stdout_bytes_of(&second), expected);
+        eprintln!("RESULT controlled-sed SKIP unaudited runtime {build_id}");
+        return;
+    }
+    assert_eq!(first["classification"], "Guarded", "{first}");
     assert!(
         first["reasons"]
             .as_array()
@@ -1718,9 +1904,6 @@ fn allocator_entropy_contract_reuses_a_glibc_tool() {
         "the contract must be visible in the report: {first}"
     );
     assert_eq!(stdout_bytes_of(&first), expected);
-
-    let second = invoke(&cache, &args, None);
-    let second: Value = serde_json::from_slice(&second.stdout).unwrap();
     assert_eq!(second["cache_decision"], "Reused", "{second}");
     assert_eq!(stdout_bytes_of(&second), expected);
 
@@ -3526,12 +3709,30 @@ fn inherited_stdin_reuse_is_stable_across_fresh_sessions() {
         };
 
         let first = traced(&cache, &input);
+        let second = traced(&cache, &input);
+        if let Some(build_id) = runtime_libc_build_id()
+            .filter(|build_id| tracejit_effects::allocator_entropy_profile(build_id).is_none())
+        {
+            // Same runtime guard as `allocator_entropy_contract_reuses_a_glibc_tool`: an
+            // unaudited libc is refused, and the refusal must still replay the same bytes.
+            assert_eq!(
+                first["classification"], "Nondeterministic",
+                "session {session}: {first}"
+            );
+            assert_ne!(
+                second["cache_decision"], "Reused",
+                "session {session}: {second}"
+            );
+            assert_eq!(stdout_bytes_of(&first), expected);
+            assert_eq!(stdout_bytes_of(&second), expected);
+            eprintln!("RESULT controlled-tr SKIP unaudited runtime {build_id}");
+            return;
+        }
         assert_eq!(
             first["classification"], "Guarded",
             "session {session}: {first}"
         );
         assert_eq!(stdout_bytes_of(&first), expected);
-        let second = traced(&cache, &input);
         assert_eq!(
             second["cache_decision"], "Reused",
             "session {session}: reading stdin must not invalidate the identity: {second}"

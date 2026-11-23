@@ -1,0 +1,262 @@
+{
+  "guard_count": 385,
+  "guards_by_kind": {
+    "FileMetadata": 230,
+    "SymlinkTarget": 59,
+    "FileHash": 48,
+    "DirectoryOpened": 19,
+    "EnvironmentValue": 10,
+    "AccessCheck": 5,
+    "ExecutableHash": 4,
+    "ControlledRuntime": 4,
+    "OutputPrestate": 2,
+    "WorkingDirectory": 1,
+    "RuntimeIdentity": 1,
+    "ControlledEntropy": 1,
+    "NoUnexpectedEffects": 1
+  },
+  "distinct_paths_by_kind": {
+    "AccessCheck": 4,
+    "ControlledEntropy": 1,
+    "ControlledRuntime": 3,
+    "DirectoryOpened": 19,
+    "ExecutableHash": 3,
+    "FileHash": 48,
+    "FileMetadata": 180,
+    "OutputPrestate": 2,
+    "SymlinkTarget": 59
+  },
+  "content_guards": {
+    "FileHash": 48,
+    "ExecutableHash": 3,
+    "bytes_hashed_file_hash": 9006450,
+    "bytes_hashed_executable_hash": 32256784,
+    "bytes_hashed_total": 41263234
+  },
+  "exactly_duplicated_guards": {
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018699208065082, \\\"block_size\\\": 4096, \\\"blocks\\\": 2000, \\\"changed_ns\\\": 1794180150000000000, \\\"device\\": 2,
+    "\"{\\\"ExecutableHash\\\": {\\\"expected\\\": [145, 190, 99, 119, 14, 248, 0, 59, 6, 36, 210, 169, 73, 119, 252, 153, 29, 102, 137, 149, 107, 182, 73, 44, 6, 63, 105, 20": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018543642333962, \\\"block_size\\\": 4096, \\\"blocks\\\": 32, \\\"changed_ns\\\": 1794180219336024906, \\\"device\\\":": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018701058266300, \\\"block_size\\\": 4096, \\\"blocks\\\": 2896, \\\"changed_ns\\\": 1794180152000000000, \\\"device\\": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018543642333962, \\\"block_size\\\": 4096, \\\"blocks\\\": 4160, \\\"changed_ns\\\": 1794180152000000000, \\\"device\\": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018547679766272, \\\"block_size\\\": 4096, \\\"blocks\\\": 1048, \\\"changed_ns\\\": 1794180153000000000, \\\"device\\": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018700933286084, \\\"block_size\\\": 4096, \\\"blocks\\\": 3640, \\\"changed_ns\\\": 1794180153000000000, \\\"device\\": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018543642333962, \\\"block_size\\\": 4096, \\\"blocks\\\": 1864, \\\"changed_ns\\\": 1794180153000000000, \\\"device\\": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018700933286084, \\\"block_size\\\": 4096, \\\"blocks\\\": 264, \\\"changed_ns\\\": 1794180153000000000, \\\"device\\\"": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018700933286084, \\\"block_size\\\": 4096, \\\"blocks\\\": 1488, \\\"changed_ns\\\": 1794180153000000000, \\\"device\\": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018701062266300, \\\"block_size\\\": 4096, \\\"blocks\\\": 72, \\\"changed_ns\\\": 1794180153000000000, \\\"device\\\":": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018545371923899, \\\"block_size\\\": 4096, \\\"blocks\\\": 224, \\\"changed_ns\\\": 1794180153000000000, \\\"device\\\"": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018543646333962, \\\"block_size\\\": 4096, \\\"blocks\\\": 1480, \\\"changed_ns\\\": 1794180153000000000, \\\"device\\": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018973784061946, \\\"block_size\\\": 4096, \\\"blocks\\\": 8, \\\"changed_ns\\\": 1795018973504061946, \\\"device\\\": ": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018975459229143, \\\"block_size\\\": 4096, \\\"blocks\\\": 64, \\\"changed_ns\\\": 1795018973508061946, \\\"device\\\":": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018701078266300, \\\"block_size\\\": 4096, \\\"blocks\\\": 8, \\\"changed_ns\\\": 1794180150000000000, \\\"device\\\": ": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018701078266300, \\\"block_size\\\": 4096, \\\"blocks\\\": 40, \\\"changed_ns\\\": 1794180150000000000, \\\"device\\\":": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018700969286084, \\\"block_size\\\": 4096, \\\"blocks\\\": 8, \\\"changed_ns\\\": 1794180150000000000, \\\"device\\\": ": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018701082266300, \\\"block_size\\\": 4096, \\\"blocks\\\": 72, \\\"changed_ns\\\": 1794180150000000000, \\\"device\\\":": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018701110266300, \\\"block_size\\\": 4096, \\\"blocks\\\": 40, \\\"changed_ns\\\": 1794180150000000000, \\\"device\\\":": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018701110266300, \\\"block_size\\\": 4096, \\\"blocks\\\": 16, \\\"changed_ns\\\": 1794180150000000000, \\\"device\\\":": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018701086266300, \\\"block_size\\\": 4096, \\\"blocks\\\": 24, \\\"changed_ns\\\": 1794180150000000000, \\\"device\\\":": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018701086266300, \\\"block_size\\\": 4096, \\\"blocks\\\": 16, \\\"changed_ns\\\": 1794180150000000000, \\\"device\\\":": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018701074266300, \\\"block_size\\\": 4096, \\\"blocks\\\": 16, \\\"changed_ns\\\": 1794180150000000000, \\\"device\\\":": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018701090266300, \\\"block_size\\\": 4096, \\\"blocks\\\": 16, \\\"changed_ns\\\": 1794180150000000000, \\\"device\\\":": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018701090266300, \\\"block_size\\\": 4096, \\\"blocks\\\": 24, \\\"changed_ns\\\": 1794180150000000000, \\\"device\\\":": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018701086266300, \\\"block_size\\\": 4096, \\\"blocks\\\": 8, \\\"changed_ns\\\": 1794180150000000000, \\\"device\\\": ": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018701110266300, \\\"block_size\\\": 4096, \\\"blocks\\\": 8, \\\"changed_ns\\\": 1794180150000000000, \\\"device\\\": ": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018701082266300, \\\"block_size\\\": 4096, \\\"blocks\\\": 8, \\\"changed_ns\\\": 1794180150000000000, \\\"device\\\": ": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018701094266300, \\\"block_size\\\": 4096, \\\"blocks\\\": 8, \\\"changed_ns\\\": 1794180150000000000, \\\"device\\\": ": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018701082266300, \\\"block_size\\\": 4096, \\\"blocks\\\": 16, \\\"changed_ns\\\": 1794180150000000000, \\\"device\\\":": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018701078266300, \\\"block_size\\\": 4096, \\\"blocks\\\": 24, \\\"changed_ns\\\": 1794180150000000000, \\\"device\\\":": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018701078266300, \\\"block_size\\\": 4096, \\\"blocks\\\": 56, \\\"changed_ns\\\": 1794180150000000000, \\\"device\\\":": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018701070266300, \\\"block_size\\\": 4096, \\\"blocks\\\": 16, \\\"changed_ns\\\": 1794180150000000000, \\\"device\\\":": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018701082266300, \\\"block_size\\\": 4096, \\\"blocks\\\": 32, \\\"changed_ns\\\": 1794180150000000000, \\\"device\\\":": 2,
+    "\"{\\\"FileMetadata\\\": {\\\"expected\\\": {\\\"accessed_ns\\\": 1795018700933286084, \\\"block_size\\\": 4096, \\\"blocks\\\": 59552, \\\"changed_ns\\\": 1794180154000000000, \\\"device": 2
+  },
+  "duplicate_guard_count": 51,
+  "adjacent_metadata_content_pairs": 52,
+  "shared_metadata_and_content_paths": 51,
+  "shared_metadata_detail": {
+    "/usr/include/x86_64-linux-gnu/bits/floatn.h": {
+      "metadata_guards": 2,
+      "distinct_expected_fingerprints": 1,
+      "kinds": [
+        "FileMetadata"
+      ]
+    },
+    "/usr/include/string.h": {
+      "metadata_guards": 2,
+      "distinct_expected_fingerprints": 1,
+      "kinds": [
+        "FileMetadata"
+      ]
+    },
+    "/etc/ld.so.cache": {
+      "metadata_guards": 2,
+      "distinct_expected_fingerprints": 1,
+      "kinds": [
+        "FileMetadata"
+      ]
+    },
+    "/usr/include/stdio.h": {
+      "metadata_guards": 2,
+      "distinct_expected_fingerprints": 1,
+      "kinds": [
+        "FileMetadata"
+      ]
+    },
+    "/usr/include/x86_64-linux-gnu/bits/typesizes.h": {
+      "metadata_guards": 2,
+      "distinct_expected_fingerprints": 1,
+      "kinds": [
+        "FileMetadata"
+      ]
+    },
+    "/usr/include/x86_64-linux-gnu/bits/types/__locale_t.h": {
+      "metadata_guards": 2,
+      "distinct_expected_fingerprints": 1,
+      "kinds": [
+        "FileMetadata"
+      ]
+    },
+    "/lib/x86_64-linux-gnu/libmpc.so.3": {
+      "metadata_guards": 2,
+      "distinct_expected_fingerprints": 1,
+      "kinds": [
+        "FileMetadata"
+      ]
+    },
+    "/usr/include/features.h": {
+      "metadata_guards": 2,
+      "distinct_expected_fingerprints": 1,
+      "kinds": [
+        "FileMetadata"
+      ]
+    },
+    "/usr/include/x86_64-linux-gnu/bits/floatn-common.h": {
+      "metadata_guards": 2,
+      "distinct_expected_fingerprints": 1,
+      "kinds": [
+        "FileMetadata"
+      ]
+    },
+    "/usr/include/x86_64-linux-gnu/bits/long-double.h": {
+      "metadata_guards": 2,
+      "distinct_expected_fingerprints": 1,
+      "kinds": [
+        "FileMetadata"
+      ]
+    },
+    "/lib/x86_64-linux-gnu/libc.so.6": {
+      "metadata_guards": 2,
+      "distinct_expected_fingerprints": 1,
+      "kinds": [
+        "FileMetadata"
+      ]
+    },
+    "/usr/include/x86_64-linux-gnu/bits/string_fortified.h": {
+      "metadata_guards": 2,
+      "distinct_expected_fingerprints": 1,
+      "kinds": [
+        "FileMetadata"
+      ]
+    },
+    "/usr/include/x86_64-linux-gnu/bits/stdio2-decl.h": {
+      "metadata_guards": 2,
+      "distinct_expected_fingerprints": 1,
+      "kinds": [
+        "FileMetadata"
+      ]
+    },
+    "/usr/include/x86_64-linux-gnu/gnu/stubs.h": {
+      "metadata_guards": 2,
+      "distinct_expected_fingerprints": 1,
+      "kinds": [
+        "FileMetadata"
+      ]
+    },
+    "/tmp/tracejit-phase-x-profile/work/unit2.c": {
+      "metadata_guards": 2,
+      "distinct_expected_fingerprints": 1,
+      "kinds": [
+        "FileMetadata"
+      ]
+    },
+    "/usr/include/x86_64-linux-gnu/bits/strings_fortified.h": {
+      "metadata_guards": 2,
+      "distinct_expected_fingerprints": 1,
+      "kinds": [
+        "FileMetadata"
+      ]
+    },
+    "/usr/include/x86_64-linux-gnu/bits/stdio.h": {
+      "metadata_guards": 2,
+      "distinct_expected_fingerprints": 1,
+      "kinds": [
+        "FileMetadata"
+      ]
+    },
+    "/usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h": {
+      "metadata_guards": 2,
+      "distinct_expected_fingerprints": 1,
+      "kinds": [
+        "FileMetadata"
+      ]
+    },
+    "/usr/include/x86_64-linux-gnu/bits/timesize.h": {
+      "metadata_guards": 2,
+      "distinct_expected_fingerprints": 1,
+      "kinds": [
+        "FileMetadata"
+      ]
+    },
+    "/lib/x86_64-linux-gnu/libisl.so.23": {
+      "metadata_guards": 2,
+      "distinct_expected_fingerprints": 1,
+      "kinds": [
+        "FileMetadata"
+      ]
+    }
+  },
+  "largest_paths_by_size": [
+    {
+      "path": "/etc/ld.so.preload",
+      "size": 18446744073709551615
+    },
+    {
+      "path": "/lib/x86_64-linux-gnu/13",
+      "size": 18446744073709551615
+    },
+    {
+      "path": "/tmp/tracejit-phase-x-profile/work/common.h.gch",
+      "size": 18446744073709551615
+    },
+    {
+      "path": "/tmp/tracejit-phase-x-profile/work/unit2.c.gch",
+      "size": 18446744073709551615
+    },
+    {
+      "path": "/usr/include/stdc-predef.h.gch",
+      "size": 18446744073709551615
+    },
+    {
+      "path": "/usr/include/x86_64-linux-gnu/features-time64.h",
+      "size": 18446744073709551615
+    },
+    {
+      "path": "/usr/include/x86_64-linux-gnu/features.h",
+      "size": 18446744073709551615
+    },
+    {
+      "path": "/usr/include/x86_64-linux-gnu/stdc-predef.h",
+      "size": 18446744073709551615
+    },
+    {
+      "path": "/usr/include/x86_64-linux-gnu/stdc-predef.h.gch",
+      "size": 18446744073709551615
+    },
+    {
+      "path": "/usr/include/x86_64-linux-gnu/stdio.h",
+      "size": 18446744073709551615
+    }
+  ],
+  "total_distinct_bytes_referenced": 2361183241434864892986
+}
