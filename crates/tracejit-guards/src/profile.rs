@@ -26,7 +26,7 @@ use std::sync::{Mutex, OnceLock};
 use std::time::Instant;
 
 /// Guard kinds in report order. The index is the slot used by the counters.
-pub const KIND_NAMES: [&str; 17] = [
+pub const KIND_NAMES: [&str; 18] = [
     "ExecutableHash",
     "FileHash",
     "FileMetadata",
@@ -44,6 +44,7 @@ pub const KIND_NAMES: [&str; 17] = [
     "WorkingDirectory",
     "RuntimeIdentity",
     "NoUnexpectedEffects",
+    "VerityContentIdentity",
 ];
 
 /// One full `validate_all` pass.

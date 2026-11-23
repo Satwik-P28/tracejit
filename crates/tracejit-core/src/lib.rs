@@ -760,11 +760,33 @@ pub struct DoctorReport {
     pub seccomp: bool,
     pub landlock_abi: Option<i32>,
     pub proven: bool,
+    /// Whether the filesystem holding this executable can answer fs-verity measurements.
+    ///
+    /// Reported, never required: fs-verity is an optional accelerator for content guards, and an
+    /// unavailable kernel changes nothing about which runs may be reused.
+    #[serde(default)]
+    pub verity: Option<String>,
     pub cache_path: PathBuf,
     pub cache_writable: bool,
     /// The cache directory is absent, and an existing parent can accept new files.
     pub cache_creatable: bool,
     pub problems: Vec<String>,
+}
+
+/// Report fs-verity support on the filesystem holding this executable.
+///
+/// The probe opens one file read-only and asks the kernel for its fs-verity digest. It enables
+/// nothing, creates nothing and modifies nothing; `ENODATA` means the mechanism works and this
+/// particular file has no verity metadata, which is the normal answer on a capable system.
+#[cfg(unix)]
+fn probe_verity() -> Option<String> {
+    let executable = std::env::current_exe().ok()?;
+    Some(tracejit_guards::probe_support(&executable).describe())
+}
+
+#[cfg(not(unix))]
+fn probe_verity() -> Option<String> {
+    None
 }
 
 pub fn doctor() -> DoctorReport {
@@ -808,6 +830,7 @@ pub fn doctor() -> DoctorReport {
         seccomp: sandbox.seccomp,
         landlock_abi: sandbox.landlock_abi,
         proven: supported && ptrace_result.is_ok() && sandbox.can_prove(),
+        verity: probe_verity(),
         cache_path,
         cache_writable: cache_state == CachePathState::Writable,
         cache_creatable: cache_state == CachePathState::Creatable,

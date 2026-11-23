@@ -11,6 +11,13 @@ use tracejit_effects::{
 };
 
 mod profile;
+#[cfg(unix)]
+mod verity;
+#[cfg(unix)]
+pub use verity::{
+    decide, measure, pin_before_read, probe_support, FallbackReason, MeasureOutcome, SupportProbe,
+    VerityPin, VerityVerdict,
+};
 
 pub use profile::{take as take_guard_profile, GuardProfile, PassStats};
 
@@ -56,6 +63,22 @@ pub enum Guard {
     FileHash {
         path: PathBuf,
         expected: Hash,
+    },
+    /// A file whose content identity the kernel enforces with fs-verity.
+    ///
+    /// This is the same predicate as [`Guard::FileHash`] — the live bytes must equal `expected` —
+    /// with an optional, stronger-than-metadata shortcut: when the kernel still reports `verity` for
+    /// the measured inode, the content identity holds without reading the file. Whenever the kernel
+    /// cannot answer (`ENODATA`, `ENOTTY`, `EOPNOTSUPP`, ...), validation performs exactly the
+    /// [`Guard::FileHash`] read-and-compare. It is never a metadata-only acceptance.
+    VerityContentIdentity {
+        path: PathBuf,
+        expected: Hash,
+        verity: VerityPin,
+        /// Whether the recorded observation required executable permission, as for
+        /// [`Guard::ExecutableHash`].
+        #[serde(default)]
+        executable: bool,
     },
     FileMetadata {
         path: PathBuf,
@@ -546,6 +569,7 @@ impl Guard {
         match self {
             Self::ExecutableHash { .. } => 0,
             Self::FileHash { .. } => 1,
+            Self::VerityContentIdentity { .. } => 17,
             Self::FileMetadata { .. } => 2,
             Self::DirectoryOpened { .. } => 3,
             Self::OutputPrestate { .. } => 4,
@@ -569,6 +593,7 @@ impl Guard {
         match self {
             Self::ExecutableHash { path, .. }
             | Self::FileHash { path, .. }
+            | Self::VerityContentIdentity { path, .. }
             | Self::FileMetadata { path, .. }
             | Self::DirectoryOpened { path, .. }
             | Self::OutputPrestate { path, .. }
@@ -631,6 +656,71 @@ impl Guard {
                     Err(GuardFailure {
                         guard: Box::new(self.clone()),
                         reason: "file content changed".into(),
+                        expected: expected.to_string(),
+                        actual: actual.to_string(),
+                    })
+                }
+            }
+            Self::VerityContentIdentity {
+                path,
+                expected,
+                verity,
+                executable,
+            } => {
+                if *executable {
+                    validate_executable(path).map_err(|actual| GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "executable permission changed".into(),
+                        expected: "executable access".into(),
+                        actual,
+                    })?;
+                }
+                profile::count_open();
+                let file = {
+                    let _scope = profile::Scoped::start(profile::Slot::Open);
+                    File::open(path)
+                }
+                .map_err(|source| GuardFailure {
+                    guard: Box::new(self.clone()),
+                    reason: "file could not be opened for fs-verity measurement".into(),
+                    expected: expected.to_string(),
+                    actual: source.to_string(),
+                })?;
+                let verdict = verity::decide(verity, &verity::measure(&file));
+                match verdict {
+                    VerityVerdict::Proven => return Ok(()),
+                    VerityVerdict::Contradicted { .. } => {
+                        return Err(GuardFailure {
+                            guard: Box::new(self.clone()),
+                            reason: "content identity contradicted by the kernel fs-verity digest"
+                                .into(),
+                            expected: format!("fs-verity {}", verity.short()),
+                            actual: "a different fs-verity digest".into(),
+                        });
+                    }
+                    // Nothing was proven: fall through to the full content hash.
+                    VerityVerdict::FallBackToHash(_) => {}
+                }
+                let actual = hash_reader(file).map_err(|error| GuardFailure {
+                    guard: Box::new(self.clone()),
+                    reason: if *executable {
+                        "executable could not be hashed".into()
+                    } else {
+                        "file could not be hashed".into()
+                    },
+                    expected: expected.to_string(),
+                    actual: error.to_string(),
+                })?;
+                if &actual == expected {
+                    Ok(())
+                } else {
+                    Err(GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: if *executable {
+                            "executable content changed".into()
+                        } else {
+                            "file content changed".into()
+                        },
                         expected: expected.to_string(),
                         actual: actual.to_string(),
                     })
@@ -1936,14 +2026,20 @@ fn validate_metadata_hash_pair(
     if mode == GuardMode::Fast {
         return Ok(PairResult::MetadataOnly);
     }
-    let (expected_hash, require_executable) = match hash_guard {
-        Guard::FileHash { expected, .. } => (*expected, false),
-        Guard::ExecutableHash { expected, .. } => (*expected, true),
+    let (expected_hash, require_executable, verity_pin) = match hash_guard {
+        Guard::FileHash { expected, .. } => (*expected, false, None),
+        Guard::ExecutableHash { expected, .. } => (*expected, true, None),
+        Guard::VerityContentIdentity {
+            expected,
+            verity,
+            executable,
+            ..
+        } => (*expected, *executable, Some(verity)),
         _ => {
             return Err(PairError::Hash(GuardFailure {
                 guard: Box::new(hash_guard.clone()),
                 reason: "paired content guard is not a file or executable hash".into(),
-                expected: "FileHash or ExecutableHash".into(),
+                expected: "FileHash, ExecutableHash or VerityContentIdentity".into(),
                 actual: format!("{hash_guard:?}"),
             }));
         }
@@ -1957,6 +2053,21 @@ fn validate_metadata_hash_pair(
                 actual,
             })
         })?;
+    }
+    if let Some(pin) = verity_pin {
+        match verity::decide(pin, &verity::measure(&file)) {
+            VerityVerdict::Proven => return Ok(PairResult::Both),
+            VerityVerdict::Contradicted { .. } => {
+                return Err(PairError::Hash(GuardFailure {
+                    guard: Box::new(hash_guard.clone()),
+                    reason: "content identity contradicted by the kernel fs-verity digest".into(),
+                    expected: format!("fs-verity {}", pin.short()),
+                    actual: "a different fs-verity digest".into(),
+                }));
+            }
+            // Nothing was proven: do exactly what `Guard::FileHash` does, from the same descriptor.
+            VerityVerdict::FallBackToHash(_) => {}
+        }
     }
     let actual_hash = hash_reader(file).map_err(|source| {
         PairError::Hash(GuardFailure {
@@ -1987,6 +2098,8 @@ fn validate_metadata_hash_pair(
 
 #[cfg(test)]
 mod phase_x_tests;
+#[cfg(all(test, unix))]
+mod phase_y_tests;
 
 fn metadata_change_allows_hash_fallback(path: &Path, expected: &FileFingerprint) -> bool {
     if expected.is_absent() {
@@ -1999,7 +2112,9 @@ fn metadata_change_allows_hash_fallback(path: &Path, expected: &FileFingerprint)
 
 fn content_hash_path(guard: &Guard) -> Option<&Path> {
     match guard {
-        Guard::ExecutableHash { path, .. } | Guard::FileHash { path, .. } => Some(path),
+        Guard::ExecutableHash { path, .. }
+        | Guard::FileHash { path, .. }
+        | Guard::VerityContentIdentity { path, .. } => Some(path),
         _ => None,
     }
 }

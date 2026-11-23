@@ -319,6 +319,10 @@ fn run_cli(cli: Cli, process_startup_ns: u64, cli_parse_ns: u64) -> Result<i32> 
                 println!("seccomp        {}", yes_no(report.seccomp));
                 println!("landlock       {}", landlock_status(report.landlock_abi));
                 println!("proven         {}", yes_no(report.proven));
+                println!(
+                    "verity         {}",
+                    report.verity.as_deref().unwrap_or("unknown")
+                );
                 let cache_state = if report.cache_writable {
                     "writable"
                 } else if report.cache_creatable {
@@ -753,6 +757,14 @@ fn guard_line(guard: &Guard) -> String {
     match guard {
         Guard::ExecutableHash { path, .. } => format!("executable content {}", path.display()),
         Guard::FileHash { path, .. } => format!("file content {}", path.display()),
+        Guard::VerityContentIdentity {
+            path,
+            executable: true,
+            ..
+        } => format!("executable content {} (fs-verity identity)", path.display()),
+        Guard::VerityContentIdentity { path, .. } => {
+            format!("file content {} (fs-verity identity)", path.display())
+        }
         Guard::FileMetadata { path, .. } => format!("file metadata {}", path.display()),
         Guard::DirectoryOpened { path, .. } => format!("directory open {}", path.display()),
         Guard::OutputPrestate { path, .. } => {
