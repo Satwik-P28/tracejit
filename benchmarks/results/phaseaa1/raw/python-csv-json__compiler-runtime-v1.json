@@ -1,0 +1,108 @@
+{
+  "adaptations": [
+    "PYTHONHASHSEED=0",
+    "PYTHONDONTWRITEBYTECODE=1"
+  ],
+  "argv": [
+    "/opt/freestyle/python/bin/python3",
+    "etl.py"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "customers.csv"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "customers.csv"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "customers.csv"
+      },
+      {
+        "field": "atime_ns",
+        "path": "etl.py"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "etl.py"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "etl.py"
+      },
+      {
+        "field": "atime_ns",
+        "path": "report.json"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "report.json"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "report.json"
+      },
+      {
+        "field": "atime_ns",
+        "path": "sales.csv"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "sales.csv"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "sales.csv"
+      }
+    ],
+    "tree_digest_native": "3afcf0cdb1b57127e873889aeb04b5ec634877d622d494fb8fa768e4b58c98f1",
+    "tree_digest_traced": "3afcf0cdb1b57127e873889aeb04b5ec634877d622d494fb8fa768e4b58c98f1"
+  },
+  "cold_ns": 203724489,
+  "correctness": {},
+  "cost_class": "medium",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 169,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONHASHSEED": "0"
+  },
+  "environment_digest": "1f9359ee56f37f4c10020e508f3cc5ada8e40245e04a59495f134cb39e6724af",
+  "environment_tier": "C",
+  "family": "data",
+  "output_count": 1,
+  "policy": "compiler-runtime-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded",
+    "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "refusal_categories": {
+    "other:executed under the tracejit.compiler-runtime.v1 co": 1,
+    "unmodeled_syscall:72": 3
+  },
+  "required_tools": [
+    "python3"
+  ],
+  "split": "heldout",
+  "status": "refused",
+  "workload_id": "python-csv-json"
+}

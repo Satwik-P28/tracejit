@@ -1,0 +1,502 @@
+{
+  "adaptations": [],
+  "argv": [
+    "gzip",
+    "-6",
+    "-n",
+    "-c",
+    "corpus.txt"
+  ],
+  "assessment": "loss",
+  "cache_corruption_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      }
+    ],
+    "tree_digest_native": "14fd62440333b097f5093da1bfcd3d9bf32d4a1666f1d6c6524f035c04f9f575",
+    "tree_digest_traced": "14fd62440333b097f5093da1bfcd3d9bf32d4a1666f1d6c6524f035c04f9f575"
+  },
+  "cache_storage_bytes": 284157,
+  "classification": "Guarded",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      }
+    ],
+    "tree_digest_native": "14fd62440333b097f5093da1bfcd3d9bf32d4a1666f1d6c6524f035c04f9f575",
+    "tree_digest_traced": "14fd62440333b097f5093da1bfcd3d9bf32d4a1666f1d6c6524f035c04f9f575"
+  },
+  "cold_ns": 35615295,
+  "correctness": {},
+  "cost_class": "medium",
+  "decisions": [
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    },
+    {
+      "cache_decision": "Reused",
+      "decision_reason": "all guards passed and cached outputs were restored",
+      "kind": "Reused",
+      "step": "warm"
+    },
+    {
+      "cache_decision": "Deoptimized",
+      "decision_reason": "cached execution deoptimized",
+      "kind": "Executed",
+      "step": "after_mutation"
+    },
+    {
+      "cache_decision": "Reused",
+      "decision_reason": "all guards passed and cached outputs were restored",
+      "kind": "Reused",
+      "step": "retry_after_mutation"
+    },
+    {
+      "cache_decision": "Deoptimized",
+      "decision_reason": "cached execution deoptimized",
+      "kind": "Executed",
+      "step": "input_restored"
+    },
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cache_restart"
+    },
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "cached object cc64bf9c7509f84f85828820e3faef934028242fdb421804a00546bb72b3f3fe is corrupt; retracing",
+      "kind": "Executed",
+      "removed_object": "cc64bf9c7509f84f85828820e3faef934028242fdb421804a00546bb72b3f3fe",
+      "step": "cache_object_corruption"
+    }
+  ],
+  "deoptimised_after_mutation": true,
+  "dependency_count": 9,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": true,
+  "environment_adaptations": {},
+  "environment_digest": "77d97cb1b9b334ed339ea18927bb1284833004c8a619f0519b34ed3f562e9dad",
+  "environment_tier": "A",
+  "family": "compression",
+  "mutation": "appended 12 bytes to corpus.txt",
+  "mutation_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      }
+    ],
+    "tree_digest_native": "d250304060ceb71436dde554d33a4e18845558f19dd40516b693d2ef5087ab2c",
+    "tree_digest_traced": "d250304060ceb71436dde554d33a4e18845558f19dd40516b693d2ef5087ab2c"
+  },
+  "output_count": 0,
+  "policy": "native",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "all observed dependencies are guardable or captured outputs"
+  ],
+  "required_tools": [
+    "gzip"
+  ],
+  "restored_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      }
+    ],
+    "tree_digest_native": "14fd62440333b097f5093da1bfcd3d9bf32d4a1666f1d6c6524f035c04f9f575",
+    "tree_digest_traced": "14fd62440333b097f5093da1bfcd3d9bf32d4a1666f1d6c6524f035c04f9f575"
+  },
+  "split": "dev",
+  "status": "reused",
+  "timing": {
+    "break_even_repeats": null,
+    "cache_storage_bytes": 119159,
+    "calibration_decision": {
+      "cache_decision": "Reused",
+      "decision_reason": "all guards passed and cached outputs were restored",
+      "kind": "Reused"
+    },
+    "cold": {
+      "max_ns": 69236367,
+      "mean_ns": 38203195,
+      "median_ci95_ns": [
+        23911359,
+        69236367
+      ],
+      "median_ns": 30533333,
+      "min_ns": 23911359,
+      "n": 5,
+      "p05_ns": 23911359,
+      "p95_ns": 69236367,
+      "samples_ns": [
+        38419741,
+        30533333,
+        23911359,
+        28915175,
+        69236367
+      ]
+    },
+    "cold_ratio_unpaired": {
+      "cold_median_ci95_ns": [
+        23911359,
+        69236367
+      ],
+      "cold_samples_ns": [
+        38419741,
+        30533333,
+        23911359,
+        28915175,
+        69236367
+      ],
+      "design": "independent arms; cold tracing needs a fresh cache and cannot be paired",
+      "direct_median_ci95_ns": [
+        5254256,
+        6773708
+      ],
+      "direct_samples_ns": [
+        6333012,
+        5064169,
+        6157843,
+        5113702,
+        7429721,
+        6744024,
+        6773708,
+        5397335,
+        5254256,
+        6784991
+      ],
+      "median_ratio": 0.20454455463476587
+    },
+    "cold_reps": 5,
+    "cost_model": {
+      "available": true,
+      "instrumented": true,
+      "model": {
+        "additive": "runtime hit path only",
+        "hit_path_residual_ns": 369673,
+        "hit_path_stages": [
+          "stdio_replay_ns",
+          "guard_validation_ns",
+          "guard_recheck_ns",
+          "cas_restore_ns"
+        ],
+        "hit_path_sum_ns": 4468802,
+        "post_runtime_ns": 4821915,
+        "pre_runtime_ns": 6356936,
+        "present_ns": 1458909,
+        "runtime_ns": 4838475,
+        "startup_quantum_ns": 10000000,
+        "startup_reported_ns": 4847035,
+        "wall_ns": 17476235
+      },
+      "note": "instrumented two-run session; the breakdown is not a timed sample. pre_runtime_ns is process creation, startup, CLI parsing, identity preparation, cache open/lookup/query and exit, minus the two spans above, and cannot be separated further at useful resolution; process_startup_ns is derived from the kernel's tick-granular start time and is not used in any sum",
+      "stages_ns": {
+        "cache_prepare_ns": 35126,
+        "cas_restore_ns": 2817110,
+        "cli_parse_ns": 212228,
+        "decision_persist_ns": 4821915,
+        "guard_recheck_ns": 0,
+        "guard_validation_ns": 1567925,
+        "identity_prepare_ns": 424517,
+        "lookup_key_ns": 7284,
+        "present_ns": 1458909,
+        "process_startup_ns": 4847035,
+        "record_decode_ns": 363542,
+        "sqlite_open_ns": 280657,
+        "sqlite_query_ns": 423295,
+        "sqlite_schema_ns": 480232,
+        "stdio_replay_ns": 83767
+      }
+    },
+    "direct": {
+      "max_ns": 7429721,
+      "mean_ns": 6105276,
+      "median_ci95_ns": [
+        5254256,
+        6773708
+      ],
+      "median_ns": 6245427,
+      "min_ns": 5064169,
+      "n": 10,
+      "p05_ns": 5064169,
+      "p95_ns": 7429721,
+      "samples_ns": [
+        6333012,
+        5064169,
+        6157843,
+        5113702,
+        7429721,
+        6744024,
+        6773708,
+        5397335,
+        5254256,
+        6784991
+      ]
+    },
+    "environment_digest": "b2941fe4fdd406a6cbbb5346c61a1866cc860db993e090a8a2eef6b114ff4599",
+    "policy": "native",
+    "reference_stdout_sha256": "a41b186f3502948819be6d43cea16ee457ff0cfe9d60202136fbdd1faf88cb93",
+    "reps": 10,
+    "session": {
+      "10": {
+        "direct_ns": 62454270,
+        "speedup": 0.6051111293692432,
+        "traced_ns": 103211240
+      },
+      "2": {
+        "direct_ns": 12490854,
+        "speedup": 0.3235247038902364,
+        "traced_ns": 38608656
+      },
+      "25": {
+        "direct_ns": 156135675,
+        "speedup": 0.6959745023966519,
+        "traced_ns": 224341085
+      },
+      "5": {
+        "direct_ns": 31227135,
+        "speedup": 0.4969733646059,
+        "traced_ns": 62834625
+      },
+      "50": {
+        "direct_ns": 312271350,
+        "speedup": 0.7326458218604971,
+        "traced_ns": 426224160
+      }
+    },
+    "status": "measured",
+    "timing_channel": "plain (no --json): the JSON byte-array report is harness cost",
+    "warm": {
+      "max_ns": 9856939,
+      "mean_ns": 8021324,
+      "median_ci95_ns": [
+        6743953,
+        9355057
+      ],
+      "median_ns": 8075323,
+      "min_ns": 5955262,
+      "n": 10,
+      "p05_ns": 5955262,
+      "p95_ns": 9856939,
+      "samples_ns": [
+        9379953,
+        6743953,
+        5955262,
+        8929387,
+        9856939,
+        9274545,
+        9355057,
+        7221260,
+        6596256,
+        6900628
+      ]
+    },
+    "warm_decisions": [
+      {
+        "cache_decision": "Reused",
+        "decision_reason": null,
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": null,
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": null,
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": null,
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": null,
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": null,
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": null,
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": null,
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": null,
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": null,
+        "kind": "Reused"
+      }
+    ],
+    "warm_ratio": {
+      "geometric_mean_ratio": 0.7662178332067138,
+      "median_ratio": 0.7491714298627912,
+      "pairs": 10,
+      "ratio_ci95": [
+        0.7103755750741403,
+        0.8608858077059102
+      ],
+      "ratios": [
+        0.6751645770506526,
+        0.7509199723070431,
+        1.034017143158437,
+        0.5726823129068098,
+        0.7537554001297969,
+        0.727154162279659,
+        0.7240691318075347,
+        0.7474228874185391,
+        0.7965512557426516,
+        0.9832425396645059
+      ]
+    },
+    "warm_stdout_mismatches": 0,
+    "workload_id": "gzip-6-stdout"
+  },
+  "warm_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      }
+    ],
+    "tree_digest_native": "14fd62440333b097f5093da1bfcd3d9bf32d4a1666f1d6c6524f035c04f9f575",
+    "tree_digest_traced": "14fd62440333b097f5093da1bfcd3d9bf32d4a1666f1d6c6524f035c04f9f575"
+  },
+  "warm_ns": 0,
+  "workload_id": "gzip-6-stdout"
+}

@@ -1,0 +1,82 @@
+{
+  "adaptations": [],
+  "argv": [
+    "sh",
+    "-c",
+    "ln -f real.txt alias.txt && cat alias.txt > out.txt"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "alias.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "alias.txt"
+      },
+      {
+        "field": "atime_ns",
+        "path": "out.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "out.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "out.txt"
+      },
+      {
+        "field": "atime_ns",
+        "path": "real.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "real.txt"
+      }
+    ],
+    "tree_digest_native": "1b1f02be42ea60c1477f229b88465d5cc47dc4ad5490b43f66a6ebfcd784ec4d",
+    "tree_digest_traced": "1b1f02be42ea60c1477f229b88465d5cc47dc4ad5490b43f66a6ebfcd784ec4d"
+  },
+  "cold_ns": 58061904,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 68,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "ec59c47f3af3c8d9be287fe2f66b0acbe462c057c93851c0224a8f1e86b06132",
+  "environment_tier": "A",
+  "family": "filesystem",
+  "output_count": 1,
+  "policy": "native",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "unmodeled successful syscall 265: hard-link creation is not a pathname-equivalent output effect",
+    "unmodeled successful syscall 326: unmodeled syscall 326 args [0x3, 0x0, 0x1, 0x0, 0x7fffffffc0000000, 0x0]",
+    "unmodeled successful syscall 326: unmodeled syscall 326 args [0x3, 0x0, 0x1, 0x0, 0x7fffffffc0000000, 0x0]"
+  ],
+  "refusal_categories": {
+    "unmodeled_syscall:265": 1,
+    "unmodeled_syscall:326": 2
+  },
+  "required_tools": [
+    "sh"
+  ],
+  "split": "validation",
+  "status": "refused",
+  "workload_id": "fs-hardlink-alias"
+}

@@ -1,0 +1,102 @@
+{
+  "adaptations": [],
+  "argv": [
+    "tar",
+    "-czf",
+    "zlib-src.tar.gz",
+    "-C",
+    "zlib-1.3.1",
+    "adler32.c",
+    "crc32.c",
+    "deflate.c",
+    "trees.c",
+    "zlib.h",
+    "zconf.h"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "atime_ns",
+        "path": "zlib-src.tar.gz"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "zlib-src.tar.gz"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "zlib-src.tar.gz"
+      }
+    ],
+    "tree_digest_native": "a51841822d29781cf1f71da596bbaf027c96d4fb6f5d32ceaf5c6d963a481cb9",
+    "tree_digest_traced": "a51841822d29781cf1f71da596bbaf027c96d4fb6f5d32ceaf5c6d963a481cb9"
+  },
+  "cold_ns": 103908221,
+  "correctness": {},
+  "cost_class": "medium",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 96,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "e94cb7d065649a1dc5f1220b34a5e89dc0e6ce39293b152b1fb22ddc193b2421",
+  "environment_tier": "A",
+  "family": "packaging",
+  "output_count": 1,
+  "policy": "allocator-entropy-v1",
+  "provenance": "zlib-1.3.1@9a93b2b7dfda",
+  "reasons": [
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded",
+    "unmodeled successful syscall 5: fstat on pipe descriptor 4 reports buffered byte counts, which depend on scheduling",
+    "unmodeled successful syscall 5: fstat on pipe descriptor 0 reports buffered byte counts, which depend on scheduling",
+    "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "refusal_categories": {
+    "other:executed under the tracejit.allocator-entropy.v1 c": 1,
+    "unmodeled_syscall:5": 2,
+    "unmodeled_syscall:72": 3
+  },
+  "required_tools": [
+    "tar"
+  ],
+  "split": "validation",
+  "status": "refused",
+  "workload_id": "tar-gzip"
+}

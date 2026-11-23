@@ -1,0 +1,85 @@
+{
+  "adaptations": [],
+  "argv": [
+    "bzip2",
+    "-9",
+    "-k",
+    "-f",
+    "corpus.bin"
+  ],
+  "assessment": "ineligible",
+  "classification": "Nondeterministic",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin.bz2"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin.bz2"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      }
+    ],
+    "tree_digest_native": "be5d12c4e12611388ccecfdd3a0cb41e1a8745ead6530d43bb35da2a66b954f1",
+    "tree_digest_traced": "be5d12c4e12611388ccecfdd3a0cb41e1a8745ead6530d43bb35da2a66b954f1"
+  },
+  "cold_ns": 152413551,
+  "correctness": {},
+  "cost_class": "heavy",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 11,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "05c8a97898358159d204a7388a818a4bbe31f1c292e434793f4bfe757681d213",
+  "environment_tier": "A",
+  "family": "compression",
+  "output_count": 1,
+  "policy": "native",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "process read randomness via getrandom"
+  ],
+  "refusal_categories": {
+    "randomness": 1
+  },
+  "required_tools": [
+    "bzip2"
+  ],
+  "split": "validation",
+  "status": "refused",
+  "workload_id": "bzip2-9-file"
+}

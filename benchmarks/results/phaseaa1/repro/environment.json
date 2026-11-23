@@ -1,0 +1,168 @@
+{
+  "commit": "ae884c59320b1ee37ac2d0ae8af24eae98f26241",
+  "container_markers": [],
+  "contract": "allocator-entropy-v1 (separate policy; never merged with native rows)",
+  "cpu": {
+    "governor": null,
+    "logical_count": 8,
+    "lscpu": "Architecture:                         x86_64\nCPU op-mode(s):                       32-bit, 64-bit\nAddress sizes:                        48 bits physical, 48 bits virtual\nByte Order:                           Little Endian\nCPU(s):                               8\nOn-line CPU(s) list:                  0-7\nVendor ID:                            AuthenticAMD\nModel name:                           AMD EPYC 7003 (Milan)\nCPU family:                           25\nModel:                                1\nThread(s) per core:                   1\nCore(s) per socket:                   8\nSocket(s):                            1\nStepping:                             1\nBogoMIPS:                             1999.99\nFlags:                                fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid tsc_known_freq pni pclmulqdq ssse3 fma cx16 sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy svm cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw topoext perfctr_core ssbd ibrs ibpb stibp vmmcall fsgsbase tsc_adjust bmi1 avx2 smep bmi2 invpcid rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves clzero xsaveerptr wbnoinvd arat npt nrip_save tsc_scale vmcb_clean flushbyasid pausefilter pfthreshold v_vmsave_vmload vgif umip pku ospke vaes vpclmulqdq rdpid arch_capabilities\nVirtualization:                       AMD-V\nHypervisor vendor:                    KVM\nVirtualization type:                  full\nL1d cache:                            128 KiB (4 instances)\nL1i cache:                            128 KiB (4 instances)\nL2 cache:                             2 MiB (4 instances)\nL3 cache:                             16 MiB (1 instance)\nNUMA node(s):                         1\nNUMA node0 CPU(s):                    0-7\nVulnerability Gather data sampling:   Not affected\nVulnerability Itlb multihit:          Not affected\nVulnerability L1tf:                   Not affected\nVulnerability Mds:                    Not affected\nVulnerability Meltdown:               Not affected\nVulnerability Mmio stale data:        Not affected\nVulnerability Reg file data sampling: Not affected\nVulnerability Retbleed:               Not affected\nVulnerability Spec rstack overflow:   Mitigation; safe RET, no microcode\nVulnerability Spec store bypass:      Mitigation; Speculative Store Bypass disabled via prctl\nVulnerability Spectre v1:             Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:             Mitigation; Retpolines; IBPB conditional; IBRS_FW; STIBP disabled; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected\nVulnerability Srbds:                  Not affected\nVulnerability Tsx async abort:        Not affected",
+    "model": "AMD EPYC 7003 (Milan)",
+    "physical_cores": "8"
+  },
+  "distribution": "PRETTY_NAME=\"Ubuntu 24.04.5 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"24.04\"\nVERSION=\"24.04.5 LTS (Noble Numbat)\"\nVERSION_CODENAME=noble\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=noble\nLOGO=ubuntu-logo",
+  "environment_allowlist": {
+    "GLIBC_TUNABLES": null,
+    "HOME": "/tmp/aa1-home",
+    "LANG": null,
+    "LC_ALL": null,
+    "MALLOC_ARENA_MAX": null,
+    "PATH": "/tmp/aa1-home/.cargo/bin:/tmp/aa1-home/.local/bin:/usr/local/bin:/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": null,
+    "PYTHONHASHSEED": null,
+    "TZ": null
+  },
+  "filesystem": "Filesystem     Type 1K-blocks     Used Available Use% Mounted on\n/dev/root      ext4  65871716 14972456  48030800  24% /",
+  "hardware_counters": "perf is not installed on this image",
+  "kernel": {
+    "release": "6.1.102",
+    "uname": "Linux freestyle-vm 6.1.102 #1 SMP PREEMPT_DYNAMIC Sun Nov  8 09:00:04 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux"
+  },
+  "libc": {
+    "build_id": "8cebda42d140fc2b09639f8b13a5d5f2e617ef09",
+    "path": "/lib/x86_64-linux-gnu/libc.so.6",
+    "version": "GNU C Library (Ubuntu GLIBC 2.39-0ubuntu8.12) stable release version 2.39.\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.\nThere is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A\nPARTICULAR PURPOSE.\nCompiled by GNU CC version 13.3.0.\nlibc ABIs: UNIQUE IFUNC ABSOLUTE\nMinimum supported kernel: 3.2.0\nFor bug reporting instructions, please see:\n<https://bugs.launchpad.net/ubuntu/+source/glibc/+bugs>."
+  },
+  "memory": "total        used        free      shared  buff/cache   available\nMem:     16990081024   779939840  7071010816     1126400  9486864384 16210141184\nSwap:              0           0           0",
+  "page_cache_control": "not attempted; the host cannot establish a cold page cache reliably",
+  "tools": {
+    "bzip2": {
+      "path": "/usr/bin/bzip2",
+      "version": "bzip2, a block-sorting file compressor.  Version 1.0.8, 13-Jul-2019."
+    },
+    "cargo": {
+      "path": null,
+      "version": null
+    },
+    "cc": {
+      "path": "/usr/bin/cc",
+      "version": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+    },
+    "ccache": {
+      "path": null,
+      "version": null
+    },
+    "clang": {
+      "path": null,
+      "version": null
+    },
+    "cppcheck": {
+      "path": null,
+      "version": null
+    },
+    "firebuild": {
+      "path": null,
+      "version": null
+    },
+    "gcc": {
+      "path": "/usr/bin/gcc",
+      "version": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
+    },
+    "gzip": {
+      "path": "/usr/bin/gzip",
+      "version": "gzip 1.12"
+    },
+    "hyperfine": {
+      "path": null,
+      "version": null
+    },
+    "jq": {
+      "path": "/usr/bin/jq",
+      "version": "jq-1.7"
+    },
+    "make": {
+      "path": "/usr/bin/make",
+      "version": "GNU Make 4.3"
+    },
+    "ninja": {
+      "path": null,
+      "version": null
+    },
+    "nm": {
+      "path": "/usr/bin/nm",
+      "version": "GNU nm (GNU Binutils for Ubuntu) 2.42"
+    },
+    "node": {
+      "path": "/usr/local/bin/node",
+      "version": "v26.13.1"
+    },
+    "objcopy": {
+      "path": "/usr/bin/objcopy",
+      "version": "GNU objcopy (GNU Binutils for Ubuntu) 2.42"
+    },
+    "objdump": {
+      "path": "/usr/bin/objdump",
+      "version": "GNU objdump (GNU Binutils for Ubuntu) 2.42"
+    },
+    "perf": {
+      "path": null,
+      "version": null
+    },
+    "python3": {
+      "path": "/usr/local/bin/python3",
+      "version": "Python 3.12.3"
+    },
+    "readelf": {
+      "path": "/usr/bin/readelf",
+      "version": "GNU readelf (GNU Binutils for Ubuntu) 2.42"
+    },
+    "ruff": {
+      "path": null,
+      "version": null
+    },
+    "rustc": {
+      "path": null,
+      "version": null
+    },
+    "sccache": {
+      "path": null,
+      "version": null
+    },
+    "shellcheck": {
+      "path": null,
+      "version": null
+    },
+    "strip": {
+      "path": "/usr/bin/strip",
+      "version": "GNU strip (GNU Binutils for Ubuntu) 2.42"
+    },
+    "tar": {
+      "path": "/usr/bin/tar",
+      "version": "tar (GNU tar) 1.35"
+    },
+    "unzip": {
+      "path": "/usr/bin/unzip",
+      "version": "caution:  both -n and -o specified; ignoring -o"
+    },
+    "xz": {
+      "path": "/usr/bin/xz",
+      "version": "xz (XZ Utils) 5.4.5"
+    },
+    "zip": {
+      "path": "/usr/bin/zip",
+      "version": "Copyright (c) 1990-2008 Info-ZIP - Type 'zip \"-L\"' for software license."
+    },
+    "zstd": {
+      "path": null,
+      "version": null
+    }
+  },
+  "tracejit": {
+    "doctor": "os             linux\narch           x86_64\nsupported      yes\nptrace         yes\nseccomp        yes\nlandlock       no\nproven         no\nruntime        allocator-entropy-v1 audited (8cebda42d140fc2b09639f8b13a5d5f2e617ef09)\ncache          /tmp/aa1-home/.cache/tracejit (not created yet; TraceJIT can create it)\nproblem        seccomp and Landlock ABI 3 or newer are required for PROVEN\nproblem        GUARDED reuse does not require seccomp or Landlock. PROVEN does: both must actually be installed. An unenforced run stays GUARDED.",
+    "path": "/tmp/aa1-clean/target/release/tracejit",
+    "reported_version": "tracejit 0.2.0-beta.1",
+    "sha256": "daca8b0dc9fda100abd8801d9f6f619c0e1c3082981f20be2de8f1dd4361dbe4"
+  },
+  "untracked_entries": 0,
+  "virtualization": "kvm",
+  "working_tree_dirty": false
+}

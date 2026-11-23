@@ -1,0 +1,72 @@
+{
+  "adaptations": [
+    "PYTHONHASHSEED=0",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "BLAS/OMP threads pinned to 1"
+  ],
+  "argv": [
+    "/opt/freestyle/python/bin/python3",
+    "matmul.py"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "matmul.py"
+      }
+    ],
+    "tree_digest_native": "fc222b08e00cd0934302efb70b71c2b0847163c892c8e01e87b73af520a4e7db",
+    "tree_digest_traced": "fc222b08e00cd0934302efb70b71c2b0847163c892c8e01e87b73af520a4e7db"
+  },
+  "cold_ns": 643699900,
+  "correctness": {},
+  "cost_class": "heavy",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 602,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONHASHSEED": "0"
+  },
+  "environment_digest": "6c7e35652a7999a66f02140d1dfd026ab74089014eb5c22969b80451cc469275",
+  "environment_tier": "C",
+  "family": "scientific",
+  "output_count": 0,
+  "policy": "compiler-runtime-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded",
+    "unmodeled successful syscall 237: unmodeled syscall 237 args [0x7f8648000000, 0x2000000, 0x1, 0x0, 0x0, 0x0]",
+    "unmodeled successful syscall 237: unmodeled syscall 237 args [0x7f8645360000, 0x2000000, 0x1, 0x0, 0x0, 0x0]",
+    "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "refusal_categories": {
+    "other:executed under the tracejit.compiler-runtime.v1 co": 1,
+    "unmodeled_syscall:237": 2,
+    "unmodeled_syscall:72": 3
+  },
+  "required_tools": [
+    "python3"
+  ],
+  "split": "validation",
+  "status": "refused",
+  "workload_id": "numpy-matmul"
+}

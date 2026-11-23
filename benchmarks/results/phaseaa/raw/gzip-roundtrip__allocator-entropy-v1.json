@@ -1,0 +1,92 @@
+{
+  "adaptations": [],
+  "argv": [
+    "sh",
+    "-c",
+    "gzip -c -n corpus.bin | gzip -dc > roundtrip.bin"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "atime_ns",
+        "path": "roundtrip.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "roundtrip.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "roundtrip.bin"
+      }
+    ],
+    "tree_digest_native": "830a672e0c5e3004727526c588c4be38c9611b42c7a1b729e58404d96b5bedd5",
+    "tree_digest_traced": "830a672e0c5e3004727526c588c4be38c9611b42c7a1b729e58404d96b5bedd5"
+  },
+  "cold_ns": 76876824,
+  "correctness": {},
+  "cost_class": "medium",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 19,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "c920f4d2704a4efc17be762ecae5ea935cb63004ff9e2311a4416dc12a1dcbe3",
+  "environment_tier": "A",
+  "family": "compression",
+  "output_count": 1,
+  "policy": "allocator-entropy-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "unmodeled successful syscall 5: fstat on pipe descriptor 0 reports buffered byte counts, which depend on scheduling",
+    "pipe 1: a read returned less than it requested and more data followed, so the reader's observations depend on scheduling",
+    "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "refusal_categories": {
+    "other:executed under the tracejit.allocator-entropy.v1 c": 1,
+    "other:pipe 1: a read returned less than it requested and": 1,
+    "unmodeled_syscall:5": 1
+  },
+  "required_tools": [
+    "gzip",
+    "sh"
+  ],
+  "split": "heldout",
+  "status": "refused",
+  "workload_id": "gzip-roundtrip"
+}

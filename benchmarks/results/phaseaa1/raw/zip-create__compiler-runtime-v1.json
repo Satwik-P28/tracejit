@@ -1,0 +1,92 @@
+{
+  "adaptations": [],
+  "argv": [
+    "zip",
+    "-q",
+    "-X",
+    "bundle.zip",
+    "corpus.txt",
+    "corpus.bin"
+  ],
+  "assessment": "ineligible",
+  "classification": "Nondeterministic",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "bundle.zip"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "bundle.zip"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "bundle.zip"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      }
+    ],
+    "tree_digest_native": "e0b4d5cee20bf1bb7006e2bedd5c76f4a0ee849609c479349a9cb4a4028c2598",
+    "tree_digest_traced": "e0b4d5cee20bf1bb7006e2bedd5c76f4a0ee849609c479349a9cb4a4028c2598"
+  },
+  "cold_ns": 79099597,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 21,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "8e17d14e139bef549a5f8ed5814ed41e8d485eaaab888131d59c4862aa1cc22b",
+  "environment_tier": "A",
+  "family": "packaging",
+  "output_count": 2,
+  "policy": "compiler-runtime-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "process read system clock: monotonic",
+    "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "refusal_categories": {
+    "clock": 1,
+    "other:executed under the tracejit.compiler-runtime.v1 co": 1
+  },
+  "required_tools": [
+    "zip"
+  ],
+  "split": "validation",
+  "status": "refused",
+  "workload_id": "zip-create"
+}

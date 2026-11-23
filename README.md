@@ -2,7 +2,7 @@
 
 Reuse an unmodified Linux x86_64 command only when the dependencies TraceJIT observed still pass synchronous guards. If an effect is unknown, or the command reads the clock, randomness, or the network, TraceJIT runs it again. Correctness beats performance; uncertainty fails closed.
 
-**Status:** `v0.2.0-beta.1`, a research-oriented prototype for Linux x86_64. It is not a general guarantee of execution equivalence, has not been peer reviewed, and has no production adoption. Read [known limitations](docs/LIMITATIONS.md) before trusting a hit.
+**Status:** `v0.2.0-beta.1` is the published beta. Current `main` is **unreleased** and contains behaviour the beta does not have (a second audited contract, `compiler-runtime-v1`, and the 8.12 allocator admission). It is a research-oriented prototype for Linux x86_64: not a general guarantee of execution equivalence, not peer reviewed, and with no production adoption. Read [known limitations](docs/LIMITATIONS.md) before trusting a hit.
 
 ## Install
 
@@ -52,13 +52,36 @@ Feature status table: [docs/research/CLAIMS_LEDGER.md](docs/research/CLAIMS_LEDG
 
 ## Measured wins and losses
 
-All figures cite committed harness outputs with exact tips. Do not merge numbers across commits into one “speedup.”
+All figures cite committed harness outputs with exact tips. Do not merge numbers across commits into one “speedup.” Three release states exist in this repository and their numbers are **not** interchangeable: the published beta (`v0.2.0-beta.1`, `7a594b9`), historical `main` before that tag (`4ffde9a`), and current unreleased `main`.
 
-**Mandate §4 on final product tip** (measured `4ffde9a`, product `crates/` ≡ `ed3bd39`/`7b9e7ca`; `benchmarks/results/final_stab_pr3/mandate_s4/`, n=30, bootstrap 95% CI):
+**Current `main`, real-world corpus (Phase AA)** — 59 workloads, 177 (tier × contract) rows, randomized paired samples with bootstrap intervals, host fingerprint in `benchmarks/results/phaseaa/environment.json`, protocol in [docs/REAL_WORLD_BENCHMARK_PROTOCOL.md](docs/REAL_WORLD_BENCHMARK_PROTOCOL.md):
+
+| Tier / contract | Attempted | Reused | Rate |
+| --- | ---: | ---: | ---: |
+| A, native execution | 49 | 1 | 2.0 % |
+| A, `allocator-entropy-v1` | 49 | 10 | 20.4 % |
+| A, `compiler-runtime-v1` | 49 | 17 | 34.7 % |
+| C, any contract (adapted workloads) | 5 | 0 | 0 % |
+
+Measured rows only (13 workloads, warm-page-cache, direct vs warm HIT median):
+
+| Workload | Direct | Warm HIT | Ratio (95 % CI) | Break-even | Session at 25× |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `c-numeric-integration` | 344.9 ms | **11.4 ms** | 30.6× (24.1–39.5) | 1 | 13.1× |
+| `gcc-cc-heavy-tu` (zlib `deflate.c -O2`) | 610.1 ms | **86.4 ms** | 7.4× (5.3–9.3) | 1 | 5.3× |
+| `zlib-compile-deflate` | 611.5 ms | **83.1 ms** | 6.9× (5.3–8.8) | 1 | 5.4× |
+| `zlib-compile-adler32` | 99.8 ms | 78.4 ms | 1.32× (1.17–1.44) | 12 | 1.12× |
+| `gcc-noopt-compile` | 73.3 ms | 71.0 ms | 1.02× (0.87–1.17) | 128 | 0.89× |
+| `sed-substitute-file` | 14.0 ms | 79.9 ms | 0.17× | — | 0.17× |
+| `readelf-header` | 2.5 ms | 16.1 ms | 0.15× | — | 0.15× |
+
+Aggregate, stated plainly: **4 workloads with positive cumulative savings, 8 slower than native, 0 incorrect HITs.** The cheapest warm hit measured on this host was 11.4 ms and a small command's floor is 13–17 ms, so every command cheaper than that loses. `make`, CPython, Node and `perl` workloads are refused and stay in the tables as negative results.
+
+**Historical pre-beta `main`** (measured `4ffde9a`, product `crates/` ≡ `ed3bd39`/`7b9e7ca`; `benchmarks/results/final_stab_pr3/mandate_s4/`, n=30, bootstrap 95% CI). These are **not** beta or current-`main` numbers; the `c-transform` row is a synthetic 250 M-round busy loop, not a real workload:
 
 | Scenario | DIRECT | Warm HIT | Note |
 | --- | ---: | ---: | --- |
-| CPU-heavy `c-transform` | 32.524 ms | **5.303 ms (~6.1×)** | Real workload; no safe warm-HIT opt landed |
+| Synthetic CPU-bound `c-transform` | 32.524 ms | 5.303 ms (~6.1×) | Synthetic; no safe warm-HIT opt landed |
 | `/bin/true` / short floor | **0.351 ms** | 4.475 ms | Warm **loss** — DIRECT wins |
 | Short-ETL session cumulative | **35 ms** | 177 ms | HITs can still lose the session |
 
@@ -73,13 +96,15 @@ All figures cite committed harness outputs with exact tips. Do not merge numbers
 | 64 MiB output file | **142.8 ms** | 588.9 ms | 193.3 ms | Restore and fsync dominate |
 | 8 concurrent `/bin/true` | — | 72.4 ms | 22.1 ms | All processes correct |
 
-**Census:** 1/32 eligibility under unmodified defaults (`mandate_s4/census/`; the beta census reproduces 1/32 in `benchmarks/releases/v0.2.0-beta.1/census/`).
+**Beta census:** 1/32 eligibility under unmodified defaults (`mandate_s4/census/`; the beta census reproduces 1/32 in `benchmarks/releases/v0.2.0-beta.1/census/`). That single number is a beta-era figure and mixed contract rows into the same sentence; the Phase AA table above replaces it with one cell per (tier, contract).
 
 **Withdrawn opt:** destination-match restore skip — synthetic back-to-back looked faster; with output consumption skip rate is **0/40**. Not a product claim ([final_stab_pr3/compare.md](benchmarks/results/final_stab_pr3/compare.md)).
 
 **Competitive (tip `364331b`, `benchmarks/results/phase_k8/`):** Make/Ninja win identical-rerun wall time; TraceJIT stays content-correct on mtime-preserved edit / corrupt output where Make/Ninja returned WRONG. Missing tools are skipped, not scored as losses.
 
 Release report: [docs/final/RELEASE_REPORT.md](docs/final/RELEASE_REPORT.md). Older adversarial packaging: [docs/final/FINAL_ANSWER.md](docs/final/FINAL_ANSWER.md).
+
+Phase AA evidence: [docs/PHASE_AA_REPORT.md](docs/PHASE_AA_REPORT.md) · [benchmark coverage matrix](docs/BENCHMARK_COVERAGE_MATRIX.md) · [competitive evaluation](docs/COMPETITIVE_EVALUATION.md) · [release readiness](docs/RELEASE_READINESS_V03.md) · [hypothesis ledger](docs/PHASE_AA_LEDGER.md).
 
 ## Demo
 
@@ -102,6 +127,8 @@ For the short-command harness and the release benchmark package:
 ```bash
 ./scripts/benchmark.sh
 python3 benchmarks/releases/run_release.py --runs 20 --warmups 3
+./benchmarks/realworld_v2/run.sh        # Phase AA real-world corpus, all tiers
+AA_MODE=smoke ./benchmarks/realworld_v2/run.sh
 ```
 
 Release evidence lives in `benchmarks/releases/v<version>/`; the methodology is in [docs/BENCHMARK_REPRODUCTION.md](docs/BENCHMARK_REPRODUCTION.md).

@@ -1,0 +1,121 @@
+{
+  "adaptations": [],
+  "argv": [
+    "make",
+    "-f",
+    "Makefile",
+    "all"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "atime_ns",
+        "path": "app"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "app"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "app"
+      },
+      {
+        "field": "atime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "main.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "main.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "main.o"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.h"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "util.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "util.o"
+      }
+    ],
+    "tree_digest_native": "469103ace8e024705c8a82cf04fd0155cfd42c797d376ab8ad33eb73f3f8d210",
+    "tree_digest_traced": "469103ace8e024705c8a82cf04fd0155cfd42c797d376ab8ad33eb73f3f8d210"
+  },
+  "cold_ns": 640218835,
+  "correctness": {},
+  "cost_class": "medium",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 493,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "acd5e4de57e397282ca65bb3a0691e38afd8edd0d11c1a2eacec4e9f266236e5",
+  "environment_tier": "A",
+  "family": "build",
+  "output_count": 8,
+  "policy": "compiler-runtime-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "unmodeled successful syscall 72: fcntl query 3 on inherited or unclassified fd 1, whose flags are not guarded",
+    "unmodeled successful syscall 72: status-flag change on fd 1 whose open file description is shared or unclassified",
+    "unmodeled successful syscall 72: fcntl query 3 on inherited or unclassified fd 2, whose flags are not guarded",
+    "unmodeled successful syscall 72: status-flag change on fd 2 whose open file description is shared or unclassified",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+    "unmodeled successful syscall 117: unmodeled syscall 117 args [0xffffffff, 0xc6b64af, 0xffffffff, 0x8, 0x7ffebbd67280, 0x0]",
+    "unmodeled successful syscall 119: unmodeled syscall 119 args [0xffffffff, 0x3e9, 0xffffffff, 0x8, 0x7ffebbd67280, 0x0]",
+    "unmodeled successful syscall 117: unmodeled syscall 117 args [0xffffffff, 0xc6b64af, 0xffffffff, 0x8, 0x7ffebbd67280, 0x0]",
+    "unmodeled successful syscall 119: unmodeled syscall 119 args [0xffffffff, 0x3e9, 0xffffffff, 0x8, 0x7ffebbd67280, 0x0]",
+    "unmodeled successful syscall 117: unmodeled syscall 117 args [0xffffffff, 0xc6b64af, 0xffffffff, 0x8, 0x7ffebbd673c0, 0x0]",
+    "unmodeled successful syscall 119: unmodeled syscall 119 args [0xffffffff, 0x3e9, 0xffffffff, 0x8, 0x7ffebbd673c0, 0x0]",
+    "unmodeled successful syscall 98: getrusage outside the audited compiler profile",
+    "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "refusal_categories": {
+    "other:executed under the tracejit.compiler-runtime.v1 co": 1,
+    "unmodeled_syscall:117": 3,
+    "unmodeled_syscall:119": 3,
+    "unmodeled_syscall:72": 5,
+    "unmodeled_syscall:98": 1
+  },
+  "required_tools": [
+    "make",
+    "gcc"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "make-build"
+}

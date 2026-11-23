@@ -1,0 +1,113 @@
+{
+  "adaptations": [],
+  "argv": [
+    "gcc",
+    "/tmp/tracejit-realworld-v2/shared/build/objects/project/main.o",
+    "/tmp/tracejit-realworld-v2/shared/build/objects/project/util.o",
+    "-o",
+    "app"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "atime_ns",
+        "path": "app"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "app"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "app"
+      },
+      {
+        "field": "atime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.h"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "util.h"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "util.h"
+      }
+    ],
+    "tree_digest_native": "260885b232b2d3eed9ecb46352001b25ba60661c26dfb0a8e7536388f406f2fb",
+    "tree_digest_traced": "260885b232b2d3eed9ecb46352001b25ba60661c26dfb0a8e7536388f406f2fb"
+  },
+  "cold_ns": 205525120,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 227,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "e9c2adbb9f65ea6a13af985ed62c4f48afcf783a8297c38cc25738f28fffddd2",
+  "environment_tier": "A",
+  "family": "linker",
+  "output_count": 4,
+  "policy": "native",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffee324aba0, 0x7ffee324b078, 0x7ffee324aad0, 0x0, 0x7fb32c5b5380]"
+  ],
+  "refusal_categories": {
+    "unmodeled_syscall:98": 1
+  },
+  "required_tools": [
+    "gcc"
+  ],
+  "split": "validation",
+  "status": "refused",
+  "workload_id": "gcc-link-only"
+}

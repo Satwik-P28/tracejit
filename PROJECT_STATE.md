@@ -22,9 +22,31 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 
 ## Current main
 
-- `origin/main` tip: `6bab00b` (merge of PR #41, Phase X). Published beta: tag `v0.2.0-beta.1` at `7a594b9` (merge of `release/v0.2.0-beta.1` into `main`; `origin/main` was not advanced past the release merge point in this workspace's refs).
+- `origin/main` tip at the start of Phase AA: `e4f80adcbf3d1184bf27babc870a62c4daa8ff89` (PR #42 merged). Its CI status could not be queried from the authoring environment; see `docs/PHASE_AA_REPORT.md` §2. Published beta: tag `v0.2.0-beta.1` at `7a594b9`.
 - Releases: `v0.1.0` (`cf0ddb2`), `v0.1.1` (`31c36d1`), `v0.2.0-beta.1` (`7a594b9`). Do not move tags.
 - Research PRs #6/#7/#9/#10 stay isolated from `main`.
+
+## Phase AA (`research/phase-aa`): real-world qualification
+
+- Benchmark system is qualified; the product's real-world applicability is narrow and contract-dependent. Full evidence: `benchmarks/results/phaseaa/`, report: `docs/PHASE_AA_REPORT.md`.
+- 59 workloads (50 tier A strict-native, 9 tier C declared adaptations), 177 (tier × policy) rows, splits frozen before the run (dev 21 / validation 22 / held-out 16).
+- Eligibility, per cell and never summed: native **1/49** (2.0 %), `allocator-entropy-v1` **10/49** (20.4 %), `compiler-runtime-v1` **17/49** (34.7 %), tier C **0/5** under every policy. The beta's "1/32" is the native cell, not a general rate.
+- Measured: 4 workloads with positive cumulative savings (best 30.6× warm, 13.1× over a 25-repeat session), 8 slower than native (worst 7.1×), 0 incorrect HITs, warm-hit floor 13–16 ms.
+- Product fix: a missing output CAS object aborted the command instead of retracing (`c3f77d8`), with regression.
+- Open findings: `TRACEJIT_CACHE_DIR` relocation invalidates every record; one `gcc` workload's classification flipped between identical runs; validate→restore TOCTOU unchanged; tracing an ineligible `make` costs +460 ms/invocation.
+- Version label is unchanged (`0.2.0-beta.1`) while `main` carries post-beta contracts, so no artifact should be published from this line until it is bumped. v0.3 is **not** qualified: `docs/RELEASE_READINESS_V03.md`.
+
+## Phase AA1 (`research/phase-aa`, audit of Phase AA): benchmark integrity
+
+- Audit report `docs/PHASE_AA1_AUDIT.md`; next-phase plan `docs/PHASE_AB_PLAN.md`; evidence `benchmarks/results/phaseaa1/` (timing at `1c87e02`, clean tree, binary `daca8b0d…`; reproduction from a separate clone at `ae884c5`).
+- Counts reconciled: 177 declared cells = 59 × 3; 15 `tool_unavailable` (5 workloads × 3) leave **162 attempted** (54 × 3); 129 refused, 5 eligible-but-no-hit, 28 verified HITs, 20 timed rows over 13 workloads, 0 incorrect HITs. AA had divided *reused* cells by attempted cells and called it eligibility: true eligibility is **2/49 native (4.1 %), 12/49 allocator (24.5 %), 19/49 compiler (38.8 %)**, tier C 0/5; reuse is 1/10/17.
+- Timing defect found and fixed: the hit arm used `--json`, so TraceJIT serialised cached stdout and the harness parsed it inside the timer. `sed` was published at 0.17–0.18× and is **0.64–0.70×**; `cut` 0.15 → 0.20–0.25×; `gzip -6` 0.44–0.50 → 0.64–0.77×. Timed arm now runs plain mode with one `--json` calibration outside the timer, and each sample's stdout is verified.
+- Attribution now reconciles: `runtime_ns` excludes decision persistence, so `wall = pre + runtime + persist + present` on disjoint intervals; hit-path residual ≤ 7 ms; tick-quantised startup never summed. The unexplained 15–50 ms was the `--json` channel.
+- Classification instability quantified: `gcc-cc-small-tu` 94/100 `Guarded` (6/100 `Nondeterministic`), `zlib-compile-deflate` 98/100, `gcc-cc-heavy-tu` refused once under load after 100/100 in a quiet probe; determinant is `getrandom` at the gcc driver's pid (sequence 57 of 323). Refusal rules unchanged; refused timing attempts are now recorded and retried at most once.
+- Corrected results: 4 workloads faster by CI (best **30.2–33.7×** `c-numeric`, `gcc-cc-heavy-tu` 7.35×, `zlib-compile-deflate` 7.24×, `adler32` 1.28× at break-even 14), 9 slower (worst `readelf` 0.15×), warm floor 8.1–17.3 ms, 4 of 13 with positive 25-repeat savings.
+- Competitive evidence added: ccache 4.10.2 installed in user space and measured on the same zlib compile — **4.54 ms vs TraceJIT 65.18 ms** (108× vs 7.5×), 20/20 hits each, all objects byte-identical. The compile-speed argument is no longer defensible; the remaining claim is output-integrity repair and non-compiler commands.
+- Benchmark hardening: 29 harness tests (oracle rejects stale/missing/extra/mode/symlink/hardlink/dir/stdout/stderr/exit; accounting rejects tampered rows; manifest independent of local cache), `validate.py` recomputes the ledger, and the W1 audit's fixed `/tmp` root was fixed after the clean-checkout run failed on a shared `/tmp`.
+- Fresh-clone reproduction at `ae884c5` with empty `HOME`, separate scratch and vendor: exit 0, 42 cells, 0 incorrect hits, 13/13 counterexamples. Gates: fmt/clippy/workspace tests at `0a7d08b` (no Rust change after), integration 84/84, model check PASS, packaging after the final commit. Not run: differential fuzz, restore fault injection, `cargo audit`, GitHub CI (no credentials).
 
 ## Development line (`development/v0.3`, Phase U)
 

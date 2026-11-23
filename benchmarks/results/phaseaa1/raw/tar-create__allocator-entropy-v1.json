@@ -1,0 +1,93 @@
+{
+  "adaptations": [],
+  "argv": [
+    "tar",
+    "-cf",
+    "bundle.tar",
+    "corpus.txt",
+    "corpus.bin"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "bundle.tar"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "bundle.tar"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "bundle.tar"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      }
+    ],
+    "tree_digest_native": "546bf30c9f1d0239aeec57291ac141d4cfdacd55708c492af03a945c935a4a5f",
+    "tree_digest_traced": "546bf30c9f1d0239aeec57291ac141d4cfdacd55708c492af03a945c935a4a5f"
+  },
+  "cold_ns": 70452290,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 72,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "1b286684386805624da35e7c422abf75041a383846794bdca8ac49f7934f2845",
+  "environment_tier": "A",
+  "family": "packaging",
+  "output_count": 1,
+  "policy": "allocator-entropy-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded",
+    "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "refusal_categories": {
+    "other:executed under the tracejit.allocator-entropy.v1 c": 1,
+    "unmodeled_syscall:72": 3
+  },
+  "required_tools": [
+    "tar"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "tar-create"
+}

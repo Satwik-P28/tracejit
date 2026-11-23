@@ -1,0 +1,490 @@
+{
+  "adaptations": [],
+  "argv": [
+    "sed",
+    "s/value=/v=/g",
+    "lines.txt"
+  ],
+  "assessment": "loss",
+  "cache_corruption_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "lines.txt"
+      }
+    ],
+    "tree_digest_native": "bc0d91d6d245f0d19571ce6f3137178c1707a55f5d3721580c8378ad98f63c97",
+    "tree_digest_traced": "bc0d91d6d245f0d19571ce6f3137178c1707a55f5d3721580c8378ad98f63c97"
+  },
+  "cache_storage_bytes": 1562204,
+  "classification": "Guarded",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "lines.txt"
+      }
+    ],
+    "tree_digest_native": "bc0d91d6d245f0d19571ce6f3137178c1707a55f5d3721580c8378ad98f63c97",
+    "tree_digest_traced": "bc0d91d6d245f0d19571ce6f3137178c1707a55f5d3721580c8378ad98f63c97"
+  },
+  "cold_ns": 131413028,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    },
+    {
+      "cache_decision": "Reused",
+      "decision_reason": "all guards passed and cached outputs were restored",
+      "kind": "Reused",
+      "step": "warm"
+    },
+    {
+      "cache_decision": "Deoptimized",
+      "decision_reason": "cached execution deoptimized",
+      "kind": "Executed",
+      "step": "after_mutation"
+    },
+    {
+      "cache_decision": "Reused",
+      "decision_reason": "all guards passed and cached outputs were restored",
+      "kind": "Reused",
+      "step": "retry_after_mutation"
+    },
+    {
+      "cache_decision": "Deoptimized",
+      "decision_reason": "cached execution deoptimized",
+      "kind": "Executed",
+      "step": "input_restored"
+    },
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cache_restart"
+    },
+    {
+      "cache_decision": "Reused",
+      "decision_reason": "all guards passed and cached outputs were restored",
+      "kind": "Reused",
+      "removed_object": "f75a23fca02c93f872943e0e2c74ec3cfac3a4dd47851e8301442f6fe27d5a5a",
+      "step": "cache_object_corruption"
+    }
+  ],
+  "deoptimised_after_mutation": true,
+  "dependency_count": 61,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": true,
+  "environment_adaptations": {},
+  "environment_digest": "a87062832a98e1d82f5c9ce1404a0574c5658fefe2c7e2ba396383bb245d27a3",
+  "environment_tier": "A",
+  "family": "data",
+  "mutation": "appended 12 bytes to lines.txt",
+  "mutation_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "lines.txt"
+      }
+    ],
+    "tree_digest_native": "b35844d3b6de186e28522db88a32ca6e4ea04d827f4f7ded23289a8afb69c047",
+    "tree_digest_traced": "b35844d3b6de186e28522db88a32ca6e4ea04d827f4f7ded23289a8afb69c047"
+  },
+  "output_count": 0,
+  "policy": "allocator-entropy-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "all observed dependencies are guardable or captured outputs",
+    "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "required_tools": [
+    "sed"
+  ],
+  "restored_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "lines.txt"
+      }
+    ],
+    "tree_digest_native": "bc0d91d6d245f0d19571ce6f3137178c1707a55f5d3721580c8378ad98f63c97",
+    "tree_digest_traced": "bc0d91d6d245f0d19571ce6f3137178c1707a55f5d3721580c8378ad98f63c97"
+  },
+  "split": "dev",
+  "status": "reused",
+  "timing": {
+    "additional_hit_overhead": 0,
+    "break_even_repeats": null,
+    "cache_storage_bytes": 745800,
+    "cold": {
+      "max_ns": 151937858,
+      "mean_ns": 135384576,
+      "median_ci95_ns": [
+        127634482,
+        142024277
+      ],
+      "median_ns": 135310641,
+      "min_ns": 118348076,
+      "n": 10,
+      "p05_ns": 118348076,
+      "p95_ns": 151937858,
+      "samples_ns": [
+        141913194,
+        135627442,
+        148215417,
+        135833137,
+        124428644,
+        127634482,
+        134993841,
+        134913671,
+        118348076,
+        151937858
+      ]
+    },
+    "cold_ratio": {
+      "geometric_mean_ratio": 0.10725697958643533,
+      "median_ratio": 0.1151112284559572,
+      "pairs": 10,
+      "ratio_ci95": [
+        0.08167474547856347,
+        0.13345217888996463
+      ],
+      "ratios": [
+        0.08167474547856346,
+        0.13847082657505255,
+        0.12036155456081873,
+        0.10986090235109566,
+        0.08133306507784493,
+        0.12861542384760882,
+        0.09274169774901064,
+        0.15769000163074653,
+        0.13189551978859376,
+        0.06677427293992785
+      ]
+    },
+    "cold_reps": 10,
+    "cost_model": {
+      "available": true,
+      "instrumented": true,
+      "note": "instrumented two-run session; the breakdown is not a timed sample",
+      "stages_ns": {
+        "cache_prepare_ns": 26209,
+        "cas_restore_ns": 2013471,
+        "cli_parse_ns": 146405,
+        "decision_persist_ns": 6210423,
+        "guard_recheck_ns": 0,
+        "guard_validation_ns": 6820747,
+        "identity_prepare_ns": 380774,
+        "lookup_key_ns": 5340,
+        "process_startup_ns": 6745988,
+        "record_decode_ns": 594476,
+        "sqlite_open_ns": 211618,
+        "sqlite_query_ns": 527290,
+        "sqlite_schema_ns": 331071,
+        "stdio_replay_ns": 468530
+      }
+    },
+    "direct": {
+      "max_ns": 21274537,
+      "mean_ns": 14097045,
+      "median_ci95_ns": [
+        11697174,
+        15314516
+      ],
+      "median_ns": 14360219,
+      "min_ns": 10120163,
+      "n": 20,
+      "p05_ns": 10120163,
+      "p95_ns": 18780444,
+      "samples_ns": [
+        11590724,
+        18780444,
+        17839438,
+        14922751,
+        10120163,
+        16415763,
+        12519558,
+        21274537,
+        15609581,
+        10145540,
+        14114183,
+        16370489,
+        15019452,
+        11781713,
+        11418972,
+        11612635,
+        11917177,
+        14843681,
+        11037856,
+        14606256
+      ]
+    },
+    "environment_digest": "2d3b8990bb642bfdff7b7542f725538928345495c760b1975ff9674737840642",
+    "policy": "allocator-entropy-v1",
+    "reps": 20,
+    "session": {
+      "10": {
+        "direct_ns": 143602190,
+        "speedup": 0.16811680241066077,
+        "traced_ns": 854181069
+      },
+      "2": {
+        "direct_ns": 28720438,
+        "speedup": 0.1334685050012261,
+        "traced_ns": 215185133
+      },
+      "25": {
+        "direct_ns": 359005475,
+        "speedup": 0.17492849306343747,
+        "traced_ns": 2052298449
+      },
+      "5": {
+        "direct_ns": 71801095,
+        "speedup": 0.1578710111883568,
+        "traced_ns": 454808609
+      },
+      "50": {
+        "direct_ns": 718010950,
+        "speedup": 0.1773233997137119,
+        "traced_ns": 4049160749
+      }
+    },
+    "status": "measured",
+    "warm": {
+      "max_ns": 117317500,
+      "mean_ns": 81596757,
+      "median_ci95_ns": [
+        75163502,
+        83057158
+      ],
+      "median_ns": 79874492,
+      "min_ns": 68252820,
+      "n": 20,
+      "p05_ns": 68252820,
+      "p95_ns": 111666059,
+      "samples_ns": [
+        81691393,
+        111666059,
+        84422923,
+        76148155,
+        117317500,
+        91309955,
+        78059564,
+        79957187,
+        79791798,
+        68252820,
+        75993986,
+        74333018,
+        80280936,
+        68325206,
+        73209878,
+        68527746,
+        70452601,
+        81563554,
+        85639768,
+        84991110
+      ]
+    },
+    "warm_decisions": [
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      }
+    ],
+    "warm_ratio": {
+      "geometric_mean_ratio": 0.17091086822419777,
+      "median_ratio": 0.17214605057514315,
+      "pairs": 20,
+      "ratio_ci95": [
+        0.16423804655005708,
+        0.18640565771351722
+      ],
+      "ratios": [
+        0.1418842741486854,
+        0.16818399581917726,
+        0.21131035702234569,
+        0.19596996145211923,
+        0.0862630298122616,
+        0.17978064932788546,
+        0.1603846775265104,
+        0.26607410538342224,
+        0.195628891581062,
+        0.14864645885693809,
+        0.1857276311312319,
+        0.2202317279785411,
+        0.18708615953356597,
+        0.17243582112288106,
+        0.1559758370311722,
+        0.16945887874380108,
+        0.16915169675566696,
+        0.1819891394139103,
+        0.128887037620186,
+        0.17185628002740522
+      ]
+    },
+    "workload_id": "sed-substitute-file"
+  },
+  "warm_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "lines.txt"
+      }
+    ],
+    "tree_digest_native": "bc0d91d6d245f0d19571ce6f3137178c1707a55f5d3721580c8378ad98f63c97",
+    "tree_digest_traced": "bc0d91d6d245f0d19571ce6f3137178c1707a55f5d3721580c8378ad98f63c97"
+  },
+  "warm_ns": 0,
+  "workload_id": "sed-substitute-file"
+}

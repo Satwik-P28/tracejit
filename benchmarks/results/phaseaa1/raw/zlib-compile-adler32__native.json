@@ -1,0 +1,68 @@
+{
+  "adaptations": [],
+  "argv": [
+    "gcc",
+    "-O2",
+    "-I",
+    "zlib-1.3.1",
+    "-c",
+    "adler32.c",
+    "-o",
+    "adler32.o"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "adler32.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "adler32.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "adler32.o"
+      }
+    ],
+    "tree_digest_native": "c5ff7153d851b6ba4b18c1c40ab989d7bf9293ab02c6e30ea6052a2f434eafc8",
+    "tree_digest_traced": "c5ff7153d851b6ba4b18c1c40ab989d7bf9293ab02c6e30ea6052a2f434eafc8"
+  },
+  "cold_ns": 411140229,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 544,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "a06dda24b98281ed6122e704d542c55adf4711d7b82033883c2928a5772889a3",
+  "environment_tier": "A",
+  "family": "real-project",
+  "output_count": 2,
+  "policy": "native",
+  "provenance": "zlib-1.3.1@9a93b2b7dfda",
+  "reasons": [
+    "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffd74f9ae90, 0x7ffd74f9b428, 0x7ffd74f9afe0, 0x0, 0x7fe46265d380]"
+  ],
+  "refusal_categories": {
+    "unmodeled_syscall:98": 1
+  },
+  "required_tools": [
+    "gcc"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "zlib-compile-adler32"
+}

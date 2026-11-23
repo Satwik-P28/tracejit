@@ -1,0 +1,139 @@
+{
+  "cache_relocation": {
+    "consequence": "a copied or moved cache is not reused; records are re-created after one trace per command",
+    "note": "TraceJIT hashes the inherited environment into the cache key, and TRACEJIT_CACHE_DIR is part of that environment: moving a cache directory invalidates every record in it. Measured directly in Phase AA."
+  },
+  "competitors": {
+    "ccache": {
+      "available": false,
+      "note": "absent from this image; no root and no prebuilt static archive. Recorded as unavailable, never scored as slower.",
+      "path": null,
+      "role": "compiler cache",
+      "tested_version": "4.9.1"
+    },
+    "firebuild": {
+      "available": false,
+      "note": "absent from this image; no root and no prebuilt static archive. Recorded as unavailable, never scored as slower.",
+      "path": null,
+      "role": "process-level build accelerator",
+      "tested_version": "0.9.0"
+    },
+    "hyperfine": {
+      "available": true,
+      "note": "present and used",
+      "path": "/workspace/homes/c69de0f336cb908256cb2092/.local/bin/hyperfine",
+      "role": "independent timing harness",
+      "tested_version": "1.19.0"
+    },
+    "ninja": {
+      "available": false,
+      "note": "absent from this image; no root and no prebuilt static archive. Recorded as unavailable, never scored as slower.",
+      "path": null,
+      "role": "build scheduler",
+      "tested_version": "1.11.1"
+    },
+    "perf": {
+      "available": false,
+      "note": "absent from this image; no root and no prebuilt static archive. Recorded as unavailable, never scored as slower.",
+      "path": null,
+      "role": "hardware counters",
+      "tested_version": "(kernel-tools)"
+    },
+    "sccache": {
+      "available": false,
+      "note": "absent from this image; no root and no prebuilt static archive. Recorded as unavailable, never scored as slower.",
+      "path": null,
+      "role": "compiler cache",
+      "tested_version": "0.8.2"
+    },
+    "zstd": {
+      "available": false,
+      "note": "absent from this image; no root and no prebuilt static archive. Recorded as unavailable, never scored as slower.",
+      "path": null,
+      "role": "compression tool",
+      "tested_version": "1.5.5"
+    }
+  },
+  "hyperfine_cross_check": {
+    "available": true,
+    "note": "hyperfine runs through a shell, so its absolute numbers include shell overhead",
+    "ok": true,
+    "results": [
+      {
+        "command": "gzip -6 -n -c corpus.txt",
+        "max_s": 0.0066861101800000005,
+        "mean_s": 0.0057963994800000005,
+        "median_s": 0.00617305568,
+        "min_s": 0.004496767180000001,
+        "stddev_s": 0.0008131750545788675
+      },
+      {
+        "command": "env TRACEJIT_CACHE_DIR=/tmp/tracejit-aa-competitive-iw01yl4z/hyperfine-cache /workspace/chats/c69de0f336cb908256cb2092/target/release/tracejit run --json -- gzip -6 -n -c corpus.txt",
+        "max_s": 0.02769882518,
+        "mean_s": 0.02381384548,
+        "median_s": 0.02435309218,
+        "min_s": 0.01753508118,
+        "stddev_s": 0.0029613189414087874
+      }
+    ]
+  },
+  "methodology": "Each arm is a session of N repeats in the same workspace. A scheduler that skips work and a cache that restores verified output are different mechanisms; each table states which one acted. An unavailable tool is never scored.",
+  "scenarios": [
+    {
+      "claim": "TraceJIT does not reuse make. The difference is the cost of tracing a command that is then refused, not a cache result.",
+      "exit_statuses": {
+        "native": [
+          0
+        ],
+        "tracejit": [
+          0
+        ]
+      },
+      "mechanism": "build scheduler; TraceJIT refuses this command",
+      "native_per_invocation_ns": 85275144,
+      "native_total_ns": 1023301732,
+      "per_invocation_overhead_ns": 460073148,
+      "scenario": "ineligible_command_overhead",
+      "tracejit_per_invocation_ns": 545348292,
+      "tracejit_total_ns": 6544179512,
+      "workload": "make-build"
+    },
+    {
+      "cache_populated": true,
+      "command": "gcc -O2 -I /tmp/tracejit-realworld-v2/vendor/zlib-1.3.1 -c /tmp/tracejit-realworld-v2/vendor/zlib-1.3.1/adler32.c -o adler32.o (real Makefile rule for adler32.o)",
+      "correct_sha256": "dbc636068b611e09d6fc9790bd7678294a2f186bda964fa65f51d362a5dd7c88",
+      "corrupted_output": {
+        "make": {
+          "left_corrupted_output": true,
+          "messages": "make: 'adler32.o' is up to date.",
+          "sha256_after": "3398b5c2a9131cb63d2d21240a5d21e63e3e54c5fce3bf88625778c1ddd347b8"
+        },
+        "tracejit": {
+          "decision": "Reused",
+          "mechanism": "restored from cache",
+          "restored_correct_output": true,
+          "sha256_after": "dbc636068b611e09d6fc9790bd7678294a2f186bda964fa65f51d362a5dd7c88"
+        }
+      },
+      "identical_rerun_output_present": {
+        "make_decision": "skipped: target older than prerequisite? no: up to date",
+        "make_total_ns": 28079437,
+        "tracejit_decision": "Reused",
+        "tracejit_total_ns": 963418756
+      },
+      "observed_output_semantics": "Corrupting an output retraces for tools that read the existing output (gzip -f, bzip2 -f, objcopy, strip) and restores for tools that only create it (gcc). Both are correct; only the cost differs. Verified across the corpus's output_corruption decisions.",
+      "rebuild_from_absent_output": {
+        "make_total_ns": 1162774381,
+        "tracejit_decisions": [
+          "Reused",
+          "Reused",
+          "Reused"
+        ],
+        "tracejit_total_ns": 897234581,
+        "what_happened": "make executed gcc; the cache reported the decision above"
+      },
+      "scenario": "scheduler_vs_cache",
+      "workload": "zlib-compile-adler32"
+    }
+  ]
+}

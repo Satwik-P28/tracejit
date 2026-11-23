@@ -1,0 +1,65 @@
+{
+  "adaptations": [],
+  "argv": [
+    "strip",
+    "--strip-unneeded",
+    "-o",
+    "app-stripped",
+    "/tmp/tracejit-realworld-v2/shared/build/objects/app-debug"
+  ],
+  "assessment": "ineligible",
+  "classification": "Nondeterministic",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "app-stripped"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "app-stripped"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "app-stripped"
+      }
+    ],
+    "tree_digest_native": "7403166905a7d22f25451da9bec8acefd91a0d7b21a58afdcf1ca91a43109b7e",
+    "tree_digest_traced": "7403166905a7d22f25451da9bec8acefd91a0d7b21a58afdcf1ca91a43109b7e"
+  },
+  "cold_ns": 51904332,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 31,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "4d555d630cdfaefcfdd9c4afe3e5a9a8bda0a652240efcc5d5397ee7535af6af",
+  "environment_tier": "A",
+  "family": "tooling",
+  "output_count": 1,
+  "policy": "native",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "process read randomness via getrandom"
+  ],
+  "refusal_categories": {
+    "randomness": 1
+  },
+  "required_tools": [
+    "strip"
+  ],
+  "split": "heldout",
+  "status": "refused",
+  "workload_id": "strip-binary"
+}

@@ -1,0 +1,141 @@
+{
+  "adaptations": [],
+  "argv": [
+    "make",
+    "-f",
+    "Makefile",
+    "all"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "atime_ns",
+        "path": "app"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "app"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "app"
+      },
+      {
+        "field": "atime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "main.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "main.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "main.o"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.h"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "util.h"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "util.h"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "util.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "util.o"
+      }
+    ],
+    "tree_digest_native": "469103ace8e024705c8a82cf04fd0155cfd42c797d376ab8ad33eb73f3f8d210",
+    "tree_digest_traced": "469103ace8e024705c8a82cf04fd0155cfd42c797d376ab8ad33eb73f3f8d210"
+  },
+  "cold_ns": 38437905,
+  "correctness": {},
+  "cost_class": "medium",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 67,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "f034c4e973b892b3266ca74e83da51da9c77d25ec4f3e3e71894b55a5b8ddefa",
+  "environment_tier": "A",
+  "family": "build",
+  "output_count": 0,
+  "policy": "native",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "unmodeled successful syscall 72: fcntl query 3 on inherited or unclassified fd 1, whose flags are not guarded",
+    "unmodeled successful syscall 72: status-flag change on fd 1 whose open file description is shared or unclassified",
+    "unmodeled successful syscall 72: fcntl query 3 on inherited or unclassified fd 2, whose flags are not guarded",
+    "unmodeled successful syscall 72: status-flag change on fd 2 whose open file description is shared or unclassified",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded"
+  ],
+  "refusal_categories": {
+    "unmodeled_syscall:72": 5
+  },
+  "required_tools": [
+    "make",
+    "gcc"
+  ],
+  "split": "heldout",
+  "status": "refused",
+  "workload_id": "make-header-change"
+}

@@ -1,0 +1,50 @@
+{
+  "adaptations": [],
+  "argv": [
+    "nm",
+    "--defined-only",
+    "/tmp/tracejit-realworld-v2/shared/build/objects/app-debug"
+  ],
+  "assessment": "ineligible",
+  "classification": "Nondeterministic",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [],
+    "tree_digest_native": "8dad2936d7f544e5a305e03f5484c130d0fe919155efd73c31cc8d40ea2aede5",
+    "tree_digest_traced": "8dad2936d7f544e5a305e03f5484c130d0fe919155efd73c31cc8d40ea2aede5"
+  },
+  "cold_ns": 46935822,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 56,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "7b71d35c4583f3a5e45186a6434ed3f75bb1aa4a9089ed61bb3cc7565d92261f",
+  "environment_tier": "A",
+  "family": "tooling",
+  "output_count": 0,
+  "policy": "native",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "process read randomness via getrandom"
+  ],
+  "refusal_categories": {
+    "randomness": 1
+  },
+  "required_tools": [
+    "nm"
+  ],
+  "split": "heldout",
+  "status": "refused",
+  "workload_id": "nm-symbols"
+}

@@ -1,0 +1,74 @@
+{
+  "adaptations": [],
+  "argv": [
+    "gcc",
+    "-fsyntax-only",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-I",
+    ".",
+    "main.c",
+    "util.c"
+  ],
+  "assessment": "ineligible",
+  "classification": "Nondeterministic",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.h"
+      }
+    ],
+    "tree_digest_native": "951f344a0ee4a2c7f724cb4d299c6ba440d382e32860cd461446eedc433327f9",
+    "tree_digest_traced": "951f344a0ee4a2c7f724cb4d299c6ba440d382e32860cd461446eedc433327f9"
+  },
+  "cold_ns": 231913200,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 289,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "b9e9cdfe84d1551089ac2e9ccfdace500a6ffe14450c03a3e5d30dec2908b9e2",
+  "environment_tier": "A",
+  "family": "compiler",
+  "output_count": 0,
+  "policy": "native",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "process read randomness via getrandom",
+    "process read system information via prlimit64",
+    "process read system information via sysinfo",
+    "process read system clock: realtime"
+  ],
+  "refusal_categories": {
+    "clock": 1,
+    "randomness": 1,
+    "system_information": 2
+  },
+  "required_tools": [
+    "gcc"
+  ],
+  "split": "validation",
+  "status": "refused",
+  "workload_id": "gcc-syntax-only"
+}

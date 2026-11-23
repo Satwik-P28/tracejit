@@ -1,0 +1,67 @@
+{
+  "adaptations": [],
+  "argv": [
+    "gcc",
+    "/tmp/tracejit-realworld-v2/shared/build/objects/project/main.o",
+    "/tmp/tracejit-realworld-v2/shared/build/objects/project/util.o",
+    "-o",
+    "app"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "app"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "app"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "app"
+      }
+    ],
+    "tree_digest_native": "260885b232b2d3eed9ecb46352001b25ba60661c26dfb0a8e7536388f406f2fb",
+    "tree_digest_traced": "260885b232b2d3eed9ecb46352001b25ba60661c26dfb0a8e7536388f406f2fb"
+  },
+  "cold_ns": 226666157,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 228,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "a728b040395eb073f84771668892108872f03a0c91c3b84706360da82438fd9e",
+  "environment_tier": "A",
+  "family": "linker",
+  "output_count": 4,
+  "policy": "allocator-entropy-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffdbe241b70, 0x7ffdbe242048, 0x7ffdbe241aa0, 0x0, 0x7f5863b2a380]",
+    "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "refusal_categories": {
+    "other:executed under the tracejit.allocator-entropy.v1 c": 1,
+    "unmodeled_syscall:98": 1
+  },
+  "required_tools": [
+    "gcc"
+  ],
+  "split": "validation",
+  "status": "refused",
+  "workload_id": "gcc-link-only"
+}

@@ -1,0 +1,585 @@
+{
+  "adaptations": [
+    "PYTHONHASHSEED=0",
+    "PYTHONDONTWRITEBYTECODE=1"
+  ],
+  "argv": [
+    "/opt/freestyle/python/bin/python3",
+    "-m",
+    "compileall",
+    "-q",
+    "pkg"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "mtime_ns",
+        "path": "pkg"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/__pycache__"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/__pycache__/mod00.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/__pycache__/mod00.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/__pycache__/mod00.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/__pycache__/mod01.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/__pycache__/mod01.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/__pycache__/mod01.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/__pycache__/mod02.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/__pycache__/mod02.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/__pycache__/mod02.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/__pycache__/mod03.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/__pycache__/mod03.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/__pycache__/mod03.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/__pycache__/mod04.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/__pycache__/mod04.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/__pycache__/mod04.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/__pycache__/mod05.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/__pycache__/mod05.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/__pycache__/mod05.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/__pycache__/mod06.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/__pycache__/mod06.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/__pycache__/mod06.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/__pycache__/mod07.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/__pycache__/mod07.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/__pycache__/mod07.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/__pycache__/mod08.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/__pycache__/mod08.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/__pycache__/mod08.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/__pycache__/mod09.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/__pycache__/mod09.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/__pycache__/mod09.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/__pycache__/mod10.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/__pycache__/mod10.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/__pycache__/mod10.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/__pycache__/mod11.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/__pycache__/mod11.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/__pycache__/mod11.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/__pycache__/mod12.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/__pycache__/mod12.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/__pycache__/mod12.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/__pycache__/mod13.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/__pycache__/mod13.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/__pycache__/mod13.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/__pycache__/mod14.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/__pycache__/mod14.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/__pycache__/mod14.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/__pycache__/mod15.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/__pycache__/mod15.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/__pycache__/mod15.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/__pycache__/mod16.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/__pycache__/mod16.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/__pycache__/mod16.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/__pycache__/mod17.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/__pycache__/mod17.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/__pycache__/mod17.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/__pycache__/mod18.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/__pycache__/mod18.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/__pycache__/mod18.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/__pycache__/mod19.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/__pycache__/mod19.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/__pycache__/mod19.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/__pycache__/mod20.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/__pycache__/mod20.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/__pycache__/mod20.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/__pycache__/mod21.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/__pycache__/mod21.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/__pycache__/mod21.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/__pycache__/mod22.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/__pycache__/mod22.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/__pycache__/mod22.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/__pycache__/mod23.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/__pycache__/mod23.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/__pycache__/mod23.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/mod00.py"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/mod01.py"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/mod02.py"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/mod03.py"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/mod04.py"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/mod05.py"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/mod06.py"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/mod07.py"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/mod08.py"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/mod08.py"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/mod08.py"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/mod09.py"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/mod09.py"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/mod09.py"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/mod10.py"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/mod10.py"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/mod10.py"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/mod11.py"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/mod11.py"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/mod11.py"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/mod12.py"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/mod12.py"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/mod12.py"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/mod13.py"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/mod13.py"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/mod13.py"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/mod14.py"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/mod14.py"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/mod14.py"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/mod15.py"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/mod15.py"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/mod15.py"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/mod16.py"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/mod16.py"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/mod16.py"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/mod17.py"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/mod17.py"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/mod17.py"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/mod18.py"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/mod18.py"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/mod18.py"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/mod19.py"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/mod19.py"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/mod19.py"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/mod20.py"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/mod20.py"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/mod20.py"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/mod21.py"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/mod21.py"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/mod21.py"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/mod22.py"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/mod22.py"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/mod22.py"
+      },
+      {
+        "field": "atime_ns",
+        "path": "pkg/mod23.py"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "pkg/mod23.py"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "pkg/mod23.py"
+      }
+    ],
+    "tree_digest_native": "e8377bfe1aefb36d5cb6401929cf948d48c363d9ef4ce203830f91725fafaf20",
+    "tree_digest_traced": "e8377bfe1aefb36d5cb6401929cf948d48c363d9ef4ce203830f91725fafaf20"
+  },
+  "cold_ns": 403737487,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 371,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONHASHSEED": "0"
+  },
+  "environment_digest": "2368a519d12cecda8c5a05aa11b435ba8737d8a11d74cfacabf36bb20f80c93b",
+  "environment_tier": "C",
+  "family": "analysis",
+  "output_count": 48,
+  "policy": "compiler-runtime-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded",
+    "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution",
+    "non-file output cannot be restored: /tmp/tracejit-realworld-v2/qualify/py-compileall__compiler-runtime-v1/traced/pkg/__pycache__"
+  ],
+  "refusal_categories": {
+    "other:executed under the tracejit.compiler-runtime.v1 co": 1,
+    "unmodeled_syscall:72": 3,
+    "unrestorable_output": 1
+  },
+  "required_tools": [
+    "python3"
+  ],
+  "split": "heldout",
+  "status": "refused",
+  "workload_id": "py-compileall"
+}

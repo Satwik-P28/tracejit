@@ -1,0 +1,198 @@
+name: Real-world benchmark v2
+
+# Phase AA benchmark infrastructure. Four jobs, deliberately separate:
+#
+#   smoke        every PR: fast, dev split only, schema + correctness gates
+#   full         manual or weekly: every split and policy, artifacts retained
+#   correctness  adversarial matrix, preserved counterexamples, race probe
+#   competitive  scheduler vs whole-command cache, plus hyperfine cross-check
+#
+# Gates: correctness and artifact validity fail the job. A latency increase on a
+# noisy shared runner does not, unless the comparison script decides the
+# intervals are separated and the regression is large; even then the job reports
+# it as a regression, not as a flake.
+
+on:
+  pull_request:
+    paths:
+      - "benchmarks/realworld_v2/**"
+      - "benchmarks/oracle/**"
+      - "crates/**"
+      - ".github/workflows/benchmark-v2.yml"
+  workflow_dispatch:
+    inputs:
+      split:
+        description: "Corpus split to run"
+        default: "dev,validation,heldout"
+        required: false
+  schedule:
+    - cron: "23 4 * * 1"
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  AA_SCRATCH: /tmp/tracejit-realworld-v2
+
+jobs:
+  smoke:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ". -> target"
+      - name: Build release binary
+        run: cargo build --workspace --release
+      - name: Pinned inputs
+        run: python3 benchmarks/realworld_v2/fetch_inputs.py --vendor "$AA_SCRATCH/vendor"
+      - name: Harness self-tests (oracle rejects wrong replays, accounting closes)
+        run: python3 -m unittest discover -s benchmarks/realworld_v2 -p 'test_*.py' -v
+      - name: Manifest is current
+        run: |
+          python3 benchmarks/realworld_v2/runner.py --mode manifest --vendor "$AA_SCRATCH/vendor"
+          git diff --exit-code benchmarks/realworld_v2/manifest.json
+      - name: Install schema validator
+        run: python3 -m pip install --user --break-system-packages jsonschema
+      - name: Smoke benchmark (dev split, native + compiler contract)
+        run: |
+          python3 benchmarks/realworld_v2/runner.py \
+            --tracejit target/release/tracejit \
+            --mode both --policies native,compiler-runtime-v1 --splits dev \
+            --reps-scale 0.25 \
+            --output-dir "$AA_SCRATCH/smoke" --vendor "$AA_SCRATCH/vendor"
+      - name: Validate artifact
+        run: python3 benchmarks/realworld_v2/validate.py "$AA_SCRATCH/smoke/results.json"
+      - name: Upload smoke artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-v2-smoke-${{ github.sha }}
+          path: ${{ env.AA_SCRATCH }}/smoke
+          retention-days: 14
+
+  full:
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --workspace --release
+      - run: python3 benchmarks/realworld_v2/fetch_inputs.py --vendor "$AA_SCRATCH/vendor"
+      - name: Install schema validator
+        run: python3 -m pip install --user --break-system-packages jsonschema
+      - name: Full benchmark
+        run: |
+          python3 benchmarks/realworld_v2/runner.py \
+            --tracejit target/release/tracejit \
+            --mode both \
+            --policies native,allocator-entropy-v1,compiler-runtime-v1 \
+            --splits "${{ github.event.inputs.split || 'dev,validation,heldout' }}" \
+            --output-dir "$AA_SCRATCH/full" --vendor "$AA_SCRATCH/vendor"
+      - run: python3 benchmarks/realworld_v2/validate.py "$AA_SCRATCH/full/results.json"
+      - name: Upload full raw results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-v2-full-${{ github.sha }}
+          path: ${{ env.AA_SCRATCH }}/full
+          retention-days: 90
+
+  correctness:
+    if: github.event_name != 'schedule' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --workspace --release
+      - run: python3 benchmarks/realworld_v2/fetch_inputs.py --vendor "$AA_SCRATCH/vendor"
+      - name: Install schema validator
+        run: python3 -m pip install --user --break-system-packages jsonschema
+      - name: Harness self-tests (oracle rejects wrong replays, accounting closes)
+        run: python3 -m unittest discover -s benchmarks/realworld_v2 -p 'test_*.py' -v
+      - name: Adversarial suite (preserved counterexamples, mutations, race probe)
+        run: |
+          python3 benchmarks/realworld_v2/adversarial.py \
+            --tracejit target/release/tracejit \
+            --output "$AA_SCRATCH/correctness/adversarial.json" \
+            --trials 12
+      - name: Independent oracle (Phase K2)
+        run: |
+          python3 benchmarks/oracle/independent_obs.py --seed 29 \
+            --output "$AA_SCRATCH/correctness/oracle"
+      - name: Fail on any incorrect hit
+        run: |
+          python3 - <<'PY'
+          import json, os, sys
+          root = os.environ["AA_SCRATCH"] + "/correctness"
+          bad = []
+          adv = json.load(open(root + "/adversarial.json"))
+          if adv["summary"]["incorrect_hits"]:
+              bad.append("adversarial incorrect hits")
+          if not adv["summary"]["preserved_counterexamples_pass"]:
+              bad.append("preserved counterexamples")
+          oracle_files = list(__import__("pathlib").Path(root + "/oracle").glob("oracle-seed-*.json"))
+          for path in oracle_files:
+              payload = json.loads(path.read_text())
+              if payload.get("incorrect_hits") or payload.get("regress_eligible"):
+                  bad.append(f"{path.name}: incorrect hits or new eligibility")
+          if bad:
+              print("CORRECTNESS GATE FAILED: " + "; ".join(bad), file=sys.stderr)
+              sys.exit(1)
+          print("correctness gate passed")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: benchmark-v2-correctness-${{ github.sha }}
+          path: ${{ env.AA_SCRATCH }}/correctness
+          retention-days: 90
+
+  competitive:
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --workspace --release
+      - run: python3 benchmarks/realworld_v2/fetch_inputs.py --vendor "$AA_SCRATCH/vendor"
+      - name: Install independent timing harness
+        run: |
+          curl -fsSL https://github.com/sharkdp/hyperfine/releases/download/v1.19.0/hyperfine-v1.19.0-x86_64-unknown-linux-musl.tar.gz \
+            | tar -xz -C /tmp
+          install -m 755 /tmp/hyperfine-v1.19.0-x86_64-unknown-linux-musl/hyperfine ~/.local/bin/
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Competitive scenarios (schedulers, hyperfine cross-check)
+        run: |
+          python3 benchmarks/realworld_v2/competitive.py \
+            --tracejit target/release/tracejit \
+            --output-dir "$AA_SCRATCH/competitive" --vendor "$AA_SCRATCH/vendor"
+      - name: Compiler cache comparison (ccache when present)
+        run: |
+          if command -v ccache >/dev/null 2>&1; then
+            python3 benchmarks/realworld_v2/competitive_zlib.py \
+              --tracejit target/release/tracejit \
+              --ccache "$(command -v ccache)" \
+              --zlib-src "$AA_SCRATCH/vendor/zlib-1.3.1" \
+              --reps 10 \
+              --output "$AA_SCRATCH/competitive/zlib.json"
+          else
+            echo "ccache is not installed on this runner; comparison skipped explicitly" \
+              | tee "$AA_SCRATCH/competitive/ccache-unavailable.txt"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: benchmark-v2-competitive-${{ github.sha }}
+          path: ${{ env.AA_SCRATCH }}/competitive
+          retention-days: 90

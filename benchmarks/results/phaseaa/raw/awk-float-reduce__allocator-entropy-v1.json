@@ -1,0 +1,65 @@
+{
+  "adaptations": [],
+  "argv": [
+    "awk",
+    "BEGIN { x=1.0 } { x = x * 1.0000007 + ($1 % 97) } END { printf \"%.10f\\n\", x }",
+    "lines.txt"
+  ],
+  "assessment": "ineligible",
+  "classification": "Nondeterministic",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "lines.txt"
+      }
+    ],
+    "tree_digest_native": "bc0d91d6d245f0d19571ce6f3137178c1707a55f5d3721580c8378ad98f63c97",
+    "tree_digest_traced": "bc0d91d6d245f0d19571ce6f3137178c1707a55f5d3721580c8378ad98f63c97"
+  },
+  "cold_ns": 37248262,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 23,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "5a47d2a9d1b90e237774308b7f04ee69aac4b55b00591e3cfee970e1842c7edc",
+  "environment_tier": "A",
+  "family": "scientific",
+  "output_count": 0,
+  "policy": "allocator-entropy-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "process read system clock: realtime",
+    "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "refusal_categories": {
+    "clock": 1,
+    "other:executed under the tracejit.allocator-entropy.v1 c": 1
+  },
+  "required_tools": [
+    "awk"
+  ],
+  "split": "validation",
+  "status": "refused",
+  "workload_id": "awk-float-reduce"
+}

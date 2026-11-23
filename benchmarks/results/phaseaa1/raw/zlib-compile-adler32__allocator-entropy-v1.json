@@ -1,0 +1,70 @@
+{
+  "adaptations": [],
+  "argv": [
+    "gcc",
+    "-O2",
+    "-I",
+    "zlib-1.3.1",
+    "-c",
+    "adler32.c",
+    "-o",
+    "adler32.o"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "adler32.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "adler32.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "adler32.o"
+      }
+    ],
+    "tree_digest_native": "c5ff7153d851b6ba4b18c1c40ab989d7bf9293ab02c6e30ea6052a2f434eafc8",
+    "tree_digest_traced": "c5ff7153d851b6ba4b18c1c40ab989d7bf9293ab02c6e30ea6052a2f434eafc8"
+  },
+  "cold_ns": 331057596,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 545,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "2ac6147c0c380c1680bf47bf92c93048a76ef521fce59b843b5eb451eae1c3d0",
+  "environment_tier": "A",
+  "family": "real-project",
+  "output_count": 2,
+  "policy": "allocator-entropy-v1",
+  "provenance": "zlib-1.3.1@9a93b2b7dfda",
+  "reasons": [
+    "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffd5f3203d0, 0x7ffd5f320968, 0x7ffd5f320520, 0x0, 0x7f2cd8628380]",
+    "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "refusal_categories": {
+    "other:executed under the tracejit.allocator-entropy.v1 c": 1,
+    "unmodeled_syscall:98": 1
+  },
+  "required_tools": [
+    "gcc"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "zlib-compile-adler32"
+}

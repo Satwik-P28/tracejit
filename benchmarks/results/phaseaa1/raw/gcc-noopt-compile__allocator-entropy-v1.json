@@ -1,0 +1,70 @@
+{
+  "adaptations": [],
+  "argv": [
+    "gcc",
+    "-O0",
+    "-I",
+    "zlib-1.3.1",
+    "-c",
+    "crc32.c",
+    "-o",
+    "crc32.o"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "crc32.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "crc32.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "crc32.o"
+      }
+    ],
+    "tree_digest_native": "82d165f2e8595569f76337809c03c9f8c025c25ea23550c1aaf7820366dc9ee7",
+    "tree_digest_traced": "82d165f2e8595569f76337809c03c9f8c025c25ea23550c1aaf7820366dc9ee7"
+  },
+  "cold_ns": 324008599,
+  "correctness": {},
+  "cost_class": "medium",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 511,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "83959f4eb637aecdc19d0b585e43db041cd1f657075e5ef9bc5c799dc8c66513",
+  "environment_tier": "A",
+  "family": "compiler",
+  "output_count": 2,
+  "policy": "allocator-entropy-v1",
+  "provenance": "zlib-1.3.1@9a93b2b7dfda",
+  "reasons": [
+    "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffc5d648320, 0x7ffc5d6488b8, 0x7ffc5d648470, 0x0, 0x7ff428564380]",
+    "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "refusal_categories": {
+    "other:executed under the tracejit.allocator-entropy.v1 c": 1,
+    "unmodeled_syscall:98": 1
+  },
+  "required_tools": [
+    "gcc"
+  ],
+  "split": "heldout",
+  "status": "refused",
+  "workload_id": "gcc-noopt-compile"
+}

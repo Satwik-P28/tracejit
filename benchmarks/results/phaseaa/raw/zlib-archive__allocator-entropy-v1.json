@@ -1,0 +1,66 @@
+{
+  "adaptations": [],
+  "argv": [
+    "ar",
+    "rcs",
+    "libz-part.a",
+    "/tmp/tracejit-realworld-v2/shared/build/objects/crc32.o"
+  ],
+  "assessment": "ineligible",
+  "classification": "Nondeterministic",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "libz-part.a"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "libz-part.a"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "libz-part.a"
+      }
+    ],
+    "tree_digest_native": "781f00c832c25ad6690c5e2bb8505674872970ac7f9085690c57434748a63268",
+    "tree_digest_traced": "781f00c832c25ad6690c5e2bb8505674872970ac7f9085690c57434748a63268"
+  },
+  "cold_ns": 45307055,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 56,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "cbace984b8a7bd90ef4b46ec766129c12ee67a8704eeff765d2d4837b1e0a3e2",
+  "environment_tier": "A",
+  "family": "real-project",
+  "output_count": 2,
+  "policy": "allocator-entropy-v1",
+  "provenance": "zlib-1.3.1@9a93b2b7dfda",
+  "reasons": [
+    "process read system clock: monotonic",
+    "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "refusal_categories": {
+    "clock": 1,
+    "other:executed under the tracejit.allocator-entropy.v1 c": 1
+  },
+  "required_tools": [
+    "ar"
+  ],
+  "split": "validation",
+  "status": "refused",
+  "workload_id": "zlib-archive"
+}

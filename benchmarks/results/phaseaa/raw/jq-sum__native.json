@@ -1,0 +1,63 @@
+{
+  "adaptations": [],
+  "argv": [
+    "jq",
+    "[.[].value] | add",
+    "rows.json"
+  ],
+  "assessment": "ineligible",
+  "classification": "Nondeterministic",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "rows.json"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "rows.json"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "rows.json"
+      }
+    ],
+    "tree_digest_native": "a92d5b45ee4b4584d297266654e93b5e0435b6640c49aba517f938840c292f0a",
+    "tree_digest_traced": "a92d5b45ee4b4584d297266654e93b5e0435b6640c49aba517f938840c292f0a"
+  },
+  "cold_ns": 50800470,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 64,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "e195c439ea8716ae54d4f3cc92b7d2fddc43b319b184c7a2c239d7e22973f751",
+  "environment_tier": "A",
+  "family": "data",
+  "output_count": 0,
+  "policy": "native",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "process read randomness via getrandom"
+  ],
+  "refusal_categories": {
+    "randomness": 1
+  },
+  "required_tools": [
+    "jq"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "jq-sum"
+}

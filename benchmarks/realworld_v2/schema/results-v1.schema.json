@@ -1,0 +1,279 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Satwik-P28/tracejit/schema/realworld-results-v1.json",
+  "title": "TraceJIT real-world benchmark results",
+  "description": "Version 1 of the machine-readable evidence contract for benchmarks/realworld_v2. Every field required here must be produced by the harness; hand-edited results do not validate.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "generated_unix_ms",
+    "environment",
+    "protocol",
+    "aggregate",
+    "workloads"
+  ],
+  "properties": {
+    "schema_version": { "const": "tracejit.realworld.results/v1" },
+    "generated_unix_ms": { "type": "integer", "minimum": 0 },
+    "elapsed_seconds": { "type": "number", "minimum": 0 },
+    "environment": {
+      "type": "object",
+      "required": [
+        "tracejit",
+        "commit",
+        "kernel",
+        "distribution",
+        "libc",
+        "cpu",
+        "memory",
+        "filesystem",
+        "tools",
+        "contract",
+        "page_cache_control",
+        "hardware_counters"
+      ],
+      "properties": {
+        "tracejit": {
+          "type": "object",
+          "required": ["path", "sha256", "doctor"],
+          "properties": {
+            "path": { "type": "string" },
+            "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+            "reported_version": { "type": "string" },
+            "doctor": { "type": "string" }
+          }
+        },
+        "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "working_tree_dirty": { "type": "boolean" },
+        "kernel": {
+          "type": "object",
+          "required": ["release"],
+          "properties": { "release": { "type": "string" }, "uname": { "type": "string" } }
+        },
+        "distribution": { "type": "string" },
+        "libc": { "type": ["object", "null"] },
+        "cpu": {
+          "type": "object",
+          "required": ["logical_count"],
+          "properties": {
+            "model": { "type": ["string", "null"] },
+            "logical_count": { "type": "integer", "minimum": 1 },
+            "physical_cores": { "type": "string" },
+            "governor": { "type": ["string", "null"] },
+            "lscpu": { "type": "string" }
+          }
+        },
+        "memory": { "type": "string" },
+        "filesystem": { "type": "string" },
+        "virtualization": { "type": "string" },
+        "container_markers": { "type": "array", "items": { "type": "string" } },
+        "tools": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["path", "version"],
+            "properties": {
+              "path": { "type": ["string", "null"] },
+              "version": { "type": ["string", "null"] }
+            }
+          }
+        },
+        "environment_allowlist": { "type": "object" },
+        "contract": { "type": "string" },
+        "page_cache_control": { "type": "string" },
+        "hardware_counters": { "type": "string" }
+      }
+    },
+    "protocol": {
+      "type": "object",
+      "required": [
+        "design",
+        "bootstrap_resamples",
+        "seed",
+        "hit_definition",
+        "incorrect_hit_definition"
+      ],
+      "properties": {
+        "design": { "type": "string" },
+        "bootstrap_resamples": { "type": "integer", "minimum": 100 },
+        "seed": { "type": "integer" },
+        "reps_scale": { "type": "number", "exclusiveMinimum": 0 },
+        "page_cache": { "type": "string" },
+        "outputs_removed_before_each_timed_sample": { "type": "boolean" },
+        "hit_definition": { "type": "string" },
+        "incorrect_hit_definition": { "type": "string" },
+        "perf": { "type": "string" },
+        "hyperfine": { "type": "string" }
+      }
+    },
+    "aggregate": {
+      "type": "object",
+      "required": [
+        "requested",
+        "eligibility_by_tier_and_policy",
+        "tool_unavailable",
+        "refused",
+        "incorrect_hits",
+        "timed_workloads",
+        "faster_than_native",
+        "slower_than_native",
+        "positive_session_savings_at_25"
+      ],
+      "properties": {
+        "requested": { "type": "integer", "minimum": 0 },
+        "eligibility_by_tier_and_policy": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["workloads", "attempted", "reused", "refused", "rate"],
+            "properties": {
+              "workloads": { "type": "integer", "minimum": 0 },
+              "attempted": { "type": "integer", "minimum": 0 },
+              "reused": { "type": "integer", "minimum": 0 },
+              "refused": { "type": "integer", "minimum": 0 },
+              "other_failure": { "type": "integer", "minimum": 0 },
+              "rate": { "type": ["number", "null"], "minimum": 0, "maximum": 1 }
+            }
+          }
+        },
+        "tool_unavailable": { "type": "array", "items": { "type": "string" } },
+        "refused": { "type": "array", "items": { "type": "string" } },
+        "incorrect_hits": { "type": "array", "items": { "type": "string" } },
+        "timed_workloads": { "type": "integer", "minimum": 0 },
+        "faster_than_native": { "type": "array", "items": { "type": "string" } },
+        "slower_than_native": { "type": "array", "items": { "type": "string" } },
+        "positive_session_savings_at_25": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "workloads": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "workload_id",
+          "family",
+          "split",
+          "environment_tier",
+          "policy",
+          "status",
+          "decisions",
+          "assessment"
+        ],
+        "properties": {
+          "workload_id": { "type": "string", "minLength": 1 },
+          "family": { "type": "string" },
+          "split": { "enum": ["dev", "validation", "heldout"] },
+          "environment_tier": { "enum": ["A", "C"] },
+          "policy": { "enum": ["native", "allocator-entropy-v1", "compiler-runtime-v1"] },
+          "status": {
+            "enum": [
+              "reused",
+              "refused",
+              "tool_unavailable",
+              "eligible_but_no_hit",
+              "incorrect_hit",
+              "cold_mismatch",
+              "mutation_mismatch",
+              "tracejit_error",
+              "harness_error",
+              "not_qualified",
+              "skipped_budget"
+            ]
+          },
+          "assessment": {
+            "enum": [
+              "clear_win",
+              "marginal_win",
+              "indistinguishable",
+              "loss",
+              "ineligible",
+              "unsafe_or_unresolved",
+              "unavailable"
+            ]
+          },
+          "classification": { "type": ["string", "null"] },
+          "eligible_for_reuse": { "type": ["boolean", "null"] },
+          "reasons": { "type": "array", "items": { "type": "string" } },
+          "refusal_categories": { "type": ["object", "null"] },
+          "direct_exit_status": { "type": ["integer", "null"] },
+          "cold_equivalence": { "type": ["object", "null"] },
+          "warm_equivalence": { "type": ["object", "null"] },
+          "mutation_equivalence": { "type": ["object", "null"] },
+          "restored_equivalence": { "type": ["object", "null"] },
+          "corruption_equivalence": { "type": ["object", "null"] },
+          "cache_storage_bytes": { "type": ["integer", "null"] },
+          "environment_digest": { "type": "string" },
+          "decisions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["step"],
+              "properties": {
+                "step": { "type": "string" },
+                "kind": { "type": ["string", "null"] },
+                "cache_decision": { "type": ["string", "null"] },
+                "decision_reason": { "type": ["string", "null"] },
+                "note": { "type": "string" }
+              }
+            }
+          },
+          "timing": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string" },
+              "reps": { "type": "integer", "minimum": 1 },
+              "cold_reps": { "type": "integer", "minimum": 1 },
+              "direct": { "$ref": "#/$defs/summary" },
+              "warm": { "$ref": "#/$defs/summary" },
+              "cold": { "$ref": "#/$defs/summary" },
+              "warm_ratio": { "$ref": "#/$defs/ratio" },
+              "cold_ratio": { "$ref": "#/$defs/ratio" },
+              "cache_storage_bytes": { "type": "integer", "minimum": 0 },
+              "break_even_repeats": { "type": ["integer", "null"] },
+              "session": { "type": "object" },
+              "cost_model": { "type": "object" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "summary": {
+      "type": "object",
+      "required": ["n", "median_ns", "p05_ns", "p95_ns", "median_ci95_ns", "samples_ns"],
+      "properties": {
+        "n": { "type": "integer", "minimum": 1 },
+        "median_ns": { "type": "integer", "minimum": 0 },
+        "mean_ns": { "type": "integer", "minimum": 0 },
+        "p05_ns": { "type": "integer", "minimum": 0 },
+        "p95_ns": { "type": "integer", "minimum": 0 },
+        "min_ns": { "type": "integer", "minimum": 0 },
+        "max_ns": { "type": "integer", "minimum": 0 },
+        "median_ci95_ns": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": { "type": "integer", "minimum": 0 }
+        },
+        "samples_ns": { "type": "array", "minItems": 1, "items": { "type": "integer", "minimum": 0 } }
+      }
+    },
+    "ratio": {
+      "type": "object",
+      "required": ["pairs", "ratio_ci95"],
+      "properties": {
+        "pairs": { "type": "integer", "minimum": 1 },
+        "geometric_mean_ratio": { "type": ["number", "null"], "exclusiveMinimum": 0 },
+        "median_ratio": { "type": ["number", "null"], "exclusiveMinimum": 0 },
+        "ratio_ci95": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": { "type": "number", "exclusiveMinimum": 0 }
+        },
+        "ratios": { "type": "array", "items": { "type": "number", "exclusiveMinimum": 0 } }
+      }
+    }
+  }
+}

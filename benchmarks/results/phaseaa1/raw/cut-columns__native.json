@@ -1,0 +1,78 @@
+{
+  "adaptations": [],
+  "argv": [
+    "cut",
+    "-d",
+    ",",
+    "-f",
+    "1,3",
+    "sales.csv"
+  ],
+  "assessment": "ineligible",
+  "classification": "Nondeterministic",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "atime_ns",
+        "path": "sales.csv"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "sales.csv"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "sales.csv"
+      }
+    ],
+    "tree_digest_native": "09784af6d806d68260f9d32104008e96481fe7da89dde803c07df5dec5d8a8e6",
+    "tree_digest_traced": "09784af6d806d68260f9d32104008e96481fe7da89dde803c07df5dec5d8a8e6"
+  },
+  "cold_ns": 56245113,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 52,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "c5307fd4ae94ffd59205f29a4239d67de9e42dda6f1dfd49731d8d6aa322997a",
+  "environment_tier": "A",
+  "family": "data",
+  "output_count": 0,
+  "policy": "native",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "process read randomness via getrandom"
+  ],
+  "refusal_categories": {
+    "randomness": 1
+  },
+  "required_tools": [
+    "cut"
+  ],
+  "split": "heldout",
+  "status": "refused",
+  "workload_id": "cut-columns"
+}

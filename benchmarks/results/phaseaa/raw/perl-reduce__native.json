@@ -1,0 +1,67 @@
+{
+  "adaptations": [],
+  "argv": [
+    "perl",
+    "-lne",
+    "$s += $1 if /value=(\\d+)/; END { print $s+0 }",
+    "lines.txt"
+  ],
+  "assessment": "ineligible",
+  "classification": "Nondeterministic",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "lines.txt"
+      }
+    ],
+    "tree_digest_native": "bc0d91d6d245f0d19571ce6f3137178c1707a55f5d3721580c8378ad98f63c97",
+    "tree_digest_traced": "bc0d91d6d245f0d19571ce6f3137178c1707a55f5d3721580c8378ad98f63c97"
+  },
+  "cold_ns": 90681314,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 63,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "e8d6e8860375be46a608abd97770ca336cdcf7c6f06b36cd3e7e9366306360e7",
+  "environment_tier": "A",
+  "family": "tooling",
+  "output_count": 0,
+  "policy": "native",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "process read randomness via getrandom",
+    "process read randomness via /dev/urandom",
+    "process read system clock: realtime"
+  ],
+  "refusal_categories": {
+    "clock": 1,
+    "randomness": 2
+  },
+  "required_tools": [
+    "perl"
+  ],
+  "split": "validation",
+  "status": "refused",
+  "workload_id": "perl-reduce"
+}

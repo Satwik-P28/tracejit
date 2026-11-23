@@ -1,0 +1,97 @@
+{
+  "adaptations": [],
+  "argv": [
+    "xz",
+    "-6",
+    "-k",
+    "-f",
+    "corpus.bin"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin.xz"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin.xz"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin.xz"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      }
+    ],
+    "tree_digest_native": "b925b90a79d87582bb135f41a08abce3b25b4332e562d4b78d710784e5f233a8",
+    "tree_digest_traced": "b925b90a79d87582bb135f41a08abce3b25b4332e562d4b78d710784e5f233a8"
+  },
+  "cold_ns": 287377035,
+  "correctness": {},
+  "cost_class": "heavy",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 56,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "d29710012b74825ff17474509cd1352ddfd11fb9bde19873828f40299bc75c53",
+  "environment_tier": "A",
+  "family": "compression",
+  "output_count": 1,
+  "policy": "compiler-runtime-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded",
+    "unmodeled successful syscall 72: status-flag change on fd 3 whose open file description is shared or unclassified",
+    "unmodeled successful syscall 72: status-flag change on fd 4 whose open file description is shared or unclassified",
+    "failed filesystem effect is not guardable: /tmp/tracejit-realworld-v2/qualify/xz-6-file__compiler-runtime-v1/traced/corpus.bin.xz (errno 2)",
+    "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "refusal_categories": {
+    "other:executed under the tracejit.compiler-runtime.v1 co": 1,
+    "other:failed filesystem effect is not guardable: /tmp/tr": 1,
+    "unmodeled_syscall:72": 5
+  },
+  "required_tools": [
+    "xz"
+  ],
+  "split": "validation",
+  "status": "refused",
+  "workload_id": "xz-6-file"
+}

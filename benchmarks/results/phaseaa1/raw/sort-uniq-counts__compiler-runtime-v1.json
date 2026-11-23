@@ -1,0 +1,85 @@
+{
+  "adaptations": [],
+  "argv": [
+    "sh",
+    "-c",
+    "sort lines.txt | uniq -c | sort -k1,1nr -k2,2 > frequencies.txt"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "frequencies.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "frequencies.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "frequencies.txt"
+      },
+      {
+        "field": "atime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "lines.txt"
+      }
+    ],
+    "tree_digest_native": "795a91b73c2d328ae5f2696489014afb3df355958cf7832adcaeb3c3e2231e8b",
+    "tree_digest_traced": "795a91b73c2d328ae5f2696489014afb3df355958cf7832adcaeb3c3e2231e8b"
+  },
+  "cold_ns": 156298986,
+  "correctness": {},
+  "cost_class": "medium",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 72,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "12f489d0821ce13fab8b39415e8eba02490ea34307d2f7530bbcf98e12604ddb",
+  "environment_tier": "A",
+  "family": "data",
+  "output_count": 1,
+  "policy": "compiler-runtime-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "unmodeled successful syscall 5: fstat on pipe descriptor 0 reports buffered byte counts, which depend on scheduling",
+    "unmodeled successful syscall 5: fstat on pipe descriptor 0 reports buffered byte counts, which depend on scheduling",
+    "unmodeled successful syscall 5: fstat on pipe descriptor 0 reports buffered byte counts, which depend on scheduling",
+    "unmodeled successful syscall 5: fstat on pipe descriptor 1 reports buffered byte counts, which depend on scheduling",
+    "unmodeled successful syscall 5: fstat on pipe descriptor 1 reports buffered byte counts, which depend on scheduling",
+    "pipe 2: a read returned less than it requested and more data followed, so the reader's observations depend on scheduling",
+    "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "refusal_categories": {
+    "other:executed under the tracejit.compiler-runtime.v1 co": 1,
+    "other:pipe 2: a read returned less than it requested and": 1,
+    "unmodeled_syscall:5": 5
+  },
+  "required_tools": [
+    "sh",
+    "sort",
+    "uniq"
+  ],
+  "split": "validation",
+  "status": "refused",
+  "workload_id": "sort-uniq-counts"
+}

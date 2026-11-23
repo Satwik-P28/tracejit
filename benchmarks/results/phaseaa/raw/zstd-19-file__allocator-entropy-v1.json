@@ -1,0 +1,23 @@
+{
+  "adaptations": [],
+  "assessment": "unavailable",
+  "correctness": {},
+  "cost_class": "heavy",
+  "decisions": [],
+  "environment_adaptations": {},
+  "environment_tier": "A",
+  "family": "compression",
+  "policy": "allocator-entropy-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "required_tools": [
+    "zstd"
+  ],
+  "split": "validation",
+  "status": "tool_unavailable",
+  "tool_evidence": {
+    "note": "not an eligibility measurement",
+    "path": null,
+    "tool": "zstd"
+  },
+  "workload_id": "zstd-19-file"
+}

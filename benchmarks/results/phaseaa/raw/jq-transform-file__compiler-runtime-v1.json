@@ -1,0 +1,81 @@
+{
+  "adaptations": [],
+  "argv": [
+    "sh",
+    "-c",
+    "jq '[.[] | select(.value % 7 == 0) | {id, tag}]' rows.json > filtered.json"
+  ],
+  "assessment": "ineligible",
+  "classification": "Nondeterministic",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "filtered.json"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "filtered.json"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "filtered.json"
+      },
+      {
+        "field": "atime_ns",
+        "path": "rows.json"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "rows.json"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "rows.json"
+      }
+    ],
+    "tree_digest_native": "082607450a8f5890b476042fac7935b02b9271364dd2fa844a7c230996d5528c",
+    "tree_digest_traced": "082607450a8f5890b476042fac7935b02b9271364dd2fa844a7c230996d5528c"
+  },
+  "cold_ns": 54987933,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 74,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "3e4573cb16b17edd78248b65601ae3c5cda1dffce907075ce4e8ed7aa4655bca",
+  "environment_tier": "A",
+  "family": "data",
+  "output_count": 1,
+  "policy": "compiler-runtime-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "process read process identity via getpid",
+    "process read process identity via getppid",
+    "process read randomness via getrandom",
+    "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "refusal_categories": {
+    "other:executed under the tracejit.compiler-runtime.v1 co": 1,
+    "process_identity": 2,
+    "randomness": 1
+  },
+  "required_tools": [
+    "jq",
+    "sh"
+  ],
+  "split": "validation",
+  "status": "refused",
+  "workload_id": "jq-transform-file"
+}

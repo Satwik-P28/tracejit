@@ -1,0 +1,82 @@
+{
+  "adaptations": [
+    "PYTHONHASHSEED=0",
+    "PYTHONDONTWRITEBYTECODE=1"
+  ],
+  "argv": [
+    "/opt/freestyle/python/bin/python3",
+    "-m",
+    "py_compile",
+    "module.py"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "mtime_ns",
+        "path": "__pycache__"
+      },
+      {
+        "field": "atime_ns",
+        "path": "__pycache__/module.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "__pycache__/module.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "__pycache__/module.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "module.py"
+      }
+    ],
+    "tree_digest_native": "40353335a08ff2cb7411f12b979ef035e626f16849e90571f5ff4ba6b6b89b68",
+    "tree_digest_traced": "40353335a08ff2cb7411f12b979ef035e626f16849e90571f5ff4ba6b6b89b68"
+  },
+  "cold_ns": 302921474,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 225,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONHASHSEED": "0"
+  },
+  "environment_digest": "b84a3e2f0f7ff725fd1c09012fca1bdf50bd687508677a57d80d84f8d2ef7c11",
+  "environment_tier": "C",
+  "family": "analysis",
+  "output_count": 2,
+  "policy": "native",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded",
+    "non-file output cannot be restored: /tmp/tracejit-realworld-v2/qualify/py-compile__native/traced/__pycache__"
+  ],
+  "refusal_categories": {
+    "unmodeled_syscall:72": 3,
+    "unrestorable_output": 1
+  },
+  "required_tools": [
+    "python3"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "py-compile"
+}

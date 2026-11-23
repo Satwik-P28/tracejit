@@ -1,0 +1,157 @@
+{
+  "adaptations": [],
+  "argv": [
+    "gcc",
+    "-O2",
+    "-Wall",
+    "-I",
+    "gen",
+    "-c",
+    "small.c",
+    "-o",
+    "small.o"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "mtime_ns",
+        "path": "gen"
+      },
+      {
+        "field": "atime_ns",
+        "path": "gen/part0.h"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "gen/part0.h"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "gen/part0.h"
+      },
+      {
+        "field": "atime_ns",
+        "path": "gen/part1.h"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "gen/part1.h"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "gen/part1.h"
+      },
+      {
+        "field": "atime_ns",
+        "path": "gen/part2.h"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "gen/part2.h"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "gen/part2.h"
+      },
+      {
+        "field": "atime_ns",
+        "path": "gen/part3.h"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "gen/part3.h"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "gen/part3.h"
+      },
+      {
+        "field": "atime_ns",
+        "path": "gen/part4.h"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "gen/part4.h"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "gen/part4.h"
+      },
+      {
+        "field": "atime_ns",
+        "path": "gen/part5.h"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "gen/part5.h"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "gen/part5.h"
+      },
+      {
+        "field": "atime_ns",
+        "path": "small.c"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "small.c"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "small.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "small.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "small.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "small.o"
+      }
+    ],
+    "tree_digest_native": "5ad4c8c7963e2a356847f8d41acbc73db1d023725a6fe4668189eb05d2ca3703",
+    "tree_digest_traced": "5ad4c8c7963e2a356847f8d41acbc73db1d023725a6fe4668189eb05d2ca3703"
+  },
+  "cold_ns": 309689642,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 157,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "977f74138e2cc0ea8cdd2f3375fb8147530d0af26ae4285fdfcf9234e989dafa",
+  "environment_tier": "A",
+  "family": "compiler",
+  "output_count": 2,
+  "policy": "native",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffc7f5992e0, 0x7ffc7f599878, 0x7ffc7f599430, 0x0, 0x7f6044ab8380]"
+  ],
+  "refusal_categories": {
+    "unmodeled_syscall:98": 1
+  },
+  "required_tools": [
+    "gcc"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "gcc-cc-small-tu"
+}

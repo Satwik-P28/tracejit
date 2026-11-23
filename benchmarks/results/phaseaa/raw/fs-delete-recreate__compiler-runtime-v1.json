@@ -1,0 +1,72 @@
+{
+  "adaptations": [],
+  "argv": [
+    "sh",
+    "-c",
+    "rm -f out.dat && cat seed.txt > out.dat"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "out.dat"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "out.dat"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "out.dat"
+      },
+      {
+        "field": "atime_ns",
+        "path": "seed.txt"
+      }
+    ],
+    "tree_digest_native": "415b7f5435abaaba8c222553f34e0fccb5acf9b457375eb07b468ac92cd762bb",
+    "tree_digest_traced": "415b7f5435abaaba8c222553f34e0fccb5acf9b457375eb07b468ac92cd762bb"
+  },
+  "cold_ns": 60133264,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 71,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "dcd3a6cd4af83abacf2d229546511e896dc8be689015962ba010b475340f1a64",
+  "environment_tier": "A",
+  "family": "filesystem",
+  "output_count": 1,
+  "policy": "compiler-runtime-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "failed filesystem effect is not guardable: /tmp/tracejit-realworld-v2/qualify/fs-delete-recreate__compiler-runtime-v1/traced/out.dat (errno 2)",
+    "unmodeled successful syscall 326: unmodeled syscall 326 args [0x3, 0x0, 0x1, 0x0, 0x7fffffffc0000000, 0x0]",
+    "unmodeled successful syscall 326: unmodeled syscall 326 args [0x3, 0x0, 0x1, 0x0, 0x7fffffffc0000000, 0x0]",
+    "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "refusal_categories": {
+    "other:executed under the tracejit.compiler-runtime.v1 co": 1,
+    "other:failed filesystem effect is not guardable: /tmp/tr": 1,
+    "unmodeled_syscall:326": 2
+  },
+  "required_tools": [
+    "sh"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "fs-delete-recreate"
+}

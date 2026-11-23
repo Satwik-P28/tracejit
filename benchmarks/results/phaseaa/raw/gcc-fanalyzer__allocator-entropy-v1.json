@@ -1,0 +1,78 @@
+{
+  "adaptations": [],
+  "argv": [
+    "gcc",
+    "-fanalyzer",
+    "-c",
+    "-I",
+    ".",
+    "util.c",
+    "-o",
+    "util.o"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.h"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "util.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "util.o"
+      }
+    ],
+    "tree_digest_native": "355b68cb95f807b16e5642701243a2c1705ac3e323eecf62cd9b7724c2a2141f",
+    "tree_digest_traced": "355b68cb95f807b16e5642701243a2c1705ac3e323eecf62cd9b7724c2a2141f"
+  },
+  "cold_ns": 202020720,
+  "correctness": {},
+  "cost_class": "heavy",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 147,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "6cc94eabb51c02481f67ea8a704e5e409c539cf7af9d7f1f5a8c61d1741a1d38",
+  "environment_tier": "A",
+  "family": "analysis",
+  "output_count": 2,
+  "policy": "allocator-entropy-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fff236bd750, 0x7fff236bdce8, 0x7fff236bd8a0, 0x0, 0x7ffbf53a4380]",
+    "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "refusal_categories": {
+    "other:executed under the tracejit.allocator-entropy.v1 c": 1,
+    "unmodeled_syscall:98": 1
+  },
+  "required_tools": [
+    "gcc"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "gcc-fanalyzer"
+}

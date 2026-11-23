@@ -1,0 +1,65 @@
+{
+  "adaptations": [],
+  "argv": [
+    "jq",
+    "[.[].value] | add",
+    "rows.json"
+  ],
+  "assessment": "ineligible",
+  "classification": "Nondeterministic",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "rows.json"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "rows.json"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "rows.json"
+      }
+    ],
+    "tree_digest_native": "a92d5b45ee4b4584d297266654e93b5e0435b6640c49aba517f938840c292f0a",
+    "tree_digest_traced": "a92d5b45ee4b4584d297266654e93b5e0435b6640c49aba517f938840c292f0a"
+  },
+  "cold_ns": 70725413,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 65,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "1b4473f5351516eafcc3b3cd6fd014ed7c20ebbe5c55651abbfce7676d83ad8f",
+  "environment_tier": "A",
+  "family": "data",
+  "output_count": 0,
+  "policy": "compiler-runtime-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "process read randomness via getrandom",
+    "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "refusal_categories": {
+    "other:executed under the tracejit.compiler-runtime.v1 co": 1,
+    "randomness": 1
+  },
+  "required_tools": [
+    "jq"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "jq-sum"
+}
