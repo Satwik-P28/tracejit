@@ -1,0 +1,2047 @@
+{
+  "design": "each trial uses a fresh cache, the same argv, cwd and environment; every trial is a cold trace and no trial is retried until it looks favourable",
+  "repeats": 100,
+  "results": [
+    {
+      "classification_counts": {
+        "Unknown": 100
+      },
+      "eligible_trials": 0,
+      "policy": "native",
+      "split": "dev",
+      "stable": true,
+      "trials": [
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffde8f184a0, 0x7ffde8f18a38, 0x7ffde8f185f0, 0x0, 0x7fef0b9c7380]",
+          "kind": "Executed",
+          "trial": 0,
+          "wall_ns": 200841345
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffeebb86ce0, 0x7ffeebb87278, 0x7ffeebb86e30, 0x0, 0x7f873b342380]",
+          "kind": "Executed",
+          "trial": 1,
+          "wall_ns": 226475128
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fff2ec89e80, 0x7fff2ec8a418, 0x7fff2ec89fd0, 0x0, 0x7fc196e61380]",
+          "kind": "Executed",
+          "trial": 2,
+          "wall_ns": 220990389
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffff5031480, 0x7ffff5031a18, 0x7ffff50315d0, 0x0, 0x7fbd39253380]",
+          "kind": "Executed",
+          "trial": 3,
+          "wall_ns": 214108467
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffed38b0d10, 0x7ffed38b12a8, 0x7ffed38b0e60, 0x0, 0x7f2cb14ce380]",
+          "kind": "Executed",
+          "trial": 4,
+          "wall_ns": 205746595
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffe9cc16040, 0x7ffe9cc165d8, 0x7ffe9cc16190, 0x0, 0x7ff117279380]",
+          "kind": "Executed",
+          "trial": 5,
+          "wall_ns": 202269737
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffd66c88560, 0x7ffd66c88af8, 0x7ffd66c886b0, 0x0, 0x7f229d509380]",
+          "kind": "Executed",
+          "trial": 6,
+          "wall_ns": 201664590
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffe03d903e0, 0x7ffe03d90978, 0x7ffe03d90530, 0x0, 0x7f295e675380]",
+          "kind": "Executed",
+          "trial": 7,
+          "wall_ns": 185441007
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffe1411ba90, 0x7ffe1411c028, 0x7ffe1411bbe0, 0x0, 0x7f3daf8e9380]",
+          "kind": "Executed",
+          "trial": 8,
+          "wall_ns": 203241031
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffcc37a8820, 0x7ffcc37a8db8, 0x7ffcc37a8970, 0x0, 0x7f9110814380]",
+          "kind": "Executed",
+          "trial": 9,
+          "wall_ns": 223207803
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffcae1d8a40, 0x7ffcae1d8fd8, 0x7ffcae1d8b90, 0x0, 0x7f32df750380]",
+          "kind": "Executed",
+          "trial": 10,
+          "wall_ns": 219994048
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fff256300f0, 0x7fff25630688, 0x7fff25630240, 0x0, 0x7f7f1b390380]",
+          "kind": "Executed",
+          "trial": 11,
+          "wall_ns": 190264023
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fffb52b3670, 0x7fffb52b3c08, 0x7fffb52b37c0, 0x0, 0x7fac562aa380]",
+          "kind": "Executed",
+          "trial": 12,
+          "wall_ns": 212353441
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffef67258f0, 0x7ffef6725e88, 0x7ffef6725a40, 0x0, 0x7fada567c380]",
+          "kind": "Executed",
+          "trial": 13,
+          "wall_ns": 218886308
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffd6852a110, 0x7ffd6852a6a8, 0x7ffd6852a260, 0x0, 0x7f9aa06ce380]",
+          "kind": "Executed",
+          "trial": 14,
+          "wall_ns": 201179910
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fff6cc4f350, 0x7fff6cc4f8e8, 0x7fff6cc4f4a0, 0x0, 0x7f1fa3ece380]",
+          "kind": "Executed",
+          "trial": 15,
+          "wall_ns": 203848432
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffc2d9be2a0, 0x7ffc2d9be838, 0x7ffc2d9be3f0, 0x0, 0x7fa2221cf380]",
+          "kind": "Executed",
+          "trial": 16,
+          "wall_ns": 215082546
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffd08ec4c80, 0x7ffd08ec5218, 0x7ffd08ec4dd0, 0x0, 0x7fb221972380]",
+          "kind": "Executed",
+          "trial": 17,
+          "wall_ns": 211190998
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffea2cc15f0, 0x7ffea2cc1b88, 0x7ffea2cc1740, 0x0, 0x7f550e74c380]",
+          "kind": "Executed",
+          "trial": 18,
+          "wall_ns": 197003849
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffee57af7a0, 0x7ffee57afd38, 0x7ffee57af8f0, 0x0, 0x7f4643caf380]",
+          "kind": "Executed",
+          "trial": 19,
+          "wall_ns": 210178106
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffc776e96d0, 0x7ffc776e9c68, 0x7ffc776e9820, 0x0, 0x7f3b9914b380]",
+          "kind": "Executed",
+          "trial": 20,
+          "wall_ns": 197943925
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffe7b599760, 0x7ffe7b599cf8, 0x7ffe7b5998b0, 0x0, 0x7f734f060380]",
+          "kind": "Executed",
+          "trial": 21,
+          "wall_ns": 213209408
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffe1c2703d0, 0x7ffe1c270968, 0x7ffe1c270520, 0x0, 0x7f371091d380]",
+          "kind": "Executed",
+          "trial": 22,
+          "wall_ns": 187104481
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffcc5db4ca0, 0x7ffcc5db5238, 0x7ffcc5db4df0, 0x0, 0x7f5a6463f380]",
+          "kind": "Executed",
+          "trial": 23,
+          "wall_ns": 190064159
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffd9f28cbf0, 0x7ffd9f28d188, 0x7ffd9f28cd40, 0x0, 0x7ff1cbea3380]",
+          "kind": "Executed",
+          "trial": 24,
+          "wall_ns": 204582360
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffd64606fb0, 0x7ffd64607548, 0x7ffd64607100, 0x0, 0x7f324d575380]",
+          "kind": "Executed",
+          "trial": 25,
+          "wall_ns": 193315032
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffddb2732d0, 0x7ffddb273868, 0x7ffddb273420, 0x0, 0x7fa3f93d5380]",
+          "kind": "Executed",
+          "trial": 26,
+          "wall_ns": 204046052
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fff86d9a1c0, 0x7fff86d9a758, 0x7fff86d9a310, 0x0, 0x7f15fc80a380]",
+          "kind": "Executed",
+          "trial": 27,
+          "wall_ns": 196189469
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffe12c96b20, 0x7ffe12c970b8, 0x7ffe12c96c70, 0x0, 0x7fbfe0dc9380]",
+          "kind": "Executed",
+          "trial": 28,
+          "wall_ns": 203520295
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffe93c1d1d0, 0x7ffe93c1d768, 0x7ffe93c1d320, 0x0, 0x7f0108eeb380]",
+          "kind": "Executed",
+          "trial": 29,
+          "wall_ns": 215197461
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffe3f8276d0, 0x7ffe3f827c68, 0x7ffe3f827820, 0x0, 0x7f28ced4d380]",
+          "kind": "Executed",
+          "trial": 30,
+          "wall_ns": 197103025
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffd21713680, 0x7ffd21713c18, 0x7ffd217137d0, 0x0, 0x7f2b27540380]",
+          "kind": "Executed",
+          "trial": 31,
+          "wall_ns": 222208466
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffc88d055a0, 0x7ffc88d05b38, 0x7ffc88d056f0, 0x0, 0x7fbfc3936380]",
+          "kind": "Executed",
+          "trial": 32,
+          "wall_ns": 218074884
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffcd969f440, 0x7ffcd969f9d8, 0x7ffcd969f590, 0x0, 0x7f21a9aff380]",
+          "kind": "Executed",
+          "trial": 33,
+          "wall_ns": 211613312
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fff8e1cb340, 0x7fff8e1cb8d8, 0x7fff8e1cb490, 0x0, 0x7fda147b5380]",
+          "kind": "Executed",
+          "trial": 34,
+          "wall_ns": 237022142
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fff8d04f2e0, 0x7fff8d04f878, 0x7fff8d04f430, 0x0, 0x7fd6c1b40380]",
+          "kind": "Executed",
+          "trial": 35,
+          "wall_ns": 192719355
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffc9f1a7bc0, 0x7ffc9f1a8158, 0x7ffc9f1a7d10, 0x0, 0x7fd13c261380]",
+          "kind": "Executed",
+          "trial": 36,
+          "wall_ns": 219910973
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffd4d298df0, 0x7ffd4d299388, 0x7ffd4d298f40, 0x0, 0x7fd526d65380]",
+          "kind": "Executed",
+          "trial": 37,
+          "wall_ns": 209762796
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffcab71a130, 0x7ffcab71a6c8, 0x7ffcab71a280, 0x0, 0x7f00e1163380]",
+          "kind": "Executed",
+          "trial": 38,
+          "wall_ns": 202907935
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffe79371af0, 0x7ffe79372088, 0x7ffe79371c40, 0x0, 0x7f74f3418380]",
+          "kind": "Executed",
+          "trial": 39,
+          "wall_ns": 201933115
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fff65bd80a0, 0x7fff65bd8638, 0x7fff65bd81f0, 0x0, 0x7fa2b5540380]",
+          "kind": "Executed",
+          "trial": 40,
+          "wall_ns": 200186785
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fff682f6a30, 0x7fff682f6fc8, 0x7fff682f6b80, 0x0, 0x7fb9415d9380]",
+          "kind": "Executed",
+          "trial": 41,
+          "wall_ns": 207268152
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fff4e4dfdf0, 0x7fff4e4e0388, 0x7fff4e4dff40, 0x0, 0x7fc4940bb380]",
+          "kind": "Executed",
+          "trial": 42,
+          "wall_ns": 198280376
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffe739adf00, 0x7ffe739ae498, 0x7ffe739ae050, 0x0, 0x7f137fb39380]",
+          "kind": "Executed",
+          "trial": 43,
+          "wall_ns": 226434602
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffdea17db50, 0x7ffdea17e0e8, 0x7ffdea17dca0, 0x0, 0x7f79d3c62380]",
+          "kind": "Executed",
+          "trial": 44,
+          "wall_ns": 198225042
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffd80255ed0, 0x7ffd80256468, 0x7ffd80256020, 0x0, 0x7fac05dcf380]",
+          "kind": "Executed",
+          "trial": 45,
+          "wall_ns": 194869832
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffeccf7ebe0, 0x7ffeccf7f178, 0x7ffeccf7ed30, 0x0, 0x7f781458d380]",
+          "kind": "Executed",
+          "trial": 46,
+          "wall_ns": 210506643
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffcaeeca3c0, 0x7ffcaeeca958, 0x7ffcaeeca510, 0x0, 0x7ff5438ae380]",
+          "kind": "Executed",
+          "trial": 47,
+          "wall_ns": 212647433
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffe362bf590, 0x7ffe362bfb28, 0x7ffe362bf6e0, 0x0, 0x7f7e06728380]",
+          "kind": "Executed",
+          "trial": 48,
+          "wall_ns": 211476785
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffed37d0610, 0x7ffed37d0ba8, 0x7ffed37d0760, 0x0, 0x7f3e63916380]",
+          "kind": "Executed",
+          "trial": 49,
+          "wall_ns": 204586508
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffe88dab940, 0x7ffe88dabed8, 0x7ffe88daba90, 0x0, 0x7f9e79271380]",
+          "kind": "Executed",
+          "trial": 50,
+          "wall_ns": 198609113
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fff68859200, 0x7fff68859798, 0x7fff68859350, 0x0, 0x7f25eb2b0380]",
+          "kind": "Executed",
+          "trial": 51,
+          "wall_ns": 215923755
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffdf4879ea0, 0x7ffdf487a438, 0x7ffdf4879ff0, 0x0, 0x7f7a122b6380]",
+          "kind": "Executed",
+          "trial": 52,
+          "wall_ns": 203387647
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffe38118370, 0x7ffe38118908, 0x7ffe381184c0, 0x0, 0x7f81af6d2380]",
+          "kind": "Executed",
+          "trial": 53,
+          "wall_ns": 194911561
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffdc9f6cf30, 0x7ffdc9f6d4c8, 0x7ffdc9f6d080, 0x0, 0x7fc910533380]",
+          "kind": "Executed",
+          "trial": 54,
+          "wall_ns": 200955299
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffd14103c40, 0x7ffd141041d8, 0x7ffd14103d90, 0x0, 0x7f05384a3380]",
+          "kind": "Executed",
+          "trial": 55,
+          "wall_ns": 200145799
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fffec1b4030, 0x7fffec1b45c8, 0x7fffec1b4180, 0x0, 0x7f77d9980380]",
+          "kind": "Executed",
+          "trial": 56,
+          "wall_ns": 202271081
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffdda632000, 0x7ffdda632598, 0x7ffdda632150, 0x0, 0x7f803762e380]",
+          "kind": "Executed",
+          "trial": 57,
+          "wall_ns": 202699865
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fff48d67c40, 0x7fff48d681d8, 0x7fff48d67d90, 0x0, 0x7fa1bfc6e380]",
+          "kind": "Executed",
+          "trial": 58,
+          "wall_ns": 219496093
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffe37cd61f0, 0x7ffe37cd6788, 0x7ffe37cd6340, 0x0, 0x7fe3289c4380]",
+          "kind": "Executed",
+          "trial": 59,
+          "wall_ns": 202648037
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffcbf3bca60, 0x7ffcbf3bcff8, 0x7ffcbf3bcbb0, 0x0, 0x7efedf599380]",
+          "kind": "Executed",
+          "trial": 60,
+          "wall_ns": 201738109
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffd47401fe0, 0x7ffd47402578, 0x7ffd47402130, 0x0, 0x7f57844cf380]",
+          "kind": "Executed",
+          "trial": 61,
+          "wall_ns": 203708609
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffe962ff0a0, 0x7ffe962ff638, 0x7ffe962ff1f0, 0x0, 0x7f8772477380]",
+          "kind": "Executed",
+          "trial": 62,
+          "wall_ns": 203026398
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffc026968e0, 0x7ffc02696e78, 0x7ffc02696a30, 0x0, 0x7fbc25241380]",
+          "kind": "Executed",
+          "trial": 63,
+          "wall_ns": 205486206
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffc67cb1fd0, 0x7ffc67cb2568, 0x7ffc67cb2120, 0x0, 0x7f9ffe348380]",
+          "kind": "Executed",
+          "trial": 64,
+          "wall_ns": 194278442
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fff1d86e660, 0x7fff1d86ebf8, 0x7fff1d86e7b0, 0x0, 0x7f5549736380]",
+          "kind": "Executed",
+          "trial": 65,
+          "wall_ns": 192949195
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fffa818c080, 0x7fffa818c618, 0x7fffa818c1d0, 0x0, 0x7f42235c6380]",
+          "kind": "Executed",
+          "trial": 66,
+          "wall_ns": 203832972
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fffd919dde0, 0x7fffd919e378, 0x7fffd919df30, 0x0, 0x7f7db35f4380]",
+          "kind": "Executed",
+          "trial": 67,
+          "wall_ns": 184727658
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fffbe969e70, 0x7fffbe96a408, 0x7fffbe969fc0, 0x0, 0x7f9c92927380]",
+          "kind": "Executed",
+          "trial": 68,
+          "wall_ns": 211107121
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffd136544b0, 0x7ffd13654a48, 0x7ffd13654600, 0x0, 0x7f11aef39380]",
+          "kind": "Executed",
+          "trial": 69,
+          "wall_ns": 199834073
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffec361d1a0, 0x7ffec361d738, 0x7ffec361d2f0, 0x0, 0x7ff31963c380]",
+          "kind": "Executed",
+          "trial": 70,
+          "wall_ns": 190112429
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fffc5441c20, 0x7fffc54421b8, 0x7fffc5441d70, 0x0, 0x7f9795484380]",
+          "kind": "Executed",
+          "trial": 71,
+          "wall_ns": 213642592
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fff2e0e03a0, 0x7fff2e0e0938, 0x7fff2e0e04f0, 0x0, 0x7f3ac7f4a380]",
+          "kind": "Executed",
+          "trial": 72,
+          "wall_ns": 195888515
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffcf7155b60, 0x7ffcf71560f8, 0x7ffcf7155cb0, 0x0, 0x7f0b49d68380]",
+          "kind": "Executed",
+          "trial": 73,
+          "wall_ns": 199953728
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffd68b02360, 0x7ffd68b028f8, 0x7ffd68b024b0, 0x0, 0x7f1dc8175380]",
+          "kind": "Executed",
+          "trial": 74,
+          "wall_ns": 204720590
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffd7f7e5250, 0x7ffd7f7e57e8, 0x7ffd7f7e53a0, 0x0, 0x7efd2137f380]",
+          "kind": "Executed",
+          "trial": 75,
+          "wall_ns": 212308326
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fffe9c36470, 0x7fffe9c36a08, 0x7fffe9c365c0, 0x0, 0x7fbce20a4380]",
+          "kind": "Executed",
+          "trial": 76,
+          "wall_ns": 226365262
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffee8d42b60, 0x7ffee8d430f8, 0x7ffee8d42cb0, 0x0, 0x7fcfec416380]",
+          "kind": "Executed",
+          "trial": 77,
+          "wall_ns": 204531805
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffec43018e0, 0x7ffec4301e78, 0x7ffec4301a30, 0x0, 0x7ffbdbcb6380]",
+          "kind": "Executed",
+          "trial": 78,
+          "wall_ns": 214043575
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffc02b9c1c0, 0x7ffc02b9c758, 0x7ffc02b9c310, 0x0, 0x7f480c8c6380]",
+          "kind": "Executed",
+          "trial": 79,
+          "wall_ns": 207597991
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fff512530d0, 0x7fff51253668, 0x7fff51253220, 0x0, 0x7f620ffc3380]",
+          "kind": "Executed",
+          "trial": 80,
+          "wall_ns": 214463123
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fffc21de590, 0x7fffc21deb28, 0x7fffc21de6e0, 0x0, 0x7f84f3175380]",
+          "kind": "Executed",
+          "trial": 81,
+          "wall_ns": 216583003
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffd41ddd4c0, 0x7ffd41ddda58, 0x7ffd41ddd610, 0x0, 0x7f94f7131380]",
+          "kind": "Executed",
+          "trial": 82,
+          "wall_ns": 205432005
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fffc58e98a0, 0x7fffc58e9e38, 0x7fffc58e99f0, 0x0, 0x7f0773528380]",
+          "kind": "Executed",
+          "trial": 83,
+          "wall_ns": 218426906
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffd51b0cc00, 0x7ffd51b0d198, 0x7ffd51b0cd50, 0x0, 0x7f168f58c380]",
+          "kind": "Executed",
+          "trial": 84,
+          "wall_ns": 217647182
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffebd257870, 0x7ffebd257e08, 0x7ffebd2579c0, 0x0, 0x7fa749465380]",
+          "kind": "Executed",
+          "trial": 85,
+          "wall_ns": 211564491
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffc3c8244f0, 0x7ffc3c824a88, 0x7ffc3c824640, 0x0, 0x7f0d9872d380]",
+          "kind": "Executed",
+          "trial": 86,
+          "wall_ns": 195557943
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffdcaf35e40, 0x7ffdcaf363d8, 0x7ffdcaf35f90, 0x0, 0x7f4d30963380]",
+          "kind": "Executed",
+          "trial": 87,
+          "wall_ns": 197332486
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffeb6ab32c0, 0x7ffeb6ab3858, 0x7ffeb6ab3410, 0x0, 0x7f322d1a1380]",
+          "kind": "Executed",
+          "trial": 88,
+          "wall_ns": 209360242
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffef98cfc20, 0x7ffef98d01b8, 0x7ffef98cfd70, 0x0, 0x7f34a0e40380]",
+          "kind": "Executed",
+          "trial": 89,
+          "wall_ns": 206602162
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffdec3f2a10, 0x7ffdec3f2fa8, 0x7ffdec3f2b60, 0x0, 0x7f5ba3599380]",
+          "kind": "Executed",
+          "trial": 90,
+          "wall_ns": 224025207
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffca3be1eb0, 0x7ffca3be2448, 0x7ffca3be2000, 0x0, 0x7fc23c5a4380]",
+          "kind": "Executed",
+          "trial": 91,
+          "wall_ns": 211940897
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffd6d8d60a0, 0x7ffd6d8d6638, 0x7ffd6d8d61f0, 0x0, 0x7f41dc2b5380]",
+          "kind": "Executed",
+          "trial": 92,
+          "wall_ns": 202739599
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffeff213470, 0x7ffeff213a08, 0x7ffeff2135c0, 0x0, 0x7fe288a9b380]",
+          "kind": "Executed",
+          "trial": 93,
+          "wall_ns": 209222243
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fff635c7a70, 0x7fff635c8008, 0x7fff635c7bc0, 0x0, 0x7f80df306380]",
+          "kind": "Executed",
+          "trial": 94,
+          "wall_ns": 200470117
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fff07c9b330, 0x7fff07c9b8c8, 0x7fff07c9b480, 0x0, 0x7fec1c959380]",
+          "kind": "Executed",
+          "trial": 95,
+          "wall_ns": 202881566
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffdaa9752f0, 0x7ffdaa975888, 0x7ffdaa975440, 0x0, 0x7f7efbc68380]",
+          "kind": "Executed",
+          "trial": 96,
+          "wall_ns": 220075121
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffc57fda510, 0x7ffc57fdaaa8, 0x7ffc57fda660, 0x0, 0x7ff8e2c07380]",
+          "kind": "Executed",
+          "trial": 97,
+          "wall_ns": 222133506
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffe487c0370, 0x7ffe487c0908, 0x7ffe487c04c0, 0x0, 0x7f9aa61e6380]",
+          "kind": "Executed",
+          "trial": 98,
+          "wall_ns": 196021545
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffd64885800, 0x7ffd64885d98, 0x7ffd64885950, 0x0, 0x7fc631a5d380]",
+          "kind": "Executed",
+          "trial": 99,
+          "wall_ns": 267205540
+        }
+      ],
+      "workload_id": "gcc-cc-small-tu"
+    },
+    {
+      "classification_counts": {
+        "Guarded": 94,
+        "Nondeterministic": 6
+      },
+      "eligible_trials": 94,
+      "policy": "compiler-runtime-v1",
+      "split": "dev",
+      "stable": false,
+      "trials": [
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 0,
+          "wall_ns": 229584868
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 1,
+          "wall_ns": 216183523
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 2,
+          "wall_ns": 204125121
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 3,
+          "wall_ns": 205040951
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 4,
+          "wall_ns": 208846977
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 5,
+          "wall_ns": 209581267
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 6,
+          "wall_ns": 205357625
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 7,
+          "wall_ns": 215224622
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 8,
+          "wall_ns": 222558192
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 9,
+          "wall_ns": 224324100
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 10,
+          "wall_ns": 212551152
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 11,
+          "wall_ns": 219167056
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Nondeterministic",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "process read randomness via getrandom",
+          "kind": "Executed",
+          "trial": 12,
+          "wall_ns": 211045185
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 13,
+          "wall_ns": 227401498
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 14,
+          "wall_ns": 208998592
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 15,
+          "wall_ns": 212705713
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Nondeterministic",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "process read randomness via getrandom",
+          "kind": "Executed",
+          "trial": 16,
+          "wall_ns": 225016249
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 17,
+          "wall_ns": 220914286
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 18,
+          "wall_ns": 224927382
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 19,
+          "wall_ns": 226467884
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 20,
+          "wall_ns": 269064289
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 21,
+          "wall_ns": 245439858
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 22,
+          "wall_ns": 239669333
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 23,
+          "wall_ns": 224466206
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 24,
+          "wall_ns": 249053524
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 25,
+          "wall_ns": 230097891
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 26,
+          "wall_ns": 246826653
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 27,
+          "wall_ns": 221314998
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Nondeterministic",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "process read randomness via getrandom",
+          "kind": "Executed",
+          "trial": 28,
+          "wall_ns": 224515629
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 29,
+          "wall_ns": 213278198
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 30,
+          "wall_ns": 234637024
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 31,
+          "wall_ns": 208450954
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 32,
+          "wall_ns": 237113954
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 33,
+          "wall_ns": 272925549
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 34,
+          "wall_ns": 286066524
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 35,
+          "wall_ns": 251011100
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 36,
+          "wall_ns": 256575559
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 37,
+          "wall_ns": 259089930
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 38,
+          "wall_ns": 232681231
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 39,
+          "wall_ns": 206441952
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 40,
+          "wall_ns": 239226641
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 41,
+          "wall_ns": 224725593
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 42,
+          "wall_ns": 204054418
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 43,
+          "wall_ns": 211122921
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 44,
+          "wall_ns": 271309013
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 45,
+          "wall_ns": 214806588
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 46,
+          "wall_ns": 215671601
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 47,
+          "wall_ns": 234669155
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 48,
+          "wall_ns": 248007019
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Nondeterministic",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "process read randomness via getrandom",
+          "kind": "Executed",
+          "trial": 49,
+          "wall_ns": 227534398
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 50,
+          "wall_ns": 251134752
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 51,
+          "wall_ns": 230324245
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 52,
+          "wall_ns": 230103001
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 53,
+          "wall_ns": 219349980
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 54,
+          "wall_ns": 206813579
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 55,
+          "wall_ns": 206771640
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 56,
+          "wall_ns": 206412816
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 57,
+          "wall_ns": 283262108
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 58,
+          "wall_ns": 321604535
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 59,
+          "wall_ns": 423749734
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 60,
+          "wall_ns": 294061406
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 61,
+          "wall_ns": 223304646
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 62,
+          "wall_ns": 223914911
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 63,
+          "wall_ns": 214436975
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 64,
+          "wall_ns": 222150437
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 65,
+          "wall_ns": 209970026
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 66,
+          "wall_ns": 211780195
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 67,
+          "wall_ns": 205797191
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 68,
+          "wall_ns": 204987500
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 69,
+          "wall_ns": 281172275
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 70,
+          "wall_ns": 216168595
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 71,
+          "wall_ns": 205442183
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 72,
+          "wall_ns": 200558654
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 73,
+          "wall_ns": 214496585
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Nondeterministic",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "process read randomness via getrandom",
+          "kind": "Executed",
+          "trial": 74,
+          "wall_ns": 218473633
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 75,
+          "wall_ns": 215544534
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 76,
+          "wall_ns": 223546960
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 77,
+          "wall_ns": 212122738
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 78,
+          "wall_ns": 206342936
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 79,
+          "wall_ns": 214948033
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 80,
+          "wall_ns": 225502321
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 81,
+          "wall_ns": 209459447
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 82,
+          "wall_ns": 215482608
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 83,
+          "wall_ns": 206891426
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 84,
+          "wall_ns": 232633492
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 85,
+          "wall_ns": 197859045
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 86,
+          "wall_ns": 198821160
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 87,
+          "wall_ns": 238569458
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Nondeterministic",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "process read randomness via getrandom",
+          "kind": "Executed",
+          "trial": 88,
+          "wall_ns": 209070006
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 89,
+          "wall_ns": 204201063
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 90,
+          "wall_ns": 207064410
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 91,
+          "wall_ns": 215003627
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 92,
+          "wall_ns": 209758579
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 93,
+          "wall_ns": 213745806
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 94,
+          "wall_ns": 204535021
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 95,
+          "wall_ns": 213238934
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 96,
+          "wall_ns": 206631397
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 97,
+          "wall_ns": 235957523
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 98,
+          "wall_ns": 215313800
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 99,
+          "wall_ns": 213394866
+        }
+      ],
+      "workload_id": "gcc-cc-small-tu"
+    }
+  ],
+  "summary": {
+    "unstable_cells": 1,
+    "workload_policy_cells": 2
+  },
+  "tool": "/workspace/chats/24375cea864939ae012511ac/target/release/tracejit",
+  "unstable": [
+    {
+      "classification_counts": {
+        "Guarded": 94,
+        "Nondeterministic": 6
+      },
+      "policy": "compiler-runtime-v1",
+      "verdict": "the traced program issued an unguardable observation on some runs; refusal is correct and the workload must be reported as unstable, not retried until eligible",
+      "workload_id": "gcc-cc-small-tu"
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "adaptations": [
+    "PYTHONHASHSEED=0",
+    "PYTHONDONTWRITEBYTECODE=1"
+  ],
+  "argv": [
+    "/opt/freestyle/python/bin/python3",
+    "transform.py"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "source.png"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "source.png"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "source.png"
+      },
+      {
+        "field": "atime_ns",
+        "path": "transform.py"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "transform.py"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "transform.py"
+      },
+      {
+        "field": "atime_ns",
+        "path": "transformed.png"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "transformed.png"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "transformed.png"
+      }
+    ],
+    "tree_digest_native": "81c6a446d0b6a8100116d5128cd465917cf03a3431f7c47823d17705cab6ec9d",
+    "tree_digest_traced": "81c6a446d0b6a8100116d5128cd465917cf03a3431f7c47823d17705cab6ec9d"
+  },
+  "cold_ns": 403410103,
+  "correctness": {},
+  "cost_class": "medium",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 420,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONHASHSEED": "0"
+  },
+  "environment_digest": "f9031731b7186bd34c898abc8dc2747b0117894046b370f710d86ae7ffa87641",
+  "environment_tier": "C",
+  "family": "scientific",
+  "output_count": 1,
+  "policy": "compiler-runtime-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded",
+    "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "refusal_categories": {
+    "other:executed under the tracejit.compiler-runtime.v1 co": 1,
+    "unmodeled_syscall:72": 3
+  },
+  "required_tools": [
+    "python3"
+  ],
+  "split": "heldout",
+  "status": "refused",
+  "workload_id": "pil-image-transform"
+}

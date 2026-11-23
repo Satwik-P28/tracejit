@@ -1,0 +1,66 @@
+{
+  "adaptations": [],
+  "argv": [
+    "ar",
+    "rcs",
+    "libutil.a",
+    "/tmp/tracejit-realworld-v2/shared/build/objects/project/util.o"
+  ],
+  "assessment": "ineligible",
+  "classification": "Nondeterministic",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "libutil.a"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "libutil.a"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "libutil.a"
+      }
+    ],
+    "tree_digest_native": "9e3f4378ff2f6f51a673474fd0bfc07671f0a776d3b056c36111e36003fde05e",
+    "tree_digest_traced": "9e3f4378ff2f6f51a673474fd0bfc07671f0a776d3b056c36111e36003fde05e"
+  },
+  "cold_ns": 62404327,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 56,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "782dfa3a698d87c78d5fd66babc2920f5116296ef1dc6e3e0dae734379ab2503",
+  "environment_tier": "A",
+  "family": "archiver",
+  "output_count": 2,
+  "policy": "allocator-entropy-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "process read system clock: monotonic",
+    "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "refusal_categories": {
+    "clock": 1,
+    "other:executed under the tracejit.allocator-entropy.v1 c": 1
+  },
+  "required_tools": [
+    "ar"
+  ],
+  "split": "validation",
+  "status": "refused",
+  "workload_id": "gcc-static-archive"
+}

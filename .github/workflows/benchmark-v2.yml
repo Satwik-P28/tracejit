@@ -56,6 +56,8 @@ jobs:
         run: |
           python3 benchmarks/realworld_v2/runner.py --mode manifest --vendor "$AA_SCRATCH/vendor"
           git diff --exit-code benchmarks/realworld_v2/manifest.json
+      - name: Install schema validator
+        run: python3 -m pip install --user --break-system-packages jsonschema
       - name: Smoke benchmark (dev split, native + compiler contract)
         run: |
           python3 benchmarks/realworld_v2/runner.py \
@@ -83,6 +85,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo build --workspace --release
       - run: python3 benchmarks/realworld_v2/fetch_inputs.py --vendor "$AA_SCRATCH/vendor"
+      - name: Install schema validator
+        run: python3 -m pip install --user --break-system-packages jsonschema
       - name: Full benchmark
         run: |
           python3 benchmarks/realworld_v2/runner.py \
@@ -110,6 +114,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo build --workspace --release
       - run: python3 benchmarks/realworld_v2/fetch_inputs.py --vendor "$AA_SCRATCH/vendor"
+      - name: Install schema validator
+        run: python3 -m pip install --user --break-system-packages jsonschema
       - name: Harness self-tests (oracle rejects wrong replays, accounting closes)
         run: python3 -m unittest discover -s benchmarks/realworld_v2 -p 'test_*.py' -v
       - name: Adversarial suite (preserved counterexamples, mutations, race probe)
@@ -165,11 +171,25 @@ jobs:
           curl -fsSL https://github.com/sharkdp/hyperfine/releases/download/v1.19.0/hyperfine-v1.19.0-x86_64-unknown-linux-musl.tar.gz \
             | tar -xz -C /tmp
           install -m 755 /tmp/hyperfine-v1.19.0-x86_64-unknown-linux-musl/hyperfine ~/.local/bin/
-      - name: Competitive scenarios
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Competitive scenarios (schedulers, hyperfine cross-check)
         run: |
           python3 benchmarks/realworld_v2/competitive.py \
             --tracejit target/release/tracejit \
             --output-dir "$AA_SCRATCH/competitive" --vendor "$AA_SCRATCH/vendor"
+      - name: Compiler cache comparison (ccache when present)
+        run: |
+          if command -v ccache >/dev/null 2>&1; then
+            python3 benchmarks/realworld_v2/competitive_zlib.py \
+              --tracejit target/release/tracejit \
+              --ccache "$(command -v ccache)" \
+              --zlib-src "$AA_SCRATCH/vendor/zlib-1.3.1" \
+              --reps 10 \
+              --output "$AA_SCRATCH/competitive/zlib.json"
+          else
+            echo "ccache is not installed on this runner; comparison skipped explicitly" \
+              | tee "$AA_SCRATCH/competitive/ccache-unavailable.txt"
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:

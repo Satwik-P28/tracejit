@@ -1,0 +1,115 @@
+{
+  "adaptations": [],
+  "argv": [
+    "/tmp/tracejit-realworld-v2/shared/build/rewrite-same"
+  ],
+  "assessment": "ineligible",
+  "classification": "Guarded",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "in.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "in.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "in.txt"
+      },
+      {
+        "field": "atime_ns",
+        "path": "out.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "out.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "out.txt"
+      }
+    ],
+    "tree_digest_native": "cb61074977c98431d2ffe2b997f1755039b235fe55db79825a1a0520593b374d",
+    "tree_digest_traced": "cb61074977c98431d2ffe2b997f1755039b235fe55db79825a1a0520593b374d"
+  },
+  "cold_ns": 18265066,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    },
+    {
+      "cache_decision": "Deoptimized",
+      "decision_reason": "cached execution deoptimized",
+      "kind": "Executed",
+      "step": "warm"
+    }
+  ],
+  "dependency_count": 7,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": true,
+  "environment_adaptations": {},
+  "environment_digest": "2698df426b6af899cfb806914a5a1cefcbbec3afecafa4581fdfdbef400b13e0",
+  "environment_tier": "A",
+  "family": "filesystem",
+  "hit_failure": {
+    "cache_decision": "Deoptimized",
+    "decision_reason": "cached execution deoptimized",
+    "kind": "Executed"
+  },
+  "output_count": 2,
+  "policy": "compiler-runtime-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "all observed dependencies are guardable or captured outputs",
+    "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "required_tools": [
+    "cc"
+  ],
+  "split": "heldout",
+  "status": "eligible_but_no_hit",
+  "warm_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "in.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "in.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "in.txt"
+      },
+      {
+        "field": "atime_ns",
+        "path": "out.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "out.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "out.txt"
+      }
+    ],
+    "tree_digest_native": "cb61074977c98431d2ffe2b997f1755039b235fe55db79825a1a0520593b374d",
+    "tree_digest_traced": "cb61074977c98431d2ffe2b997f1755039b235fe55db79825a1a0520593b374d"
+  },
+  "warm_ns": 0,
+  "workload_id": "fs-identical-rewrite"
+}

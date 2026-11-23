@@ -1,0 +1,338 @@
+{
+  "adaptations": [],
+  "argv": [
+    "bzip2",
+    "-9",
+    "-k",
+    "-f",
+    "corpus.bin"
+  ],
+  "assessment": "ineligible",
+  "cache_corruption_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin.bz2"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      }
+    ],
+    "tree_digest_native": "be5d12c4e12611388ccecfdd3a0cb41e1a8745ead6530d43bb35da2a66b954f1",
+    "tree_digest_traced": "be5d12c4e12611388ccecfdd3a0cb41e1a8745ead6530d43bb35da2a66b954f1"
+  },
+  "cache_storage_bytes": 1565528,
+  "classification": "Guarded",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin.bz2"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin.bz2"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      }
+    ],
+    "tree_digest_native": "be5d12c4e12611388ccecfdd3a0cb41e1a8745ead6530d43bb35da2a66b954f1",
+    "tree_digest_traced": "be5d12c4e12611388ccecfdd3a0cb41e1a8745ead6530d43bb35da2a66b954f1"
+  },
+  "cold_ns": 186221813,
+  "correctness": {},
+  "corruption_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin.bz2"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin.bz2"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      }
+    ],
+    "tree_digest_native": "be5d12c4e12611388ccecfdd3a0cb41e1a8745ead6530d43bb35da2a66b954f1",
+    "tree_digest_traced": "be5d12c4e12611388ccecfdd3a0cb41e1a8745ead6530d43bb35da2a66b954f1"
+  },
+  "cost_class": "heavy",
+  "decisions": [
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    },
+    {
+      "cache_decision": "Reused",
+      "decision_reason": "all guards passed and cached outputs were restored",
+      "kind": "Reused",
+      "step": "warm"
+    },
+    {
+      "cache_decision": "Deoptimized",
+      "decision_reason": "cached execution deoptimized",
+      "kind": "Executed",
+      "step": "after_mutation"
+    },
+    {
+      "cache_decision": "Reused",
+      "decision_reason": "all guards passed and cached outputs were restored",
+      "kind": "Reused",
+      "step": "retry_after_mutation"
+    },
+    {
+      "cache_decision": "Deoptimized",
+      "decision_reason": "cached execution deoptimized",
+      "kind": "Executed",
+      "step": "input_restored"
+    },
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cache_restart"
+    },
+    {
+      "cache_decision": "Reused",
+      "decision_reason": "all guards passed and cached outputs were restored",
+      "kind": "Reused",
+      "removed_object": "b5cbd4c595c7a1a8e3f548299fc25e9b055b09310930c7b1b5cd333bc26aca60",
+      "step": "cache_object_corruption"
+    },
+    {
+      "cache_decision": "Deoptimized",
+      "decision_reason": "cached execution deoptimized",
+      "kind": "Executed",
+      "note": "corrupted an existing output, then reused",
+      "step": "output_corruption"
+    }
+  ],
+  "deoptimised_after_mutation": true,
+  "dependency_count": 12,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": true,
+  "environment_adaptations": {},
+  "environment_digest": "ea1e2996fc68693cba4ad0acf7af62102c3f1450f5ea8a35074a525d07c7ec36",
+  "environment_tier": "A",
+  "family": "compression",
+  "mutation": "appended 12 bytes to corpus.bin",
+  "mutation_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin.bz2"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin.bz2"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      }
+    ],
+    "tree_digest_native": "1959ea8e79a65130f996d0e0f32c097f192be2d5dcaa906397c5dd4ca3a7822e",
+    "tree_digest_traced": "1959ea8e79a65130f996d0e0f32c097f192be2d5dcaa906397c5dd4ca3a7822e"
+  },
+  "output_count": 1,
+  "policy": "allocator-entropy-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "all observed dependencies are guardable or captured outputs",
+    "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "required_tools": [
+    "bzip2"
+  ],
+  "restored_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin.bz2"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin.bz2"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      }
+    ],
+    "tree_digest_native": "be5d12c4e12611388ccecfdd3a0cb41e1a8745ead6530d43bb35da2a66b954f1",
+    "tree_digest_traced": "be5d12c4e12611388ccecfdd3a0cb41e1a8745ead6530d43bb35da2a66b954f1"
+  },
+  "split": "validation",
+  "status": "reused",
+  "timing": {
+    "calibration": {
+      "cache_decision": "Deoptimized",
+      "decision_reason": "cached execution deoptimized",
+      "kind": "Executed"
+    },
+    "policy": "allocator-entropy-v1",
+    "prime": {
+      "cache_decision": "Ineligible",
+      "decision_reason": null,
+      "kind": "Executed"
+    },
+    "status": "not_eligible_for_timing",
+    "workload_id": "bzip2-9-file"
+  },
+  "warm_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin.bz2"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      }
+    ],
+    "tree_digest_native": "be5d12c4e12611388ccecfdd3a0cb41e1a8745ead6530d43bb35da2a66b954f1",
+    "tree_digest_traced": "be5d12c4e12611388ccecfdd3a0cb41e1a8745ead6530d43bb35da2a66b954f1"
+  },
+  "warm_ns": 0,
+  "workload_id": "bzip2-9-file"
+}

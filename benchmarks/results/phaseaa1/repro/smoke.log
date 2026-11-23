@@ -1,0 +1,296 @@
+== environment ==
+Linux freestyle-vm 6.1.102 #1 SMP PREEMPT_DYNAMIC Sun Nov  8 09:00:04 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+/usr/bin/gcc
+/usr/bin/cc
+/usr/bin/make
+/usr/bin/tar
+/usr/bin/gzip
+Python 3.12.3
+os             linux
+arch           x86_64
+supported      yes
+ptrace         yes
+seccomp        yes
+landlock       no
+proven         no
+runtime        allocator-entropy-v1 audited (8cebda42d140fc2b09639f8b13a5d5f2e617ef09)
+cache          /tmp/aa1-home/.cache/tracejit (not created yet; TraceJIT can create it)
+problem        seccomp and Landlock ABI 3 or newer are required for PROVEN
+problem        GUARDED reuse does not require seccomp or Landlock. PROVEN does: both must actually be installed. An unenforced run stays GUARDED.
+== pinned inputs ==
+verified /tmp/aa1-vendor/zlib-1.3.1.tar.gz sha256=9a93b2b7dfdac77c…
+== manifest ==
+wrote /tmp/aa1-clean/benchmarks/realworld_v2/manifest.json (59 workloads)
+== qualification and timing (splits=dev) ==
+21 workloads × 2 policies on 8 CPUs
+gcc-cc-small-tu              native    refused                Unknown            ineligible
+gcc-cc-small-tu              compiler-runtime-v1 reused                 Guarded            marginal_win
+gcc-cc-heavy-tu              native    refused                Unknown            ineligible
+gcc-cc-heavy-tu              compiler-runtime-v1 reused                 Guarded            clear_win
+gcc-multi-tu-link            native    refused                Unknown            ineligible
+gcc-multi-tu-link            compiler-runtime-v1 refused                Unknown            ineligible
+make-build                   native    refused                Unknown            ineligible
+make-build                   compiler-runtime-v1 refused                Unknown            ineligible
+make-clean                   native    refused                Unknown            ineligible
+make-clean                   compiler-runtime-v1 refused                Unknown            ineligible
+gcc-fanalyzer                native    refused                Unknown            ineligible
+gcc-fanalyzer                compiler-runtime-v1 refused                Nondeterministic   ineligible
+cppcheck-project             native    tool_unavailable       -                  unavailable
+cppcheck-project             compiler-runtime-v1 tool_unavailable       -                  unavailable
+py-compile                   native    refused                Unknown            ineligible
+py-compile                   compiler-runtime-v1 refused                Unknown            ineligible
+gzip-6-stdout                native    reused                 Guarded            loss
+gzip-6-stdout                compiler-runtime-v1 reused                 Guarded            loss
+gzip-9-file                  native    refused                Nondeterministic   ineligible
+gzip-9-file                  compiler-runtime-v1 reused                 Guarded            ineligible
+xz-0-file                    native    refused                Unknown            ineligible
+xz-0-file                    compiler-runtime-v1 refused                Unknown            ineligible
+tar-create                   native    refused                Unknown            ineligible
+tar-create                   compiler-runtime-v1 refused                Unknown            ineligible
+jq-sum                       native    refused                Nondeterministic   ineligible
+jq-sum                       compiler-runtime-v1 refused                Nondeterministic   ineligible
+awk-reduce                   native    refused                Nondeterministic   ineligible
+awk-reduce                   compiler-runtime-v1 refused                Nondeterministic   ineligible
+sed-substitute-file          native    refused                Nondeterministic   ineligible
+sed-substitute-file          compiler-runtime-v1 reused                 Guarded            loss
+sort-lines                   native    refused                Nondeterministic   ineligible
+sort-lines                   compiler-runtime-v1 refused                Nondeterministic   ineligible
+c-numeric-integration        native    refused                Nondeterministic   ineligible
+c-numeric-integration        compiler-runtime-v1 reused                 Guarded            clear_win
+node-compute                 native    refused                Unknown            ineligible
+node-compute                 compiler-runtime-v1 refused                Unknown            ineligible
+objcopy-strip                native    refused                Nondeterministic   ineligible
+objcopy-strip                compiler-runtime-v1 reused                 Guarded            ineligible
+fs-delete-recreate           native    refused                Unknown            ineligible
+fs-delete-recreate           compiler-runtime-v1 refused                Unknown            ineligible
+zlib-compile-adler32         native    refused                Unknown            ineligible
+zlib-compile-adler32         compiler-runtime-v1 reused                 Guarded            marginal_win
+{
+  "accounting": {
+    "declared_rows": 42,
+    "declared_workloads": 21,
+    "policies": [
+      "compiler-runtime-v1",
+      "native"
+    ],
+    "row_assessments": [
+      {
+        "assessment": "faster",
+        "policy": "compiler-runtime-v1",
+        "ratio_ci95": [
+          1.0078853041822786,
+          1.2827967262181337
+        ],
+        "warm_ratio": 1.1235048223297908,
+        "workload_id": "gcc-cc-small-tu"
+      },
+      {
+        "assessment": "faster",
+        "policy": "compiler-runtime-v1",
+        "ratio_ci95": [
+          6.555654550799799,
+          7.431157177577256
+        ],
+        "warm_ratio": 7.002104910101562,
+        "workload_id": "gcc-cc-heavy-tu"
+      },
+      {
+        "assessment": "slower",
+        "policy": "native",
+        "ratio_ci95": [
+          0.6531137922423791,
+          0.8386143194123322
+        ],
+        "warm_ratio": 0.7110433099933576,
+        "workload_id": "gzip-6-stdout"
+      },
+      {
+        "assessment": "slower",
+        "policy": "compiler-runtime-v1",
+        "ratio_ci95": [
+          0.7505122337989664,
+          0.9171951576313454
+        ],
+        "warm_ratio": 0.8390141593162548,
+        "workload_id": "gzip-6-stdout"
+      },
+      {
+        "assessment": "slower",
+        "policy": "compiler-runtime-v1",
+        "ratio_ci95": [
+          0.6430950296904772,
+          0.980682146159688
+        ],
+        "warm_ratio": 0.7497931206145385,
+        "workload_id": "sed-substitute-file"
+      },
+      {
+        "assessment": "faster",
+        "policy": "compiler-runtime-v1",
+        "ratio_ci95": [
+          25.814968398848585,
+          30.337747325001903
+        ],
+        "warm_ratio": 27.944176430712275,
+        "workload_id": "c-numeric-integration"
+      },
+      {
+        "assessment": "faster",
+        "policy": "compiler-runtime-v1",
+        "ratio_ci95": [
+          1.1861624427349058,
+          1.5427761006634453
+        ],
+        "warm_ratio": 1.3262957688974144,
+        "workload_id": "zlib-compile-adler32"
+      }
+    ],
+    "rows_by_status": {
+      "refused": 31,
+      "reused": 9,
+      "tool_unavailable": 2
+    },
+    "timed_rows": 7,
+    "verified_hit_decisions": 19,
+    "verified_hit_rows": 9
+  },
+  "eligibility_by_tier_and_policy": {
+    "A/compiler-runtime-v1": {
+      "attempted": 19,
+      "declared": 19,
+      "other_failure": 0,
+      "rate": 0.42105263157894735,
+      "refused": 11,
+      "reused": 8,
+      "skipped_budget": 0,
+      "tool_unavailable": 0,
+      "verified_hits": 8,
+      "workloads": 19
+    },
+    "A/native": {
+      "attempted": 19,
+      "declared": 19,
+      "other_failure": 0,
+      "rate": 0.05263157894736842,
+      "refused": 18,
+      "reused": 1,
+      "skipped_budget": 0,
+      "tool_unavailable": 0,
+      "verified_hits": 1,
+      "workloads": 19
+    },
+    "C/compiler-runtime-v1": {
+      "attempted": 1,
+      "declared": 2,
+      "other_failure": 0,
+      "rate": 0.0,
+      "refused": 1,
+      "reused": 0,
+      "skipped_budget": 0,
+      "tool_unavailable": 1,
+      "verified_hits": 0,
+      "workloads": 2
+    },
+    "C/native": {
+      "attempted": 1,
+      "declared": 2,
+      "other_failure": 0,
+      "rate": 0.0,
+      "refused": 1,
+      "reused": 0,
+      "skipped_budget": 0,
+      "tool_unavailable": 1,
+      "verified_hits": 0,
+      "workloads": 2
+    }
+  },
+  "faster_than_native": [
+    "c-numeric-integration",
+    "gcc-cc-heavy-tu",
+    "gcc-cc-small-tu",
+    "zlib-compile-adler32"
+  ],
+  "faster_than_native_by_ci": [
+    "c-numeric-integration",
+    "gcc-cc-heavy-tu",
+    "gcc-cc-small-tu",
+    "zlib-compile-adler32"
+  ],
+  "incorrect_hits": [],
+  "indistinguishable": [],
+  "positive_session_savings_at_25": [
+    "c-numeric-integration",
+    "gcc-cc-heavy-tu",
+    "gcc-cc-small-tu",
+    "zlib-compile-adler32"
+  ],
+  "refused": [
+    "gcc-cc-small-tu",
+    "gcc-cc-heavy-tu",
+    "gcc-multi-tu-link",
+    "gcc-multi-tu-link",
+    "make-build",
+    "make-build",
+    "make-clean",
+    "make-clean",
+    "gcc-fanalyzer",
+    "gcc-fanalyzer",
+    "py-compile",
+    "py-compile",
+    "gzip-9-file",
+    "xz-0-file",
+    "xz-0-file",
+    "tar-create",
+    "tar-create",
+    "jq-sum",
+    "jq-sum",
+    "awk-reduce",
+    "awk-reduce",
+    "sed-substitute-file",
+    "sort-lines",
+    "sort-lines",
+    "c-numeric-integration",
+    "node-compute",
+    "node-compute",
+    "objcopy-strip",
+    "fs-delete-recreate",
+    "fs-delete-recreate",
+    "zlib-compile-adler32"
+  ],
+  "requested": 42,
+  "slower_than_native": [
+    "gzip-6-stdout",
+    "sed-substitute-file"
+  ],
+  "slower_than_native_by_ci": [
+    "gzip-6-stdout",
+    "sed-substitute-file"
+  ],
+  "timed_workloads": 6,
+  "tool_unavailable": [
+    "cppcheck-project",
+    "cppcheck-project"
+  ]
+}
+== schema and protocol validation ==
+splits present: {'dev': 42}
+accounting: declared_rows=42 declared_workloads=21 declared_cells=42 attempted=40 reused=9 timed_rows=7 verified_hit_rows=9
+OK: /tmp/aa1-smoke/results.json satisfies tracejit.realworld.results/v1
+== adversarial ==
+{
+  "incorrect_hits": 0,
+  "preserved_counterexamples_pass": true,
+  "race_stale_observations": 0,
+  "unsupported_or_unresolved": [],
+  "workload_mutations": 3
+}
+wrote /tmp/aa1-smoke/adversarial.json
+== competitive ==
+== done: /tmp/aa1-smoke ==
+TRACEJIT_PATH.txt
+TRACEJIT_SHA256.txt
+adversarial.json
+environment.json
+raw
+results.json
+results.md

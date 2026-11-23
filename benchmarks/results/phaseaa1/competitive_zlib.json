@@ -1,0 +1,76 @@
+{
+  "arms": {
+    "ccache": {
+      "decisions": {
+        "hit": 20
+      },
+      "median_ns": 4539639,
+      "min_ns": 3350010,
+      "n": 20,
+      "observed_hits": 20,
+      "p10_ns": 3700367,
+      "p90_ns": 5713289,
+      "population_ns": 556518107,
+      "speedup_vs_native_ci95": [
+        97.22531094527363,
+        116.6416599348438
+      ],
+      "speedup_vs_native_median": 108.07531182545573
+    },
+    "native": {
+      "decisions": {},
+      "median_ns": 490622900,
+      "min_ns": 443421273,
+      "n": 20,
+      "observed_hits": 0,
+      "p10_ns": 451859488,
+      "p90_ns": 535279708,
+      "population_ns": 599547816
+    },
+    "tracejit": {
+      "decisions": {
+        "Reused": 20
+      },
+      "median_ns": 65177249,
+      "min_ns": 60337948,
+      "n": 20,
+      "observed_hits": 20,
+      "p10_ns": 61575952,
+      "p90_ns": 74891656,
+      "population_ns": 735171630,
+      "speedup_vs_native_ci95": [
+        7.1623361031007615,
+        7.998523543170134
+      ],
+      "speedup_vs_native_median": 7.52751771920047
+    }
+  },
+  "command": [
+    "gcc",
+    "-O2",
+    "-I",
+    "/tmp/tracejit-realworld-v2/vendor/zlib-1.3.1",
+    "-c",
+    "/tmp/tracejit-realworld-v2/vendor/zlib-1.3.1/deflate.c",
+    "-o",
+    "deflate.o"
+  ],
+  "comparison_note": "ccache caches single compiler invocations; TraceJIT caches whole commands. One compilation is ccache's best case, so this measures hit overhead, not output.",
+  "environment": {
+    "ccache": "ccache version 4.10.2",
+    "ccache_version_pin": "4.10.2",
+    "cpu_threads": 8,
+    "gcc": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+    "kernel": "6.1.102",
+    "tracejit_commit": "ae884c59320b1ee37ac2d0ae8af24eae98f26241",
+    "tracejit_sha256": "daca8b0dc9fda100abd8801d9f6f619c0e1c3082981f20be2de8f1dd4361dbe4",
+    "zlib_sha256": "3b956337350f94c34987750f785587ef33d9c89ceaebb7c2afb189c956360cbe"
+  },
+  "mixed_order": true,
+  "output_deleted_before_every_sample": true,
+  "output_mismatches": 0,
+  "outputs_verified_against_native": true,
+  "repetitions": 20,
+  "schema": "tracejit.competitive-zlib/v1",
+  "seed": 20261123
+}

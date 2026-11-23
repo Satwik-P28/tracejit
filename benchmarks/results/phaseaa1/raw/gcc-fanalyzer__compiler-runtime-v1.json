@@ -1,0 +1,604 @@
+{
+  "adaptations": [],
+  "argv": [
+    "gcc",
+    "-fanalyzer",
+    "-c",
+    "-I",
+    ".",
+    "util.c",
+    "-o",
+    "util.o"
+  ],
+  "assessment": "loss",
+  "cache_corruption_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "atime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.h"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "util.h"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "util.h"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "util.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "util.o"
+      }
+    ],
+    "tree_digest_native": "355b68cb95f807b16e5642701243a2c1705ac3e323eecf62cd9b7724c2a2141f",
+    "tree_digest_traced": "355b68cb95f807b16e5642701243a2c1705ac3e323eecf62cd9b7724c2a2141f"
+  },
+  "cache_storage_bytes": 2087292,
+  "classification": "Guarded",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.h"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "util.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "util.o"
+      }
+    ],
+    "tree_digest_native": "355b68cb95f807b16e5642701243a2c1705ac3e323eecf62cd9b7724c2a2141f",
+    "tree_digest_traced": "355b68cb95f807b16e5642701243a2c1705ac3e323eecf62cd9b7724c2a2141f"
+  },
+  "cold_ns": 184143922,
+  "correctness": {},
+  "corruption_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "atime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.h"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "util.h"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "util.h"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "util.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "util.o"
+      }
+    ],
+    "tree_digest_native": "355b68cb95f807b16e5642701243a2c1705ac3e323eecf62cd9b7724c2a2141f",
+    "tree_digest_traced": "355b68cb95f807b16e5642701243a2c1705ac3e323eecf62cd9b7724c2a2141f"
+  },
+  "cost_class": "heavy",
+  "decisions": [
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    },
+    {
+      "cache_decision": "Reused",
+      "decision_reason": "all guards passed and cached outputs were restored",
+      "kind": "Reused",
+      "step": "warm"
+    },
+    {
+      "cache_decision": "Deoptimized",
+      "decision_reason": "cached execution deoptimized",
+      "kind": "Executed",
+      "step": "after_mutation"
+    },
+    {
+      "cache_decision": "Reused",
+      "decision_reason": "all guards passed and cached outputs were restored",
+      "kind": "Reused",
+      "step": "retry_after_mutation"
+    },
+    {
+      "cache_decision": "Deoptimized",
+      "decision_reason": "cached execution deoptimized",
+      "kind": "Executed",
+      "step": "input_restored"
+    },
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cache_restart"
+    },
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "cached object af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262 is corrupt; retracing",
+      "kind": "Executed",
+      "removed_object": "af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262",
+      "step": "cache_object_corruption"
+    },
+    {
+      "cache_decision": "Reused",
+      "decision_reason": "all guards passed and cached outputs were restored",
+      "kind": "Reused",
+      "note": "corrupted an existing output, then reused",
+      "step": "output_corruption"
+    }
+  ],
+  "deoptimised_after_mutation": true,
+  "dependency_count": 150,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": true,
+  "environment_adaptations": {},
+  "environment_digest": "fc8541602bf25403060e8df2977c9f12366933a8b0b66c9e833f123e0fe12b6a",
+  "environment_tier": "A",
+  "family": "analysis",
+  "mutation": "appended 12 bytes to util.c",
+  "mutation_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "atime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.h"
+      }
+    ],
+    "tree_digest_native": "8b7157a539348118dad7ae0c9e7e685ff97cb3d65bf90a016f0a3542b03f163d",
+    "tree_digest_traced": "8b7157a539348118dad7ae0c9e7e685ff97cb3d65bf90a016f0a3542b03f163d"
+  },
+  "output_count": 2,
+  "policy": "compiler-runtime-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "all observed dependencies are guardable or captured outputs",
+    "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "required_tools": [
+    "gcc"
+  ],
+  "restored_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "atime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.h"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "util.h"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "util.h"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "util.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "util.o"
+      }
+    ],
+    "tree_digest_native": "355b68cb95f807b16e5642701243a2c1705ac3e323eecf62cd9b7724c2a2141f",
+    "tree_digest_traced": "355b68cb95f807b16e5642701243a2c1705ac3e323eecf62cd9b7724c2a2141f"
+  },
+  "split": "dev",
+  "status": "reused",
+  "timing": {
+    "break_even_repeats": null,
+    "cache_storage_bytes": 765655,
+    "calibration_decision": {
+      "cache_decision": "Reused",
+      "decision_reason": "all guards passed and cached outputs were restored",
+      "kind": "Reused"
+    },
+    "cold": {
+      "max_ns": 169475489,
+      "mean_ns": 162830805,
+      "median_ci95_ns": [
+        155426509,
+        169475489
+      ],
+      "median_ns": 163590418,
+      "min_ns": 155426509,
+      "n": 3,
+      "p05_ns": 155426509,
+      "p95_ns": 169475489,
+      "samples_ns": [
+        169475489,
+        163590418,
+        155426509
+      ]
+    },
+    "cold_ratio_unpaired": {
+      "cold_median_ci95_ns": [
+        155426509,
+        169475489
+      ],
+      "cold_samples_ns": [
+        169475489,
+        163590418,
+        155426509
+      ],
+      "design": "independent arms; cold tracing needs a fresh cache and cannot be paired",
+      "direct_median_ci95_ns": [
+        19866494,
+        30059954
+      ],
+      "direct_samples_ns": [
+        28370562,
+        19866494,
+        20075466,
+        20928889,
+        30059954
+      ],
+      "median_ratio": 0.12793468747050943
+    },
+    "cold_reps": 3,
+    "cost_model": {
+      "available": true,
+      "instrumented": true,
+      "model": {
+        "additive": "runtime hit path only",
+        "hit_path_residual_ns": 1235340,
+        "hit_path_stages": [
+          "stdio_replay_ns",
+          "guard_validation_ns",
+          "guard_recheck_ns",
+          "cas_restore_ns"
+        ],
+        "hit_path_sum_ns": 52235323,
+        "post_runtime_ns": 6669153,
+        "pre_runtime_ns": 8124706,
+        "present_ns": 48631,
+        "runtime_ns": 53470663,
+        "startup_quantum_ns": 10000000,
+        "startup_reported_ns": 3587288,
+        "wall_ns": 68313153
+      },
+      "note": "instrumented two-run session; the breakdown is not a timed sample. pre_runtime_ns is process creation, startup, CLI parsing, identity preparation, cache open/lookup/query and exit, minus the two spans above, and cannot be separated further at useful resolution; process_startup_ns is derived from the kernel's tick-granular start time and is not used in any sum",
+      "stages_ns": {
+        "cache_prepare_ns": 34044,
+        "cas_restore_ns": 3533614,
+        "cli_parse_ns": 147337,
+        "decision_persist_ns": 6669153,
+        "guard_recheck_ns": 0,
+        "guard_validation_ns": 48611039,
+        "identity_prepare_ns": 779454,
+        "lookup_key_ns": 7534,
+        "present_ns": 48631,
+        "process_startup_ns": 3587288,
+        "record_decode_ns": 1224900,
+        "sqlite_open_ns": 233628,
+        "sqlite_query_ns": 1310410,
+        "sqlite_schema_ns": 397586,
+        "stdio_replay_ns": 90670
+      }
+    },
+    "direct": {
+      "max_ns": 30059954,
+      "mean_ns": 23860273,
+      "median_ci95_ns": [
+        19866494,
+        30059954
+      ],
+      "median_ns": 20928889,
+      "min_ns": 19866494,
+      "n": 5,
+      "p05_ns": 19866494,
+      "p95_ns": 30059954,
+      "samples_ns": [
+        28370562,
+        19866494,
+        20075466,
+        20928889,
+        30059954
+      ]
+    },
+    "environment_digest": "a50a25aadc47c314d212d78037dc352b97537205c124ca77226a004f53bf4b5f",
+    "policy": "compiler-runtime-v1",
+    "reference_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reps": 5,
+    "session": {
+      "10": {
+        "direct_ns": 209288890,
+        "speedup": 0.2940941598546752,
+        "traced_ns": 711639055
+      },
+      "2": {
+        "direct_ns": 41857778,
+        "speedup": 0.18646159826893513,
+        "traced_ns": 224484711
+      },
+      "25": {
+        "direct_ns": 523222225,
+        "speedup": 0.3219723172797793,
+        "traced_ns": 1625053450
+      },
+      "5": {
+        "direct_ns": 104644445,
+        "speedup": 0.2570058314317208,
+        "traced_ns": 407167590
+      },
+      "50": {
+        "direct_ns": 1046444450,
+        "speedup": 0.33247787619968355,
+        "traced_ns": 3147410775
+      }
+    },
+    "status": "measured",
+    "timing_channel": "plain (no --json): the JSON byte-array report is harness cost",
+    "warm": {
+      "max_ns": 64578670,
+      "mean_ns": 60116195,
+      "median_ci95_ns": [
+        55900165,
+        64578670
+      ],
+      "median_ns": 60894293,
+      "min_ns": 55900165,
+      "n": 5,
+      "p05_ns": 55900165,
+      "p95_ns": 64578670,
+      "samples_ns": [
+        56722148,
+        60894293,
+        62485700,
+        64578670,
+        55900165
+      ]
+    },
+    "warm_decisions": [
+      {
+        "cache_decision": "Reused",
+        "decision_reason": null,
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": null,
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": null,
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": null,
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": null,
+        "kind": "Reused"
+      }
+    ],
+    "warm_ratio": {
+      "geometric_mean_ratio": 0.39098080888304493,
+      "median_ratio": 0.3262455810103584,
+      "pairs": 5,
+      "ratio_ci95": [
+        0.3212809650848114,
+        0.5377435647998534
+      ],
+      "ratios": [
+        0.5001672715215227,
+        0.3262455810103584,
+        0.3212809650848114,
+        0.3240836177022537,
+        0.5377435647998534
+      ]
+    },
+    "warm_stdout_mismatches": 0,
+    "workload_id": "gcc-fanalyzer"
+  },
+  "warm_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "atime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.h"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "util.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "util.o"
+      }
+    ],
+    "tree_digest_native": "355b68cb95f807b16e5642701243a2c1705ac3e323eecf62cd9b7724c2a2141f",
+    "tree_digest_traced": "355b68cb95f807b16e5642701243a2c1705ac3e323eecf62cd9b7724c2a2141f"
+  },
+  "warm_ns": 0,
+  "workload_id": "gcc-fanalyzer"
+}

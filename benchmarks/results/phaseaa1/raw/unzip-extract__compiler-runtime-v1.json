@@ -1,0 +1,115 @@
+{
+  "adaptations": [],
+  "argv": [
+    "unzip",
+    "-q",
+    "-o",
+    "members.zip",
+    "-d",
+    "extracted"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "extracted"
+      },
+      {
+        "field": "atime_ns",
+        "path": "extracted/corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "extracted/corpus.bin"
+      },
+      {
+        "field": "atime_ns",
+        "path": "extracted/corpus.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "extracted/corpus.txt"
+      },
+      {
+        "field": "atime_ns",
+        "path": "members.zip"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "members.zip"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "members.zip"
+      }
+    ],
+    "tree_digest_native": "3b676b55d13f8a5ca2eb8156d9c422c4f1e9d5852345fa4a01a891cd274a3f4b",
+    "tree_digest_traced": "3b676b55d13f8a5ca2eb8156d9c422c4f1e9d5852345fa4a01a891cd274a3f4b"
+  },
+  "cold_ns": 64320557,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 27,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "17fa6e78f5e68fd79fbcc968d7dff8f164a29d69370533e8449e8c98e82234dd",
+  "environment_tier": "A",
+  "family": "packaging",
+  "output_count": 2,
+  "policy": "compiler-runtime-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "all observed dependencies are guardable or captured outputs",
+    "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution",
+    "non-file output cannot be restored: /tmp/tracejit-realworld-v2/qualify/unzip-extract__compiler-runtime-v1/traced/extracted"
+  ],
+  "refusal_categories": {
+    "other:all observed dependencies are guardable or capture": 1,
+    "other:executed under the tracejit.compiler-runtime.v1 co": 1,
+    "unrestorable_output": 1
+  },
+  "required_tools": [
+    "unzip",
+    "zip"
+  ],
+  "split": "heldout",
+  "status": "refused",
+  "workload_id": "unzip-extract"
+}

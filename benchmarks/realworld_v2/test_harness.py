@@ -35,7 +35,7 @@ import oracle  # noqa: E402
 import runner  # noqa: E402
 import validate  # noqa: E402
 
-RESULTS = HERE.parent / "results" / "phaseaa" / "results.json"
+RESULTS = HERE.parent / "results" / "phaseaa1" / "results.json"
 
 
 def workspace(root: Path) -> dict:
@@ -258,8 +258,10 @@ class AccountingCloses(unittest.TestCase):
     def test_extra_tool_unavailable_claim_is_rejected(self) -> None:
         broken = copy.deepcopy(self.results)
         cell = next(iter(broken["aggregate"]["eligibility_by_tier_and_policy"].values()))
-        # Legacy cells predate the field; an inflated count must still fail.
-        cell["tool_unavailable"] = cell.get("tool_unavailable", 0) + 1
+        # Legacy cells (Phase AA) omit the field, so adding one can coincidentally
+        # equal the truth (that cell really has one unavailable tool). Add two so
+        # the claim is unambiguously inflated either way.
+        cell["tool_unavailable"] = cell.get("tool_unavailable", 0) + 2
         self.assertTrue(validate.accounting_errors(broken))
 
     def test_hit_with_disagreeing_decision_is_rejected(self) -> None:

@@ -1,0 +1,127 @@
+{
+  "adaptations": [],
+  "argv": [
+    "gcc",
+    "-O2",
+    "-Wall",
+    "-I",
+    "gen",
+    "-c",
+    "small.c",
+    "-o",
+    "small.o"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "mtime_ns",
+        "path": "gen"
+      },
+      {
+        "field": "atime_ns",
+        "path": "gen/part0.h"
+      },
+      {
+        "field": "atime_ns",
+        "path": "gen/part1.h"
+      },
+      {
+        "field": "atime_ns",
+        "path": "gen/part2.h"
+      },
+      {
+        "field": "atime_ns",
+        "path": "gen/part3.h"
+      },
+      {
+        "field": "atime_ns",
+        "path": "gen/part4.h"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "gen/part4.h"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "gen/part4.h"
+      },
+      {
+        "field": "atime_ns",
+        "path": "gen/part5.h"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "gen/part5.h"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "gen/part5.h"
+      },
+      {
+        "field": "atime_ns",
+        "path": "small.c"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "small.c"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "small.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "small.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "small.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "small.o"
+      }
+    ],
+    "tree_digest_native": "5ad4c8c7963e2a356847f8d41acbc73db1d023725a6fe4668189eb05d2ca3703",
+    "tree_digest_traced": "5ad4c8c7963e2a356847f8d41acbc73db1d023725a6fe4668189eb05d2ca3703"
+  },
+  "cold_ns": 264627497,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 158,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "366c5e658d083167355651813c730fd9fcd9d112374d7d1c7816813559f11227",
+  "environment_tier": "A",
+  "family": "compiler",
+  "output_count": 2,
+  "policy": "allocator-entropy-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fffa64e15d0, 0x7fffa64e1b68, 0x7fffa64e1720, 0x0, 0x7f467f41a380]",
+    "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "refusal_categories": {
+    "other:executed under the tracejit.allocator-entropy.v1 c": 1,
+    "unmodeled_syscall:98": 1
+  },
+  "required_tools": [
+    "gcc"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "gcc-cc-small-tu"
+}

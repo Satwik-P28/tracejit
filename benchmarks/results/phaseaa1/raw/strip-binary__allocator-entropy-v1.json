@@ -1,0 +1,172 @@
+{
+  "adaptations": [],
+  "argv": [
+    "strip",
+    "--strip-unneeded",
+    "-o",
+    "app-stripped",
+    "/tmp/tracejit-realworld-v2/shared/build/objects/app-debug"
+  ],
+  "assessment": "ineligible",
+  "cache_corruption_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "app-stripped"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "app-stripped"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "app-stripped"
+      }
+    ],
+    "tree_digest_native": "7403166905a7d22f25451da9bec8acefd91a0d7b21a58afdcf1ca91a43109b7e",
+    "tree_digest_traced": "7403166905a7d22f25451da9bec8acefd91a0d7b21a58afdcf1ca91a43109b7e"
+  },
+  "cache_storage_bytes": 413875,
+  "classification": "Guarded",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "app-stripped"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "app-stripped"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "app-stripped"
+      }
+    ],
+    "tree_digest_native": "7403166905a7d22f25451da9bec8acefd91a0d7b21a58afdcf1ca91a43109b7e",
+    "tree_digest_traced": "7403166905a7d22f25451da9bec8acefd91a0d7b21a58afdcf1ca91a43109b7e"
+  },
+  "cold_ns": 47640866,
+  "correctness": {},
+  "corruption_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "app-stripped"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "app-stripped"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "app-stripped"
+      }
+    ],
+    "tree_digest_native": "7403166905a7d22f25451da9bec8acefd91a0d7b21a58afdcf1ca91a43109b7e",
+    "tree_digest_traced": "7403166905a7d22f25451da9bec8acefd91a0d7b21a58afdcf1ca91a43109b7e"
+  },
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    },
+    {
+      "cache_decision": "Reused",
+      "decision_reason": "all guards passed and cached outputs were restored",
+      "kind": "Reused",
+      "step": "warm"
+    },
+    {
+      "kind": null,
+      "note": "no mutation defined",
+      "step": "after_mutation"
+    },
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cache_restart"
+    },
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "cached object af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262 is corrupt; retracing",
+      "kind": "Executed",
+      "removed_object": "af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262",
+      "step": "cache_object_corruption"
+    },
+    {
+      "cache_decision": "Deoptimized",
+      "decision_reason": "cached execution deoptimized",
+      "kind": "Executed",
+      "note": "corrupted an existing output, then reused",
+      "step": "output_corruption"
+    }
+  ],
+  "dependency_count": 32,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": true,
+  "environment_adaptations": {},
+  "environment_digest": "76e3bc7e50bcfe493dcfff578fb01b8414a87993905a91b6e0f29e9de1a4840f",
+  "environment_tier": "A",
+  "family": "tooling",
+  "mutation": null,
+  "output_count": 1,
+  "policy": "allocator-entropy-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "all observed dependencies are guardable or captured outputs",
+    "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "required_tools": [
+    "strip"
+  ],
+  "split": "heldout",
+  "status": "reused",
+  "timing": {
+    "calibration": {
+      "cache_decision": "Deoptimized",
+      "decision_reason": "cached execution deoptimized",
+      "kind": "Executed"
+    },
+    "policy": "allocator-entropy-v1",
+    "prime": {
+      "cache_decision": "Ineligible",
+      "decision_reason": null,
+      "kind": "Executed"
+    },
+    "status": "not_eligible_for_timing",
+    "workload_id": "strip-binary"
+  },
+  "warm_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "app-stripped"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "app-stripped"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "app-stripped"
+      }
+    ],
+    "tree_digest_native": "7403166905a7d22f25451da9bec8acefd91a0d7b21a58afdcf1ca91a43109b7e",
+    "tree_digest_traced": "7403166905a7d22f25451da9bec8acefd91a0d7b21a58afdcf1ca91a43109b7e"
+  },
+  "warm_ns": 0,
+  "workload_id": "strip-binary"
+}

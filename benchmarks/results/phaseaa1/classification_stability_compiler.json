@@ -1,0 +1,2047 @@
+{
+  "design": "each trial uses a fresh cache, the same argv, cwd and environment; every trial is a cold trace and no trial is retried until it looks favourable",
+  "repeats": 100,
+  "results": [
+    {
+      "classification_counts": {
+        "Guarded": 98,
+        "Nondeterministic": 2
+      },
+      "eligible_trials": 98,
+      "policy": "compiler-runtime-v1",
+      "split": "validation",
+      "stable": false,
+      "trials": [
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 0,
+          "wall_ns": 735588634
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 1,
+          "wall_ns": 781758708
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 2,
+          "wall_ns": 712140194
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 3,
+          "wall_ns": 697236669
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 4,
+          "wall_ns": 772916164
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 5,
+          "wall_ns": 812367955
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 6,
+          "wall_ns": 783759093
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 7,
+          "wall_ns": 738523253
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 8,
+          "wall_ns": 721523764
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 9,
+          "wall_ns": 724040840
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 10,
+          "wall_ns": 690830180
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 11,
+          "wall_ns": 714548155
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 12,
+          "wall_ns": 723119430
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 13,
+          "wall_ns": 730912162
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 14,
+          "wall_ns": 706522154
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 15,
+          "wall_ns": 694627059
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 16,
+          "wall_ns": 706545860
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 17,
+          "wall_ns": 726673091
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 18,
+          "wall_ns": 711134484
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 19,
+          "wall_ns": 712058440
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 20,
+          "wall_ns": 713617226
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 21,
+          "wall_ns": 731134498
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 22,
+          "wall_ns": 833941412
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 23,
+          "wall_ns": 791283844
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 24,
+          "wall_ns": 794851774
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 25,
+          "wall_ns": 762660327
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 26,
+          "wall_ns": 763520080
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 27,
+          "wall_ns": 811073152
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 28,
+          "wall_ns": 784558104
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 29,
+          "wall_ns": 746121100
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 30,
+          "wall_ns": 767500665
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 31,
+          "wall_ns": 729486406
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 32,
+          "wall_ns": 749689091
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 33,
+          "wall_ns": 760325101
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 34,
+          "wall_ns": 702829830
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 35,
+          "wall_ns": 752482505
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 36,
+          "wall_ns": 724433577
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 37,
+          "wall_ns": 910009488
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 38,
+          "wall_ns": 771864870
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 39,
+          "wall_ns": 813066195
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 40,
+          "wall_ns": 820167609
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 41,
+          "wall_ns": 779956293
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 42,
+          "wall_ns": 831196178
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 43,
+          "wall_ns": 744435444
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 44,
+          "wall_ns": 816726649
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 45,
+          "wall_ns": 799092867
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 46,
+          "wall_ns": 868243893
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 47,
+          "wall_ns": 836853801
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 48,
+          "wall_ns": 792224289
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 49,
+          "wall_ns": 847310646
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 50,
+          "wall_ns": 779871705
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 51,
+          "wall_ns": 811796861
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 52,
+          "wall_ns": 820050209
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 53,
+          "wall_ns": 696047296
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 54,
+          "wall_ns": 743937090
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 55,
+          "wall_ns": 743039875
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 56,
+          "wall_ns": 704379131
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 57,
+          "wall_ns": 694300405
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 58,
+          "wall_ns": 737755282
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 59,
+          "wall_ns": 683083303
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 60,
+          "wall_ns": 716550175
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Nondeterministic",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "process read randomness via getrandom",
+          "kind": "Executed",
+          "trial": 61,
+          "wall_ns": 725543240
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 62,
+          "wall_ns": 693580944
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 63,
+          "wall_ns": 707514678
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 64,
+          "wall_ns": 672794704
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 65,
+          "wall_ns": 673667914
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 66,
+          "wall_ns": 729508806
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 67,
+          "wall_ns": 672262895
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 68,
+          "wall_ns": 700487032
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 69,
+          "wall_ns": 676794383
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 70,
+          "wall_ns": 690266701
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 71,
+          "wall_ns": 686314650
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 72,
+          "wall_ns": 723428029
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 73,
+          "wall_ns": 745528818
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 74,
+          "wall_ns": 769610517
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 75,
+          "wall_ns": 695270396
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 76,
+          "wall_ns": 697037343
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 77,
+          "wall_ns": 725897506
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 78,
+          "wall_ns": 669930855
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 79,
+          "wall_ns": 746441682
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 80,
+          "wall_ns": 684242079
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 81,
+          "wall_ns": 683442909
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 82,
+          "wall_ns": 670239536
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 83,
+          "wall_ns": 678496530
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 84,
+          "wall_ns": 662578290
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 85,
+          "wall_ns": 651939493
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 86,
+          "wall_ns": 697653451
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 87,
+          "wall_ns": 663105159
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 88,
+          "wall_ns": 698034808
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 89,
+          "wall_ns": 679313284
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 90,
+          "wall_ns": 657760063
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 91,
+          "wall_ns": 711265181
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 92,
+          "wall_ns": 706656806
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 93,
+          "wall_ns": 668648878
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 94,
+          "wall_ns": 660182261
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 95,
+          "wall_ns": 684445450
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 96,
+          "wall_ns": 693358577
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Nondeterministic",
+          "eligible": false,
+          "exit_code": 0,
+          "first_reason": "process read randomness via getrandom",
+          "kind": "Executed",
+          "trial": 97,
+          "wall_ns": 775592931
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 98,
+          "wall_ns": 689415783
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 99,
+          "wall_ns": 687998572
+        }
+      ],
+      "workload_id": "zlib-compile-deflate"
+    },
+    {
+      "classification_counts": {
+        "Guarded": 100
+      },
+      "eligible_trials": 100,
+      "policy": "compiler-runtime-v1",
+      "split": "dev",
+      "stable": true,
+      "trials": [
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 0,
+          "wall_ns": 100704406
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 1,
+          "wall_ns": 86144215
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 2,
+          "wall_ns": 94713867
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 3,
+          "wall_ns": 89714039
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 4,
+          "wall_ns": 94566300
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 5,
+          "wall_ns": 98334315
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 6,
+          "wall_ns": 86965017
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 7,
+          "wall_ns": 86220117
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 8,
+          "wall_ns": 100689688
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 9,
+          "wall_ns": 91894243
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 10,
+          "wall_ns": 94473005
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 11,
+          "wall_ns": 93749687
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 12,
+          "wall_ns": 108821627
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 13,
+          "wall_ns": 95808823
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 14,
+          "wall_ns": 119761309
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 15,
+          "wall_ns": 96329601
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 16,
+          "wall_ns": 101909978
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 17,
+          "wall_ns": 95375368
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 18,
+          "wall_ns": 93942809
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 19,
+          "wall_ns": 94583080
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 20,
+          "wall_ns": 97908645
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 21,
+          "wall_ns": 98458858
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 22,
+          "wall_ns": 94494515
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 23,
+          "wall_ns": 97389000
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 24,
+          "wall_ns": 103933789
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 25,
+          "wall_ns": 99086057
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 26,
+          "wall_ns": 97408297
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 27,
+          "wall_ns": 104224164
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 28,
+          "wall_ns": 100863243
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 29,
+          "wall_ns": 103358399
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 30,
+          "wall_ns": 90031395
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 31,
+          "wall_ns": 95015743
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 32,
+          "wall_ns": 95352707
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 33,
+          "wall_ns": 97483286
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 34,
+          "wall_ns": 104745924
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 35,
+          "wall_ns": 92140755
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 36,
+          "wall_ns": 114250040
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 37,
+          "wall_ns": 94568393
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 38,
+          "wall_ns": 110808869
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 39,
+          "wall_ns": 98124781
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 40,
+          "wall_ns": 90931975
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 41,
+          "wall_ns": 110490070
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 42,
+          "wall_ns": 141704892
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 43,
+          "wall_ns": 99702302
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 44,
+          "wall_ns": 103716642
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 45,
+          "wall_ns": 92041910
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 46,
+          "wall_ns": 95121762
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 47,
+          "wall_ns": 88359865
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 48,
+          "wall_ns": 93540192
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 49,
+          "wall_ns": 95183459
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 50,
+          "wall_ns": 104660954
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 51,
+          "wall_ns": 91918838
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 52,
+          "wall_ns": 93490158
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 53,
+          "wall_ns": 89936175
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 54,
+          "wall_ns": 92440788
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 55,
+          "wall_ns": 92926981
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 56,
+          "wall_ns": 100866059
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 57,
+          "wall_ns": 96811004
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 58,
+          "wall_ns": 101993115
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 59,
+          "wall_ns": 100331574
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 60,
+          "wall_ns": 89301945
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 61,
+          "wall_ns": 731400189
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 62,
+          "wall_ns": 96233992
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 63,
+          "wall_ns": 88597992
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 64,
+          "wall_ns": 86760802
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 65,
+          "wall_ns": 95273056
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 66,
+          "wall_ns": 88806725
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 67,
+          "wall_ns": 95712492
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 68,
+          "wall_ns": 97390021
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 69,
+          "wall_ns": 96908447
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 70,
+          "wall_ns": 97072345
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 71,
+          "wall_ns": 89519454
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 72,
+          "wall_ns": 88016952
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 73,
+          "wall_ns": 94642904
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 74,
+          "wall_ns": 89578484
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 75,
+          "wall_ns": 90111314
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 76,
+          "wall_ns": 96760811
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 77,
+          "wall_ns": 84240841
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 78,
+          "wall_ns": 86525630
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 79,
+          "wall_ns": 105220275
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 80,
+          "wall_ns": 104378734
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 81,
+          "wall_ns": 90533437
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 82,
+          "wall_ns": 92422665
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 83,
+          "wall_ns": 89169085
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 84,
+          "wall_ns": 88750850
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 85,
+          "wall_ns": 154709462
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 86,
+          "wall_ns": 95603237
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 87,
+          "wall_ns": 88590338
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 88,
+          "wall_ns": 88931019
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 89,
+          "wall_ns": 92684194
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 90,
+          "wall_ns": 87619575
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 91,
+          "wall_ns": 85809717
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 92,
+          "wall_ns": 93074899
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 93,
+          "wall_ns": 93234208
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 94,
+          "wall_ns": 89504506
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 95,
+          "wall_ns": 91078711
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 96,
+          "wall_ns": 105333758
+        },
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Executed",
+          "trial": 97,
+          "wall_ns": 764186763
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 98,
+          "wall_ns": 89432630
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "eligible": true,
+          "exit_code": 0,
+          "first_reason": "all observed dependencies are guardable or captured outputs",
+          "kind": "Reused",
+          "trial": 99,
+          "wall_ns": 96669268
+        }
+      ],
+      "workload_id": "gcc-cc-heavy-tu"
+    }
+  ],
+  "summary": {
+    "unstable_cells": 1,
+    "workload_policy_cells": 2
+  },
+  "tool": "/workspace/chats/24375cea864939ae012511ac/target/release/tracejit",
+  "unstable": [
+    {
+      "classification_counts": {
+        "Guarded": 98,
+        "Nondeterministic": 2
+      },
+      "policy": "compiler-runtime-v1",
+      "verdict": "the traced program issued an unguardable observation on some runs; refusal is correct and the workload must be reported as unstable, not retried until eligible",
+      "workload_id": "zlib-compile-deflate"
+    }
+  ]
+}

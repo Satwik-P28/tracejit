@@ -1,0 +1,82 @@
+{
+  "adaptations": [],
+  "argv": [
+    "sh",
+    "-c",
+    "sed 's/line/LINE/' link.txt > out.txt"
+  ],
+  "assessment": "ineligible",
+  "classification": "Nondeterministic",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "mtime_ns",
+        "path": "link.txt"
+      },
+      {
+        "field": "atime_ns",
+        "path": "out.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "out.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "out.txt"
+      },
+      {
+        "field": "atime_ns",
+        "path": "real.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "real.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "real.txt"
+      }
+    ],
+    "tree_digest_native": "cc7e2005fbff0375457c2c612ee5d964d15b0e63e3c333fca2a9e5b1090aad40",
+    "tree_digest_traced": "cc7e2005fbff0375457c2c612ee5d964d15b0e63e3c333fca2a9e5b1090aad40"
+  },
+  "cold_ns": 59158143,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 70,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "18b2cf2b057227bdd4339fc17a67ef95afdb4a2fcfc27a6f4ec85ce1898504cc",
+  "environment_tier": "A",
+  "family": "filesystem",
+  "output_count": 1,
+  "policy": "compiler-runtime-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "process read process identity via getpid",
+    "process read process identity via getppid",
+    "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "refusal_categories": {
+    "other:executed under the tracejit.compiler-runtime.v1 co": 1,
+    "process_identity": 2
+  },
+  "required_tools": [
+    "sh"
+  ],
+  "split": "validation",
+  "status": "refused",
+  "workload_id": "fs-symlink-input"
+}
