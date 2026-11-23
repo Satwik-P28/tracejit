@@ -1,0 +1,61 @@
+{
+  "scenario": "edits",
+  "rounds": 16,
+  "units": 3,
+  "functions_per_unit": 220,
+  "edit_rounds": [
+    7,
+    12
+  ],
+  "total_invocations": 48,
+  "reference_objects": {
+    "unit0.o": "e86cf16cfcd62388e383b80a6f162e58",
+    "unit1.o": "a5ebec4ac0d4518929d595257d0ca3e7",
+    "unit2.o": "74cab575db368f9880fd6141ee564dd0"
+  },
+  "arms": {
+    "native": {
+      "arm": "native",
+      "seconds": 24.373,
+      "decisions": {},
+      "objects": {
+        "unit0.o": "e86cf16cfcd62388e383b80a6f162e58",
+        "unit1.o": "a5ebec4ac0d4518929d595257d0ca3e7",
+        "unit2.o": "74cab575db368f9880fd6141ee564dd0"
+      },
+      "cache_bytes": 0,
+      "tool_stats": [],
+      "objects_match_native": true
+    },
+    "tracejit-main": {
+      "arm": "tracejit-main",
+      "seconds": 33.479,
+      "decisions": {
+        "miss": 48
+      },
+      "objects": {
+        "unit0.o": "e86cf16cfcd62388e383b80a6f162e58",
+        "unit1.o": "a5ebec4ac0d4518929d595257d0ca3e7",
+        "unit2.o": "74cab575db368f9880fd6141ee564dd0"
+      },
+      "cache_bytes": 28590272,
+      "tool_stats": [],
+      "objects_match_native": true
+    },
+    "tracejit": {
+      "arm": "tracejit",
+      "seconds": 33.824,
+      "decisions": {
+        "miss": 48
+      },
+      "objects": {
+        "unit0.o": "e86cf16cfcd62388e383b80a6f162e58",
+        "unit1.o": "a5ebec4ac0d4518929d595257d0ca3e7",
+        "unit2.o": "74cab575db368f9880fd6141ee564dd0"
+      },
+      "cache_bytes": 28581406,
+      "tool_stats": [],
+      "objects_match_native": true
+    }
+  }
+}

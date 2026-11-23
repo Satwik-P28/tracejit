@@ -1,0 +1,120 @@
+{
+  "probe": "tracejit-phase-y-verity",
+  "host": {
+    "platform": "Linux-6.1.102-x86_64-with-glibc2.39",
+    "kernel_release": "6.1.102",
+    "kernel_version": "#1 SMP PREEMPT_DYNAMIC Sun Nov  8 09:00:04 UTC 2026",
+    "machine": "x86_64"
+  },
+  "os_release": {
+    "PRETTY_NAME": "Ubuntu 24.04.5 LTS",
+    "NAME": "Ubuntu",
+    "VERSION_ID": "24.04",
+    "VERSION": "24.04.5 LTS (Noble Numbat)",
+    "VERSION_CODENAME": "noble",
+    "ID": "ubuntu",
+    "ID_LIKE": "debian",
+    "HOME_URL": "https://www.ubuntu.com/",
+    "SUPPORT_URL": "https://help.ubuntu.com/",
+    "BUG_REPORT_URL": "https://bugs.launchpad.net/ubuntu/",
+    "PRIVACY_POLICY_URL": "https://www.ubuntu.com/legal/terms-and-policies/privacy-policy",
+    "UBUNTU_CODENAME": "noble",
+    "LOGO": "ubuntu-logo"
+  },
+  "kernel_config": {
+    "published": true,
+    "entries": [
+      "# CONFIG_FS_VERITY is not set"
+    ]
+  },
+  "process": {
+    "uid": 38075502,
+    "euid": 38075502,
+    "gid": 1001,
+    "groups": [
+      1001
+    ],
+    "capeff": "0000000000000000",
+    "capbnd": "000001ffffffffff",
+    "nonewprivs": "1",
+    "effective_named": [],
+    "can_override_file_access": false,
+    "has_cap_sys_admin": false,
+    "has_cap_linux_immutable": false,
+    "unprivileged_userns_clone": null,
+    "max_user_namespaces": "15641",
+    "kvm_device": true,
+    "kvm_usable": false,
+    "tools": {
+      "qemu-system-x86_64": null,
+      "firecracker": null,
+      "mke2fs": "/usr/sbin/mke2fs",
+      "tune2fs": "/usr/sbin/tune2fs",
+      "fsverity": null,
+      "docker": "/usr/bin/docker"
+    }
+  },
+  "fsverity_util": {
+    "available": false,
+    "path": null
+  },
+  "ioctl_numbers": {
+    "FS_IOC_GETFLAGS": "0x80086601",
+    "FS_IOC_ENABLE_VERITY": "0x40806685",
+    "FS_IOC_MEASURE_VERITY": "0xc0046686"
+  },
+  "mount": {
+    "state": "ok",
+    "mount_point": "/",
+    "fs_type": "ext4",
+    "options": "rw,relatime",
+    "super_options": "rw,errors=remount-ro"
+  },
+  "lifecycle": {
+    "directory": "/tmp/tracejit-verity-probe-4kmvgzg8",
+    "file_size": 1048576,
+    "getflags_before": {
+      "state": "ok",
+      "flags": 524288,
+      "verity_flag": false
+    },
+    "statx_before": {
+      "state": "ok",
+      "attributes": 1795400199,
+      "verity": false
+    },
+    "measure_before": {
+      "state": "unavailable",
+      "errno": 95,
+      "detail": "EOPNOTSUPP (kernel or superblock has no fs-verity)"
+    },
+    "measure_cost_unsupported": {
+      "rounds": 500,
+      "mean_ns": 1936.5420157555493,
+      "outcomes": {
+        "errno 95": 500
+      }
+    },
+    "hash_cost": {
+      "state": "ok",
+      "algorithm": "sha256",
+      "rounds": 10,
+      "bytes": 1048576,
+      "mean_ns": 1451908.5001666099,
+      "bytes_per_second": 722205290.4020284
+    },
+    "enable": {
+      "state": "unavailable",
+      "errno": 95,
+      "detail": "EOPNOTSUPP (kernel or superblock has no fs-verity)"
+    },
+    "state": "verity-unavailable"
+  },
+  "verdict": {
+    "fs_verity_supported_here": false,
+    "kernel_configured_for_fs_verity": false,
+    "kernel_measurement_available": false,
+    "enable_errno": "EOPNOTSUPP (kernel or superblock has no fs-verity)",
+    "conclusion": "fs-verity is NOT available here: a kernel-verified content guard cannot be tested or used on this host"
+  }
+}
