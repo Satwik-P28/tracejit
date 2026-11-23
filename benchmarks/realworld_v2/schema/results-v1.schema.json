@@ -184,6 +184,7 @@
             "enum": [
               "clear_win",
               "marginal_win",
+              "indistinguishable",
               "loss",
               "ineligible",
               "unsafe_or_unresolved",

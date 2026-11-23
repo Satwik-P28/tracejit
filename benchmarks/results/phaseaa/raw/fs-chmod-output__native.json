@@ -1,0 +1,68 @@
+{
+  "adaptations": [],
+  "argv": [
+    "sh",
+    "-c",
+    "cat seed.txt > out.txt && chmod 640 out.txt"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "out.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "out.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "out.txt"
+      },
+      {
+        "field": "atime_ns",
+        "path": "seed.txt"
+      }
+    ],
+    "tree_digest_native": "b7bab2ba2e6f624ac94bf16bab2feb6716adfb53cfd91bfdc928336dc53b68e2",
+    "tree_digest_traced": "b7bab2ba2e6f624ac94bf16bab2feb6716adfb53cfd91bfdc928336dc53b68e2"
+  },
+  "cold_ns": 47558862,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 68,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "8ca51a29f07fc1ebc8ff8fb8eec78d0d45ce1ff093fc863aa4613010c69c306d",
+  "environment_tier": "A",
+  "family": "filesystem",
+  "output_count": 1,
+  "policy": "native",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "unmodeled successful syscall 326: unmodeled syscall 326 args [0x3, 0x0, 0x1, 0x0, 0x7fffffffc0000000, 0x0]",
+    "unmodeled successful syscall 326: unmodeled syscall 326 args [0x3, 0x0, 0x1, 0x0, 0x7fffffffc0000000, 0x0]"
+  ],
+  "refusal_categories": {
+    "unmodeled_syscall:326": 2
+  },
+  "required_tools": [
+    "sh"
+  ],
+  "split": "heldout",
+  "status": "refused",
+  "workload_id": "fs-chmod-output"
+}

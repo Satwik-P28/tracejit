@@ -1,0 +1,84 @@
+{
+  "adaptations": [
+    "PYTHONHASHSEED=0",
+    "PYTHONDONTWRITEBYTECODE=1"
+  ],
+  "argv": [
+    "/opt/freestyle/python/bin/python3",
+    "-m",
+    "py_compile",
+    "module.py"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "mtime_ns",
+        "path": "__pycache__"
+      },
+      {
+        "field": "atime_ns",
+        "path": "__pycache__/module.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "__pycache__/module.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "__pycache__/module.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "module.py"
+      }
+    ],
+    "tree_digest_native": "d011427a0126d68a48b1ba92e976130612183d9f5195a599477dafcddaa938dd",
+    "tree_digest_traced": "d011427a0126d68a48b1ba92e976130612183d9f5195a599477dafcddaa938dd"
+  },
+  "cold_ns": 252567432,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 226,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONHASHSEED": "0"
+  },
+  "environment_digest": "26d2529f30624c1651420add655b326bfd796c509e55f589905f58cd5f0f7b91",
+  "environment_tier": "C",
+  "family": "analysis",
+  "output_count": 2,
+  "policy": "compiler-runtime-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded",
+    "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution",
+    "non-file output cannot be restored: /tmp/tracejit-realworld-v2/qualify/py-compile__compiler-runtime-v1/traced/__pycache__"
+  ],
+  "refusal_categories": {
+    "other:executed under the tracejit.compiler-runtime.v1 co": 1,
+    "unmodeled_syscall:72": 3,
+    "unrestorable_output": 1
+  },
+  "required_tools": [
+    "python3"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "py-compile"
+}

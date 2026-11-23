@@ -1,0 +1,553 @@
+{
+  "adaptations": [],
+  "argv": [
+    "cut",
+    "-d",
+    ",",
+    "-f",
+    "1,3",
+    "sales.csv"
+  ],
+  "assessment": "loss",
+  "cache_corruption_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "atime_ns",
+        "path": "sales.csv"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "sales.csv"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "sales.csv"
+      }
+    ],
+    "tree_digest_native": "09784af6d806d68260f9d32104008e96481fe7da89dde803c07df5dec5d8a8e6",
+    "tree_digest_traced": "09784af6d806d68260f9d32104008e96481fe7da89dde803c07df5dec5d8a8e6"
+  },
+  "cache_storage_bytes": 712640,
+  "classification": "Guarded",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "atime_ns",
+        "path": "sales.csv"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "sales.csv"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "sales.csv"
+      }
+    ],
+    "tree_digest_native": "09784af6d806d68260f9d32104008e96481fe7da89dde803c07df5dec5d8a8e6",
+    "tree_digest_traced": "09784af6d806d68260f9d32104008e96481fe7da89dde803c07df5dec5d8a8e6"
+  },
+  "cold_ns": 47277806,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    },
+    {
+      "cache_decision": "Reused",
+      "decision_reason": "all guards passed and cached outputs were restored",
+      "kind": "Reused",
+      "step": "warm"
+    },
+    {
+      "cache_decision": "Deoptimized",
+      "decision_reason": "cached execution deoptimized",
+      "kind": "Executed",
+      "step": "after_mutation"
+    },
+    {
+      "cache_decision": "Reused",
+      "decision_reason": "all guards passed and cached outputs were restored",
+      "kind": "Reused",
+      "step": "retry_after_mutation"
+    },
+    {
+      "cache_decision": "Deoptimized",
+      "decision_reason": "cached execution deoptimized",
+      "kind": "Executed",
+      "step": "input_restored"
+    },
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cache_restart"
+    },
+    {
+      "cache_decision": "Reused",
+      "decision_reason": "all guards passed and cached outputs were restored",
+      "kind": "Reused",
+      "removed_object": "ee987ed093672a7e1864a251a8939892a18c5b8a520ac56d6fbf59d0a28a914d",
+      "step": "cache_object_corruption"
+    }
+  ],
+  "deoptimised_after_mutation": true,
+  "dependency_count": 53,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": true,
+  "environment_adaptations": {},
+  "environment_digest": "3746fef4834eb773e03c4ac59c57078239505780d640c4f4b81bcd3b819ab98f",
+  "environment_tier": "A",
+  "family": "data",
+  "mutation": "appended 12 bytes to sales.csv",
+  "mutation_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "atime_ns",
+        "path": "sales.csv"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "sales.csv"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "sales.csv"
+      }
+    ],
+    "tree_digest_native": "a27f174cd276e36070a434072da4ad9d71bf9f0d8d45bef077feec1af36b257f",
+    "tree_digest_traced": "a27f174cd276e36070a434072da4ad9d71bf9f0d8d45bef077feec1af36b257f"
+  },
+  "output_count": 0,
+  "policy": "allocator-entropy-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "all observed dependencies are guardable or captured outputs",
+    "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "required_tools": [
+    "cut"
+  ],
+  "restored_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "atime_ns",
+        "path": "sales.csv"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "sales.csv"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "sales.csv"
+      }
+    ],
+    "tree_digest_native": "09784af6d806d68260f9d32104008e96481fe7da89dde803c07df5dec5d8a8e6",
+    "tree_digest_traced": "09784af6d806d68260f9d32104008e96481fe7da89dde803c07df5dec5d8a8e6"
+  },
+  "split": "heldout",
+  "status": "reused",
+  "timing": {
+    "additional_hit_overhead": 0,
+    "break_even_repeats": null,
+    "cache_storage_bytes": 322891,
+    "cold": {
+      "max_ns": 67184404,
+      "mean_ns": 52519745,
+      "median_ci95_ns": [
+        43894061,
+        63454991
+      ],
+      "median_ns": 49471544,
+      "min_ns": 43700748,
+      "n": 10,
+      "p05_ns": 43700748,
+      "p95_ns": 67184404,
+      "samples_ns": [
+        67184404,
+        66361328,
+        49693070,
+        43894061,
+        43700748,
+        43720425,
+        45050613,
+        52887799,
+        63454991,
+        49250018
+      ]
+    },
+    "cold_ratio": {
+      "geometric_mean_ratio": 0.06872642704017652,
+      "median_ratio": 0.06672134984101727,
+      "pairs": 10,
+      "ratio_ci95": [
+        0.0568401410541649,
+        0.0823995878356626
+      ],
+      "ratios": [
+        0.05684014105416489,
+        0.05553671258658356,
+        0.08303930507815274,
+        0.0810702386366119,
+        0.061389040755091884,
+        0.08239958783566262,
+        0.09080901962421688,
+        0.06849275387693861,
+        0.054136340512600495,
+        0.06494994580509594
+      ]
+    },
+    "cold_reps": 10,
+    "cost_model": {
+      "available": true,
+      "instrumented": true,
+      "note": "instrumented two-run session; the breakdown is not a timed sample",
+      "stages_ns": {
+        "cache_prepare_ns": 28324,
+        "cas_restore_ns": 4091993,
+        "cli_parse_ns": 151585,
+        "decision_persist_ns": 8180972,
+        "guard_recheck_ns": 0,
+        "guard_validation_ns": 6226703,
+        "identity_prepare_ns": 280787,
+        "lookup_key_ns": 6663,
+        "process_startup_ns": 4310263,
+        "record_decode_ns": 721224,
+        "sqlite_open_ns": 259607,
+        "sqlite_query_ns": 862790,
+        "sqlite_schema_ns": 376518,
+        "stdio_replay_ns": 111609
+      }
+    },
+    "direct": {
+      "max_ns": 6362718,
+      "mean_ns": 3624737,
+      "median_ci95_ns": [
+        3443982,
+        3721168
+      ],
+      "median_ns": 3580523,
+      "min_ns": 2658491,
+      "n": 20,
+      "p05_ns": 2658491,
+      "p95_ns": 4126478,
+      "samples_ns": [
+        3818771,
+        3685490,
+        4126478,
+        3558502,
+        2682747,
+        3602545,
+        4091002,
+        3622431,
+        3435221,
+        3198786,
+        3717191,
+        3819611,
+        2658491,
+        3247628,
+        3470937,
+        3725145,
+        2679763,
+        3452743,
+        3538555,
+        6362718
+      ]
+    },
+    "environment_digest": "53f7a67a656da73d5f8025e6eda72008745e3b350a7f895fdb7e275040feffa2",
+    "policy": "allocator-entropy-v1",
+    "reps": 20,
+    "session": {
+      "10": {
+        "direct_ns": 35805230,
+        "speedup": 0.13435848341501055,
+        "traced_ns": 266490281
+      },
+      "2": {
+        "direct_ns": 7161046,
+        "speedup": 0.09731700202991825,
+        "traced_ns": 73584737
+      },
+      "25": {
+        "direct_ns": 89513075,
+        "speedup": 0.1424940462426023,
+        "traced_ns": 628188176
+      },
+      "5": {
+        "direct_ns": 17902615,
+        "speedup": 0.12268424818246193,
+        "traced_ns": 145924316
+      },
+      "50": {
+        "direct_ns": 179026150,
+        "speedup": 0.14542935184909617,
+        "traced_ns": 1231018001
+      }
+    },
+    "status": "measured",
+    "warm": {
+      "max_ns": 30153751,
+      "mean_ns": 24258306,
+      "median_ci95_ns": [
+        22910580,
+        24648007
+      ],
+      "median_ns": 24113193,
+      "min_ns": 19269042,
+      "n": 20,
+      "p05_ns": 19269042,
+      "p95_ns": 29020672,
+      "samples_ns": [
+        30153751,
+        24643434,
+        29020672,
+        23129271,
+        22691889,
+        26225674,
+        23920667,
+        24557742,
+        25709524,
+        24652581,
+        23765946,
+        19269042,
+        27014826,
+        24305720,
+        22556586,
+        21669830,
+        23362788,
+        22251823,
+        21783383,
+        24480978
+      ]
+    },
+    "warm_decisions": [
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      }
+    ],
+    "warm_ratio": {
+      "geometric_mean_ratio": 0.14752737873622881,
+      "median_ratio": 0.1485296477442014,
+      "pairs": 20,
+      "ratio_ci95": [
+        0.13361623073267315,
+        0.15578628246566514
+      ],
+      "ratios": [
+        0.1266433154535235,
+        0.14955261511037787,
+        0.14219098716942186,
+        0.15385275221168881,
+        0.11822493050270076,
+        0.13736710827717907,
+        0.17102374277439672,
+        0.14750668037802497,
+        0.1336166706159165,
+        0.12975460865537772,
+        0.15640829109011692,
+        0.1982252672447338,
+        0.09840859237812599,
+        0.1336157908508779,
+        0.1538768765805251,
+        0.1719046711487815,
+        0.1147021922212366,
+        0.15516674746154507,
+        0.16244285839348277,
+        0.2599045675381106
+      ]
+    },
+    "workload_id": "cut-columns"
+  },
+  "warm_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "atime_ns",
+        "path": "sales.csv"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "sales.csv"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "sales.csv"
+      }
+    ],
+    "tree_digest_native": "09784af6d806d68260f9d32104008e96481fe7da89dde803c07df5dec5d8a8e6",
+    "tree_digest_traced": "09784af6d806d68260f9d32104008e96481fe7da89dde803c07df5dec5d8a8e6"
+  },
+  "warm_ns": 0,
+  "workload_id": "cut-columns"
+}

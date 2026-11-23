@@ -866,6 +866,12 @@ def applicability(row: dict) -> str:
         return "ineligible"
     direct = timing["direct"]["median_ns"]
     warm = timing["warm"]["median_ns"]
+    # The paired ratio is direct/warm, so an interval that spans 1.0 means the
+    # measurement cannot separate the arms. Saying "win" or "loss" there would be
+    # reading noise as a result.
+    ci_low, ci_high = timing.get("warm_ratio", {}).get("ratio_ci95", [1.0, 1.0])
+    if ci_low <= 1.0 <= ci_high:
+        return "indistinguishable"
     if warm >= direct:
         return "loss"
     break_even = timing.get("break_even_repeats")

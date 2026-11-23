@@ -1,0 +1,378 @@
+{
+  "adaptations": [],
+  "argv": [
+    "gcc",
+    "-O0",
+    "-I",
+    "zlib-1.3.1",
+    "-c",
+    "crc32.c",
+    "-o",
+    "crc32.o"
+  ],
+  "assessment": "marginal_win",
+  "cache_corruption_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "crc32.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "crc32.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "crc32.o"
+      }
+    ],
+    "tree_digest_native": "82d165f2e8595569f76337809c03c9f8c025c25ea23550c1aaf7820366dc9ee7",
+    "tree_digest_traced": "82d165f2e8595569f76337809c03c9f8c025c25ea23550c1aaf7820366dc9ee7"
+  },
+  "cache_storage_bytes": 4464106,
+  "classification": "Guarded",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "crc32.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "crc32.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "crc32.o"
+      }
+    ],
+    "tree_digest_native": "82d165f2e8595569f76337809c03c9f8c025c25ea23550c1aaf7820366dc9ee7",
+    "tree_digest_traced": "82d165f2e8595569f76337809c03c9f8c025c25ea23550c1aaf7820366dc9ee7"
+  },
+  "cold_ns": 420238883,
+  "correctness": {},
+  "corruption_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "crc32.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "crc32.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "crc32.o"
+      }
+    ],
+    "tree_digest_native": "82d165f2e8595569f76337809c03c9f8c025c25ea23550c1aaf7820366dc9ee7",
+    "tree_digest_traced": "82d165f2e8595569f76337809c03c9f8c025c25ea23550c1aaf7820366dc9ee7"
+  },
+  "cost_class": "medium",
+  "decisions": [
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    },
+    {
+      "cache_decision": "Reused",
+      "decision_reason": "all guards passed and cached outputs were restored",
+      "kind": "Reused",
+      "step": "warm"
+    },
+    {
+      "kind": null,
+      "note": "no mutation defined",
+      "step": "after_mutation"
+    },
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cache_restart"
+    },
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "cached object af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262 is corrupt; retracing",
+      "kind": "Executed",
+      "removed_object": "af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262",
+      "step": "cache_object_corruption"
+    },
+    {
+      "cache_decision": "Reused",
+      "decision_reason": "all guards passed and cached outputs were restored",
+      "kind": "Reused",
+      "note": "corrupted an existing output, then reused",
+      "step": "output_corruption"
+    }
+  ],
+  "dependency_count": 514,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": true,
+  "environment_adaptations": {},
+  "environment_digest": "8bf41da8453da37d6cbd41e0e1a4024fd033851832c176554952568c7a89ae90",
+  "environment_tier": "A",
+  "family": "compiler",
+  "mutation": null,
+  "output_count": 2,
+  "policy": "compiler-runtime-v1",
+  "provenance": "zlib-1.3.1@9a93b2b7dfda",
+  "reasons": [
+    "all observed dependencies are guardable or captured outputs",
+    "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "required_tools": [
+    "gcc"
+  ],
+  "split": "heldout",
+  "status": "reused",
+  "timing": {
+    "additional_hit_overhead": 0,
+    "break_even_repeats": 128,
+    "cache_storage_bytes": 2702168,
+    "cold": {
+      "max_ns": 411857265,
+      "mean_ns": 370180832,
+      "median_ci95_ns": [
+        316000773,
+        411857265
+      ],
+      "median_ns": 365457269,
+      "min_ns": 316000773,
+      "n": 5,
+      "p05_ns": 316000773,
+      "p95_ns": 411857265,
+      "samples_ns": [
+        316000773,
+        411857265,
+        354838399,
+        365457269,
+        402750454
+      ]
+    },
+    "cold_ratio": {
+      "geometric_mean_ratio": 0.18978502065434988,
+      "median_ratio": 0.18018262494621545,
+      "pairs": 5,
+      "ratio_ci95": [
+        0.14043631596494965,
+        0.2703405064138878
+      ],
+      "ratios": [
+        0.2703405064138878,
+        0.14043631596494965,
+        0.2085258506647698,
+        0.17260218731618662,
+        0.18018262494621545
+      ]
+    },
+    "cold_reps": 5,
+    "cost_model": {
+      "available": true,
+      "instrumented": true,
+      "note": "instrumented two-run session; the breakdown is not a timed sample",
+      "stages_ns": {
+        "cache_prepare_ns": 21901,
+        "cas_restore_ns": 4883991,
+        "cli_parse_ns": 134893,
+        "decision_persist_ns": 26134083,
+        "guard_recheck_ns": 0,
+        "guard_validation_ns": 52625255,
+        "identity_prepare_ns": 614353,
+        "lookup_key_ns": 6162,
+        "process_startup_ns": 3248185,
+        "record_decode_ns": 4058541,
+        "sqlite_open_ns": 183445,
+        "sqlite_query_ns": 3572950,
+        "sqlite_schema_ns": 275097,
+        "stdio_replay_ns": 78938
+      }
+    },
+    "direct": {
+      "max_ns": 92255911,
+      "mean_ns": 74845838,
+      "median_ci95_ns": [
+        65749699,
+        84709872
+      ],
+      "median_ns": 73280806,
+      "min_ns": 57839717,
+      "n": 10,
+      "p05_ns": 57839717,
+      "p95_ns": 92255911,
+      "samples_ns": [
+        85427809,
+        57839717,
+        73992979,
+        63078724,
+        72568634,
+        65749699,
+        80405589,
+        72429452,
+        92255911,
+        84709872
+      ]
+    },
+    "environment_digest": "3e6203e70cc5828a1ac7d5fafea918e1c207c0c0ab7aa0c763906ed7d6a374b2",
+    "policy": "compiler-runtime-v1",
+    "reps": 10,
+    "session": {
+      "10": {
+        "direct_ns": 732808060,
+        "speedup": 0.72965992764896,
+        "traced_ns": 1004314520
+      },
+      "2": {
+        "direct_ns": 146561612,
+        "speedup": 0.33581051044542504,
+        "traced_ns": 436441408
+      },
+      "25": {
+        "direct_ns": 1832020150,
+        "speedup": 0.8854288650177841,
+        "traced_ns": 2069076605
+      },
+      "5": {
+        "direct_ns": 366404030,
+        "speedup": 0.5642246906182085,
+        "traced_ns": 649393825
+      },
+      "50": {
+        "direct_ns": 3664040300,
+        "speedup": 0.9532635973179121,
+        "traced_ns": 3843680080
+      }
+    },
+    "status": "measured",
+    "warm": {
+      "max_ns": 82483982,
+      "mean_ns": 72806441,
+      "median_ci95_ns": [
+        68144026,
+        79209033
+      ],
+      "median_ns": 70984139,
+      "min_ns": 66476724,
+      "n": 10,
+      "p05_ns": 66476724,
+      "p95_ns": 82483982,
+      "samples_ns": [
+        79855996,
+        73123917,
+        69723181,
+        72245097,
+        68809294,
+        79209033,
+        82483982,
+        66564871,
+        69572318,
+        66476724
+      ]
+    },
+    "warm_decisions": [
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": "all guards passed and cached outputs were restored",
+        "kind": "Reused"
+      }
+    ],
+    "warm_ratio": {
+      "geometric_mean_ratio": 1.0209338565101345,
+      "median_ratio": 1.0579367389694725,
+      "pairs": 10,
+      "ratio_ci95": [
+        0.8731211752681293,
+        1.1675569592763926
+      ],
+      "ratios": [
+        1.0697732578527979,
+        0.7909822035381392,
+        1.06123928855168,
+        0.8731211752681293,
+        1.054634189387265,
+        0.8300782942268718,
+        0.974802465283502,
+        1.088103242925236,
+        1.3260433697206984,
+        1.2742786783536446
+      ]
+    },
+    "workload_id": "gcc-noopt-compile"
+  },
+  "warm_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "crc32.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "crc32.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "crc32.o"
+      }
+    ],
+    "tree_digest_native": "82d165f2e8595569f76337809c03c9f8c025c25ea23550c1aaf7820366dc9ee7",
+    "tree_digest_traced": "82d165f2e8595569f76337809c03c9f8c025c25ea23550c1aaf7820366dc9ee7"
+  },
+  "warm_ns": 0,
+  "workload_id": "gcc-noopt-compile"
+}

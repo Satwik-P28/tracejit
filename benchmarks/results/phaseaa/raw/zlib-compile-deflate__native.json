@@ -1,0 +1,68 @@
+{
+  "adaptations": [],
+  "argv": [
+    "gcc",
+    "-O2",
+    "-I",
+    "zlib-1.3.1",
+    "-c",
+    "deflate.c",
+    "-o",
+    "deflate.o"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "deflate.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "deflate.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "deflate.o"
+      }
+    ],
+    "tree_digest_native": "b501a3a379eb0a235144c7535c53e12c2e715ded7ad8e2a48e8005622780eacf",
+    "tree_digest_traced": "b501a3a379eb0a235144c7535c53e12c2e715ded7ad8e2a48e8005622780eacf"
+  },
+  "cold_ns": 807105212,
+  "correctness": {},
+  "cost_class": "heavy",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 546,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "774130a76b494c738954003c501fdd5c31b994bfcc7d2e16510da053a4276c5f",
+  "environment_tier": "A",
+  "family": "real-project",
+  "output_count": 2,
+  "policy": "native",
+  "provenance": "zlib-1.3.1@9a93b2b7dfda",
+  "reasons": [
+    "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffe2be63350, 0x7ffe2be638e8, 0x7ffe2be634a0, 0x0, 0x7f7dc48bc380]"
+  ],
+  "refusal_categories": {
+    "unmodeled_syscall:98": 1
+  },
+  "required_tools": [
+    "gcc"
+  ],
+  "split": "validation",
+  "status": "refused",
+  "workload_id": "zlib-compile-deflate"
+}

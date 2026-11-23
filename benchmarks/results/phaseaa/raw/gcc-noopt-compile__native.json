@@ -1,0 +1,68 @@
+{
+  "adaptations": [],
+  "argv": [
+    "gcc",
+    "-O0",
+    "-I",
+    "zlib-1.3.1",
+    "-c",
+    "crc32.c",
+    "-o",
+    "crc32.o"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "crc32.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "crc32.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "crc32.o"
+      }
+    ],
+    "tree_digest_native": "82d165f2e8595569f76337809c03c9f8c025c25ea23550c1aaf7820366dc9ee7",
+    "tree_digest_traced": "82d165f2e8595569f76337809c03c9f8c025c25ea23550c1aaf7820366dc9ee7"
+  },
+  "cold_ns": 343108273,
+  "correctness": {},
+  "cost_class": "medium",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 510,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "921a956ad9783203223d39bb4926d1fe82c5386e42a9e0472dba26a2f1a550a3",
+  "environment_tier": "A",
+  "family": "compiler",
+  "output_count": 2,
+  "policy": "native",
+  "provenance": "zlib-1.3.1@9a93b2b7dfda",
+  "reasons": [
+    "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fffe9ea84c0, 0x7fffe9ea8a58, 0x7fffe9ea8610, 0x0, 0x7f936d2f4380]"
+  ],
+  "refusal_categories": {
+    "unmodeled_syscall:98": 1
+  },
+  "required_tools": [
+    "gcc"
+  ],
+  "split": "heldout",
+  "status": "refused",
+  "workload_id": "gcc-noopt-compile"
+}

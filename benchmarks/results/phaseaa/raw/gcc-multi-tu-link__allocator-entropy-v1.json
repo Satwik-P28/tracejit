@@ -1,0 +1,119 @@
+{
+  "adaptations": [],
+  "argv": [
+    "gcc",
+    "-O1",
+    "-Wall",
+    "main.c",
+    "util.c",
+    "-o",
+    "app"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "atime_ns",
+        "path": "app"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "app"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "app"
+      },
+      {
+        "field": "atime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.h"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "util.h"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "util.h"
+      }
+    ],
+    "tree_digest_native": "260885b232b2d3eed9ecb46352001b25ba60661c26dfb0a8e7536388f406f2fb",
+    "tree_digest_traced": "260885b232b2d3eed9ecb46352001b25ba60661c26dfb0a8e7536388f406f2fb"
+  },
+  "cold_ns": 476047546,
+  "correctness": {},
+  "cost_class": "medium",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 439,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "4c81d5f70bc509a11210bda23f7548b5c82dc2b141952d3d140d738b8f10646d",
+  "environment_tier": "A",
+  "family": "compiler",
+  "output_count": 7,
+  "policy": "allocator-entropy-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fff2d3bedd0, 0x7fff2d3bf358, 0x7fff2d3bef20, 0x0, 0x7f3e27d16380]",
+    "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffca1fe9ac0, 0x7ffca1fea048, 0x7ffca1fe9c10, 0x0, 0x7fd0bc306380]",
+    "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffe9b55f800, 0x7ffe9b55fcd8, 0x7ffe9b55f730, 0x0, 0x7f0d13f38380]",
+    "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "refusal_categories": {
+    "other:executed under the tracejit.allocator-entropy.v1 c": 1,
+    "unmodeled_syscall:98": 3
+  },
+  "required_tools": [
+    "gcc"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "gcc-multi-tu-link"
+}

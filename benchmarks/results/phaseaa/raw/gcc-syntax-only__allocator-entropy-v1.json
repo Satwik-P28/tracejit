@@ -1,0 +1,86 @@
+{
+  "adaptations": [],
+  "argv": [
+    "gcc",
+    "-fsyntax-only",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-I",
+    ".",
+    "main.c",
+    "util.c"
+  ],
+  "assessment": "ineligible",
+  "classification": "Nondeterministic",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "atime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.h"
+      }
+    ],
+    "tree_digest_native": "951f344a0ee4a2c7f724cb4d299c6ba440d382e32860cd461446eedc433327f9",
+    "tree_digest_traced": "951f344a0ee4a2c7f724cb4d299c6ba440d382e32860cd461446eedc433327f9"
+  },
+  "cold_ns": 226623447,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 290,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "055f3b981df0da55ae468db65f77ba1c28d421eae193703c26fe3ab87ef273cd",
+  "environment_tier": "A",
+  "family": "compiler",
+  "output_count": 0,
+  "policy": "allocator-entropy-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "process read system information via prlimit64",
+    "process read system information via sysinfo",
+    "process read system clock: realtime",
+    "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "refusal_categories": {
+    "clock": 1,
+    "other:executed under the tracejit.allocator-entropy.v1 c": 1,
+    "system_information": 2
+  },
+  "required_tools": [
+    "gcc"
+  ],
+  "split": "validation",
+  "status": "refused",
+  "workload_id": "gcc-syntax-only"
+}

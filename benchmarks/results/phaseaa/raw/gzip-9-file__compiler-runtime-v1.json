@@ -1,0 +1,366 @@
+{
+  "adaptations": [],
+  "argv": [
+    "gzip",
+    "-9",
+    "-n",
+    "-k",
+    "-f",
+    "corpus.bin"
+  ],
+  "assessment": "ineligible",
+  "cache_corruption_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin.gz"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin.gz"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin.gz"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      }
+    ],
+    "tree_digest_native": "3381356289578ad9859f68b3b03c270f0640f665be6d2225aa1dde96c3da8500",
+    "tree_digest_traced": "3381356289578ad9859f68b3b03c270f0640f665be6d2225aa1dde96c3da8500"
+  },
+  "cache_storage_bytes": 1368773,
+  "classification": "Guarded",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin.gz"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin.gz"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin.gz"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      }
+    ],
+    "tree_digest_native": "3381356289578ad9859f68b3b03c270f0640f665be6d2225aa1dde96c3da8500",
+    "tree_digest_traced": "3381356289578ad9859f68b3b03c270f0640f665be6d2225aa1dde96c3da8500"
+  },
+  "cold_ns": 80454772,
+  "correctness": {},
+  "corruption_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin.gz"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin.gz"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin.gz"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      }
+    ],
+    "tree_digest_native": "3381356289578ad9859f68b3b03c270f0640f665be6d2225aa1dde96c3da8500",
+    "tree_digest_traced": "3381356289578ad9859f68b3b03c270f0640f665be6d2225aa1dde96c3da8500"
+  },
+  "cost_class": "medium",
+  "decisions": [
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    },
+    {
+      "cache_decision": "Reused",
+      "decision_reason": "all guards passed and cached outputs were restored",
+      "kind": "Reused",
+      "step": "warm"
+    },
+    {
+      "cache_decision": "Deoptimized",
+      "decision_reason": "cached execution deoptimized",
+      "kind": "Executed",
+      "step": "after_mutation"
+    },
+    {
+      "cache_decision": "Reused",
+      "decision_reason": "all guards passed and cached outputs were restored",
+      "kind": "Reused",
+      "step": "retry_after_mutation"
+    },
+    {
+      "cache_decision": "Deoptimized",
+      "decision_reason": "cached execution deoptimized",
+      "kind": "Executed",
+      "step": "input_restored"
+    },
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cache_restart"
+    },
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "cached object d81d6e63e48e7c9efbd1927add6b26aff45201bfa8353bcff02d6a52e82005bc is corrupt; retracing",
+      "kind": "Executed",
+      "removed_object": "d81d6e63e48e7c9efbd1927add6b26aff45201bfa8353bcff02d6a52e82005bc",
+      "step": "cache_object_corruption"
+    },
+    {
+      "cache_decision": "Deoptimized",
+      "decision_reason": "cached execution deoptimized",
+      "kind": "Executed",
+      "note": "corrupted an existing output, then reused",
+      "step": "output_corruption"
+    }
+  ],
+  "deoptimised_after_mutation": true,
+  "dependency_count": 10,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": true,
+  "environment_adaptations": {},
+  "environment_digest": "28bb40b2fde9991cc8db39e8f48a28c246fcecf5f4f6b0306dfc382cf0e1c27a",
+  "environment_tier": "A",
+  "family": "compression",
+  "mutation": "appended 12 bytes to corpus.bin",
+  "mutation_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin.gz"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin.gz"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin.gz"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      }
+    ],
+    "tree_digest_native": "58a2454e7f40ca4115ad21503f57144d1accc8a82043ae4c6c708d21950fe28f",
+    "tree_digest_traced": "58a2454e7f40ca4115ad21503f57144d1accc8a82043ae4c6c708d21950fe28f"
+  },
+  "output_count": 1,
+  "policy": "compiler-runtime-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "all observed dependencies are guardable or captured outputs",
+    "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "required_tools": [
+    "gzip"
+  ],
+  "restored_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin.gz"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin.gz"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin.gz"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      }
+    ],
+    "tree_digest_native": "3381356289578ad9859f68b3b03c270f0640f665be6d2225aa1dde96c3da8500",
+    "tree_digest_traced": "3381356289578ad9859f68b3b03c270f0640f665be6d2225aa1dde96c3da8500"
+  },
+  "split": "dev",
+  "status": "reused",
+  "timing": {
+    "policy": "compiler-runtime-v1",
+    "prime": {
+      "cache_decision": "Executed",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed"
+    },
+    "status": "not_eligible_for_timing",
+    "workload_id": "gzip-9-file"
+  },
+  "warm_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin.gz"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin.gz"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin.gz"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      }
+    ],
+    "tree_digest_native": "3381356289578ad9859f68b3b03c270f0640f665be6d2225aa1dde96c3da8500",
+    "tree_digest_traced": "3381356289578ad9859f68b3b03c270f0640f665be6d2225aa1dde96c3da8500"
+  },
+  "warm_ns": 0,
+  "workload_id": "gzip-9-file"
+}

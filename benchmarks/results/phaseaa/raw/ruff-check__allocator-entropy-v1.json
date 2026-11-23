@@ -1,0 +1,23 @@
+{
+  "adaptations": [],
+  "assessment": "unavailable",
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [],
+  "environment_adaptations": {},
+  "environment_tier": "C",
+  "family": "analysis",
+  "policy": "allocator-entropy-v1",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "required_tools": [
+    "ruff"
+  ],
+  "split": "validation",
+  "status": "tool_unavailable",
+  "tool_evidence": {
+    "note": "not an eligibility measurement",
+    "path": null,
+    "tool": "ruff"
+  },
+  "workload_id": "ruff-check"
+}

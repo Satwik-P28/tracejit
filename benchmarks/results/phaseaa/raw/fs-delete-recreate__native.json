@@ -1,0 +1,70 @@
+{
+  "adaptations": [],
+  "argv": [
+    "sh",
+    "-c",
+    "rm -f out.dat && cat seed.txt > out.dat"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "out.dat"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "out.dat"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "out.dat"
+      },
+      {
+        "field": "atime_ns",
+        "path": "seed.txt"
+      }
+    ],
+    "tree_digest_native": "415b7f5435abaaba8c222553f34e0fccb5acf9b457375eb07b468ac92cd762bb",
+    "tree_digest_traced": "415b7f5435abaaba8c222553f34e0fccb5acf9b457375eb07b468ac92cd762bb"
+  },
+  "cold_ns": 74276260,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 70,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "9c081d707d156bc89f69b3808a195f637e7caa0e3711640082a4142efe313b3c",
+  "environment_tier": "A",
+  "family": "filesystem",
+  "output_count": 1,
+  "policy": "native",
+  "provenance": "corpus.py@0fd8cfa62bfc",
+  "reasons": [
+    "failed filesystem effect is not guardable: /tmp/tracejit-realworld-v2/qualify/fs-delete-recreate__native/traced/out.dat (errno 2)",
+    "unmodeled successful syscall 326: unmodeled syscall 326 args [0x3, 0x0, 0x1, 0x0, 0x7fffffffc0000000, 0x0]",
+    "unmodeled successful syscall 326: unmodeled syscall 326 args [0x3, 0x0, 0x1, 0x0, 0x7fffffffc0000000, 0x0]"
+  ],
+  "refusal_categories": {
+    "other:failed filesystem effect is not guardable: /tmp/tr": 1,
+    "unmodeled_syscall:326": 2
+  },
+  "required_tools": [
+    "sh"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "fs-delete-recreate"
+}

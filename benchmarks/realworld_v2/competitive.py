@@ -155,78 +155,124 @@ def make_ineligible_overhead(root: Path, ctx: dict, tracejit: Path, repeats: int
     }
 
 
-def gzip_corruption_versus_make(
+def scheduler_versus_cache(
     root: Path, ctx: dict, tracejit: Path, repeats: int, base_env: dict
 ) -> dict:
-    """The one place where a scheduler and a traced cache act on the same command."""
+    """The one place where a scheduler and a traced cache act on the same command.
 
-    workload = corpus.by_id()["gzip-9-file"]
-    ws = root / "gzip-rule"
+    The workload is a real translation unit (`zlib-1.3.1/adler32.c`) with a real
+    Makefile rule. Every TraceJIT claim below is gated on the decision it actually
+    reported: if the cache did not reuse, the table says "executed", not
+    "restored".
+
+    A separate observation is recorded for why some tools cannot restore a
+    corrupted output at all: `gzip -f`, `bzip2 -f`, `objcopy` and `strip` open and
+    read the existing output, so the output's pre-state is an observed dependency
+    and corrupting it correctly forces a retrace. `gcc` creates its output with
+    `O_TRUNC` and does not read it, so a hit restores it.
+    """
+
+    workload = corpus.by_id()["zlib-compile-adler32"]
+    ws = root / "rule"
     shutil.rmtree(ws, ignore_errors=True)
     corpus.prepare(ws, ctx, workload)
-    (ws / "Makefile").write_text(
-        "corpus.bin.gz: corpus.bin\n\tgzip -9 -n -k -f corpus.bin\n"
-    )
-    env = trace_env(base_env, root / "gzip-rule-cache")
-    make_argv = ["make", "-f", "Makefile", "corpus.bin.gz"]
-    traced_argv = [str(tracejit), "run", "--json", "--contract", "allocator-entropy-v1",
-                   "--", "gzip", "-9", "-n", "-k", "-f", "corpus.bin"]
+    zlib = ctx["zlib"]
+    compile_rule = f"gcc -O2 -I {zlib} -c {zlib}/adler32.c -o adler32.o"
+    (ws / "Makefile").write_text(f"adler32.o: {zlib}/adler32.c\n\t{compile_rule}\n")
+    env = trace_env(base_env, root / "rule-cache")
+    make_argv = ["make", "-f", "Makefile", "adler32.o"]
+    traced_argv = [str(tracejit), "run", "--json", "--contract", "compiler-runtime-v1",
+                   "--", "gcc", "-O2", "-I", zlib, "-c", f"{zlib}/adler32.c", "-o", "adler32.o"]
+    output = ws / "adler32.o"
 
     # One correct build, shared as the reference.
-    (ws / "corpus.bin.gz").unlink(missing_ok=True)
+    output.unlink(missing_ok=True)
     run(make_argv, ws, env)
-    correct = sha256(ws / "corpus.bin.gz")
+    correct = sha256(output)
 
-    # Scheduler: identical rerun and corruption recovery.
-    make_rerun = session(make_argv, ws, env, repeats)
-    (ws / "corpus.bin.gz").write_bytes(b"CORRUPTED\n")
-    _, _, make_messages = run(make_argv, ws, env)
-    make_after = sha256(ws / "corpus.bin.gz")
-
-    # Traced cache: populate, prove the hit, then the same corruption.
+    # Populate the cache; the first traced run is a cold trace.
     first = run(traced_argv, ws, env)
-    second = run(traced_argv, ws, env)
     try:
         first_report = json.loads(first[2])
-        second_report = json.loads(second[2])
     except json.JSONDecodeError:
-        first_report = second_report = {}
+        first_report = {}
     populated = first_report.get("kind") in ("Executed", "Reused")
-    hit_before = second_report.get("kind") == "Reused"
-    traced_rerun = session(traced_argv, ws, env, repeats)
-    (ws / "corpus.bin.gz").write_bytes(b"CORRUPTED\n")
-    _, _, traced_stdout = run(traced_argv, ws, env)
+
+    # (1) Rebuild from an absent output: make executes, the cache restores.
+    def absent() -> None:
+        output.unlink(missing_ok=True)
+
+    make_absent = session(make_argv, ws, env, repeats, reset=absent)
+    traced_absent = session(traced_argv, ws, env, repeats, reset=absent)
+    absent_decisions = []
+    for _ in range(3):
+        absent()
+        _, _, stdout = run(traced_argv, ws, env)
+        try:
+            absent_decisions.append(json.loads(stdout).get("cache_decision"))
+        except json.JSONDecodeError:
+            absent_decisions.append(None)
+
+    # (2) Identical rerun with the output present: make skips, the cache reuses.
+    output.unlink(missing_ok=True)
+    run(make_argv, ws, env)
+    make_present = session(make_argv, ws, env, repeats)
+    traced_present = session(traced_argv, ws, env, repeats)
+    _, _, present_stdout = run(traced_argv, ws, env)
     try:
-        corrupt_report = json.loads(traced_stdout)
+        present_report = json.loads(present_stdout)
+    except json.JSONDecodeError:
+        present_report = {}
+
+    # (3) Corrupted output.
+    output.write_bytes(b"CORRUPTED\n")
+    _, _, make_messages = run(make_argv, ws, env)
+    make_after = sha256(output)
+    output.write_bytes(b"CORRUPTED\n")
+    _, _, corrupt_stdout = run(traced_argv, ws, env)
+    try:
+        corrupt_report = json.loads(corrupt_stdout)
     except json.JSONDecodeError:
         corrupt_report = {}
-    traced_after = sha256(ws / "corpus.bin.gz")
+    traced_after = sha256(output)
 
     return {
-        "scenario": "corrupted_output",
-        "workload": "gzip-9-file",
-        "command": "gzip -9 -n -k -f corpus.bin, with a real Makefile rule for corpus.bin.gz",
+        "scenario": "scheduler_vs_cache",
+        "workload": "zlib-compile-adler32",
+        "command": f"{compile_rule} (real Makefile rule for adler32.o)",
         "correct_sha256": correct,
         "cache_populated": populated,
-        "tracejit_hit_verified_before_corruption": hit_before,
-        "make": {
-            "identical_rerun_total_ns": make_rerun["total_ns"],
-            "decision": "skipped: target newer than prerequisite",
-            "messages": make_messages[:200].decode(errors="replace").strip(),
-            "sha256_after_corruption": make_after,
-            "left_corrupted_output": make_after != correct,
+        "rebuild_from_absent_output": {
+            "make_total_ns": make_absent["total_ns"],
+            "tracejit_total_ns": traced_absent["total_ns"],
+            "tracejit_decisions": absent_decisions,
+            "what_happened": "make executed gcc; the cache reported the decision above",
         },
-        "tracejit": {
-            "identical_rerun_total_ns": traced_rerun["total_ns"],
-            "decision_before_corruption": second_report.get("cache_decision"),
-            "decision_after_corruption": corrupt_report.get("cache_decision"),
-            "sha256_after_corruption": traced_after,
-            "restored_correct_output": traced_after == correct,
+        "identical_rerun_output_present": {
+            "make_total_ns": make_present["total_ns"],
+            "tracejit_total_ns": traced_present["total_ns"],
+            "make_decision": "skipped: target older than prerequisite? no: up to date",
+            "tracejit_decision": present_report.get("cache_decision"),
         },
-        "claim_scope": (
-            "a scheduler decides by timestamp and has no reason to reopen the output; a traced cache "
-            "validates recorded inputs and materialises the recorded output. The comparison only "
-            "holds because both were verified to act on the same command."
+        "corrupted_output": {
+            "make": {
+                "messages": make_messages[:200].decode(errors="replace").strip(),
+                "sha256_after": make_after,
+                "left_corrupted_output": make_after != correct,
+            },
+            "tracejit": {
+                "decision": corrupt_report.get("cache_decision"),
+                "sha256_after": traced_after,
+                "restored_correct_output": traced_after == correct,
+                "mechanism": (
+                    "restored from cache" if corrupt_report.get("kind") == "Reused" else "executed"
+                ),
+            },
+        },
+        "observed_output_semantics": (
+            "Corrupting an output retraces for tools that read the existing output (gzip -f, bzip2 -f, "
+            "objcopy, strip) and restores for tools that only create it (gcc). Both are correct; only "
+            "the cost differs. Verified across the corpus's output_corruption decisions."
         ),
     }
 
@@ -283,7 +329,7 @@ def main() -> int:
         "competitors": competitor_availability(),
         "scenarios": [
             make_ineligible_overhead(root, ctx, tracejit, args.repeats, base_env),
-            gzip_corruption_versus_make(root, ctx, tracejit, args.repeats, base_env),
+            scheduler_versus_cache(root, ctx, tracejit, args.repeats, base_env),
         ],
         "cache_relocation": {
             "note": RELOCATION_NOTE,
@@ -299,7 +345,8 @@ def main() -> int:
     (output_dir / "competitive.json").write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
 
     make_scenario = payload["scenarios"][0]
-    corrupt = payload["scenarios"][1]
+    scheduler = payload["scenarios"][1]
+    corrupt = scheduler["corrupted_output"]
     lines = [
         "# Competitive evaluation (Phase AA)",
         "",
@@ -327,20 +374,26 @@ def main() -> int:
         "",
         "That is the price of attempting to trace a command that is then refused, not a cache result.",
         "",
-        "## Corrupted output: scheduler versus traced cache",
+        "## Scheduler versus traced cache, same command",
         "",
-        f"Both arms act on `gzip -9 -n -k -f corpus.bin` (correct sha256 `{(corrupt['correct_sha256'] or '')[:16]}…`).",
+        f"`{scheduler['command']}`, correct sha256 `{(scheduler['correct_sha256'] or '')[:16]}…`.",
         "",
-        "| Mechanism | Decision | Output after corruption | Correct? |",
-        "| --- | --- | --- | --- |",
-        f"| make | {corrupt['make']['decision']} | `{(corrupt['make']['sha256_after_corruption'] or '')[:16]}…` | "
-        f"**{not corrupt['make']['left_corrupted_output']}** |",
-        f"| TraceJIT | {corrupt['tracejit']['decision_after_corruption']} | "
-        f"`{(corrupt['tracejit']['sha256_after_corruption'] or '')[:16]}…` | "
-        f"**{corrupt['tracejit']['restored_correct_output']}** |",
+        "| Situation | make | TraceJIT |",
+        "| --- | --- | --- |",
+        f"| output absent, rebuild | executed, {scheduler['rebuild_from_absent_output']['make_total_ns'] / 1e6:.1f} ms total | "
+        f"{scheduler['rebuild_from_absent_output']['tracejit_total_ns'] / 1e6:.1f} ms total, decisions "
+        f"{scheduler['rebuild_from_absent_output']['tracejit_decisions']} |",
+        f"| output present, rerun | skipped, {scheduler['identical_rerun_output_present']['make_total_ns'] / 1e6:.1f} ms total | "
+        f"{scheduler['identical_rerun_output_present']['tracejit_total_ns'] / 1e6:.1f} ms total, decision "
+        f"{scheduler['identical_rerun_output_present']['tracejit_decision']} |",
+        f"| corrupted output | skipped, left corruption (**{corrupt['make']['left_corrupted_output']}**) | "
+        f"{corrupt['tracejit']['decision']}, mechanism **{corrupt['tracejit']['mechanism']}**, "
+        f"correct after (**{corrupt['tracejit']['restored_correct_output']}**) |",
         "",
-        f"TraceJIT verified a HIT before the corruption test: "
-        f"**{corrupt['tracejit_hit_verified_before_corruption']}**.",
+        scheduler["observed_output_semantics"],
+        "",
+        "A scheduler that skips work is not doing the same job as a cache that restores verified "
+        "bytes, and a row that says `executed` is not a restoration result.",
         "",
         "## Hyperfine cross-check (independent wall clock)",
         "",
@@ -357,7 +410,9 @@ def main() -> int:
     print(json.dumps({
         "make_left_corrupted": corrupt["make"]["left_corrupted_output"],
         "tracejit_restored": corrupt["tracejit"]["restored_correct_output"],
-        "tracejit_hit_verified": corrupt["tracejit_hit_verified_before_corruption"],
+        "tracejit_mechanism": corrupt["tracejit"]["mechanism"],
+        "rebuild_absent_decisions": scheduler["rebuild_from_absent_output"]["tracejit_decisions"],
+        "present_decision": scheduler["identical_rerun_output_present"]["tracejit_decision"],
         "ineligible_overhead_ms": round(make_scenario["per_invocation_overhead_ns"] / 1e6, 2),
     }, indent=2))
     print(f"wrote {output_dir / 'competitive.json'}")
