@@ -205,9 +205,16 @@ pub const ALLOCATOR_ENTROPY_CONTRACT: &str = "tracejit.allocator-entropy.v1";
 
 /// Bytes supplied for allocator-internal entropy under that contract.
 ///
-/// The value is fixed so that a trace recorded under the contract can be reproduced exactly. It
-/// never leaves the runtime's own allocator state: the tracer admits a call only when the
-/// destination is a private writable mapping of the shared library that issued it.
+/// The value is fixed so that a trace recorded under the contract can be reproduced exactly.
+/// glibc uses `tcache_key` in exactly two roles: `tcache_put` stores it in the `key` field of a
+/// chunk being freed into a thread cache, and `_int_free` compares it there to decide whether to
+/// scan the tcache list for a double free. It does not feed safe-linking (links are masked with
+/// the chunk's own address, which is ASLR-derived) and it selects no allocation, so a fixed value
+/// moves no heap object and changes no address. What does change is the `key` word of a freed
+/// chunk's user area, which `tcache_get_n` zeroes again on allocation; reading it before writing
+/// it is undefined behaviour, which the contract excludes (`docs/PHASE_Z_CONTRACT.md` §3.1). The
+/// tracer admits the call only when the destination is a private writable mapping of the shared
+/// library that issued it.
 pub const ALLOCATOR_ENTROPY_VALUE: u64 = 0x9e37_79b9_7f4a_7c15;
 
 /// An audited runtime call site the allocator-entropy contract may answer.
@@ -231,20 +238,138 @@ pub struct AllocatorEntropyProfile {
 
 /// The audited profiles. Only these builds are admitted.
 ///
-/// The entry below was audited on Ubuntu 24.04 glibc 2.39: the `syscall` is at `libc+0xa9e87`,
-/// execution resumes at `libc+0xa9e89`, the destination is `libc+0x20b178`, and the caller is
-/// `ptmalloc_init` through `tcache_key_initialize`.
-pub const ALLOCATOR_ENTROPY_PROFILES: &[AllocatorEntropyProfile] = &[AllocatorEntropyProfile {
-    build_id: "a4a7992a8e66555c8141ab2a08a8465ff6e0ea65",
-    site_offset: 0xa9e89,
-    destination_offset: 0x20b178,
-    site_signature: &[0x0f, 0x05, 0x48, 0x8d, 0x5d, 0xd0, 0x48, 0x83, 0xf8, 0x08],
-}];
+/// Each entry names one exact build and the exact instructions its allocator probe uses. The
+/// destination is `tcache_key`: the kernel writes the eight random bytes straight into it, and the
+/// only other writer is the same function's clock-derived fallback for a short read.
+///
+/// Attribution is not by symbol name — internal statics are stripped. In both audited images the
+/// destination has exactly three uses, which is what `malloc/malloc.c` says the key has: the
+/// initializer writes it (kernel write, or two stores on the clock path), four inlined `tcache_put`
+/// sites store it into freed chunks, and `_int_free` compares it once. Safe-linking uses that same
+/// region's `next` word with an address mask and never reads this slot.
+///
+/// `2.39-0ubuntu8.9` (build `a4a7992a8e66555c8141ab2a08a8465ff6e0ea65`): `syscall` at
+/// `libc+0xa9e87`, execution resumes at `libc+0xa9e89`.
+///
+/// `2.39-0ubuntu8.12` (build `8cebda42d140fc2b09639f8b13a5d5f2e617ef09`): the same function,
+/// shifted down 32 bytes by unrelated patches that shrank an earlier function in the image, so
+/// `syscall` is at `libc+0xa9e67` and execution resumes at `libc+0xa9e69`. The destination and the
+/// audited bytes are unchanged. See `docs/PHASE_Z_GLIBC_DIFF.md`.
+pub const ALLOCATOR_ENTROPY_PROFILES: &[AllocatorEntropyProfile] = &[
+    AllocatorEntropyProfile {
+        build_id: "a4a7992a8e66555c8141ab2a08a8465ff6e0ea65",
+        site_offset: 0xa9e89,
+        destination_offset: 0x20b178,
+        site_signature: &[0x0f, 0x05, 0x48, 0x8d, 0x5d, 0xd0, 0x48, 0x83, 0xf8, 0x08],
+    },
+    AllocatorEntropyProfile {
+        build_id: "8cebda42d140fc2b09639f8b13a5d5f2e617ef09",
+        site_offset: 0xa9e69,
+        destination_offset: 0x20b178,
+        site_signature: &[0x0f, 0x05, 0x48, 0x8d, 0x5d, 0xd0, 0x48, 0x83, 0xf8, 0x08],
+    },
+];
 
 pub fn allocator_entropy_profile(build_id: &str) -> Option<&'static AllocatorEntropyProfile> {
     ALLOCATOR_ENTROPY_PROFILES
         .iter()
         .find(|profile| profile.build_id == build_id)
+}
+
+/// The syscall circumstances an audit derives from a runtime library's own bytes.
+///
+/// A profile *asserts* a destination and a request shape; this structure is what the library
+/// actually encodes. Callers compare the two, so a profile whose claim has drifted from the code
+/// is refused instead of trusted.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct AuditedEntropySite {
+    /// Offset of the buffer the syscall writes into, relative to the library's load base.
+    pub buffer_offset: u64,
+    /// Number of bytes the audited instruction sequence asks for.
+    pub length: u32,
+    /// `getrandom` flags the audited instruction sequence passes.
+    pub flags: u32,
+}
+
+/// Bytes the audited sequence requests, and the only request shape the contract admits.
+pub const ADMITTED_ENTROPY_LENGTH: u32 = 8;
+/// Flags the audited sequence passes (`GRND_NONBLOCK`).
+pub const ADMITTED_ENTROPY_FLAGS: u32 = 1;
+
+/// `mov $318, %eax` — the `getrandom` syscall number, immediately before the `syscall`.
+const MOV_EAX_GETRANDOM: [u8; 5] = [0xb8, 0x3e, 0x01, 0x00, 0x00];
+/// `lea disp32(%rip), %rdi` — the syscall's buffer argument, loaded from a static.
+const LEA_RDI_RIP: [u8; 3] = [0x48, 0x8d, 0x3d];
+/// `mov $8, %esi` — the requested length.
+const MOV_ESI_LENGTH: [u8; 5] = [0xbe, 0x08, 0x00, 0x00, 0x00];
+/// `mov $1, %edx` — `GRND_NONBLOCK`.
+const MOV_EDX_NONBLOCK: [u8; 5] = [0xba, 0x01, 0x00, 0x00, 0x00];
+/// How far before the syscall number the buffer load may appear.
+const BUFFER_LOAD_WINDOW: usize = 48;
+
+/// Re-derives the admitted syscall circumstances from the library image.
+///
+/// This is the admission rule's content, not a symbol-name match: the syscall number, the request
+/// length, the flags and the destination are read from the instructions that will issue the call,
+/// and the destination is computed from the buffer load's own RIP-relative displacement instead of
+/// being compared with a hard-coded number. Anything unexpected — a different instruction shape, a
+/// displaced buffer, a second candidate load, an out-of-range displacement — returns `None`, which
+/// every caller must treat as "not admitted".
+pub fn audited_allocator_site(
+    library: &[u8],
+    profile: &AllocatorEntropyProfile,
+) -> Option<AuditedEntropySite> {
+    // The reported stop is two bytes past the `syscall`; the signature starts with it.
+    let syscall = usize::try_from(profile.site_offset.checked_sub(2)?).ok()?;
+    let signature_end = syscall.checked_add(profile.site_signature.len())?;
+    if library.get(syscall..signature_end) != Some(profile.site_signature) {
+        return None;
+    }
+    let number_load = syscall.checked_sub(MOV_EAX_GETRANDOM.len())?;
+    if library.get(number_load..syscall) != Some(&MOV_EAX_GETRANDOM[..]) {
+        return None;
+    }
+    // The nearest buffer load before the syscall number. A window holding more than one candidate
+    // is ambiguous: refuse rather than choose.
+    let window = number_load.saturating_sub(BUFFER_LOAD_WINDOW)..number_load;
+    let mut loads =
+        window.filter(|at| library.get(*at..at + LEA_RDI_RIP.len()) == Some(&LEA_RDI_RIP[..]));
+    let load = loads.next()?;
+    if loads.next().is_some() {
+        return None;
+    }
+    let displacement_at = load + LEA_RDI_RIP.len();
+    let displacement = i32::from_le_bytes(
+        library
+            .get(displacement_at..displacement_at + 4)?
+            .try_into()
+            .ok()?,
+    );
+    // Effective address of the buffer. A RIP-relative operand is relative to the address of the
+    // *next* instruction, so the base is the load address plus its full seven bytes. This is the
+    // coordinate space the tracer records.
+    let buffer_offset = (load as i64)
+        .checked_add((LEA_RDI_RIP.len() + 4) as i64)?
+        .checked_add(i64::from(displacement))?;
+    let buffer_offset = u64::try_from(buffer_offset).ok()?;
+    if buffer_offset != profile.destination_offset {
+        return None;
+    }
+    // The audited sequence orders the request as `mov $1,%edx; mov $8,%esi; lea ...; mov
+    // $318,%eax`. Requiring that exact adjacency rejects a build that reorders or replaces the
+    // request instead of inferring intent from constants elsewhere in the window.
+    let flags_load = load.checked_sub(MOV_EDX_NONBLOCK.len() + MOV_ESI_LENGTH.len())?;
+    let length_load = load.checked_sub(MOV_ESI_LENGTH.len())?;
+    if library.get(flags_load..length_load) != Some(&MOV_EDX_NONBLOCK[..])
+        || library.get(length_load..load) != Some(&MOV_ESI_LENGTH[..])
+    {
+        return None;
+    }
+    Some(AuditedEntropySite {
+        buffer_offset,
+        length: ADMITTED_ENTROPY_LENGTH,
+        flags: ADMITTED_ENTROPY_FLAGS,
+    })
 }
 
 /// The compiler-runtime contract.
@@ -1833,5 +1958,145 @@ mod tests {
             serde_json::from_slice::<ExecutionIdentity>(&encoded).unwrap(),
             identity
         );
+    }
+
+    const SYNTHETIC_SIGNATURE: &[u8] =
+        &[0x0f, 0x05, 0x48, 0x8d, 0x5d, 0xd0, 0x48, 0x83, 0xf8, 0x08];
+    const LOAD_AT: usize = 0x40;
+    const BUFFER_AT: usize = 0xa0;
+
+    /// The audited instruction sequence, assembled by hand.
+    ///
+    /// The admission rule is a property of instructions, so it can be falsified without owning any
+    /// particular runtime image. Each test below breaks exactly one instruction and expects the
+    /// whole site to be refused.
+    fn synthetic() -> (Vec<u8>, AllocatorEntropyProfile) {
+        let mut image = vec![0x90u8; 0x100];
+        // `mov $1,%edx; mov $8,%esi; lea disp32(%rip),%rdi` — the audited order.
+        image[LOAD_AT - 10..LOAD_AT - 5].copy_from_slice(&MOV_EDX_NONBLOCK);
+        image[LOAD_AT - 5..LOAD_AT].copy_from_slice(&MOV_ESI_LENGTH);
+        let displacement_at = LOAD_AT + LEA_RDI_RIP.len();
+        let displacement = (BUFFER_AT as i64 - (displacement_at as i64 + 4)) as i32;
+        image[LOAD_AT..displacement_at].copy_from_slice(&LEA_RDI_RIP);
+        image[displacement_at..displacement_at + 4].copy_from_slice(&displacement.to_le_bytes());
+        let mut at = displacement_at + 4;
+        image[at..at + 5].copy_from_slice(&MOV_EAX_GETRANDOM);
+        at += 5;
+        image[at..at + SYNTHETIC_SIGNATURE.len()].copy_from_slice(SYNTHETIC_SIGNATURE);
+        let profile = AllocatorEntropyProfile {
+            build_id: "synthetic",
+            site_offset: (at + 2) as u64,
+            destination_offset: BUFFER_AT as u64,
+            site_signature: SYNTHETIC_SIGNATURE,
+        };
+        (image, profile)
+    }
+
+    #[test]
+    fn the_audited_sequence_derives_its_destination_from_the_instruction() {
+        let (image, profile) = synthetic();
+        assert_eq!(
+            audited_allocator_site(&image, &profile),
+            Some(AuditedEntropySite {
+                buffer_offset: BUFFER_AT as u64,
+                length: ADMITTED_ENTROPY_LENGTH,
+                flags: ADMITTED_ENTROPY_FLAGS,
+            })
+        );
+    }
+
+    #[test]
+    fn the_admitted_shape_constants_are_the_bytes_they_name() {
+        // The length and flag constants and the instruction patterns that encode them are declared
+        // separately, so this test keeps them from drifting apart.
+        assert_eq!(u32::from(MOV_ESI_LENGTH[1]), ADMITTED_ENTROPY_LENGTH);
+        assert_eq!(u32::from(MOV_EDX_NONBLOCK[1]), ADMITTED_ENTROPY_FLAGS);
+        assert_eq!(MOV_EAX_GETRANDOM[1], 318u16.to_le_bytes()[0]);
+        assert_eq!(&MOV_EAX_GETRANDOM[2..], &318u32.to_le_bytes()[1..]);
+    }
+
+    #[test]
+    fn a_buffer_load_that_displaces_the_destination_is_refused() {
+        let (mut image, profile) = synthetic();
+        let displacement_at = LOAD_AT + LEA_RDI_RIP.len();
+        let wrong = (BUFFER_AT as i64 + 8 - (displacement_at as i64 + 4)) as i32;
+        image[displacement_at..displacement_at + 4].copy_from_slice(&wrong.to_le_bytes());
+        assert_eq!(audited_allocator_site(&image, &profile), None);
+    }
+
+    #[test]
+    fn a_different_request_length_is_refused() {
+        let (mut image, profile) = synthetic();
+        image[LOAD_AT - 5 + 1] = 16;
+        assert_eq!(audited_allocator_site(&image, &profile), None);
+    }
+
+    #[test]
+    fn a_missing_nonblock_flag_is_refused() {
+        let (mut image, profile) = synthetic();
+        image[LOAD_AT - 10 + 1] = 0;
+        assert_eq!(audited_allocator_site(&image, &profile), None);
+    }
+
+    #[test]
+    fn a_reordered_request_is_refused() {
+        // The same two immediates, swapped: the bytes are present in the window but not in the
+        // audited order relative to the buffer load.
+        let (mut image, profile) = synthetic();
+        image.copy_within(LOAD_AT - 10..LOAD_AT - 5, LOAD_AT - 5);
+        image.copy_within(LOAD_AT - 5..LOAD_AT, LOAD_AT - 10);
+        assert_eq!(audited_allocator_site(&image, &profile), None);
+    }
+
+    #[test]
+    fn a_different_syscall_number_is_refused() {
+        let (mut image, profile) = synthetic();
+        let at = profile.site_offset as usize - 2 - MOV_EAX_GETRANDOM.len() + 1;
+        image[at] = 0x9d;
+        assert_eq!(audited_allocator_site(&image, &profile), None);
+    }
+
+    #[test]
+    fn a_changed_suffix_is_refused() {
+        let (mut image, profile) = synthetic();
+        let syscall = profile.site_offset as usize - 2;
+        image[syscall + SYNTHETIC_SIGNATURE.len() - 1] = 0x09;
+        assert_eq!(audited_allocator_site(&image, &profile), None);
+    }
+
+    #[test]
+    fn an_ambiguous_buffer_load_window_is_refused() {
+        let (mut image, profile) = synthetic();
+        // A second `lea disp32(%rip), %rdi` between the audited one and the syscall number.
+        let at = LOAD_AT + LEA_RDI_RIP.len() + 4 + 2;
+        image[at..at + LEA_RDI_RIP.len()].copy_from_slice(&LEA_RDI_RIP);
+        assert_eq!(audited_allocator_site(&image, &profile), None);
+    }
+
+    #[test]
+    fn a_profile_that_asserts_the_wrong_destination_is_refused() {
+        let (image, mut profile) = synthetic();
+        profile.destination_offset = BUFFER_AT as u64 + 0x10;
+        assert_eq!(audited_allocator_site(&image, &profile), None);
+    }
+
+    /// Manual check against a real runtime image.
+    ///
+    /// `TRACEJIT_AUDIT_LIBC=/path/to/libc.so.6 cargo test -p tracejit-effects -- --ignored
+    /// audited_sites_match_a_reference_library --nocapture`
+    #[test]
+    #[ignore]
+    fn audited_sites_match_a_reference_library() {
+        let path = std::env::var("TRACEJIT_AUDIT_LIBC")
+            .expect("set TRACEJIT_AUDIT_LIBC to the runtime library under audit");
+        let image = std::fs::read(&path).unwrap();
+        let build_id = elf_build_id(std::path::Path::new(&path)).expect("build id note");
+        let profile = allocator_entropy_profile(&build_id).expect("an audited build");
+        let site = audited_allocator_site(&image, profile).expect("the audited call site");
+        eprintln!(
+            "RESULT {path} build {build_id} buffer {:#x} length {} flags {}",
+            site.buffer_offset, site.length, site.flags
+        );
+        assert_eq!(site.buffer_offset, profile.destination_offset);
     }
 }

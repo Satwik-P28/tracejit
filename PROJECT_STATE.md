@@ -22,7 +22,7 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 
 ## Current main
 
-- `origin/main` tip: `fc82b3a`. Published beta: tag `v0.2.0-beta.1` at `7a594b9` (merge of `release/v0.2.0-beta.1` into `main`; `origin/main` was not advanced past the release merge point in this workspace's refs).
+- `origin/main` tip: `6bab00b` (merge of PR #41, Phase X). Published beta: tag `v0.2.0-beta.1` at `7a594b9` (merge of `release/v0.2.0-beta.1` into `main`; `origin/main` was not advanced past the release merge point in this workspace's refs).
 - Releases: `v0.1.0` (`cf0ddb2`), `v0.1.1` (`31c36d1`), `v0.2.0-beta.1` (`7a594b9`). Do not move tags.
 - Research PRs #6/#7/#9/#10 stay isolated from `main`.
 
@@ -35,11 +35,9 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 - New corpus: `benchmarks/realworld/census_v03.py` (20 held-out workloads).
 - Docs: `docs/COMPATIBILITY_V03.md` (blocker analysis, accepted/rejected models), `docs/PHASE_U_REPORT.md`.
 - Evidence: `benchmarks/results/phaseu/`.
-- Harness (Phase U2): no descriptor in the shared test process is modified. Each spawn marks its
-  own forked child's descriptors `FD_CLOEXEC` with one `close_range` call in `pre_exec`, and
-  `invoke_inheriting` is the only way to hand TraceJIT a deliberately inherited descriptor. A
-  regression re-executes the binary with 142/145/1500 inheritable to reproduce the CI condition.
-  Production is unchanged (release binary byte-identical).
+- Harness (Phase U2): no descriptor in the shared test process is modified; each spawn marks its
+  own child's descriptors `FD_CLOEXEC` in `pre_exec`, and `invoke_inheriting` is the only way to
+  hand TraceJIT a deliberately inherited descriptor.
 
 ## Research line (`research/phase-w`, from `cb4783f`)
 
@@ -121,6 +119,31 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
   12.44 → 10.60 s; ETL 1.16×, `true` 1.35×, `sort-small` 1.07×. Gates: 241 tests, integration 75/75
   at 1/2/4/8 threads and 10/10 default runs, fuzz seed 29 (0 incorrect hits), model check, fault
   injection, audit clean. Phase Y plan: `docs/PHASE_Y_RESEARCH_PLAN.md` (fs-verity first).
+
+## Research line, Phase Z (`research/phase-z`, from `6bab00b`, PR #42)
+
+- The stale audited build is replaced on evidence and admission is stronger:
+  `docs/PHASE_Z_REPORT.md`, `PHASE_Z_GLIBC_DIFF.md`, `PHASE_Z_CONTRACT.md`, `PHASE_Z_LEDGER.md`;
+  source-level audit, corrections and new regressions in `docs/PHASE_Z1_AUDIT.md`.
+- `2.39-0ubuntu8.12` joins `ALLOCATOR_ENTROPY_PROFILES` (`site 0xa9e69`, destination unchanged
+  `0x20b178`); its audited function decodes identically to 8.9, and the only malloc change in
+  8.10–8.12 is `_int_memalign`'s alignment check, which the contract does not touch. The destination
+  is **derived** from the buffer load's displacement at record *and* guard time; ambiguity refuses.
+  `doctor` reports `runtime allocator-entropy-v1 audited (<build id>)`.
+- Compiler reuse restored (103.3 → 47.8 ms paired, byte-identical objects); sessions **1.83×** (27)
+  and **2.82×** (48), all arms byte-identical. Contract tier newly eligible: census 1 → 7/30, held
+  out 0 → 7/20; native tier unchanged at 1/30. Shortlist `sed` 11.02×, `sort --parallel=1` 8.29×,
+  `gzip -9` 3.80×; `wc`/`sha256sum` rejected as slower; `awk`/threaded `sort`/`tar`/`python`
+  ineligible. `ccache`/`sccache` unavailable here, so nothing is claimed against them.
+- Phase Z1 audit: `tcache_key` has exactly two roles — `tcache_put` stores it in a freed chunk's
+  `key` word, `_int_free` compares it there — so it does **not** feed safe-linking (which masks with
+  the chunk address) and does **not** change heap layout. Contract split into claims A/B/C with
+  explicit exclusions; allocator diagnostics are byte-identical to native on both double-free paths;
+  an unaudited `.so` issuing the same probe is refused; four concurrent initialisations replay.
+- Gates on the final head: **269 tests**, integration 80/80 at 1/8/default threads, fuzz seed 29
+  (0 incorrect hits), model check, fault injection, `cargo audit`, fmt and clippy clean. CI run
+  #270 on `e7d30b5` succeeded; PR #42 is pushed and green but still a draft — flipping it and
+  merging need GitHub write access, which this environment does not have.
 
 ## Known limitations
 

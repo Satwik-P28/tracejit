@@ -3391,18 +3391,18 @@ fn allocator_entropy_site(pid: Pid, ip: u64, buffer: u64) -> Option<EntropySite>
     let Some(profile) = tracejit_effects::allocator_entropy_profile(&build_id) else {
         return refuse();
     };
-    if site_offset != profile.site_offset || destination_offset != profile.destination_offset {
+    if site_offset != profile.site_offset {
         return refuse();
     }
     let Ok(library_bytes) = fs::read(&code.path) else {
         return refuse();
     };
-    // The signature covers the `syscall` instruction and what follows it; the reported stop is
-    // two bytes past the instruction.
-    let signature_start = profile.site_offset.saturating_sub(2) as usize;
-    if library_bytes.get(signature_start..signature_start + profile.site_signature.len())
-        != Some(profile.site_signature)
-    {
+    // The destination and the request shape are re-derived from the library's own instructions;
+    // the profile only asserts them. A build whose code disagrees with its profile is refused.
+    let Some(audited) = tracejit_effects::audited_allocator_site(&library_bytes, profile) else {
+        return refuse();
+    };
+    if audited.buffer_offset != destination_offset {
         return refuse();
     }
     let Ok(library_hash) = hash_file(&code.path) else {

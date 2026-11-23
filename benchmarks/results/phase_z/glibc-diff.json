@@ -1,0 +1,111 @@
+{
+  "reference": {
+    "path": "/tmp/glibcdebs/root89/usr/lib/x86_64-linux-gnu/libc.so.6",
+    "build_id": "a4a7992a8e66555c8141ab2a08a8465ff6e0ea65",
+    "size": 2129424,
+    "entropy_sites": [
+      {
+        "syscall_file_offset": "0x48862",
+        "resume_offset": "0x48864",
+        "buffer_load_offset": null,
+        "destination_offset": null,
+        "destination_in_writable_segment": null,
+        "audited_probe_shape": false,
+        "nearest_dynamic_symbol": "getrandom@@GLIBC_2.25+0x12",
+        "following_bytes": "0f05483d00f0ffff7754c30f1f005548"
+      },
+      {
+        "syscall_file_offset": "0x4889b",
+        "resume_offset": "0x4889d",
+        "buffer_load_offset": null,
+        "destination_offset": null,
+        "destination_in_writable_segment": null,
+        "audited_probe_shape": false,
+        "nearest_dynamic_symbol": "getrandom@@GLIBC_2.25+0x4b",
+        "following_bytes": "0f05483d00f0ffff77334489c7488945"
+      },
+      {
+        "syscall_file_offset": "0xa9e87",
+        "resume_offset": "0xa9e89",
+        "buffer_load_offset": "0xa9e5b",
+        "destination_offset": "0x20b178",
+        "destination_in_writable_segment": true,
+        "audited_probe_shape": true,
+        "nearest_dynamic_symbol": "timer_settime@GLIBC_2.2.5+0x1077",
+        "following_bytes": "0f05488d5dd04883f808744e4889debf"
+      }
+    ]
+  },
+  "candidate": {
+    "path": "/lib/x86_64-linux-gnu/libc.so.6",
+    "build_id": "8cebda42d140fc2b09639f8b13a5d5f2e617ef09",
+    "size": 2129424,
+    "entropy_sites": [
+      {
+        "syscall_file_offset": "0x48862",
+        "resume_offset": "0x48864",
+        "buffer_load_offset": null,
+        "destination_offset": null,
+        "destination_in_writable_segment": null,
+        "audited_probe_shape": false,
+        "nearest_dynamic_symbol": "getrandom@@GLIBC_2.25+0x12",
+        "following_bytes": "0f05483d00f0ffff7754c30f1f005548"
+      },
+      {
+        "syscall_file_offset": "0x4889b",
+        "resume_offset": "0x4889d",
+        "buffer_load_offset": null,
+        "destination_offset": null,
+        "destination_in_writable_segment": null,
+        "audited_probe_shape": false,
+        "nearest_dynamic_symbol": "getrandom@@GLIBC_2.25+0x4b",
+        "following_bytes": "0f05483d00f0ffff77334489c7488945"
+      },
+      {
+        "syscall_file_offset": "0xa9e67",
+        "resume_offset": "0xa9e69",
+        "buffer_load_offset": "0xa9e3b",
+        "destination_offset": "0x20b178",
+        "destination_in_writable_segment": true,
+        "audited_probe_shape": true,
+        "nearest_dynamic_symbol": "timer_settime@GLIBC_2.2.5+0x1077",
+        "following_bytes": "0f05488d5dd04883f808744e4889debf"
+      }
+    ]
+  },
+  "symbol_shift": {
+    "shared_symbols": 3136,
+    "delta_histogram": {
+      "-64": 1141,
+      "-32": 664,
+      "0": 873,
+      "16": 458
+    },
+    "last_unchanged_symbol": {
+      "symbol": "_IO_file_fopen@@GLIBC_2.2.5",
+      "reference_address": "0x91cb0"
+    },
+    "first_shifted_symbol": {
+      "symbol": "_IO_file_attach@@GLIBC_2.2.5",
+      "reference_address": "0x92430",
+      "candidate_address": "0x92410",
+      "delta": -32
+    }
+  },
+  "byte_identity": {
+    "common_prefix_bytes": "0x390"
+  },
+  "audited_probe": {
+    "reference_sites": 1,
+    "candidate_sites": 1,
+    "same_shape": [
+      true
+    ]
+  },
+  "audited_function": {
+    "identical": true,
+    "ratio": 1.0,
+    "only_reference": [],
+    "only_candidate": []
+  }
+}

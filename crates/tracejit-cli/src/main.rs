@@ -319,6 +319,10 @@ fn run_cli(cli: Cli, process_startup_ns: u64, cli_parse_ns: u64) -> Result<i32> 
                 println!("seccomp        {}", yes_no(report.seccomp));
                 println!("landlock       {}", landlock_status(report.landlock_abi));
                 println!("proven         {}", yes_no(report.proven));
+                println!(
+                    "runtime        {}",
+                    report.runtime_contract.as_deref().unwrap_or("unknown")
+                );
                 let cache_state = if report.cache_writable {
                     "writable"
                 } else if report.cache_creatable {

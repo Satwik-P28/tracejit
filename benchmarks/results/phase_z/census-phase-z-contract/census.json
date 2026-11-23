@@ -1,0 +1,2716 @@
+{
+  "admission": "always",
+  "aggregate": {
+    "attempted": 30,
+    "blocked_missing_tool": 2,
+    "blocker_ranking": [
+      {
+        "blocker": "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "count": 22,
+        "occurrences": 22,
+        "workloads": [
+          "ar-static-archive",
+          "awk-codegen",
+          "awk-scientific-iter",
+          "awk-sum-stdout",
+          "cc-compile-fixture",
+          "cc-compile-large",
+          "cc-link-binary",
+          "cc-syntax-only-lint",
+          "dd-copy-file",
+          "groff-manpage-html",
+          "gzip-roundtrip-file",
+          "jq-sum-values",
+          "make-awk-target",
+          "multi-file-compile-ar-hash",
+          "perl-sum-values",
+          "pil-image-transform",
+          "python-csv-json",
+          "python-csv-json-seeded",
+          "shell-pipeline",
+          "sort-numbers",
+          "tar-create-archive",
+          "xz-compress-stdout"
+        ]
+      },
+      {
+        "blocker": "clock",
+        "count": 7,
+        "occurrences": 7,
+        "workloads": [
+          "ar-static-archive",
+          "awk-codegen",
+          "awk-scientific-iter",
+          "awk-sum-stdout",
+          "cc-syntax-only-lint",
+          "dd-copy-file",
+          "perl-sum-values"
+        ]
+      },
+      {
+        "blocker": "system_information",
+        "count": 2,
+        "occurrences": 5,
+        "workloads": [
+          "cc-syntax-only-lint",
+          "sort-numbers"
+        ]
+      },
+      {
+        "blocker": "other:pipe 1: a read returned less than it requested and more data",
+        "count": 2,
+        "occurrences": 2,
+        "workloads": [
+          "groff-manpage-html",
+          "shell-pipeline"
+        ]
+      },
+      {
+        "blocker": "randomness",
+        "count": 2,
+        "occurrences": 2,
+        "workloads": [
+          "jq-sum-values",
+          "perl-sum-values"
+        ]
+      },
+      {
+        "blocker": "process_identity",
+        "count": 1,
+        "occurrences": 2,
+        "workloads": [
+          "awk-codegen"
+        ]
+      },
+      {
+        "blocker": "other:pipe 2: a read returned less than it requested and more data",
+        "count": 1,
+        "occurrences": 1,
+        "workloads": [
+          "shell-pipeline"
+        ]
+      }
+    ],
+    "denominator_definition": "attempted = every requested workload whose required tools were present and whose direct execution succeeded. Tool-missing and workload-failed entries are excluded from the rate and listed separately.",
+    "eligibility_rate": 0.23333333333333334,
+    "refused": 22,
+    "requested": 32,
+    "reused": 7,
+    "unmodeled_syscall_ranking": [
+      {
+        "count": 6,
+        "name": "72: fcntl",
+        "syscall": 72,
+        "workloads": [
+          "make-awk-target",
+          "pil-image-transform",
+          "python-csv-json",
+          "python-csv-json-seeded",
+          "tar-create-archive",
+          "xz-compress-stdout"
+        ]
+      },
+      {
+        "count": 4,
+        "name": "98: getrusage",
+        "syscall": 98,
+        "workloads": [
+          "cc-compile-fixture",
+          "cc-compile-large",
+          "cc-link-binary",
+          "multi-file-compile-ar-hash"
+        ]
+      },
+      {
+        "count": 3,
+        "name": "5: fstat",
+        "syscall": 5,
+        "workloads": [
+          "groff-manpage-html",
+          "gzip-roundtrip-file",
+          "shell-pipeline"
+        ]
+      }
+    ],
+    "workload_failed": 0
+  },
+  "commit": "7f013a5490b5566d6b18fbd5d2a29463a4842ba5",
+  "contract": "allocator-entropy-v1",
+  "environment": {
+    "architecture": "x86_64",
+    "commit": "7f013a5490b5566d6b18fbd5d2a29463a4842ba5",
+    "cpu": "Architecture:                         x86_64\nCPU op-mode(s):                       32-bit, 64-bit\nAddress sizes:                        48 bits physical, 48 bits virtual\nByte Order:                           Little Endian\nCPU(s):                               2\nOn-line CPU(s) list:                  0,1\nVendor ID:                            AuthenticAMD\nModel name:                           AMD EPYC 7003 (Milan)\nCPU family:                           25\nModel:                                1\nThread(s) per core:                   1\nCore(s) per socket:                   2\nSocket(s):                            1\nStepping:                             1\nBogoMIPS:                             1999.99\nFlags:                                fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy svm cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw topoext perfctr_core invpcid_single ssbd ibrs ibpb stibp vmmcall fsgsbase tsc_adjust bmi1 avx2 smep bmi2 invpcid rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves clzero xsaveerptr wbnoinvd arat npt nrip_save tsc_scale vmcb_clean flushbyasid pausefilter pfthreshold v_vmsave_vmload vgif umip pku ospke vaes vpclmulqdq rdpid arch_capabilities\nVirtualization:                       AMD-V\nHypervisor vendor:                    KVM\nVirtualization type:                  full\nL1d cache:                            32 KiB (1 instance)\nL1i cache:                            32 KiB (1 instance)\nL2 cache:                             512 KiB (1 instance)\nL3 cache:                             16 MiB (1 instance)\nNUMA node(s):                         1\nNUMA node0 CPU(s):                    0,1\nVulnerability Gather data sampling:   Not affected\nVulnerability Itlb multihit:          Not affected\nVulnerability L1tf:                   Not affected\nVulnerability Mds:                    Not affected\nVulnerability Meltdown:               Not affected\nVulnerability Mmio stale data:        Not affected\nVulnerability Reg file data sampling: Not affected\nVulnerability Retbleed:               Not affected\nVulnerability Spec rstack overflow:   Mitigation; safe RET\nVulnerability Spec store bypass:      Mitigation; Speculative Store Bypass disabled via prctl\nVulnerability Spectre v1:             Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:             Mitigation; Retpolines; IBPB conditional; IBRS_FW; STIBP disabled; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected\nVulnerability Srbds:                  Not affected\nVulnerability Tsx async abort:        Not affected",
+    "filesystem": "Filesystem     Type 1K-blocks     Used Available Use% Mounted on\n/dev/root      ext4  16337788 10659088   4823456  69% /",
+    "kernel": "6.1.102",
+    "memory": "total        used        free      shared  buff/cache   available\nMem:           3.8Gi       463Mi       559Mi       1.1Mi       3.1Gi       3.4Gi\nSwap:             0B          0B          0B",
+    "os_release": "PRETTY_NAME=\"Ubuntu 24.04.5 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"24.04\"\nVERSION=\"24.04.5 LTS (Noble Numbat)\"\nVERSION_CODENAME=noble\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=noble\nLOGO=ubuntu-logo",
+    "python": "Python 3.12.3",
+    "uname": "Linux freestyle-vm 6.1.102 #1 SMP PREEMPT_DYNAMIC Sun Nov  8 09:00:04 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux",
+    "working_tree_dirty": true
+  },
+  "generated_unix_ms": 1795404121077,
+  "runs": {
+    "measured": 1,
+    "warmups": 0
+  },
+  "syscall_name_source": "host kernel headers",
+  "workloads": [
+    {
+      "blockers": [
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "unmodeled_syscall:98"
+      ],
+      "category": "compiler",
+      "classification": "Unknown",
+      "command": [
+        "cc",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-c",
+        "/workspace/chats/24375cea864939ae012511ac/tests/fixtures/fixture_driver.c",
+        "-o",
+        "/tmp/tracejit-census-sk1zpg9z/cc-compile-fixture/fixture.o"
+      ],
+      "cwd": "/workspace/chats/24375cea864939ae012511ac",
+      "dependency_count": 1284,
+      "direct": {
+        "maximum_ns": 223468923,
+        "median_ns": 223468923,
+        "minimum_ns": 223468923,
+        "p95_ns": 223468923,
+        "runs": 1,
+        "samples_ns": [
+          223468923
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/cc-compile-fixture/fixture.o": "45fa34d6aaf36b5bfe0ca34c1b9aa52e98eb4b236adc658d7b31738492313883"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 5,
+        "reads": 4776,
+        "unknown": 1,
+        "writes": 32
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "cc-compile-fixture",
+      "note": "Compiles the repository's own adversarial C fixture with the system compiler.",
+      "output_count": 2,
+      "output_equivalence": "PASS",
+      "process_count": 3,
+      "reason_counts": {
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "unmodeled_syscall:98": 1
+      },
+      "reasons": [
+        "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffddfdb1690, 0x7ffddfdb1c18, 0x7ffddfdb17e0, 0x0, 0x7f27a91ed380]",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "cc"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 560538820,
+        "median_ns": 560538820,
+        "minimum_ns": 560538820,
+        "p95_ns": 560538820,
+        "runs": 1,
+        "samples_ns": [
+          560538820
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/cc-compile-fixture/fixture.o": "45fa34d6aaf36b5bfe0ca34c1b9aa52e98eb4b236adc658d7b31738492313883"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "98: getrusage"
+      ],
+      "unsupported_syscalls": [
+        98
+      ]
+    },
+    {
+      "blockers": [
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "unmodeled_syscall:98"
+      ],
+      "category": "compiler",
+      "classification": "Unknown",
+      "command": [
+        "cc",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-c",
+        "/tmp/tracejit-census-sk1zpg9z/cc-compile-large/source.c",
+        "-o",
+        "/tmp/tracejit-census-sk1zpg9z/cc-compile-large/source.o"
+      ],
+      "cwd": "/workspace/chats/24375cea864939ae012511ac",
+      "dependency_count": 248,
+      "direct": {
+        "maximum_ns": 45791056,
+        "median_ns": 45791056,
+        "minimum_ns": 45791056,
+        "p95_ns": 45791056,
+        "runs": 1,
+        "samples_ns": [
+          45791056
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/cc-compile-large/source.o": "7bd4395628c638f9b0250f3f85b5e1d12a638488b53144dbe3e4dd323d55db3b"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 5,
+        "reads": 663,
+        "unknown": 1,
+        "writes": 13
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "cc-compile-large",
+      "note": "Compiles a generated 300-function C translation unit: a real whole-file compile, not a busy loop.",
+      "output_count": 2,
+      "output_equivalence": "PASS",
+      "process_count": 3,
+      "reason_counts": {
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "unmodeled_syscall:98": 1
+      },
+      "reasons": [
+        "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffe9db9f4f0, 0x7ffe9db9fa78, 0x7ffe9db9f640, 0x0, 0x7f04d4900380]",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "cc"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 164854065,
+        "median_ns": 164854065,
+        "minimum_ns": 164854065,
+        "p95_ns": 164854065,
+        "runs": 1,
+        "samples_ns": [
+          164854065
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/cc-compile-large/source.o": "7bd4395628c638f9b0250f3f85b5e1d12a638488b53144dbe3e4dd323d55db3b"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "98: getrusage"
+      ],
+      "unsupported_syscalls": [
+        98
+      ]
+    },
+    {
+      "category": "compiler",
+      "missing_tools": [
+        "clang"
+      ],
+      "name": "clang-compile-large",
+      "note": "Same generated TU compiled with clang (linker/tooling family coverage).",
+      "required_tools": [
+        "clang"
+      ],
+      "status": "blocked_missing_tool"
+    },
+    {
+      "blockers": [
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "unmodeled_syscall:98"
+      ],
+      "category": "linker",
+      "classification": "Unknown",
+      "command": [
+        "cc",
+        "/tmp/tracejit-census-sk1zpg9z/cc-link-binary/link.o",
+        "-o",
+        "/tmp/tracejit-census-sk1zpg9z/cc-link-binary/linked"
+      ],
+      "cwd": "/tmp/tracejit-census-sk1zpg9z/cc-link-binary",
+      "dependency_count": 226,
+      "direct": {
+        "maximum_ns": 23134783,
+        "median_ns": 23134783,
+        "minimum_ns": 23134783,
+        "p95_ns": 23134783,
+        "runs": 1,
+        "samples_ns": [
+          23134783
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/cc-link-binary/linked": "3140c8d35265009f0c871cc948f1039abff00670db2bef1b724ba8b934ae224c"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 5,
+        "reads": 533,
+        "unknown": 1,
+        "writes": 53
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "cc-link-binary",
+      "note": "Compile then link a generated TU into an executable with the system linker via cc.",
+      "output_count": 4,
+      "output_equivalence": "PASS",
+      "process_count": 3,
+      "reason_counts": {
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "unmodeled_syscall:98": 1
+      },
+      "reasons": [
+        "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fff9ad97a50, 0x7fff9ad97f20, 0x7fff9ad97980, 0x0, 0x7f9f7e62c380]",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "cc"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 132911982,
+        "median_ns": 132911982,
+        "minimum_ns": 132911982,
+        "p95_ns": 132911982,
+        "runs": 1,
+        "samples_ns": [
+          132911982
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/cc-link-binary/linked": "3140c8d35265009f0c871cc948f1039abff00670db2bef1b724ba8b934ae224c"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "98: getrusage"
+      ],
+      "unsupported_syscalls": [
+        98
+      ]
+    },
+    {
+      "blockers": [
+        "clock",
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r"
+      ],
+      "category": "archiver",
+      "classification": "Nondeterministic",
+      "command": [
+        "ar",
+        "rcs",
+        "/tmp/tracejit-census-sk1zpg9z/ar-static-archive/libmember.a",
+        "/tmp/tracejit-census-sk1zpg9z/ar-static-archive/member.o"
+      ],
+      "cwd": "/tmp/tracejit-census-sk1zpg9z/ar-static-archive",
+      "dependency_count": 57,
+      "direct": {
+        "maximum_ns": 3134283,
+        "median_ns": 3134283,
+        "minimum_ns": 3134283,
+        "p95_ns": 3134283,
+        "runs": 1,
+        "samples_ns": [
+          3134283
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/ar-static-archive/libmember.a": "15ab4791a612f7b79ac052debeb01836bfeebad771fc53a7d542a6142afd944d"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 106,
+        "unknown": 0,
+        "writes": 12
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "ar-static-archive",
+      "note": "Archive a compiled object into a static library with ar.",
+      "output_count": 2,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "clock": 1,
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1
+      },
+      "reasons": [
+        "process read system clock: monotonic",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "cc",
+        "ar"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 33726094,
+        "median_ns": 33726094,
+        "minimum_ns": 33726094,
+        "p95_ns": 33726094,
+        "runs": 1,
+        "samples_ns": [
+          33726094
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/ar-static-archive/libmember.a": "15ab4791a612f7b79ac052debeb01836bfeebad771fc53a7d542a6142afd944d"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "category": "toolchain",
+      "classification": "Guarded",
+      "command": [
+        "objcopy",
+        "--strip-unneeded",
+        "/tmp/tracejit-census-sk1zpg9z/objcopy-strip-unneeded/obj.o",
+        "/tmp/tracejit-census-sk1zpg9z/objcopy-strip-unneeded/obj.stripped.o"
+      ],
+      "cwd": "/tmp/tracejit-census-sk1zpg9z/objcopy-strip-unneeded",
+      "dependency_count": 33,
+      "direct": {
+        "maximum_ns": 2701692,
+        "median_ns": 2701692,
+        "minimum_ns": 2701692,
+        "p95_ns": 2701692,
+        "runs": 1,
+        "samples_ns": [
+          2701692
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/objcopy-strip-unneeded/obj.stripped.o": "9aeade8e2c3d3f0ca70c3da1c8cd4956d2464a8e7bb81ab18231e8b6ad8277eb"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 55,
+        "unknown": 0,
+        "writes": 14
+      },
+      "eligible_for_reuse": true,
+      "hit_decision": "Deoptimized",
+      "hit_kind": "Executed",
+      "hit_reason": "cached execution deoptimized",
+      "name": "objcopy-strip-unneeded",
+      "note": "objcopy --strip-unneeded on a compiled object (metadata rewrite).",
+      "output_count": 1,
+      "process_count": 1,
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "cc",
+        "objcopy"
+      ],
+      "status": "reuse_was_not_obtained",
+      "traced_cold": {
+        "maximum_ns": 26506337,
+        "median_ns": 26506337,
+        "minimum_ns": 26506337,
+        "p95_ns": 26506337,
+        "runs": 1,
+        "samples_ns": [
+          26506337
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/objcopy-strip-unneeded/obj.stripped.o": "9aeade8e2c3d3f0ca70c3da1c8cd4956d2464a8e7bb81ab18231e8b6ad8277eb"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0
+    },
+    {
+      "blockers": [
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "other:pipe 1: a read returned less than it requested and more data",
+        "other:pipe 2: a read returned less than it requested and more data",
+        "unmodeled_syscall:5"
+      ],
+      "category": "shell",
+      "classification": "Unknown",
+      "command": [
+        "sh",
+        "-c",
+        "awk '{ digest = (digest * 1315423911 + $1) % 4294967296 } END { printf \"%08x\\n\", digest }' /tmp/tracejit-census-sk1zpg9z/shell-pipeline/numbers.txt | sort | uniq -c | awk '{ print $2 }' > /tmp/tracejit-census-sk1zpg9z/shell-pipeline/pipeline.out"
+      ],
+      "cwd": "/workspace/chats/24375cea864939ae012511ac",
+      "dependency_count": 79,
+      "direct": {
+        "maximum_ns": 4316414,
+        "median_ns": 4316414,
+        "minimum_ns": 4316414,
+        "p95_ns": 4316414,
+        "runs": 1,
+        "samples_ns": [
+          4316414
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/shell-pipeline/pipeline.out": "10d33aaea2ca9966ce60e7e5a5c0c1af3b01b7f9b8f708bbf160d656e8822dc7"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 9,
+        "reads": 201,
+        "unknown": 8,
+        "writes": 2
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "shell-pipeline",
+      "note": "Deterministic awk | sort | uniq -c kernel pipeline over a generated integer list.",
+      "output_count": 1,
+      "output_equivalence": "PASS",
+      "process_count": 5,
+      "reason_counts": {
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "other:pipe 1: a read returned less than it requested and more data": 1,
+        "other:pipe 2: a read returned less than it requested and more data": 1,
+        "unmodeled_syscall:5": 6
+      },
+      "reasons": [
+        "unmodeled successful syscall 5: fstat on pipe descriptor 0 reports buffered byte counts, which depend on scheduling",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 0 reports buffered byte counts, which depend on scheduling",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 0 reports buffered byte counts, which depend on scheduling",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 1 reports buffered byte counts, which depend on scheduling",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 1 reports buffered byte counts, which depend on scheduling",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 1 reports buffered byte counts, which depend on scheduling",
+        "pipe 1: a read returned less than it requested and more data followed, so the reader's observations depend on scheduling",
+        "pipe 2: a read returned less than it requested and more data followed, so the reader's observations depend on scheduling",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "sh",
+        "awk",
+        "sort",
+        "uniq"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 53472724,
+        "median_ns": 53472724,
+        "minimum_ns": 53472724,
+        "p95_ns": 53472724,
+        "runs": 1,
+        "samples_ns": [
+          53472724
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/shell-pipeline/pipeline.out": "10d33aaea2ca9966ce60e7e5a5c0c1af3b01b7f9b8f708bbf160d656e8822dc7"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "5: fstat"
+      ],
+      "unsupported_syscalls": [
+        5
+      ]
+    },
+    {
+      "blockers": [
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "unmodeled_syscall:98"
+      ],
+      "category": "multi_file",
+      "classification": "Unknown",
+      "command": [
+        "sh",
+        "-c",
+        "cc -O2 -c /tmp/tracejit-census-sk1zpg9z/multi-file-compile-ar-hash/source.c -o /tmp/tracejit-census-sk1zpg9z/multi-file-compile-ar-hash/a.o && ar rcs /tmp/tracejit-census-sk1zpg9z/multi-file-compile-ar-hash/liba.a /tmp/tracejit-census-sk1zpg9z/multi-file-compile-ar-hash/a.o && sha256sum /tmp/tracejit-census-sk1zpg9z/multi-file-compile-ar-hash/liba.a > /tmp/tracejit-census-sk1zpg9z/multi-file-compile-ar-hash/liba.sha256"
+      ],
+      "cwd": "/tmp/tracejit-census-sk1zpg9z/multi-file-compile-ar-hash",
+      "dependency_count": 315,
+      "direct": {
+        "maximum_ns": 50630101,
+        "median_ns": 50630101,
+        "minimum_ns": 50630101,
+        "p95_ns": 50630101,
+        "runs": 1,
+        "samples_ns": [
+          50630101
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/multi-file-compile-ar-hash/liba.sha256": "0140ab67d4b0d4d2a1177cb92051f0a4c5f9a2ec24707c9714f5fb810d722526"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 11,
+        "reads": 840,
+        "unknown": 1,
+        "writes": 20
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "multi-file-compile-ar-hash",
+      "note": "Multi-step compile \u2192 ar \u2192 sha256sum pipeline over generated sources.",
+      "output_count": 5,
+      "output_equivalence": "PASS",
+      "process_count": 6,
+      "reason_counts": {
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "unmodeled_syscall:98": 1
+      },
+      "reasons": [
+        "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffc2deb4ef0, 0x7ffc2deb5478, 0x7ffc2deb5040, 0x0, 0x7f518b052380]",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "sh",
+        "cc",
+        "ar",
+        "sha256sum"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 203972744,
+        "median_ns": 203972744,
+        "minimum_ns": 203972744,
+        "p95_ns": 203972744,
+        "runs": 1,
+        "samples_ns": [
+          203972744
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/multi-file-compile-ar-hash/liba.sha256": "0140ab67d4b0d4d2a1177cb92051f0a4c5f9a2ec24707c9714f5fb810d722526"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "98: getrusage"
+      ],
+      "unsupported_syscalls": [
+        98
+      ]
+    },
+    {
+      "blockers": [
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "unmodeled_syscall:72"
+      ],
+      "category": "python",
+      "classification": "Unknown",
+      "command": [
+        "/opt/freestyle/python/bin/python3",
+        "/workspace/chats/24375cea864939ae012511ac/benchmarks/realworld/workloads/etl.py",
+        "/tmp/tracejit-census-sk1zpg9z/python-csv-json/sales.csv",
+        "/tmp/tracejit-census-sk1zpg9z/python-csv-json/customers.csv",
+        "/tmp/tracejit-census-sk1zpg9z/python-csv-json/report.json"
+      ],
+      "cwd": "/workspace/chats/24375cea864939ae012511ac",
+      "dependency_count": 200,
+      "direct": {
+        "maximum_ns": 27273597,
+        "median_ns": 27273597,
+        "minimum_ns": 27273597,
+        "p95_ns": 27273597,
+        "runs": 1,
+        "samples_ns": [
+          27273597
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/python-csv-json/report.json": "28bc8fa9e7c25a10aa121654b5df07381a78fd5d45873ef077c4132cf51054e8"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "34679fae57c75dd69cedd8be4b1fc2def4172828094d88ff192b04c9e0ba4241"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 1185,
+        "unknown": 3,
+        "writes": 2
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "python-csv-json",
+      "note": "CPython CSV to JSON aggregation with PYTHONHASHSEED unset (interpreter defaults).",
+      "output_count": 1,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "unmodeled_syscall:72": 3
+      },
+      "reasons": [
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "/opt/freestyle/python/bin/python3"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 144126644,
+        "median_ns": 144126644,
+        "minimum_ns": 144126644,
+        "p95_ns": 144126644,
+        "runs": 1,
+        "samples_ns": [
+          144126644
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/python-csv-json/report.json": "28bc8fa9e7c25a10aa121654b5df07381a78fd5d45873ef077c4132cf51054e8"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "34679fae57c75dd69cedd8be4b1fc2def4172828094d88ff192b04c9e0ba4241"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "72: fcntl"
+      ],
+      "unsupported_syscalls": [
+        72
+      ]
+    },
+    {
+      "blockers": [
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "unmodeled_syscall:72"
+      ],
+      "category": "python",
+      "classification": "Unknown",
+      "command": [
+        "/opt/freestyle/python/bin/python3",
+        "/workspace/chats/24375cea864939ae012511ac/benchmarks/realworld/workloads/etl.py",
+        "/tmp/tracejit-census-sk1zpg9z/python-csv-json-seeded/sales.csv",
+        "/tmp/tracejit-census-sk1zpg9z/python-csv-json-seeded/customers.csv",
+        "/tmp/tracejit-census-sk1zpg9z/python-csv-json-seeded/report.json"
+      ],
+      "cwd": "/workspace/chats/24375cea864939ae012511ac",
+      "dependency_count": 200,
+      "direct": {
+        "maximum_ns": 27630378,
+        "median_ns": 27630378,
+        "minimum_ns": 27630378,
+        "p95_ns": 27630378,
+        "runs": 1,
+        "samples_ns": [
+          27630378
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/python-csv-json-seeded/report.json": "28bc8fa9e7c25a10aa121654b5df07381a78fd5d45873ef077c4132cf51054e8"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "95cf267a1106dfc1353ec8c44bd68bddece01cff64ff01f037e15b342424a2f3"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 1186,
+        "unknown": 3,
+        "writes": 2
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "python-csv-json-seeded",
+      "note": "Same CPython workload with PYTHONHASHSEED=0 and PYTHONDONTWRITEBYTECODE=1.",
+      "output_count": 1,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "unmodeled_syscall:72": 3
+      },
+      "reasons": [
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "/opt/freestyle/python/bin/python3"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 121720561,
+        "median_ns": 121720561,
+        "minimum_ns": 121720561,
+        "p95_ns": 121720561,
+        "runs": 1,
+        "samples_ns": [
+          121720561
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/python-csv-json-seeded/report.json": "28bc8fa9e7c25a10aa121654b5df07381a78fd5d45873ef077c4132cf51054e8"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "95cf267a1106dfc1353ec8c44bd68bddece01cff64ff01f037e15b342424a2f3"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "72: fcntl"
+      ],
+      "unsupported_syscalls": [
+        72
+      ]
+    },
+    {
+      "blockers": [
+        "clock",
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "process_identity"
+      ],
+      "category": "codegen",
+      "classification": "Nondeterministic",
+      "command": [
+        "sh",
+        "-c",
+        "awk -f /workspace/chats/24375cea864939ae012511ac/benchmarks/realworld/workloads/codegen.awk /tmp/tracejit-census-sk1zpg9z/awk-codegen/schema.tsv > /tmp/tracejit-census-sk1zpg9z/awk-codegen/generated.h"
+      ],
+      "cwd": "/workspace/chats/24375cea864939ae012511ac",
+      "dependency_count": 32,
+      "direct": {
+        "maximum_ns": 2272912,
+        "median_ns": 2272912,
+        "minimum_ns": 2272912,
+        "p95_ns": 2272912,
+        "runs": 1,
+        "samples_ns": [
+          2272912
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/awk-codegen/generated.h": "1dc9988dbc519180d112e90d139b9a7f44162f04124ab5cf36e9b8d92eadd409"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 3,
+        "reads": 63,
+        "unknown": 0,
+        "writes": 2
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "awk-codegen",
+      "note": "Generates a C header from a TSV schema with awk, the code-generation tool available here.",
+      "output_count": 1,
+      "output_equivalence": "PASS",
+      "process_count": 2,
+      "reason_counts": {
+        "clock": 1,
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "process_identity": 2
+      },
+      "reasons": [
+        "process read process identity via getpid",
+        "process read process identity via getppid",
+        "process read system clock: realtime",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "awk",
+        "sh"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 29504029,
+        "median_ns": 29504029,
+        "minimum_ns": 29504029,
+        "p95_ns": 29504029,
+        "runs": 1,
+        "samples_ns": [
+          29504029
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/awk-codegen/generated.h": "1dc9988dbc519180d112e90d139b9a7f44162f04124ab5cf36e9b8d92eadd409"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "other:pipe 1: a read returned less than it requested and more data",
+        "unmodeled_syscall:5"
+      ],
+      "category": "documentation",
+      "classification": "Unknown",
+      "command": [
+        "sh",
+        "-c",
+        "groff -Tutf8 -man /tmp/tracejit-census-sk1zpg9z/groff-manpage-html/census.1 > /tmp/tracejit-census-sk1zpg9z/groff-manpage-html/census.out"
+      ],
+      "cwd": "/workspace/chats/24375cea864939ae012511ac",
+      "dependency_count": 116,
+      "direct": {
+        "maximum_ns": 13041813,
+        "median_ns": 13041813,
+        "minimum_ns": 13041813,
+        "p95_ns": 13041813,
+        "runs": 1,
+        "samples_ns": [
+          13041813
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/groff-manpage-html/census.out": "1de5c6e2f0874e9cebacce026a5625c42a42088b8692a2f500e6b1b0c53ceb51"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 7,
+        "reads": 200,
+        "unknown": 3,
+        "writes": 2
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "groff-manpage-html",
+      "note": "Converts a troff man page with the first installed groff output device (html, then utf8, then ascii).",
+      "output_count": 1,
+      "output_equivalence": "PASS",
+      "process_count": 4,
+      "reason_counts": {
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "other:pipe 1: a read returned less than it requested and more data": 1,
+        "unmodeled_syscall:5": 2
+      },
+      "reasons": [
+        "unmodeled successful syscall 5: fstat on pipe descriptor 0 reports buffered byte counts, which depend on scheduling",
+        "unmodeled successful syscall 5: fstat on pipe descriptor 1 reports buffered byte counts, which depend on scheduling",
+        "pipe 1: a read returned less than it requested and more data followed, so the reader's observations depend on scheduling",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "groff",
+        "sh"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 69395249,
+        "median_ns": 69395249,
+        "minimum_ns": 69395249,
+        "p95_ns": 69395249,
+        "runs": 1,
+        "samples_ns": [
+          69395249
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/groff-manpage-html/census.out": "1de5c6e2f0874e9cebacce026a5625c42a42088b8692a2f500e6b1b0c53ceb51"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "5: fstat"
+      ],
+      "unsupported_syscalls": [
+        5
+      ]
+    },
+    {
+      "blockers": [
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "unmodeled_syscall:72"
+      ],
+      "category": "image",
+      "classification": "Unknown",
+      "command": [
+        "/opt/freestyle/python/bin/python3",
+        "/workspace/chats/24375cea864939ae012511ac/benchmarks/realworld/workloads/image_transform.py",
+        "/tmp/tracejit-census-sk1zpg9z/pil-image-transform/source.png",
+        "/tmp/tracejit-census-sk1zpg9z/pil-image-transform/transformed.png"
+      ],
+      "cwd": "/workspace/chats/24375cea864939ae012511ac",
+      "dependency_count": 445,
+      "direct": {
+        "maximum_ns": 69523479,
+        "median_ns": 69523479,
+        "minimum_ns": 69523479,
+        "p95_ns": 69523479,
+        "runs": 1,
+        "samples_ns": [
+          69523479
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/pil-image-transform/transformed.png": "9051d93b033ab24a02917a5af4a1b4c95c3104dc6a18c7841ad4cac9f2d3f446"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "8c56e2219cc44b7cb7193833d6971d0039f78fbb5c9c4595c2b4f47977571dad"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 2667,
+        "unknown": 3,
+        "writes": 2
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "pil-image-transform",
+      "note": "Grayscale plus posterize plus resize of a generated PNG with Pillow.",
+      "output_count": 1,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "unmodeled_syscall:72": 3
+      },
+      "reasons": [
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "/opt/freestyle/python/bin/python3"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 283581054,
+        "median_ns": 283581054,
+        "minimum_ns": 283581054,
+        "p95_ns": 283581054,
+        "runs": 1,
+        "samples_ns": [
+          283581054
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/pil-image-transform/transformed.png": "9051d93b033ab24a02917a5af4a1b4c95c3104dc6a18c7841ad4cac9f2d3f446"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "8c56e2219cc44b7cb7193833d6971d0039f78fbb5c9c4595c2b4f47977571dad"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "72: fcntl"
+      ],
+      "unsupported_syscalls": [
+        72
+      ]
+    },
+    {
+      "blockers": [
+        "clock",
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "system_information"
+      ],
+      "category": "lint",
+      "classification": "Nondeterministic",
+      "command": [
+        "cc",
+        "-fsyntax-only",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "/workspace/chats/24375cea864939ae012511ac/tests/fixtures/fixture_driver.c"
+      ],
+      "cwd": "/workspace/chats/24375cea864939ae012511ac",
+      "dependency_count": 1196,
+      "direct": {
+        "maximum_ns": 43122863,
+        "median_ns": 43122863,
+        "minimum_ns": 43122863,
+        "p95_ns": 43122863,
+        "runs": 1,
+        "samples_ns": [
+          43122863
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 3,
+        "reads": 4438,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "cc-syntax-only-lint",
+      "note": "Compiler front-end lint pass (cc -fsyntax-only -Wall -Wextra -Werror) over the C fixture.",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 2,
+      "reason_counts": {
+        "clock": 1,
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "system_information": 2
+      },
+      "reasons": [
+        "process read system information via prlimit64",
+        "process read system information via sysinfo",
+        "process read system clock: realtime",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "cc"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 349592899,
+        "median_ns": 349592899,
+        "minimum_ns": 349592899,
+        "p95_ns": 349592899,
+        "runs": 1,
+        "samples_ns": [
+          349592899
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [],
+      "cache_hit": {
+        "maximum_ns": 19260079,
+        "median_ns": 19260079,
+        "minimum_ns": 19260079,
+        "p95_ns": 19260079,
+        "runs": 1,
+        "samples_ns": [
+          19260079
+        ]
+      },
+      "category": "compress",
+      "classification": "Guarded",
+      "command": [
+        "gzip",
+        "-c",
+        "-n",
+        "/tmp/tracejit-census-sk1zpg9z/gzip-compress-stdout/blob.bin"
+      ],
+      "cwd": "/tmp/tracejit-census-sk1zpg9z/gzip-compress-stdout",
+      "dependency_count": 9,
+      "direct": {
+        "maximum_ns": 2372392,
+        "median_ns": 2372392,
+        "minimum_ns": 2372392,
+        "p95_ns": 2372392,
+        "runs": 1,
+        "samples_ns": [
+          2372392
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "9a01960b07da228b96fdc020696b6d5003726b36e413389fcafd78a8d87828ea"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 25,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": true,
+      "hit_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "9a01960b07da228b96fdc020696b6d5003726b36e413389fcafd78a8d87828ea"
+      },
+      "hit_obtained": true,
+      "name": "gzip-compress-stdout",
+      "note": "gzip -c -n of a 64KiB deterministic blob (stdout capture; timestamps suppressed).",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {},
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "gzip"
+      ],
+      "speedup": 0.1231766494831096,
+      "status": "reused",
+      "time_saved_ns": -16887687,
+      "traced_cold": {
+        "maximum_ns": 16135946,
+        "median_ns": 16135946,
+        "minimum_ns": 16135946,
+        "p95_ns": 16135946,
+        "runs": 1,
+        "samples_ns": [
+          16135946
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "9a01960b07da228b96fdc020696b6d5003726b36e413389fcafd78a8d87828ea"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "unmodeled_syscall:5"
+      ],
+      "category": "compress",
+      "classification": "Unknown",
+      "command": [
+        "sh",
+        "-c",
+        "gzip -c -n /tmp/tracejit-census-sk1zpg9z/gzip-roundtrip-file/blob.bin | gzip -dc > /tmp/tracejit-census-sk1zpg9z/gzip-roundtrip-file/gunzip.bin"
+      ],
+      "cwd": "/tmp/tracejit-census-sk1zpg9z/gzip-roundtrip-file",
+      "dependency_count": 19,
+      "direct": {
+        "maximum_ns": 2731393,
+        "median_ns": 2731393,
+        "minimum_ns": 2731393,
+        "p95_ns": 2731393,
+        "runs": 1,
+        "samples_ns": [
+          2731393
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/gzip-roundtrip-file/gunzip.bin": "e32d92510f7e1c6acbf14afec28643fb51ef2a877202d3f1d73105425891775d"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 5,
+        "reads": 52,
+        "unknown": 1,
+        "writes": 3
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "gzip-roundtrip-file",
+      "note": "gzip | gunzip round-trip into a scratch file via sh.",
+      "output_count": 1,
+      "output_equivalence": "PASS",
+      "process_count": 3,
+      "reason_counts": {
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "unmodeled_syscall:5": 1
+      },
+      "reasons": [
+        "unmodeled successful syscall 5: fstat on pipe descriptor 0 reports buffered byte counts, which depend on scheduling",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "gzip",
+        "sh"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 29281749,
+        "median_ns": 29281749,
+        "minimum_ns": 29281749,
+        "p95_ns": 29281749,
+        "runs": 1,
+        "samples_ns": [
+          29281749
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/gzip-roundtrip-file/gunzip.bin": "e32d92510f7e1c6acbf14afec28643fb51ef2a877202d3f1d73105425891775d"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "5: fstat"
+      ],
+      "unsupported_syscalls": [
+        5
+      ]
+    },
+    {
+      "blockers": [],
+      "cache_hit": {
+        "maximum_ns": 9042699,
+        "median_ns": 9042699,
+        "minimum_ns": 9042699,
+        "p95_ns": 9042699,
+        "runs": 1,
+        "samples_ns": [
+          9042699
+        ]
+      },
+      "category": "compress",
+      "classification": "Guarded",
+      "command": [
+        "bzip2",
+        "-c",
+        "/tmp/tracejit-census-sk1zpg9z/bzip2-compress-stdout/blob.bin"
+      ],
+      "cwd": "/tmp/tracejit-census-sk1zpg9z/bzip2-compress-stdout",
+      "dependency_count": 11,
+      "direct": {
+        "maximum_ns": 9880490,
+        "median_ns": 9880490,
+        "minimum_ns": 9880490,
+        "p95_ns": 9880490,
+        "runs": 1,
+        "samples_ns": [
+          9880490
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "9aa00046fa3ef59ec6daec16103b11963c21933a9db2d07a26e266fb6240b029"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 29,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": true,
+      "hit_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "9aa00046fa3ef59ec6daec16103b11963c21933a9db2d07a26e266fb6240b029"
+      },
+      "hit_obtained": true,
+      "name": "bzip2-compress-stdout",
+      "note": "bzip2 -c of the same deterministic blob.",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {},
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "bzip2"
+      ],
+      "speedup": 1.092648334308153,
+      "status": "reused",
+      "time_saved_ns": 837791,
+      "traced_cold": {
+        "maximum_ns": 27664488,
+        "median_ns": 27664488,
+        "minimum_ns": 27664488,
+        "p95_ns": 27664488,
+        "runs": 1,
+        "samples_ns": [
+          27664488
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "9aa00046fa3ef59ec6daec16103b11963c21933a9db2d07a26e266fb6240b029"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "unmodeled_syscall:72"
+      ],
+      "category": "compress",
+      "classification": "Unknown",
+      "command": [
+        "xz",
+        "-c",
+        "-0",
+        "/tmp/tracejit-census-sk1zpg9z/xz-compress-stdout/blob.bin"
+      ],
+      "cwd": "/tmp/tracejit-census-sk1zpg9z/xz-compress-stdout",
+      "dependency_count": 55,
+      "direct": {
+        "maximum_ns": 2531302,
+        "median_ns": 2531302,
+        "minimum_ns": 2531302,
+        "p95_ns": 2531302,
+        "runs": 1,
+        "samples_ns": [
+          2531302
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "045c7f5401717a66bd947819605634bcd9837591d24d6402321ecb90ee1b8830"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 75,
+        "unknown": 8,
+        "writes": 0
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "xz-compress-stdout",
+      "note": "xz -c -0 of the deterministic blob (fast preset; not tuned for TraceJIT).",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "unmodeled_syscall:72": 8
+      },
+      "reasons": [
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded",
+        "unmodeled successful syscall 72: status-flag change on fd 3 whose open file description is shared or unclassified",
+        "unmodeled successful syscall 72: status-flag change on fd 4 whose open file description is shared or unclassified",
+        "unmodeled successful syscall 72: fcntl query 3 on inherited or unclassified fd 1, whose flags are not guarded",
+        "unmodeled successful syscall 72: status-flag change on fd 1 whose open file description is shared or unclassified",
+        "unmodeled successful syscall 72: status-flag change on fd 1 whose open file description is shared or unclassified",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "xz"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 25686935,
+        "median_ns": 25686935,
+        "minimum_ns": 25686935,
+        "p95_ns": 25686935,
+        "runs": 1,
+        "samples_ns": [
+          25686935
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "045c7f5401717a66bd947819605634bcd9837591d24d6402321ecb90ee1b8830"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "72: fcntl"
+      ],
+      "unsupported_syscalls": [
+        72
+      ]
+    },
+    {
+      "blockers": [
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "unmodeled_syscall:72"
+      ],
+      "category": "archiver",
+      "classification": "Unknown",
+      "command": [
+        "tar",
+        "-cf",
+        "/tmp/tracejit-census-sk1zpg9z/tar-create-archive/bundle.tar",
+        "-C",
+        "/tmp/tracejit-census-sk1zpg9z/tar-create-archive",
+        "lines.txt",
+        "blob.bin"
+      ],
+      "cwd": "/tmp/tracejit-census-sk1zpg9z/tar-create-archive",
+      "dependency_count": 73,
+      "direct": {
+        "maximum_ns": 2659472,
+        "median_ns": 2659472,
+        "minimum_ns": 2659472,
+        "p95_ns": 2659472,
+        "runs": 1,
+        "samples_ns": [
+          2659472
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/tar-create-archive/bundle.tar": "15736912bc8df1451af8202c741b9808bf5d7f435424ec827ae68460b18930ef"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 100,
+        "unknown": 3,
+        "writes": 14
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "tar-create-archive",
+      "note": "tar -cf bundling text + binary fixtures (multi-file archive).",
+      "output_count": 1,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "unmodeled_syscall:72": 3
+      },
+      "reasons": [
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "tar"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 31348721,
+        "median_ns": 31348721,
+        "minimum_ns": 31348721,
+        "p95_ns": 31348721,
+        "runs": 1,
+        "samples_ns": [
+          31348721
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/tar-create-archive/bundle.tar": "15736912bc8df1451af8202c741b9808bf5d7f435424ec827ae68460b18930ef"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "72: fcntl"
+      ],
+      "unsupported_syscalls": [
+        72
+      ]
+    },
+    {
+      "blockers": [],
+      "cache_hit": {
+        "maximum_ns": 12960083,
+        "median_ns": 12960083,
+        "minimum_ns": 12960083,
+        "p95_ns": 12960083,
+        "runs": 1,
+        "samples_ns": [
+          12960083
+        ]
+      },
+      "category": "text",
+      "classification": "Guarded",
+      "command": [
+        "sed",
+        "s/value=/v=/g",
+        "/tmp/tracejit-census-sk1zpg9z/sed-rewrite-stdout/lines.txt"
+      ],
+      "cwd": "/tmp/tracejit-census-sk1zpg9z/sed-rewrite-stdout",
+      "dependency_count": 61,
+      "direct": {
+        "maximum_ns": 1841412,
+        "median_ns": 1841412,
+        "minimum_ns": 1841412,
+        "p95_ns": 1841412,
+        "runs": 1,
+        "samples_ns": [
+          1841412
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "924e52951a6b240fdd74d6642b57bbeff075411516166eb116d8ca03fc4e2d65"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 78,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": true,
+      "hit_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "924e52951a6b240fdd74d6642b57bbeff075411516166eb116d8ca03fc4e2d65"
+      },
+      "hit_obtained": true,
+      "name": "sed-rewrite-stdout",
+      "note": "sed substitution over a generated text file to stdout.",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {},
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "sed"
+      ],
+      "speedup": 0.14208334931188327,
+      "status": "reused",
+      "time_saved_ns": -11118671,
+      "traced_cold": {
+        "maximum_ns": 26249926,
+        "median_ns": 26249926,
+        "minimum_ns": 26249926,
+        "p95_ns": 26249926,
+        "runs": 1,
+        "samples_ns": [
+          26249926
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "924e52951a6b240fdd74d6642b57bbeff075411516166eb116d8ca03fc4e2d65"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "clock",
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r"
+      ],
+      "category": "text",
+      "classification": "Nondeterministic",
+      "command": [
+        "awk",
+        "{ s += $2 } END { printf \"%d\\n\", s }",
+        "/tmp/tracejit-census-sk1zpg9z/awk-sum-stdout/lines.txt"
+      ],
+      "cwd": "/tmp/tracejit-census-sk1zpg9z/awk-sum-stdout",
+      "dependency_count": 23,
+      "direct": {
+        "maximum_ns": 1373082,
+        "median_ns": 1373082,
+        "minimum_ns": 1373082,
+        "p95_ns": 1373082,
+        "runs": 1,
+        "samples_ns": [
+          1373082
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 40,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "awk-sum-stdout",
+      "note": "awk numeric reduction over generated lines (scientific-style transform).",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "clock": 1,
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1
+      },
+      "reasons": [
+        "process read system clock: realtime",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "awk"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 19772129,
+        "median_ns": 19772129,
+        "minimum_ns": 19772129,
+        "p95_ns": 19772129,
+        "runs": 1,
+        "samples_ns": [
+          19772129
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "clock",
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r"
+      ],
+      "category": "scientific",
+      "classification": "Nondeterministic",
+      "command": [
+        "awk",
+        "BEGIN { x=1.0 } { x = x * 1.0000007 + ($1 % 97) } END { printf \"%.10f\\n\", x }",
+        "/tmp/tracejit-census-sk1zpg9z/awk-scientific-iter/numbers.txt"
+      ],
+      "cwd": "/tmp/tracejit-census-sk1zpg9z/awk-scientific-iter",
+      "dependency_count": 23,
+      "direct": {
+        "maximum_ns": 1153341,
+        "median_ns": 1153341,
+        "minimum_ns": 1153341,
+        "p95_ns": 1153341,
+        "runs": 1,
+        "samples_ns": [
+          1153341
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "2680ee97ab15ed0500de8eb51ced5470d5501649a3fba7d39670155d128ac9bf"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 40,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "awk-scientific-iter",
+      "note": "Iterative floating-point reduction over a generated integer stream.",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "clock": 1,
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1
+      },
+      "reasons": [
+        "process read system clock: realtime",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "awk"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 20115791,
+        "median_ns": 20115791,
+        "minimum_ns": 20115791,
+        "p95_ns": 20115791,
+        "runs": 1,
+        "samples_ns": [
+          20115791
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "2680ee97ab15ed0500de8eb51ced5470d5501649a3fba7d39670155d128ac9bf"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "system_information"
+      ],
+      "category": "text",
+      "classification": "Nondeterministic",
+      "command": [
+        "sort",
+        "/tmp/tracejit-census-sk1zpg9z/sort-numbers/numbers.txt"
+      ],
+      "cwd": "/tmp/tracejit-census-sk1zpg9z/sort-numbers",
+      "dependency_count": 56,
+      "direct": {
+        "maximum_ns": 1992532,
+        "median_ns": 1992532,
+        "minimum_ns": 1992532,
+        "p95_ns": 1992532,
+        "runs": 1,
+        "samples_ns": [
+          1992532
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "f3010c855d75c875bcbe20dacb9e4b2cd2baed4a8f35558c5d49bb91f8968fc1"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 82,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "sort-numbers",
+      "note": "sort of a generated integer list to stdout.",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "system_information": 3
+      },
+      "reasons": [
+        "process read system information via sched_getaffinity",
+        "process read system information via prlimit64",
+        "process read system information via sysinfo",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "sort"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 27425017,
+        "median_ns": 27425017,
+        "minimum_ns": 27425017,
+        "p95_ns": 27425017,
+        "runs": 1,
+        "samples_ns": [
+          27425017
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "f3010c855d75c875bcbe20dacb9e4b2cd2baed4a8f35558c5d49bb91f8968fc1"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [],
+      "cache_hit": {
+        "maximum_ns": 11403782,
+        "median_ns": 11403782,
+        "minimum_ns": 11403782,
+        "p95_ns": 11403782,
+        "runs": 1,
+        "samples_ns": [
+          11403782
+        ]
+      },
+      "category": "text",
+      "classification": "Guarded",
+      "command": [
+        "wc",
+        "-l",
+        "/tmp/tracejit-census-sk1zpg9z/wc-line-count/lines.txt"
+      ],
+      "cwd": "/tmp/tracejit-census-sk1zpg9z/wc-line-count",
+      "dependency_count": 52,
+      "direct": {
+        "maximum_ns": 1415931,
+        "median_ns": 1415931,
+        "minimum_ns": 1415931,
+        "p95_ns": 1415931,
+        "runs": 1,
+        "samples_ns": [
+          1415931
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "d1b31c284a8b183a148d3ca3ba104c40b83669f136a9278c6af389c48c03b477"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 68,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": true,
+      "hit_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "d1b31c284a8b183a148d3ca3ba104c40b83669f136a9278c6af389c48c03b477"
+      },
+      "hit_obtained": true,
+      "name": "wc-line-count",
+      "note": "wc -l over generated text.",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {},
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "wc"
+      ],
+      "speedup": 0.12416328197084091,
+      "status": "reused",
+      "time_saved_ns": -9987851,
+      "traced_cold": {
+        "maximum_ns": 23432204,
+        "median_ns": 23432204,
+        "minimum_ns": 23432204,
+        "p95_ns": 23432204,
+        "runs": 1,
+        "samples_ns": [
+          23432204
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "d1b31c284a8b183a148d3ca3ba104c40b83669f136a9278c6af389c48c03b477"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [],
+      "cache_hit": {
+        "maximum_ns": 13878074,
+        "median_ns": 13878074,
+        "minimum_ns": 13878074,
+        "p95_ns": 13878074,
+        "runs": 1,
+        "samples_ns": [
+          13878074
+        ]
+      },
+      "category": "digest",
+      "classification": "Guarded",
+      "command": [
+        "sha256sum",
+        "/tmp/tracejit-census-sk1zpg9z/sha256sum-blob/blob.bin"
+      ],
+      "cwd": "/tmp/tracejit-census-sk1zpg9z/sha256sum-blob",
+      "dependency_count": 55,
+      "direct": {
+        "maximum_ns": 1841141,
+        "median_ns": 1841141,
+        "minimum_ns": 1841141,
+        "p95_ns": 1841141,
+        "runs": 1,
+        "samples_ns": [
+          1841141
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "193bda2de5ebdcaaad0d7651c3c2e76d72177e56c1b99ad315894b35a9f70791"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 71,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": true,
+      "hit_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "193bda2de5ebdcaaad0d7651c3c2e76d72177e56c1b99ad315894b35a9f70791"
+      },
+      "hit_obtained": true,
+      "name": "sha256sum-blob",
+      "note": "sha256sum of a deterministic binary blob.",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {},
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "sha256sum"
+      ],
+      "speedup": 0.1326654548750785,
+      "status": "reused",
+      "time_saved_ns": -12036933,
+      "traced_cold": {
+        "maximum_ns": 26688517,
+        "median_ns": 26688517,
+        "minimum_ns": 26688517,
+        "p95_ns": 26688517,
+        "runs": 1,
+        "samples_ns": [
+          26688517
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "193bda2de5ebdcaaad0d7651c3c2e76d72177e56c1b99ad315894b35a9f70791"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [],
+      "cache_hit": {
+        "maximum_ns": 11976022,
+        "median_ns": 11976022,
+        "minimum_ns": 11976022,
+        "p95_ns": 11976022,
+        "runs": 1,
+        "samples_ns": [
+          11976022
+        ]
+      },
+      "category": "digest",
+      "classification": "Guarded",
+      "command": [
+        "openssl",
+        "dgst",
+        "-sha256",
+        "/tmp/tracejit-census-sk1zpg9z/openssl-sha256/blob.bin"
+      ],
+      "cwd": "/tmp/tracejit-census-sk1zpg9z/openssl-sha256",
+      "dependency_count": 16,
+      "direct": {
+        "maximum_ns": 3894584,
+        "median_ns": 3894584,
+        "minimum_ns": 3894584,
+        "p95_ns": 3894584,
+        "runs": 1,
+        "samples_ns": [
+          3894584
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "0ea56f6551f1da44fb4afa8798e908a4a58529ff319c5c7ae9dd8cab6b9b7523"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 32,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": true,
+      "hit_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "0ea56f6551f1da44fb4afa8798e908a4a58529ff319c5c7ae9dd8cab6b9b7523"
+      },
+      "hit_obtained": true,
+      "name": "openssl-sha256",
+      "note": "openssl dgst -sha256 of the same blob.",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {},
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "openssl"
+      ],
+      "speedup": 0.325198467404285,
+      "status": "reused",
+      "time_saved_ns": -8081438,
+      "traced_cold": {
+        "maximum_ns": 26244496,
+        "median_ns": 26244496,
+        "minimum_ns": 26244496,
+        "p95_ns": 26244496,
+        "runs": 1,
+        "samples_ns": [
+          26244496
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "0ea56f6551f1da44fb4afa8798e908a4a58529ff319c5c7ae9dd8cab6b9b7523"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [],
+      "cache_hit": {
+        "maximum_ns": 11656122,
+        "median_ns": 11656122,
+        "minimum_ns": 11656122,
+        "p95_ns": 11656122,
+        "runs": 1,
+        "samples_ns": [
+          11656122
+        ]
+      },
+      "category": "inspect",
+      "classification": "Guarded",
+      "command": [
+        "od",
+        "-An",
+        "-tx1",
+        "-N",
+        "256",
+        "/tmp/tracejit-census-sk1zpg9z/od-hex-prefix/blob.bin"
+      ],
+      "cwd": "/tmp/tracejit-census-sk1zpg9z/od-hex-prefix",
+      "dependency_count": 52,
+      "direct": {
+        "maximum_ns": 1229421,
+        "median_ns": 1229421,
+        "minimum_ns": 1229421,
+        "p95_ns": 1229421,
+        "runs": 1,
+        "samples_ns": [
+          1229421
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "60d844103c0cd90a856a62c8874912401a53000ee13ae36e1859055e5f7992b1"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 68,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": true,
+      "hit_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "60d844103c0cd90a856a62c8874912401a53000ee13ae36e1859055e5f7992b1"
+      },
+      "hit_obtained": true,
+      "name": "od-hex-prefix",
+      "note": "od hex dump of the first 256 bytes of the blob.",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {},
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "od"
+      ],
+      "speedup": 0.10547427351910009,
+      "status": "reused",
+      "time_saved_ns": -10426701,
+      "traced_cold": {
+        "maximum_ns": 22431733,
+        "median_ns": 22431733,
+        "minimum_ns": 22431733,
+        "p95_ns": 22431733,
+        "runs": 1,
+        "samples_ns": [
+          22431733
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "60d844103c0cd90a856a62c8874912401a53000ee13ae36e1859055e5f7992b1"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "clock",
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r"
+      ],
+      "category": "io",
+      "classification": "Nondeterministic",
+      "command": [
+        "dd",
+        "if=/tmp/tracejit-census-sk1zpg9z/dd-copy-file/blob.bin",
+        "of=/tmp/tracejit-census-sk1zpg9z/dd-copy-file/copy.bin",
+        "bs=4096",
+        "status=none"
+      ],
+      "cwd": "/tmp/tracejit-census-sk1zpg9z/dd-copy-file",
+      "dependency_count": 52,
+      "direct": {
+        "maximum_ns": 1466792,
+        "median_ns": 1466792,
+        "minimum_ns": 1466792,
+        "p95_ns": 1466792,
+        "runs": 1,
+        "samples_ns": [
+          1466792
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/dd-copy-file/copy.bin": "e32d92510f7e1c6acbf14afec28643fb51ef2a877202d3f1d73105425891775d"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 69,
+        "unknown": 0,
+        "writes": 17
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "dd-copy-file",
+      "note": "dd file copy of the blob into scratch (status=none).",
+      "output_count": 1,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "clock": 1,
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1
+      },
+      "reasons": [
+        "process read system clock: monotonic",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "dd"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 24800394,
+        "median_ns": 24800394,
+        "minimum_ns": 24800394,
+        "p95_ns": 24800394,
+        "runs": 1,
+        "samples_ns": [
+          24800394
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/dd-copy-file/copy.bin": "e32d92510f7e1c6acbf14afec28643fb51ef2a877202d3f1d73105425891775d"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "randomness"
+      ],
+      "category": "data",
+      "classification": "Nondeterministic",
+      "command": [
+        "jq",
+        "[.[].value] | add",
+        "/tmp/tracejit-census-sk1zpg9z/jq-sum-values/rows.json"
+      ],
+      "cwd": "/tmp/tracejit-census-sk1zpg9z/jq-sum-values",
+      "dependency_count": 65,
+      "direct": {
+        "maximum_ns": 3257974,
+        "median_ns": 3257974,
+        "minimum_ns": 3257974,
+        "p95_ns": 3257974,
+        "runs": 1,
+        "samples_ns": [
+          3257974
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "10a03e53e6b69516aae2e6c0f9cfef7482093c4f5d7a3f6617413f1189fda3c2"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 91,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "jq-sum-values",
+      "note": "jq sum over a generated JSON array (data preprocessing).",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "randomness": 1
+      },
+      "reasons": [
+        "process read randomness via getrandom",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "jq"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 27552367,
+        "median_ns": 27552367,
+        "minimum_ns": 27552367,
+        "p95_ns": 27552367,
+        "runs": 1,
+        "samples_ns": [
+          27552367
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "10a03e53e6b69516aae2e6c0f9cfef7482093c4f5d7a3f6617413f1189fda3c2"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "clock",
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "randomness"
+      ],
+      "category": "script",
+      "classification": "Nondeterministic",
+      "command": [
+        "perl",
+        "-lne",
+        "$s += $1 if /value=(\\d+)/; END { print $s+0 }",
+        "/tmp/tracejit-census-sk1zpg9z/perl-sum-values/lines.txt"
+      ],
+      "cwd": "/tmp/tracejit-census-sk1zpg9z/perl-sum-values",
+      "dependency_count": 64,
+      "direct": {
+        "maximum_ns": 3567654,
+        "median_ns": 3567654,
+        "minimum_ns": 3567654,
+        "p95_ns": 3567654,
+        "runs": 1,
+        "samples_ns": [
+          3567654
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "027493f283b91f830b3e076ec455a40ee3762e87b49a645364d31eccda5d96d8"
+      },
+      "effect_counts": {
+        "controls": 1,
+        "reads": 98,
+        "unknown": 0,
+        "writes": 0
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "perl-sum-values",
+      "note": "perl -lne reduction over generated text (repo-script stand-in).",
+      "output_count": 0,
+      "output_equivalence": "PASS",
+      "process_count": 1,
+      "reason_counts": {
+        "clock": 1,
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "randomness": 1
+      },
+      "reasons": [
+        "process read randomness via /dev/urandom",
+        "process read system clock: realtime",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "perl"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 36424156,
+        "median_ns": 36424156,
+        "minimum_ns": 36424156,
+        "p95_ns": 36424156,
+        "runs": 1,
+        "samples_ns": [
+          36424156
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "027493f283b91f830b3e076ec455a40ee3762e87b49a645364d31eccda5d96d8"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [],
+      "unsupported_syscalls": []
+    },
+    {
+      "blockers": [
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r",
+        "unmodeled_syscall:72"
+      ],
+      "category": "build",
+      "classification": "Unknown",
+      "command": [
+        "make",
+        "-C",
+        "/tmp/tracejit-census-sk1zpg9z/make-awk-target",
+        "all"
+      ],
+      "cwd": "/tmp/tracejit-census-sk1zpg9z/make-awk-target",
+      "dependency_count": 63,
+      "direct": {
+        "maximum_ns": 3744404,
+        "median_ns": 3744404,
+        "minimum_ns": 3744404,
+        "p95_ns": 3744404,
+        "runs": 1,
+        "samples_ns": [
+          3744404
+        ]
+      },
+      "direct_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/make-awk-target/out.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "fcab3029d5befbb9db6f85f7b97cbf3e2ca8c82149a367ccf112e2c61ce27810"
+      },
+      "effect_counts": {
+        "controls": 3,
+        "reads": 83,
+        "unknown": 5,
+        "writes": 0
+      },
+      "eligible_for_reuse": false,
+      "hit_obtained": false,
+      "name": "make-awk-target",
+      "note": "make -C scratch all: declared single-target awk reduction (build-system baseline).",
+      "output_count": 0,
+      "output_equivalence": "FAIL",
+      "process_count": 1,
+      "reason_counts": {
+        "other:executed under the tracejit.allocator-entropy.v1 contract; r": 1,
+        "unmodeled_syscall:72": 5
+      },
+      "reasons": [
+        "unmodeled successful syscall 72: fcntl query 3 on inherited or unclassified fd 1, whose flags are not guarded",
+        "unmodeled successful syscall 72: status-flag change on fd 1 whose open file description is shared or unclassified",
+        "unmodeled successful syscall 72: fcntl query 3 on inherited or unclassified fd 2, whose flags are not guarded",
+        "unmodeled successful syscall 72: status-flag change on fd 2 whose open file description is shared or unclassified",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ],
+      "required_tools": [
+        "make",
+        "awk"
+      ],
+      "status": "refused",
+      "traced_cold": {
+        "maximum_ns": 25657666,
+        "median_ns": 25657666,
+        "minimum_ns": 25657666,
+        "p95_ns": 25657666,
+        "runs": 1,
+        "samples_ns": [
+          25657666
+        ]
+      },
+      "traced_observation": {
+        "exit_status": 0,
+        "outputs": {
+          "/tmp/tracejit-census-sk1zpg9z/make-awk-target/out.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "f30dbbc4e3a732dac5d98c898355dcd1af1e117a62ba77cdc4f764616c8fb8c3"
+      },
+      "tracejit_exit_status": 0,
+      "unsupported_syscall_names": [
+        "72: fcntl"
+      ],
+      "unsupported_syscalls": [
+        72
+      ]
+    },
+    {
+      "category": "rust",
+      "missing_tools": [
+        "rustc"
+      ],
+      "name": "rustc-hello",
+      "note": "rustc -O of a tiny deterministic Rust program (Rust-related workflow).",
+      "required_tools": [
+        "rustc"
+      ],
+      "status": "blocked_missing_tool"
+    }
+  ]
+}

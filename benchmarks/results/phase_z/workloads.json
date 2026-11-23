@@ -1,0 +1,404 @@
+{
+  "corpus": {
+    "words.txt": {
+      "bytes": 18401870,
+      "sha256": "c6425f92a48b86dbfbf0ace02d314bfb197b7edd4d45853b7dcd8d1dba99edd6"
+    },
+    "numbers.txt": {
+      "bytes": 2066719,
+      "sha256": "f5d3dc44b15b38a7b716920538c105c84979e57e53994490a291fcb1a24efc21"
+    },
+    "blob.bin": {
+      "bytes": 2000000,
+      "sha256": "902fb65dd825b04b493ea72be23684b5a3aecf74892c2b3ccb91e7f30ee21081"
+    },
+    "document.json": {
+      "bytes": 1366915,
+      "sha256": "a0f624f7116d969ae8950567bf3cc66c6fad2d317aab0dd01d786fcdcb30b94d"
+    }
+  },
+  "rounds": 5,
+  "fingerprint": {
+    "captured_at_unix": 1795404495,
+    "os_release": [
+      "PRETTY_NAME=\"Ubuntu 24.04.5 LTS\"",
+      "NAME=\"Ubuntu\""
+    ],
+    "kernel_release": "6.1.102",
+    "cpu_model": "AMD EPYC 7003 (Milan)",
+    "cpus": 2,
+    "glibc_version": "2.39",
+    "libc_path": "/usr/lib/x86_64-linux-gnu/libc.so.6",
+    "libc_build_id": "8cebda42d140fc2b09639f8b13a5d5f2e617ef09",
+    "libc_sha256": "755a371e86cc9f564ab54f66140747700fb0a103f698f659f2060f707897e09a",
+    "loader_build_id": "231ab65dd867a89dce29cb958fd5ca50abb1aa34",
+    "toolchain": {
+      "cc": {
+        "path": "/usr/bin/x86_64-linux-gnu-gcc-13",
+        "build_id": "9ac130c81c026cf6204ff71a70b526667a09122f",
+        "sha256": "1b99826121ae6682a634e5efe09bd3e3df58ce58e0b28f849114ab5b89139c26"
+      },
+      "cc1": {
+        "path": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1",
+        "build_id": "32e37dd731113376ea74086d0a292046e09c1e92",
+        "sha256": "5d1679131184e2de4435b426eb264bf13472fe026db8e5c6bc97445814e8e2f4"
+      },
+      "as": {
+        "path": "/usr/bin/x86_64-linux-gnu-as",
+        "build_id": "7fc854c85861e94ccc8725eb40d0cddd3d61fab9",
+        "sha256": "21aff249b692b5c31a44007491f922dcb49f41323e362c57d2ada3f52eddb7f0"
+      },
+      "ld": {
+        "path": "/usr/bin/x86_64-linux-gnu-ld",
+        "build_id": "1d35d5872f98465fc425489b11f0b75af2f47df8",
+        "sha256": "e9ceb054c12207970f2726dfc07e9a66b411602748628baf27399f02a9bbb31b"
+      },
+      "collect2": {
+        "path": "/usr/libexec/gcc/x86_64-linux-gnu/13/collect2",
+        "build_id": "33c97059ef7c4872f4ff860caedc0b5b784d5cb0",
+        "sha256": "4d1f341ae5b763b513258ee2812422a45e063c30a2f1924a0cf63d3699f3a158"
+      }
+    },
+    "tracejit": "/workspace/chats/24375cea864939ae012511ac/target/release/tracejit",
+    "tracejit_sha256": "a0d75d8efc78a93142deaedfe53be9f2efe2c2b62eadec99b628ec93e0249c73",
+    "contract": "compiler-runtime-v1",
+    "runtime_contract": "allocator-entropy-v1 audited (8cebda42d140fc2b09639f8b13a5d5f2e617ef09)",
+    "environment": {
+      "GLIBC_TUNABLES": null,
+      "MALLOC_ARENA_MAX": null,
+      "LD_PRELOAD": null,
+      "LD_LIBRARY_PATH": null,
+      "SOURCE_DATE_EPOCH": null,
+      "TZ": null,
+      "LANG": "C.UTF-8",
+      "LC_ALL": null,
+      "PYTHONHASHSEED": null,
+      "TRACEJIT_GUARD_PROFILE": null
+    },
+    "available_arms": {
+      "ccache": false,
+      "sccache": false,
+      "make": true,
+      "ninja": false
+    },
+    "corpus": {
+      "words.txt": {
+        "bytes": 18401870,
+        "sha256": "c6425f92a48b86dbfbf0ace02d314bfb197b7edd4d45853b7dcd8d1dba99edd6"
+      },
+      "numbers.txt": {
+        "bytes": 2066719,
+        "sha256": "f5d3dc44b15b38a7b716920538c105c84979e57e53994490a291fcb1a24efc21"
+      },
+      "blob.bin": {
+        "bytes": 2000000,
+        "sha256": "902fb65dd825b04b493ea72be23684b5a3aecf74892c2b3ccb91e7f30ee21081"
+      },
+      "document.json": {
+        "bytes": 1366915,
+        "sha256": "a0f624f7116d969ae8950567bf3cc66c6fad2d317aab0dd01d786fcdcb30b94d"
+      }
+    }
+  },
+  "workloads": [
+    {
+      "name": "sha256sum-blob",
+      "kind": "compute",
+      "command": [
+        "sha256sum",
+        "blob.bin"
+      ],
+      "contract": "allocator-entropy-v1",
+      "classification": "Guarded",
+      "cache_decisions": [
+        "Reused"
+      ],
+      "reused_every_round": true,
+      "native_median_ms": 3.72,
+      "cold_trace_ms": 38.72,
+      "hit_median_ms": 10.26,
+      "speedup": 0.363,
+      "hit_slower_than_native": true,
+      "guard_bytes_hashed": 15114573,
+      "guard_count": 97,
+      "guard_content_ns": 4829475,
+      "guard_total_ns": 6254036,
+      "restore_ns": 985510,
+      "stdio_replay_ns": 30900,
+      "decision_persist_ns": 2435892,
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ]
+    },
+    {
+      "name": "gzip-blob",
+      "kind": "compute",
+      "command": [
+        "gzip",
+        "-9",
+        "-n",
+        "-k",
+        "-f",
+        "blob.bin"
+      ],
+      "contract": "allocator-entropy-v1",
+      "classification": "Guarded",
+      "cache_decisions": [
+        "Reused"
+      ],
+      "reused_every_round": true,
+      "native_median_ms": 51.78,
+      "cold_trace_ms": 87.69,
+      "hit_median_ms": 13.64,
+      "speedup": 3.796,
+      "hit_slower_than_native": false,
+      "guard_bytes_hashed": 6461404,
+      "guard_count": 36,
+      "guard_content_ns": 2056642,
+      "guard_total_ns": 3318903,
+      "restore_ns": 6004766,
+      "stdio_replay_ns": 27570,
+      "decision_persist_ns": 1757202,
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ]
+    },
+    {
+      "name": "sort-numbers",
+      "kind": "compute",
+      "command": [
+        "sort",
+        "-o",
+        "sorted.txt",
+        "numbers.txt"
+      ],
+      "contract": "allocator-entropy-v1",
+      "classification": "Unknown",
+      "cache_decisions": [
+        "Ineligible"
+      ],
+      "reused_every_round": false,
+      "native_median_ms": 89.27,
+      "cold_trace_ms": 143.25,
+      "hit_median_ms": 134.84,
+      "speedup": 0.662,
+      "hit_slower_than_native": true,
+      "guard_bytes_hashed": null,
+      "guard_count": null,
+      "guard_content_ns": null,
+      "guard_total_ns": null,
+      "restore_ns": null,
+      "stdio_replay_ns": null,
+      "decision_persist_ns": null,
+      "reasons": [
+        "clone file-descriptor and cwd sharing semantics are not eligible for V1 reuse",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ]
+    },
+    {
+      "name": "sort-single-thread",
+      "kind": "compute",
+      "command": [
+        "sort",
+        "--parallel=1",
+        "-S",
+        "256M",
+        "-o",
+        "sorted1.txt",
+        "numbers.txt"
+      ],
+      "contract": "allocator-entropy-v1",
+      "classification": "Guarded",
+      "cache_decisions": [
+        "Reused"
+      ],
+      "reused_every_round": true,
+      "native_median_ms": 142.18,
+      "cold_trace_ms": 205.29,
+      "hit_median_ms": 17.15,
+      "speedup": 8.289,
+      "hit_slower_than_native": false,
+      "guard_bytes_hashed": 15313164,
+      "guard_count": 99,
+      "guard_content_ns": 5985934,
+      "guard_total_ns": 7834437,
+      "restore_ns": 6272797,
+      "stdio_replay_ns": 29010,
+      "decision_persist_ns": 3222983,
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ]
+    },
+    {
+      "name": "awk-sum",
+      "kind": "compute",
+      "command": [
+        "awk",
+        "{s+=$1} END {print s}",
+        "numbers.txt"
+      ],
+      "contract": "allocator-entropy-v1",
+      "classification": "Nondeterministic",
+      "cache_decisions": [
+        "Ineligible"
+      ],
+      "reused_every_round": false,
+      "native_median_ms": 25.21,
+      "cold_trace_ms": 55.5,
+      "hit_median_ms": 43.31,
+      "speedup": 0.582,
+      "hit_slower_than_native": true,
+      "guard_bytes_hashed": null,
+      "guard_count": null,
+      "guard_content_ns": null,
+      "guard_total_ns": null,
+      "restore_ns": null,
+      "stdio_replay_ns": null,
+      "decision_persist_ns": null,
+      "reasons": [
+        "process read system clock: realtime",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ]
+    },
+    {
+      "name": "sed-normalize",
+      "kind": "transform",
+      "command": [
+        "sed",
+        "-E",
+        "-n",
+        "s/[0-9]+/N/g;w normalized.txt",
+        "numbers.txt"
+      ],
+      "contract": "allocator-entropy-v1",
+      "classification": "Guarded",
+      "cache_decisions": [
+        "Reused"
+      ],
+      "reused_every_round": true,
+      "native_median_ms": 132.98,
+      "cold_trace_ms": 226.54,
+      "hit_median_ms": 12.07,
+      "speedup": 11.019,
+      "hit_slower_than_native": false,
+      "guard_bytes_hashed": 10858468,
+      "guard_count": 105,
+      "guard_content_ns": 3941144,
+      "guard_total_ns": 5646826,
+      "restore_ns": 3267343,
+      "stdio_replay_ns": 29750,
+      "decision_persist_ns": 2551422,
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ]
+    },
+    {
+      "name": "wc-numbers",
+      "kind": "cheap",
+      "command": [
+        "wc",
+        "-l",
+        "numbers.txt"
+      ],
+      "contract": "allocator-entropy-v1",
+      "classification": "Guarded",
+      "cache_decisions": [
+        "Reused"
+      ],
+      "reused_every_round": true,
+      "native_median_ms": 1.44,
+      "cold_trace_ms": 27.67,
+      "hit_median_ms": 8.44,
+      "speedup": 0.17,
+      "hit_slower_than_native": true,
+      "guard_bytes_hashed": 9904868,
+      "guard_count": 93,
+      "guard_content_ns": 3180892,
+      "guard_total_ns": 4669095,
+      "restore_ns": 841900,
+      "stdio_replay_ns": 30900,
+      "decision_persist_ns": 2324733,
+      "reasons": [
+        "all observed dependencies are guardable or captured outputs",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ]
+    },
+    {
+      "name": "tar-words",
+      "kind": "write-output",
+      "command": [
+        "tar",
+        "-cf",
+        "words.tar",
+        "words.txt"
+      ],
+      "contract": null,
+      "classification": "Unknown",
+      "cache_decisions": [
+        "Ineligible"
+      ],
+      "reused_every_round": false,
+      "native_median_ms": 30.38,
+      "cold_trace_ms": 289.85,
+      "hit_median_ms": 238.12,
+      "speedup": 0.128,
+      "hit_slower_than_native": true,
+      "guard_bytes_hashed": null,
+      "guard_count": null,
+      "guard_content_ns": null,
+      "guard_total_ns": null,
+      "restore_ns": null,
+      "stdio_replay_ns": null,
+      "decision_persist_ns": null,
+      "reasons": [
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded"
+      ]
+    },
+    {
+      "name": "python-json-tool",
+      "kind": "parse",
+      "command": [
+        "python3",
+        "-m",
+        "json.tool",
+        "document.json",
+        "formatted.json"
+      ],
+      "contract": "allocator-entropy-v1",
+      "classification": "Unknown",
+      "cache_decisions": [
+        "Ineligible"
+      ],
+      "reused_every_round": false,
+      "native_median_ms": 115.72,
+      "cold_trace_ms": 293.14,
+      "hit_median_ms": 296.95,
+      "speedup": 0.39,
+      "hit_slower_than_native": true,
+      "guard_bytes_hashed": null,
+      "guard_count": null,
+      "guard_content_ns": null,
+      "guard_total_ns": null,
+      "restore_ns": null,
+      "stdio_replay_ns": null,
+      "decision_persist_ns": null,
+      "reasons": [
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+        "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded",
+        "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+      ]
+    }
+  ],
+  "shortlist": [
+    "gzip-blob",
+    "sort-single-thread",
+    "sed-normalize"
+  ]
+}

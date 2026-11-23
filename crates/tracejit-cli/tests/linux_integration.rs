@@ -3803,6 +3803,391 @@ fn allocator_double_free_detection_survives_the_contract() {
     eprintln!("RESULT allocator-double-free PASS");
 }
 
+/// glibc's allocator diagnostics come from list membership and chunk state, never from the key's
+/// value, so a contract run must print exactly what a native run prints.
+#[test]
+fn allocator_contract_preserves_allocator_diagnostics_byte_for_byte() {
+    let temporary = tempfile::tempdir().unwrap();
+    // The double free is checked on both allocator paths. With tcache disabled the chunk goes to
+    // the fastbin and glibc reports the fasttop corruption instead, which is a property of the
+    // tunable, not of the contract; the harness's default tunable would otherwise compare a
+    // tcache run against a fastbin run and call the difference a contract effect.
+    let cases = [
+        (
+            "double-free-tcache",
+            "#include <stdlib.h>\nint main(void){void*p=malloc(64);free(p);free(p);return 0;}\n",
+            None,
+            "double free detected in tcache 2",
+        ),
+        (
+            "double-free-fastbin",
+            "#include <stdlib.h>\nint main(void){void*p=malloc(64);free(p);free(p);return 0;}\n",
+            Some("glibc.malloc.tcache_count=0"),
+            "double free or corruption (fasttop)",
+        ),
+        (
+            // A misaligned pointer into a live chunk takes the deterministic
+            // "free(): invalid pointer" path. A stack address does not: whether it looks
+            // mmapped depends on where ASLR put the stack, so the diagnostic itself varies
+            // between native and traced runs for reasons that have nothing to do with the
+            // contract.
+            "misaligned-free",
+            "#include <stdlib.h>\nint main(void){void*p=malloc(64);free((char*)p+8);return 0;}\n",
+            None,
+            "invalid pointer",
+        ),
+    ];
+    for (name, source, tunables, diagnostic) in cases {
+        let source_path = temporary.path().join(format!("{name}.c"));
+        fs::write(&source_path, source).unwrap();
+        let binary = temporary.path().join(name);
+        let compiled = Command::new("cc")
+            .args(["-O0", "-g", "-w"])
+            .arg(&source_path)
+            .arg("-o")
+            .arg(&binary)
+            .status()
+            .unwrap();
+        assert!(compiled.success(), "{name} fixture compilation failed");
+        let mut native_command = Command::new(&binary);
+        native_command.env_remove("GLIBC_TUNABLES");
+        if let Some(tunables) = tunables {
+            native_command.env("GLIBC_TUNABLES", tunables);
+        }
+        let native = native_command.output().unwrap();
+        assert!(!native.status.success(), "{name} must abort natively");
+        let native_text = String::from_utf8_lossy(&native.stderr).into_owned();
+        assert!(native_text.contains(diagnostic), "{name}: {native_text}");
+
+        let cache = temporary.path().join(format!("cache-{name}"));
+        let mut traced_command = tracejit_command();
+        traced_command
+            .args([
+                "run",
+                "--json",
+                "--contract",
+                "allocator-entropy-v1",
+                "--",
+                binary.to_str().unwrap(),
+            ])
+            .env("TRACEJIT_CACHE_DIR", &cache)
+            .env_remove("GLIBC_TUNABLES");
+        if let Some(tunables) = tunables {
+            traced_command.env("GLIBC_TUNABLES", tunables);
+        }
+        let output = traced_command.output().unwrap();
+        let report: Value = serde_json::from_slice(&output.stdout).unwrap();
+        let stderr: Vec<u8> = report["stderr_bytes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|byte| byte.as_u64().unwrap() as u8)
+            .collect();
+        let traced_text = String::from_utf8_lossy(&stderr).into_owned();
+        assert_eq!(
+            traced_text, native_text,
+            "{name}: the contract changed the allocator's diagnostic"
+        );
+        // glibc calls abort(), so the traced exit status is SIGABRT's 134 in both arms.
+        assert_eq!(report["exit_code"], 134, "{name}: {report}");
+        // A fixed key is not a secret, but it stays in allocator state: no diagnostic may print it.
+        assert!(!traced_text.contains("9e3779b9"), "{name}: {traced_text}");
+        assert!(!traced_text.contains("7f4a7c15"), "{name}: {traced_text}");
+    }
+    eprintln!("RESULT allocator-diagnostics PASS");
+}
+
+/// A shared library that issues the *same* request from its own constructor is not the audited
+/// runtime: admission is the audited build's call site, not the shape of the request.
+#[test]
+fn allocator_contract_refuses_an_unaudited_library_probe() {
+    if !Command::new("sed")
+        .arg("--version")
+        .output()
+        .is_ok_and(|output| output.status.success())
+    {
+        eprintln!("RESULT allocator-unaudited-library SKIP");
+        return;
+    }
+    let temporary = tempfile::tempdir().unwrap();
+    let source = temporary.path().join("probe.c");
+    fs::write(
+        &source,
+        "#include <sys/random.h>\n\
+         #include <stdint.h>\n\
+         static uint64_t probe_key;\n\
+         __attribute__((constructor)) static void probe_init(void) {\n\
+           (void)getrandom(&probe_key, 8, GRND_NONBLOCK);\n\
+         }\n",
+    )
+    .unwrap();
+    let library = temporary.path().join("probe.so");
+    let compiled = Command::new("cc")
+        .args(["-shared", "-fPIC", "-O2", "-w"])
+        .arg(&source)
+        .arg("-o")
+        .arg(&library)
+        .status()
+        .unwrap();
+    assert!(compiled.success(), "probe library compilation failed");
+    let build_id = tracejit_effects::elf_build_id(&library).expect("probe library build id");
+    assert!(
+        tracejit_effects::allocator_entropy_profile(&build_id).is_none(),
+        "the unaudited library must not be in the audited table"
+    );
+
+    let input = temporary.path().join("input.txt");
+    fs::write(&input, "hello\n").unwrap();
+    let input_text = input.to_str().unwrap();
+    let expected = Command::new("sed")
+        .args(["s/h/H/", input_text])
+        .output()
+        .unwrap()
+        .stdout;
+    let cache = temporary.path().join("cache");
+    let mut command = tracejit_command();
+    let report: Value = serde_json::from_slice(
+        &command
+            .args([
+                "run",
+                "--json",
+                "--contract",
+                "allocator-entropy-v1",
+                "--",
+                "sed",
+                "s/h/H/",
+                input_text,
+            ])
+            .env("TRACEJIT_CACHE_DIR", &cache)
+            .env("LD_PRELOAD", &library)
+            .output()
+            .unwrap()
+            .stdout,
+    )
+    .unwrap();
+    assert_eq!(
+        report["classification"], "Nondeterministic",
+        "an unaudited library's probe must stay an ordinary entropy read: {report}"
+    );
+    assert_ne!(report["cache_decision"], "Reused", "{report}");
+    assert_eq!(stdout_bytes_of(&report), expected);
+    eprintln!("RESULT allocator-unaudited-library PASS");
+}
+
+/// Every traced process initialises its own copy of the key. Four children started concurrently
+/// must each be admitted, and the replay must reproduce every output file.
+#[test]
+fn allocator_contract_handles_concurrent_initialization() {
+    let temporary = tempfile::tempdir().unwrap();
+    let source = temporary.path().join("concurrent.c");
+    fs::write(
+        &source,
+        r#"#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/wait.h>
+int main(int argc, char **argv) {
+  if (argc > 1) {
+    void *p = malloc(4096);
+    memset(p, 0x41, 4096);
+    free(p);
+    FILE *f = fopen(argv[1], "w");
+    if (!f) return 1;
+    fputs("child\n", f);
+    fclose(f);
+    return 0;
+  }
+  char name[32];
+  for (int i = 0; i < 4; i++) {
+    pid_t pid = fork();
+    if (pid == 0) {
+      snprintf(name, sizeof name, "out%d.txt", i);
+      execl(argv[0], argv[0], name, (char *)NULL);
+      _exit(127);
+    }
+  }
+  while (waitpid(-1, NULL, 0) > 0) { }
+  return 0;
+}
+"#,
+    )
+    .unwrap();
+    let binary = temporary.path().join("concurrent");
+    let compiled = Command::new("cc")
+        .args(["-O1", "-w"])
+        .arg(&source)
+        .arg("-o")
+        .arg(&binary)
+        .status()
+        .unwrap();
+    assert!(compiled.success(), "concurrency fixture compilation failed");
+    let cache = temporary.path().join("cache");
+    let args = [
+        "run",
+        "--json",
+        "--contract",
+        "allocator-entropy-v1",
+        "--",
+        binary.to_str().unwrap(),
+    ];
+    let first: Value =
+        serde_json::from_slice(&invoke_in_workdir(&cache, temporary.path(), &args).stdout).unwrap();
+    assert_eq!(first["exit_code"], 0, "{first}");
+    for index in 0..4 {
+        let path = temporary.path().join(format!("out{index}.txt"));
+        assert_eq!(fs::read_to_string(&path).unwrap(), "child\n", "{path:?}");
+        fs::remove_file(&path).unwrap();
+    }
+    let audited = runtime_libc_build_id()
+        .filter(|build_id| tracejit_effects::allocator_entropy_profile(build_id).is_some())
+        .is_some();
+    if audited {
+        assert_eq!(first["classification"], "Guarded", "{first}");
+    }
+    let second: Value =
+        serde_json::from_slice(&invoke_in_workdir(&cache, temporary.path(), &args).stdout).unwrap();
+    if audited {
+        assert_eq!(second["cache_decision"], "Reused", "{second}");
+    }
+    for index in 0..4 {
+        let path = temporary.path().join(format!("out{index}.txt"));
+        assert_eq!(fs::read_to_string(&path).unwrap(), "child\n", "{path:?}");
+    }
+    eprintln!("RESULT allocator-concurrent-init PASS");
+}
+
+/// Ordinary allocation, free, realloc and calloc cycles behave identically under the contract:
+/// the fixed key changes the `key` word of freed chunks only, and `tcache_get_n` zeroes it before
+/// the program sees the chunk. The fixture prints a digest of bytes it wrote itself.
+#[test]
+fn allocator_contract_leaves_valid_allocation_cycles_unchanged() {
+    let temporary = tempfile::tempdir().unwrap();
+    let source = temporary.path().join("churn.c");
+    fs::write(
+        &source,
+        r#"#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+static uint64_t step(uint64_t a, const unsigned char *p, size_t n) {
+  for (size_t i = 0; i < n; i++) { a ^= p[i]; a *= 1099511628211ULL; }
+  return a;
+}
+int main(void) {
+  enum { S = 64 };
+  void *p[S]; uint64_t a = 1469598103934665603ULL;
+  for (int i = 0; i < S; i++) { size_t n = (size_t)(i * 37 + 8); p[i] = malloc(n); memset(p[i], i + 1, n); a = step(a, p[i], n); }
+  for (int i = 0; i < S; i += 2) { free(p[i]); p[i] = NULL; }
+  for (int i = 0; i < S; i += 2) { size_t n = (size_t)(i * 53 + 16); p[i] = malloc(n); memset(p[i], 0x5a, n); a = step(a, p[i], n); }
+  for (int i = 1; i < S; i += 2) { size_t n = (size_t)(i * 11 + 32); p[i] = realloc(p[i], n); memset(p[i], 0x33, n); a = step(a, p[i], n); }
+  for (int i = 0; i < S; i++) free(p[i]);
+  void *c = calloc(128, 8);
+  for (int i = 0; i < 1024; i++) if (((unsigned char *)c)[i]) { printf("calloc not zero\\n"); return 1; }
+  free(c);
+  printf("%016llx\\n", (unsigned long long)a);
+  return 0;
+}
+"#,
+    )
+    .unwrap();
+    let binary = temporary.path().join("churn");
+    let compiled = Command::new("cc")
+        .args(["-O1", "-w"])
+        .arg(&source)
+        .arg("-o")
+        .arg(&binary)
+        .status()
+        .unwrap();
+    assert!(compiled.success(), "churn fixture compilation failed");
+    let native = Command::new(&binary).output().unwrap();
+    assert!(native.status.success());
+
+    let cache = temporary.path().join("cache");
+    let args = [
+        "run",
+        "--json",
+        "--contract",
+        "allocator-entropy-v1",
+        "--",
+        binary.to_str().unwrap(),
+    ];
+    let first: Value = serde_json::from_slice(&invoke(&cache, &args, None).stdout).unwrap();
+    assert_eq!(stdout_bytes_of(&first), native.stdout);
+    let second: Value = serde_json::from_slice(&invoke(&cache, &args, None).stdout).unwrap();
+    assert_eq!(stdout_bytes_of(&second), native.stdout);
+    if runtime_libc_build_id()
+        .filter(|build_id| tracejit_effects::allocator_entropy_profile(build_id).is_some())
+        .is_some()
+    {
+        assert_eq!(second["cache_decision"], "Reused", "{second}");
+    }
+    eprintln!("RESULT allocator-churn PASS");
+}
+
+/// A record made under one controlled contract must not satisfy another one: the contract is part
+/// of the cache identity, even when both contracts would answer the same runtime probe.
+#[test]
+fn allocator_contract_records_do_not_satisfy_another_contract() {
+    if !Command::new("sed")
+        .arg("--version")
+        .output()
+        .is_ok_and(|output| output.status.success())
+    {
+        eprintln!("RESULT allocator-contract-identity SKIP");
+        return;
+    }
+    let temporary = tempfile::tempdir().unwrap();
+    let input = temporary.path().join("input.txt");
+    fs::write(&input, "alpha\nbeta\n").unwrap();
+    let input_text = input.to_str().unwrap();
+    let expected = Command::new("sed")
+        .args(["s/alpha/ALPHA/", input_text])
+        .output()
+        .unwrap()
+        .stdout;
+    let cache = temporary.path().join("cache");
+
+    let first = invoke(
+        &cache,
+        &[
+            "run",
+            "--json",
+            "--contract",
+            "allocator-entropy-v1",
+            "--",
+            "sed",
+            "s/alpha/ALPHA/",
+            input_text,
+        ],
+        None,
+    );
+    let first: Value = serde_json::from_slice(&first.stdout).unwrap();
+    assert_eq!(first["contract"], "tracejit.allocator-entropy.v1");
+
+    let other = invoke(
+        &cache,
+        &[
+            "run",
+            "--json",
+            "--contract",
+            "compiler-runtime-v1",
+            "--",
+            "sed",
+            "s/alpha/ALPHA/",
+            input_text,
+        ],
+        None,
+    );
+    let other: Value = serde_json::from_slice(&other.stdout).unwrap();
+    assert_ne!(
+        other["cache_decision"], "Reused",
+        "a compiler-contract run must not reuse an allocator-contract record: {other}"
+    );
+    assert_eq!(stdout_bytes_of(&other), expected);
+    eprintln!("RESULT allocator-contract-identity PASS");
+}
+
 /// Cost-aware admission must run short commands directly and still cache commands that repay.
 #[test]
 fn auto_admission_skips_short_commands_and_caches_expensive_ones() {

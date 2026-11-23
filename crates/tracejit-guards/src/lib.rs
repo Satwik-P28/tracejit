@@ -832,15 +832,24 @@ impl Guard {
                         actual: library.display().to_string(),
                     });
                 };
-                let start = profile.site_offset.saturating_sub(2) as usize;
-                if library_bytes.get(start..start + profile.site_signature.len())
-                    != Some(profile.site_signature)
-                {
+                // Re-derive the admitted call site from the library's own instructions. A build
+                // whose code no longer encodes the audited destination refuses here even if its
+                // build ID still matches the profile.
+                let Some(site) = tracejit_effects::audited_allocator_site(&library_bytes, profile)
+                else {
                     return Err(GuardFailure {
                         guard: Box::new(self.clone()),
                         reason: "runtime library no longer contains the audited call site".into(),
                         expected: profile.build_id.into(),
                         actual: build_id.clone(),
+                    });
+                };
+                if *destination_offset != site.buffer_offset {
+                    return Err(GuardFailure {
+                        guard: Box::new(self.clone()),
+                        reason: "controlled entropy destination is not the audited buffer".into(),
+                        expected: format!("{:#x}", site.buffer_offset),
+                        actual: format!("{destination_offset:#x}"),
                     });
                 }
                 if *value != tracejit_effects::ALLOCATOR_ENTROPY_VALUE {
@@ -1987,6 +1996,9 @@ fn validate_metadata_hash_pair(
 
 #[cfg(test)]
 mod phase_x_tests;
+
+#[cfg(test)]
+mod phase_z_tests;
 
 fn metadata_change_allows_hash_fallback(path: &Path, expected: &FileFingerprint) -> bool {
     if expected.is_absent() {

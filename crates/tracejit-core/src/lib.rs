@@ -760,6 +760,12 @@ pub struct DoctorReport {
     pub seccomp: bool,
     pub landlock_abi: Option<i32>,
     pub proven: bool,
+    /// Whether this host's C runtime is one of the audited allocator-entropy builds.
+    ///
+    /// The audit is per build ID, so a distribution update silently invalidates it. Reporting that
+    /// here is the difference between "the contract refused this execution" and "the contract is
+    /// unsupported on this host".
+    pub runtime_contract: Option<String>,
     pub cache_path: PathBuf,
     pub cache_writable: bool,
     /// The cache directory is absent, and an existing parent can accept new files.
@@ -773,6 +779,7 @@ pub fn doctor() -> DoctorReport {
     let supported = cfg!(all(target_os = "linux", target_arch = "x86_64"));
     let ptrace_result = probe_ptrace();
     let sandbox = capabilities();
+    let runtime_contract = probe_runtime_contract();
     let cache_path = Cache::default_root();
     let cache_state = cache_path_state(&cache_path);
     let mut problems = Vec::new();
@@ -804,6 +811,7 @@ pub fn doctor() -> DoctorReport {
         os,
         arch,
         supported,
+        runtime_contract,
         ptrace: ptrace_result.is_ok(),
         seccomp: sandbox.seccomp,
         landlock_abi: sandbox.landlock_abi,
@@ -813,6 +821,22 @@ pub fn doctor() -> DoctorReport {
         cache_creatable: cache_state == CachePathState::Creatable,
         problems,
     }
+}
+
+/// Reports whether this host's C runtime is an audited allocator-entropy build.
+fn probe_runtime_contract() -> Option<String> {
+    let maps = std::fs::read_to_string("/proc/self/maps").ok()?;
+    let library = maps.lines().find_map(|line| {
+        let path = line.split_whitespace().last()?;
+        path.ends_with("/libc.so.6").then(|| PathBuf::from(path))
+    })?;
+    let build_id = tracejit_effects::elf_build_id(&library)?;
+    Some(
+        match tracejit_effects::allocator_entropy_profile(&build_id) {
+            Some(_) => format!("allocator-entropy-v1 audited ({build_id})"),
+            None => format!("allocator-entropy-v1 unavailable (unaudited libc {build_id})"),
+        },
+    )
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
