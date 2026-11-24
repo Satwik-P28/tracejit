@@ -1,0 +1,1670 @@
+{
+  "artifact": {
+    "archive": {
+      "bytes": 140341000,
+      "path": "/tmp/artifacts/linux-6.6.50.tar.xz",
+      "sha256": "c065e36daf28210060c91a37ef3e92ac5814784e634577e04e406297ead2e86e",
+      "url": "https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.6.50.tar.xz"
+    },
+    "inputs": {
+      "100MiB": {
+        "text": {
+          "bytes": 104857600,
+          "path": "/tmp/artifacts/text-100MiB.bin",
+          "sha256": "11e409641fc37bc71a23ba021dbe7c4b91205b2a28b271449e03eea672fb5e99"
+        },
+        "xz": {
+          "bytes": 104857600,
+          "path": "/tmp/artifacts/xz-100MiB.bin",
+          "sha256": "bdf44b3e96b39532d52e8b475d07d9835d3013c41328084f83d476fcb926304a"
+        }
+      },
+      "10MiB": {
+        "text": {
+          "bytes": 10485760,
+          "path": "/tmp/artifacts/text-10MiB.bin",
+          "sha256": "43648fa651a2d9163c4436b61708d18e82277f57a2829de494977e86ece4e82f"
+        },
+        "xz": {
+          "bytes": 10485760,
+          "path": "/tmp/artifacts/xz-10MiB.bin",
+          "sha256": "b313f79fb97aabb74d9c28a65e753702830b5aa9ba84db355476e844067231e6"
+        }
+      },
+      "1MiB": {
+        "text": {
+          "bytes": 1048576,
+          "path": "/tmp/artifacts/text-1MiB.bin",
+          "sha256": "3735bb78d739ce24aaa412157a66ce1ed51866d55cbca1455163ba69ab8a4151"
+        },
+        "xz": {
+          "bytes": 1048576,
+          "path": "/tmp/artifacts/xz-1MiB.bin",
+          "sha256": "8a44ddff28b35e1c4db70405c9ed1dbc40a3555007ee6b0c04eb4fb3bf7f6515"
+        }
+      }
+    }
+  },
+  "break_even": [
+    {
+      "arm": "tracejit-ae",
+      "artifact": "1MiB",
+      "break_even": {
+        "fractional": 1.745545931392833,
+        "integer_invocations": 2,
+        "reason": null
+      },
+      "cold_ns": 75813565,
+      "direct_ns": 45987584,
+      "hit_ns": 5982026,
+      "reused": true,
+      "workload": "gzip-stdout"
+    },
+    {
+      "arm": "firebuild",
+      "artifact": "1MiB",
+      "break_even": {
+        "fractional": 1.425659825901371,
+        "integer_invocations": 2,
+        "reason": null
+      },
+      "cold_ns": 61435710,
+      "direct_ns": 45987584,
+      "hit_ns": 9695397,
+      "reused": true,
+      "workload": "gzip-stdout"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "1MiB",
+      "break_even": {
+        "fractional": 2.2079332455910397,
+        "integer_invocations": 3,
+        "reason": null
+      },
+      "cold_ns": 56743423,
+      "direct_ns": 29925638,
+      "hit_ns": 7724258,
+      "reused": true,
+      "workload": "gzip-stdout-incompressible"
+    },
+    {
+      "arm": "firebuild",
+      "artifact": "1MiB",
+      "break_even": {
+        "fractional": 4.342316472027538,
+        "integer_invocations": 5,
+        "reason": null
+      },
+      "cold_ns": 58258926,
+      "direct_ns": 29925638,
+      "hit_ns": 21448497,
+      "reused": true,
+      "workload": "gzip-stdout-incompressible"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "1MiB",
+      "break_even": {
+        "fractional": null,
+        "integer_invocations": null,
+        "reason": "a HIT is not cheaper than direct execution"
+      },
+      "cold_ns": 35628983,
+      "direct_ns": 3200407,
+      "hit_ns": 13136035,
+      "reused": true,
+      "workload": "sha256sum"
+    },
+    {
+      "arm": "firebuild",
+      "artifact": "1MiB",
+      "break_even": {
+        "fractional": null,
+        "integer_invocations": null,
+        "reason": "a HIT is not cheaper than direct execution"
+      },
+      "cold_ns": 10428733,
+      "direct_ns": 3200407,
+      "hit_ns": 7975359,
+      "reused": true,
+      "workload": "sha256sum"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "1MiB",
+      "break_even": {
+        "fractional": 1.4801191153564965,
+        "integer_invocations": 2,
+        "reason": null
+      },
+      "cold_ns": 108313265,
+      "direct_ns": 75791424,
+      "hit_ns": 8054398,
+      "reused": true,
+      "workload": "bzip2-stdout"
+    },
+    {
+      "arm": "firebuild",
+      "artifact": "1MiB",
+      "break_even": {
+        "fractional": 1.1462030829832202,
+        "integer_invocations": 2,
+        "reason": null
+      },
+      "cold_ns": 85598342,
+      "direct_ns": 75791424,
+      "hit_ns": 8714056,
+      "reused": true,
+      "workload": "bzip2-stdout"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "1MiB",
+      "break_even": {
+        "fractional": 1.639433142871313,
+        "integer_invocations": 2,
+        "reason": null
+      },
+      "cold_ns": 78157145,
+      "direct_ns": 51752075,
+      "hit_ns": 10457578,
+      "reused": true,
+      "workload": "gzip-file"
+    },
+    {
+      "arm": "firebuild",
+      "artifact": "1MiB",
+      "break_even": {
+        "fractional": null,
+        "integer_invocations": null,
+        "reason": "a HIT is not cheaper than direct execution"
+      },
+      "cold_ns": 50756316,
+      "direct_ns": 51752075,
+      "hit_ns": 57058854,
+      "reused": false,
+      "workload": "gzip-file"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "10MiB",
+      "break_even": {
+        "fractional": 1.1473572701563948,
+        "integer_invocations": 2,
+        "reason": null
+      },
+      "cold_ns": 645933874,
+      "direct_ns": 565315860,
+      "hit_ns": 18223654,
+      "reused": true,
+      "workload": "gzip-stdout"
+    },
+    {
+      "arm": "firebuild",
+      "artifact": "10MiB",
+      "break_even": {
+        "fractional": 1.133288928574925,
+        "integer_invocations": 2,
+        "reason": null
+      },
+      "cold_ns": 634383744,
+      "direct_ns": 565315860,
+      "hit_ns": 47134157,
+      "reused": true,
+      "workload": "gzip-stdout"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "10MiB",
+      "break_even": {
+        "fractional": 1.4926013083198892,
+        "integer_invocations": 2,
+        "reason": null
+      },
+      "cold_ns": 410076289,
+      "direct_ns": 288622902,
+      "hit_ns": 42067757,
+      "reused": true,
+      "workload": "gzip-stdout-incompressible"
+    },
+    {
+      "arm": "firebuild",
+      "artifact": "10MiB",
+      "break_even": {
+        "fractional": 3.000815998816475,
+        "integer_invocations": 4,
+        "reason": null
+      },
+      "cold_ns": 518349278,
+      "direct_ns": 288622902,
+      "hit_ns": 173806559,
+      "reused": true,
+      "workload": "gzip-stdout-incompressible"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "10MiB",
+      "break_even": {
+        "fractional": null,
+        "integer_invocations": null,
+        "reason": "a HIT is not cheaper than direct execution"
+      },
+      "cold_ns": 86872792,
+      "direct_ns": 14510676,
+      "hit_ns": 18399273,
+      "reused": true,
+      "workload": "sha256sum"
+    },
+    {
+      "arm": "firebuild",
+      "artifact": "10MiB",
+      "break_even": {
+        "fractional": 3.195826883328277,
+        "integer_invocations": 4,
+        "reason": null
+      },
+      "cold_ns": 21010205,
+      "direct_ns": 14510676,
+      "hit_ns": 11550730,
+      "reused": true,
+      "workload": "sha256sum"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "10MiB",
+      "break_even": {
+        "fractional": 1.30767185970676,
+        "integer_invocations": 2,
+        "reason": null
+      },
+      "cold_ns": 889326442,
+      "direct_ns": 684666593,
+      "hit_ns": 19477878,
+      "reused": true,
+      "workload": "bzip2-stdout"
+    },
+    {
+      "arm": "firebuild",
+      "artifact": "10MiB",
+      "break_even": {
+        "fractional": 1.0508800625285528,
+        "integer_invocations": 2,
+        "reason": null
+      },
+      "cold_ns": 717884158,
+      "direct_ns": 684666593,
+      "hit_ns": 31806448,
+      "reused": true,
+      "workload": "bzip2-stdout"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "10MiB",
+      "break_even": {
+        "fractional": 1.150252895780825,
+        "integer_invocations": 2,
+        "reason": null
+      },
+      "cold_ns": 653650999,
+      "direct_ns": 571936657,
+      "hit_ns": 28091285,
+      "reused": true,
+      "workload": "gzip-file"
+    },
+    {
+      "arm": "firebuild",
+      "artifact": "10MiB",
+      "break_even": {
+        "fractional": null,
+        "integer_invocations": null,
+        "reason": "a HIT is not cheaper than direct execution"
+      },
+      "cold_ns": 579318522,
+      "direct_ns": 571936657,
+      "hit_ns": 575306292,
+      "reused": false,
+      "workload": "gzip-file"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "100MiB",
+      "break_even": {
+        "fractional": 1.1136745827354944,
+        "integer_invocations": 2,
+        "reason": null
+      },
+      "cold_ns": 6079481437,
+      "direct_ns": 5467647345,
+      "hit_ns": 85317564,
+      "reused": true,
+      "workload": "gzip-stdout"
+    },
+    {
+      "arm": "firebuild",
+      "artifact": "100MiB",
+      "break_even": {
+        "fractional": 1.0632274776836126,
+        "integer_invocations": 2,
+        "reason": null
+      },
+      "cold_ns": 5795127658,
+      "direct_ns": 5467647345,
+      "hit_ns": 288248688,
+      "reused": true,
+      "workload": "gzip-stdout"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "100MiB",
+      "break_even": {
+        "fractional": 1.329362001596655,
+        "integer_invocations": 2,
+        "reason": null
+      },
+      "cold_ns": 3672522156,
+      "direct_ns": 2852370910,
+      "hit_ns": 362249882,
+      "reused": true,
+      "workload": "gzip-stdout-incompressible"
+    },
+    {
+      "arm": "firebuild",
+      "artifact": "100MiB",
+      "break_even": {
+        "fractional": 11.364772603930385,
+        "integer_invocations": 12,
+        "reason": null
+      },
+      "cold_ns": 12250553210,
+      "direct_ns": 2852370910,
+      "hit_ns": 1945628171,
+      "reused": true,
+      "workload": "gzip-stdout-incompressible"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "100MiB",
+      "break_even": {
+        "fractional": 8.8135039093894,
+        "integer_invocations": 9,
+        "reason": null
+      },
+      "cold_ns": 355694969,
+      "direct_ns": 86519689,
+      "hit_ns": 52069680,
+      "reused": true,
+      "workload": "sha256sum"
+    },
+    {
+      "arm": "firebuild",
+      "artifact": "100MiB",
+      "break_even": {
+        "fractional": 1.7232231971158574,
+        "integer_invocations": 2,
+        "reason": null
+      },
+      "cold_ns": 126048252,
+      "direct_ns": 86519689,
+      "hit_ns": 31863584,
+      "reused": true,
+      "workload": "sha256sum"
+    }
+  ],
+  "rows": [
+    {
+      "arm": "native",
+      "artifact": "1MiB",
+      "cache_bytes": 0,
+      "cold_ns": 52951075,
+      "input_bytes": 1048576,
+      "input_sha256": "3735bb78d739ce24aaa412157a66ce1ed51866d55cbca1455163ba69ab8a4151",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11456,
+      "peak_wall_ns": 52183013,
+      "reuse_evidence": "direct",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 156585939
+        },
+        {
+          "invocations": 10,
+          "total_ns": 504987830
+        },
+        {
+          "invocations": 25,
+          "total_ns": 1206094889
+        }
+      ],
+      "warm_ns": 45987584,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        45987584,
+        52996460,
+        45165632
+      ],
+      "workload": "gzip-stdout"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "1MiB",
+      "cache_bytes": 342923,
+      "cold_ns": 75813565,
+      "input_bytes": 1048576,
+      "input_sha256": "3735bb78d739ce24aaa412157a66ce1ed51866d55cbca1455163ba69ab8a4151",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11388,
+      "peak_wall_ns": 65838643,
+      "reuse_evidence": "Reused/Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 16628391
+        },
+        {
+          "invocations": 10,
+          "total_ns": 56065040
+        },
+        {
+          "invocations": 25,
+          "total_ns": 146467416
+        }
+      ],
+      "warm_ns": 5982026,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        10240410,
+        5339943,
+        5982026
+      ],
+      "workload": "gzip-stdout"
+    },
+    {
+      "arm": "firebuild",
+      "artifact": "1MiB",
+      "cache_bytes": 219104,
+      "cold_ns": 61435710,
+      "input_bytes": 1048576,
+      "input_sha256": "3735bb78d739ce24aaa412157a66ce1ed51866d55cbca1455163ba69ab8a4151",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11428,
+      "peak_wall_ns": 57557761,
+      "reuse_evidence": "Hits:             1 / 1 (100.00 %)",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 27798406
+        },
+        {
+          "invocations": 10,
+          "total_ns": 93019851
+        },
+        {
+          "invocations": 25,
+          "total_ns": 229826806
+        }
+      ],
+      "warm_ns": 9695397,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        10649729,
+        9695397,
+        8895286
+      ],
+      "workload": "gzip-stdout"
+    },
+    {
+      "arm": "native",
+      "artifact": "1MiB",
+      "cache_bytes": 0,
+      "cold_ns": 33665578,
+      "input_bytes": 1048576,
+      "input_sha256": "8a44ddff28b35e1c4db70405c9ed1dbc40a3555007ee6b0c04eb4fb3bf7f6515",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11412,
+      "peak_wall_ns": 33889829,
+      "reuse_evidence": "direct",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 102529610
+        },
+        {
+          "invocations": 10,
+          "total_ns": 334221756
+        },
+        {
+          "invocations": 25,
+          "total_ns": 809515623
+        }
+      ],
+      "warm_ns": 29925638,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        28439148,
+        34682697,
+        29925638
+      ],
+      "workload": "gzip-stdout-incompressible"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "1MiB",
+      "cache_bytes": 1174222,
+      "cold_ns": 56743423,
+      "input_bytes": 1048576,
+      "input_sha256": "8a44ddff28b35e1c4db70405c9ed1dbc40a3555007ee6b0c04eb4fb3bf7f6515",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11392,
+      "peak_wall_ns": 49168486,
+      "reuse_evidence": "Reused/Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 23246802
+        },
+        {
+          "invocations": 10,
+          "total_ns": 82359892
+        },
+        {
+          "invocations": 25,
+          "total_ns": 182092422
+        }
+      ],
+      "warm_ns": 7724258,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        11578231,
+        7724258,
+        7473085
+      ],
+      "workload": "gzip-stdout-incompressible"
+    },
+    {
+      "arm": "firebuild",
+      "artifact": "1MiB",
+      "cache_bytes": 1049769,
+      "cold_ns": 58258926,
+      "input_bytes": 1048576,
+      "input_sha256": "8a44ddff28b35e1c4db70405c9ed1dbc40a3555007ee6b0c04eb4fb3bf7f6515",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11428,
+      "peak_wall_ns": 42947639,
+      "reuse_evidence": "Hits:             1 / 1 (100.00 %)",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 71031520
+        },
+        {
+          "invocations": 10,
+          "total_ns": 204784444
+        },
+        {
+          "invocations": 25,
+          "total_ns": 500982452
+        }
+      ],
+      "warm_ns": 21448497,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        24168492,
+        21448497,
+        20177000
+      ],
+      "workload": "gzip-stdout-incompressible"
+    },
+    {
+      "arm": "native",
+      "artifact": "1MiB",
+      "cache_bytes": 0,
+      "cold_ns": 3436430,
+      "input_bytes": 1048576,
+      "input_sha256": "3735bb78d739ce24aaa412157a66ce1ed51866d55cbca1455163ba69ab8a4151",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11396,
+      "peak_wall_ns": 3094068,
+      "reuse_evidence": "direct",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 9113025
+        },
+        {
+          "invocations": 10,
+          "total_ns": 30057505
+        },
+        {
+          "invocations": 25,
+          "total_ns": 75323776
+        }
+      ],
+      "warm_ns": 3200407,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        3200407,
+        3082976,
+        3202422
+      ],
+      "workload": "sha256sum"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "1MiB",
+      "cache_bytes": 367761,
+      "cold_ns": 35628983,
+      "input_bytes": 1048576,
+      "input_sha256": "3735bb78d739ce24aaa412157a66ce1ed51866d55cbca1455163ba69ab8a4151",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11376,
+      "peak_wall_ns": 27628858,
+      "reuse_evidence": "Reused/Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 37977751
+        },
+        {
+          "invocations": 10,
+          "total_ns": 128142783
+        },
+        {
+          "invocations": 25,
+          "total_ns": 312323585
+        }
+      ],
+      "warm_ns": 13136035,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        16788481,
+        13136035,
+        12726457
+      ],
+      "workload": "sha256sum"
+    },
+    {
+      "arm": "firebuild",
+      "artifact": "1MiB",
+      "cache_bytes": 719,
+      "cold_ns": 10428733,
+      "input_bytes": 1048576,
+      "input_sha256": "3735bb78d739ce24aaa412157a66ce1ed51866d55cbca1455163ba69ab8a4151",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11424,
+      "peak_wall_ns": 9816184,
+      "reuse_evidence": "Hits:             1 / 1 (100.00 %)",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 24051362
+        },
+        {
+          "invocations": 10,
+          "total_ns": 76100294
+        },
+        {
+          "invocations": 25,
+          "total_ns": 190951951
+        }
+      ],
+      "warm_ns": 7975359,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        8039179,
+        7975359,
+        7916930
+      ],
+      "workload": "sha256sum"
+    },
+    {
+      "arm": "native",
+      "artifact": "1MiB",
+      "cache_bytes": 0,
+      "cold_ns": 77253077,
+      "input_bytes": 1048576,
+      "input_sha256": "3735bb78d739ce24aaa412157a66ce1ed51866d55cbca1455163ba69ab8a4151",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11400,
+      "peak_wall_ns": 70955087,
+      "reuse_evidence": "direct",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 225771434
+        },
+        {
+          "invocations": 10,
+          "total_ns": 734481039
+        },
+        {
+          "invocations": 25,
+          "total_ns": 1817162512
+        }
+      ],
+      "warm_ns": 75791424,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        79183250,
+        71411984,
+        75791424
+      ],
+      "workload": "bzip2-stdout"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "1MiB",
+      "cache_bytes": 328373,
+      "cold_ns": 108313265,
+      "input_bytes": 1048576,
+      "input_sha256": "3735bb78d739ce24aaa412157a66ce1ed51866d55cbca1455163ba69ab8a4151",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11416,
+      "peak_wall_ns": 98848320,
+      "reuse_evidence": "Reused/Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 23915368
+        },
+        {
+          "invocations": 10,
+          "total_ns": 80230957
+        },
+        {
+          "invocations": 25,
+          "total_ns": 207412587
+        }
+      ],
+      "warm_ns": 8054398,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        10039043,
+        8054398,
+        7168445
+      ],
+      "workload": "bzip2-stdout"
+    },
+    {
+      "arm": "firebuild",
+      "artifact": "1MiB",
+      "cache_bytes": 190957,
+      "cold_ns": 85598342,
+      "input_bytes": 1048576,
+      "input_sha256": "3735bb78d739ce24aaa412157a66ce1ed51866d55cbca1455163ba69ab8a4151",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11424,
+      "peak_wall_ns": 81766749,
+      "reuse_evidence": "Hits:             1 / 1 (100.00 %)",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 29739248
+        },
+        {
+          "invocations": 10,
+          "total_ns": 90884993
+        },
+        {
+          "invocations": 25,
+          "total_ns": 222083702
+        }
+      ],
+      "warm_ns": 8714056,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        9649482,
+        8714056,
+        7754976
+      ],
+      "workload": "bzip2-stdout"
+    },
+    {
+      "arm": "native",
+      "artifact": "1MiB",
+      "cache_bytes": 0,
+      "cold_ns": 44936342,
+      "input_bytes": 1048576,
+      "input_sha256": "3735bb78d739ce24aaa412157a66ce1ed51866d55cbca1455163ba69ab8a4151",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11440,
+      "peak_wall_ns": 49832682,
+      "reuse_evidence": "direct",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 144003793
+        },
+        {
+          "invocations": 10,
+          "total_ns": 488841795
+        },
+        {
+          "invocations": 25,
+          "total_ns": 1240923970
+        }
+      ],
+      "warm_ns": 51752075,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        51752075,
+        45689836,
+        52579769
+      ],
+      "workload": "gzip-file"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "1MiB",
+      "cache_bytes": 356401,
+      "cold_ns": 78157145,
+      "input_bytes": 1048576,
+      "input_sha256": "3735bb78d739ce24aaa412157a66ce1ed51866d55cbca1455163ba69ab8a4151",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11432,
+      "peak_wall_ns": 64304293,
+      "reuse_evidence": "Reused/Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 29612349
+        },
+        {
+          "invocations": 10,
+          "total_ns": 105445032
+        },
+        {
+          "invocations": 25,
+          "total_ns": 303882563
+        }
+      ],
+      "warm_ns": 10457578,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        14258231,
+        9921993,
+        10457578
+      ],
+      "workload": "gzip-file"
+    },
+    {
+      "arm": "firebuild",
+      "artifact": "1MiB",
+      "cache_bytes": 64,
+      "cold_ns": 50756316,
+      "input_bytes": 1048576,
+      "input_sha256": "3735bb78d739ce24aaa412157a66ce1ed51866d55cbca1455163ba69ab8a4151",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11428,
+      "peak_wall_ns": 67068682,
+      "reuse_evidence": "Hits:             0 / 1 (0.00 %)",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 211267461
+        },
+        {
+          "invocations": 10,
+          "total_ns": 640026025
+        },
+        {
+          "invocations": 25,
+          "total_ns": 1400709253
+        }
+      ],
+      "warm_ns": 57058854,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        57058854,
+        58201620,
+        56883977
+      ],
+      "workload": "gzip-file"
+    },
+    {
+      "arm": "native",
+      "artifact": "10MiB",
+      "cache_bytes": 0,
+      "cold_ns": 567906262,
+      "input_bytes": 10485760,
+      "input_sha256": "43648fa651a2d9163c4436b61708d18e82277f57a2829de494977e86ece4e82f",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11420,
+      "peak_wall_ns": 582684551,
+      "reuse_evidence": "direct",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 1705502595
+        },
+        {
+          "invocations": 10,
+          "total_ns": 5678891101
+        },
+        {
+          "invocations": 25,
+          "total_ns": 14241636648
+        }
+      ],
+      "warm_ns": 565315860,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        565315860,
+        564494599,
+        568673202
+      ],
+      "workload": "gzip-stdout"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "10MiB",
+      "cache_bytes": 2664014,
+      "cold_ns": 645933874,
+      "input_bytes": 10485760,
+      "input_sha256": "43648fa651a2d9163c4436b61708d18e82277f57a2829de494977e86ece4e82f",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11420,
+      "peak_wall_ns": 622721726,
+      "reuse_evidence": "Reused/Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 45400012
+        },
+        {
+          "invocations": 10,
+          "total_ns": 155667314
+        },
+        {
+          "invocations": 25,
+          "total_ns": 374585865
+        }
+      ],
+      "warm_ns": 18223654,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        18473072,
+        18223654,
+        12923517
+      ],
+      "workload": "gzip-stdout"
+    },
+    {
+      "arm": "firebuild",
+      "artifact": "10MiB",
+      "cache_bytes": 2540104,
+      "cold_ns": 634383744,
+      "input_bytes": 10485760,
+      "input_sha256": "43648fa651a2d9163c4436b61708d18e82277f57a2829de494977e86ece4e82f",
+      "observation_matches_native": true,
+      "peak_rss_kib": 14016,
+      "peak_wall_ns": 582943857,
+      "reuse_evidence": "Hits:             1 / 1 (100.00 %)",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 143944873
+        },
+        {
+          "invocations": 10,
+          "total_ns": 450986223
+        },
+        {
+          "invocations": 25,
+          "total_ns": 1134554864
+        }
+      ],
+      "warm_ns": 47134157,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        49028001,
+        47134157,
+        45880825
+      ],
+      "workload": "gzip-stdout"
+    },
+    {
+      "arm": "native",
+      "artifact": "10MiB",
+      "cache_bytes": 0,
+      "cold_ns": 296296935,
+      "input_bytes": 10485760,
+      "input_sha256": "b313f79fb97aabb74d9c28a65e753702830b5aa9ba84db355476e844067231e6",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11424,
+      "peak_wall_ns": 262943984,
+      "reuse_evidence": "direct",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 854851725
+        },
+        {
+          "invocations": 10,
+          "total_ns": 2874204161
+        },
+        {
+          "invocations": 25,
+          "total_ns": 7046034445
+        }
+      ],
+      "warm_ns": 288622902,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        295513764,
+        288622902,
+        277234887
+      ],
+      "workload": "gzip-stdout-incompressible"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "10MiB",
+      "cache_bytes": 10612956,
+      "cold_ns": 410076289,
+      "input_bytes": 10485760,
+      "input_sha256": "b313f79fb97aabb74d9c28a65e753702830b5aa9ba84db355476e844067231e6",
+      "observation_matches_native": true,
+      "peak_rss_kib": 17908,
+      "peak_wall_ns": 354220823,
+      "reuse_evidence": "Reused/Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 105489495
+        },
+        {
+          "invocations": 10,
+          "total_ns": 309720670
+        },
+        {
+          "invocations": 25,
+          "total_ns": 688127047
+        }
+      ],
+      "warm_ns": 42067757,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        45734359,
+        42067757,
+        27875239
+      ],
+      "workload": "gzip-stdout-incompressible"
+    },
+    {
+      "arm": "firebuild",
+      "artifact": "10MiB",
+      "cache_bytes": 10488394,
+      "cold_ns": 518349278,
+      "input_bytes": 10485760,
+      "input_sha256": "b313f79fb97aabb74d9c28a65e753702830b5aa9ba84db355476e844067231e6",
+      "observation_matches_native": true,
+      "peak_rss_kib": 14076,
+      "peak_wall_ns": 347307938,
+      "reuse_evidence": "Hits:             1 / 1 (100.00 %)",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 452322922
+        },
+        {
+          "invocations": 10,
+          "total_ns": 1548744073
+        },
+        {
+          "invocations": 25,
+          "total_ns": 3787990150
+        }
+      ],
+      "warm_ns": 173806559,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        173806559,
+        178875214,
+        171691401
+      ],
+      "workload": "gzip-stdout-incompressible"
+    },
+    {
+      "arm": "native",
+      "artifact": "10MiB",
+      "cache_bytes": 0,
+      "cold_ns": 18973893,
+      "input_bytes": 10485760,
+      "input_sha256": "43648fa651a2d9163c4436b61708d18e82277f57a2829de494977e86ece4e82f",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11424,
+      "peak_wall_ns": 14324707,
+      "reuse_evidence": "direct",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 42147007
+        },
+        {
+          "invocations": 10,
+          "total_ns": 169335628
+        },
+        {
+          "invocations": 25,
+          "total_ns": 389128812
+        }
+      ],
+      "warm_ns": 14510676,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        15705959,
+        14510676,
+        13247425
+      ],
+      "workload": "sha256sum"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "10MiB",
+      "cache_bytes": 367851,
+      "cold_ns": 86872792,
+      "input_bytes": 10485760,
+      "input_sha256": "43648fa651a2d9163c4436b61708d18e82277f57a2829de494977e86ece4e82f",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11428,
+      "peak_wall_ns": 52077826,
+      "reuse_evidence": "Reused/Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 54376570
+        },
+        {
+          "invocations": 10,
+          "total_ns": 178317508
+        },
+        {
+          "invocations": 25,
+          "total_ns": 436005286
+        }
+      ],
+      "warm_ns": 18399273,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        22907496,
+        17550762,
+        18399273
+      ],
+      "workload": "sha256sum"
+    },
+    {
+      "arm": "firebuild",
+      "artifact": "10MiB",
+      "cache_bytes": 719,
+      "cold_ns": 21010205,
+      "input_bytes": 10485760,
+      "input_sha256": "43648fa651a2d9163c4436b61708d18e82277f57a2829de494977e86ece4e82f",
+      "observation_matches_native": true,
+      "peak_rss_kib": 14252,
+      "peak_wall_ns": 22375627,
+      "reuse_evidence": "Hits:             1 / 1 (100.00 %)",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 36963538
+        },
+        {
+          "invocations": 10,
+          "total_ns": 111137345
+        },
+        {
+          "invocations": 25,
+          "total_ns": 283538929
+        }
+      ],
+      "warm_ns": 11550730,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        11550730,
+        10945774,
+        13557145
+      ],
+      "workload": "sha256sum"
+    },
+    {
+      "arm": "native",
+      "artifact": "10MiB",
+      "cache_bytes": 0,
+      "cold_ns": 693088579,
+      "input_bytes": 10485760,
+      "input_sha256": "43648fa651a2d9163c4436b61708d18e82277f57a2829de494977e86ece4e82f",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11420,
+      "peak_wall_ns": 686771371,
+      "reuse_evidence": "direct",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 2104709783
+        },
+        {
+          "invocations": 10,
+          "total_ns": 6817775292
+        },
+        {
+          "invocations": 25,
+          "total_ns": 17397255418
+        }
+      ],
+      "warm_ns": 684666593,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        684666593,
+        673248441,
+        691950864
+      ],
+      "workload": "bzip2-stdout"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "10MiB",
+      "cache_bytes": 2257666,
+      "cold_ns": 889326442,
+      "input_bytes": 10485760,
+      "input_sha256": "43648fa651a2d9163c4436b61708d18e82277f57a2829de494977e86ece4e82f",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11404,
+      "peak_wall_ns": 873027639,
+      "reuse_evidence": "Reused/Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 50502169
+        },
+        {
+          "invocations": 10,
+          "total_ns": 164645856
+        },
+        {
+          "invocations": 25,
+          "total_ns": 435896020
+        }
+      ],
+      "warm_ns": 19477878,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        23913975,
+        18863475,
+        19477878
+      ],
+      "workload": "bzip2-stdout"
+    },
+    {
+      "arm": "firebuild",
+      "artifact": "10MiB",
+      "cache_bytes": 2120152,
+      "cold_ns": 717884158,
+      "input_bytes": 10485760,
+      "input_sha256": "43648fa651a2d9163c4436b61708d18e82277f57a2829de494977e86ece4e82f",
+      "observation_matches_native": true,
+      "peak_rss_kib": 14280,
+      "peak_wall_ns": 685664364,
+      "reuse_evidence": "Hits:             1 / 1 (100.00 %)",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 117567415
+        },
+        {
+          "invocations": 10,
+          "total_ns": 328063768
+        },
+        {
+          "invocations": 25,
+          "total_ns": 828235048
+        }
+      ],
+      "warm_ns": 31806448,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        33756669,
+        31741986,
+        31806448
+      ],
+      "workload": "bzip2-stdout"
+    },
+    {
+      "arm": "native",
+      "artifact": "10MiB",
+      "cache_bytes": 0,
+      "cold_ns": 567185580,
+      "input_bytes": 10485760,
+      "input_sha256": "43648fa651a2d9163c4436b61708d18e82277f57a2829de494977e86ece4e82f",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11420,
+      "peak_wall_ns": 600930455,
+      "reuse_evidence": "direct",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 1738154240
+        },
+        {
+          "invocations": 10,
+          "total_ns": 5748157429
+        },
+        {
+          "invocations": 25,
+          "total_ns": 14236118500
+        }
+      ],
+      "warm_ns": 571936657,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        573062320,
+        571936657,
+        562316130
+      ],
+      "workload": "gzip-file"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "10MiB",
+      "cache_bytes": 2681521,
+      "cold_ns": 653650999,
+      "input_bytes": 10485760,
+      "input_sha256": "43648fa651a2d9163c4436b61708d18e82277f57a2829de494977e86ece4e82f",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11432,
+      "peak_wall_ns": 643269072,
+      "reuse_evidence": "Reused/Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 76961210
+        },
+        {
+          "invocations": 10,
+          "total_ns": 244482453
+        },
+        {
+          "invocations": 25,
+          "total_ns": 605000906
+        }
+      ],
+      "warm_ns": 28091285,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        32476365,
+        28091285,
+        26934504
+      ],
+      "workload": "gzip-file"
+    },
+    {
+      "arm": "firebuild",
+      "artifact": "10MiB",
+      "cache_bytes": 64,
+      "cold_ns": 579318522,
+      "input_bytes": 10485760,
+      "input_sha256": "43648fa651a2d9163c4436b61708d18e82277f57a2829de494977e86ece4e82f",
+      "observation_matches_native": true,
+      "peak_rss_kib": 14388,
+      "peak_wall_ns": 564949553,
+      "reuse_evidence": "Hits:             0 / 1 (0.00 %)",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 1719555822
+        },
+        {
+          "invocations": 10,
+          "total_ns": 5774706590
+        },
+        {
+          "invocations": 25,
+          "total_ns": 14413567887
+        }
+      ],
+      "warm_ns": 575306292,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        575306292,
+        578077433,
+        574738166
+      ],
+      "workload": "gzip-file"
+    },
+    {
+      "arm": "native",
+      "artifact": "100MiB",
+      "cache_bytes": 0,
+      "cold_ns": 5496021712,
+      "input_bytes": 104857600,
+      "input_sha256": "11e409641fc37bc71a23ba021dbe7c4b91205b2a28b271449e03eea672fb5e99",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11420,
+      "peak_wall_ns": 5449815465,
+      "reuse_evidence": "direct",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 16511815852
+        }
+      ],
+      "warm_ns": 5467647345,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        5584357220,
+        5467647345,
+        5457397797
+      ],
+      "workload": "gzip-stdout"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "100MiB",
+      "cache_bytes": 19861880,
+      "cold_ns": 6079481437,
+      "input_bytes": 104857600,
+      "input_sha256": "11e409641fc37bc71a23ba021dbe7c4b91205b2a28b271449e03eea672fb5e99",
+      "observation_matches_native": true,
+      "peak_rss_kib": 26860,
+      "peak_wall_ns": 5783093832,
+      "reuse_evidence": "Reused/Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 6023599450
+        }
+      ],
+      "warm_ns": 85317564,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        100945336,
+        78403456,
+        85317564
+      ],
+      "workload": "gzip-stdout"
+    },
+    {
+      "arm": "firebuild",
+      "artifact": "100MiB",
+      "cache_bytes": 19654824,
+      "cold_ns": 5795127658,
+      "input_bytes": 104857600,
+      "input_sha256": "11e409641fc37bc71a23ba021dbe7c4b91205b2a28b271449e03eea672fb5e99",
+      "observation_matches_native": true,
+      "peak_rss_kib": 106940,
+      "peak_wall_ns": 5465550630,
+      "reuse_evidence": "Hits:             1 / 1 (100.00 %)",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 878812727
+        }
+      ],
+      "warm_ns": 288248688,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        318149750,
+        287911946,
+        288248688
+      ],
+      "workload": "gzip-stdout"
+    },
+    {
+      "arm": "native",
+      "artifact": "100MiB",
+      "cache_bytes": 0,
+      "cold_ns": 2880052136,
+      "input_bytes": 104857600,
+      "input_sha256": "bdf44b3e96b39532d52e8b475d07d9835d3013c41328084f83d476fcb926304a",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11456,
+      "peak_wall_ns": 2634063257,
+      "reuse_evidence": "direct",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 8618789314
+        }
+      ],
+      "warm_ns": 2852370910,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        2903402823,
+        2813065048,
+        2852370910
+      ],
+      "workload": "gzip-stdout-incompressible"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "100MiB",
+      "cache_bytes": 104999889,
+      "cold_ns": 3672522156,
+      "input_bytes": 104857600,
+      "input_sha256": "bdf44b3e96b39532d52e8b475d07d9835d3013c41328084f83d476fcb926304a",
+      "observation_matches_native": true,
+      "peak_rss_kib": 110136,
+      "peak_wall_ns": 3445863497,
+      "reuse_evidence": "Reused/Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 1047517943
+        }
+      ],
+      "warm_ns": 362249882,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        1323176662,
+        316258581,
+        362249882
+      ],
+      "workload": "gzip-stdout-incompressible"
+    },
+    {
+      "arm": "firebuild",
+      "artifact": "100MiB",
+      "cache_bytes": 104875256,
+      "cold_ns": 12250553210,
+      "input_bytes": 104857600,
+      "input_sha256": "bdf44b3e96b39532d52e8b475d07d9835d3013c41328084f83d476fcb926304a",
+      "observation_matches_native": true,
+      "peak_rss_kib": 107008,
+      "peak_wall_ns": 2911141469,
+      "reuse_evidence": "Hits:             1 / 1 (100.00 %)",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 5938934070
+        }
+      ],
+      "warm_ns": 1945628171,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        1654442059,
+        2050068527,
+        1945628171
+      ],
+      "workload": "gzip-stdout-incompressible"
+    },
+    {
+      "arm": "native",
+      "artifact": "100MiB",
+      "cache_bytes": 0,
+      "cold_ns": 81612039,
+      "input_bytes": 104857600,
+      "input_sha256": "11e409641fc37bc71a23ba021dbe7c4b91205b2a28b271449e03eea672fb5e99",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11404,
+      "peak_wall_ns": 80449046,
+      "reuse_evidence": "direct",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 245879896
+        }
+      ],
+      "warm_ns": 86519689,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        87697862,
+        86519689,
+        84852091
+      ],
+      "workload": "sha256sum"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "100MiB",
+      "cache_bytes": 367940,
+      "cold_ns": 355694969,
+      "input_bytes": 104857600,
+      "input_sha256": "11e409641fc37bc71a23ba021dbe7c4b91205b2a28b271449e03eea672fb5e99",
+      "observation_matches_native": true,
+      "peak_rss_kib": 11416,
+      "peak_wall_ns": 322248574,
+      "reuse_evidence": "Reused/Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 152121960
+        }
+      ],
+      "warm_ns": 52069680,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        51799554,
+        69199030,
+        52069680
+      ],
+      "workload": "sha256sum"
+    },
+    {
+      "arm": "firebuild",
+      "artifact": "100MiB",
+      "cache_bytes": 718,
+      "cold_ns": 126048252,
+      "input_bytes": 104857600,
+      "input_sha256": "11e409641fc37bc71a23ba021dbe7c4b91205b2a28b271449e03eea672fb5e99",
+      "observation_matches_native": true,
+      "peak_rss_kib": 107144,
+      "peak_wall_ns": 115058244,
+      "reuse_evidence": "Hits:             1 / 1 (100.00 %)",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 85331331
+        }
+      ],
+      "warm_ns": 31863584,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        31863584,
+        32145876,
+        29739908
+      ],
+      "workload": "sha256sum"
+    }
+  ]
+}

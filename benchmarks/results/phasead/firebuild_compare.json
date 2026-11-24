@@ -1,0 +1,924 @@
+{
+  "native_observations": {
+    "bzip2-9-2MiB": {
+      "exit": 0,
+      "outputs": {
+        "blob.bin.bz2": "c3e54c98c382557e54719f776f9e251d112b3773d6da612318d3d1b6ef56844c"
+      },
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tree_digest": "0cd3220116bccc4c339d02715f9504017a3fdc84a690fa5ab3c22ade14f2b07f"
+    },
+    "gzip-9-2MiB": {
+      "exit": 0,
+      "outputs": {
+        "blob.bin.gz": "2d38d77b45cec30fb78e59115c059cd861290b17912989753a65ba14ba0cb1f3"
+      },
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tree_digest": "2f0fe0b027350d4a44ec7df2f77e9bf730cffe8d1e626bffce597d3404c3d28d"
+    },
+    "gzip-n-c-text": {
+      "exit": 0,
+      "outputs": {},
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "789c14057fc1e0aaff0dba99fa2306976273ce01eda68b879b3f3556aafea141",
+      "tree_digest": "c125b7c8ca13a78069ae206679d4dd543902ad56875c7bdd34ec7f325a95f5ba"
+    },
+    "sed-200k": {
+      "exit": 0,
+      "outputs": {},
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "cbaafba8554c954c1c2628023121c2db206a1ebb7f45166d9915aeeb1f2823c8",
+      "tree_digest": "d46ae2334fe7fc2685ff1dd551fda312d8c76c3f8555f6887f889e5fbf4451a8"
+    }
+  },
+  "rows": [
+    {
+      "arm": "native",
+      "cache_bytes": 0,
+      "cold_ns": 218721040,
+      "native_session_ns": null,
+      "note": "bzip2 -9 -k -f of a 2 MiB incompressible blob",
+      "observation": {
+        "exit": 0,
+        "outputs": {
+          "blob.bin.bz2": "c3e54c98c382557e54719f776f9e251d112b3773d6da612318d3d1b6ef56844c"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "tree_digest": "0cd3220116bccc4c339d02715f9504017a3fdc84a690fa5ab3c22ade14f2b07f"
+      },
+      "observation_matches_native": true,
+      "policy": "native",
+      "reuse_evidence": "direct execution",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 648955115
+        },
+        {
+          "invocations": 10,
+          "total_ns": 2259330484
+        },
+        {
+          "invocations": 25,
+          "total_ns": 5821557104
+        }
+      ],
+      "warm_ns": 232339742,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        213142951,
+        238691774,
+        214260349,
+        233753737,
+        232339742
+      ],
+      "workload": "bzip2-9-2MiB"
+    },
+    {
+      "arm": "tracejit",
+      "cache_bytes": 4561948,
+      "cold_ns": 302452377,
+      "native_session_ns": 5649436890,
+      "note": "bzip2 -9 -k -f of a 2 MiB incompressible blob",
+      "observation": {
+        "exit": 0,
+        "outputs": {
+          "blob.bin.bz2": "c3e54c98c382557e54719f776f9e251d112b3773d6da612318d3d1b6ef56844c"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "tree_digest": "0cd3220116bccc4c339d02715f9504017a3fdc84a690fa5ab3c22ade14f2b07f"
+      },
+      "observation_matches_native": true,
+      "policy": "native",
+      "reuse_evidence": "kind=Executed cache=Ineligible",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 955572810
+        },
+        {
+          "invocations": 10,
+          "total_ns": 3101588301
+        },
+        {
+          "invocations": 25,
+          "total_ns": 7716420875
+        }
+      ],
+      "warm_ns": 309058808,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        312021038,
+        302891622,
+        302575089,
+        309058808,
+        314592172
+      ],
+      "workload": "bzip2-9-2MiB"
+    },
+    {
+      "arm": "tracejit-ae",
+      "cache_bytes": 2563671,
+      "cold_ns": 314207861,
+      "native_session_ns": 5506218239,
+      "note": "bzip2 -9 -k -f of a 2 MiB incompressible blob",
+      "observation": {
+        "exit": 0,
+        "outputs": {
+          "blob.bin.bz2": "c3e54c98c382557e54719f776f9e251d112b3773d6da612318d3d1b6ef56844c"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "tree_digest": "0cd3220116bccc4c339d02715f9504017a3fdc84a690fa5ab3c22ade14f2b07f"
+      },
+      "observation_matches_native": true,
+      "policy": "allocator-entropy-v1",
+      "reuse_evidence": "kind=Reused cache=Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 62377789
+        },
+        {
+          "invocations": 10,
+          "total_ns": 198346250
+        },
+        {
+          "invocations": 25,
+          "total_ns": 519281307
+        }
+      ],
+      "warm_ns": 19961456,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        26445547,
+        22312540,
+        18167249,
+        19961456,
+        17004326
+      ],
+      "workload": "bzip2-9-2MiB"
+    },
+    {
+      "arm": "firebuild",
+      "cache_bytes": 64,
+      "cold_ns": 231019865,
+      "native_session_ns": 5664240354,
+      "note": "bzip2 -9 -k -f of a 2 MiB incompressible blob",
+      "observation": {
+        "exit": 0,
+        "outputs": {
+          "blob.bin.bz2": "c3e54c98c382557e54719f776f9e251d112b3773d6da612318d3d1b6ef56844c"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "tree_digest": "0cd3220116bccc4c339d02715f9504017a3fdc84a690fa5ab3c22ade14f2b07f"
+      },
+      "observation_matches_native": true,
+      "policy": "firebuild",
+      "reuse_evidence": "Hits:             0 / 1 (0.00 %)",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 680009000
+        },
+        {
+          "invocations": 10,
+          "total_ns": 2302036018
+        },
+        {
+          "invocations": 25,
+          "total_ns": 5749971755
+        }
+      ],
+      "warm_ns": 228857166,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        224801884,
+        230238900,
+        228857166,
+        224463369,
+        250520466
+      ],
+      "workload": "bzip2-9-2MiB"
+    },
+    {
+      "arm": "firebuild-tuned",
+      "cache_bytes": 0,
+      "cold_ns": 235961088,
+      "native_session_ns": 5535557877,
+      "note": "bzip2 -9 -k -f of a 2 MiB incompressible blob",
+      "observation": {
+        "exit": 0,
+        "outputs": {
+          "blob.bin.bz2": "c3e54c98c382557e54719f776f9e251d112b3773d6da612318d3d1b6ef56844c"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "tree_digest": "0cd3220116bccc4c339d02715f9504017a3fdc84a690fa5ab3c22ade14f2b07f"
+      },
+      "observation_matches_native": true,
+      "policy": "firebuild-tuned",
+      "reuse_evidence": "Hits:             0 / 1 (0.00 %)",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 709068893
+        },
+        {
+          "invocations": 10,
+          "total_ns": 2287314868
+        },
+        {
+          "invocations": 25,
+          "total_ns": 5782351248
+        }
+      ],
+      "warm_ns": 229450379,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        229450379,
+        225166038,
+        275850347,
+        226697553,
+        238809205
+      ],
+      "workload": "bzip2-9-2MiB"
+    },
+    {
+      "arm": "native",
+      "cache_bytes": 0,
+      "cold_ns": 56672609,
+      "native_session_ns": null,
+      "note": "gzip -9 -n -k -f of a 2 MiB incompressible blob",
+      "observation": {
+        "exit": 0,
+        "outputs": {
+          "blob.bin.gz": "2d38d77b45cec30fb78e59115c059cd861290b17912989753a65ba14ba0cb1f3"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "tree_digest": "2f0fe0b027350d4a44ec7df2f77e9bf730cffe8d1e626bffce597d3404c3d28d"
+      },
+      "observation_matches_native": true,
+      "policy": "native",
+      "reuse_evidence": "direct execution",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 179470081
+        },
+        {
+          "invocations": 10,
+          "total_ns": 601185134
+        },
+        {
+          "invocations": 25,
+          "total_ns": 1558772976
+        }
+      ],
+      "warm_ns": 56623607,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        56590817,
+        56566249,
+        60786451,
+        56623607,
+        56763901
+      ],
+      "workload": "gzip-9-2MiB"
+    },
+    {
+      "arm": "tracejit",
+      "cache_bytes": 2619476,
+      "cold_ns": 94294994,
+      "native_session_ns": 1647348865,
+      "note": "gzip -9 -n -k -f of a 2 MiB incompressible blob",
+      "observation": {
+        "exit": 0,
+        "outputs": {
+          "blob.bin.gz": "2d38d77b45cec30fb78e59115c059cd861290b17912989753a65ba14ba0cb1f3"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "tree_digest": "2f0fe0b027350d4a44ec7df2f77e9bf730cffe8d1e626bffce597d3404c3d28d"
+      },
+      "observation_matches_native": true,
+      "policy": "native",
+      "reuse_evidence": "kind=Executed cache=Ineligible",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 285350870
+        },
+        {
+          "invocations": 10,
+          "total_ns": 923707883
+        },
+        {
+          "invocations": 25,
+          "total_ns": 2117307598
+        }
+      ],
+      "warm_ns": 87965424,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        80417497,
+        88584586,
+        93307041,
+        87965424,
+        84168738
+      ],
+      "workload": "gzip-9-2MiB"
+    },
+    {
+      "arm": "tracejit-ae",
+      "cache_bytes": 2209830,
+      "cold_ns": 94695785,
+      "native_session_ns": 1644330270,
+      "note": "gzip -9 -n -k -f of a 2 MiB incompressible blob",
+      "observation": {
+        "exit": 0,
+        "outputs": {
+          "blob.bin.gz": "2d38d77b45cec30fb78e59115c059cd861290b17912989753a65ba14ba0cb1f3"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "tree_digest": "2f0fe0b027350d4a44ec7df2f77e9bf730cffe8d1e626bffce597d3404c3d28d"
+      },
+      "observation_matches_native": true,
+      "policy": "allocator-entropy-v1",
+      "reuse_evidence": "kind=Reused cache=Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 59792286
+        },
+        {
+          "invocations": 10,
+          "total_ns": 206953384
+        },
+        {
+          "invocations": 25,
+          "total_ns": 498812450
+        }
+      ],
+      "warm_ns": 19111231,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        22403330,
+        20755626,
+        18523476,
+        19111231,
+        19068330
+      ],
+      "workload": "gzip-9-2MiB"
+    },
+    {
+      "arm": "firebuild",
+      "cache_bytes": 64,
+      "cold_ns": 63171488,
+      "native_session_ns": 1518543980,
+      "note": "gzip -9 -n -k -f of a 2 MiB incompressible blob",
+      "observation": {
+        "exit": 0,
+        "outputs": {
+          "blob.bin.gz": "2d38d77b45cec30fb78e59115c059cd861290b17912989753a65ba14ba0cb1f3"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "tree_digest": "2f0fe0b027350d4a44ec7df2f77e9bf730cffe8d1e626bffce597d3404c3d28d"
+      },
+      "observation_matches_native": true,
+      "policy": "firebuild",
+      "reuse_evidence": "Hits:             0 / 1 (0.00 %)",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 218993242
+        },
+        {
+          "invocations": 10,
+          "total_ns": 667675240
+        },
+        {
+          "invocations": 25,
+          "total_ns": 1715226286
+        }
+      ],
+      "warm_ns": 68350548,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        63901858,
+        69813183,
+        68350548,
+        70388374,
+        64259970
+      ],
+      "workload": "gzip-9-2MiB"
+    },
+    {
+      "arm": "firebuild-tuned",
+      "cache_bytes": 0,
+      "cold_ns": 62707958,
+      "native_session_ns": 1515494857,
+      "note": "gzip -9 -n -k -f of a 2 MiB incompressible blob",
+      "observation": {
+        "exit": 0,
+        "outputs": {
+          "blob.bin.gz": "2d38d77b45cec30fb78e59115c059cd861290b17912989753a65ba14ba0cb1f3"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "tree_digest": "2f0fe0b027350d4a44ec7df2f77e9bf730cffe8d1e626bffce597d3404c3d28d"
+      },
+      "observation_matches_native": true,
+      "policy": "firebuild-tuned",
+      "reuse_evidence": "Hits:             0 / 1 (0.00 %)",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 222930281
+        },
+        {
+          "invocations": 10,
+          "total_ns": 691367177
+        },
+        {
+          "invocations": 25,
+          "total_ns": 1711760971
+        }
+      ],
+      "warm_ns": 68928403,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        70834550,
+        64479161,
+        69660097,
+        62835557,
+        68928403
+      ],
+      "workload": "gzip-9-2MiB"
+    },
+    {
+      "arm": "native",
+      "cache_bytes": 0,
+      "cold_ns": 7625722,
+      "native_session_ns": null,
+      "note": "gzip -9 -n -c of 256 KiB text to stdout",
+      "observation": {
+        "exit": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "789c14057fc1e0aaff0dba99fa2306976273ce01eda68b879b3f3556aafea141",
+        "tree_digest": "c125b7c8ca13a78069ae206679d4dd543902ad56875c7bdd34ec7f325a95f5ba"
+      },
+      "observation_matches_native": true,
+      "policy": "native",
+      "reuse_evidence": "direct execution",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 27359682
+        },
+        {
+          "invocations": 10,
+          "total_ns": 91915307
+        },
+        {
+          "invocations": 25,
+          "total_ns": 230579548
+        },
+        {
+          "invocations": 100,
+          "total_ns": 918053579
+        }
+      ],
+      "warm_ns": 9043844,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        7651690,
+        9043844,
+        9138303,
+        8119590,
+        9096413
+      ],
+      "workload": "gzip-n-c-text"
+    },
+    {
+      "arm": "tracejit",
+      "cache_bytes": 124079,
+      "cold_ns": 28442614,
+      "native_session_ns": 912291856,
+      "note": "gzip -9 -n -c of 256 KiB text to stdout",
+      "observation": {
+        "exit": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "789c14057fc1e0aaff0dba99fa2306976273ce01eda68b879b3f3556aafea141",
+        "tree_digest": "c125b7c8ca13a78069ae206679d4dd543902ad56875c7bdd34ec7f325a95f5ba"
+      },
+      "observation_matches_native": true,
+      "policy": "native",
+      "reuse_evidence": "kind=Reused cache=Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 16423234
+        },
+        {
+          "invocations": 10,
+          "total_ns": 54714515
+        },
+        {
+          "invocations": 25,
+          "total_ns": 134465350
+        },
+        {
+          "invocations": 100,
+          "total_ns": 519125235
+        }
+      ],
+      "warm_ns": 5902298,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        9107644,
+        5938546,
+        5902298,
+        5709556,
+        5788184
+      ],
+      "workload": "gzip-n-c-text"
+    },
+    {
+      "arm": "tracejit-ae",
+      "cache_bytes": 124314,
+      "cold_ns": 27639467,
+      "native_session_ns": 872396686,
+      "note": "gzip -9 -n -c of 256 KiB text to stdout",
+      "observation": {
+        "exit": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "789c14057fc1e0aaff0dba99fa2306976273ce01eda68b879b3f3556aafea141",
+        "tree_digest": "c125b7c8ca13a78069ae206679d4dd543902ad56875c7bdd34ec7f325a95f5ba"
+      },
+      "observation_matches_native": true,
+      "policy": "allocator-entropy-v1",
+      "reuse_evidence": "kind=Reused cache=Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 14825928
+        },
+        {
+          "invocations": 10,
+          "total_ns": 47296453
+        },
+        {
+          "invocations": 25,
+          "total_ns": 126104147
+        },
+        {
+          "invocations": 100,
+          "total_ns": 485652128
+        }
+      ],
+      "warm_ns": 5025413,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        8503521,
+        5245085,
+        5025413,
+        4923381,
+        4147263
+      ],
+      "workload": "gzip-n-c-text"
+    },
+    {
+      "arm": "firebuild",
+      "cache_bytes": 25605,
+      "cold_ns": 14171710,
+      "native_session_ns": 872657094,
+      "note": "gzip -9 -n -c of 256 KiB text to stdout",
+      "observation": {
+        "exit": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "789c14057fc1e0aaff0dba99fa2306976273ce01eda68b879b3f3556aafea141",
+        "tree_digest": "c125b7c8ca13a78069ae206679d4dd543902ad56875c7bdd34ec7f325a95f5ba"
+      },
+      "observation_matches_native": true,
+      "policy": "firebuild",
+      "reuse_evidence": "Hits:             1 / 1 (100.00 %)",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 18517406
+        },
+        {
+          "invocations": 10,
+          "total_ns": 62142927
+        },
+        {
+          "invocations": 25,
+          "total_ns": 154225428
+        },
+        {
+          "invocations": 100,
+          "total_ns": 621703035
+        }
+      ],
+      "warm_ns": 6044324,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        6543362,
+        5449538,
+        6942841,
+        5950739,
+        6044324
+      ],
+      "workload": "gzip-n-c-text"
+    },
+    {
+      "arm": "firebuild-tuned",
+      "cache_bytes": 0,
+      "cold_ns": 16000812,
+      "native_session_ns": 889917801,
+      "note": "gzip -9 -n -c of 256 KiB text to stdout",
+      "observation": {
+        "exit": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "789c14057fc1e0aaff0dba99fa2306976273ce01eda68b879b3f3556aafea141",
+        "tree_digest": "c125b7c8ca13a78069ae206679d4dd543902ad56875c7bdd34ec7f325a95f5ba"
+      },
+      "observation_matches_native": true,
+      "policy": "firebuild-tuned",
+      "reuse_evidence": "Hits:             1 / 1 (100.00 %)",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 18943485
+        },
+        {
+          "invocations": 10,
+          "total_ns": 61014830
+        },
+        {
+          "invocations": 25,
+          "total_ns": 149112151
+        },
+        {
+          "invocations": 100,
+          "total_ns": 638824460
+        }
+      ],
+      "warm_ns": 6579690,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        6559862,
+        6852963,
+        5430152,
+        6579690,
+        6749918
+      ],
+      "workload": "gzip-n-c-text"
+    },
+    {
+      "arm": "native",
+      "cache_bytes": 0,
+      "cold_ns": 101246821,
+      "native_session_ns": null,
+      "note": "sed substitution over 200k lines to stdout",
+      "observation": {
+        "exit": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "cbaafba8554c954c1c2628023121c2db206a1ebb7f45166d9915aeeb1f2823c8",
+        "tree_digest": "d46ae2334fe7fc2685ff1dd551fda312d8c76c3f8555f6887f889e5fbf4451a8"
+      },
+      "observation_matches_native": true,
+      "policy": "native",
+      "reuse_evidence": "direct execution",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 215980818
+        },
+        {
+          "invocations": 10,
+          "total_ns": 732838215
+        },
+        {
+          "invocations": 25,
+          "total_ns": 1821802220
+        },
+        {
+          "invocations": 100,
+          "total_ns": 7358746279
+        }
+      ],
+      "warm_ns": 73748619,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        75758423,
+        74732838,
+        68860896,
+        73235388,
+        73748619
+      ],
+      "workload": "sed-200k"
+    },
+    {
+      "arm": "tracejit",
+      "cache_bytes": 7028621,
+      "cold_ns": 272070624,
+      "native_session_ns": 7597758194,
+      "note": "sed substitution over 200k lines to stdout",
+      "observation": {
+        "exit": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "cbaafba8554c954c1c2628023121c2db206a1ebb7f45166d9915aeeb1f2823c8",
+        "tree_digest": "d46ae2334fe7fc2685ff1dd551fda312d8c76c3f8555f6887f889e5fbf4451a8"
+      },
+      "observation_matches_native": true,
+      "policy": "native",
+      "reuse_evidence": "kind=Executed cache=Ineligible",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 753516136
+        },
+        {
+          "invocations": 10,
+          "total_ns": 2348592772
+        },
+        {
+          "invocations": 25,
+          "total_ns": 6108650205
+        },
+        {
+          "invocations": 100,
+          "total_ns": 24185963233
+        }
+      ],
+      "warm_ns": 248984534,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        226177998,
+        253974608,
+        248984534,
+        277723664,
+        244542987
+      ],
+      "workload": "sed-200k"
+    },
+    {
+      "arm": "tracejit-ae",
+      "cache_bytes": 5704434,
+      "cold_ns": 310135990,
+      "native_session_ns": 7357310816,
+      "note": "sed substitution over 200k lines to stdout",
+      "observation": {
+        "exit": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "cbaafba8554c954c1c2628023121c2db206a1ebb7f45166d9915aeeb1f2823c8",
+        "tree_digest": "d46ae2334fe7fc2685ff1dd551fda312d8c76c3f8555f6887f889e5fbf4451a8"
+      },
+      "observation_matches_native": true,
+      "policy": "allocator-entropy-v1",
+      "reuse_evidence": "kind=Reused cache=Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 67052432
+        },
+        {
+          "invocations": 10,
+          "total_ns": 222100744
+        },
+        {
+          "invocations": 25,
+          "total_ns": 701939302
+        },
+        {
+          "invocations": 100,
+          "total_ns": 2547587628
+        }
+      ],
+      "warm_ns": 22816945,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        31588148,
+        22816945,
+        19989679,
+        23038101,
+        21487441
+      ],
+      "workload": "sed-200k"
+    },
+    {
+      "arm": "firebuild",
+      "cache_bytes": 66,
+      "cold_ns": 83463133,
+      "native_session_ns": 7305184328,
+      "note": "sed substitution over 200k lines to stdout",
+      "observation": {
+        "exit": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "cbaafba8554c954c1c2628023121c2db206a1ebb7f45166d9915aeeb1f2823c8",
+        "tree_digest": "d46ae2334fe7fc2685ff1dd551fda312d8c76c3f8555f6887f889e5fbf4451a8"
+      },
+      "observation_matches_native": true,
+      "policy": "firebuild",
+      "reuse_evidence": "Hits:             0 / 0 (0.00 %)",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 292380314
+        },
+        {
+          "invocations": 10,
+          "total_ns": 903253691
+        },
+        {
+          "invocations": 25,
+          "total_ns": 2119733802
+        },
+        {
+          "invocations": 100,
+          "total_ns": 8450607481
+        }
+      ],
+      "warm_ns": 93105172,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        86244403,
+        93105172,
+        105795578,
+        85599523,
+        103314903
+      ],
+      "workload": "sed-200k"
+    },
+    {
+      "arm": "firebuild-tuned",
+      "cache_bytes": 0,
+      "cold_ns": 96117354,
+      "native_session_ns": 7572838362,
+      "note": "sed substitution over 200k lines to stdout",
+      "observation": {
+        "exit": 0,
+        "outputs": {},
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "cbaafba8554c954c1c2628023121c2db206a1ebb7f45166d9915aeeb1f2823c8",
+        "tree_digest": "d46ae2334fe7fc2685ff1dd551fda312d8c76c3f8555f6887f889e5fbf4451a8"
+      },
+      "observation_matches_native": true,
+      "policy": "firebuild-tuned",
+      "reuse_evidence": "Hits:             1 / 1 (100.00 %)",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 58455627
+        },
+        {
+          "invocations": 10,
+          "total_ns": 175143961
+        },
+        {
+          "invocations": 25,
+          "total_ns": 467269095
+        },
+        {
+          "invocations": 100,
+          "total_ns": 1981536347
+        }
+      ],
+      "warm_ns": 17603079,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        21895867,
+        22847643,
+        17603079,
+        17267540,
+        17222044
+      ],
+      "workload": "sed-200k"
+    }
+  ],
+  "setup": {
+    "firebuild_binary_sha256": "cffadc1609425775fcacc51f8d5fbd811b229fd0ddf89ab9a0efc7e87000f510",
+    "firebuild_version": "Firebuild 0.8.2",
+    "host_kernel": "6.1.102",
+    "tracejit_sha256": "d2f6173562e940e45287de5f391a71627a738c6af5d8dc77c0443b9a0f7f5452"
+  }
+}
