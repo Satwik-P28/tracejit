@@ -1,0 +1,63 @@
+{
+  "adaptations": [],
+  "argv": [
+    "sed",
+    "s/value=/v=/g",
+    "lines.txt"
+  ],
+  "assessment": "ineligible",
+  "classification": "Nondeterministic",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "ctime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "lines.txt"
+      }
+    ],
+    "tree_digest_native": "bc0d91d6d245f0d19571ce6f3137178c1707a55f5d3721580c8378ad98f63c97",
+    "tree_digest_traced": "bc0d91d6d245f0d19571ce6f3137178c1707a55f5d3721580c8378ad98f63c97"
+  },
+  "cold_ns": 124891111,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 60,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "26079f30a258223e11ae92256d8f1fa1c1e4f325afa14fad318affc430b1158e",
+  "environment_tier": "A",
+  "family": "data",
+  "output_count": 0,
+  "policy": "native",
+  "prestate_equivalence": {
+    "covered_differences": [],
+    "match": true
+  },
+  "provenance": "corpus.py@3650df662916",
+  "reasons": [
+    "process read randomness via getrandom"
+  ],
+  "refusal_categories": {
+    "randomness": 1
+  },
+  "required_tools": [
+    "sed"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "sed-substitute-file"
+}

@@ -1,0 +1,20 @@
+{
+  "cold_decision": "Ineligible",
+  "cold_match": true,
+  "command": [
+    "metadata-echo"
+  ],
+  "native_stdout": "1795557275",
+  "policy": "native",
+  "policy_b_simulated": {
+    "divergence_s": 2,
+    "file_now_says": 1795557277,
+    "fresh_mtime_ns": 1795557277322061502,
+    "stdout_still_says": 1795557275
+  },
+  "restored_mtime_s": 1795557275,
+  "stdout_names_restored_mtime": true,
+  "warm_match": true,
+  "warm_reused": false,
+  "warm_stdout": "1795557275"
+}

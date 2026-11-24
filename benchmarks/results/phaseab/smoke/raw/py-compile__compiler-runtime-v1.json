@@ -1,0 +1,88 @@
+{
+  "adaptations": [
+    "PYTHONHASHSEED=0",
+    "PYTHONDONTWRITEBYTECODE=1"
+  ],
+  "argv": [
+    "/opt/freestyle/python/bin/python3",
+    "-m",
+    "py_compile",
+    "module.py"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "mtime_ns",
+        "path": "__pycache__"
+      },
+      {
+        "field": "atime_ns",
+        "path": "__pycache__/module.cpython-312.pyc"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "__pycache__/module.cpython-312.pyc"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "__pycache__/module.cpython-312.pyc"
+      },
+      {
+        "field": "atime_ns",
+        "path": "module.py"
+      }
+    ],
+    "tree_digest_native": "031e5054edf2c13b5989515db2369bf5075445782abf09298bc0848dd19cef66",
+    "tree_digest_traced": "031e5054edf2c13b5989515db2369bf5075445782abf09298bc0848dd19cef66"
+  },
+  "cold_ns": 209839201,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 226,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONHASHSEED": "0"
+  },
+  "environment_digest": "dfd1c0869bd46426260aad55d755e6393fe19ed1f3c53ffef9c57320fa5f7b17",
+  "environment_tier": "C",
+  "family": "analysis",
+  "output_count": 2,
+  "policy": "compiler-runtime-v1",
+  "prestate_equivalence": {
+    "covered_differences": [],
+    "match": true
+  },
+  "provenance": "corpus.py@3650df662916",
+  "reasons": [
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded",
+    "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution",
+    "non-file output cannot be restored: /tmp/ab-smoke/qualify/py-compile__compiler-runtime-v1/traced/__pycache__"
+  ],
+  "refusal_categories": {
+    "other:executed under the tracejit.compiler-runtime.v1 co": 1,
+    "unmodeled_syscall:72": 3,
+    "unrestorable_output": 1
+  },
+  "required_tools": [
+    "python3"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "py-compile"
+}

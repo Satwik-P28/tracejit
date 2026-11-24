@@ -1,0 +1,80 @@
+{
+  "adaptations": [],
+  "argv": [
+    "gcc",
+    "-fanalyzer",
+    "-c",
+    "-I",
+    ".",
+    "util.c",
+    "-o",
+    "util.o"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.h"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "util.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "util.o"
+      }
+    ],
+    "tree_digest_native": "355b68cb95f807b16e5642701243a2c1705ac3e323eecf62cd9b7724c2a2141f",
+    "tree_digest_traced": "355b68cb95f807b16e5642701243a2c1705ac3e323eecf62cd9b7724c2a2141f"
+  },
+  "cold_ns": 123335750,
+  "correctness": {},
+  "cost_class": "heavy",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 148,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "3aba8e12f1887f05c4f59d66d9aadffcd68e3c2cfd94fb7def0de732b4dd785d",
+  "environment_tier": "A",
+  "family": "analysis",
+  "output_count": 2,
+  "policy": "native",
+  "prestate_equivalence": {
+    "covered_differences": [],
+    "match": true
+  },
+  "provenance": "corpus.py@3650df662916",
+  "reasons": [
+    "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffd672fb720, 0x7ffd672fbcb8, 0x7ffd672fb870, 0x0, 0x7fb77ab62380]"
+  ],
+  "refusal_categories": {
+    "unmodeled_syscall:98": 1
+  },
+  "required_tools": [
+    "gcc"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "gcc-fanalyzer"
+}

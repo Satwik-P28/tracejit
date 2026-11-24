@@ -1,0 +1,378 @@
+{
+  "adaptations": [],
+  "argv": [
+    "gcc",
+    "-O2",
+    "-I",
+    "zlib-1.3.1",
+    "-c",
+    "adler32.c",
+    "-o",
+    "adler32.o"
+  ],
+  "assessment": "marginal_win",
+  "cache_corruption_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "adler32.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "adler32.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "adler32.o"
+      }
+    ],
+    "tree_digest_native": "c5ff7153d851b6ba4b18c1c40ab989d7bf9293ab02c6e30ea6052a2f434eafc8",
+    "tree_digest_traced": "c5ff7153d851b6ba4b18c1c40ab989d7bf9293ab02c6e30ea6052a2f434eafc8"
+  },
+  "cache_storage_bytes": 4757836,
+  "classification": "Guarded",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "adler32.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "adler32.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "adler32.o"
+      }
+    ],
+    "tree_digest_native": "c5ff7153d851b6ba4b18c1c40ab989d7bf9293ab02c6e30ea6052a2f434eafc8",
+    "tree_digest_traced": "c5ff7153d851b6ba4b18c1c40ab989d7bf9293ab02c6e30ea6052a2f434eafc8"
+  },
+  "cold_ns": 325770438,
+  "correctness": {},
+  "corruption_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "adler32.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "adler32.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "adler32.o"
+      }
+    ],
+    "tree_digest_native": "c5ff7153d851b6ba4b18c1c40ab989d7bf9293ab02c6e30ea6052a2f434eafc8",
+    "tree_digest_traced": "c5ff7153d851b6ba4b18c1c40ab989d7bf9293ab02c6e30ea6052a2f434eafc8"
+  },
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    },
+    {
+      "cache_decision": "Reused",
+      "decision_reason": "all guards passed and cached outputs were restored",
+      "kind": "Reused",
+      "step": "warm"
+    },
+    {
+      "kind": null,
+      "note": "no mutation defined",
+      "step": "after_mutation"
+    },
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cache_restart"
+    },
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "cached object fffaed90a0729a1703240be57f6ec88248eb74d23d5963d8bdb58f111cc39d24 is corrupt; retracing",
+      "kind": "Executed",
+      "removed_object": "fffaed90a0729a1703240be57f6ec88248eb74d23d5963d8bdb58f111cc39d24",
+      "step": "cache_object_corruption"
+    },
+    {
+      "cache_decision": "Reused",
+      "decision_reason": "all guards passed and cached outputs were restored",
+      "kind": "Reused",
+      "note": "corrupted an existing output, then reused",
+      "step": "output_corruption"
+    }
+  ],
+  "dependency_count": 549,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": true,
+  "environment_adaptations": {},
+  "environment_digest": "2960d896a6d646bb28c652ec54fb666c3bdca8f5afd248903e8db6cfe252dd2f",
+  "environment_tier": "A",
+  "family": "real-project",
+  "mutation": null,
+  "output_count": 2,
+  "policy": "compiler-runtime-v1",
+  "prestate_equivalence": {
+    "covered_differences": [],
+    "match": true
+  },
+  "provenance": "zlib-1.3.1@9a93b2b7dfda",
+  "reasons": [
+    "all observed dependencies are guardable or captured outputs",
+    "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "required_tools": [
+    "gcc"
+  ],
+  "split": "dev",
+  "status": "reused",
+  "timing": {
+    "break_even_repeats": 12,
+    "cache_storage_bytes": 2865804,
+    "calibration_decision": {
+      "cache_decision": "Reused",
+      "decision_reason": "all guards passed and cached outputs were restored",
+      "kind": "Reused"
+    },
+    "cold": {
+      "max_ns": 338765920,
+      "mean_ns": 326169458,
+      "median_ci95_ns": [
+        314989113,
+        338765920
+      ],
+      "median_ns": 321168115,
+      "min_ns": 314989113,
+      "n": 5,
+      "p05_ns": 314989113,
+      "p95_ns": 338765920,
+      "samples_ns": [
+        321168115,
+        338765920,
+        338226827,
+        314989113,
+        317697318
+      ]
+    },
+    "cold_ratio_unpaired": {
+      "cold_median_ci95_ns": [
+        314989113,
+        338765920
+      ],
+      "cold_samples_ns": [
+        321168115,
+        338765920,
+        338226827,
+        314989113,
+        317697318
+      ],
+      "design": "independent arms; cold tracing needs a fresh cache and cannot be paired",
+      "direct_median_ci95_ns": [
+        85486791,
+        98936656
+      ],
+      "direct_samples_ns": [
+        87236397,
+        85486791,
+        85629959,
+        98936656,
+        90992287
+      ],
+      "median_ratio": 0.27162222190082597
+    },
+    "cold_reps": 5,
+    "cost_model": {
+      "available": true,
+      "instrumented": true,
+      "model": {
+        "additive": "runtime hit path only",
+        "hit_path_residual_ns": 3837556,
+        "hit_path_stages": [
+          "stdio_replay_ns",
+          "guard_validation_ns",
+          "guard_recheck_ns",
+          "cas_restore_ns"
+        ],
+        "hit_path_sum_ns": 56050708,
+        "post_runtime_ns": 19309488,
+        "pre_runtime_ns": 13439436,
+        "present_ns": 52939,
+        "runtime_ns": 59888264,
+        "startup_quantum_ns": 10000000,
+        "startup_reported_ns": 6522138,
+        "wall_ns": 92690127
+      },
+      "note": "instrumented two-run session; the breakdown is not a timed sample. pre_runtime_ns is process creation, startup, CLI parsing, identity preparation, cache open/lookup/query and exit, minus the two spans above, and cannot be separated further at useful resolution; process_startup_ns is derived from the kernel's tick-granular start time and is not used in any sum",
+      "stages_ns": {
+        "cache_prepare_ns": 24396,
+        "cas_restore_ns": 5104084,
+        "cli_parse_ns": 138009,
+        "decision_persist_ns": 19309488,
+        "guard_recheck_ns": 0,
+        "guard_validation_ns": 50898554,
+        "identity_prepare_ns": 635904,
+        "lookup_key_ns": 8406,
+        "present_ns": 52939,
+        "process_startup_ns": 6522138,
+        "record_decode_ns": 3818330,
+        "sqlite_open_ns": 178445,
+        "sqlite_query_ns": 3479604,
+        "sqlite_schema_ns": 341671,
+        "stdio_replay_ns": 48070
+      }
+    },
+    "direct": {
+      "max_ns": 98936656,
+      "mean_ns": 89656418,
+      "median_ci95_ns": [
+        85486791,
+        98936656
+      ],
+      "median_ns": 87236397,
+      "min_ns": 85486791,
+      "n": 5,
+      "p05_ns": 85486791,
+      "p95_ns": 98936656,
+      "samples_ns": [
+        87236397,
+        85486791,
+        85629959,
+        98936656,
+        90992287
+      ]
+    },
+    "environment_digest": "c72d30edd955248ae29cdbb663156870a317d280be82f9a0ccd9a694ee1c37cf",
+    "policy": "compiler-runtime-v1",
+    "reference_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reps": 5,
+    "session": {
+      "10": {
+        "direct_ns": 872363970,
+        "speedup": 0.9444950892449875,
+        "traced_ns": 923629969
+      },
+      "2": {
+        "direct_ns": 174472794,
+        "speedup": 0.4495466460251441,
+        "traced_ns": 388108321
+      },
+      "25": {
+        "direct_ns": 2180909925,
+        "speedup": 1.131333985697861,
+        "traced_ns": 1927733059
+      },
+      "5": {
+        "direct_ns": 436181985,
+        "speedup": 0.7406360192464578,
+        "traced_ns": 588928939
+      },
+      "50": {
+        "direct_ns": 4361819850,
+        "speedup": 1.2112000364483526,
+        "traced_ns": 3601238209
+      }
+    },
+    "status": "measured",
+    "timing_channel": "plain (no --json): the JSON byte-array report is harness cost",
+    "warm": {
+      "max_ns": 73907888,
+      "mean_ns": 68845999,
+      "median_ci95_ns": [
+        64882993,
+        73907888
+      ],
+      "median_ns": 66940206,
+      "min_ns": 64882993,
+      "n": 5,
+      "p05_ns": 64882993,
+      "p95_ns": 73907888,
+      "samples_ns": [
+        64882993,
+        66795011,
+        71703900,
+        66940206,
+        73907888
+      ]
+    },
+    "warm_decisions": [
+      {
+        "cache_decision": "Reused",
+        "decision_reason": null,
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": null,
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": null,
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": null,
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": null,
+        "kind": "Reused"
+      }
+    ],
+    "warm_ratio": {
+      "geometric_mean_ratio": 1.3018404237635162,
+      "median_ratio": 1.279837965742681,
+      "pairs": 5,
+      "ratio_ci95": [
+        1.1942162002345758,
+        1.4779855323421025
+      ],
+      "ratios": [
+        1.3445186938278264,
+        1.279837965742681,
+        1.1942162002345758,
+        1.4779855323421025,
+        1.2311579922294626
+      ]
+    },
+    "warm_stdout_mismatches": 0,
+    "workload_id": "zlib-compile-adler32"
+  },
+  "warm_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "adler32.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "adler32.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "adler32.o"
+      }
+    ],
+    "tree_digest_native": "c5ff7153d851b6ba4b18c1c40ab989d7bf9293ab02c6e30ea6052a2f434eafc8",
+    "tree_digest_traced": "c5ff7153d851b6ba4b18c1c40ab989d7bf9293ab02c6e30ea6052a2f434eafc8"
+  },
+  "warm_ns": 0,
+  "workload_id": "zlib-compile-adler32"
+}

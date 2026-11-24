@@ -1,0 +1,69 @@
+{
+  "adaptations": [],
+  "argv": [
+    "awk",
+    "{ s += $2 } END { printf \"%d\\n\", s }",
+    "lines.txt"
+  ],
+  "assessment": "ineligible",
+  "classification": "Nondeterministic",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "lines.txt"
+      }
+    ],
+    "tree_digest_native": "bc0d91d6d245f0d19571ce6f3137178c1707a55f5d3721580c8378ad98f63c97",
+    "tree_digest_traced": "bc0d91d6d245f0d19571ce6f3137178c1707a55f5d3721580c8378ad98f63c97"
+  },
+  "cold_ns": 59033859,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 23,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "ba45ff690e01bad208465ff0d9842481783f32f7f794a0ab75f24ba6709e6289",
+  "environment_tier": "A",
+  "family": "data",
+  "output_count": 0,
+  "policy": "compiler-runtime-v1",
+  "prestate_equivalence": {
+    "covered_differences": [],
+    "match": true
+  },
+  "provenance": "corpus.py@3650df662916",
+  "reasons": [
+    "process read system clock: realtime",
+    "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "refusal_categories": {
+    "clock": 1,
+    "other:executed under the tracejit.compiler-runtime.v1 co": 1
+  },
+  "required_tools": [
+    "awk"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "awk-reduce"
+}

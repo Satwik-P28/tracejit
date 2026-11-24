@@ -1,0 +1,1004 @@
+{
+  "mode": "probe",
+  "rows": [
+    {
+      "argv": [
+        "gzip",
+        "-9",
+        "-n",
+        "-c",
+        "corpus.txt"
+      ],
+      "config": "gzip-9-text-stdout",
+      "family": "compression",
+      "native_exit": 0,
+      "note": "gzip -9 -n -c of 256 KiB of real upstream text to stdout",
+      "policies": {
+        "allocator-entropy-v1": {
+          "cache_bytes": 119451,
+          "classification": "Guarded",
+          "cold_match": true,
+          "cold_ns": 34904634,
+          "eligible": true,
+          "output_count": 0,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": true,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 15280459
+        },
+        "compiler-runtime-v1": {
+          "cache_bytes": 119445,
+          "classification": "Guarded",
+          "cold_match": true,
+          "cold_ns": 33769783,
+          "eligible": true,
+          "output_count": 0,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": true,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 13499848
+        },
+        "native": {
+          "cache_bytes": 119137,
+          "classification": "Guarded",
+          "cold_match": true,
+          "cold_ns": 87236215,
+          "eligible": true,
+          "output_count": 0,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs"
+          ],
+          "reused": true,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 15316227
+        }
+      }
+    },
+    {
+      "argv": [
+        "gzip",
+        "-9",
+        "-n",
+        "-k",
+        "-f",
+        "blob.bin"
+      ],
+      "config": "gzip-9-blob-file",
+      "family": "compression",
+      "native_exit": 0,
+      "note": "gzip -9 -n -k -f of a 2 MiB incompressible blob, producing a file",
+      "policies": {
+        "allocator-entropy-v1": {
+          "cache_bytes": 2208202,
+          "classification": "Guarded",
+          "cold_match": true,
+          "cold_ns": 97832092,
+          "eligible": true,
+          "output_count": 1,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": true,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 24811599
+        },
+        "compiler-runtime-v1": {
+          "cache_bytes": 2208198,
+          "classification": "Guarded",
+          "cold_match": true,
+          "cold_ns": 107954341,
+          "eligible": true,
+          "output_count": 1,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": true,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 26906170
+        },
+        "native": {
+          "cache_bytes": 2233884,
+          "classification": "Nondeterministic",
+          "cold_match": true,
+          "cold_ns": 104876304,
+          "eligible": false,
+          "output_count": 1,
+          "reasons": [
+            "process read randomness via getrandom"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 89133876
+        }
+      }
+    },
+    {
+      "argv": [
+        "bzip2",
+        "-9",
+        "-k",
+        "-f",
+        "blob.bin"
+      ],
+      "config": "bzip2-9-blob-file",
+      "family": "compression",
+      "native_exit": 0,
+      "note": "bzip2 -9 -k -f of a 2 MiB incompressible blob",
+      "policies": {
+        "allocator-entropy-v1": {
+          "cache_bytes": 2502721,
+          "classification": "Guarded",
+          "cold_match": true,
+          "cold_ns": 340142138,
+          "eligible": true,
+          "output_count": 1,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": true,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 26937600
+        },
+        "compiler-runtime-v1": {
+          "cache_bytes": 2502702,
+          "classification": "Guarded",
+          "cold_match": true,
+          "cold_ns": 311531287,
+          "eligible": true,
+          "output_count": 1,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": true,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 29202160
+        },
+        "native": {
+          "cache_bytes": 2625208,
+          "classification": "Nondeterministic",
+          "cold_match": true,
+          "cold_ns": 310875406,
+          "eligible": false,
+          "output_count": 1,
+          "reasons": [
+            "process read randomness via getrandom"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 291332037
+        }
+      }
+    },
+    {
+      "argv": [
+        "xz",
+        "-6",
+        "-k",
+        "-f",
+        "blob.bin"
+      ],
+      "config": "xz-6-blob-file",
+      "family": "compression",
+      "native_exit": 0,
+      "note": "xz -6 -k -f of a 2 MiB incompressible blob",
+      "policies": {
+        "allocator-entropy-v1": {
+          "cache_bytes": 2664486,
+          "classification": "Unknown",
+          "cold_match": true,
+          "cold_ns": 661002776,
+          "eligible": false,
+          "output_count": 1,
+          "reasons": [
+            "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+            "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+            "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded",
+            "unmodeled successful syscall 72: status-flag change on fd 3 whose open file description is shared or unclassified",
+            "unmodeled successful syscall 72: status-flag change on fd 4 whose open file description is shared or unclassified",
+            "failed filesystem effect is not guardable: /tmp/ac-noncompiler/probe/xz-6-blob-file/traced/blob.bin.xz (errno 2)",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 639911250
+        },
+        "compiler-runtime-v1": {
+          "cache_bytes": 2664470,
+          "classification": "Unknown",
+          "cold_match": true,
+          "cold_ns": 634730896,
+          "eligible": false,
+          "output_count": 1,
+          "reasons": [
+            "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+            "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+            "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded",
+            "unmodeled successful syscall 72: status-flag change on fd 3 whose open file description is shared or unclassified",
+            "unmodeled successful syscall 72: status-flag change on fd 4 whose open file description is shared or unclassified",
+            "failed filesystem effect is not guardable: /tmp/ac-noncompiler/probe/xz-6-blob-file/traced/blob.bin.xz (errno 2)",
+            "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 656640961
+        },
+        "native": {
+          "cache_bytes": 2661364,
+          "classification": "Unknown",
+          "cold_match": true,
+          "cold_ns": 632418397,
+          "eligible": false,
+          "output_count": 1,
+          "reasons": [
+            "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+            "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+            "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded",
+            "unmodeled successful syscall 72: status-flag change on fd 3 whose open file description is shared or unclassified",
+            "unmodeled successful syscall 72: status-flag change on fd 4 whose open file description is shared or unclassified",
+            "failed filesystem effect is not guardable: /tmp/ac-noncompiler/probe/xz-6-blob-file/traced/blob.bin.xz (errno 2)"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 661541558
+        }
+      }
+    },
+    {
+      "argv": [
+        "objcopy",
+        "--strip-unneeded",
+        "real-binary",
+        "stripped"
+      ],
+      "config": "objcopy-strip-real-binary",
+      "family": "binutils",
+      "native_exit": 0,
+      "note": "objcopy --strip-unneeded of a real system binary",
+      "policies": {
+        "allocator-entropy-v1": {
+          "cache_bytes": 1232721,
+          "classification": "Guarded",
+          "cold_match": true,
+          "cold_ns": 49981702,
+          "eligible": true,
+          "output_count": 1,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": true,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 23353473
+        },
+        "compiler-runtime-v1": {
+          "cache_bytes": 1232710,
+          "classification": "Guarded",
+          "cold_match": true,
+          "cold_ns": 47124869,
+          "eligible": true,
+          "output_count": 1,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": true,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 23213850
+        },
+        "native": {
+          "cache_bytes": 1291822,
+          "classification": "Nondeterministic",
+          "cold_match": true,
+          "cold_ns": 38377140,
+          "eligible": false,
+          "output_count": 1,
+          "reasons": [
+            "process read randomness via getrandom"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 36424104
+        }
+      }
+    },
+    {
+      "argv": [
+        "strip",
+        "--strip-unneeded",
+        "-o",
+        "stripped",
+        "real-binary"
+      ],
+      "config": "strip-real-binary",
+      "family": "binutils",
+      "native_exit": 0,
+      "note": "strip --strip-unneeded -o of a real system binary",
+      "policies": {
+        "allocator-entropy-v1": {
+          "cache_bytes": 1232762,
+          "classification": "Guarded",
+          "cold_match": true,
+          "cold_ns": 50551601,
+          "eligible": true,
+          "output_count": 1,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": true,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 24071020
+        },
+        "compiler-runtime-v1": {
+          "cache_bytes": 1232753,
+          "classification": "Guarded",
+          "cold_match": true,
+          "cold_ns": 53339844,
+          "eligible": true,
+          "output_count": 1,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": true,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 43286666
+        },
+        "native": {
+          "cache_bytes": 1291914,
+          "classification": "Nondeterministic",
+          "cold_match": true,
+          "cold_ns": 43161230,
+          "eligible": false,
+          "output_count": 1,
+          "reasons": [
+            "process read randomness via getrandom"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 34265384
+        }
+      }
+    },
+    {
+      "argv": [
+        "objdump",
+        "-d",
+        "--no-show-raw-insn",
+        "real-binary"
+      ],
+      "config": "objdump-disassemble-real-binary",
+      "family": "binutils",
+      "native_exit": 0,
+      "note": "objdump -d of a real system binary to stdout (heavy, streaming output)",
+      "policies": {
+        "allocator-entropy-v1": {
+          "cache_bytes": 3834755,
+          "classification": "Guarded",
+          "cold_match": true,
+          "cold_ns": 593772462,
+          "eligible": true,
+          "output_count": 0,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": true,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 430055158
+        },
+        "compiler-runtime-v1": {
+          "cache_bytes": 3834746,
+          "classification": "Guarded",
+          "cold_match": true,
+          "cold_ns": 556670172,
+          "eligible": true,
+          "output_count": 0,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": true,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 411655742
+        },
+        "native": {
+          "cache_bytes": 3890671,
+          "classification": "Nondeterministic",
+          "cold_match": true,
+          "cold_ns": 593533894,
+          "eligible": false,
+          "output_count": 0,
+          "reasons": [
+            "process read randomness via getrandom"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 576309585
+        }
+      }
+    },
+    {
+      "argv": [
+        "readelf",
+        "-h",
+        "real-binary"
+      ],
+      "config": "readelf-header-real-binary",
+      "family": "binutils",
+      "native_exit": 0,
+      "note": "readelf -h of a real system binary to stdout (tiny compute)",
+      "policies": {
+        "allocator-entropy-v1": {
+          "cache_bytes": 176630,
+          "classification": "Guarded",
+          "cold_match": true,
+          "cold_ns": 34387922,
+          "eligible": true,
+          "output_count": 0,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": true,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 18855260
+        },
+        "compiler-runtime-v1": {
+          "cache_bytes": 176623,
+          "classification": "Guarded",
+          "cold_match": true,
+          "cold_ns": 52023855,
+          "eligible": true,
+          "output_count": 0,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": true,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 20254636
+        },
+        "native": {
+          "cache_bytes": 234502,
+          "classification": "Nondeterministic",
+          "cold_match": true,
+          "cold_ns": 26645812,
+          "eligible": false,
+          "output_count": 0,
+          "reasons": [
+            "process read randomness via getrandom"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 33018603
+        }
+      }
+    },
+    {
+      "argv": [
+        "nm",
+        "--defined-only",
+        "real-binary"
+      ],
+      "config": "nm-symbols-real-binary",
+      "family": "binutils",
+      "native_exit": 0,
+      "note": "nm --defined-only of a real system binary to stdout",
+      "policies": {
+        "allocator-entropy-v1": {
+          "cache_bytes": 404299,
+          "classification": "Guarded",
+          "cold_match": true,
+          "cold_ns": 57102627,
+          "eligible": true,
+          "output_count": 0,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 66312273
+        },
+        "compiler-runtime-v1": {
+          "cache_bytes": 404281,
+          "classification": "Guarded",
+          "cold_match": true,
+          "cold_ns": 49910588,
+          "eligible": true,
+          "output_count": 0,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 55263837
+        },
+        "native": {
+          "cache_bytes": 399984,
+          "classification": "Nondeterministic",
+          "cold_match": true,
+          "cold_ns": 44342447,
+          "eligible": false,
+          "output_count": 0,
+          "reasons": [
+            "process read randomness via getrandom"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 52347914
+        }
+      }
+    },
+    {
+      "argv": [
+        "sed",
+        "s/key=/k=/g",
+        "lines.txt"
+      ],
+      "config": "sed-substitute-large-file",
+      "family": "data",
+      "native_exit": 0,
+      "note": "sed substitution with 200k lines to stdout",
+      "policies": {
+        "allocator-entropy-v1": {
+          "cache_bytes": 5703705,
+          "classification": "Guarded",
+          "cold_match": true,
+          "cold_ns": 842778194,
+          "eligible": true,
+          "output_count": 0,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": true,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 666793435
+        },
+        "compiler-runtime-v1": {
+          "cache_bytes": 5703696,
+          "classification": "Guarded",
+          "cold_match": true,
+          "cold_ns": 825758249,
+          "eligible": true,
+          "output_count": 0,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": true,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 611799286
+        },
+        "native": {
+          "cache_bytes": 5795325,
+          "classification": "Nondeterministic",
+          "cold_match": true,
+          "cold_ns": 888311857,
+          "eligible": false,
+          "output_count": 0,
+          "reasons": [
+            "process read randomness via getrandom"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 850058999
+        }
+      }
+    },
+    {
+      "argv": [
+        "sort",
+        "lines.txt"
+      ],
+      "config": "sort-large-file",
+      "family": "data",
+      "native_exit": 0,
+      "note": "sort of 200k lines to stdout",
+      "policies": {
+        "allocator-entropy-v1": {
+          "cache_bytes": 6168147,
+          "classification": "Unknown",
+          "cold_match": true,
+          "cold_ns": 791709784,
+          "eligible": false,
+          "output_count": 0,
+          "reasons": [
+            "clone file-descriptor and cwd sharing semantics are not eligible for V1 reuse",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 811698800
+        },
+        "compiler-runtime-v1": {
+          "cache_bytes": 6168121,
+          "classification": "Unknown",
+          "cold_match": true,
+          "cold_ns": 811514294,
+          "eligible": false,
+          "output_count": 0,
+          "reasons": [
+            "clone file-descriptor and cwd sharing semantics are not eligible for V1 reuse",
+            "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 833451258
+        },
+        "native": {
+          "cache_bytes": 6165043,
+          "classification": "Unknown",
+          "cold_match": true,
+          "cold_ns": 866648325,
+          "eligible": false,
+          "output_count": 0,
+          "reasons": [
+            "clone file-descriptor and cwd sharing semantics are not eligible for V1 reuse"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 799004394
+        }
+      }
+    },
+    {
+      "argv": [
+        "awk",
+        "{ s += $2 } END { printf \"%d\\n\", s }",
+        "lines.txt"
+      ],
+      "config": "awk-reduce-large-file",
+      "family": "data",
+      "native_exit": 0,
+      "note": "awk numeric reduction over 200k lines",
+      "policies": {
+        "allocator-entropy-v1": {
+          "cache_bytes": 191262,
+          "classification": "Nondeterministic",
+          "cold_match": true,
+          "cold_ns": 53723775,
+          "eligible": false,
+          "output_count": 0,
+          "reasons": [
+            "process read system clock: realtime",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 52575219
+        },
+        "compiler-runtime-v1": {
+          "cache_bytes": 191254,
+          "classification": "Nondeterministic",
+          "cold_match": true,
+          "cold_ns": 55458851,
+          "eligible": false,
+          "output_count": 0,
+          "reasons": [
+            "process read system clock: realtime",
+            "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 49376055
+        },
+        "native": {
+          "cache_bytes": 188222,
+          "classification": "Nondeterministic",
+          "cold_match": true,
+          "cold_ns": 74530979,
+          "eligible": false,
+          "output_count": 0,
+          "reasons": [
+            "process read randomness via getrandom",
+            "process read system clock: realtime"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 71092855
+        }
+      }
+    },
+    {
+      "argv": [
+        "perl",
+        "-lne",
+        "$s += $1 if /key=(\\d+)/; END { print $s+0 }",
+        "lines.txt"
+      ],
+      "config": "perl-reduce-large-file",
+      "family": "data",
+      "native_exit": 0,
+      "note": "perl numeric reduction over 200k lines",
+      "policies": {
+        "allocator-entropy-v1": {
+          "cache_bytes": 432278,
+          "classification": "Nondeterministic",
+          "cold_match": true,
+          "cold_ns": 193985474,
+          "eligible": false,
+          "output_count": 0,
+          "reasons": [
+            "process read randomness via /dev/urandom",
+            "process read system clock: realtime",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 191389051
+        },
+        "compiler-runtime-v1": {
+          "cache_bytes": 432280,
+          "classification": "Nondeterministic",
+          "cold_match": true,
+          "cold_ns": 188330952,
+          "eligible": false,
+          "output_count": 0,
+          "reasons": [
+            "process read randomness via /dev/urandom",
+            "process read system clock: realtime",
+            "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 194032673
+        },
+        "native": {
+          "cache_bytes": 421066,
+          "classification": "Nondeterministic",
+          "cold_match": true,
+          "cold_ns": 200681503,
+          "eligible": false,
+          "output_count": 0,
+          "reasons": [
+            "process read randomness via getrandom",
+            "process read randomness via /dev/urandom",
+            "process read system clock: realtime"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 184135056
+        }
+      }
+    },
+    {
+      "argv": [
+        "sha256sum",
+        "real-binary"
+      ],
+      "config": "sha256sum-real-binary",
+      "family": "tooling",
+      "native_exit": 0,
+      "note": "sha256sum of a real system binary (pure compute, tiny output)",
+      "policies": {
+        "allocator-entropy-v1": {
+          "cache_bytes": 273784,
+          "classification": "Guarded",
+          "cold_match": true,
+          "cold_ns": 35079822,
+          "eligible": true,
+          "output_count": 0,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": true,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 15378134
+        },
+        "compiler-runtime-v1": {
+          "cache_bytes": 273765,
+          "classification": "Guarded",
+          "cold_match": true,
+          "cold_ns": 32738296,
+          "eligible": true,
+          "output_count": 0,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": true,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 20526105
+        },
+        "native": {
+          "cache_bytes": 355938,
+          "classification": "Nondeterministic",
+          "cold_match": true,
+          "cold_ns": 30780112,
+          "eligible": false,
+          "output_count": 0,
+          "reasons": [
+            "process read randomness via getrandom"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 25093398
+        }
+      }
+    },
+    {
+      "argv": [
+        "base64",
+        "real-binary"
+      ],
+      "config": "base64-real-binary",
+      "family": "tooling",
+      "native_exit": 0,
+      "note": "base64 encode of a real system binary to stdout",
+      "policies": {
+        "allocator-entropy-v1": {
+          "cache_bytes": 1653099,
+          "classification": "Guarded",
+          "cold_match": true,
+          "cold_ns": 217189186,
+          "eligible": true,
+          "output_count": 0,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": true,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 156859633
+        },
+        "compiler-runtime-v1": {
+          "cache_bytes": 1653089,
+          "classification": "Guarded",
+          "cold_match": true,
+          "cold_ns": 204659539,
+          "eligible": true,
+          "output_count": 0,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": true,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 159875684
+        },
+        "native": {
+          "cache_bytes": 1732678,
+          "classification": "Nondeterministic",
+          "cold_match": true,
+          "cold_ns": 189059699,
+          "eligible": false,
+          "output_count": 0,
+          "reasons": [
+            "process read randomness via getrandom"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 190400266
+        }
+      }
+    },
+    {
+      "argv": [
+        "tar",
+        "-cf",
+        "bundle.tar",
+        "corpus.txt",
+        "blob.bin"
+      ],
+      "config": "tar-create",
+      "family": "packaging",
+      "native_exit": 0,
+      "note": "tar -cf of two files into an uncompressed archive",
+      "policies": {
+        "allocator-entropy-v1": {
+          "cache_bytes": 2808410,
+          "classification": "Unknown",
+          "cold_match": true,
+          "cold_ns": 60599361,
+          "eligible": false,
+          "output_count": 1,
+          "reasons": [
+            "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+            "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+            "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 48708943
+        },
+        "compiler-runtime-v1": {
+          "cache_bytes": 2808398,
+          "classification": "Unknown",
+          "cold_match": true,
+          "cold_ns": 58275600,
+          "eligible": false,
+          "output_count": 1,
+          "reasons": [
+            "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+            "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+            "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded",
+            "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 51640956
+        },
+        "native": {
+          "cache_bytes": 2805312,
+          "classification": "Unknown",
+          "cold_match": true,
+          "cold_ns": 65781336,
+          "eligible": false,
+          "output_count": 1,
+          "reasons": [
+            "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+            "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+            "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded"
+          ],
+          "reused": false,
+          "warm_covered_differences": [],
+          "warm_match": true,
+          "warm_ns": 53741559
+        }
+      }
+    }
+  ]
+}

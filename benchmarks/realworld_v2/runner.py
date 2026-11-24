@@ -49,6 +49,7 @@ import random
 import re
 import shutil
 import statistics
+import stat
 import subprocess
 import sys
 import tempfile
@@ -377,6 +378,99 @@ def env_digest(env: dict) -> str:
 
 
 # --------------------------------------------------------------------------- #
+# twin construction
+# --------------------------------------------------------------------------- #
+
+#: Metadata that both twins must agree on before a comparison means anything.
+#:
+#: ``mtime_ns`` is here because a command may *serialise* input metadata rather
+#: than read its bytes: ``tar``, ``zip`` and ``ar`` write member timestamps into
+#: their output, so two twins with identical content written a second apart
+#: produce two different (both correct) archives.  That is a property of the
+#: fixture, not of the execution, and a pre-state check that ignores it lets the
+#: divergence surface later as an unexplained ``cold_mismatch``.
+#:
+#: ``ctime`` and ``inode`` are deliberately absent: no interface can set them,
+#: so requiring them would fail every workload.
+PRESTATE_METADATA_FIELDS = ("kind", "mode", "size", "mtime_ns", "uid", "gid", "target")
+
+
+def prepare_twins(
+    native_ws: Path, traced_ws: Path, ctx: dict, workload: corpus.Workload
+) -> None:
+    """Builds two twins that are identical in content *and* in metadata.
+
+    ``corpus.prepare`` is deterministic in the bytes it writes, but it stamps
+    each file with the wall-clock time it happened to write it.  Calling it once
+    per twin therefore yields two trees that are content-identical and
+    timestamp-different, and any command that archives member timestamps (tar,
+    zip, ar) then produces different-but-correct output in each twin.  Preparing
+    once and cloning with metadata preserved removes that difference at the
+    source instead of normalising timestamps inside the workload.
+
+    Cloning rather than ``prepare`` twice keeps each workload's intended
+    timestamp *relationships* intact (for example ``make-header-change`` needs
+    the edited header newer than the prebuilt objects).
+    """
+
+    corpus.prepare(native_ws, ctx, workload)
+    shutil.copytree(native_ws, traced_ws, symlinks=True)
+
+
+def prestate_metadata_differences(native_ws: Path, traced_ws: Path) -> list[dict]:
+    """Compares the metadata both twins expose to the command being benchmarked.
+
+    This is a *harness* check, not part of TraceJIT's observable contract: the
+    oracle scores content, mode, type and link grouping, and reports timestamps
+    and ownership as advisory.  That is right for judging a reused decision, and
+    insufficient for proving two twins start equal, which is what this function
+    is for.
+    """
+
+    def snapshot(root: Path) -> dict[str, dict]:
+        entries: dict[str, dict] = {}
+        for dirpath, dirnames, filenames in os.walk(root, followlinks=False):
+            dirnames.sort()
+            for name in dirnames + sorted(filenames):
+                path = Path(dirpath) / name
+                info = path.lstat()
+                record = {
+                    "kind": "symlink" if stat.S_ISLNK(info.st_mode)
+                    else "directory" if stat.S_ISDIR(info.st_mode)
+                    else "file" if stat.S_ISREG(info.st_mode) else "other",
+                    "mode": stat.S_IMODE(info.st_mode),
+                    "size": info.st_size,
+                    "mtime_ns": info.st_mtime_ns,
+                    "uid": info.st_uid,
+                    "gid": info.st_gid,
+                }
+                if stat.S_ISLNK(info.st_mode):
+                    record["target"] = os.readlink(path)
+                entries[path.relative_to(root).as_posix()] = record
+        return entries
+
+    left = snapshot(native_ws)
+    right = snapshot(traced_ws)
+    differences: list[dict] = []
+    for path in sorted(set(left) - set(right)):
+        differences.append({"path": path, "field": "missing", "native": left[path]})
+    for path in sorted(set(right) - set(left)):
+        differences.append({"path": path, "field": "unexpected", "traced": right[path]})
+    for path in sorted(set(left) & set(right)):
+        for field in PRESTATE_METADATA_FIELDS:
+            if left[path].get(field) != right[path].get(field):
+                differences.append(
+                    {
+                        "path": path,
+                        "field": field,
+                        "native": left[path].get(field),
+                        "traced": right[path].get(field),
+                    }
+                )
+    return differences
+
+
+# --------------------------------------------------------------------------- #
 # qualification: is this workload reusable, and is a reuse correct?
 # --------------------------------------------------------------------------- #
 
@@ -424,9 +518,8 @@ def qualify(
     native_ws = root / "native"
     traced_ws = root / "traced"
     cache = root / "cache"
-    corpus.prepare(native_ws, ctx, workload)
-    corpus.prepare(traced_ws, ctx, workload)
     root.mkdir(parents=True, exist_ok=True)
+    prepare_twins(native_ws, traced_ws, ctx, workload)
 
     env = cache_env({**base_env, **workload.env}, cache)
     record["environment_digest"] = env_digest(env)
@@ -445,6 +538,15 @@ def qualify(
     record["prestate_equivalence"] = prestate
     if not prestate["match"]:
         record.update(status="prestate_mismatch")
+        return record
+
+    # 0b. Prove the twins are also equal in the metadata a command can
+    #     serialise. A content-only pre-state check cannot see two fixtures
+    #     written a second apart, and tar/zip/ar turn that into different bytes.
+    metadata = prestate_metadata_differences(native_ws, traced_ws)
+    record["prestate_metadata"] = {"match": not metadata, "differences": metadata[:20]}
+    if metadata:
+        record.update(status="prestate_metadata_mismatch")
         return record
 
     # 1. clean native execution in the twin. A nonzero exit is a legitimate
@@ -732,14 +834,21 @@ def time_workload(
     native_ws = root / "native"
     traced_ws = root / "traced"
     cache = root / "cache"
-    corpus.prepare(native_ws, ctx, workload)
-    corpus.prepare(traced_ws, ctx, workload)
     root.mkdir(parents=True, exist_ok=True)
+    prepare_twins(native_ws, traced_ws, ctx, workload)
 
     env = cache_env({**base_env, **workload.env}, cache)
     argv = workload.command(traced_ws, ctx)
     reset_outputs(workload, native_ws)
     reset_outputs(workload, traced_ws)
+    metadata = prestate_metadata_differences(native_ws, traced_ws)
+    if metadata:
+        return {
+            "workload_id": workload.id,
+            "policy": policy,
+            "status": "prestate_metadata_mismatch",
+            "prestate_metadata": {"match": False, "differences": metadata[:20]},
+        }
 
     # Populate the cache with a **plain** run. The JSON report carries the whole
     # cached stdout and stderr as byte arrays; serialising them inside TraceJIT and

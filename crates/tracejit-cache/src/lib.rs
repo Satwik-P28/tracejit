@@ -524,6 +524,16 @@ impl Cache {
     /// workspace; a durable restore-intent marker then forces the next run to refuse HIT
     /// (see [`Self::has_interrupted_restore`]). This is not a multi-file atomic journal.
     pub fn restore_outputs(&self, outputs: &[OutputArtifact]) -> Result<(), CacheError> {
+        // A record with no workspace outputs has nothing to stage, rename, back up or roll back.
+        // The restore intent exists so a hard kill *between two renames* cannot leave a mixed
+        // workspace; with no destinations there is no such window, and writing the intent would
+        // add a temp-file write, an fsync, a rename and a directory fsync to every hit of a pure
+        // filter (`readelf`, `objdump`, `cut`, `gzip -c`) for no protection. Measured at 1.6 ms
+        // of a 6.9 ms `gzip -6` hit. No guard, output or stream is affected: streams are verified
+        // and replayed by the caller, not here.
+        if outputs.is_empty() {
+            return Ok(());
+        }
         for output in outputs {
             validate_output_precondition(output)?;
         }
@@ -651,6 +661,9 @@ impl Cache {
                     }
                     Err(source) => return Err(io_error(&source_path, source)),
                 };
+                // Test hook for the prune-versus-restore window: mutates the object *after*
+                // this descriptor is open. Unset in normal use.
+                fault::maybe_mutate_object(&source_path);
                 let mut temporary =
                     NamedTempFile::new_in(parent).map_err(|source| io_error(parent, source))?;
                 let mut hasher = blake3::Hasher::new();
@@ -1389,6 +1402,10 @@ fn link_count(metadata: &fs::Metadata) -> u64 {
 /// - `TRACEJIT_TEST_RESTORE_FAIL_PATH` — absolute path that fails before apply
 /// - `TRACEJIT_TEST_RESTORE_PAUSE_PATH` — absolute path that sleeps before apply
 ///   so an external harness can SIGKILL the process mid-restore
+/// - `TRACEJIT_TEST_CAS_PATH` + `TRACEJIT_TEST_CAS_ACTION` (`delete`, `truncate`,
+///   `replace`) — mutates that CAS object after it has been opened and before
+///   its bytes are streamed, which is the only way to test the prune-versus-
+///   restore window deterministically
 #[cfg(test)]
 mod fault {
     use std::cell::RefCell;
@@ -1424,12 +1441,46 @@ mod fault {
             }
         }
     }
+
+    /// Mutates a CAS object immediately after `restore_outputs` opened it.
+    ///
+    /// `delete` exercises the open-descriptor case (the inode survives the
+    /// unlink, so the verified bytes are still readable); `truncate` and
+    /// `replace` exercise content mutation behind the descriptor.
+    pub fn maybe_mutate_object(path: &Path) {
+        let Some(action) = std::env::var_os("TRACEJIT_TEST_CAS_ACTION") else {
+            return;
+        };
+        let Some(target) = std::env::var_os("TRACEJIT_TEST_CAS_PATH") else {
+            return;
+        };
+        if Path::new(&target) != path {
+            return;
+        }
+        match action.to_str() {
+            Some("delete") => {
+                let _ = std::fs::remove_file(path);
+            }
+            Some("truncate") => {
+                if let Ok(file) = std::fs::OpenOptions::new().write(true).open(path) {
+                    let _ = file.set_len(0);
+                }
+            }
+            Some("replace") => {
+                let _ = std::fs::write(path, b"substituted cached object bytes");
+            }
+            _ => {}
+        }
+    }
 }
 
 #[cfg(not(test))]
 mod fault {
     use std::path::Path;
     use std::time::Duration;
+
+    /// No-op outside tests: the production path must not mutate CAS objects.
+    pub fn maybe_mutate_object(_path: &Path) {}
 
     pub fn should_fail(path: &Path) -> bool {
         matches!(
@@ -1703,6 +1754,30 @@ mod tests {
         assert_eq!(temporary_files(directory.path()), 0);
         // Soft rollback must clear this process's restore intent so the next open is not blocked.
         assert!(!cache.restore_intent_path().is_file());
+    }
+
+    #[test]
+    fn restoring_no_outputs_writes_no_restore_intent() {
+        let directory = tempfile::tempdir().unwrap();
+        let cache_root = directory.path().join("cache");
+        let cache = Cache::open(&cache_root).unwrap();
+        // A pure filter has no workspace destination. The restore intent protects renames that
+        // are about to happen; with none, writing it would only add fsyncs to every hit.
+        cache.restore_outputs(&[]).unwrap();
+        let intents = fs::read_dir(&cache_root)
+            .unwrap()
+            .filter_map(|entry| entry.ok())
+            .filter(|entry| {
+                entry
+                    .file_name()
+                    .to_string_lossy()
+                    .starts_with(RESTORE_INTENT_PREFIX)
+            })
+            .count();
+        assert_eq!(intents, 0);
+        let reopened = Cache::open(&cache_root).unwrap();
+        assert!(!reopened.has_interrupted_restore());
+        assert_eq!(temporary_files(&cache_root), 0);
     }
 
     #[test]
@@ -2015,6 +2090,117 @@ mod tests {
             Err(CacheError::OutputPrecondition { .. })
         ));
         assert!(!path.exists());
+        assert_eq!(temporary_files(directory.path()), 0);
+    }
+
+    // --- Phase AC: the prune-versus-restore window --------------------------- #
+
+    fn cas_object_path(cache: &Cache, artifact: &OutputArtifact) -> PathBuf {
+        let hash = artifact.content.expect("artifact must carry content");
+        cache.objects.join(hash.to_string())
+    }
+
+    fn with_cas_fault(path: &Path, action: &str) {
+        std::env::set_var("TRACEJIT_TEST_CAS_PATH", path);
+        std::env::set_var("TRACEJIT_TEST_CAS_ACTION", action);
+    }
+
+    fn clear_cas_fault() {
+        std::env::remove_var("TRACEJIT_TEST_CAS_PATH");
+        std::env::remove_var("TRACEJIT_TEST_CAS_ACTION");
+    }
+
+    #[test]
+    fn deleting_a_cas_object_after_open_still_restores_verified_bytes() {
+        let directory = tempfile::tempdir().unwrap();
+        let cache = Cache::open(directory.path().join("cache")).unwrap();
+        let path = directory.path().join("out.txt");
+        fs::write(&path, b"cached-bytes").unwrap();
+        let artifact = output_from_path(&cache, &path, false, true).unwrap();
+        fs::write(&path, b"user").unwrap();
+        with_cas_fault(&cas_object_path(&cache, &artifact), "delete");
+        let result = cache.restore_outputs(&[artifact]);
+        clear_cas_fault();
+        result.unwrap();
+        // An unlinked inode is still readable through the open descriptor, and the digest is
+        // checked over exactly those bytes, so this outcome is verified, not assumed.
+        assert_eq!(fs::read(&path).unwrap(), b"cached-bytes");
+        assert_eq!(temporary_files(directory.path()), 0);
+    }
+
+    #[test]
+    fn truncating_a_cas_object_after_open_fails_closed() {
+        let directory = tempfile::tempdir().unwrap();
+        let cache = Cache::open(directory.path().join("cache")).unwrap();
+        let path = directory.path().join("out.txt");
+        fs::write(&path, b"cached-bytes").unwrap();
+        let artifact = output_from_path(&cache, &path, false, true).unwrap();
+        fs::write(&path, b"user").unwrap();
+        with_cas_fault(&cas_object_path(&cache, &artifact), "truncate");
+        let result = cache.restore_outputs(&[artifact]);
+        clear_cas_fault();
+        assert!(matches!(result, Err(CacheError::CorruptObject { .. })));
+        assert_eq!(fs::read(&path).unwrap(), b"user");
+        assert_eq!(temporary_files(directory.path()), 0);
+    }
+
+    #[test]
+    fn replacing_a_cas_object_after_open_fails_closed() {
+        let directory = tempfile::tempdir().unwrap();
+        let cache = Cache::open(directory.path().join("cache")).unwrap();
+        let path = directory.path().join("out.txt");
+        fs::write(&path, b"cached-bytes").unwrap();
+        let artifact = output_from_path(&cache, &path, false, true).unwrap();
+        fs::write(&path, b"user").unwrap();
+        with_cas_fault(&cas_object_path(&cache, &artifact), "replace");
+        let result = cache.restore_outputs(&[artifact]);
+        clear_cas_fault();
+        assert!(matches!(result, Err(CacheError::CorruptObject { .. })));
+        assert_eq!(fs::read(&path).unwrap(), b"user");
+        assert_eq!(temporary_files(directory.path()), 0);
+    }
+
+    #[test]
+    fn a_pruned_cas_object_before_open_fails_closed() {
+        let directory = tempfile::tempdir().unwrap();
+        let cache = Cache::open(directory.path().join("cache")).unwrap();
+        let path = directory.path().join("out.txt");
+        fs::write(&path, b"cached-bytes").unwrap();
+        let artifact = output_from_path(&cache, &path, false, true).unwrap();
+        fs::write(&path, b"user").unwrap();
+        fs::remove_file(cas_object_path(&cache, &artifact)).unwrap();
+        assert!(matches!(
+            cache.restore_outputs(&[artifact]),
+            Err(CacheError::CorruptObject { .. })
+        ));
+        assert_eq!(fs::read(&path).unwrap(), b"user");
+        assert_eq!(temporary_files(directory.path()), 0);
+    }
+
+    #[test]
+    fn concurrent_restores_of_one_record_all_produce_the_cached_bytes() {
+        let directory = tempfile::tempdir().unwrap();
+        let cache_root = directory.path().join("cache");
+        let cache = Cache::open(&cache_root).unwrap();
+        let path = directory.path().join("out.txt");
+        fs::write(&path, b"cached-bytes").unwrap();
+        let artifact = output_from_path(&cache, &path, false, true).unwrap();
+        fs::write(&path, b"user").unwrap();
+        let mut handles = Vec::new();
+        for _ in 0..4 {
+            let root = cache_root.clone();
+            let artifact = artifact.clone();
+            handles.push(std::thread::spawn(move || {
+                let cache = Cache::open(root).unwrap();
+                cache
+                    .restore_outputs(&[artifact])
+                    .map_err(|error| format!("{error:?}"))
+            }));
+        }
+        for handle in handles {
+            handle.join().unwrap().unwrap();
+        }
+        assert_eq!(fs::read(&path).unwrap(), b"cached-bytes");
         assert_eq!(temporary_files(directory.path()), 0);
     }
 

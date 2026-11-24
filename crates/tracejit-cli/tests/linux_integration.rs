@@ -4895,3 +4895,47 @@ fn phase_k2_independent_obs_oracle_seed7() {
     );
     eprintln!("RESULT phase-k2-oracle PASS");
 }
+
+/// No contract may absorb an application's own `getrandom(8, GRND_NONBLOCK)`.
+///
+/// Phase AB established that the intermittent gcc refusal is glibc's `__gen_tempname` draw: the
+/// syscall writes eight bytes into a **stack** buffer, which become characters of a temporary
+/// *filename*. That is not the runtime's allocator key, so it is not admitted by the
+/// allocator-entropy profile; the stable fix is to make the draw unreachable, not to admit it.
+///
+/// This test pins the boundary against that change. The fixture issues the exact admitted request
+/// shape (eight bytes, `GRND_NONBLOCK`) from its own code into a stack buffer and prints nothing,
+/// so no observable output can justify the classification. Under both contracts it must still be
+/// `Nondeterministic`, must never become eligible, and a second identical run must not reuse.
+#[test]
+fn application_stack_entropy_is_never_admitted_by_a_contract() {
+    let temporary = tempfile::tempdir().unwrap();
+    workspace(temporary.path());
+    let binary = compile_fixture(temporary.path());
+    let cache = temporary.path().join("cache");
+    for contract in ["allocator-entropy-v1", "compiler-runtime-v1"] {
+        let args = [
+            "run",
+            "--json",
+            "--contract",
+            contract,
+            "--",
+            binary.to_str().unwrap(),
+            "getrandom_nonblock_stack",
+            temporary.path().to_str().unwrap(),
+        ];
+        let first = invoke(&cache, &args, None);
+        let first: Value = serde_json::from_slice(&first.stdout).unwrap();
+        assert_eq!(
+            first["classification"], "Nondeterministic",
+            "a stack-buffer getrandom(8, GRND_NONBLOCK) must not be admitted under {contract}: {first}"
+        );
+        assert_eq!(first["eligible_for_reuse"], false, "{first}");
+        assert_eq!(first["exit_code"], 0, "{first}");
+        let second = invoke(&cache, &args, None);
+        let second: Value = serde_json::from_slice(&second.stdout).unwrap();
+        assert_ne!(second["cache_decision"], "Reused", "{second}");
+        assert_ne!(second["kind"], "Reused", "{second}");
+    }
+    eprintln!("RESULT application-stack-entropy PASS");
+}

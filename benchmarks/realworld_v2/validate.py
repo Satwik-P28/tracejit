@@ -47,6 +47,10 @@ REQUIRED_ROW = [
 ACCEPTABLE = {
     "reused", "refused", "tool_unavailable", "eligible_but_no_hit", "incorrect_hit",
     "cold_mismatch", "mutation_mismatch", "tracejit_error", "harness_error", "not_qualified", "skipped_budget",
+    # Reachable statuses that were missing from this contract until Phase AC: a
+    # results file could carry them and still pass validation.
+    "prestate_mismatch", "prestate_metadata_mismatch", "hit_accounting_mismatch",
+    "cache_corruption_mismatch",
 }
 HEX40 = re.compile(r"^[0-9a-f]{40}$")
 HEX64 = re.compile(r"^[0-9a-f]{64}$")

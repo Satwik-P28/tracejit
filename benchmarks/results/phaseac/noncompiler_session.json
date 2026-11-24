@@ -1,0 +1,509 @@
+{
+  "mode": "session",
+  "probed_configs": 16,
+  "reusable_configs": [
+    "gzip-9-text-stdout",
+    "gzip-9-blob-file",
+    "bzip2-9-blob-file",
+    "objcopy-strip-real-binary",
+    "strip-real-binary",
+    "readelf-header-real-binary",
+    "sed-substitute-large-file",
+    "sha256sum-real-binary",
+    "base64-real-binary"
+  ],
+  "rows": [
+    {
+      "cold_decision": "Ineligible",
+      "cold_reused": false,
+      "config": "gzip-9-text-stdout",
+      "direct_samples_ns": [
+        7045093,
+        6700436,
+        8355863,
+        7740228,
+        7247092
+      ],
+      "family": "compression",
+      "hit_samples_ns": [
+        9926151,
+        4997079,
+        6220987,
+        5149124,
+        4896801
+      ],
+      "model": {
+        "break_even_invocations": 11.853586899323536,
+        "cache_bytes": 119106,
+        "cold_ns": 30017570,
+        "cold_over_direct": 4.14201585960272,
+        "direct_ns": 7247092,
+        "hit_ns": 5149124,
+        "hit_over_direct": 0.7105089876049593
+      },
+      "policy": "native",
+      "sessions": [
+        {
+          "hits": 2,
+          "invocations": 3,
+          "native_total_ns": 24431115,
+          "saving_fraction": -1.0517460214157233,
+          "saving_ns": -25695328,
+          "tracejit_total_ns": 50126443
+        },
+        {
+          "hits": 9,
+          "invocations": 10,
+          "native_total_ns": 82001711,
+          "saving_fraction": -0.07051697982253077,
+          "saving_ns": -5782513,
+          "tracejit_total_ns": 87784224
+        },
+        {
+          "hits": 24,
+          "invocations": 25,
+          "native_total_ns": 256247024,
+          "saving_fraction": 0.3732936894517846,
+          "saving_ns": 95655397,
+          "tracejit_total_ns": 160591627
+        }
+      ]
+    },
+    {
+      "cold_decision": "Ineligible",
+      "cold_reused": false,
+      "config": "gzip-9-blob-file",
+      "direct_samples_ns": [
+        61798971,
+        62451656,
+        55710884,
+        55857480,
+        62896050
+      ],
+      "family": "compression",
+      "hit_samples_ns": [
+        23402655,
+        18306660,
+        19292620,
+        19500941,
+        17932207
+      ],
+      "model": {
+        "break_even_invocations": 1.9257701043309976,
+        "cache_bytes": 2208057,
+        "cold_ns": 101150080,
+        "cold_over_direct": 1.6367599389316692,
+        "direct_ns": 61798971,
+        "hit_ns": 19292620,
+        "hit_over_direct": 0.31218351515917636
+      },
+      "policy": "allocator-entropy-v1",
+      "sessions": [
+        {
+          "hits": 2,
+          "invocations": 3,
+          "native_total_ns": 182368050,
+          "saving_fraction": 0.21766435513238203,
+          "saving_ns": 39695024,
+          "tracejit_total_ns": 142673026
+        },
+        {
+          "hits": 9,
+          "invocations": 10,
+          "native_total_ns": 614488153,
+          "saving_fraction": 0.5588996326833985,
+          "saving_ns": 343437203,
+          "tracejit_total_ns": 271050950
+        },
+        {
+          "hits": 24,
+          "invocations": 25,
+          "native_total_ns": 1526817008,
+          "saving_fraction": 0.6513247041324549,
+          "saving_ns": 994453636,
+          "tracejit_total_ns": 532363372
+        }
+      ]
+    },
+    {
+      "cold_decision": "Ineligible",
+      "cold_reused": false,
+      "config": "bzip2-9-blob-file",
+      "direct_samples_ns": [
+        216835793,
+        242172047,
+        214288431,
+        211795322,
+        214332104
+      ],
+      "family": "compression",
+      "hit_samples_ns": [
+        26422452,
+        17552826,
+        20377768,
+        17572032,
+        20209772
+      ],
+      "model": {
+        "break_even_invocations": 1.4911132378112992,
+        "cache_bytes": 2503585,
+        "cold_ns": 309668151,
+        "cold_over_direct": 1.4448052588519358,
+        "direct_ns": 214332104,
+        "hit_ns": 20209772,
+        "hit_over_direct": 0.09429185652934197
+      },
+      "policy": "allocator-entropy-v1",
+      "sessions": [
+        {
+          "hits": 2,
+          "invocations": 3,
+          "native_total_ns": 684438313,
+          "saving_fraction": 0.4819840250526712,
+          "saving_ns": 329888333,
+          "tracejit_total_ns": 354549980
+        },
+        {
+          "hits": 9,
+          "invocations": 10,
+          "native_total_ns": 2296168776,
+          "saving_fraction": 0.7829574214190952,
+          "saving_ns": 1797802384,
+          "tracejit_total_ns": 498366392
+        },
+        {
+          "hits": 24,
+          "invocations": 25,
+          "native_total_ns": 5574294503,
+          "saving_fraction": 0.848806765314172,
+          "saving_ns": 4731498886,
+          "tracejit_total_ns": 842795617
+        }
+      ]
+    },
+    {
+      "cold_decision": "Ineligible",
+      "cold_reused": false,
+      "config": "objcopy-strip-real-binary",
+      "direct_samples_ns": [
+        6262054,
+        4724698,
+        4831488,
+        5102126,
+        5147070
+      ],
+      "family": "binutils",
+      "hit_samples_ns": [
+        47250665
+      ],
+      "model": {
+        "break_even_invocations": null,
+        "cache_bytes": 1295665,
+        "cold_ns": 47862684,
+        "cold_over_direct": 9.38092944000207,
+        "direct_ns": 5102126,
+        "hit_ns": 47250665,
+        "hit_over_direct": 9.2609757187494
+      },
+      "policy": "allocator-entropy-v1",
+      "sessions": [
+        {
+          "hits": 2,
+          "invocations": 3,
+          "native_total_ns": 18211661,
+          "saving_fraction": -4.211502564208724,
+          "saving_ns": -76698457,
+          "tracejit_total_ns": 94910118
+        },
+        {
+          "hits": 9,
+          "invocations": 10,
+          "native_total_ns": 56268762,
+          "saving_fraction": -2.926096188147875,
+          "saving_ns": -164647810,
+          "tracejit_total_ns": 220916572
+        },
+        {
+          "hits": 24,
+          "invocations": 25,
+          "native_total_ns": 130831380,
+          "saving_fraction": -2.864424093057797,
+          "saving_ns": -374756557,
+          "tracejit_total_ns": 505587937
+        }
+      ]
+    },
+    {
+      "cold_decision": "Ineligible",
+      "cold_reused": false,
+      "config": "strip-real-binary",
+      "direct_samples_ns": [
+        4935644,
+        5516153,
+        4918982,
+        4693510,
+        4588953
+      ],
+      "family": "binutils",
+      "hit_samples_ns": [
+        41833879
+      ],
+      "model": {
+        "break_even_invocations": null,
+        "cache_bytes": 1295767,
+        "cold_ns": 55911751,
+        "cold_over_direct": 11.36652888748119,
+        "direct_ns": 4918982,
+        "hit_ns": 41833879,
+        "hit_over_direct": 8.504580622575972
+      },
+      "policy": "allocator-entropy-v1",
+      "sessions": [
+        {
+          "hits": 2,
+          "invocations": 3,
+          "native_total_ns": 16136407,
+          "saving_fraction": -4.309221439444357,
+          "saving_ns": -69535351,
+          "tracejit_total_ns": 85671758
+        },
+        {
+          "hits": 9,
+          "invocations": 10,
+          "native_total_ns": 48797889,
+          "saving_fraction": -3.674010181055168,
+          "saving_ns": -179283941,
+          "tracejit_total_ns": 228081830
+        },
+        {
+          "hits": 24,
+          "invocations": 25,
+          "native_total_ns": 122612212,
+          "saving_fraction": -3.059805429495065,
+          "saving_ns": -375169512,
+          "tracejit_total_ns": 497781724
+        }
+      ]
+    },
+    {
+      "cold_decision": "Ineligible",
+      "cold_reused": false,
+      "config": "readelf-header-real-binary",
+      "direct_samples_ns": [
+        1905997,
+        1760013,
+        1764011,
+        1705542,
+        1630400
+      ],
+      "family": "binutils",
+      "hit_samples_ns": [
+        32590410
+      ],
+      "model": {
+        "break_even_invocations": null,
+        "cache_bytes": 242308,
+        "cold_ns": 34357456,
+        "cold_over_direct": 19.5211376279607,
+        "direct_ns": 1760013,
+        "hit_ns": 32590410,
+        "hit_over_direct": 18.51714163474929
+      },
+      "policy": "allocator-entropy-v1",
+      "sessions": [
+        {
+          "hits": 2,
+          "invocations": 3,
+          "native_total_ns": 5309184,
+          "saving_fraction": -10.588684814841603,
+          "saving_ns": -56217276,
+          "tracejit_total_ns": 61526460
+        },
+        {
+          "hits": 9,
+          "invocations": 10,
+          "native_total_ns": 17311462,
+          "saving_fraction": -6.906766568877892,
+          "saving_ns": -119566227,
+          "tracejit_total_ns": 136877689
+        },
+        {
+          "hits": 24,
+          "invocations": 25,
+          "native_total_ns": 41260673,
+          "saving_fraction": -6.403872156908347,
+          "saving_ns": -264228075,
+          "tracejit_total_ns": 305488748
+        }
+      ]
+    },
+    {
+      "cold_decision": "Ineligible",
+      "cold_reused": false,
+      "config": "sed-substitute-large-file",
+      "direct_samples_ns": [
+        97500561,
+        71882516,
+        78318688,
+        78818877,
+        73252980
+      ],
+      "family": "data",
+      "hit_samples_ns": [
+        25576234,
+        24937295,
+        24741077,
+        21337208,
+        24234616
+      ],
+      "model": {
+        "break_even_invocations": 4.12303256671896,
+        "cache_bytes": 5703519,
+        "cold_ns": 245643312,
+        "cold_over_direct": 3.136458465698506,
+        "direct_ns": 78318688,
+        "hit_ns": 24741077,
+        "hit_over_direct": 0.31590259785761476
+      },
+      "policy": "allocator-entropy-v1",
+      "sessions": [
+        {
+          "hits": 2,
+          "invocations": 3,
+          "native_total_ns": 224290204,
+          "saving_fraction": -0.2937392040536911,
+          "saving_ns": -65882826,
+          "tracejit_total_ns": 290173030
+        },
+        {
+          "hits": 9,
+          "invocations": 10,
+          "native_total_ns": 744101336,
+          "saving_fraction": 0.35242927987432077,
+          "saving_ns": 262243098,
+          "tracejit_total_ns": 481858238
+        },
+        {
+          "hits": 24,
+          "invocations": 25,
+          "native_total_ns": 1893979139,
+          "saving_fraction": 0.5122528733406498,
+          "saving_ns": 970196256,
+          "tracejit_total_ns": 923782883
+        }
+      ]
+    },
+    {
+      "cold_decision": "Ineligible",
+      "cold_reused": false,
+      "config": "sha256sum-real-binary",
+      "direct_samples_ns": [
+        6154211,
+        3450355,
+        2960286,
+        2916594,
+        3468210
+      ],
+      "family": "tooling",
+      "hit_samples_ns": [
+        23772079,
+        12962920,
+        13566323,
+        14228305,
+        12757224
+      ],
+      "model": {
+        "break_even_invocations": null,
+        "cache_bytes": 273588,
+        "cold_ns": 38483270,
+        "cold_over_direct": 11.153423343395099,
+        "direct_ns": 3450355,
+        "hit_ns": 13566323,
+        "hit_over_direct": 3.9318629532323484
+      },
+      "policy": "allocator-entropy-v1",
+      "sessions": [
+        {
+          "hits": 2,
+          "invocations": 3,
+          "native_total_ns": 9455196,
+          "saving_fraction": -5.875635259173897,
+          "saving_ns": -55555283,
+          "tracejit_total_ns": 65010479
+        },
+        {
+          "hits": 9,
+          "invocations": 10,
+          "native_total_ns": 31752837,
+          "saving_fraction": -4.101463028327201,
+          "saving_ns": -130233087,
+          "tracejit_total_ns": 161985924
+        },
+        {
+          "hits": 24,
+          "invocations": 25,
+          "native_total_ns": 75427080,
+          "saving_fraction": -3.68774351333765,
+          "saving_ns": -278155725,
+          "tracejit_total_ns": 353582805
+        }
+      ]
+    },
+    {
+      "cold_decision": "Ineligible",
+      "cold_reused": false,
+      "config": "base64-real-binary",
+      "direct_samples_ns": [
+        5335394,
+        5313001,
+        4089726,
+        3840549,
+        3713169
+      ],
+      "family": "tooling",
+      "hit_samples_ns": [
+        18717903,
+        12352444,
+        15126481,
+        15444629,
+        13294111
+      ],
+      "model": {
+        "break_even_invocations": null,
+        "cache_bytes": 1652914,
+        "cold_ns": 57212744,
+        "cold_over_direct": 13.989383151829731,
+        "direct_ns": 4089726,
+        "hit_ns": 15126481,
+        "hit_over_direct": 3.698653895150922
+      },
+      "policy": "allocator-entropy-v1",
+      "sessions": [
+        {
+          "hits": 2,
+          "invocations": 3,
+          "native_total_ns": 13081002,
+          "saving_fraction": -6.4104759711832475,
+          "saving_ns": -83855449,
+          "tracejit_total_ns": 96936451
+        },
+        {
+          "hits": 9,
+          "invocations": 10,
+          "native_total_ns": 41142682,
+          "saving_fraction": -3.179150984858012,
+          "saving_ns": -130798798,
+          "tracejit_total_ns": 171941480
+        },
+        {
+          "hits": 24,
+          "invocations": 25,
+          "native_total_ns": 93109389,
+          "saving_fraction": -3.1294362376279796,
+          "saving_ns": -291379896,
+          "tracejit_total_ns": 384489285
+        }
+      ]
+    }
+  ]
+}

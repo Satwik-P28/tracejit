@@ -1,0 +1,94 @@
+{
+  "adaptations": [],
+  "argv": [
+    "gzip",
+    "-9",
+    "-n",
+    "-k",
+    "-f",
+    "corpus.bin"
+  ],
+  "assessment": "ineligible",
+  "classification": "Nondeterministic",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin.gz"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin.gz"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin.gz"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      }
+    ],
+    "tree_digest_native": "3381356289578ad9859f68b3b03c270f0640f665be6d2225aa1dde96c3da8500",
+    "tree_digest_traced": "3381356289578ad9859f68b3b03c270f0640f665be6d2225aa1dde96c3da8500"
+  },
+  "cold_ns": 52923615,
+  "correctness": {},
+  "cost_class": "medium",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 9,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "d403242959368683b12a46440814d658de8049fe6535bf293f5f4fb040af64c9",
+  "environment_tier": "A",
+  "family": "compression",
+  "output_count": 1,
+  "policy": "native",
+  "prestate_equivalence": {
+    "covered_differences": [],
+    "match": true
+  },
+  "provenance": "corpus.py@3650df662916",
+  "reasons": [
+    "process read randomness via getrandom"
+  ],
+  "refusal_categories": {
+    "randomness": 1
+  },
+  "required_tools": [
+    "gzip"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "gzip-9-file"
+}

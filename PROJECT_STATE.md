@@ -48,6 +48,39 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 - Benchmark hardening: 29 harness tests (oracle rejects stale/missing/extra/mode/symlink/hardlink/dir/stdout/stderr/exit; accounting rejects tampered rows; manifest independent of local cache), `validate.py` recomputes the ledger, and the W1 audit's fixed `/tmp` root was fixed after the clean-checkout run failed on a shared `/tmp`.
 - Fresh-clone reproduction at `ae884c5` with empty `HOME`, separate scratch and vendor: exit 0, 42 cells, 0 incorrect hits, 13/13 counterexamples. Gates: fmt/clippy/workspace tests at `0a7d08b` (no Rust change after), integration 84/84, model check PASS, packaging after the final commit. Not run: differential fuzz, restore fault injection, `cargo audit`, GitHub CI (no credentials).
 
+## Phase AB (`research/phase-ab`, from `fd6d004`): determinism, integrity, hit floor
+
+Phase AB closed the intermittent gcc-classification question and measured the
+product against a real build, rather than against microbenchmarks.
+
+* **Root cause, closed.** glibc's `mkstemps` rejection-samples 8 bytes of
+  `getrandom(GRND_NONBLOCK)` into a stack buffer to name the gcc driver's
+  temporary assembly file; the bound `0xf49998db0aa753ff` gives a 4.45 % pass
+  probability, and the compiler contract (which supplies `clock_gettime`) shifts
+  the sampled value and measures **5.7 % in 1,000 direct trials** (95 % CI 4.3–7.1 %,
+  57 refusals) and **2.3 % in a make-driven build** of 384 invocations. Every
+  refusal costs exactly one extra unabsorbed read. Refusal is
+  retained: the bytes become an application-visible path. `gcc -pipe` was
+  measured and rejected (100/100 refused via pipe `fstat`).
+* **One production change.** `Cache::restore_outputs` no longer writes a durable
+  restore intent for records with no workspace outputs. Paired A/B: `cut`
+  −1.9 ms, `gzip -6` −2.2 ms, `sed` −2.5 ms (95 % CIs exclude 0); compiler hits
+  unaffected, as they must be. `gzip -6` moved from 0.77× to parity with native.
+* **Persistence correction.** Steady-state hits write nothing; the durable
+  decision write happens once per record (4.57 ms on the first hit). Phase AA1's
+  "3.5–20 ms per hit" was the first-hit cost, and its 6.5–16 ms "pre-runtime"
+  band was a residual that included the core's pre-runtime phases and the
+  harness's own fork/exec.
+* **Whole-build result.** Lua 5.4.6, 32 units: warm rebuild make 7.29 s,
+  ccache 0.19 s, TraceJIT 3.20 s; cold TraceJIT 15.3–16.8 s. No cache repairs an
+  artifact the build system does not rebuild, and TraceJIT's mtime-preserving
+  restore can leave a stale archive member where ccache's fresh write corrects
+  it. The integrity premium over ccache is negative.
+
+Evidence: `docs/PHASE_AB_REPORT.md`, `docs/COMPILER_ENTROPY_INVESTIGATION.md`,
+`docs/OUTPUT_INTEGRITY_ECONOMICS.md`, `docs/HIT_OVERHEAD_PROFILE.md`,
+`docs/PHASE_AB_CORRECTNESS_AUDIT.md`, `benchmarks/results/phaseab/`.
+
 ## Development line (`development/v0.3`, Phase U)
 
 - Cut from `7a594b9`; **not merged, not released, no version bump**.
@@ -178,6 +211,15 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 - `rustc` needs `statx`, `prctl`, create-only `eventfd2`, and a decision on process-relative procfs before it can be eligible.
 - Landlock is unavailable on the local host, so `PROVEN`/sandbox tests SKIP here.
 - The integration suite is sensitive to host process pressure: 67/67 pass at `--test-threads=4`; at the default 8 threads the tagged beta already failed 2/62 on this VM.
+
+## Phase AC (correctness recovery, output semantics, non-compiler workloads)
+
+- PR #44's `tar-create` cold mismatch was a **benchmark fixture defect**, not a product bug: the two twins were prepared at different wall-clock times and `tar` serialises member mtimes. Reproduced at 67.5 % (81/120) with the shipped sequence; 0/200 after preparing once and cloning with metadata preserved. The harness now gates on a metadata-sensitive pre-state comparison (`benchmarks/realworld_v2/runner.py`).
+- Restored outputs keep their **recorded** mtime, so a `make`/`ar` chain can skip the archive update and leave a stale member (reproduced on Lua 5.4.6 and zlib 1.3.1). Default behaviour kept deliberately; no build-integration mode added (`docs/OUTPUT_RESTORE_SEMANTICS.md`, `benchmarks/phase_ac/stale_archive.py --expect documented`).
+- Field-precise metadata guards were audited and **not** adopted: every guarded field is observable, and a 9-mutation matrix shows the conservative guard is load-bearing (mtime-only input change deoptimises `gzip`, whose header carries it). Eligibility unchanged.
+- Non-compiler niche is real but narrow: `bzip2`/`gzip` on multi-megabyte artifacts, `sed` on large text. Measured n=25 savings 85 % / 65 % / 51 %, break-even 1.5 / 1.9 / 4.1; `gzip -n -c` text reuses with **no contract** (+37 %, break-even 11.9). Small binutils commands are dominated by the 15-50 ms hit floor. `xz`, `tar`, `sort`, `awk`, `perl` refuse (`docs/NON_COMPILER_WORKLOAD_STUDY.md`).
+- Prune-versus-restore is now deterministically tested (CAS mutation hook + 5 tests): delete-after-open restores verified bytes; truncate/replace/prune-before-open fail closed; concurrent restores are correct.
+- Paper verdict: **B**, a narrow paper on fail-closed whole-command reuse. No head-to-head against Firebuild exists yet (`docs/PHASE_AC_PAPER_READINESS.md`).
 
 ## Validation
 

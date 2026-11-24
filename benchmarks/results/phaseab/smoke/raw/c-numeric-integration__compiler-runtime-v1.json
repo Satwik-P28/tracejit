@@ -1,0 +1,293 @@
+{
+  "adaptations": [],
+  "argv": [
+    "/tmp/ab-smoke/shared/build/numeric"
+  ],
+  "assessment": "clear_win",
+  "cache_corruption_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "numeric.c"
+      }
+    ],
+    "tree_digest_native": "2a477721797764bb7280f32999903bcb41a3b0d0172d28678c52679af80d25d8",
+    "tree_digest_traced": "2a477721797764bb7280f32999903bcb41a3b0d0172d28678c52679af80d25d8"
+  },
+  "cache_storage_bytes": 136432,
+  "classification": "Guarded",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [],
+    "tree_digest_native": "2a477721797764bb7280f32999903bcb41a3b0d0172d28678c52679af80d25d8",
+    "tree_digest_traced": "2a477721797764bb7280f32999903bcb41a3b0d0172d28678c52679af80d25d8"
+  },
+  "cold_ns": 371042967,
+  "correctness": {},
+  "cost_class": "heavy",
+  "decisions": [
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    },
+    {
+      "cache_decision": "Reused",
+      "decision_reason": "all guards passed and cached outputs were restored",
+      "kind": "Reused",
+      "step": "warm"
+    },
+    {
+      "kind": null,
+      "note": "no mutation defined",
+      "step": "after_mutation"
+    },
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cache_restart"
+    },
+    {
+      "cache_decision": "Executed",
+      "decision_reason": "cached object af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262 is corrupt; retracing",
+      "kind": "Executed",
+      "removed_object": "af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262",
+      "step": "cache_object_corruption"
+    }
+  ],
+  "dependency_count": 7,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": true,
+  "environment_adaptations": {},
+  "environment_digest": "f92f83384c285a5fef71c87ad97c37867557e0e6e856bf9a9fa812b0ae4c96f5",
+  "environment_tier": "A",
+  "family": "scientific",
+  "mutation": null,
+  "output_count": 0,
+  "policy": "compiler-runtime-v1",
+  "prestate_equivalence": {
+    "covered_differences": [],
+    "match": true
+  },
+  "provenance": "corpus.py@3650df662916",
+  "reasons": [
+    "all observed dependencies are guardable or captured outputs",
+    "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+  ],
+  "required_tools": [
+    "gcc"
+  ],
+  "split": "dev",
+  "status": "reused",
+  "timing": {
+    "break_even_repeats": 1,
+    "cache_storage_bytes": 100945,
+    "calibration_decision": {
+      "cache_decision": "Reused",
+      "decision_reason": "all guards passed and cached outputs were restored",
+      "kind": "Reused"
+    },
+    "cold": {
+      "max_ns": 399601591,
+      "mean_ns": 378539639,
+      "median_ci95_ns": [
+        365383660,
+        399601591
+      ],
+      "median_ns": 370633668,
+      "min_ns": 365383660,
+      "n": 3,
+      "p05_ns": 365383660,
+      "p95_ns": 399601591,
+      "samples_ns": [
+        399601591,
+        370633668,
+        365383660
+      ]
+    },
+    "cold_ratio_unpaired": {
+      "cold_median_ci95_ns": [
+        365383660,
+        399601591
+      ],
+      "cold_samples_ns": [
+        399601591,
+        370633668,
+        365383660
+      ],
+      "design": "independent arms; cold tracing needs a fresh cache and cannot be paired",
+      "direct_median_ci95_ns": [
+        344301714,
+        349369250
+      ],
+      "direct_samples_ns": [
+        344301714,
+        349369250,
+        345432728
+      ],
+      "median_ratio": 0.9320057993220411
+    },
+    "cold_reps": 3,
+    "cost_model": {
+      "available": true,
+      "instrumented": true,
+      "model": {
+        "additive": "runtime hit path only",
+        "hit_path_residual_ns": 406104,
+        "hit_path_stages": [
+          "stdio_replay_ns",
+          "guard_validation_ns",
+          "guard_recheck_ns",
+          "cas_restore_ns"
+        ],
+        "hit_path_sum_ns": 4185489,
+        "post_runtime_ns": 3627591,
+        "pre_runtime_ns": 7001547,
+        "present_ns": 55535,
+        "runtime_ns": 4591593,
+        "startup_quantum_ns": 10000000,
+        "startup_reported_ns": 3500583,
+        "wall_ns": 15276266
+      },
+      "note": "instrumented two-run session; the breakdown is not a timed sample. pre_runtime_ns is process creation, startup, CLI parsing, identity preparation, cache open/lookup/query and exit, minus the two spans above, and cannot be separated further at useful resolution; process_startup_ns is derived from the kernel's tick-granular start time and is not used in any sum",
+      "stages_ns": {
+        "cache_prepare_ns": 45405,
+        "cas_restore_ns": 581,
+        "cli_parse_ns": 177844,
+        "decision_persist_ns": 3627591,
+        "guard_recheck_ns": 0,
+        "guard_validation_ns": 4124174,
+        "identity_prepare_ns": 306006,
+        "lookup_key_ns": 9908,
+        "present_ns": 55535,
+        "process_startup_ns": 3500583,
+        "record_decode_ns": 401334,
+        "sqlite_open_ns": 326363,
+        "sqlite_query_ns": 499538,
+        "sqlite_schema_ns": 442111,
+        "stdio_replay_ns": 60734
+      }
+    },
+    "direct": {
+      "max_ns": 349369250,
+      "mean_ns": 346367897,
+      "median_ci95_ns": [
+        344301714,
+        349369250
+      ],
+      "median_ns": 345432728,
+      "min_ns": 344301714,
+      "n": 3,
+      "p05_ns": 344301714,
+      "p95_ns": 349369250,
+      "samples_ns": [
+        344301714,
+        349369250,
+        345432728
+      ]
+    },
+    "environment_digest": "61163d51fcb946f96afaa194545a20b46123ffe3d20b272a17de1a3420ecf434",
+    "policy": "compiler-runtime-v1",
+    "reference_stdout_sha256": "a110de3725ed60e85a8884def03e028f7a7dc3314d771d0e0420bfe3ba96d738",
+    "reps": 3,
+    "session": {
+      "10": {
+        "direct_ns": 3454327280,
+        "speedup": 7.586035772175051,
+        "traced_ns": 455353413
+      },
+      "2": {
+        "direct_ns": 690865456,
+        "speedup": 1.817842280248868,
+        "traced_ns": 380046973
+      },
+      "25": {
+        "direct_ns": 8635818200,
+        "speedup": 14.476196371008706,
+        "traced_ns": 596552988
+      },
+      "5": {
+        "direct_ns": 1727163640,
+        "speedup": 4.230269672534769,
+        "traced_ns": 408286888
+      },
+      "50": {
+        "direct_ns": 17271636400,
+        "speedup": 20.76203282049067,
+        "traced_ns": 831885613
+      }
+    },
+    "status": "measured",
+    "timing_channel": "plain (no --json): the JSON byte-array report is harness cost",
+    "warm": {
+      "max_ns": 9677541,
+      "mean_ns": 8878370,
+      "median_ci95_ns": [
+        7544266,
+        9677541
+      ],
+      "median_ns": 9413305,
+      "min_ns": 7544266,
+      "n": 3,
+      "p05_ns": 7544266,
+      "p95_ns": 9677541,
+      "samples_ns": [
+        7544266,
+        9413305,
+        9677541
+      ]
+    },
+    "warm_decisions": [
+      {
+        "cache_decision": "Reused",
+        "decision_reason": null,
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": null,
+        "kind": "Reused"
+      },
+      {
+        "cache_decision": "Reused",
+        "decision_reason": null,
+        "kind": "Reused"
+      }
+    ],
+    "warm_ratio": {
+      "geometric_mean_ratio": 39.24831958857801,
+      "median_ratio": 37.11440880753359,
+      "pairs": 3,
+      "ratio_ci95": [
+        35.69426654973613,
+        45.63753637530808
+      ],
+      "ratios": [
+        45.63753637530808,
+        37.11440880753359,
+        35.694266549736135
+      ]
+    },
+    "warm_stdout_mismatches": 0,
+    "workload_id": "c-numeric-integration"
+  },
+  "warm_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "numeric.c"
+      }
+    ],
+    "tree_digest_native": "2a477721797764bb7280f32999903bcb41a3b0d0172d28678c52679af80d25d8",
+    "tree_digest_traced": "2a477721797764bb7280f32999903bcb41a3b0d0172d28678c52679af80d25d8"
+  },
+  "warm_ns": 0,
+  "workload_id": "c-numeric-integration"
+}

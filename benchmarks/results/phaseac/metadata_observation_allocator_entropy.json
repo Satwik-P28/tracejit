@@ -1,0 +1,20 @@
+{
+  "cold_decision": "Executed",
+  "cold_match": true,
+  "command": [
+    "metadata-echo"
+  ],
+  "native_stdout": "1795557277",
+  "policy": "allocator-entropy-v1",
+  "policy_b_simulated": {
+    "divergence_s": 2,
+    "file_now_says": 1795557279,
+    "fresh_mtime_ns": 1795557279627689276,
+    "stdout_still_says": 1795557277
+  },
+  "restored_mtime_s": 1795557277,
+  "stdout_names_restored_mtime": true,
+  "warm_match": true,
+  "warm_reused": true,
+  "warm_stdout": "1795557277"
+}

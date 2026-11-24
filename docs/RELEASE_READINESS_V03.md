@@ -114,3 +114,82 @@ In order:
 Then a v0.3 prerelease can be cut honestly, with the claim set restricted to:
 compute-bound repeated commands, and large translation units under the explicitly
 declared `compiler-runtime-v1` contract.
+
+## Phase AB re-assessment (`research/phase-ab`, from `fd6d004`)
+
+Phase AB changed one product behaviour and produced evidence that changes the
+*claim set*, not the gates.
+
+| Gate | Phase AB result |
+| --- | --- |
+| Formatting, lints, workspace tests | pass |
+| Linux integration tests (4 threads) | 85/85 (84 before; +1 adversarial entropy test) |
+| `cargo audit` | pass, 110 crates, no advisory |
+| Model check / fuzz seed 29 / fault injection / W1 oracle | PASS / PASS 0 incorrect / PASS / 13/13 |
+| Frozen corpus smoke at this head | 42 declared cells, 40 attempted, 10 reused, 0 incorrect hits, 13/13 counterexamples |
+| Whole-build experiment (32 TUs, 4 arms, 12 schedules) | no incorrect artifact in any arm that compiled |
+| CI on this head | see the PR; still not verifiable from the authoring environment |
+
+What improved: warm hits on commands with no workspace output got 1.9–2.5 ms
+cheaper (paired, 95 % CI excludes 0), which puts `gzip -6` at parity with native
+instead of a 0.77× loss. One intermittent-classification root cause is closed with
+a measured rate (5.7 %, 1,000 trials) and a stated remedy (refusal retained).
+
+What did not change: eligibility, admission, guards, identity, schema. The three
+blockers from AA1 stand — the version label is still `0.2.0-beta.1` for post-beta
+code, exact-head CI is unconfirmed from here, and the validate→restore TOCTOU
+window is untouched.
+
+New information a v0.3 note must carry:
+
+* **Competitive position at build scale.** Warm 32-unit rebuild: ccache 0.19 s,
+  TraceJIT 3.20 s, make 7.29 s. ccache is 17× faster than TraceJIT on the workload
+  TraceJIT was designed for.
+* **Restored outputs keep their recorded mtime**, so a timestamp-driven archive
+  step can leave a stale member after a correct object restore
+  (`OUTPUT_INTEGRITY_ECONOMICS.md` §3).
+* **The integrity-repair framing should be dropped**: no cache repairs an artifact
+  the build system does not rebuild, and ccache repairs the ones it is asked for
+  as well.
+
+The verdict is unchanged: **not qualified for a v0.3 prerelease**, and Phase AB
+narrows the defensible claim to guarded, verified whole-command reuse for
+repeated compute-bound commands, with the compiler case documented as a
+controlled contract that loses to ccache.
+
+## Phase AC review
+
+The blocking benchmark failure is resolved and it was not a product defect: the
+`tar-create` cold mismatch came from the harness preparing its two twins at
+different wall-clock times, so `tar` serialised different member mtimes
+(`docs/PHASE_AC_COLD_MISMATCH_AUDIT.md`). The harness now builds the traced twin
+as a metadata-preserving clone and refuses to compare twins whose metadata
+differs; 0/200 mismatches after the change, and the local mirror of the CI smoke
+step passes with 0 cold mismatches and 0 incorrect hits.
+
+Correctness work added: a deterministic prune-versus-restore matrix (5 new tests,
+all fail-closed or verified), and an audited decision **not** to adopt
+field-precise metadata guards, with a 9-mutation adversarial matrix showing the
+conservative guard is load-bearing. Output restoration keeps timestamp-exact
+semantics deliberately; the stale-archive consequence is now documented with a
+tested workaround instead of being an unexplained benchmark finding.
+
+What changed for a v0.3 note:
+
+* **A measured non-compiler niche exists.** `bzip2 -9` on a 2 MiB artifact saves
+  85 % of a 25-invocation session at break-even 1.5; `gzip -9` 65 %; `sed` on
+  200k lines 51 %. `gzip -9 -n -c` reuses with no execution contract at all.
+* **The hit floor is the limit, not eligibility.** Five of nine measured
+  non-compiler configurations lose at every session length because a 15-50 ms hit
+  exceeds a 2-5 ms command. Admission (`auto`) is the mitigation, not more caching.
+* **Compatibility is still the blocker for release.** 28 of 177 frozen-corpus
+  rows reuse; `xz`, `tar`, `sort`, `awk`, `perl` and every Python/Node workload
+  refuse for structural reasons.
+
+The release verdict is unchanged: **not qualified for a v0.3 prerelease**. The
+defensible claim is narrower than "build accelerator": guarded, verified
+whole-command reuse for repeated compute-bound commands (compression, large text
+transforms, compiler steps under a declared contract), with a documented
+mtime-driven build-system limitation and no general-compiler advantage over
+ccache. Paper readiness: option **B**, a narrow paper on fail-closed whole-command
+reuse, pending a measured comparison against Firebuild.

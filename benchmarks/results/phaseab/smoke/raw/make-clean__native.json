@@ -1,0 +1,59 @@
+{
+  "adaptations": [],
+  "argv": [
+    "make",
+    "-f",
+    "Makefile",
+    "clean"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [],
+    "tree_digest_native": "8dad2936d7f544e5a305e03f5484c130d0fe919155efd73c31cc8d40ea2aede5",
+    "tree_digest_traced": "8dad2936d7f544e5a305e03f5484c130d0fe919155efd73c31cc8d40ea2aede5"
+  },
+  "cold_ns": 29408712,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 59,
+  "direct_exit_status": 2,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "2ab16fd6adebb7800a15060bb78359173977f9ccc3286cb3a4c8a1ff4d1daebb",
+  "environment_tier": "A",
+  "family": "build",
+  "output_count": 0,
+  "policy": "native",
+  "prestate_equivalence": {
+    "covered_differences": [],
+    "match": true
+  },
+  "provenance": "corpus.py@3650df662916",
+  "reasons": [
+    "unmodeled successful syscall 72: fcntl query 3 on inherited or unclassified fd 1, whose flags are not guarded",
+    "unmodeled successful syscall 72: status-flag change on fd 1 whose open file description is shared or unclassified",
+    "unmodeled successful syscall 72: fcntl query 3 on inherited or unclassified fd 2, whose flags are not guarded",
+    "unmodeled successful syscall 72: status-flag change on fd 2 whose open file description is shared or unclassified",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded"
+  ],
+  "refusal_categories": {
+    "unmodeled_syscall:72": 5
+  },
+  "required_tools": [
+    "make"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "make-clean"
+}

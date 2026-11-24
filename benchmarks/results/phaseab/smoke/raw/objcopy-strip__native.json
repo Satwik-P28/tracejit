@@ -1,0 +1,68 @@
+{
+  "adaptations": [],
+  "argv": [
+    "objcopy",
+    "--strip-unneeded",
+    "/tmp/ab-smoke/shared/build/objects/crc32.o",
+    "stripped.o"
+  ],
+  "assessment": "ineligible",
+  "classification": "Nondeterministic",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "stripped.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "stripped.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "stripped.o"
+      }
+    ],
+    "tree_digest_native": "2264c8b1fcc28ee0deac58d6ad914ace2503251df779fec84b1e9964524cad85",
+    "tree_digest_traced": "2264c8b1fcc28ee0deac58d6ad914ace2503251df779fec84b1e9964524cad85"
+  },
+  "cold_ns": 49211145,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 31,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "5101d1151a91ac3dccb6500d4699173d2881d6c949b21b4fcc6ac8e676c360f7",
+  "environment_tier": "A",
+  "family": "tooling",
+  "output_count": 1,
+  "policy": "native",
+  "prestate_equivalence": {
+    "covered_differences": [],
+    "match": true
+  },
+  "provenance": "corpus.py@3650df662916",
+  "reasons": [
+    "process read randomness via getrandom"
+  ],
+  "refusal_categories": {
+    "randomness": 1
+  },
+  "required_tools": [
+    "objcopy"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "objcopy-strip"
+}

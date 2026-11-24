@@ -60,6 +60,21 @@ these would be dishonest.
 - Persisted success statistics for admission were not justified by measurement.
 - Destination-match restore skipping saved nothing once outputs were consumed.
 
+## Restored output metadata (Phase AC)
+
+- Regular-file outputs are restored with their **recorded** ownership, mode, atime
+  and mtime. That is an implementation choice, not a documented promise, and it is
+  observable: a program that prints its output's mtime sees the recorded value.
+- Consequence: a build system that compares mtimes can find a restored object
+  older than an archive produced later, skip the archive step, and leave a stale
+  member. Reproduced on Lua 5.4.6 and zlib 1.3.1
+  (`docs/OUTPUT_RESTORE_SEMANTICS.md`, `benchmarks/phase_ac/stale_archive.py`).
+  There is no general fix; the tested workarounds are to touch restored outputs,
+  force the dependent step, or cache the whole build instead of the compiler.
+- Fresh timestamps were rejected: TraceJIT replays cached stdout, so a fresh mtime
+  would make a replayed observation describe a workspace that no longer exists
+  (measured divergence of 2 s in `benchmarks/results/phaseac/metadata_observation_allocator_entropy.json`).
+
 ## Release-engineering boundaries
 
 - Byte-for-byte reproducible builds are not claimed; the manifest exists so a

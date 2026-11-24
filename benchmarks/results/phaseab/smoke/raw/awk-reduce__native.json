@@ -1,0 +1,69 @@
+{
+  "adaptations": [],
+  "argv": [
+    "awk",
+    "{ s += $2 } END { printf \"%d\\n\", s }",
+    "lines.txt"
+  ],
+  "assessment": "ineligible",
+  "classification": "Nondeterministic",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "lines.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "lines.txt"
+      }
+    ],
+    "tree_digest_native": "bc0d91d6d245f0d19571ce6f3137178c1707a55f5d3721580c8378ad98f63c97",
+    "tree_digest_traced": "bc0d91d6d245f0d19571ce6f3137178c1707a55f5d3721580c8378ad98f63c97"
+  },
+  "cold_ns": 42905746,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 22,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "6cdee64eb833588dc3d986ff15d7487a896762a5f33cd0c14b9760a2ef82c146",
+  "environment_tier": "A",
+  "family": "data",
+  "output_count": 0,
+  "policy": "native",
+  "prestate_equivalence": {
+    "covered_differences": [],
+    "match": true
+  },
+  "provenance": "corpus.py@3650df662916",
+  "reasons": [
+    "process read randomness via getrandom",
+    "process read system clock: realtime"
+  ],
+  "refusal_categories": {
+    "clock": 1,
+    "randomness": 1
+  },
+  "required_tools": [
+    "awk"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "awk-reduce"
+}

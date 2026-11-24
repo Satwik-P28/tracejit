@@ -1,0 +1,314 @@
+{
+  "arms": [
+    {
+      "arm": "lua-tracejit",
+      "final": {
+        "archive_mtime_ns": 1795556849707635169,
+        "first_byte_difference": 40,
+        "member_matches_object": false,
+        "member_sha256": "63f2ddd1c9b99b57",
+        "object_mtime_ns": 1795556848232870305,
+        "object_sha256": "e627e8e97b2b357c"
+      },
+      "make": {
+        "dry_run": "make: 'liblua.a' is up to date.\n",
+        "exit": 0,
+        "ran_ar": false,
+        "stderr": "",
+        "stdout": "make: 'liblua.a' is up to date.\n"
+      },
+      "policy": "compiler-runtime-v1",
+      "project": "lua-5.4.6",
+      "recompile": {
+        "cache_decision": "Reused",
+        "exit": 0,
+        "kind": "Reused",
+        "object_mtime_ns": 1795556848232870305,
+        "object_sha256": "e627e8e97b2b357c",
+        "reused": true,
+        "step": "compile_flags_a_again"
+      },
+      "source_file": "src/lapi.c",
+      "source_mtime_ns": 1683057748000000000,
+      "steps": [
+        {
+          "cache_decision": "Executed",
+          "exit": 0,
+          "kind": "Executed",
+          "object_mtime_ns": 1795556848232870305,
+          "object_sha256": "e627e8e97b2b357c",
+          "reused": false,
+          "step": "compile_flags_a"
+        },
+        {
+          "archive_mtime_ns": 1795556848272870305,
+          "exit": 0,
+          "member_matches_object": true,
+          "member_sha256": "e627e8e97b2b357c",
+          "step": "archive_flags_a"
+        },
+        {
+          "cache_decision": "Executed",
+          "exit": 0,
+          "kind": "Executed",
+          "object_mtime_ns": 1795556849667635169,
+          "object_sha256": "63f2ddd1c9b99b57",
+          "reused": false,
+          "step": "compile_flags_b"
+        },
+        {
+          "archive_mtime_ns": 1795556849707635169,
+          "exit": 0,
+          "member_matches_object": true,
+          "member_sha256": "63f2ddd1c9b99b57",
+          "step": "archive_flags_b"
+        },
+        {
+          "cache_decision": "Reused",
+          "exit": 0,
+          "kind": "Reused",
+          "object_mtime_ns": 1795556848232870305,
+          "object_sha256": "e627e8e97b2b357c",
+          "reused": true,
+          "step": "compile_flags_a_again"
+        }
+      ],
+      "upstream_rule": "ar rcs $@ $(OBJS)"
+    },
+    {
+      "arm": "lua-native",
+      "final": {
+        "archive_mtime_ns": 1795556851985166293,
+        "first_byte_difference": null,
+        "member_matches_object": true,
+        "member_sha256": "e627e8e97b2b357c",
+        "object_mtime_ns": 1795556851977166293,
+        "object_sha256": "e627e8e97b2b357c"
+      },
+      "make": {
+        "dry_run": "make: 'liblua.a' is up to date.\n",
+        "exit": 0,
+        "ran_ar": true,
+        "stderr": "",
+        "stdout": "ar rcs liblua.a lapi.o\n"
+      },
+      "policy": "native",
+      "project": "lua-5.4.6",
+      "recompile": {
+        "exit": 0,
+        "kind": "native",
+        "object_mtime_ns": 1795556851977166293,
+        "object_sha256": "e627e8e97b2b357c",
+        "reused": false,
+        "step": "compile_flags_a_again"
+      },
+      "source_file": "src/lapi.c",
+      "source_mtime_ns": 1683057748000000000,
+      "steps": [
+        {
+          "exit": 0,
+          "kind": "native",
+          "object_mtime_ns": 1795556850327635169,
+          "object_sha256": "e627e8e97b2b357c",
+          "reused": false,
+          "step": "compile_flags_a"
+        },
+        {
+          "archive_mtime_ns": 1795556850331635169,
+          "exit": 0,
+          "member_matches_object": true,
+          "member_sha256": "e627e8e97b2b357c",
+          "step": "archive_flags_a"
+        },
+        {
+          "exit": 0,
+          "kind": "native",
+          "object_mtime_ns": 1795556851513166293,
+          "object_sha256": "cd4bfd318343da95",
+          "reused": false,
+          "step": "compile_flags_b"
+        },
+        {
+          "archive_mtime_ns": 1795556851517166293,
+          "exit": 0,
+          "member_matches_object": true,
+          "member_sha256": "cd4bfd318343da95",
+          "step": "archive_flags_b"
+        },
+        {
+          "exit": 0,
+          "kind": "native",
+          "object_mtime_ns": 1795556851977166293,
+          "object_sha256": "e627e8e97b2b357c",
+          "reused": false,
+          "step": "compile_flags_a_again"
+        }
+      ],
+      "upstream_rule": "ar rcs $@ $(OBJS)"
+    },
+    {
+      "arm": "zlib-tracejit",
+      "final": {
+        "archive_mtime_ns": 1795556854173946204,
+        "first_byte_difference": 40,
+        "member_matches_object": false,
+        "member_sha256": "c195f82b239d7299",
+        "object_mtime_ns": 1795556852720076900,
+        "object_sha256": "befe713f7706afe3"
+      },
+      "make": {
+        "dry_run": "make: 'libz.a' is up to date.\n",
+        "exit": 0,
+        "ran_ar": false,
+        "stderr": "",
+        "stdout": "make: 'libz.a' is up to date.\n"
+      },
+      "policy": "compiler-runtime-v1",
+      "project": "zlib-1.3.1",
+      "recompile": {
+        "cache_decision": "Reused",
+        "exit": 0,
+        "kind": "Reused",
+        "object_mtime_ns": 1795556852720076900,
+        "object_sha256": "befe713f7706afe3",
+        "reused": true,
+        "step": "compile_flags_a_again"
+      },
+      "source_file": "deflate.c",
+      "source_mtime_ns": 1705948357000000000,
+      "steps": [
+        {
+          "cache_decision": "Executed",
+          "exit": 0,
+          "kind": "Executed",
+          "object_mtime_ns": 1795556852720076900,
+          "object_sha256": "befe713f7706afe3",
+          "reused": false,
+          "step": "compile_flags_a"
+        },
+        {
+          "archive_mtime_ns": 1795556852756076900,
+          "exit": 0,
+          "member_matches_object": true,
+          "member_sha256": "befe713f7706afe3",
+          "step": "archive_flags_a"
+        },
+        {
+          "cache_decision": "Executed",
+          "exit": 0,
+          "kind": "Executed",
+          "object_mtime_ns": 1795556854133946204,
+          "object_sha256": "c195f82b239d7299",
+          "reused": false,
+          "step": "compile_flags_b"
+        },
+        {
+          "archive_mtime_ns": 1795556854173946204,
+          "exit": 0,
+          "member_matches_object": true,
+          "member_sha256": "c195f82b239d7299",
+          "step": "archive_flags_b"
+        },
+        {
+          "cache_decision": "Reused",
+          "exit": 0,
+          "kind": "Reused",
+          "object_mtime_ns": 1795556852720076900,
+          "object_sha256": "befe713f7706afe3",
+          "reused": true,
+          "step": "compile_flags_a_again"
+        }
+      ],
+      "upstream_rule": "$(AR) $(ARFLAGS) $@ $(OBJS)"
+    },
+    {
+      "arm": "zlib-native",
+      "final": {
+        "archive_mtime_ns": 1795556856492505422,
+        "first_byte_difference": null,
+        "member_matches_object": true,
+        "member_sha256": "befe713f7706afe3",
+        "object_mtime_ns": 1795556856488505422,
+        "object_sha256": "befe713f7706afe3"
+      },
+      "make": {
+        "dry_run": "make: 'libz.a' is up to date.\n",
+        "exit": 0,
+        "ran_ar": true,
+        "stderr": "",
+        "stdout": "ar rcs libz.a deflate.o\n"
+      },
+      "policy": "native",
+      "project": "zlib-1.3.1",
+      "recompile": {
+        "exit": 0,
+        "kind": "native",
+        "object_mtime_ns": 1795556856488505422,
+        "object_sha256": "befe713f7706afe3",
+        "reused": false,
+        "step": "compile_flags_a_again"
+      },
+      "source_file": "deflate.c",
+      "source_mtime_ns": 1705948357000000000,
+      "steps": [
+        {
+          "exit": 0,
+          "kind": "native",
+          "object_mtime_ns": 1795556854824316440,
+          "object_sha256": "befe713f7706afe3",
+          "reused": false,
+          "step": "compile_flags_a"
+        },
+        {
+          "archive_mtime_ns": 1795556854828316440,
+          "exit": 0,
+          "member_matches_object": true,
+          "member_sha256": "befe713f7706afe3",
+          "step": "archive_flags_a"
+        },
+        {
+          "exit": 0,
+          "kind": "native",
+          "object_mtime_ns": 1795556856012505422,
+          "object_sha256": "e162b667efd48b93",
+          "reused": false,
+          "step": "compile_flags_b"
+        },
+        {
+          "archive_mtime_ns": 1795556856016505422,
+          "exit": 0,
+          "member_matches_object": true,
+          "member_sha256": "e162b667efd48b93",
+          "step": "archive_flags_b"
+        },
+        {
+          "exit": 0,
+          "kind": "native",
+          "object_mtime_ns": 1795556856488505422,
+          "object_sha256": "befe713f7706afe3",
+          "reused": false,
+          "step": "compile_flags_a_again"
+        }
+      ],
+      "upstream_rule": "$(AR) $(ARFLAGS) $@ $(OBJS)"
+    }
+  ],
+  "lua_verdict": {
+    "native_archive_member_matches_object": true,
+    "native_make_ran_ar": true,
+    "restored_object_older_than_archive": true,
+    "traced_archive_member_matches_object": false,
+    "traced_make_ran_ar": false,
+    "traced_object_before_native_object": true,
+    "traced_reused": true
+  },
+  "zlib_verdict": {
+    "native_archive_member_matches_object": true,
+    "native_make_ran_ar": true,
+    "restored_object_older_than_archive": true,
+    "traced_archive_member_matches_object": false,
+    "traced_make_ran_ar": false,
+    "traced_object_before_native_object": true,
+    "traced_reused": true
+  }
+}

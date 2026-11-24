@@ -1,0 +1,145 @@
+{
+  "adaptations": [],
+  "argv": [
+    "make",
+    "-f",
+    "Makefile",
+    "all"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "atime_ns",
+        "path": "app"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "app"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "app"
+      },
+      {
+        "field": "atime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "main.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "main.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "main.o"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "util.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "util.o"
+      }
+    ],
+    "tree_digest_native": "469103ace8e024705c8a82cf04fd0155cfd42c797d376ab8ad33eb73f3f8d210",
+    "tree_digest_traced": "469103ace8e024705c8a82cf04fd0155cfd42c797d376ab8ad33eb73f3f8d210"
+  },
+  "cold_ns": 501098446,
+  "correctness": {},
+  "cost_class": "medium",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 489,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "d4374ff89371da803be71e57f779a19bababdd3ce06ba7eee3b76baade78d788",
+  "environment_tier": "A",
+  "family": "build",
+  "output_count": 8,
+  "policy": "native",
+  "prestate_equivalence": {
+    "covered_differences": [],
+    "match": true
+  },
+  "provenance": "corpus.py@3650df662916",
+  "reasons": [
+    "unmodeled successful syscall 72: fcntl query 3 on inherited or unclassified fd 1, whose flags are not guarded",
+    "unmodeled successful syscall 72: status-flag change on fd 1 whose open file description is shared or unclassified",
+    "unmodeled successful syscall 72: fcntl query 3 on inherited or unclassified fd 2, whose flags are not guarded",
+    "unmodeled successful syscall 72: status-flag change on fd 2 whose open file description is shared or unclassified",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+    "unmodeled successful syscall 117: unmodeled syscall 117 args [0xffffffff, 0x244fc6e, 0xffffffff, 0x8, 0x7ffeb4d04100, 0x0]",
+    "unmodeled successful syscall 119: unmodeled syscall 119 args [0xffffffff, 0x3e9, 0xffffffff, 0x8, 0x7ffeb4d04100, 0x0]",
+    "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fffda9194e0, 0x7fffda919a68, 0x7fffda919630, 0x0, 0x7fc2e57f7380]",
+    "unmodeled successful syscall 117: unmodeled syscall 117 args [0xffffffff, 0x244fc6e, 0xffffffff, 0x8, 0x7ffeb4d04100, 0x0]",
+    "unmodeled successful syscall 119: unmodeled syscall 119 args [0xffffffff, 0x3e9, 0xffffffff, 0x8, 0x7ffeb4d04100, 0x0]",
+    "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffc97c73c30, 0x7ffc97c741b8, 0x7ffc97c73d80, 0x0, 0x7fcdf3976380]",
+    "unmodeled successful syscall 117: unmodeled syscall 117 args [0xffffffff, 0x244fc6e, 0xffffffff, 0x8, 0x7ffeb4d04240, 0x0]",
+    "unmodeled successful syscall 119: unmodeled syscall 119 args [0xffffffff, 0x3e9, 0xffffffff, 0x8, 0x7ffeb4d04240, 0x0]",
+    "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fffa461e3f0, 0x7fffa461e8c8, 0x7fffa461e320, 0x0, 0x7f9feb380380]"
+  ],
+  "refusal_categories": {
+    "unmodeled_syscall:117": 3,
+    "unmodeled_syscall:119": 3,
+    "unmodeled_syscall:72": 5,
+    "unmodeled_syscall:98": 3
+  },
+  "required_tools": [
+    "make",
+    "gcc"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "make-build"
+}

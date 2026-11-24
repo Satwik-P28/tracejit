@@ -1,0 +1,152 @@
+project lua-5.4.6  TUs 34  reference build 7495.7 ms
+tracejit d2f6173562e940e4  ccache ccache version 4.10.2
+
+arm        scenario                           label                           ms  comp  hit  miss  ref  bad
+native     clean_build                        clean                       7672.1     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     no_change_rebuild                  clean                       8403.6     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     no_change_rebuild                  no_change                   8141.6     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     clean_warm_rebuild                 clean                       8011.1     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     clean_warm_rebuild                 warm_rebuild                8200.7     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     single_source_edit                 clean                       8896.4     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     single_source_edit                 after_edit                  9020.8     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     shared_header_edit                 clean                       9367.6     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     shared_header_edit                 after_header_edit           9664.1     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     deleted_object                     clean                       8592.6     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     deleted_object                     after_delete                8562.9     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     corrupted_object                   clean                       8326.7     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     corrupted_object                   after_corruption_make       7959.1     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     corrupted_object                   after_corruption_forced_rebuild    7738.4     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     corrupted_object                   direct_recompile             522.2     1    0     0    0    0
+native     corrupted_object_same_timestamps   clean                       7657.7     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     corrupted_object_same_timestamps   after_corruption_make       7894.6     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     corrupted_object_same_timestamps   after_corruption_forced_rebuild    7834.4     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     corrupted_object_same_timestamps   direct_recompile             502.7     1    0     0    0    0
+native     input_edit_then_revert             clean                       7704.1     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     input_edit_then_revert             after_edit                  7838.8     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     input_edit_then_revert             after_revert                7685.8     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     cache_restart                      clean                       7673.2     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     cache_restart                      warm_rebuild                7563.7     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     cache_restart                      after_restart               7684.2     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     partial_output_deletion            clean                       7705.1     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     partial_output_deletion            after_archive_delete        7773.8     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     repeated_session                   clean                       7609.0     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     repeated_session                   repeat_0                    7669.4     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     repeated_session                   repeat_1                    7741.3     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     repeated_session                   repeat_2                    7664.3     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     repeated_session                   repeat_3                    7807.0     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     repeated_session                   repeat_4                    7698.6     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     classification_refusal_observation clean                       7791.2     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     classification_refusal_observation full_recompile_0            8029.4     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     classification_refusal_observation full_recompile_1            7857.9     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+native     classification_refusal_observation full_recompile_2            7749.4     0    0     0    0    1  ['liblua.a(extra:lua.o,luac.o)']
+make       clean_build                        clean                       7368.1    32    0     0    0    0
+make       no_change_rebuild                  clean                       7346.3    32    0     0    0    0
+make       no_change_rebuild                  no_change                      4.9     0    0     0    0    0
+make       clean_warm_rebuild                 clean                       7469.3    32    0     0    0    0
+make       clean_warm_rebuild                 warm_rebuild                7292.1    32    0     0    0    0
+make       single_source_edit                 clean                       7501.0    32    0     0    0    0
+make       single_source_edit                 after_edit                   537.7     1    0     0    0    0
+make       shared_header_edit                 clean                       7485.5    32    0     0    0    0
+make       shared_header_edit                 after_header_edit           7758.8    32    0     0    0    0
+make       deleted_object                     clean                       7840.6    32    0     0    0    0
+make       deleted_object                     after_delete                1732.9     1    0     0    0    0
+make       corrupted_object                   clean                       8558.3    32    0     0    0    0
+make       corrupted_object                   after_corruption_make         38.6     0    0     0    0    1  ['lstrlib.o']
+make       corrupted_object                   after_corruption_forced_rebuild     610.3     1    0     0    0    0
+make       corrupted_object                   direct_recompile             634.3     1    0     0    0    0
+make       corrupted_object_same_timestamps   clean                       7807.1    32    0     0    0    0
+make       corrupted_object_same_timestamps   after_corruption_make          4.7     0    0     0    0    1  ['lstrlib.o']
+make       corrupted_object_same_timestamps   after_corruption_forced_rebuild     543.0     1    0     0    0    0
+make       corrupted_object_same_timestamps   direct_recompile             528.7     1    0     0    0    0
+make       input_edit_then_revert             clean                       7790.5    32    0     0    0    0
+make       input_edit_then_revert             after_edit                   531.2     1    0     0    0    0
+make       input_edit_then_revert             after_revert                 540.9     1    0     0    0    0
+make       cache_restart                      clean                       7452.1    32    0     0    0    0
+make       cache_restart                      warm_rebuild                7663.2    32    0     0    0    0
+make       cache_restart                      after_restart                  4.6     0    0     0    0    0
+make       partial_output_deletion            clean                       7958.6    32    0     0    0    0
+make       partial_output_deletion            after_archive_delete          36.3     0    0     0    0    0
+make       repeated_session                   clean                       7819.4    32    0     0    0    0
+make       repeated_session                   repeat_0                     577.4     1    0     0    0    0
+make       repeated_session                   repeat_1                     518.9     1    0     0    0    0
+make       repeated_session                   repeat_2                     539.3     1    0     0    0    0
+make       repeated_session                   repeat_3                     640.5     1    0     0    0    0
+make       repeated_session                   repeat_4                     560.3     1    0     0    0    0
+make       classification_refusal_observation clean                       7559.8    32    0     0    0    0
+make       classification_refusal_observation full_recompile_0            7593.3    32    0     0    0    0
+make       classification_refusal_observation full_recompile_1            7660.2    32    0     0    0    0
+make       classification_refusal_observation full_recompile_2            8124.0    32    0     0    0    0
+ccache     clean_build                        clean                       8989.6    32    0     0    0    0
+ccache     no_change_rebuild                  clean                        195.1    32    0     0    0    0
+ccache     no_change_rebuild                  no_change                      3.6     0    0     0    0    0
+ccache     clean_warm_rebuild                 clean                        198.2    32    0     0    0    0
+ccache     clean_warm_rebuild                 warm_rebuild                 189.9    32    0     0    0    0
+ccache     single_source_edit                 clean                        182.4    32    0     0    0    0
+ccache     single_source_edit                 after_edit                    79.3     1    0     0    0    0
+ccache     shared_header_edit                 clean                        187.4    32    0     0    0    0
+ccache     shared_header_edit                 after_header_edit           1100.0    32    0     0    0    0
+ccache     deleted_object                     clean                        184.9    32    0     0    0    0
+ccache     deleted_object                     after_delete                  37.8     1    0     0    0    0
+ccache     corrupted_object                   clean                        191.9    32    0     0    0    0
+ccache     corrupted_object                   after_corruption_make         31.3     0    0     0    0    1  ['lstrlib.o']
+ccache     corrupted_object                   after_corruption_forced_rebuild      37.3     1    0     0    0    0
+ccache     corrupted_object                   direct_recompile             606.5     1    0     0    0    0
+ccache     corrupted_object_same_timestamps   clean                        188.3    32    0     0    0    0
+ccache     corrupted_object_same_timestamps   after_corruption_make          3.9     0    0     0    0    1  ['lstrlib.o']
+ccache     corrupted_object_same_timestamps   after_corruption_forced_rebuild      39.3     1    0     0    0    0
+ccache     corrupted_object_same_timestamps   direct_recompile               7.3     1    0     0    0    0
+ccache     input_edit_then_revert             clean                        186.8    32    0     0    0    0
+ccache     input_edit_then_revert             after_edit                    69.4     1    0     0    0    0
+ccache     input_edit_then_revert             after_revert                  31.4     1    0     0    0    0
+ccache     cache_restart                      clean                        189.7    32    0     0    0    0
+ccache     cache_restart                      warm_rebuild                 176.3    32    0     0    0    0
+ccache     cache_restart                      after_restart                  4.0     0    0     0    0    0
+ccache     partial_output_deletion            clean                        180.2    32    0     0    0    0
+ccache     partial_output_deletion            after_archive_delete          31.0     0    0     0    0    0
+ccache     repeated_session                   clean                        188.2    32    0     0    0    0
+ccache     repeated_session                   repeat_0                      34.6     1    0     0    0    0
+ccache     repeated_session                   repeat_1                      32.9     1    0     0    0    0
+ccache     repeated_session                   repeat_2                      35.9     1    0     0    0    0
+ccache     repeated_session                   repeat_3                      35.1     1    0     0    0    0
+ccache     repeated_session                   repeat_4                      35.8     1    0     0    0    0
+ccache     classification_refusal_observation clean                        182.1    32    0     0    0    0
+ccache     classification_refusal_observation full_recompile_0             189.8    32    0     0    0    0
+ccache     classification_refusal_observation full_recompile_1             193.8    32    0     0    0    0
+ccache     classification_refusal_observation full_recompile_2             204.2    32    0     0    0    0
+tracejit   clean_build                        clean                      15338.9    32    0    32    1    0
+tracejit   no_change_rebuild                  clean                      16215.8    32    0    32    1    0
+tracejit   no_change_rebuild                  no_change                      3.9     0    0     0    0    0
+tracejit   clean_warm_rebuild                 clean                      15560.3    32    0    32    0    0
+tracejit   clean_warm_rebuild                 warm_rebuild                3201.7    32   32     0    0    0
+tracejit   single_source_edit                 clean                      15426.2    32    0    32    1    0
+tracejit   single_source_edit                 after_edit                   853.0     1    0     0    0    0
+tracejit   shared_header_edit                 clean                      15691.1    32    0    32    1    0
+tracejit   shared_header_edit                 after_header_edit          16102.1    32    0     1    1    0
+tracejit   deleted_object                     clean                      15815.8    32    0    32    1    0
+tracejit   deleted_object                     after_delete                 126.6     1    1     0    0    0
+tracejit   corrupted_object                   clean                      15302.8    32    0    32    1    1  ['liblua.a(members)']
+tracejit   corrupted_object                   after_corruption_make         31.4     0    0     0    0    2  ['lstrlib.o', 'liblua.a(members)']
+tracejit   corrupted_object                   after_corruption_forced_rebuild     109.8     1    1     0    0    1  ['liblua.a(members)']
+tracejit   corrupted_object                   direct_recompile              46.2     1    0     1    0    0
+tracejit   corrupted_object_same_timestamps   clean                      15710.8    32    0    32    1    0
+tracejit   corrupted_object_same_timestamps   after_corruption_make          5.7     0    0     0    0    1  ['lstrlib.o']
+tracejit   corrupted_object_same_timestamps   after_corruption_forced_rebuild     105.0     1    1     0    0    0
+tracejit   corrupted_object_same_timestamps   direct_recompile              49.4     1    0     1    0    0
+tracejit   input_edit_then_revert             clean                      15563.1    32    0    32    1    0
+tracejit   input_edit_then_revert             after_edit                   794.8     1    0     0    0    0
+tracejit   input_edit_then_revert             after_revert                 849.3     1    0     0    0    0
+tracejit   cache_restart                      clean                      15166.6    32    0    32    1    0
+tracejit   cache_restart                      warm_rebuild                3567.5    32   31     1    0    0
+tracejit   cache_restart                      after_restart                  4.0     0    0     0    0    0
+tracejit   partial_output_deletion            clean                      16652.3    32    0    32    1    0
+tracejit   partial_output_deletion            after_archive_delete          28.8     0    0     0    0    0
+tracejit   repeated_session                   clean                      16845.4    32    0    32    0    0
+tracejit   repeated_session                   repeat_0                     123.3     1    1     0    0    0
+tracejit   repeated_session                   repeat_1                      94.9     1    1     0    0    0
+tracejit   repeated_session                   repeat_2                      99.2     1    1     0    0    0
+tracejit   repeated_session                   repeat_3                     103.0     1    1     0    0    0
+tracejit   repeated_session                   repeat_4                      81.6     1    1     0    0    0
+tracejit   classification_refusal_observation clean                      15490.0    32    0    32    1    0
+tracejit   classification_refusal_observation full_recompile_0            3404.1    32   31     1    0    0
+tracejit   classification_refusal_observation full_recompile_1            2612.5    32   32     0    0    0
+tracejit   classification_refusal_observation full_recompile_2            2591.7    32   32     0    0    0
