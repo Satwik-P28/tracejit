@@ -156,3 +156,40 @@ The verdict is unchanged: **not qualified for a v0.3 prerelease**, and Phase AB
 narrows the defensible claim to guarded, verified whole-command reuse for
 repeated compute-bound commands, with the compiler case documented as a
 controlled contract that loses to ccache.
+
+## Phase AC review
+
+The blocking benchmark failure is resolved and it was not a product defect: the
+`tar-create` cold mismatch came from the harness preparing its two twins at
+different wall-clock times, so `tar` serialised different member mtimes
+(`docs/PHASE_AC_COLD_MISMATCH_AUDIT.md`). The harness now builds the traced twin
+as a metadata-preserving clone and refuses to compare twins whose metadata
+differs; 0/200 mismatches after the change, and the local mirror of the CI smoke
+step passes with 0 cold mismatches and 0 incorrect hits.
+
+Correctness work added: a deterministic prune-versus-restore matrix (5 new tests,
+all fail-closed or verified), and an audited decision **not** to adopt
+field-precise metadata guards, with a 9-mutation adversarial matrix showing the
+conservative guard is load-bearing. Output restoration keeps timestamp-exact
+semantics deliberately; the stale-archive consequence is now documented with a
+tested workaround instead of being an unexplained benchmark finding.
+
+What changed for a v0.3 note:
+
+* **A measured non-compiler niche exists.** `bzip2 -9` on a 2 MiB artifact saves
+  85 % of a 25-invocation session at break-even 1.5; `gzip -9` 65 %; `sed` on
+  200k lines 51 %. `gzip -9 -n -c` reuses with no execution contract at all.
+* **The hit floor is the limit, not eligibility.** Five of nine measured
+  non-compiler configurations lose at every session length because a 15-50 ms hit
+  exceeds a 2-5 ms command. Admission (`auto`) is the mitigation, not more caching.
+* **Compatibility is still the blocker for release.** 28 of 177 frozen-corpus
+  rows reuse; `xz`, `tar`, `sort`, `awk`, `perl` and every Python/Node workload
+  refuse for structural reasons.
+
+The release verdict is unchanged: **not qualified for a v0.3 prerelease**. The
+defensible claim is narrower than "build accelerator": guarded, verified
+whole-command reuse for repeated compute-bound commands (compression, large text
+transforms, compiler steps under a declared contract), with a documented
+mtime-driven build-system limitation and no general-compiler advantage over
+ccache. Paper readiness: option **B**, a narrow paper on fail-closed whole-command
+reuse, pending a measured comparison against Firebuild.

@@ -212,6 +212,15 @@ Evidence: `docs/PHASE_AB_REPORT.md`, `docs/COMPILER_ENTROPY_INVESTIGATION.md`,
 - Landlock is unavailable on the local host, so `PROVEN`/sandbox tests SKIP here.
 - The integration suite is sensitive to host process pressure: 67/67 pass at `--test-threads=4`; at the default 8 threads the tagged beta already failed 2/62 on this VM.
 
+## Phase AC (correctness recovery, output semantics, non-compiler workloads)
+
+- PR #44's `tar-create` cold mismatch was a **benchmark fixture defect**, not a product bug: the two twins were prepared at different wall-clock times and `tar` serialises member mtimes. Reproduced at 67.5 % (81/120) with the shipped sequence; 0/200 after preparing once and cloning with metadata preserved. The harness now gates on a metadata-sensitive pre-state comparison (`benchmarks/realworld_v2/runner.py`).
+- Restored outputs keep their **recorded** mtime, so a `make`/`ar` chain can skip the archive update and leave a stale member (reproduced on Lua 5.4.6 and zlib 1.3.1). Default behaviour kept deliberately; no build-integration mode added (`docs/OUTPUT_RESTORE_SEMANTICS.md`, `benchmarks/phase_ac/stale_archive.py --expect documented`).
+- Field-precise metadata guards were audited and **not** adopted: every guarded field is observable, and a 9-mutation matrix shows the conservative guard is load-bearing (mtime-only input change deoptimises `gzip`, whose header carries it). Eligibility unchanged.
+- Non-compiler niche is real but narrow: `bzip2`/`gzip` on multi-megabyte artifacts, `sed` on large text. Measured n=25 savings 85 % / 65 % / 51 %, break-even 1.5 / 1.9 / 4.1; `gzip -n -c` text reuses with **no contract** (+37 %, break-even 11.9). Small binutils commands are dominated by the 15-50 ms hit floor. `xz`, `tar`, `sort`, `awk`, `perl` refuse (`docs/NON_COMPILER_WORKLOAD_STUDY.md`).
+- Prune-versus-restore is now deterministically tested (CAS mutation hook + 5 tests): delete-after-open restores verified bytes; truncate/replace/prune-before-open fail closed; concurrent restores are correct.
+- Paper verdict: **B**, a narrow paper on fail-closed whole-command reuse. No head-to-head against Firebuild exists yet (`docs/PHASE_AC_PAPER_READINESS.md`).
+
 ## Validation
 
 ```bash
