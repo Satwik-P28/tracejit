@@ -29,9 +29,11 @@ than ccache. Against a single compile the same ratio holds (7.5× vs 108×,
 Phase AA1). Cold tracing is expensive: 15.5 s against 7.4 s, because every
 invocation is traced once.
 
-One refused invocation appears in the cold build (`Nondeterministic`, 1/32) and
-one in another full rebuild (31/32 hits): that is the temp-name draw of
-`docs/COMPILER_ENTROPY_INVESTIGATION.md` at the predicted 4.45 %.
+Every cold build is a first compile of all 32 units, so each is a sample of the
+refusal process: **9 of the 12 cold builds contained exactly one `Nondeterministic`
+refusal** (9 refusals in 384 invocations, 2.3 %), and the rest contained none.
+That is the temp-name draw of `docs/COMPILER_ENTROPY_INVESTIGATION.md`; no build
+was lost, because a refused invocation simply runs natively.
 
 ## 2. What each tool promises, and what it does not
 
@@ -58,16 +60,16 @@ Thirty-two units; `bad` counts artifacts that differ from the clean reference.
 | no-change rebuild | 4.9 ms (no compile) | 3.6 ms | 3.9 ms | all arms |
 | warm full rebuild | 7.29 s | 0.19 s | 3.20 s | all arms |
 | single source edit | 538 ms | 79 ms | 853 ms (recompiled, no hit: the guard is the input) | all arms |
-| shared header edit | 7.76 s | 1.10 s | 16.1 s (one miss + one refusal, rest retraced) | all arms |
+| shared header edit | 7.76 s | 1.10 s | 16.1 s (1 miss + 1 refusal, 31 deopt: the guard no longer matches) | all arms |
 | deleted object | 1.73 s | 37.8 ms | 127 ms (1 hit) | all arms |
 | corrupted object, then make | 39 ms | 31 ms | 31 ms | **all arms leave it corrupted** |
-| corrupted object, forced rebuild | 610 ms | 37.3 ms | 110 ms (1 hit) | object correct in all arms |
+| corrupted object, forced rebuild | 610 ms | 37.3 ms | 110 ms (1 hit) | object correct in all arms; **TraceJIT's archive still stale** |
 | corrupted object, same timestamps, then make | 4.7 ms | 3.9 ms | 5.7 ms | **all arms leave it corrupted** |
 | same, forced rebuild | 543 ms | 39.3 ms | 105 ms (1 hit) | object correct in all arms |
 | input edit → revert (content restored) | 531 + 541 ms | 69 + 31 ms | 795 + 849 ms | all arms; every arm recomputed |
 | cache restart | 4.6 ms | 4.0 ms | 4.0 ms | all arms |
 | partial output deletion (`liblua.a`) | 36 ms (ar only) | 31 ms | 29 ms | all arms |
-| repeated session (5× one object deleted) | 577 ms each | 33–36 ms | 82–123 ms, 1 hit each | all arms |
+| repeated session (5× one object deleted) | 539 ms each | 33–36 ms | 82–123 ms, 1 hit each | all arms |
 
 Two results deserve to be stated plainly:
 

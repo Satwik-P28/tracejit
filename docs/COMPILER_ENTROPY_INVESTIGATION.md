@@ -98,10 +98,12 @@ TraceJIT *supplies* `clock_gettime(CLOCK_MONOTONIC)`, so the value that is
 rejection-sampled against `0xf49998db0aa753ff` is a function of the
 uninitialised stack word alone instead of clock-plus-stack. The result is still
 pseudo-uniform across processes, and the measured contract rate is 5.7 %, not the
-4.45 % of the unmodified glibc draw. **The number to use for a TraceJIT build is
-the measured contract rate (5.7 %).** The 1.3-point gap is not a defect and not
-evidence of a second mechanism; it is the contract changing one input of the
-sample.
+4.45 % of the unmodified glibc draw. The same mechanism measures **2.3 %** under
+a make-driven build (§ build level), so the exact rate depends on the invocation
+context: the sampled word is caller stack, so argv, environment length and call
+depth shift it. Every context measured sits in the same few-percent band and the
+mechanism is identical; the 1.3-point gap from 4.45 % is not a defect and not
+evidence of a second mechanism.
 
 ## 3. Why refusal is correct
 
@@ -145,15 +147,18 @@ The predictor is an estimate, not an admission rule: static linking, a direct
 is a deterministic pre-build statement ("this build will probably lose N traces
 to a temp-name draw") instead of a mysterious mid-build refusal.
 
-For a 32-translation-unit build (`benchmarks/phase_ab/build_integrity.py`) the
-contract-rate model predicts `1 - (1 - 0.057)**32 = 84.7 %` of builds losing at
-least one trace. The measured Lua builds lost 1 of 32 and 1 of 32 invocations on
-their first full compile (3.1 % in each) and recovered to 32/32, 31/32 and 31/32
-on later full recompiles. A refused invocation is not fatal: the command runs
-natively, and the next invocation of the same command has a 94.3 % chance of
-recording. Two of 96 first-compile invocations is at the low end of a 5.7 %
-process (p ≈ 0.12 under a binomial model), which is expected for three builds and
-is reported rather than smoothed away.
+At build level (`benchmarks/phase_ab/build_integrity.py`, Lua 5.4.6, 32 units),
+twelve cold builds produced **9 refusals in 384 compiler invocations (2.3 %)**, and
+**9 of the 12 builds contained exactly one**. The model with the study rate
+predicts 85 % of builds losing at least one trace; with the build-context rate it
+predicts 53 %. Nine of twelve is between the two and is reported as measured
+rather than fitted. The warm full rebuilds that followed had none: 32/32 hits at
+3.20 s and 32/32 at 2.59 s, and one 31/32 after a cache restart.
+
+A refused invocation is not fatal: the command runs natively and the build is
+correct, and the next invocation of the same command has a ~97 % chance of
+recording, which is why every refusal in the experiment was followed by a clean
+build.
 
 ### B. Narrow audited compiler contract — rejected
 

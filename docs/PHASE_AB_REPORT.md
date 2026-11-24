@@ -60,9 +60,12 @@ from a plugin, loader hardening, hash-table seeding or `cc1`. The three
 | Read effect count: accepted / refused | 304 / 305 (55 runs) or 306 (2 runs) |
 
 The two rates differ because the compiler contract *supplies*
-`clock_gettime`, so only the stack word varies. The practical rate for a
-TraceJIT build is 5.7 %. Every refusal carries exactly one extra unabsorbed read
-per draw — a single mechanism, not a family of intermittent defects.
+`clock_gettime`, so only the stack word varies — and the sampled word is caller
+stack, so the rate also moves with the invocation (argv, env, call depth). In the
+make-driven build of §3 the same mechanism measured 2.3 % (9 refusals in 384
+invocations, 9 of 12 cold builds). Every refusal carries exactly one extra
+unabsorbed read per draw — a single mechanism, not a family of intermittent
+defects.
 
 **Remedy chosen: preserve strict refusal** (option A). The bytes become a
 temp file name that `gcc` passes to `cc1`, `as` and `ld` on the command line —
@@ -89,11 +92,12 @@ Full analysis in `OUTPUT_INTEGRITY_ECONOMICS.md`; the three results that matter:
 
 1. **Timing.** Warm 32-unit rebuild: `make` 7.29 s, ccache **0.19 s**, TraceJIT
    **3.20 s** (16× make, 1/17 of ccache's speed-up). Cold: 8.99 s ccache,
-   15.3–16.8 s TraceJIT, 7.37 s make.
+   15.2–16.8 s TraceJIT, 7.37 s make.
 2. **Repair needs to be asked.** In every corruption schedule, `make` considered
    the artifact current and issued no compile; none of the three caches repaired
    anything. Integrity is not a property a cache can add to a build system that
-   does not consult it.
+   does not consult it. Nine of the twelve cold builds also contained exactly one
+   entropy refusal, and every one of them still produced correct artifacts.
 3. **Reuse can leave an archive stale.** When TraceJIT *did* restore a corrupted
    object (1 hit, 110 ms), the restored object kept its recorded mtime, older
    than the archive built from the corrupted bytes, so `ar u` left the corrupted
@@ -155,7 +159,7 @@ reproduced the protocol's accounting: 42 declared cells, 40 attempted, 10 reused
 
 Incorrect HITs: **0** in differential fuzzing (seed 29), the W1 oracle (13/13),
 the corpus smoke, the adversarial suite, and the whole-build experiment (every
-object compared with a clean reference). The two refusals observed in 96
+object compared with a clean reference). The 9 refusals observed in 384
 first-compile build invocations are the documented entropy draw, not incorrect
 reuse.
 
@@ -170,7 +174,11 @@ incorrect hits · restore fault injection PASS (soft-fail retrace, hard-kill
 recovery) · W1 adversarial oracle 13/13 · frozen corpus smoke pass. Detail in
 `PHASE_AB_CORRECTNESS_AUDIT.md`.
 
-CI on this head: see §11.
+CI on this head: **not verifiable from the authoring environment** — no GitHub
+API credentials are available here (`gh` unauthenticated), so the branch was
+pushed and the PR carries the workflow run. Every job the workflow runs was
+executed locally and passed, but "green on CI" is an unverified claim until
+somebody with repository access confirms it.
 
 ## 8. Experiment ledger
 

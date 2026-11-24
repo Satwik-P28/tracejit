@@ -56,9 +56,10 @@ product against a real build, rather than against microbenchmarks.
 * **Root cause, closed.** glibc's `mkstemps` rejection-samples 8 bytes of
   `getrandom(GRND_NONBLOCK)` into a stack buffer to name the gcc driver's
   temporary assembly file; the bound `0xf49998db0aa753ff` gives a 4.45 % pass
-  probability, and the compiler contract (which supplies `clock_gettime`) raises
-  the measured refusal rate to **5.7 % in 1,000 trials** (95 % CI 4.3–7.1 %,
-  57 refusals, each costing exactly one extra unabsorbed read). Refusal is
+  probability, and the compiler contract (which supplies `clock_gettime`) shifts
+  the sampled value and measures **5.7 % in 1,000 direct trials** (95 % CI 4.3–7.1 %,
+  57 refusals) and **2.3 % in a make-driven build** of 384 invocations. Every
+  refusal costs exactly one extra unabsorbed read. Refusal is
   retained: the bytes become an application-visible path. `gcc -pipe` was
   measured and rejected (100/100 refused via pipe `fstat`).
 * **One production change.** `Cache::restore_outputs` no longer writes a durable
