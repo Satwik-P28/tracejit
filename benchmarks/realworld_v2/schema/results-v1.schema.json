@@ -177,7 +177,11 @@
               "tracejit_error",
               "harness_error",
               "not_qualified",
-              "skipped_budget"
+              "skipped_budget",
+              "prestate_mismatch",
+              "prestate_metadata_mismatch",
+              "hit_accounting_mismatch",
+              "cache_corruption_mismatch"
             ]
           },
           "assessment": {
