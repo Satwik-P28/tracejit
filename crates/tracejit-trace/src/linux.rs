@@ -4518,12 +4518,33 @@ mod tests {
             registers.rsi = libc::F_GETFL as u64;
             decode_entry(pid, state, &registers, None).unwrap()
         };
+        let query_command = |state: &ProcessState, fd: i32, command: i32| {
+            let mut registers: libc::user_regs_struct = unsafe { std::mem::zeroed() };
+            registers.orig_rax = libc::SYS_fcntl as u64;
+            registers.rdi = fd as u64;
+            registers.rsi = command as u64;
+            decode_entry(pid, state, &registers, None).unwrap()
+        };
 
         let mut inherited = base();
         inherited.fds.insert(0, FdState::Other);
         assert!(
             matches!(query(&inherited, 0), PendingSyscall::Unknown { .. }),
             "flags of an inherited descriptor are not guarded"
+        );
+
+        // Phase AD implemented exactly this promotion: `F_GETFD` on an inherited descriptor is
+        // self-determined (FD_CLOEXEC is descriptor-local and cleared by exec), so it classified
+        // as `None`. It changed no eligibility cell in the frozen census -- `tar`'s binding
+        // refusals are a realtime clock read and an unmodelled socket control, and `xz` toggles
+        // status flags on its own pipes -- so the promotion was reverted rather than kept as
+        // unused surface. This assertion pins the refusal that the phase decided to retain.
+        assert!(
+            matches!(
+                query_command(&inherited, 0, libc::F_GETFD),
+                PendingSyscall::Unknown { .. }
+            ),
+            "F_GETFD on an inherited descriptor stays refused until a workload needs it"
         );
 
         let mut owned = base();
