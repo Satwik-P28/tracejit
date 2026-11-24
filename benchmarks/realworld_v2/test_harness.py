@@ -23,6 +23,8 @@ from __future__ import annotations
 import copy
 import json
 import os
+import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -152,6 +154,82 @@ class OracleRejectsWrongReplay(unittest.TestCase):
         prestate = oracle.compare_workspace_trees(workspace(self.native), workspace(self.traced))
         self.assertFalse(prestate["match"])
         self.assertEqual(covered_fields(prestate), {"entry"})
+
+
+class TwinsShareMetadata(unittest.TestCase):
+    """A twin pair must be equal in metadata a command can serialise.
+
+    The Phase AC ``tar-create`` cold mismatch was not a TraceJIT defect: the two
+    twins were prepared at different wall-clock times, ``tar`` writes member
+    mtimes into the archive, and the pre-state check compared content only.  The
+    content-only check passed, so the difference surfaced as a mysterious
+    ``cold_mismatch``.  These tests pin both halves of that story.
+    """
+
+    def setUp(self) -> None:
+        self._temporary = tempfile.TemporaryDirectory(prefix="tracejit-twins-test-")
+        self.root = Path(self._temporary.name)
+
+    def tearDown(self) -> None:
+        self._temporary.cleanup()
+
+    def _tree(self, name: str, mtime: int) -> Path:
+        path = self.root / name
+        path.mkdir()
+        for member in ("alpha.txt", "beta.bin"):
+            (path / member).write_bytes(b"deterministic fixture bytes\n")
+        for member in ("alpha.txt", "beta.bin"):
+            os.utime(path / member, ns=(mtime * 10**9, mtime * 10**9))
+        os.utime(path, ns=(mtime * 10**9, mtime * 10**9))
+        return path
+
+    def test_one_second_mtime_skew_is_detected(self) -> None:
+        native = self._tree("native", 1_600_000_000)
+        traced = self._tree("traced", 1_600_000_001)
+        differences = runner.prestate_metadata_differences(native, traced)
+        self.assertTrue(differences, "a one-second fixture skew must be reported")
+        self.assertEqual({item["field"] for item in differences}, {"mtime_ns"})
+
+    def test_cloned_twin_is_metadata_identical(self) -> None:
+        native = self._tree("native", 1_600_000_000)
+        traced = self.root / "traced"
+        shutil.copytree(native, traced, symlinks=True)
+        self.assertEqual(runner.prestate_metadata_differences(native, traced), [])
+
+    def test_mtime_skew_changes_an_archive_and_cloning_fixes_it(self) -> None:
+        if shutil.which("tar") is None:
+            self.skipTest("tar is not available")
+        native = self._tree("native", 1_600_000_000)
+        skewed = self._tree("skewed", 1_600_000_001)
+        cloned = self.root / "cloned"
+        shutil.copytree(native, cloned, symlinks=True)
+
+        def archive(directory: Path) -> bytes:
+            subprocess.run(
+                ["tar", "-cf", "out.tar", "alpha.txt", "beta.bin"],
+                cwd=directory, check=True, capture_output=True,
+            )
+            return (directory / "out.tar").read_bytes()
+
+        self.assertNotEqual(
+            archive(native), archive(skewed),
+            "a one-second fixture skew must change a metadata-serialising tool's output",
+        )
+        self.assertEqual(
+            archive(native), archive(cloned),
+            "a metadata-preserving clone must make the twins produce identical archives",
+        )
+
+    def test_reachable_statuses_are_in_the_validation_contract(self) -> None:
+        # These are emitted by runner.qualify; a results file carrying one must
+        # not fail validation for an unknown status.
+        for status in (
+            "prestate_mismatch",
+            "prestate_metadata_mismatch",
+            "hit_accounting_mismatch",
+            "cache_corruption_mismatch",
+        ):
+            self.assertIn(status, validate.ACCEPTABLE)
 
 
 class HitAccounting(unittest.TestCase):
