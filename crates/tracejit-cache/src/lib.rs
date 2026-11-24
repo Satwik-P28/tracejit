@@ -524,6 +524,16 @@ impl Cache {
     /// workspace; a durable restore-intent marker then forces the next run to refuse HIT
     /// (see [`Self::has_interrupted_restore`]). This is not a multi-file atomic journal.
     pub fn restore_outputs(&self, outputs: &[OutputArtifact]) -> Result<(), CacheError> {
+        // A record with no workspace outputs has nothing to stage, rename, back up or roll back.
+        // The restore intent exists so a hard kill *between two renames* cannot leave a mixed
+        // workspace; with no destinations there is no such window, and writing the intent would
+        // add a temp-file write, an fsync, a rename and a directory fsync to every hit of a pure
+        // filter (`readelf`, `objdump`, `cut`, `gzip -c`) for no protection. Measured at 1.6 ms
+        // of a 6.9 ms `gzip -6` hit. No guard, output or stream is affected: streams are verified
+        // and replayed by the caller, not here.
+        if outputs.is_empty() {
+            return Ok(());
+        }
         for output in outputs {
             validate_output_precondition(output)?;
         }
@@ -1703,6 +1713,30 @@ mod tests {
         assert_eq!(temporary_files(directory.path()), 0);
         // Soft rollback must clear this process's restore intent so the next open is not blocked.
         assert!(!cache.restore_intent_path().is_file());
+    }
+
+    #[test]
+    fn restoring_no_outputs_writes_no_restore_intent() {
+        let directory = tempfile::tempdir().unwrap();
+        let cache_root = directory.path().join("cache");
+        let cache = Cache::open(&cache_root).unwrap();
+        // A pure filter has no workspace destination. The restore intent protects renames that
+        // are about to happen; with none, writing it would only add fsyncs to every hit.
+        cache.restore_outputs(&[]).unwrap();
+        let intents = fs::read_dir(&cache_root)
+            .unwrap()
+            .filter_map(|entry| entry.ok())
+            .filter(|entry| {
+                entry
+                    .file_name()
+                    .to_string_lossy()
+                    .starts_with(RESTORE_INTENT_PREFIX)
+            })
+            .count();
+        assert_eq!(intents, 0);
+        let reopened = Cache::open(&cache_root).unwrap();
+        assert!(!reopened.has_interrupted_restore());
+        assert_eq!(temporary_files(&cache_root), 0);
     }
 
     #[test]
