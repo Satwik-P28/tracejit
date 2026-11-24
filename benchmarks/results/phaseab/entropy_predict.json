@@ -1,0 +1,33 @@
+{
+  "draw_probability": 0.04453,
+  "invocations": 32,
+  "executables": [
+    {
+      "path": "/usr/bin/x86_64-linux-gnu-gcc-13",
+      "imports_temp_name": [
+        "mkstemps"
+      ],
+      "imports_entropy": [
+        "getentropy"
+      ],
+      "temp_name_draw_probability": 0.04453,
+      "predicted_probability_any_refusal": 0.7672,
+      "claim": "each temp-name call draws entropy with probability 4.45%",
+      "limitations": [
+        "static linking is invisible",
+        "a direct syscall(318, ...) is invisible",
+        "a plugin or dlopen'ed library is invisible",
+        "the predictor never changes eligibility"
+      ],
+      "direct": true
+    }
+  ],
+  "measured": {
+    "gcc-cc-small-tu": {
+      "trials": 100,
+      "refused": 8,
+      "rate": 0.08,
+      "source": "benchmarks/results/phaseab/entropy_study_small.json"
+    }
+  }
+}

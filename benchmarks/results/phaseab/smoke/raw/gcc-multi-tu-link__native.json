@@ -1,0 +1,89 @@
+{
+  "adaptations": [],
+  "argv": [
+    "gcc",
+    "-O1",
+    "-Wall",
+    "main.c",
+    "util.c",
+    "-o",
+    "app"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "Makefile"
+      },
+      {
+        "field": "atime_ns",
+        "path": "app"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "app"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "app"
+      },
+      {
+        "field": "atime_ns",
+        "path": "main.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.c"
+      },
+      {
+        "field": "atime_ns",
+        "path": "util.h"
+      }
+    ],
+    "tree_digest_native": "260885b232b2d3eed9ecb46352001b25ba60661c26dfb0a8e7536388f406f2fb",
+    "tree_digest_traced": "260885b232b2d3eed9ecb46352001b25ba60661c26dfb0a8e7536388f406f2fb"
+  },
+  "cold_ns": 417968921,
+  "correctness": {},
+  "cost_class": "medium",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 445,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "82fdcfd9fb49b5c250a2a98c166b5cd5fc464d0555f4f48de8786833dd063e91",
+  "environment_tier": "A",
+  "family": "compiler",
+  "output_count": 7,
+  "policy": "native",
+  "prestate_equivalence": {
+    "covered_differences": [],
+    "match": true
+  },
+  "provenance": "corpus.py@3650df662916",
+  "reasons": [
+    "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fff6677bc20, 0x7fff6677c1a8, 0x7fff6677bd70, 0x0, 0x7f1fd6b5a380]",
+    "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fff93998a10, 0x7fff93998f98, 0x7fff93998b60, 0x0, 0x7f7b71c69380]",
+    "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7fff657a7d20, 0x7fff657a81f8, 0x7fff657a7c50, 0x0, 0x7f511a80c380]"
+  ],
+  "refusal_categories": {
+    "unmodeled_syscall:98": 3
+  },
+  "required_tools": [
+    "gcc"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "gcc-multi-tu-link"
+}

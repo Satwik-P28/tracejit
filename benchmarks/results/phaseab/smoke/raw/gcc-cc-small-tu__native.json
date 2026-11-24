@@ -1,0 +1,89 @@
+{
+  "adaptations": [],
+  "argv": [
+    "gcc",
+    "-O2",
+    "-Wall",
+    "-I",
+    "gen",
+    "-c",
+    "small.c",
+    "-o",
+    "small.o"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "ctime_ns",
+        "path": "gen/part0.h"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "gen/part0.h"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "gen/part1.h"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "gen/part1.h"
+      },
+      {
+        "field": "atime_ns",
+        "path": "small.o"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "small.o"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "small.o"
+      }
+    ],
+    "tree_digest_native": "5ad4c8c7963e2a356847f8d41acbc73db1d023725a6fe4668189eb05d2ca3703",
+    "tree_digest_traced": "5ad4c8c7963e2a356847f8d41acbc73db1d023725a6fe4668189eb05d2ca3703"
+  },
+  "cold_ns": 305593019,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 159,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "11fa1c05451290be9acde3f7c79d8ede8c34c121f6aa4c166817a7bd38864921",
+  "environment_tier": "A",
+  "family": "compiler",
+  "output_count": 2,
+  "policy": "native",
+  "prestate_equivalence": {
+    "covered_differences": [],
+    "match": true
+  },
+  "provenance": "corpus.py@3650df662916",
+  "reasons": [
+    "unmodeled successful syscall 98: unmodeled syscall 98 args [0x0, 0x7ffef0aaf690, 0x7ffef0aafc28, 0x7ffef0aaf7e0, 0x0, 0x7f28801fb380]"
+  ],
+  "refusal_categories": {
+    "unmodeled_syscall:98": 1
+  },
+  "required_tools": [
+    "gcc"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "gcc-cc-small-tu"
+}

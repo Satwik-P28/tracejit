@@ -1,0 +1,91 @@
+{
+  "adaptations": [],
+  "argv": [
+    "xz",
+    "-0",
+    "-k",
+    "-f",
+    "corpus.bin"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "atime_ns",
+        "path": "corpus.bin.xz"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin.xz"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin.xz"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      }
+    ],
+    "tree_digest_native": "f7417826d990e4c6fa3be4d86c5999179355c3c30302f2430553d9973b12f0b6",
+    "tree_digest_traced": "f7417826d990e4c6fa3be4d86c5999179355c3c30302f2430553d9973b12f0b6"
+  },
+  "cold_ns": 170252527,
+  "correctness": {},
+  "cost_class": "medium",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 55,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "a6b0f847aadde2d1471aeed555e546a329244da81c6f10d622b9bfa886462a7b",
+  "environment_tier": "A",
+  "family": "compression",
+  "output_count": 1,
+  "policy": "native",
+  "prestate_equivalence": {
+    "covered_differences": [],
+    "match": true
+  },
+  "provenance": "corpus.py@3650df662916",
+  "reasons": [
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded",
+    "unmodeled successful syscall 72: status-flag change on fd 3 whose open file description is shared or unclassified",
+    "unmodeled successful syscall 72: status-flag change on fd 4 whose open file description is shared or unclassified",
+    "failed filesystem effect is not guardable: /tmp/ab-smoke/qualify/xz-0-file__native/traced/corpus.bin.xz (errno 2)"
+  ],
+  "refusal_categories": {
+    "other:failed filesystem effect is not guardable: /tmp/ab": 1,
+    "unmodeled_syscall:72": 5
+  },
+  "required_tools": [
+    "xz"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "xz-0-file"
+}

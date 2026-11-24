@@ -1,0 +1,52 @@
+{
+  "adaptations": [],
+  "argv": [
+    "/tmp/ab-smoke/shared/build/numeric"
+  ],
+  "assessment": "ineligible",
+  "classification": "Nondeterministic",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [],
+    "tree_digest_native": "2a477721797764bb7280f32999903bcb41a3b0d0172d28678c52679af80d25d8",
+    "tree_digest_traced": "2a477721797764bb7280f32999903bcb41a3b0d0172d28678c52679af80d25d8"
+  },
+  "cold_ns": 367137523,
+  "correctness": {},
+  "cost_class": "heavy",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 6,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "dcee2818cc97d7fc511f814fc8c11fa097adc06cb893a0d68dcc99a5d3bb0f5e",
+  "environment_tier": "A",
+  "family": "scientific",
+  "output_count": 0,
+  "policy": "native",
+  "prestate_equivalence": {
+    "covered_differences": [],
+    "match": true
+  },
+  "provenance": "corpus.py@3650df662916",
+  "reasons": [
+    "process read randomness via getrandom"
+  ],
+  "refusal_categories": {
+    "randomness": 1
+  },
+  "required_tools": [
+    "gcc"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "c-numeric-integration"
+}

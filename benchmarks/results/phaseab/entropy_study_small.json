@@ -1,0 +1,4667 @@
+{
+  "workload": "gcc-cc-small-tu",
+  "trials": 100,
+  "contract": "compiler-runtime-v1",
+  "tracejit": "/workspace/chats/24375cea864939ae012511ac/target/release/tracejit",
+  "tracejit_sha256": "daca8b0dc9fda100abd8801d9f6f619c0e1c3082981f20be2de8f1dd4361dbe4",
+  "presence": {
+    "runs_with_getrandom": 100,
+    "runs_without_getrandom": 0,
+    "rate": 1.0,
+    "total_events": 305,
+    "distinct_pids_per_run": [
+      3
+    ],
+    "distinct_buffer_addresses": 304,
+    "records": [
+      {
+        "trial": 0,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 91723,
+            "args": "0x7fbeb360b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91724,
+            "args": "0x7f452900b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91725,
+            "args": "0x7f9e9900b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          91723,
+          91724,
+          91725
+        ]
+      },
+      {
+        "trial": 1,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 91735,
+            "args": "0x7f7b3040b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91736,
+            "args": "0x7f03d6e0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91737,
+            "args": "0x7f6b8ba0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          91735,
+          91736,
+          91737
+        ]
+      },
+      {
+        "trial": 2,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 91748,
+            "args": "0x7f6ace00b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91749,
+            "args": "0x7f3305e0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91750,
+            "args": "0x7fa68540b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          91748,
+          91749,
+          91750
+        ]
+      },
+      {
+        "trial": 3,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 91760,
+            "args": "0x7fcff460b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91761,
+            "args": "0x7f6d34c0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91762,
+            "args": "0x7f5812e0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          91760,
+          91761,
+          91762
+        ]
+      },
+      {
+        "trial": 4,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 91772,
+            "args": "0x7f113680b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91774,
+            "args": "0x7fb6b120b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91775,
+            "args": "0x7f686a00b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          91772,
+          91774,
+          91775
+        ]
+      },
+      {
+        "trial": 5,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 91785,
+            "args": "0x7ff8f920b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91786,
+            "args": "0x7ff8ac60b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91787,
+            "args": "0x7f2d0420b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          91785,
+          91786,
+          91787
+        ]
+      },
+      {
+        "trial": 6,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 91797,
+            "args": "0x7fa53d80b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91798,
+            "args": "0x7f4808a0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91799,
+            "args": "0x7fd10f60b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          91797,
+          91798,
+          91799
+        ]
+      },
+      {
+        "trial": 7,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 91810,
+            "args": "0x7f849bc0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91811,
+            "args": "0x7f70c760b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91812,
+            "args": "0x7fad5200b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          91810,
+          91811,
+          91812
+        ]
+      },
+      {
+        "trial": 8,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 91822,
+            "args": "0x7fca7240b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91823,
+            "args": "0x7fd04aa0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91824,
+            "args": "0x7f50dc00b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          91822,
+          91823,
+          91824
+        ]
+      },
+      {
+        "trial": 9,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 91834,
+            "args": "0x7fbd7a60b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91835,
+            "args": "0x7f3e3b20b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91837,
+            "args": "0x7fdfeb80b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          91834,
+          91835,
+          91837
+        ]
+      },
+      {
+        "trial": 10,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 91847,
+            "args": "0x7f7ae8e0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91848,
+            "args": "0x7f319620b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91849,
+            "args": "0x7f9bccc0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          91847,
+          91848,
+          91849
+        ]
+      },
+      {
+        "trial": 11,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 91867,
+            "args": "0x7f35f540b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91868,
+            "args": "0x7fcc6d60b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91869,
+            "args": "0x7fd4fec0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          91867,
+          91868,
+          91869
+        ]
+      },
+      {
+        "trial": 12,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 91880,
+            "args": "0x7fa44bc0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91881,
+            "args": "0x7f9d8c40b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91882,
+            "args": "0x7f0b3b60b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          91880,
+          91881,
+          91882
+        ]
+      },
+      {
+        "trial": 13,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 91892,
+            "args": "0x7f433e20b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91893,
+            "args": "0x7fd45320b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91894,
+            "args": "0x7fcf1da0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          91892,
+          91893,
+          91894
+        ]
+      },
+      {
+        "trial": 14,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 91906,
+            "args": "0x7f58dae0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91907,
+            "args": "0x7fbd1980b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91908,
+            "args": "0x7fbd29e0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          91906,
+          91907,
+          91908
+        ]
+      },
+      {
+        "trial": 15,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 91918,
+            "args": "0x7fbeb7a0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91919,
+            "args": "0x7fee04c0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91920,
+            "args": "0x7f22ac00b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          91918,
+          91919,
+          91920
+        ]
+      },
+      {
+        "trial": 16,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 91930,
+            "args": "0x7f84a1c0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91931,
+            "args": "0x7f45d680b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91932,
+            "args": "0x7f7ad6c0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          91930,
+          91931,
+          91932
+        ]
+      },
+      {
+        "trial": 17,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 91943,
+            "args": "0x7fb1e6c0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91944,
+            "args": "0x7f85d7a0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91945,
+            "args": "0x7f9f3800b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          91943,
+          91944,
+          91945
+        ]
+      },
+      {
+        "trial": 18,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 91955,
+            "args": "0x7f4350e0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91956,
+            "args": "0x7f14b9c0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91957,
+            "args": "0x7f2028e0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          91955,
+          91956,
+          91957
+        ]
+      },
+      {
+        "trial": 19,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 91967,
+            "args": "0x7f69d640b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91968,
+            "args": "0x7f915cc0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91970,
+            "args": "0x7fe2e1a0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          91967,
+          91968,
+          91970
+        ]
+      },
+      {
+        "trial": 20,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 91980,
+            "args": "0x7fbb8f60b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91981,
+            "args": "0x7f38f200b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91982,
+            "args": "0x7f327900b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          91980,
+          91981,
+          91982
+        ]
+      },
+      {
+        "trial": 21,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 91992,
+            "args": "0x7fdb10c0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91992,
+            "args": "0x7ffe213f9948, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91993,
+            "args": "0x7f2d2d20b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 91994,
+            "args": "0x7f281be0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          91992,
+          91993,
+          91994
+        ]
+      },
+      {
+        "trial": 22,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92006,
+            "args": "0x7fe0e0a0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92007,
+            "args": "0x7f40e4e0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92008,
+            "args": "0x7f9d1cc0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92006,
+          92007,
+          92008
+        ]
+      },
+      {
+        "trial": 23,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92026,
+            "args": "0x7f972aa0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92027,
+            "args": "0x7f7ddc60b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92028,
+            "args": "0x7f6e7800b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92026,
+          92027,
+          92028
+        ]
+      },
+      {
+        "trial": 24,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92038,
+            "args": "0x7f807c60b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92039,
+            "args": "0x7f4aa080b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92040,
+            "args": "0x7f5008a0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92038,
+          92039,
+          92040
+        ]
+      },
+      {
+        "trial": 25,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92051,
+            "args": "0x7fd245e0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92052,
+            "args": "0x7f3e42e0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92053,
+            "args": "0x7f1a1080b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92051,
+          92052,
+          92053
+        ]
+      },
+      {
+        "trial": 26,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92063,
+            "args": "0x7f9c3800b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92064,
+            "args": "0x7fb0faa0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92065,
+            "args": "0x7fa83400b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92063,
+          92064,
+          92065
+        ]
+      },
+      {
+        "trial": 27,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92075,
+            "args": "0x7fa112e0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92076,
+            "args": "0x7fad4400b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92078,
+            "args": "0x7fdd73e0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92075,
+          92076,
+          92078
+        ]
+      },
+      {
+        "trial": 28,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92088,
+            "args": "0x7f901840b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92089,
+            "args": "0x7f712cc0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92090,
+            "args": "0x7f6156a0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92088,
+          92089,
+          92090
+        ]
+      },
+      {
+        "trial": 29,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92100,
+            "args": "0x7f7a18e0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92101,
+            "args": "0x7f99aea0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92103,
+            "args": "0x7f37d180b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92100,
+          92101,
+          92103
+        ]
+      },
+      {
+        "trial": 30,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92114,
+            "args": "0x7fad95c0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92115,
+            "args": "0x7fe79720b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92116,
+            "args": "0x7f6c5f00b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92114,
+          92115,
+          92116
+        ]
+      },
+      {
+        "trial": 31,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92126,
+            "args": "0x7f442780b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92127,
+            "args": "0x7f9d36c0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92128,
+            "args": "0x7f2b65e0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92126,
+          92127,
+          92128
+        ]
+      },
+      {
+        "trial": 32,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92138,
+            "args": "0x7fd517a0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92139,
+            "args": "0x7ff22840b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92140,
+            "args": "0x7efc8b80b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92138,
+          92139,
+          92140
+        ]
+      },
+      {
+        "trial": 33,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92151,
+            "args": "0x7f8fe360b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92152,
+            "args": "0x7f2c3cc0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92153,
+            "args": "0x7fa675e0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92151,
+          92152,
+          92153
+        ]
+      },
+      {
+        "trial": 34,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92163,
+            "args": "0x7efe2120b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92164,
+            "args": "0x7fbe05c0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92165,
+            "args": "0x7f862ae0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92163,
+          92164,
+          92165
+        ]
+      },
+      {
+        "trial": 35,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92176,
+            "args": "0x7fc4f4c0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92177,
+            "args": "0x7f399cc0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92178,
+            "args": "0x7faecc40b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92176,
+          92177,
+          92178
+        ]
+      },
+      {
+        "trial": 36,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92196,
+            "args": "0x7f761cc0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92197,
+            "args": "0x7f6a2ee0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92198,
+            "args": "0x7f402640b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92196,
+          92197,
+          92198
+        ]
+      },
+      {
+        "trial": 37,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92209,
+            "args": "0x7f74e620b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92210,
+            "args": "0x7f92b700b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92211,
+            "args": "0x7fda4f80b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92209,
+          92210,
+          92211
+        ]
+      },
+      {
+        "trial": 38,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92222,
+            "args": "0x7f259640b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92223,
+            "args": "0x7f49f100b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92224,
+            "args": "0x7f8deba0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92222,
+          92223,
+          92224
+        ]
+      },
+      {
+        "trial": 39,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92234,
+            "args": "0x7f220ee0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92235,
+            "args": "0x7fb7d640b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92236,
+            "args": "0x7f9b6780b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92234,
+          92235,
+          92236
+        ]
+      },
+      {
+        "trial": 40,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92247,
+            "args": "0x7fc9b4a0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92248,
+            "args": "0x7fbcde40b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92249,
+            "args": "0x7fde38e0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92247,
+          92248,
+          92249
+        ]
+      },
+      {
+        "trial": 41,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92259,
+            "args": "0x7fcf69c0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92260,
+            "args": "0x7f4782a0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92261,
+            "args": "0x7fb38020b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92259,
+          92260,
+          92261
+        ]
+      },
+      {
+        "trial": 42,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92271,
+            "args": "0x7f16fa00b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92272,
+            "args": "0x7ff38f00b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92274,
+            "args": "0x7f1947a0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92271,
+          92272,
+          92274
+        ]
+      },
+      {
+        "trial": 43,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92284,
+            "args": "0x7f135920b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92285,
+            "args": "0x7f6bcf20b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92286,
+            "args": "0x7fa52820b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92284,
+          92285,
+          92286
+        ]
+      },
+      {
+        "trial": 44,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92296,
+            "args": "0x7f4b8580b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92297,
+            "args": "0x7f5f27a0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92299,
+            "args": "0x7f6090a0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92296,
+          92297,
+          92299
+        ]
+      },
+      {
+        "trial": 45,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92310,
+            "args": "0x7f745100b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92311,
+            "args": "0x7fbdb680b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92312,
+            "args": "0x7fd30de0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92310,
+          92311,
+          92312
+        ]
+      },
+      {
+        "trial": 46,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92322,
+            "args": "0x7f548fe0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92323,
+            "args": "0x7f6a3a40b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92324,
+            "args": "0x7fdc7000b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92322,
+          92323,
+          92324
+        ]
+      },
+      {
+        "trial": 47,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92334,
+            "args": "0x7f770ea0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92335,
+            "args": "0x7fe20040b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92336,
+            "args": "0x7fe7fb20b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92334,
+          92335,
+          92336
+        ]
+      },
+      {
+        "trial": 48,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92347,
+            "args": "0x7f861e40b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92348,
+            "args": "0x7f4349a0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92357,
+            "args": "0x7f249240b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92347,
+          92348,
+          92357
+        ]
+      },
+      {
+        "trial": 49,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92367,
+            "args": "0x7f677b20b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92368,
+            "args": "0x7f062060b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92369,
+            "args": "0x7fcadd20b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92367,
+          92368,
+          92369
+        ]
+      },
+      {
+        "trial": 50,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92379,
+            "args": "0x7fde26e0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92380,
+            "args": "0x7fc07e80b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92382,
+            "args": "0x7f9dddc0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92379,
+          92380,
+          92382
+        ]
+      },
+      {
+        "trial": 51,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92392,
+            "args": "0x7fdc5a60b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92393,
+            "args": "0x7f010b60b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92394,
+            "args": "0x7f8273c0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92392,
+          92393,
+          92394
+        ]
+      },
+      {
+        "trial": 52,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92404,
+            "args": "0x7fc428a0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92405,
+            "args": "0x7fb68a00b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92407,
+            "args": "0x7f6b1f80b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92404,
+          92405,
+          92407
+        ]
+      },
+      {
+        "trial": 53,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92418,
+            "args": "0x7feca700b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92418,
+            "args": "0x7ffc7ece27b8, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92419,
+            "args": "0x7f8aace0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92420,
+            "args": "0x7f57b480b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92418,
+          92419,
+          92420
+        ]
+      },
+      {
+        "trial": 54,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92430,
+            "args": "0x7f502500b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92431,
+            "args": "0x7fb3b260b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92432,
+            "args": "0x7f446c20b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92430,
+          92431,
+          92432
+        ]
+      },
+      {
+        "trial": 55,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92442,
+            "args": "0x7f10d940b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92443,
+            "args": "0x7f000480b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92445,
+            "args": "0x7fb57780b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92442,
+          92443,
+          92445
+        ]
+      },
+      {
+        "trial": 56,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92455,
+            "args": "0x7f055c80b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92456,
+            "args": "0x7f3fc620b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92457,
+            "args": "0x7fc2db80b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92455,
+          92456,
+          92457
+        ]
+      },
+      {
+        "trial": 57,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92467,
+            "args": "0x7feaff60b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92468,
+            "args": "0x7fc9d860b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92469,
+            "args": "0x7f19dd80b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92467,
+          92468,
+          92469
+        ]
+      },
+      {
+        "trial": 58,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92480,
+            "args": "0x7fe44f40b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92481,
+            "args": "0x7efebf80b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92482,
+            "args": "0x7fb5b1e0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92480,
+          92481,
+          92482
+        ]
+      },
+      {
+        "trial": 59,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92492,
+            "args": "0x7f20f0c0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92493,
+            "args": "0x7f803240b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92494,
+            "args": "0x7f08a6a0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92492,
+          92493,
+          92494
+        ]
+      },
+      {
+        "trial": 60,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92505,
+            "args": "0x7fc30200b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92506,
+            "args": "0x7fc57c60b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92507,
+            "args": "0x7f3f8b60b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92505,
+          92506,
+          92507
+        ]
+      },
+      {
+        "trial": 61,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92526,
+            "args": "0x7f146ba0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92527,
+            "args": "0x7f7672c0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92528,
+            "args": "0x7f9cec80b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92526,
+          92527,
+          92528
+        ]
+      },
+      {
+        "trial": 62,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92538,
+            "args": "0x7f7d0aa0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92539,
+            "args": "0x7ff3dc40b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92540,
+            "args": "0x7f2b65e0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92538,
+          92539,
+          92540
+        ]
+      },
+      {
+        "trial": 63,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92551,
+            "args": "0x7f1e8c20b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92552,
+            "args": "0x7fe68ce0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92553,
+            "args": "0x7fb432c0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92551,
+          92552,
+          92553
+        ]
+      },
+      {
+        "trial": 64,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92563,
+            "args": "0x7f4bccc0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92564,
+            "args": "0x7fe35240b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92565,
+            "args": "0x7fedb300b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92563,
+          92564,
+          92565
+        ]
+      },
+      {
+        "trial": 65,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92575,
+            "args": "0x7f52a600b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92576,
+            "args": "0x7f2eae20b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92577,
+            "args": "0x7f277f20b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92575,
+          92576,
+          92577
+        ]
+      },
+      {
+        "trial": 66,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92588,
+            "args": "0x7fc7f840b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92589,
+            "args": "0x7f48cb40b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92590,
+            "args": "0x7fdd8ac0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92588,
+          92589,
+          92590
+        ]
+      },
+      {
+        "trial": 67,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92600,
+            "args": "0x7fed5040b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92601,
+            "args": "0x7fc654e0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92603,
+            "args": "0x7fa707a0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92600,
+          92601,
+          92603
+        ]
+      },
+      {
+        "trial": 68,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92614,
+            "args": "0x7f8264c0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92615,
+            "args": "0x7fdb0680b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92616,
+            "args": "0x7fbb2fc0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92614,
+          92615,
+          92616
+        ]
+      },
+      {
+        "trial": 69,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92626,
+            "args": "0x7f7a2380b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92627,
+            "args": "0x7fa876c0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92628,
+            "args": "0x7f501b20b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92626,
+          92627,
+          92628
+        ]
+      },
+      {
+        "trial": 70,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92638,
+            "args": "0x7fe08e40b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92639,
+            "args": "0x7f328200b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92640,
+            "args": "0x7fad6200b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92638,
+          92639,
+          92640
+        ]
+      },
+      {
+        "trial": 71,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92651,
+            "args": "0x7f019560b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92652,
+            "args": "0x7fbe20a0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92653,
+            "args": "0x7f5c6d80b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92651,
+          92652,
+          92653
+        ]
+      },
+      {
+        "trial": 72,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92663,
+            "args": "0x7f566360b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92664,
+            "args": "0x7f0b8ee0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92665,
+            "args": "0x7f1c96e0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92663,
+          92664,
+          92665
+        ]
+      },
+      {
+        "trial": 73,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92675,
+            "args": "0x7f988960b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92676,
+            "args": "0x7f3064e0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92677,
+            "args": "0x7fde31c0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92675,
+          92676,
+          92677
+        ]
+      },
+      {
+        "trial": 74,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92695,
+            "args": "0x7f981940b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92696,
+            "args": "0x7fcd7920b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92697,
+            "args": "0x7f2ec760b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92695,
+          92696,
+          92697
+        ]
+      },
+      {
+        "trial": 75,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92708,
+            "args": "0x7f96b400b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92709,
+            "args": "0x7fc085e0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92710,
+            "args": "0x7fa33b60b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92708,
+          92709,
+          92710
+        ]
+      },
+      {
+        "trial": 76,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92720,
+            "args": "0x7f03afc0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92721,
+            "args": "0x7ff2b9e0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92722,
+            "args": "0x7f4f42e0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92720,
+          92721,
+          92722
+        ]
+      },
+      {
+        "trial": 77,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92732,
+            "args": "0x7f5aa4a0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92733,
+            "args": "0x7f0f3a60b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92734,
+            "args": "0x7f3da680b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92732,
+          92733,
+          92734
+        ]
+      },
+      {
+        "trial": 78,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92744,
+            "args": "0x7ff94840b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92745,
+            "args": "0x7fbba7e0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92746,
+            "args": "0x7fa96780b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92744,
+          92745,
+          92746
+        ]
+      },
+      {
+        "trial": 79,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92756,
+            "args": "0x7faa16c0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92757,
+            "args": "0x7febd5a0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92758,
+            "args": "0x7fe81ba0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92756,
+          92757,
+          92758
+        ]
+      },
+      {
+        "trial": 80,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92768,
+            "args": "0x7f39fa60b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92769,
+            "args": "0x7fd56ca0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92770,
+            "args": "0x7ff64600b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92768,
+          92769,
+          92770
+        ]
+      },
+      {
+        "trial": 81,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92780,
+            "args": "0x7fb0a160b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92781,
+            "args": "0x7f52dee0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92782,
+            "args": "0x7f967680b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92780,
+          92781,
+          92782
+        ]
+      },
+      {
+        "trial": 82,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92792,
+            "args": "0x7f778140b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92793,
+            "args": "0x7fdec0a0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92795,
+            "args": "0x7f0f5260b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92792,
+          92793,
+          92795
+        ]
+      },
+      {
+        "trial": 83,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92805,
+            "args": "0x7f443920b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92806,
+            "args": "0x7f81d920b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92807,
+            "args": "0x7fe3b400b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92805,
+          92806,
+          92807
+        ]
+      },
+      {
+        "trial": 84,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92817,
+            "args": "0x7fabfa80b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92818,
+            "args": "0x7fe1c960b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92819,
+            "args": "0x7fafe420b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92817,
+          92818,
+          92819
+        ]
+      },
+      {
+        "trial": 85,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92829,
+            "args": "0x7f135100b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92830,
+            "args": "0x7fed0b20b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92831,
+            "args": "0x7f45f340b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92829,
+          92830,
+          92831
+        ]
+      },
+      {
+        "trial": 86,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92848,
+            "args": "0x7fc5b060b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92850,
+            "args": "0x7f83a500b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92851,
+            "args": "0x7f9a8620b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92848,
+          92850,
+          92851
+        ]
+      },
+      {
+        "trial": 87,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92861,
+            "args": "0x7f00ae00b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92861,
+            "args": "0x7ffe9c706918, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92862,
+            "args": "0x7f787ca0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92863,
+            "args": "0x7f9b8460b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92861,
+          92862,
+          92863
+        ]
+      },
+      {
+        "trial": 88,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92873,
+            "args": "0x7f1b5300b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92874,
+            "args": "0x7f78d660b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92875,
+            "args": "0x7f259de0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92873,
+          92874,
+          92875
+        ]
+      },
+      {
+        "trial": 89,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92885,
+            "args": "0x7f2f1940b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92886,
+            "args": "0x7f907e40b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92887,
+            "args": "0x7fde2400b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92885,
+          92886,
+          92887
+        ]
+      },
+      {
+        "trial": 90,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92897,
+            "args": "0x7f1b34a0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92898,
+            "args": "0x7f705640b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92900,
+            "args": "0x7fc5dc00b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92897,
+          92898,
+          92900
+        ]
+      },
+      {
+        "trial": 91,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92910,
+            "args": "0x7ff5d200b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92911,
+            "args": "0x7faa49e0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92912,
+            "args": "0x7fa26f80b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92910,
+          92911,
+          92912
+        ]
+      },
+      {
+        "trial": 92,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92922,
+            "args": "0x7fadefa0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92923,
+            "args": "0x7f54d9e0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92924,
+            "args": "0x7f5e1060b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92922,
+          92923,
+          92924
+        ]
+      },
+      {
+        "trial": 93,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92934,
+            "args": "0x7fe83540b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92935,
+            "args": "0x7fe008e0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92936,
+            "args": "0x7f069700b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92934,
+          92935,
+          92936
+        ]
+      },
+      {
+        "trial": 94,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92946,
+            "args": "0x7f747860b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92947,
+            "args": "0x7f6e4d80b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92948,
+            "args": "0x7fbd2240b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92946,
+          92947,
+          92948
+        ]
+      },
+      {
+        "trial": 95,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92958,
+            "args": "0x7f6f2200b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92959,
+            "args": "0x7ffaf440b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92960,
+            "args": "0x7f264b40b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92958,
+          92959,
+          92960
+        ]
+      },
+      {
+        "trial": 96,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92970,
+            "args": "0x7f7e1ba0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92971,
+            "args": "0x7f70f4c0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92972,
+            "args": "0x7f493d40b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92970,
+          92971,
+          92972
+        ]
+      },
+      {
+        "trial": 97,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92982,
+            "args": "0x7f608bc0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92982,
+            "args": "0x7ffea9eafdf8, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92983,
+            "args": "0x7f39a240b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92984,
+            "args": "0x7f597120b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92982,
+          92983,
+          92984
+        ]
+      },
+      {
+        "trial": 98,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 92994,
+            "args": "0x7f4b0020b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92994,
+            "args": "0x7ffff7fc28d8, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92995,
+            "args": "0x7ff53be0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 92997,
+            "args": "0x7fc8ade0b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          92994,
+          92995,
+          92997
+        ]
+      },
+      {
+        "trial": 99,
+        "returncode": 0,
+        "events": [
+          {
+            "pid": 93015,
+            "args": "0x7f949ea0b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 93016,
+            "args": "0x7f16a300b178, 0x8, 0x1",
+            "return": "0x8"
+          },
+          {
+            "pid": 93017,
+            "args": "0x7fd56c60b178, 0x8, 0x1",
+            "return": "0x8"
+          }
+        ],
+        "pids": [
+          93015,
+          93016,
+          93017
+        ]
+      }
+    ]
+  },
+  "classification": {
+    "classifications": {
+      "Guarded": 92,
+      "Nondeterministic": 8
+    },
+    "reasons": {
+      "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution": 100,
+      "all observed dependencies are guardable or captured outputs": 92,
+      "process read randomness via getrandom": 8
+    },
+    "wall_ms_median": 252.43,
+    "refused": 8,
+    "records": [
+      {
+        "trial": 0,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 290912203,
+        "exit_code": 0
+      },
+      {
+        "trial": 1,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 281132169,
+        "exit_code": 0
+      },
+      {
+        "trial": 2,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 214994310,
+        "exit_code": 0
+      },
+      {
+        "trial": 3,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 289351221,
+        "exit_code": 0
+      },
+      {
+        "trial": 4,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 214776421,
+        "exit_code": 0
+      },
+      {
+        "trial": 5,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 254885024,
+        "exit_code": 0
+      },
+      {
+        "trial": 6,
+        "classification": "Nondeterministic",
+        "eligible": false,
+        "kind": "Executed",
+        "reasons": [
+          "process read randomness via getrandom",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 306,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 257507438,
+        "exit_code": 0
+      },
+      {
+        "trial": 7,
+        "classification": "Nondeterministic",
+        "eligible": false,
+        "kind": "Executed",
+        "reasons": [
+          "process read randomness via getrandom",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 305,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 258710127,
+        "exit_code": 0
+      },
+      {
+        "trial": 8,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 230321220,
+        "exit_code": 0
+      },
+      {
+        "trial": 9,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 246075963,
+        "exit_code": 0
+      },
+      {
+        "trial": 10,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 328821015,
+        "exit_code": 0
+      },
+      {
+        "trial": 11,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 273098454,
+        "exit_code": 0
+      },
+      {
+        "trial": 12,
+        "classification": "Nondeterministic",
+        "eligible": false,
+        "kind": "Executed",
+        "reasons": [
+          "process read randomness via getrandom",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 305,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 232300165,
+        "exit_code": 0
+      },
+      {
+        "trial": 13,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 327802363,
+        "exit_code": 0
+      },
+      {
+        "trial": 14,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 263871388,
+        "exit_code": 0
+      },
+      {
+        "trial": 15,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 261586928,
+        "exit_code": 0
+      },
+      {
+        "trial": 16,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 263654219,
+        "exit_code": 0
+      },
+      {
+        "trial": 17,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 263838676,
+        "exit_code": 0
+      },
+      {
+        "trial": 18,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 275469195,
+        "exit_code": 0
+      },
+      {
+        "trial": 19,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 220169147,
+        "exit_code": 0
+      },
+      {
+        "trial": 20,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 220088526,
+        "exit_code": 0
+      },
+      {
+        "trial": 21,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 318180896,
+        "exit_code": 0
+      },
+      {
+        "trial": 22,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 284249112,
+        "exit_code": 0
+      },
+      {
+        "trial": 23,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 215009970,
+        "exit_code": 0
+      },
+      {
+        "trial": 24,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 263492386,
+        "exit_code": 0
+      },
+      {
+        "trial": 25,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 219328238,
+        "exit_code": 0
+      },
+      {
+        "trial": 26,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 256518901,
+        "exit_code": 0
+      },
+      {
+        "trial": 27,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 256155660,
+        "exit_code": 0
+      },
+      {
+        "trial": 28,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 231243000,
+        "exit_code": 0
+      },
+      {
+        "trial": 29,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 224662004,
+        "exit_code": 0
+      },
+      {
+        "trial": 30,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 273494608,
+        "exit_code": 0
+      },
+      {
+        "trial": 31,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 221067003,
+        "exit_code": 0
+      },
+      {
+        "trial": 32,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 216496462,
+        "exit_code": 0
+      },
+      {
+        "trial": 33,
+        "classification": "Nondeterministic",
+        "eligible": false,
+        "kind": "Executed",
+        "reasons": [
+          "process read randomness via getrandom",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 305,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 270208317,
+        "exit_code": 0
+      },
+      {
+        "trial": 34,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 230625661,
+        "exit_code": 0
+      },
+      {
+        "trial": 35,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 268707388,
+        "exit_code": 0
+      },
+      {
+        "trial": 36,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 259998155,
+        "exit_code": 0
+      },
+      {
+        "trial": 37,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 293530500,
+        "exit_code": 0
+      },
+      {
+        "trial": 38,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 248854851,
+        "exit_code": 0
+      },
+      {
+        "trial": 39,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 238529563,
+        "exit_code": 0
+      },
+      {
+        "trial": 40,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 235276475,
+        "exit_code": 0
+      },
+      {
+        "trial": 41,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 247264995,
+        "exit_code": 0
+      },
+      {
+        "trial": 42,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 235685864,
+        "exit_code": 0
+      },
+      {
+        "trial": 43,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 285631859,
+        "exit_code": 0
+      },
+      {
+        "trial": 44,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 253026805,
+        "exit_code": 0
+      },
+      {
+        "trial": 45,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 234129531,
+        "exit_code": 0
+      },
+      {
+        "trial": 46,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 268991722,
+        "exit_code": 0
+      },
+      {
+        "trial": 47,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 270702936,
+        "exit_code": 0
+      },
+      {
+        "trial": 48,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 227999861,
+        "exit_code": 0
+      },
+      {
+        "trial": 49,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 218529188,
+        "exit_code": 0
+      },
+      {
+        "trial": 50,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 262447093,
+        "exit_code": 0
+      },
+      {
+        "trial": 51,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 265814456,
+        "exit_code": 0
+      },
+      {
+        "trial": 52,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 270494534,
+        "exit_code": 0
+      },
+      {
+        "trial": 53,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 282907503,
+        "exit_code": 0
+      },
+      {
+        "trial": 54,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 254051058,
+        "exit_code": 0
+      },
+      {
+        "trial": 55,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 266620941,
+        "exit_code": 0
+      },
+      {
+        "trial": 56,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 229612628,
+        "exit_code": 0
+      },
+      {
+        "trial": 57,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 251833274,
+        "exit_code": 0
+      },
+      {
+        "trial": 58,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 299733135,
+        "exit_code": 0
+      },
+      {
+        "trial": 59,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 225316752,
+        "exit_code": 0
+      },
+      {
+        "trial": 60,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 271713924,
+        "exit_code": 0
+      },
+      {
+        "trial": 61,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 246337604,
+        "exit_code": 0
+      },
+      {
+        "trial": 62,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 261561620,
+        "exit_code": 0
+      },
+      {
+        "trial": 63,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 275443748,
+        "exit_code": 0
+      },
+      {
+        "trial": 64,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 268596461,
+        "exit_code": 0
+      },
+      {
+        "trial": 65,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 224095420,
+        "exit_code": 0
+      },
+      {
+        "trial": 66,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 235205391,
+        "exit_code": 0
+      },
+      {
+        "trial": 67,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 237855868,
+        "exit_code": 0
+      },
+      {
+        "trial": 68,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 234102280,
+        "exit_code": 0
+      },
+      {
+        "trial": 69,
+        "classification": "Nondeterministic",
+        "eligible": false,
+        "kind": "Executed",
+        "reasons": [
+          "process read randomness via getrandom",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 305,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 237966426,
+        "exit_code": 0
+      },
+      {
+        "trial": 70,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 245725455,
+        "exit_code": 0
+      },
+      {
+        "trial": 71,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 220921660,
+        "exit_code": 0
+      },
+      {
+        "trial": 72,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 264433554,
+        "exit_code": 0
+      },
+      {
+        "trial": 73,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 268062628,
+        "exit_code": 0
+      },
+      {
+        "trial": 74,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 230101347,
+        "exit_code": 0
+      },
+      {
+        "trial": 75,
+        "classification": "Nondeterministic",
+        "eligible": false,
+        "kind": "Executed",
+        "reasons": [
+          "process read randomness via getrandom",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 305,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 233859675,
+        "exit_code": 0
+      },
+      {
+        "trial": 76,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 250637479,
+        "exit_code": 0
+      },
+      {
+        "trial": 77,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 259437021,
+        "exit_code": 0
+      },
+      {
+        "trial": 78,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 254882279,
+        "exit_code": 0
+      },
+      {
+        "trial": 79,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 268248377,
+        "exit_code": 0
+      },
+      {
+        "trial": 80,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 244245896,
+        "exit_code": 0
+      },
+      {
+        "trial": 81,
+        "classification": "Nondeterministic",
+        "eligible": false,
+        "kind": "Executed",
+        "reasons": [
+          "process read randomness via getrandom",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 305,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 261876832,
+        "exit_code": 0
+      },
+      {
+        "trial": 82,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 230164456,
+        "exit_code": 0
+      },
+      {
+        "trial": 83,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 237476475,
+        "exit_code": 0
+      },
+      {
+        "trial": 84,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 272420431,
+        "exit_code": 0
+      },
+      {
+        "trial": 85,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 230237372,
+        "exit_code": 0
+      },
+      {
+        "trial": 86,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 241182263,
+        "exit_code": 0
+      },
+      {
+        "trial": 87,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 236000784,
+        "exit_code": 0
+      },
+      {
+        "trial": 88,
+        "classification": "Nondeterministic",
+        "eligible": false,
+        "kind": "Executed",
+        "reasons": [
+          "process read randomness via getrandom",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 305,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 237806595,
+        "exit_code": 0
+      },
+      {
+        "trial": 89,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 238769553,
+        "exit_code": 0
+      },
+      {
+        "trial": 90,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 230484085,
+        "exit_code": 0
+      },
+      {
+        "trial": 91,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 264119694,
+        "exit_code": 0
+      },
+      {
+        "trial": 92,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 268707239,
+        "exit_code": 0
+      },
+      {
+        "trial": 93,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 243280493,
+        "exit_code": 0
+      },
+      {
+        "trial": 94,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 244226421,
+        "exit_code": 0
+      },
+      {
+        "trial": 95,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 247444904,
+        "exit_code": 0
+      },
+      {
+        "trial": 96,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 243234127,
+        "exit_code": 0
+      },
+      {
+        "trial": 97,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 259703051,
+        "exit_code": 0
+      },
+      {
+        "trial": 98,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 290327214,
+        "exit_code": 0
+      },
+      {
+        "trial": 99,
+        "classification": "Guarded",
+        "eligible": true,
+        "kind": "Executed",
+        "reasons": [
+          "all observed dependencies are guardable or captured outputs",
+          "executed under the tracejit.compiler-runtime.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+        ],
+        "effect_counts": {
+          "controls": 5,
+          "reads": 304,
+          "unknown": 0,
+          "writes": 13
+        },
+        "process_count": 3,
+        "dependency_count": 161,
+        "wall_ns": 224110918,
+        "exit_code": 0
+      }
+    ]
+  },
+  "cross_tab": {
+    "presence_and_refused": 8,
+    "presence_and_accepted": 92,
+    "no_presence_and_refused": 0,
+    "no_presence_and_accepted": 0
+  },
+  "elapsed_s": 39.8,
+  "scratch": "/tmp/ab-entropy-study"
+}

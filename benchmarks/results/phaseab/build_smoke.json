@@ -1,0 +1,208 @@
+{
+  "project": "lua-5.4.6",
+  "source_sha256": "7d5ea1b9cb6aa0b59ca3dde1c6adcb57ef83a1ba8e5432c0ecd06bf439b3ad88",
+  "translation_units": 34,
+  "tracejit": "/workspace/chats/24375cea864939ae012511ac/target/release/tracejit",
+  "tracejit_sha256": "d2f6173562e940e45287de5f391a71627a738c6af5d8dc77c0443b9a0f7f5452",
+  "ccache_version": "ccache version 4.10.2",
+  "gcc_version": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "reference_build_ms": 7567.7,
+  "reference_artifacts": 33,
+  "reference_failed": false,
+  "scenarios": [
+    "clean_build",
+    "no_change_rebuild"
+  ],
+  "arms": [
+    "make",
+    "tracejit"
+  ],
+  "rows": [
+    {
+      "scenario": "clean_build",
+      "arm": "make",
+      "builds": [
+        {
+          "wall_ns": 7391366454,
+          "commands": [
+            {
+              "returncode": 0,
+              "stderr": "ar: `u' modifier ignored since `D' is the default (see `U')\n",
+              "stdout": "make: Entering directory '/tmp/ab-build/ws-make-clean_build/src'\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lapi.o lapi.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3    -c lcode.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lctype.o lctype.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ldebug.o ldebug.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ldo.o ldo.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ldump.o ldump.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lfunc.o lfunc.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lgc.o lgc.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3    -c llex.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lmem.o lmem.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lobject.o lobject.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lopcodes.o lopcodes.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3    -c lparser.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lstate.o lstate.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lstring.o lstring.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ltable.o ltable.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ltm.o ltm.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lundump.o lundump.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lvm.o lvm.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lzio.o lzio.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lauxlib.o lauxlib.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lbaselib.o lbaselib.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lcorolib.o lcorolib.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ldblib.o ldblib.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o liolib.o liolib.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lmathlib.o lmathlib.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o loadlib.o loadlib.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o loslib.o loslib.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lstrlib.o lstrlib.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ltablib.o ltablib.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lutf8lib.o lutf8lib.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o linit.o linit.c\nar rcu liblua.a lapi.o lcode.o lctype.o ldebug.o ldo.o ldump.o lfunc.o lgc.o llex.o lmem.o lobject.o lopcodes.o lparser.o lstate.o lstring.o ltable.o ltm.o lundump.o lvm.o lzio.o lauxlib.o lbaselib.o lcorolib.o ldblib.o liolib.o lmathlib.o loadlib.o loslib.o lstrlib.o ltablib.o lutf8lib.o linit.o \nranlib liblua.a\nmake: Leaving directory '/tmp/ab-build/ws-make-clean_build/src'\n"
+            }
+          ],
+          "failed": false,
+          "label": "clean",
+          "wall_ms": 7391.4,
+          "compiles_observed": 32,
+          "decisions": {
+            "hit": 0,
+            "miss": 0,
+            "deopt": 0,
+            "other": 0,
+            "total": 0,
+            "refusals": [],
+            "refusal_count": 0
+          },
+          "mismatched_artifacts": [],
+          "missing_artifacts": [],
+          "artifact_count": 33,
+          "objects_from_cache": 0
+        }
+      ]
+    },
+    {
+      "scenario": "no_change_rebuild",
+      "arm": "make",
+      "builds": [
+        {
+          "wall_ns": 7283325183,
+          "commands": [
+            {
+              "returncode": 0,
+              "stderr": "ar: `u' modifier ignored since `D' is the default (see `U')\n",
+              "stdout": "make: Entering directory '/tmp/ab-build/ws-make-no_change_rebuild/src'\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lapi.o lapi.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3    -c lcode.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lctype.o lctype.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ldebug.o ldebug.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ldo.o ldo.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ldump.o ldump.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lfunc.o lfunc.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lgc.o lgc.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3    -c llex.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lmem.o lmem.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lobject.o lobject.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lopcodes.o lopcodes.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3    -c lparser.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lstate.o lstate.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lstring.o lstring.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ltable.o ltable.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ltm.o ltm.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lundump.o lundump.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lvm.o lvm.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lzio.o lzio.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lauxlib.o lauxlib.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lbaselib.o lbaselib.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lcorolib.o lcorolib.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ldblib.o ldblib.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o liolib.o liolib.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lmathlib.o lmathlib.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o loadlib.o loadlib.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o loslib.o loslib.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lstrlib.o lstrlib.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ltablib.o ltablib.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lutf8lib.o lutf8lib.c\ngcc -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o linit.o linit.c\nar rcu liblua.a lapi.o lcode.o lctype.o ldebug.o ldo.o ldump.o lfunc.o lgc.o llex.o lmem.o lobject.o lopcodes.o lparser.o lstate.o lstring.o ltable.o ltm.o lundump.o lvm.o lzio.o lauxlib.o lbaselib.o lcorolib.o ldblib.o liolib.o lmathlib.o loadlib.o loslib.o lstrlib.o ltablib.o lutf8lib.o linit.o \nranlib liblua.a\nmake: Leaving directory '/tmp/ab-build/ws-make-no_change_rebuild/src'\n"
+            }
+          ],
+          "failed": false,
+          "label": "clean",
+          "wall_ms": 7283.3,
+          "compiles_observed": 32,
+          "decisions": {
+            "hit": 0,
+            "miss": 0,
+            "deopt": 0,
+            "other": 0,
+            "total": 0,
+            "refusals": [],
+            "refusal_count": 0
+          },
+          "mismatched_artifacts": [],
+          "missing_artifacts": [],
+          "artifact_count": 33,
+          "objects_from_cache": 0
+        },
+        {
+          "wall_ns": 3401306,
+          "commands": [
+            {
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "make: Entering directory '/tmp/ab-build/ws-make-no_change_rebuild/src'\nmake: 'liblua.a' is up to date.\nmake: Leaving directory '/tmp/ab-build/ws-make-no_change_rebuild/src'\n"
+            }
+          ],
+          "failed": false,
+          "label": "no_change",
+          "wall_ms": 3.4,
+          "compiles_observed": 0,
+          "decisions": {
+            "hit": 0,
+            "miss": 0,
+            "deopt": 0,
+            "other": 0,
+            "total": 0,
+            "refusals": [],
+            "refusal_count": 0
+          },
+          "mismatched_artifacts": [],
+          "missing_artifacts": [],
+          "artifact_count": 33,
+          "objects_from_cache": 0
+        }
+      ]
+    },
+    {
+      "scenario": "clean_build",
+      "arm": "tracejit",
+      "builds": [
+        {
+          "wall_ns": 16023181281,
+          "commands": [
+            {
+              "returncode": 0,
+              "stderr": "\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   512\noutputs        2\nunknown        0\nruntime        770.26ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   608\noutputs        2\nunknown        0\nruntime        661.51ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   318\noutputs        2\nunknown        0\nruntime        175.68ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   518\noutputs        2\nunknown        0\nruntime        455.10ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   598\noutputs        2\nunknown        0\nruntime        513.14ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   485\noutputs        2\nunknown        0\nruntime        293.64ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   491\noutputs        2\nunknown        0\nruntime        306.26ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   572\noutputs        2\nunknown        0\nruntime        670.45ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   521\noutputs        2\nunknown        0\nruntime        445.32ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   489\noutputs        2\nunknown        0\nruntime        287.35ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   675\noutputs        2\nunknown        0\nruntime        485.99ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   318\noutputs        2\nunknown        0\nruntime        199.23ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   514\noutputs        2\nunknown        0\nruntime        698.34ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   546\noutputs        2\nunknown        0\nruntime        307.75ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   502\noutputs        2\nunknown        0\nruntime        297.34ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   546\noutputs        2\nunknown        0\nruntime        457.28ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   506\noutputs        2\nunknown        0\nruntime        334.51ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   506\noutputs        2\nunknown        0\nruntime        332.82ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   673\noutputs        2\nunknown        0\nruntime        1.72s\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   494\noutputs        2\nunknown        0\nruntime        250.50ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   521\noutputs        2\nunknown        0\nruntime        492.05ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   498\noutputs        2\nunknown        0\nruntime        373.73ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   471\noutputs        2\nunknown        0\nruntime        258.94ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   482\noutputs        2\nunknown        0\nruntime        320.78ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   550\noutputs        2\nunknown        0\nruntime        429.20ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   551\noutputs        2\nunknown        0\nruntime        391.41ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   482\noutputs        2\nunknown        0\nruntime        314.32ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   570\noutputs        2\nunknown        0\nruntime        335.33ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   553\noutputs        2\nunknown        0\nruntime        780.01ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   452\noutputs        2\nunknown        0\nruntime        346.30ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   488\noutputs        2\nunknown        0\nruntime        357.65ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   385\noutputs        2\nunknown        0\nruntime        236.88ms\n\nnext run is eligible for guarded reuse\nar: `u' modifier ignored since `D' is the default (see `U')\n",
+              "stdout": "make: Entering directory '/tmp/ab-build/ws-tracejit-clean_build/src'\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lapi.o lapi.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3    -c lcode.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lctype.o lctype.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ldebug.o ldebug.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ldo.o ldo.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ldump.o ldump.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lfunc.o lfunc.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lgc.o lgc.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3    -c llex.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lmem.o lmem.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lobject.o lobject.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lopcodes.o lopcodes.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3    -c lparser.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lstate.o lstate.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lstring.o lstring.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ltable.o ltable.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ltm.o ltm.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lundump.o lundump.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lvm.o lvm.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lzio.o lzio.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lauxlib.o lauxlib.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lbaselib.o lbaselib.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lcorolib.o lcorolib.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ldblib.o ldblib.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o liolib.o liolib.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lmathlib.o lmathlib.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o loadlib.o loadlib.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o loslib.o loslib.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lstrlib.o lstrlib.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ltablib.o ltablib.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lutf8lib.o lutf8lib.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o linit.o linit.c\nar rcu liblua.a lapi.o lcode.o lctype.o ldebug.o ldo.o ldump.o lfunc.o lgc.o llex.o lmem.o lobject.o lopcodes.o lparser.o lstate.o lstring.o ltable.o ltm.o lundump.o lvm.o lzio.o lauxlib.o lbaselib.o lcorolib.o ldblib.o liolib.o lmathlib.o loadlib.o loslib.o lstrlib.o ltablib.o lutf8lib.o linit.o \nranlib liblua.a\nmake: Leaving directory '/tmp/ab-build/ws-tracejit-clean_build/src'\n"
+            }
+          ],
+          "failed": false,
+          "label": "clean",
+          "wall_ms": 16023.2,
+          "compiles_observed": 32,
+          "decisions": {
+            "hit": 0,
+            "miss": 32,
+            "deopt": 0,
+            "other": 0,
+            "total": 32,
+            "refusals": [],
+            "refusal_count": 0
+          },
+          "mismatched_artifacts": [],
+          "missing_artifacts": [],
+          "artifact_count": 33,
+          "objects_from_cache": 0
+        }
+      ]
+    },
+    {
+      "scenario": "no_change_rebuild",
+      "arm": "tracejit",
+      "builds": [
+        {
+          "wall_ns": 15832036143,
+          "commands": [
+            {
+              "returncode": 0,
+              "stderr": "\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   512\noutputs        2\nunknown        0\nruntime        742.91ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   608\noutputs        2\nunknown        0\nruntime        683.66ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   318\noutputs        2\nunknown        0\nruntime        200.50ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   518\noutputs        2\nunknown        0\nruntime        469.02ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   598\noutputs        2\nunknown        0\nruntime        486.56ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   485\noutputs        2\nunknown        0\nruntime        287.86ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   491\noutputs        2\nunknown        0\nruntime        317.96ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   572\noutputs        2\nunknown        0\nruntime        687.70ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   521\noutputs        2\nunknown        0\nruntime        482.08ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   489\noutputs        2\nunknown        0\nruntime        266.32ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   675\noutputs        2\nunknown        0\nruntime        465.81ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   318\noutputs        2\nunknown        0\nruntime        164.94ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   514\noutputs        2\nunknown        0\nruntime        733.61ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   546\noutputs        2\nunknown        0\nruntime        316.24ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   502\noutputs        2\nunknown        0\nruntime        319.71ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   546\noutputs        2\nunknown        0\nruntime        457.19ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   506\noutputs        2\nunknown        0\nruntime        324.83ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   506\noutputs        2\nunknown        0\nruntime        346.36ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   673\noutputs        2\nunknown        0\nruntime        1.71s\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   494\noutputs        2\nunknown        0\nruntime        228.25ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   521\noutputs        2\nunknown        0\nruntime        514.17ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   498\noutputs        2\nunknown        0\nruntime        361.96ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   471\noutputs        2\nunknown        0\nruntime        283.92ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   482\noutputs        2\nunknown        0\nruntime        415.49ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   550\noutputs        2\nunknown        0\nruntime        464.72ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   551\noutputs        2\nunknown        0\nruntime        427.63ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   482\noutputs        2\nunknown        0\nruntime        327.27ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   570\noutputs        2\nunknown        0\nruntime        295.25ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   553\noutputs        2\nunknown        0\nruntime        748.70ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   452\noutputs        2\nunknown        0\nruntime        330.99ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   488\noutputs        2\nunknown        0\nruntime        309.94ms\n\nnext run is eligible for guarded reuse\n\nTraceJIT\n\ncontract       tracejit.compiler-runtime.v1\ncache          MISS\nclassified     GUARDED\ndependencies   385\noutputs        2\nunknown        0\nruntime        183.03ms\n\nnext run is eligible for guarded reuse\nar: `u' modifier ignored since `D' is the default (see `U')\n",
+              "stdout": "make: Entering directory '/tmp/ab-build/ws-tracejit-no_change_rebuild/src'\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lapi.o lapi.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3    -c lcode.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lctype.o lctype.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ldebug.o ldebug.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ldo.o ldo.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ldump.o ldump.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lfunc.o lfunc.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lgc.o lgc.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3    -c llex.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lmem.o lmem.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lobject.o lobject.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lopcodes.o lopcodes.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3    -c lparser.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lstate.o lstate.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lstring.o lstring.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ltable.o ltable.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ltm.o ltm.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lundump.o lundump.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lvm.o lvm.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lzio.o lzio.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lauxlib.o lauxlib.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lbaselib.o lbaselib.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lcorolib.o lcorolib.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ldblib.o ldblib.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o liolib.o liolib.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lmathlib.o lmathlib.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o loadlib.o loadlib.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o loslib.o loslib.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lstrlib.o lstrlib.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o ltablib.o ltablib.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o lutf8lib.o lutf8lib.c\n/tmp/ab-build/arm-tracejit/cc-tracejit.sh -O2 -O2 -Wall -Wextra -DLUA_COMPAT_5_3     -c -o linit.o linit.c\nar rcu liblua.a lapi.o lcode.o lctype.o ldebug.o ldo.o ldump.o lfunc.o lgc.o llex.o lmem.o lobject.o lopcodes.o lparser.o lstate.o lstring.o ltable.o ltm.o lundump.o lvm.o lzio.o lauxlib.o lbaselib.o lcorolib.o ldblib.o liolib.o lmathlib.o loadlib.o loslib.o lstrlib.o ltablib.o lutf8lib.o linit.o \nranlib liblua.a\nmake: Leaving directory '/tmp/ab-build/ws-tracejit-no_change_rebuild/src'\n"
+            }
+          ],
+          "failed": false,
+          "label": "clean",
+          "wall_ms": 15832.0,
+          "compiles_observed": 32,
+          "decisions": {
+            "hit": 0,
+            "miss": 32,
+            "deopt": 0,
+            "other": 0,
+            "total": 32,
+            "refusals": [],
+            "refusal_count": 0
+          },
+          "mismatched_artifacts": [],
+          "missing_artifacts": [],
+          "artifact_count": 33,
+          "objects_from_cache": 0
+        },
+        {
+          "wall_ns": 5012041,
+          "commands": [
+            {
+              "returncode": 0,
+              "stderr": "",
+              "stdout": "make: Entering directory '/tmp/ab-build/ws-tracejit-no_change_rebuild/src'\nmake: 'liblua.a' is up to date.\nmake: Leaving directory '/tmp/ab-build/ws-tracejit-no_change_rebuild/src'\n"
+            }
+          ],
+          "failed": false,
+          "label": "no_change",
+          "wall_ms": 5.0,
+          "compiles_observed": 0,
+          "decisions": {
+            "hit": 0,
+            "miss": 0,
+            "deopt": 0,
+            "other": 0,
+            "total": 0,
+            "refusals": [],
+            "refusal_count": 0
+          },
+          "mismatched_artifacts": [],
+          "missing_artifacts": [],
+          "artifact_count": 33,
+          "objects_from_cache": 0
+        }
+      ]
+    }
+  ]
+}

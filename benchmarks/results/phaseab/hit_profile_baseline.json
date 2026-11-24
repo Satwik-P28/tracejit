@@ -1,0 +1,778 @@
+{
+  "tracejit": "/workspace/chats/24375cea864939ae012511ac/target/release/tracejit",
+  "samples": 15,
+  "version_floor": {
+    "samples_ms": [
+      3.231,
+      3.19,
+      2.467,
+      3.241,
+      4.033,
+      3.39,
+      2.718,
+      2.512,
+      4.618,
+      3.008,
+      2.654,
+      2.275,
+      2.146,
+      1.638,
+      1.885,
+      1.722,
+      2.186,
+      1.909,
+      1.84,
+      1.674
+    ],
+    "median_ms": 2.49
+  },
+  "rows": [
+    {
+      "workload": "readelf-header",
+      "policy": "allocator-entropy-v1",
+      "command": [
+        "readelf",
+        "-h",
+        "/tmp/ab-hitprofile/shared/build/objects/app-debug"
+      ],
+      "cold_ms": 36.698,
+      "warm_wall_ms": 15.459,
+      "warm_wall_ci95": [
+        11.687,
+        18.836
+      ],
+      "runtime_ms": 0.0,
+      "calibration": {
+        "kind": "Reused",
+        "runtime_ns": 7772726,
+        "baseline_runtime_ns": 19850083,
+        "process_count": 1,
+        "dependency_count": 31
+      },
+      "phases_ms": {
+        "cli_parse_ns": 0.168,
+        "identity_prepare_ns": 0.701,
+        "cache_prepare_ns": 0.03,
+        "sqlite_open_ns": 0.221,
+        "sqlite_schema_ns": 0.393,
+        "lookup_key_ns": 0.007,
+        "sqlite_query_ns": 0.585,
+        "record_decode_ns": 0.449,
+        "guard_validation_ns": 6.894,
+        "cas_restore_ns": 1.73,
+        "stdio_replay_ns": 0.037,
+        "decision_persist_ns": 0.0,
+        "present_ns": 0.028
+      },
+      "hit_count": 14,
+      "samples": 15,
+      "sample_details": [
+        {
+          "wall_ns": 37753670,
+          "reused": false,
+          "decision_reason": null,
+          "stdout_bytes": 979,
+          "stderr_bytes": 215
+        },
+        {
+          "wall_ns": 18055784,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 979,
+          "stderr_bytes": 168
+        },
+        {
+          "wall_ns": 15035252,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 979,
+          "stderr_bytes": 168
+        },
+        {
+          "wall_ns": 12402107,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 979,
+          "stderr_bytes": 168
+        },
+        {
+          "wall_ns": 15458667,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 979,
+          "stderr_bytes": 168
+        },
+        {
+          "wall_ns": 16117505,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 979,
+          "stderr_bytes": 167
+        },
+        {
+          "wall_ns": 17736545,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 979,
+          "stderr_bytes": 168
+        },
+        {
+          "wall_ns": 12344869,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 979,
+          "stderr_bytes": 168
+        },
+        {
+          "wall_ns": 13620215,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 979,
+          "stderr_bytes": 168
+        },
+        {
+          "wall_ns": 11825064,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 979,
+          "stderr_bytes": 168
+        },
+        {
+          "wall_ns": 11686635,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 979,
+          "stderr_bytes": 168
+        },
+        {
+          "wall_ns": 15548436,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 979,
+          "stderr_bytes": 168
+        },
+        {
+          "wall_ns": 18443561,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 979,
+          "stderr_bytes": 168
+        },
+        {
+          "wall_ns": 18836138,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 979,
+          "stderr_bytes": 168
+        },
+        {
+          "wall_ns": 11802531,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 979,
+          "stderr_bytes": 168
+        }
+      ]
+    },
+    {
+      "workload": "cut-columns",
+      "policy": "allocator-entropy-v1",
+      "command": [
+        "cut",
+        "-d",
+        ",",
+        "-f",
+        "1,3",
+        "sales.csv"
+      ],
+      "cold_ms": 47.593,
+      "warm_wall_ms": 13.592,
+      "warm_wall_ci95": [
+        10.519,
+        16.979
+      ],
+      "runtime_ms": 0.0,
+      "calibration": {
+        "kind": "Reused",
+        "runtime_ns": 7279448,
+        "baseline_runtime_ns": 23928571,
+        "process_count": 1,
+        "dependency_count": 53
+      },
+      "phases_ms": {
+        "cli_parse_ns": 0.167,
+        "identity_prepare_ns": 0.293,
+        "cache_prepare_ns": 0.03,
+        "sqlite_open_ns": 0.229,
+        "sqlite_schema_ns": 0.383,
+        "lookup_key_ns": 0.007,
+        "sqlite_query_ns": 0.58,
+        "record_decode_ns": 0.56,
+        "guard_validation_ns": 5.131,
+        "cas_restore_ns": 1.982,
+        "stdio_replay_ns": 0.061,
+        "decision_persist_ns": 0.0,
+        "present_ns": 0.051
+      },
+      "hit_count": 15,
+      "samples": 15,
+      "sample_details": [
+        {
+          "wall_ns": 17543311,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 51409,
+          "stderr_bytes": 168
+        },
+        {
+          "wall_ns": 11622373,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 51409,
+          "stderr_bytes": 168
+        },
+        {
+          "wall_ns": 10519383,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 51409,
+          "stderr_bytes": 168
+        },
+        {
+          "wall_ns": 11262217,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 51409,
+          "stderr_bytes": 168
+        },
+        {
+          "wall_ns": 16826014,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 51409,
+          "stderr_bytes": 169
+        },
+        {
+          "wall_ns": 16979283,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 51409,
+          "stderr_bytes": 169
+        },
+        {
+          "wall_ns": 16787112,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 51409,
+          "stderr_bytes": 169
+        },
+        {
+          "wall_ns": 12300858,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 51409,
+          "stderr_bytes": 168
+        },
+        {
+          "wall_ns": 11699559,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 51409,
+          "stderr_bytes": 168
+        },
+        {
+          "wall_ns": 11107777,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 51409,
+          "stderr_bytes": 168
+        },
+        {
+          "wall_ns": 13592162,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 51409,
+          "stderr_bytes": 168
+        },
+        {
+          "wall_ns": 15329285,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 51409,
+          "stderr_bytes": 169
+        },
+        {
+          "wall_ns": 16007057,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 51409,
+          "stderr_bytes": 169
+        },
+        {
+          "wall_ns": 13822294,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 51409,
+          "stderr_bytes": 168
+        },
+        {
+          "wall_ns": 12896506,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 51409,
+          "stderr_bytes": 168
+        }
+      ]
+    },
+    {
+      "workload": "gzip-6-stdout",
+      "policy": "allocator-entropy-v1",
+      "command": [
+        "gzip",
+        "-6",
+        "-n",
+        "-c",
+        "corpus.txt"
+      ],
+      "cold_ms": 36.02,
+      "warm_wall_ms": 6.9,
+      "warm_wall_ci95": [
+        6.196,
+        16.074
+      ],
+      "runtime_ms": 0.0,
+      "calibration": {
+        "kind": "Reused",
+        "runtime_ns": 2442126,
+        "baseline_runtime_ns": 11725228,
+        "process_count": 1,
+        "dependency_count": 9
+      },
+      "phases_ms": {
+        "cli_parse_ns": 0.159,
+        "identity_prepare_ns": 0.319,
+        "cache_prepare_ns": 0.025,
+        "sqlite_open_ns": 0.198,
+        "sqlite_schema_ns": 0.355,
+        "lookup_key_ns": 0.006,
+        "sqlite_query_ns": 0.338,
+        "record_decode_ns": 0.24,
+        "guard_validation_ns": 1.093,
+        "cas_restore_ns": 1.576,
+        "stdio_replay_ns": 0.047,
+        "decision_persist_ns": 0.0,
+        "present_ns": 0.036
+      },
+      "hit_count": 15,
+      "samples": 15,
+      "sample_details": [
+        {
+          "wall_ns": 16074142,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 29628,
+          "stderr_bytes": 167
+        },
+        {
+          "wall_ns": 6899586,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 29628,
+          "stderr_bytes": 167
+        },
+        {
+          "wall_ns": 7236268,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 29628,
+          "stderr_bytes": 167
+        },
+        {
+          "wall_ns": 6764121,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 29628,
+          "stderr_bytes": 167
+        },
+        {
+          "wall_ns": 7588911,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 29628,
+          "stderr_bytes": 167
+        },
+        {
+          "wall_ns": 6591778,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 29628,
+          "stderr_bytes": 167
+        },
+        {
+          "wall_ns": 6855633,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 29628,
+          "stderr_bytes": 167
+        },
+        {
+          "wall_ns": 7109610,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 29628,
+          "stderr_bytes": 167
+        },
+        {
+          "wall_ns": 17120809,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 29628,
+          "stderr_bytes": 168
+        },
+        {
+          "wall_ns": 11878494,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 29628,
+          "stderr_bytes": 167
+        },
+        {
+          "wall_ns": 11253851,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 29628,
+          "stderr_bytes": 167
+        },
+        {
+          "wall_ns": 6564846,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 29628,
+          "stderr_bytes": 167
+        },
+        {
+          "wall_ns": 6196385,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 29628,
+          "stderr_bytes": 167
+        },
+        {
+          "wall_ns": 6373427,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 29628,
+          "stderr_bytes": 167
+        },
+        {
+          "wall_ns": 6458017,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 29628,
+          "stderr_bytes": 167
+        }
+      ]
+    },
+    {
+      "workload": "sed-substitute-file",
+      "policy": "allocator-entropy-v1",
+      "command": [
+        "sed",
+        "s/value=/v=/g",
+        "lines.txt"
+      ],
+      "cold_ms": 76.04,
+      "warm_wall_ms": 16.044,
+      "warm_wall_ci95": [
+        12.46,
+        20.261
+      ],
+      "runtime_ms": 0.0,
+      "calibration": {
+        "kind": "Reused",
+        "runtime_ns": 17047220,
+        "baseline_runtime_ns": 58279693,
+        "process_count": 1,
+        "dependency_count": 61
+      },
+      "phases_ms": {
+        "cli_parse_ns": 0.161,
+        "identity_prepare_ns": 0.325,
+        "cache_prepare_ns": 0.025,
+        "sqlite_open_ns": 0.199,
+        "sqlite_schema_ns": 0.359,
+        "lookup_key_ns": 0.006,
+        "sqlite_query_ns": 0.628,
+        "record_decode_ns": 0.651,
+        "guard_validation_ns": 6.156,
+        "cas_restore_ns": 2.263,
+        "stdio_replay_ns": 0.457,
+        "decision_persist_ns": 0.0,
+        "present_ns": 0.499
+      },
+      "hit_count": 15,
+      "samples": 15,
+      "sample_details": [
+        {
+          "wall_ns": 16862313,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 437786,
+          "stderr_bytes": 170
+        },
+        {
+          "wall_ns": 12459667,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 437786,
+          "stderr_bytes": 170
+        },
+        {
+          "wall_ns": 16044016,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 437786,
+          "stderr_bytes": 171
+        },
+        {
+          "wall_ns": 20585124,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 437786,
+          "stderr_bytes": 171
+        },
+        {
+          "wall_ns": 16610110,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 437786,
+          "stderr_bytes": 171
+        },
+        {
+          "wall_ns": 13287510,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 437786,
+          "stderr_bytes": 170
+        },
+        {
+          "wall_ns": 14563847,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 437786,
+          "stderr_bytes": 170
+        },
+        {
+          "wall_ns": 13503777,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 437786,
+          "stderr_bytes": 170
+        },
+        {
+          "wall_ns": 18638368,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 437786,
+          "stderr_bytes": 171
+        },
+        {
+          "wall_ns": 20260774,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 437786,
+          "stderr_bytes": 171
+        },
+        {
+          "wall_ns": 18106699,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 437786,
+          "stderr_bytes": 171
+        },
+        {
+          "wall_ns": 13498667,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 437786,
+          "stderr_bytes": 170
+        },
+        {
+          "wall_ns": 15431406,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 437786,
+          "stderr_bytes": 170
+        },
+        {
+          "wall_ns": 14239237,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 437786,
+          "stderr_bytes": 170
+        },
+        {
+          "wall_ns": 19609802,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 437786,
+          "stderr_bytes": 171
+        }
+      ]
+    },
+    {
+      "workload": "gcc-cc-small-tu",
+      "policy": "compiler-runtime-v1",
+      "command": [
+        "gcc",
+        "-O2",
+        "-Wall",
+        "-I",
+        "gen",
+        "-c",
+        "small.c",
+        "-o",
+        "small.o"
+      ],
+      "cold_ms": 212.465,
+      "warm_wall_ms": 63.785,
+      "warm_wall_ci95": [
+        55.552,
+        71.125
+      ],
+      "runtime_ms": 0.0,
+      "calibration": {
+        "kind": "Reused",
+        "runtime_ns": 51987529,
+        "baseline_runtime_ns": 190396652,
+        "process_count": 3,
+        "dependency_count": 161
+      },
+      "phases_ms": {
+        "cli_parse_ns": 0.169,
+        "identity_prepare_ns": 0.677,
+        "cache_prepare_ns": 0.026,
+        "sqlite_open_ns": 0.235,
+        "sqlite_schema_ns": 0.38,
+        "lookup_key_ns": 0.007,
+        "sqlite_query_ns": 1.584,
+        "record_decode_ns": 1.514,
+        "guard_validation_ns": 48.442,
+        "cas_restore_ns": 3.993,
+        "stdio_replay_ns": 0.073,
+        "decision_persist_ns": 0.0,
+        "present_ns": 0.041
+      },
+      "hit_count": 15,
+      "samples": 15,
+      "sample_details": [
+        {
+          "wall_ns": 72005687,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 0,
+          "stderr_bytes": 19545
+        },
+        {
+          "wall_ns": 71124602,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 0,
+          "stderr_bytes": 19545
+        },
+        {
+          "wall_ns": 56496123,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 0,
+          "stderr_bytes": 19545
+        },
+        {
+          "wall_ns": 63602628,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 0,
+          "stderr_bytes": 19545
+        },
+        {
+          "wall_ns": 64327029,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 0,
+          "stderr_bytes": 19545
+        },
+        {
+          "wall_ns": 59656409,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 0,
+          "stderr_bytes": 19545
+        },
+        {
+          "wall_ns": 63784941,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 0,
+          "stderr_bytes": 19545
+        },
+        {
+          "wall_ns": 55552443,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 0,
+          "stderr_bytes": 19545
+        },
+        {
+          "wall_ns": 67323524,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 0,
+          "stderr_bytes": 19545
+        },
+        {
+          "wall_ns": 58423282,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 0,
+          "stderr_bytes": 19545
+        },
+        {
+          "wall_ns": 58384521,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 0,
+          "stderr_bytes": 19545
+        },
+        {
+          "wall_ns": 63904194,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 0,
+          "stderr_bytes": 19545
+        },
+        {
+          "wall_ns": 58116899,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 0,
+          "stderr_bytes": 19545
+        },
+        {
+          "wall_ns": 70733609,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 0,
+          "stderr_bytes": 19545
+        },
+        {
+          "wall_ns": 65357814,
+          "reused": true,
+          "decision_reason": null,
+          "stdout_bytes": 0,
+          "stderr_bytes": 19545
+        }
+      ]
+    }
+  ],
+  "scratch": "/tmp/ab-hitprofile"
+}

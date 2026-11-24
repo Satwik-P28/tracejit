@@ -1,0 +1,87 @@
+{
+  "adaptations": [],
+  "argv": [
+    "tar",
+    "-cf",
+    "bundle.tar",
+    "corpus.txt",
+    "corpus.bin"
+  ],
+  "assessment": "ineligible",
+  "classification": "Unknown",
+  "cold_equivalence": {
+    "covered_differences": [],
+    "match": true,
+    "out_of_contract_differences": [
+      {
+        "field": "atime_ns",
+        "path": "bundle.tar"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "bundle.tar"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "bundle.tar"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.bin"
+      },
+      {
+        "field": "ctime_ns",
+        "path": "corpus.txt"
+      },
+      {
+        "field": "mtime_ns",
+        "path": "corpus.txt"
+      }
+    ],
+    "tree_digest_native": "afd625514742c063c83aaaa5a7d101e26850217854345d3c1cb4350dd41a4b45",
+    "tree_digest_traced": "afd625514742c063c83aaaa5a7d101e26850217854345d3c1cb4350dd41a4b45"
+  },
+  "cold_ns": 47426173,
+  "correctness": {},
+  "cost_class": "light",
+  "decisions": [
+    {
+      "cache_decision": "Ineligible",
+      "decision_reason": "no eligible cached execution matched the pre-execution identity",
+      "kind": "Executed",
+      "step": "cold"
+    }
+  ],
+  "dependency_count": 71,
+  "direct_exit_status": 0,
+  "eligible_for_reuse": false,
+  "environment_adaptations": {},
+  "environment_digest": "fcd6e3b3f805dc5745446f60a1d4bd2f27744a2d41f489fb64054c31a89679f8",
+  "environment_tier": "A",
+  "family": "packaging",
+  "output_count": 1,
+  "policy": "native",
+  "prestate_equivalence": {
+    "covered_differences": [],
+    "match": true
+  },
+  "provenance": "corpus.py@3650df662916",
+  "reasons": [
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 0, whose flags are not guarded",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 1, whose flags are not guarded",
+    "unmodeled successful syscall 72: fcntl query 1 on inherited or unclassified fd 2, whose flags are not guarded"
+  ],
+  "refusal_categories": {
+    "unmodeled_syscall:72": 3
+  },
+  "required_tools": [
+    "tar"
+  ],
+  "split": "dev",
+  "status": "refused",
+  "workload_id": "tar-create"
+}
