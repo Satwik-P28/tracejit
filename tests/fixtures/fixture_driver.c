@@ -230,6 +230,15 @@ int main(int argc, char **argv) {
     unsigned char value;
     return syscall(SYS_getrandom, &value, sizeof(value), 0) < 0;
   }
+  if (!strcmp(name, "getrandom_nonblock_stack")) {
+    // The shape the audited allocator probe uses, issued by application code into a stack buffer.
+    // No contract may admit this: the destination is not a runtime library's private data, and a
+    // stack value can be copied anywhere. It does not print the bytes, so the classification
+    // cannot be explained by an observable output; the effect itself is what must refuse.
+    unsigned char value[8];
+    if (syscall(SYS_getrandom, value, sizeof value, GRND_NONBLOCK) != (long)sizeof value) return 1;
+    return 0;
+  }
   if (!strcmp(name, "urandom")) {
     int fd = open("/dev/urandom", O_RDONLY);
     unsigned char value;
