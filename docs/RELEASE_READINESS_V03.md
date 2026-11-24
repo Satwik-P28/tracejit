@@ -193,3 +193,37 @@ transforms, compiler steps under a declared contract), with a documented
 mtime-driven build-system limitation and no general-compiler advantage over
 ccache. Paper readiness: option **B**, a narrow paper on fail-closed whole-command
 reuse, pending a measured comparison against Firebuild.
+
+## Phase AD update (competitive validation, descriptors, admission)
+
+New evidence, same verdict: **not qualified for v0.3**.
+
+* **Competitive position measured.** Firebuild 0.8.2 (same host, pinned debs) cannot cache
+  commands that preserve timestamps on their outputs — it re-executes `gzip -k`, `bzip2 -k` and
+  `objcopy` every time — and it reuses clock-dependent commands by default (`date +%s` is
+  replayed from cache). TraceJIT caches the former at 3–20× direct cost and refuses the latter.
+  On cheap stdout filters with Firebuild's default config, TraceJIT is competitive (486 ms vs
+  622 ms over 100 invocations) and loses when Firebuild is tuned to cache `sed` (1982 vs 2548 ms).
+  See `docs/FIREBUILD_COMPARISON.md`.
+* **Scale measured on authentic artifacts.** Linux 6.6.50 release archive, 1/10/100 MiB: hit
+  costs 6.0/18.2/85.3 ms against native 46/565/5468 ms for compressible text; incompressible
+  100 MiB is 362 ms against 2852 ms. Hash-only commands reverse below ~10 MiB. Integer
+  break-even is 2 invocations for every compression workload, "never" for `sha256sum` at
+  ≤10 MiB and 9 at 100 MiB. See `docs/ARTIFACT_BENCHMARKS.md`.
+* **Admission audited, not changed.** A 24-step mixed session: `always` 1229/1240 ms, default
+  `auto` 1285/1292 ms, `never` 1663/1745 ms, direct 1564/1639 ms, retrospective oracle
+  653/631 ms. The default is 3–4 % behind `always` and protects one-shot work; no production
+  change without a policy whose benefit is a lower bound. See `docs/ECONOMIC_ADMISSION.md`.
+* **Descriptor compatibility did not improve.** The `F_GETFD`-on-inherited promotion is sound
+  but changed 0/48 census cells; it was reverted. `tar` remains blocked by a realtime clock read
+  and a socket control, `xz` by pipe status-flag toggles. See
+  `docs/INHERITED_DESCRIPTOR_SEMANTICS.md`.
+* **TOCTOU unchanged.** Second validation pass retained, window documented, no userspace-only
+  close found, no cooperative lock added. `PROVEN` is untested because this host's LSMs are
+  `capability,selinux` (no Landlock). See `docs/TOCTOU_MITIGATION_STUDY.md`.
+
+Acceptance criteria for a v0.3 prerelease remain: (1) zero incorrect HITs across the frozen
+corpus, adversarial suites, model checking and fault injection; (2) a second host and kernel
+reproducing the gates; (3) a Landlock-capable environment for `PROVEN`; (4) the TOCTOU window
+either closed by isolation or explicitly accepted in the release notes; (5) documented limits
+for mutation-heavy, one-shot and sub-10 ms workloads; (6) `cargo audit` clean in CI.
