@@ -1,0 +1,116 @@
+{
+  "rows": [
+    {
+      "cold_decision": "Executed",
+      "covered_differences": [],
+      "description": "no change",
+      "incorrect_hit": false,
+      "mutation": "unchanged",
+      "observation_matches_native": true,
+      "reused": true,
+      "warm_cache_decision": "Reused",
+      "warm_decision": "Reused"
+    },
+    {
+      "cold_decision": "Executed",
+      "covered_differences": [],
+      "description": "mtime +5 s, identical content",
+      "incorrect_hit": false,
+      "mutation": "mtime_only",
+      "observation_matches_native": true,
+      "reused": false,
+      "warm_cache_decision": "Deoptimized",
+      "warm_decision": "Executed"
+    },
+    {
+      "cold_decision": "Executed",
+      "covered_differences": [],
+      "description": "atime +5 s, identical content and mtime",
+      "incorrect_hit": false,
+      "mutation": "atime_only",
+      "observation_matches_native": true,
+      "reused": false,
+      "warm_cache_decision": "Deoptimized",
+      "warm_decision": "Executed"
+    },
+    {
+      "cold_decision": "Executed",
+      "covered_differences": [],
+      "description": "chmod 640 then 644: same mode, new ctime",
+      "incorrect_hit": false,
+      "mutation": "ctime_only",
+      "observation_matches_native": true,
+      "reused": false,
+      "warm_cache_decision": "Deoptimized",
+      "warm_decision": "Executed"
+    },
+    {
+      "cold_decision": "Executed",
+      "covered_differences": [],
+      "description": "rewrote identical bytes and restored mtime (new ctime, new inode data)",
+      "incorrect_hit": false,
+      "mutation": "same_size_same_content_rewrite",
+      "observation_matches_native": true,
+      "reused": false,
+      "warm_cache_decision": "Deoptimized",
+      "warm_decision": "Executed"
+    },
+    {
+      "cold_decision": "Executed",
+      "covered_differences": [],
+      "description": "unlink + recreate with identical bytes and mtime (new inode)",
+      "incorrect_hit": false,
+      "mutation": "equal_bytes_replacement",
+      "observation_matches_native": true,
+      "reused": false,
+      "warm_cache_decision": "Deoptimized",
+      "warm_decision": "Executed"
+    },
+    {
+      "cold_decision": "Executed",
+      "covered_differences": [],
+      "description": "mode 0644 -> 0600",
+      "incorrect_hit": false,
+      "mutation": "permission_change",
+      "observation_matches_native": true,
+      "reused": false,
+      "warm_cache_decision": "Deoptimized",
+      "warm_decision": "Executed"
+    },
+    {
+      "cold_decision": "Executed",
+      "covered_differences": [],
+      "description": "input replaced by a hard link to an identical copy (nlink 2)",
+      "incorrect_hit": false,
+      "mutation": "hardlink_substitution",
+      "observation_matches_native": true,
+      "reused": false,
+      "warm_cache_decision": "Deoptimized",
+      "warm_decision": "Executed"
+    },
+    {
+      "cold_decision": "Executed",
+      "covered_differences": [],
+      "description": "input replaced by a symlink to an identical copy",
+      "incorrect_hit": false,
+      "mutation": "symlink_replacement",
+      "observation_matches_native": true,
+      "reused": false,
+      "warm_cache_decision": "Deoptimized",
+      "warm_decision": "Executed"
+    }
+  ],
+  "summary": {
+    "command": [
+      "gzip",
+      "-9",
+      "-c",
+      "corpus.txt"
+    ],
+    "deoptimised": 8,
+    "incorrect_hits": 0,
+    "mutations": 9,
+    "policy": "allocator-entropy-v1",
+    "reused_after_mutation": 1
+  }
+}

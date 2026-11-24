@@ -1,0 +1,34 @@
+Phase AC summary (2026-11-24)
+
+Cold mismatch (PR #44, run 45430554122, tar-create)
+  reproduced with the shipped harness sequence: 81/120 runs (67.5 %) cold_mismatch
+  every mismatch coincides with unequal input mtimes (51 of 51 staggered trials)
+  never when input mtimes are equal (0 of 9)
+  only covered difference: bundle.tar entry; only differing tar header field: mtime
+  fixed harness (prepare once + metadata-preserving clone): 0/200 mismatches
+  local smoke gate: 42 rows, 10 reused / 30 refused / 2 tool-unavailable, 0 cold/mutation mismatch, 0 incorrect hits
+
+Stale archive (Phase AB counterexample)
+  lua 5.4.6: traced Reused, make "up to date", ar not run, member != object (byte 40)
+  zlib 1.3.1: same outcome
+  native control: ar runs, member == object, in both projects
+  restored object bytes identical to native in both arms
+
+Metadata guards
+  9 adversarial mutations on gzip -9 -c input: 8 deopt, 1 control hit, 0 incorrect
+  mtime-only change deopts (gzip stores input mtime in its header) -> conservative guard is load-bearing
+
+Non-compiler corpus (16 configs, real tools)
+  reusable: gzip(text->stdout, native policy; file output under allocator-entropy-v1),
+            bzip2, objcopy, strip, objdump, readelf, sed, sha256sum, base64
+  refused: xz, tar, sort, awk, perl; nm eligible but no hit
+  sessions (n=25, measured): bzip2 +85 % (break-even 1.5), gzip +65 % (1.9),
+            sed +51 % (4.1), gzip -n -c +37 % native (11.9)
+  dominated: objcopy/strip/readelf/sha256sum/base64 (2-16x slower per hit)
+
+Cache concurrency
+  5 new deterministic tests: prune-before-open (fail closed), delete-after-open
+  (verified bytes), truncate/replace after open (fail closed), 4 concurrent restores
+  phase_k4_restore_fault.sh PASS both; modelcheck PASS; 40 cache tests, 85 integration tests
+
+Incorrect hits measured this phase: 0
