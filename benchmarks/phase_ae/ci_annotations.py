@@ -21,6 +21,9 @@ def notice(title: str, message: str) -> None:
 def main(argv: list[str]) -> int:
     path = Path(argv[0]) if argv else Path("/tmp/environment.json")
     probe = json.loads(path.read_text())
+    if "error" in probe:
+        notice("phase-ae-probe-error", str(probe["error"])[:1500])
+        notice("phase-ae-probe-traceback", str(probe.get("traceback", ""))[-2500:])
     host = probe.get("host") or {}
     doctor = probe.get("doctor") or {}
     enforcement = probe.get("enforcement") or {}

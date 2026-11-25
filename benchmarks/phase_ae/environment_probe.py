@@ -89,7 +89,8 @@ def main(argv: list[str]) -> int:
 
     # Enforcement probe: the same command twice with --enforce.  A capable host must install
     # seccomp + Landlock and then reuse; an incapable host must say so rather than silently
-    # presenting GUARDED reuse as PROVEN.
+    # presenting GUARDED reuse as PROVEN.  A read-only command is used so that a restrictive
+    # policy cannot fail simply because it denies an output write.
     ws = scratch / "ws"
     ws.mkdir()
     (ws / "corpus.txt").write_bytes(b"probe line\n" * 20_000)
@@ -97,10 +98,9 @@ def main(argv: list[str]) -> int:
     env = runner.cache_env(dict(os.environ), cache)
     runs = []
     for _ in range(2):
-        (ws / "corpus.txt.gz").unlink(missing_ok=True)
         completed = subprocess.run(
             [str(args.tracejit), "run", "--enforce", "--contract", "allocator-entropy-v1",
-             "--verbose", "--", "gzip", "-9", "-n", "-k", "-f", "corpus.txt"],
+             "--verbose", "--", "sha256sum", "corpus.txt"],
             cwd=ws, env=env, capture_output=True, check=False,
         )
         report = completed.stderr.decode(errors="replace")
@@ -115,7 +115,7 @@ def main(argv: list[str]) -> int:
             "enforced": classified == "PROVEN",
             "policy_lines": [line for line in report.splitlines()
                              if line.startswith(("enforce", "policy", "sandbox", "problem", "guards"))],
-            "output_ok": (ws / "corpus.txt.gz").is_file(),
+            "output_ok": completed.returncode == 0 and bool(completed.stdout.strip()),
         })
     proven = bool((doctor or {}).get("proven"))
     probe["enforcement"] = {
@@ -137,4 +137,21 @@ def main(argv: list[str]) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main(sys.argv[1:]))
+    # A probe must never fail the job: the fingerprint is evidence, and a failure has to be
+    # visible in the public annotations rather than in an authenticated log.
+    try:
+        raise SystemExit(main(sys.argv[1:]))
+    except SystemExit:
+        raise
+    except BaseException:  # noqa: BLE001 - the traceback is the evidence
+        import traceback
+
+        detail = traceback.format_exc()
+        print(detail, file=sys.stderr)
+        argv = sys.argv[1:]
+        output = Path(argv[argv.index("--output") + 1]) if "--output" in argv else None
+        payload = {"error": detail.splitlines()[-1][:400], "traceback": detail[-3000:]}
+        if output:
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text(json.dumps(payload, indent=2) + "\n")
+        raise SystemExit(0)

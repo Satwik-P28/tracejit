@@ -548,7 +548,11 @@ def merge_rows(path: Path, rows: list[dict], setup: dict) -> None:
     merged = [row for row in existing.get("rows", []) if key(row) not in keep]
     merged.extend(rows)
     existing["rows"] = sorted(merged, key=key)
-    existing.setdefault("setup", {}).update(setup)
+    previous = existing.setdefault("setup", {})
+    arms = {arm["id"]: arm for arm in previous.get("arms", [])}
+    arms.update({arm["id"]: arm for arm in setup.get("arms", [])})
+    previous.update({k: v for k, v in setup.items() if k != "arms"})
+    previous["arms"] = [arms[identifier] for identifier in sorted(arms)]
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(existing, indent=2, sort_keys=True) + "\n")
 
