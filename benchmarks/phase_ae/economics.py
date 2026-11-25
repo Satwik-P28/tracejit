@@ -20,6 +20,7 @@ from __future__ import annotations
 import argparse
 import json
 import random
+import re
 import statistics
 from pathlib import Path
 
@@ -28,11 +29,15 @@ REPO = HERE.parents[1]
 
 import competitive_matrix as matrix  # noqa: E402
 
-FIREBUILD_ARMS = ("fb082", "fb862")
+# Arm ids for the competitor are ``<label>-<configuration>`` where the label starts with the
+# ``fb`` prefix and the version (``fb082``, ``fb862``, ``fb0861``, ...).  Matching a fixed list
+# of versions silently miscounted a new arm as a TraceJIT arm, which inverted the reuse
+# classification for that row; the prefix test is version-agnostic and is pinned by a test.
+FIREBUILD_ARM = re.compile(r"^fb\d")
 
 
 def is_firebuild(arm: str) -> bool:
-    return arm.startswith(FIREBUILD_ARMS)
+    return FIREBUILD_ARM.match(arm) is not None
 
 
 def cells(payload: dict) -> dict:
@@ -111,14 +116,19 @@ def analyze(payload: dict, reference_size: int) -> dict:
                 continue
             cold = table.get((workload, arm, "cold", reference_size))
             native_cold = table.get((workload, "native", "cold", reference_size))
+            # Aggregate over every repeat.  Using one arbitrary row made the published
+            # break-even depend on which repeat happened to sort first: an arm whose reuse
+            # first appeared in a later repeat silently lost its break-even block.
             if cold and native_cold and any(
-                record["decision"] == "hit" for record in cold[0]["invocations"]
+                record["decision"] == "hit"
+                for row in cold for record in row["invocations"]
             ):
-                cold_inv = cold[0]["invocations"]
-                cold_cost = cold_inv[0]["wall_ns"]
-                hit_cost = int(statistics.median(r["wall_ns"] for r in cold_inv[1:])) if len(cold_inv) > 1 else cold_cost
-                native_series = table.get((workload, "native", "cold", reference_size))
-                direct = int(statistics.median(r["wall_ns"] for r in native_series[0]["invocations"])) if native_series else 0
+                cold_cost = int(statistics.median(row["invocations"][0]["wall_ns"] for row in cold))
+                hit_samples = [record["wall_ns"] for row in cold
+                               for record in row["invocations"] if record["decision"] == "hit"]
+                hit_cost = int(statistics.median(hit_samples)) if hit_samples else cold_cost
+                direct = int(statistics.median(record["wall_ns"] for row in native_cold
+                                               for record in row["invocations"]))
                 entry["arms"][arm]["break_even"] = {
                     "reference_size": reference_size,
                     "cold_ns": cold_cost,
@@ -141,7 +151,9 @@ def analyze(payload: dict, reference_size: int) -> dict:
                     found.append(arm)
             return found
 
-        tracejit_arms = reusing(lambda arm: not is_firebuild(arm))
+        # ``native`` is the baseline, not a TraceJIT arm: counting it would classify every
+        # row that contains a native HIT as "both".
+        tracejit_arms = reusing(lambda arm: not is_firebuild(arm) and arm != "native")
         firebuild_arms = reusing(is_firebuild)
         category = ("both" if tracejit_arms and firebuild_arms else
                     "tracejit-only" if tracejit_arms else
@@ -165,10 +177,12 @@ def measured_break_even(table: dict, workload: str, arm: str, sizes: list[int]) 
         native = table.get((workload, "native", "cold", size))
         if not cold or not native:
             continue
+        arm_ns = session_total(cold)
+        native_ns = session_total(native)
         per_size[size] = {
-            "arm_ns": cold[0]["session"]["command_ns"],
-            "native_ns": native[0]["session"]["command_ns"],
-            "ratio": cold[0]["session"]["command_ns"] / native[0]["session"]["command_ns"],
+            "arm_ns": arm_ns,
+            "native_ns": native_ns,
+            "ratio": arm_ns / native_ns,
         }
     first = next((size for size in sorted(per_size) if per_size[size]["ratio"] <= 1.0), None)
     return {"first_profitable_size": first, "per_size": per_size}

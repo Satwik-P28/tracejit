@@ -22,6 +22,7 @@ REPO = HERE.parents[1]
 sys.path.insert(0, str(HERE))
 
 import competitive_matrix as matrix  # noqa: E402
+import economics  # noqa: E402
 
 RESULTS = REPO / "benchmarks" / "results" / "phaseae" / "matrix.json"
 
@@ -111,6 +112,30 @@ class RowInvariants(unittest.TestCase):
 
     def test_wrong_size_is_rejected(self):
         self.assertTrue(any("invocations for size" in p for p in matrix.check_row(row(size=5))))
+
+
+class ArmClassification(unittest.TestCase):
+    """A new competitor version must not be counted as TraceJIT."""
+
+    def test_all_firebuild_versions_are_recognised(self):
+        for arm in ("fb082-default", "fb862-tuned", "fb0861-default", "fb0900-strict"):
+            self.assertTrue(economics.is_firebuild(arm), arm)
+
+    def test_tracejit_arms_are_not_firebuild(self):
+        for arm in ("native", "tj-ae", "tj-native", "tj-foo"):
+            self.assertFalse(economics.is_firebuild(arm), arm)
+
+    def test_classification_uses_the_firebuild_prefix(self):
+        session = {"command_ns": 1_000, "cleanup_ns": 0, "outer_ns": 1_000, "hits": 1,
+                   "executed": 1, "refused": 0}
+        payload = {"rows": []}
+        for mode in ("cold",):
+            payload["rows"].append(row(arm="fb0900-default", mode=mode, session=session))
+            payload["rows"].append(row(arm="native", mode=mode, session=session))
+        analysis = economics.analyze(payload, reference_size=2)
+        entry = analysis["workloads"]["gzip-file"]
+        self.assertEqual(entry["classification"]["category"], "firebuild-only")
+        self.assertEqual(entry["classification"]["firebuild_reused_by"], ["fb0900-default"])
 
 
 class CacheFootprint(unittest.TestCase):

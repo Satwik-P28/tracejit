@@ -21,6 +21,9 @@ def notice(title: str, message: str) -> None:
 def main(argv: list[str]) -> int:
     path = Path(argv[0]) if argv else Path("/tmp/environment.json")
     probe = json.loads(path.read_text())
+    if "error" in probe:
+        notice("phase-ae-probe-error", str(probe["error"])[:1500])
+        notice("phase-ae-probe-traceback", str(probe.get("traceback", ""))[-2500:])
     host = probe.get("host") or {}
     doctor = probe.get("doctor") or {}
     enforcement = probe.get("enforcement") or {}
@@ -39,7 +42,10 @@ def main(argv: list[str]) -> int:
                                 f"container={host.get('container')} filesystems={filesystems}")
     notice("phase-ae-doctor", json.dumps(doctor, sort_keys=True)[:3000])
     notice("phase-ae-enforcement", json.dumps(enforcement, sort_keys=True)[:3000])
-    notice("phase-ae-enforcement-ok", str(bool(enforcement.get("label_consistent"))).lower())
+    notice("phase-ae-enforcement-ok", str(bool(
+        enforcement.get("label_never_exceeds_capability")
+        and enforcement.get("enforce_refuses_reuse_without_proven_capability")
+    )).lower())
     return 0
 
 
