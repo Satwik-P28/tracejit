@@ -23,10 +23,12 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 
 ## Current main
 
-- `origin/main` tip while Phase AD was written: `68ba406` (Phase AC is **not** merged).
-- Published beta: tag `v0.2.0-beta.1` at `7a594b9`. v0.3 remains **not qualified**.
-- PR #44 (`research/phase-ab`) is open, **draft**, head `3f054ed`, CI green on that head. Phase AD
-  branched from that verified head and preserved its corrections rather than dropping them.
+- `origin/main` tip: `68ba406`, the merge of PR #44 (`research/phase-ab`); Phase AC and AD are
+  therefore on main's ancestry through the merge.
+- Published beta: tag `v0.2.0-beta.1` at `7a594b9`. v0.3 is qualified as a **research
+  prerelease** only (see `docs/RELEASE_READINESS_V03.md`, Phase AE review), not as a beta.
+- PR #45 (`research/phase-ad`) is open and **draft**. Its head and CI could not be read back
+  from the Cloud sandbox (`gh` unauthenticated, GitHub API rate-limited).
 
 ## Phase AC (correctness recovery, output semantics, non-compiler workloads)
 
@@ -40,6 +42,27 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
   conservative guard is load-bearing.
 - Non-compiler niche is real but narrow: `bzip2`/`gzip` on multi-megabyte artifacts, `sed` on
   large text (n=25 savings 85 %/65 %/51 %). `xz`, `tar`, `sort`, `awk`, `perl` refuse.
+
+## Phase AE (`research/phase-ad`, from `98cbb84`)
+
+- Corrected Phase AD's measurement defects: cold-inclusive and steady-state sessions are now
+  separate; every invocation carries its own engine decision, exit status, output oracle and
+  cache size; break-even is `ceil((C-H)/(D-H))` with a floor of 2; cache footprint and peak RSS
+  are measured per arm and defined (`docs/PHASE_AE_REPORT.md`).
+- Firebuild 0.8.2 (pinned debs) and 0.8.6.2 (pinned source build) both measured. 0.8.6.2
+  **does** cache `gzip -k` (1.67× faster than TraceJIT there) and still refuses `bzip2 -k`;
+  `docs/FIREBUILD_CROSS_VERSION_RESULTS.md`.
+- Phase AD's "Firebuild performs unvalidated reuse" claim is **retracted**: Firebuild validates
+  recorded inputs by content hash at reuse. Two measured distinctions survive: default Firebuild
+  replays stale clock output, and it replays a corrupted cached blob
+  (`docs/COMPETITIVE_EVIDENCE_AUDIT.md`).
+- Two userspaces on one kernel (glibc 2.39 guarded reuse works; glibc 2.42 correct but no reuse
+  because `allocator-entropy-v1` is libc-build specific); no Landlock anywhere, so `--enforce`
+  never reuses and never labels `PROVEN` (`docs/MULTI_ENVIRONMENT_VALIDATION.md`).
+- TOCTOU corrected: one surviving validation pass; a mutation after it serves stale bytes. The
+  race is measured, not assumed (`docs/TOCTOU_CORRECTNESS_BOUNDARY.md`).
+- Verified replay profiled against measured bounds; no product optimisation promoted
+  (`docs/VALIDATED_REPLAY_PERFORMANCE.md`).
 
 ## Phase AD (`research/phase-ad`, based on `3f054ed`)
 
@@ -72,8 +95,10 @@ Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. S
 - Validate→restore TOCTOU residual remains; guards run once, immediately before the restore.
 - `rustc` needs `statx`, `prctl`, create-only `eventfd2` and a procfs decision before eligibility.
 - Landlock is unavailable on this host, so `PROVEN`/sandbox tests SKIP.
-- Firebuild evidence is version- and host-specific (0.8.2, Linux 6.1.102); 0.8.6 may cache
-  timestamp-preserving outputs.
+- Firebuild evidence is version-, configuration- and host-specific: 0.8.2, 0.8.6.2, default /
+  tuned / strict, Linux 6.1.102, one operator. 0.8.6.2 caches `gzip -k` and not `bzip2 -k`.
+- Reuse on an unaudited libc is unavailable for malloc-using programs; `allocator-entropy-v1`
+  is admitted only for the audited 2.39 build.
 
 ## Validation
 
