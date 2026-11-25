@@ -1,0 +1,2194 @@
+{
+  "arms": {
+    "fb082-default": {
+      "arm": "fb082-default",
+      "binary": "/tmp/fb082/prefix/usr/bin/firebuild",
+      "binary_sha256": "cffadc1609425775fcacc51f8d5fbd811b229fd0ddf89ab9a0efc7e87000f510",
+      "cases": [
+        {
+          "all_correct": true,
+          "argv": [
+            "date",
+            "+%s"
+          ],
+          "case": "clock_date",
+          "invocations": [
+            {
+              "cache_bytes": 194,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 1,
+              "newly_cached_kb": 0.13,
+              "stats_parsed": true,
+              "stdout_sha256": "6a4700d0fc354e3e693ea4590a0c9cf12ed3223658b184b0dfeb3cf864682a3b",
+              "stdout_text": "1795592691",
+              "uncacheable": 0,
+              "wall_ns": 10744006
+            },
+            {
+              "cache_bytes": 195,
+              "decision": "hit",
+              "exit": 0,
+              "hits": 1,
+              "index": 1,
+              "misses": 0,
+              "newly_cached_kb": 0.0,
+              "stats_parsed": true,
+              "stdout_sha256": "6a4700d0fc354e3e693ea4590a0c9cf12ed3223658b184b0dfeb3cf864682a3b",
+              "stdout_text": "1795592691",
+              "uncacheable": 0,
+              "wall_ns": 8623846
+            }
+          ],
+          "note": "correctness of a clock-dependent workload is defined by the contract; see docs",
+          "replayed_stale_clock": true
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "python3",
+            "-c",
+            "import time; print(time.time_ns())"
+          ],
+          "case": "clock_time_ns",
+          "invocations": [
+            {
+              "cache_bytes": 7965,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 2,
+              "newly_cached_kb": 7.9,
+              "stats_parsed": true,
+              "stdout_sha256": "7ec9582cd66005c8bb7ed7a8df83700048b256e5ae7f889ec2d5aab0f824ca87",
+              "stdout_text": "1795592692381293706",
+              "uncacheable": 0,
+              "wall_ns": 40872745
+            },
+            {
+              "cache_bytes": 7965,
+              "decision": "hit",
+              "exit": 0,
+              "hits": 1,
+              "index": 1,
+              "misses": 0,
+              "newly_cached_kb": 0.0,
+              "stats_parsed": true,
+              "stdout_sha256": "7ec9582cd66005c8bb7ed7a8df83700048b256e5ae7f889ec2d5aab0f824ca87",
+              "stdout_text": "1795592692381293706",
+              "uncacheable": 0,
+              "wall_ns": 13069210
+            }
+          ],
+          "note": "correctness of a clock-dependent workload is defined by the contract; see docs",
+          "replayed_stale_clock": true
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "gzip",
+            "-9",
+            "-n",
+            "-k",
+            "-f",
+            "input.bin"
+          ],
+          "cache_bytes_final": 61,
+          "case": "gzip_file",
+          "expectation": {
+            "exit": 0,
+            "outputs_sha256": {
+              "input.bin.gz": "b5687f1725c769205cb51882c5d103015daf8f0378ebd4f4f382a8d024c2a195"
+            },
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "input_bytes": 1048576,
+          "invocations": [
+            {
+              "cache_bytes": 61,
+              "correct": true,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 1,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {
+                "input.bin.gz": "b5687f1725c769205cb51882c5d103015daf8f0378ebd4f4f382a8d024c2a195"
+              },
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "uncacheable": 0,
+              "wall_ns": 38569682
+            },
+            {
+              "cache_bytes": 61,
+              "correct": true,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 1,
+              "misses": 1,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {
+                "input.bin.gz": "b5687f1725c769205cb51882c5d103015daf8f0378ebd4f4f382a8d024c2a195"
+              },
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "uncacheable": 0,
+              "wall_ns": 39476905
+            }
+          ],
+          "outputs": [
+            "input.bin.gz"
+          ]
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "bzip2",
+            "-9",
+            "-k",
+            "-f",
+            "input.bin"
+          ],
+          "cache_bytes_final": 61,
+          "case": "bzip2_file",
+          "expectation": {
+            "exit": 0,
+            "outputs_sha256": {
+              "input.bin.bz2": "18aa098d1a9c35681e92508df5fc0847e03367dc1dd24bd7d8df5fb305fa1813"
+            },
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "input_bytes": 1048576,
+          "invocations": [
+            {
+              "cache_bytes": 61,
+              "correct": true,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 1,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {
+                "input.bin.bz2": "18aa098d1a9c35681e92508df5fc0847e03367dc1dd24bd7d8df5fb305fa1813"
+              },
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "uncacheable": 0,
+              "wall_ns": 136238498
+            },
+            {
+              "cache_bytes": 61,
+              "correct": true,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 1,
+              "misses": 1,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {
+                "input.bin.bz2": "18aa098d1a9c35681e92508df5fc0847e03367dc1dd24bd7d8df5fb305fa1813"
+              },
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "uncacheable": 0,
+              "wall_ns": 117498614
+            }
+          ],
+          "outputs": [
+            "input.bin.bz2"
+          ]
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "gzip",
+            "-9",
+            "-n",
+            "-c",
+            "input.bin"
+          ],
+          "cache_bytes_final": 250332,
+          "case": "gzip_stdout",
+          "expectation": {
+            "exit": 0,
+            "outputs_sha256": {},
+            "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+          },
+          "input_bytes": 1159197,
+          "invocations": [
+            {
+              "cache_bytes": 250331,
+              "correct": true,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 1,
+              "newly_cached_kb": 250.26,
+              "outputs_sha256": {},
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d",
+              "uncacheable": 0,
+              "wall_ns": 82300230
+            },
+            {
+              "cache_bytes": 250332,
+              "correct": true,
+              "decision": "hit",
+              "exit": 0,
+              "hits": 1,
+              "index": 1,
+              "misses": 0,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {},
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d",
+              "uncacheable": 0,
+              "wall_ns": 8593339
+            }
+          ],
+          "outputs": []
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "sed",
+            "s/key=/k=/g",
+            "input.bin"
+          ],
+          "cache_bytes_final": 62,
+          "case": "sed_stdout",
+          "expectation": {
+            "exit": 0,
+            "outputs_sha256": {},
+            "stdout_sha256": "cbaafba8554c954c1c2628023121c2db206a1ebb7f45166d9915aeeb1f2823c8"
+          },
+          "input_bytes": 5795971,
+          "invocations": [
+            {
+              "cache_bytes": 62,
+              "correct": true,
+              "decision": "refused",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 0,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {},
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "cbaafba8554c954c1c2628023121c2db206a1ebb7f45166d9915aeeb1f2823c8",
+              "uncacheable": 1,
+              "wall_ns": 109293745
+            },
+            {
+              "cache_bytes": 62,
+              "correct": true,
+              "decision": "refused",
+              "exit": 0,
+              "hits": 0,
+              "index": 1,
+              "misses": 0,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {},
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "cbaafba8554c954c1c2628023121c2db206a1ebb7f45166d9915aeeb1f2823c8",
+              "uncacheable": 1,
+              "wall_ns": 95377736
+            }
+          ],
+          "outputs": []
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "gzip",
+            "-9",
+            "-n",
+            "-c",
+            "input.bin"
+          ],
+          "case": "same_mtime_rewrite",
+          "invocations": [
+            {
+              "correct_for_new": false,
+              "correct_for_old": true,
+              "decision": "executed",
+              "hits": 0,
+              "index": 0,
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+            },
+            {
+              "correct_for_new": false,
+              "correct_for_old": true,
+              "decision": "hit",
+              "hits": 1,
+              "index": 1,
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+            },
+            {
+              "correct_for_new": true,
+              "correct_for_old": false,
+              "decision": "executed",
+              "hits": 0,
+              "index": 2,
+              "metadata_preserved": true,
+              "stdout_sha256": "2f68650f6a3a3c05bdbc4b09b875f0acefc99dae47a0cb93906bbe0e72cb421f"
+            }
+          ],
+          "metadata_preserved_on_rewrite": true,
+          "note": "a stale hit here means the file-hash cache trusted (size, mtime, inode)",
+          "stale_hit_after_same_mtime_rewrite": false
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "gzip",
+            "-9",
+            "-n",
+            "-c",
+            "input.bin"
+          ],
+          "case": "mtime_only_change",
+          "invocations": [
+            {
+              "correct": true,
+              "decision": "executed",
+              "hits": 0,
+              "index": 0
+            },
+            {
+              "correct": true,
+              "decision": "hit",
+              "hits": 1,
+              "index": 1
+            },
+            {
+              "correct": true,
+              "decision": "hit",
+              "hits": 1,
+              "index": 2
+            }
+          ],
+          "reused_after_mtime_change": true
+        },
+        {
+          "all_correct": false,
+          "argv": [
+            "gzip",
+            "-9",
+            "-n",
+            "-c",
+            "input.bin"
+          ],
+          "blob": "/workspace/chats/a2fee7edda38fc9e50f9ffdf/.phaseae-policy/engine-cache_corruption/home/.cache/firebuild/blobs/v/vx/vx+dKAzB1^2ullFe5qhcW+",
+          "blob_bytes": 249857,
+          "blob_located": true,
+          "case": "cache_corruption",
+          "corrupted_offset": 124928,
+          "invocations": [
+            {
+              "decision": "hit",
+              "exit": 0,
+              "expected_stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d",
+              "hits": 1,
+              "index": 2,
+              "served_corrupted_bytes": true,
+              "stdout_sha256": "2f938eaf1117856224ff877ed829208e60726b606aa311292792a4a8a5b7fbbd"
+            }
+          ],
+          "note": "a corrupted-blob hit means cached bytes are exposed without verification",
+          "population": [
+            {
+              "correct": true,
+              "decision": "executed",
+              "index": 0,
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+            },
+            {
+              "correct": true,
+              "decision": "hit",
+              "index": 1,
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+            }
+          ],
+          "served_corrupted_bytes": true
+        }
+      ],
+      "config": "/tmp/fb082/prefix/etc/firebuild.conf",
+      "config_sha256": "a2afa4b43bd61e471a82ba7224ba51958fe5b98daebfe8bbe205eb606b00dd3f",
+      "firebuild_version": "0.8.2",
+      "host": {
+        "kernel": "6.1.102",
+        "machine": "x86_64"
+      },
+      "tuned": false
+    },
+    "fb082-strict": {
+      "arm": "fb082-strict",
+      "binary": "/tmp/fb082/prefix/usr/bin/firebuild",
+      "binary_sha256": "cffadc1609425775fcacc51f8d5fbd811b229fd0ddf89ab9a0efc7e87000f510",
+      "cases": [
+        {
+          "all_correct": true,
+          "argv": [
+            "date",
+            "+%s"
+          ],
+          "case": "clock_date",
+          "invocations": [
+            {
+              "cache_bytes": 61,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 1,
+              "newly_cached_kb": 0.0,
+              "stats_parsed": true,
+              "stdout_sha256": "49123aa948a135a2f881aa1c5981f1ea1d89ff8b893d35c9d9fb9ba29d262e41",
+              "stdout_text": "1795592694",
+              "uncacheable": 0,
+              "wall_ns": 9403711
+            },
+            {
+              "cache_bytes": 62,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 1,
+              "misses": 1,
+              "newly_cached_kb": 0.0,
+              "stats_parsed": true,
+              "stdout_sha256": "55dd39e9a778864282a5676aadced0b5e65cbe9a93f270dfd731b51c4f4c99fe",
+              "stdout_text": "1795592695",
+              "uncacheable": 0,
+              "wall_ns": 11966720
+            }
+          ],
+          "note": "correctness of a clock-dependent workload is defined by the contract; see docs",
+          "replayed_stale_clock": false
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "python3",
+            "-c",
+            "import time; print(time.time_ns())"
+          ],
+          "case": "clock_time_ns",
+          "invocations": [
+            {
+              "cache_bytes": 62,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 2,
+              "newly_cached_kb": 0.0,
+              "stats_parsed": true,
+              "stdout_sha256": "d95c340bc8c77b4da7c401f39144ad0f5ff4394ec4bb2fc8b978fbad7bdeb94a",
+              "stdout_text": "1795592695621756077",
+              "uncacheable": 0,
+              "wall_ns": 38412076
+            },
+            {
+              "cache_bytes": 62,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 1,
+              "misses": 2,
+              "newly_cached_kb": 0.0,
+              "stats_parsed": true,
+              "stdout_sha256": "909251b3f729964118505e4aa9c4c720bb114b05a847aca937c7e0d26e566010",
+              "stdout_text": "1795592695703208606",
+              "uncacheable": 0,
+              "wall_ns": 30125904
+            }
+          ],
+          "note": "correctness of a clock-dependent workload is defined by the contract; see docs",
+          "replayed_stale_clock": false
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "gzip",
+            "-9",
+            "-n",
+            "-k",
+            "-f",
+            "input.bin"
+          ],
+          "cache_bytes_final": 62,
+          "case": "gzip_file",
+          "expectation": {
+            "exit": 0,
+            "outputs_sha256": {
+              "input.bin.gz": "b5687f1725c769205cb51882c5d103015daf8f0378ebd4f4f382a8d024c2a195"
+            },
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "input_bytes": 1048576,
+          "invocations": [
+            {
+              "cache_bytes": 61,
+              "correct": true,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 1,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {
+                "input.bin.gz": "b5687f1725c769205cb51882c5d103015daf8f0378ebd4f4f382a8d024c2a195"
+              },
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "uncacheable": 0,
+              "wall_ns": 56754153
+            },
+            {
+              "cache_bytes": 62,
+              "correct": true,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 1,
+              "misses": 1,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {
+                "input.bin.gz": "b5687f1725c769205cb51882c5d103015daf8f0378ebd4f4f382a8d024c2a195"
+              },
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "uncacheable": 0,
+              "wall_ns": 51449346
+            }
+          ],
+          "outputs": [
+            "input.bin.gz"
+          ]
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "bzip2",
+            "-9",
+            "-k",
+            "-f",
+            "input.bin"
+          ],
+          "cache_bytes_final": 61,
+          "case": "bzip2_file",
+          "expectation": {
+            "exit": 0,
+            "outputs_sha256": {
+              "input.bin.bz2": "18aa098d1a9c35681e92508df5fc0847e03367dc1dd24bd7d8df5fb305fa1813"
+            },
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "input_bytes": 1048576,
+          "invocations": [
+            {
+              "cache_bytes": 61,
+              "correct": true,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 1,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {
+                "input.bin.bz2": "18aa098d1a9c35681e92508df5fc0847e03367dc1dd24bd7d8df5fb305fa1813"
+              },
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "uncacheable": 0,
+              "wall_ns": 127695865
+            },
+            {
+              "cache_bytes": 61,
+              "correct": true,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 1,
+              "misses": 1,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {
+                "input.bin.bz2": "18aa098d1a9c35681e92508df5fc0847e03367dc1dd24bd7d8df5fb305fa1813"
+              },
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "uncacheable": 0,
+              "wall_ns": 141129989
+            }
+          ],
+          "outputs": [
+            "input.bin.bz2"
+          ]
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "gzip",
+            "-9",
+            "-n",
+            "-c",
+            "input.bin"
+          ],
+          "cache_bytes_final": 250332,
+          "case": "gzip_stdout",
+          "expectation": {
+            "exit": 0,
+            "outputs_sha256": {},
+            "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+          },
+          "input_bytes": 1159197,
+          "invocations": [
+            {
+              "cache_bytes": 250331,
+              "correct": true,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 1,
+              "newly_cached_kb": 250.26,
+              "outputs_sha256": {},
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d",
+              "uncacheable": 0,
+              "wall_ns": 99121342
+            },
+            {
+              "cache_bytes": 250332,
+              "correct": true,
+              "decision": "hit",
+              "exit": 0,
+              "hits": 1,
+              "index": 1,
+              "misses": 0,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {},
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d",
+              "uncacheable": 0,
+              "wall_ns": 6870024
+            }
+          ],
+          "outputs": []
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "sed",
+            "s/key=/k=/g",
+            "input.bin"
+          ],
+          "cache_bytes_final": 62,
+          "case": "sed_stdout",
+          "expectation": {
+            "exit": 0,
+            "outputs_sha256": {},
+            "stdout_sha256": "cbaafba8554c954c1c2628023121c2db206a1ebb7f45166d9915aeeb1f2823c8"
+          },
+          "input_bytes": 5795971,
+          "invocations": [
+            {
+              "cache_bytes": 62,
+              "correct": true,
+              "decision": "refused",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 0,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {},
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "cbaafba8554c954c1c2628023121c2db206a1ebb7f45166d9915aeeb1f2823c8",
+              "uncacheable": 1,
+              "wall_ns": 94000110
+            },
+            {
+              "cache_bytes": 62,
+              "correct": true,
+              "decision": "refused",
+              "exit": 0,
+              "hits": 0,
+              "index": 1,
+              "misses": 0,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {},
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "cbaafba8554c954c1c2628023121c2db206a1ebb7f45166d9915aeeb1f2823c8",
+              "uncacheable": 1,
+              "wall_ns": 82078574
+            }
+          ],
+          "outputs": []
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "gzip",
+            "-9",
+            "-n",
+            "-c",
+            "input.bin"
+          ],
+          "case": "same_mtime_rewrite",
+          "invocations": [
+            {
+              "correct_for_new": false,
+              "correct_for_old": true,
+              "decision": "executed",
+              "hits": 0,
+              "index": 0,
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+            },
+            {
+              "correct_for_new": false,
+              "correct_for_old": true,
+              "decision": "hit",
+              "hits": 1,
+              "index": 1,
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+            },
+            {
+              "correct_for_new": true,
+              "correct_for_old": false,
+              "decision": "executed",
+              "hits": 0,
+              "index": 2,
+              "metadata_preserved": true,
+              "stdout_sha256": "2f68650f6a3a3c05bdbc4b09b875f0acefc99dae47a0cb93906bbe0e72cb421f"
+            }
+          ],
+          "metadata_preserved_on_rewrite": true,
+          "note": "a stale hit here means the file-hash cache trusted (size, mtime, inode)",
+          "stale_hit_after_same_mtime_rewrite": false
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "gzip",
+            "-9",
+            "-n",
+            "-c",
+            "input.bin"
+          ],
+          "case": "mtime_only_change",
+          "invocations": [
+            {
+              "correct": true,
+              "decision": "executed",
+              "hits": 0,
+              "index": 0
+            },
+            {
+              "correct": true,
+              "decision": "hit",
+              "hits": 1,
+              "index": 1
+            },
+            {
+              "correct": true,
+              "decision": "hit",
+              "hits": 1,
+              "index": 2
+            }
+          ],
+          "reused_after_mtime_change": true
+        },
+        {
+          "all_correct": false,
+          "argv": [
+            "gzip",
+            "-9",
+            "-n",
+            "-c",
+            "input.bin"
+          ],
+          "blob": "/workspace/chats/a2fee7edda38fc9e50f9ffdf/.phaseae-policy/engine-cache_corruption/home/.cache/firebuild/blobs/v/vx/vx+dKAzB1^2ullFe5qhcW+",
+          "blob_bytes": 249857,
+          "blob_located": true,
+          "case": "cache_corruption",
+          "corrupted_offset": 124928,
+          "invocations": [
+            {
+              "decision": "hit",
+              "exit": 0,
+              "expected_stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d",
+              "hits": 1,
+              "index": 2,
+              "served_corrupted_bytes": true,
+              "stdout_sha256": "2f938eaf1117856224ff877ed829208e60726b606aa311292792a4a8a5b7fbbd"
+            }
+          ],
+          "note": "a corrupted-blob hit means cached bytes are exposed without verification",
+          "population": [
+            {
+              "correct": true,
+              "decision": "executed",
+              "index": 0,
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+            },
+            {
+              "correct": true,
+              "decision": "hit",
+              "index": 1,
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+            }
+          ],
+          "served_corrupted_bytes": true
+        }
+      ],
+      "config": "/tmp/fb082-strict.conf",
+      "config_sha256": "06a9d72b8beacbd19f3505ac619a1b0031ab5ee1b36c646cb7d4b74184abc9cd",
+      "firebuild_version": "0.8.2",
+      "host": {
+        "kernel": "6.1.102",
+        "machine": "x86_64"
+      },
+      "tuned": false
+    },
+    "fb862-default": {
+      "arm": "fb862-default",
+      "binary": "/tmp/fb-build/src/firebuild/firebuild",
+      "binary_sha256": "8c895da049adcae026a99ac7d208a5691d0f92047fb932680f820938afc930e3",
+      "cases": [
+        {
+          "all_correct": true,
+          "argv": [
+            "date",
+            "+%s"
+          ],
+          "case": "clock_date",
+          "invocations": [
+            {
+              "cache_bytes": 239,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 1,
+              "newly_cached_kb": 0.18,
+              "stats_parsed": true,
+              "stdout_sha256": "e5a3966490f00f57984be6014656f66208de1354e390ccc066dd36d3cfd91f32",
+              "stdout_text": "1795592697",
+              "uncacheable": 0,
+              "wall_ns": 8241118
+            },
+            {
+              "cache_bytes": 239,
+              "decision": "hit",
+              "exit": 0,
+              "hits": 1,
+              "index": 1,
+              "misses": 0,
+              "newly_cached_kb": 0.0,
+              "stats_parsed": true,
+              "stdout_sha256": "e5a3966490f00f57984be6014656f66208de1354e390ccc066dd36d3cfd91f32",
+              "stdout_text": "1795592697",
+              "uncacheable": 0,
+              "wall_ns": 8064407
+            }
+          ],
+          "note": "correctness of a clock-dependent workload is defined by the contract; see docs",
+          "replayed_stale_clock": true
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "python3",
+            "-c",
+            "import time; print(time.time_ns())"
+          ],
+          "case": "clock_time_ns",
+          "invocations": [
+            {
+              "cache_bytes": 9641,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 2,
+              "newly_cached_kb": 9.58,
+              "stats_parsed": true,
+              "stdout_sha256": "8236e50d7a2bdb51131155f5c3a88f1fa6e3679defc3b938913b565a82bbd64c",
+              "stdout_text": "1795592698863143651",
+              "uncacheable": 0,
+              "wall_ns": 30224659
+            },
+            {
+              "cache_bytes": 9641,
+              "decision": "hit",
+              "exit": 0,
+              "hits": 1,
+              "index": 1,
+              "misses": 0,
+              "newly_cached_kb": 0.0,
+              "stats_parsed": true,
+              "stdout_sha256": "8236e50d7a2bdb51131155f5c3a88f1fa6e3679defc3b938913b565a82bbd64c",
+              "stdout_text": "1795592698863143651",
+              "uncacheable": 0,
+              "wall_ns": 11270754
+            }
+          ],
+          "note": "correctness of a clock-dependent workload is defined by the contract; see docs",
+          "replayed_stale_clock": true
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "gzip",
+            "-9",
+            "-n",
+            "-k",
+            "-f",
+            "input.bin"
+          ],
+          "cache_bytes_final": 1049542,
+          "case": "gzip_file",
+          "expectation": {
+            "exit": 0,
+            "outputs_sha256": {
+              "input.bin.gz": "b5687f1725c769205cb51882c5d103015daf8f0378ebd4f4f382a8d024c2a195"
+            },
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "input_bytes": 1048576,
+          "invocations": [
+            {
+              "cache_bytes": 1049541,
+              "correct": true,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 1,
+              "newly_cached_kb": null,
+              "outputs_sha256": {
+                "input.bin.gz": "b5687f1725c769205cb51882c5d103015daf8f0378ebd4f4f382a8d024c2a195"
+              },
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "uncacheable": 0,
+              "wall_ns": 44578210
+            },
+            {
+              "cache_bytes": 1049542,
+              "correct": true,
+              "decision": "hit",
+              "exit": 0,
+              "hits": 1,
+              "index": 1,
+              "misses": 0,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {
+                "input.bin.gz": "b5687f1725c769205cb51882c5d103015daf8f0378ebd4f4f382a8d024c2a195"
+              },
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "uncacheable": 0,
+              "wall_ns": 7628588
+            }
+          ],
+          "outputs": [
+            "input.bin.gz"
+          ]
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "bzip2",
+            "-9",
+            "-k",
+            "-f",
+            "input.bin"
+          ],
+          "cache_bytes_final": 61,
+          "case": "bzip2_file",
+          "expectation": {
+            "exit": 0,
+            "outputs_sha256": {
+              "input.bin.bz2": "18aa098d1a9c35681e92508df5fc0847e03367dc1dd24bd7d8df5fb305fa1813"
+            },
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "input_bytes": 1048576,
+          "invocations": [
+            {
+              "cache_bytes": 61,
+              "correct": true,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 1,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {
+                "input.bin.bz2": "18aa098d1a9c35681e92508df5fc0847e03367dc1dd24bd7d8df5fb305fa1813"
+              },
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "uncacheable": 0,
+              "wall_ns": 122030191
+            },
+            {
+              "cache_bytes": 61,
+              "correct": true,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 1,
+              "misses": 1,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {
+                "input.bin.bz2": "18aa098d1a9c35681e92508df5fc0847e03367dc1dd24bd7d8df5fb305fa1813"
+              },
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "uncacheable": 0,
+              "wall_ns": 114953799
+            }
+          ],
+          "outputs": [
+            "input.bin.bz2"
+          ]
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "gzip",
+            "-9",
+            "-n",
+            "-c",
+            "input.bin"
+          ],
+          "cache_bytes_final": 250436,
+          "case": "gzip_stdout",
+          "expectation": {
+            "exit": 0,
+            "outputs_sha256": {},
+            "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+          },
+          "input_bytes": 1159197,
+          "invocations": [
+            {
+              "cache_bytes": 250435,
+              "correct": true,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 1,
+              "newly_cached_kb": 250.37,
+              "outputs_sha256": {},
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d",
+              "uncacheable": 0,
+              "wall_ns": 88757700
+            },
+            {
+              "cache_bytes": 250436,
+              "correct": true,
+              "decision": "hit",
+              "exit": 0,
+              "hits": 1,
+              "index": 1,
+              "misses": 0,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {},
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d",
+              "uncacheable": 0,
+              "wall_ns": 7862037
+            }
+          ],
+          "outputs": []
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "sed",
+            "s/key=/k=/g",
+            "input.bin"
+          ],
+          "cache_bytes_final": 62,
+          "case": "sed_stdout",
+          "expectation": {
+            "exit": 0,
+            "outputs_sha256": {},
+            "stdout_sha256": "cbaafba8554c954c1c2628023121c2db206a1ebb7f45166d9915aeeb1f2823c8"
+          },
+          "input_bytes": 5795971,
+          "invocations": [
+            {
+              "cache_bytes": 62,
+              "correct": true,
+              "decision": "refused",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 0,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {},
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "cbaafba8554c954c1c2628023121c2db206a1ebb7f45166d9915aeeb1f2823c8",
+              "uncacheable": 1,
+              "wall_ns": 79176778
+            },
+            {
+              "cache_bytes": 62,
+              "correct": true,
+              "decision": "refused",
+              "exit": 0,
+              "hits": 0,
+              "index": 1,
+              "misses": 0,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {},
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "cbaafba8554c954c1c2628023121c2db206a1ebb7f45166d9915aeeb1f2823c8",
+              "uncacheable": 1,
+              "wall_ns": 87981995
+            }
+          ],
+          "outputs": []
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "gzip",
+            "-9",
+            "-n",
+            "-c",
+            "input.bin"
+          ],
+          "case": "same_mtime_rewrite",
+          "invocations": [
+            {
+              "correct_for_new": false,
+              "correct_for_old": true,
+              "decision": "executed",
+              "hits": 0,
+              "index": 0,
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+            },
+            {
+              "correct_for_new": false,
+              "correct_for_old": true,
+              "decision": "hit",
+              "hits": 1,
+              "index": 1,
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+            },
+            {
+              "correct_for_new": true,
+              "correct_for_old": false,
+              "decision": "executed",
+              "hits": 0,
+              "index": 2,
+              "metadata_preserved": true,
+              "stdout_sha256": "2f68650f6a3a3c05bdbc4b09b875f0acefc99dae47a0cb93906bbe0e72cb421f"
+            }
+          ],
+          "metadata_preserved_on_rewrite": true,
+          "note": "a stale hit here means the file-hash cache trusted (size, mtime, inode)",
+          "stale_hit_after_same_mtime_rewrite": false
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "gzip",
+            "-9",
+            "-n",
+            "-c",
+            "input.bin"
+          ],
+          "case": "mtime_only_change",
+          "invocations": [
+            {
+              "correct": true,
+              "decision": "executed",
+              "hits": 0,
+              "index": 0
+            },
+            {
+              "correct": true,
+              "decision": "hit",
+              "hits": 1,
+              "index": 1
+            },
+            {
+              "correct": true,
+              "decision": "hit",
+              "hits": 1,
+              "index": 2
+            }
+          ],
+          "reused_after_mtime_change": true
+        },
+        {
+          "all_correct": false,
+          "argv": [
+            "gzip",
+            "-9",
+            "-n",
+            "-c",
+            "input.bin"
+          ],
+          "blob": "/workspace/chats/a2fee7edda38fc9e50f9ffdf/.phaseae-policy/engine-cache_corruption/home/.cache/firebuild/blobs/v/vx/vx+dKAzB1^2ullFe5qhcW+",
+          "blob_bytes": 249857,
+          "blob_located": true,
+          "case": "cache_corruption",
+          "corrupted_offset": 124928,
+          "invocations": [
+            {
+              "decision": "hit",
+              "exit": 0,
+              "expected_stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d",
+              "hits": 1,
+              "index": 2,
+              "served_corrupted_bytes": true,
+              "stdout_sha256": "2f938eaf1117856224ff877ed829208e60726b606aa311292792a4a8a5b7fbbd"
+            }
+          ],
+          "note": "a corrupted-blob hit means cached bytes are exposed without verification",
+          "population": [
+            {
+              "correct": true,
+              "decision": "executed",
+              "index": 0,
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+            },
+            {
+              "correct": true,
+              "decision": "hit",
+              "index": 1,
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+            }
+          ],
+          "served_corrupted_bytes": true
+        }
+      ],
+      "config": "/tmp/fb-build/etc/firebuild.conf",
+      "config_sha256": "ebd7dbaefb47d10da5a811fd68269501bf4c4ec2225eb4fdc67803305c6f8726",
+      "firebuild_version": "0.8.6.2",
+      "host": {
+        "kernel": "6.1.102",
+        "machine": "x86_64"
+      },
+      "tuned": false
+    },
+    "fb862-strict": {
+      "arm": "fb862-strict",
+      "binary": "/tmp/fb-build/src/firebuild/firebuild",
+      "binary_sha256": "8c895da049adcae026a99ac7d208a5691d0f92047fb932680f820938afc930e3",
+      "cases": [
+        {
+          "all_correct": true,
+          "argv": [
+            "date",
+            "+%s"
+          ],
+          "case": "clock_date",
+          "invocations": [
+            {
+              "cache_bytes": 61,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 1,
+              "newly_cached_kb": 0.0,
+              "stats_parsed": true,
+              "stdout_sha256": "87693d72a7810106d52c281cbf0c809b2614793e267065889763b802cd7f36a0",
+              "stdout_text": "1795592700",
+              "uncacheable": 0,
+              "wall_ns": 7008614
+            },
+            {
+              "cache_bytes": 62,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 1,
+              "misses": 1,
+              "newly_cached_kb": 0.0,
+              "stats_parsed": true,
+              "stdout_sha256": "16d8108fbd6bee197b34e89ec1e0aea2a51ad9704611f3d863a98623dbf8e327",
+              "stdout_text": "1795592701",
+              "uncacheable": 0,
+              "wall_ns": 11099473
+            }
+          ],
+          "note": "correctness of a clock-dependent workload is defined by the contract; see docs",
+          "replayed_stale_clock": false
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "python3",
+            "-c",
+            "import time; print(time.time_ns())"
+          ],
+          "case": "clock_time_ns",
+          "invocations": [
+            {
+              "cache_bytes": 61,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 2,
+              "newly_cached_kb": 0.0,
+              "stats_parsed": true,
+              "stdout_sha256": "0ed2cc685c5da5cc324431470f14598b130b07b4189f0c0ba1ba5cdea0ff01a0",
+              "stdout_text": "1795592702016897383",
+              "uncacheable": 0,
+              "wall_ns": 28424270
+            },
+            {
+              "cache_bytes": 62,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 1,
+              "misses": 2,
+              "newly_cached_kb": 0.0,
+              "stats_parsed": true,
+              "stdout_sha256": "eb070da4bb1ceffcc22cc2c7ef734f7090506d16dab252aabd4da80239c46038",
+              "stdout_text": "1795592702097691562",
+              "uncacheable": 0,
+              "wall_ns": 30559809
+            }
+          ],
+          "note": "correctness of a clock-dependent workload is defined by the contract; see docs",
+          "replayed_stale_clock": false
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "gzip",
+            "-9",
+            "-n",
+            "-k",
+            "-f",
+            "input.bin"
+          ],
+          "cache_bytes_final": 1049542,
+          "case": "gzip_file",
+          "expectation": {
+            "exit": 0,
+            "outputs_sha256": {
+              "input.bin.gz": "b5687f1725c769205cb51882c5d103015daf8f0378ebd4f4f382a8d024c2a195"
+            },
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "input_bytes": 1048576,
+          "invocations": [
+            {
+              "cache_bytes": 1049541,
+              "correct": true,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 1,
+              "newly_cached_kb": null,
+              "outputs_sha256": {
+                "input.bin.gz": "b5687f1725c769205cb51882c5d103015daf8f0378ebd4f4f382a8d024c2a195"
+              },
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "uncacheable": 0,
+              "wall_ns": 46940613
+            },
+            {
+              "cache_bytes": 1049542,
+              "correct": true,
+              "decision": "hit",
+              "exit": 0,
+              "hits": 1,
+              "index": 1,
+              "misses": 0,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {
+                "input.bin.gz": "b5687f1725c769205cb51882c5d103015daf8f0378ebd4f4f382a8d024c2a195"
+              },
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "uncacheable": 0,
+              "wall_ns": 9239121
+            }
+          ],
+          "outputs": [
+            "input.bin.gz"
+          ]
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "bzip2",
+            "-9",
+            "-k",
+            "-f",
+            "input.bin"
+          ],
+          "cache_bytes_final": 62,
+          "case": "bzip2_file",
+          "expectation": {
+            "exit": 0,
+            "outputs_sha256": {
+              "input.bin.bz2": "18aa098d1a9c35681e92508df5fc0847e03367dc1dd24bd7d8df5fb305fa1813"
+            },
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "input_bytes": 1048576,
+          "invocations": [
+            {
+              "cache_bytes": 61,
+              "correct": true,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 1,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {
+                "input.bin.bz2": "18aa098d1a9c35681e92508df5fc0847e03367dc1dd24bd7d8df5fb305fa1813"
+              },
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "uncacheable": 0,
+              "wall_ns": 123805102
+            },
+            {
+              "cache_bytes": 62,
+              "correct": true,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 1,
+              "misses": 1,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {
+                "input.bin.bz2": "18aa098d1a9c35681e92508df5fc0847e03367dc1dd24bd7d8df5fb305fa1813"
+              },
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "uncacheable": 0,
+              "wall_ns": 130726703
+            }
+          ],
+          "outputs": [
+            "input.bin.bz2"
+          ]
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "gzip",
+            "-9",
+            "-n",
+            "-c",
+            "input.bin"
+          ],
+          "cache_bytes_final": 250436,
+          "case": "gzip_stdout",
+          "expectation": {
+            "exit": 0,
+            "outputs_sha256": {},
+            "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+          },
+          "input_bytes": 1159197,
+          "invocations": [
+            {
+              "cache_bytes": 250435,
+              "correct": true,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 1,
+              "newly_cached_kb": 250.37,
+              "outputs_sha256": {},
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d",
+              "uncacheable": 0,
+              "wall_ns": 85864130
+            },
+            {
+              "cache_bytes": 250436,
+              "correct": true,
+              "decision": "hit",
+              "exit": 0,
+              "hits": 1,
+              "index": 1,
+              "misses": 0,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {},
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d",
+              "uncacheable": 0,
+              "wall_ns": 8193468
+            }
+          ],
+          "outputs": []
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "sed",
+            "s/key=/k=/g",
+            "input.bin"
+          ],
+          "cache_bytes_final": 62,
+          "case": "sed_stdout",
+          "expectation": {
+            "exit": 0,
+            "outputs_sha256": {},
+            "stdout_sha256": "cbaafba8554c954c1c2628023121c2db206a1ebb7f45166d9915aeeb1f2823c8"
+          },
+          "input_bytes": 5795971,
+          "invocations": [
+            {
+              "cache_bytes": 62,
+              "correct": true,
+              "decision": "refused",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 0,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {},
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "cbaafba8554c954c1c2628023121c2db206a1ebb7f45166d9915aeeb1f2823c8",
+              "uncacheable": 1,
+              "wall_ns": 80947972
+            },
+            {
+              "cache_bytes": 62,
+              "correct": true,
+              "decision": "refused",
+              "exit": 0,
+              "hits": 0,
+              "index": 1,
+              "misses": 0,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {},
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "cbaafba8554c954c1c2628023121c2db206a1ebb7f45166d9915aeeb1f2823c8",
+              "uncacheable": 1,
+              "wall_ns": 87691759
+            }
+          ],
+          "outputs": []
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "gzip",
+            "-9",
+            "-n",
+            "-c",
+            "input.bin"
+          ],
+          "case": "same_mtime_rewrite",
+          "invocations": [
+            {
+              "correct_for_new": false,
+              "correct_for_old": true,
+              "decision": "executed",
+              "hits": 0,
+              "index": 0,
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+            },
+            {
+              "correct_for_new": false,
+              "correct_for_old": true,
+              "decision": "hit",
+              "hits": 1,
+              "index": 1,
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+            },
+            {
+              "correct_for_new": true,
+              "correct_for_old": false,
+              "decision": "executed",
+              "hits": 0,
+              "index": 2,
+              "metadata_preserved": true,
+              "stdout_sha256": "2f68650f6a3a3c05bdbc4b09b875f0acefc99dae47a0cb93906bbe0e72cb421f"
+            }
+          ],
+          "metadata_preserved_on_rewrite": true,
+          "note": "a stale hit here means the file-hash cache trusted (size, mtime, inode)",
+          "stale_hit_after_same_mtime_rewrite": false
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "gzip",
+            "-9",
+            "-n",
+            "-c",
+            "input.bin"
+          ],
+          "case": "mtime_only_change",
+          "invocations": [
+            {
+              "correct": true,
+              "decision": "executed",
+              "hits": 0,
+              "index": 0
+            },
+            {
+              "correct": true,
+              "decision": "hit",
+              "hits": 1,
+              "index": 1
+            },
+            {
+              "correct": true,
+              "decision": "hit",
+              "hits": 1,
+              "index": 2
+            }
+          ],
+          "reused_after_mtime_change": true
+        },
+        {
+          "all_correct": false,
+          "argv": [
+            "gzip",
+            "-9",
+            "-n",
+            "-c",
+            "input.bin"
+          ],
+          "blob": "/workspace/chats/a2fee7edda38fc9e50f9ffdf/.phaseae-policy/engine-cache_corruption/home/.cache/firebuild/blobs/v/vx/vx+dKAzB1^2ullFe5qhcW+",
+          "blob_bytes": 249857,
+          "blob_located": true,
+          "case": "cache_corruption",
+          "corrupted_offset": 124928,
+          "invocations": [
+            {
+              "decision": "hit",
+              "exit": 0,
+              "expected_stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d",
+              "hits": 1,
+              "index": 2,
+              "served_corrupted_bytes": true,
+              "stdout_sha256": "2f938eaf1117856224ff877ed829208e60726b606aa311292792a4a8a5b7fbbd"
+            }
+          ],
+          "note": "a corrupted-blob hit means cached bytes are exposed without verification",
+          "population": [
+            {
+              "correct": true,
+              "decision": "executed",
+              "index": 0,
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+            },
+            {
+              "correct": true,
+              "decision": "hit",
+              "index": 1,
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+            }
+          ],
+          "served_corrupted_bytes": true
+        }
+      ],
+      "config": "/tmp/fb862-strict.conf",
+      "config_sha256": "09fac712d5cfc867eed37b86b589d3088ac027fd4faf9a07e1328f0dc8cde412",
+      "firebuild_version": "0.8.6.2",
+      "host": {
+        "kernel": "6.1.102",
+        "machine": "x86_64"
+      },
+      "tuned": false
+    },
+    "fb862-tuned": {
+      "arm": "fb862-tuned",
+      "binary": "/tmp/fb-build/src/firebuild/firebuild",
+      "binary_sha256": "8c895da049adcae026a99ac7d208a5691d0f92047fb932680f820938afc930e3",
+      "cases": [
+        {
+          "all_correct": true,
+          "argv": [
+            "date",
+            "+%s"
+          ],
+          "case": "clock_date",
+          "invocations": [
+            {
+              "cache_bytes": 239,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 1,
+              "newly_cached_kb": 0.18,
+              "stats_parsed": true,
+              "stdout_sha256": "0f75ba5ef891d748b300903b3b9a7f77c1f32bbbe8ef0702eefe65f65c956a6b",
+              "stdout_text": "1795592704",
+              "uncacheable": 0,
+              "wall_ns": 8996656
+            },
+            {
+              "cache_bytes": 240,
+              "decision": "hit",
+              "exit": 0,
+              "hits": 1,
+              "index": 1,
+              "misses": 0,
+              "newly_cached_kb": 0.0,
+              "stats_parsed": true,
+              "stdout_sha256": "0f75ba5ef891d748b300903b3b9a7f77c1f32bbbe8ef0702eefe65f65c956a6b",
+              "stdout_text": "1795592704",
+              "uncacheable": 0,
+              "wall_ns": 7728947
+            }
+          ],
+          "note": "correctness of a clock-dependent workload is defined by the contract; see docs",
+          "replayed_stale_clock": true
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "python3",
+            "-c",
+            "import time; print(time.time_ns())"
+          ],
+          "case": "clock_time_ns",
+          "invocations": [
+            {
+              "cache_bytes": 9640,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 2,
+              "newly_cached_kb": 9.58,
+              "stats_parsed": true,
+              "stdout_sha256": "88647e4af4c976de064d45cc578135324ce66b6dd57f33cb780dc4d8ab739812",
+              "stdout_text": "1795592705177570178",
+              "uncacheable": 0,
+              "wall_ns": 27716201
+            },
+            {
+              "cache_bytes": 9641,
+              "decision": "hit",
+              "exit": 0,
+              "hits": 1,
+              "index": 1,
+              "misses": 0,
+              "newly_cached_kb": 0.0,
+              "stats_parsed": true,
+              "stdout_sha256": "88647e4af4c976de064d45cc578135324ce66b6dd57f33cb780dc4d8ab739812",
+              "stdout_text": "1795592705177570178",
+              "uncacheable": 0,
+              "wall_ns": 11669543
+            }
+          ],
+          "note": "correctness of a clock-dependent workload is defined by the contract; see docs",
+          "replayed_stale_clock": true
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "gzip",
+            "-9",
+            "-n",
+            "-k",
+            "-f",
+            "input.bin"
+          ],
+          "cache_bytes_final": 1049542,
+          "case": "gzip_file",
+          "expectation": {
+            "exit": 0,
+            "outputs_sha256": {
+              "input.bin.gz": "b5687f1725c769205cb51882c5d103015daf8f0378ebd4f4f382a8d024c2a195"
+            },
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "input_bytes": 1048576,
+          "invocations": [
+            {
+              "cache_bytes": 1049541,
+              "correct": true,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 1,
+              "newly_cached_kb": null,
+              "outputs_sha256": {
+                "input.bin.gz": "b5687f1725c769205cb51882c5d103015daf8f0378ebd4f4f382a8d024c2a195"
+              },
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "uncacheable": 0,
+              "wall_ns": 44769939
+            },
+            {
+              "cache_bytes": 1049542,
+              "correct": true,
+              "decision": "hit",
+              "exit": 0,
+              "hits": 1,
+              "index": 1,
+              "misses": 0,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {
+                "input.bin.gz": "b5687f1725c769205cb51882c5d103015daf8f0378ebd4f4f382a8d024c2a195"
+              },
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "uncacheable": 0,
+              "wall_ns": 11220339
+            }
+          ],
+          "outputs": [
+            "input.bin.gz"
+          ]
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "bzip2",
+            "-9",
+            "-k",
+            "-f",
+            "input.bin"
+          ],
+          "cache_bytes_final": 62,
+          "case": "bzip2_file",
+          "expectation": {
+            "exit": 0,
+            "outputs_sha256": {
+              "input.bin.bz2": "18aa098d1a9c35681e92508df5fc0847e03367dc1dd24bd7d8df5fb305fa1813"
+            },
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "input_bytes": 1048576,
+          "invocations": [
+            {
+              "cache_bytes": 61,
+              "correct": true,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 1,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {
+                "input.bin.bz2": "18aa098d1a9c35681e92508df5fc0847e03367dc1dd24bd7d8df5fb305fa1813"
+              },
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "uncacheable": 0,
+              "wall_ns": 123420460
+            },
+            {
+              "cache_bytes": 62,
+              "correct": true,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 1,
+              "misses": 1,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {
+                "input.bin.bz2": "18aa098d1a9c35681e92508df5fc0847e03367dc1dd24bd7d8df5fb305fa1813"
+              },
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "uncacheable": 0,
+              "wall_ns": 122566066
+            }
+          ],
+          "outputs": [
+            "input.bin.bz2"
+          ]
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "gzip",
+            "-9",
+            "-n",
+            "-c",
+            "input.bin"
+          ],
+          "cache_bytes_final": 250436,
+          "case": "gzip_stdout",
+          "expectation": {
+            "exit": 0,
+            "outputs_sha256": {},
+            "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+          },
+          "input_bytes": 1159197,
+          "invocations": [
+            {
+              "cache_bytes": 250435,
+              "correct": true,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 1,
+              "newly_cached_kb": 250.37,
+              "outputs_sha256": {},
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d",
+              "uncacheable": 0,
+              "wall_ns": 86906415
+            },
+            {
+              "cache_bytes": 250436,
+              "correct": true,
+              "decision": "hit",
+              "exit": 0,
+              "hits": 1,
+              "index": 1,
+              "misses": 0,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {},
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d",
+              "uncacheable": 0,
+              "wall_ns": 7476303
+            }
+          ],
+          "outputs": []
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "sed",
+            "s/key=/k=/g",
+            "input.bin"
+          ],
+          "cache_bytes_final": 5396415,
+          "case": "sed_stdout",
+          "expectation": {
+            "exit": 0,
+            "outputs_sha256": {},
+            "stdout_sha256": "cbaafba8554c954c1c2628023121c2db206a1ebb7f45166d9915aeeb1f2823c8"
+          },
+          "input_bytes": 5795971,
+          "invocations": [
+            {
+              "cache_bytes": 5396415,
+              "correct": true,
+              "decision": "executed",
+              "exit": 0,
+              "hits": 0,
+              "index": 0,
+              "misses": 1,
+              "newly_cached_kb": null,
+              "outputs_sha256": {},
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "cbaafba8554c954c1c2628023121c2db206a1ebb7f45166d9915aeeb1f2823c8",
+              "uncacheable": 0,
+              "wall_ns": 91386845
+            },
+            {
+              "cache_bytes": 5396415,
+              "correct": true,
+              "decision": "hit",
+              "exit": 0,
+              "hits": 1,
+              "index": 1,
+              "misses": 0,
+              "newly_cached_kb": 0.0,
+              "outputs_sha256": {},
+              "stats_parsed": true,
+              "stderr_tail": "",
+              "stdout_sha256": "cbaafba8554c954c1c2628023121c2db206a1ebb7f45166d9915aeeb1f2823c8",
+              "uncacheable": 0,
+              "wall_ns": 19907444
+            }
+          ],
+          "outputs": []
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "gzip",
+            "-9",
+            "-n",
+            "-c",
+            "input.bin"
+          ],
+          "case": "same_mtime_rewrite",
+          "invocations": [
+            {
+              "correct_for_new": false,
+              "correct_for_old": true,
+              "decision": "executed",
+              "hits": 0,
+              "index": 0,
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+            },
+            {
+              "correct_for_new": false,
+              "correct_for_old": true,
+              "decision": "hit",
+              "hits": 1,
+              "index": 1,
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+            },
+            {
+              "correct_for_new": true,
+              "correct_for_old": false,
+              "decision": "executed",
+              "hits": 0,
+              "index": 2,
+              "metadata_preserved": true,
+              "stdout_sha256": "2f68650f6a3a3c05bdbc4b09b875f0acefc99dae47a0cb93906bbe0e72cb421f"
+            }
+          ],
+          "metadata_preserved_on_rewrite": true,
+          "note": "a stale hit here means the file-hash cache trusted (size, mtime, inode)",
+          "stale_hit_after_same_mtime_rewrite": false
+        },
+        {
+          "all_correct": true,
+          "argv": [
+            "gzip",
+            "-9",
+            "-n",
+            "-c",
+            "input.bin"
+          ],
+          "case": "mtime_only_change",
+          "invocations": [
+            {
+              "correct": true,
+              "decision": "executed",
+              "hits": 0,
+              "index": 0
+            },
+            {
+              "correct": true,
+              "decision": "hit",
+              "hits": 1,
+              "index": 1
+            },
+            {
+              "correct": true,
+              "decision": "hit",
+              "hits": 1,
+              "index": 2
+            }
+          ],
+          "reused_after_mtime_change": true
+        },
+        {
+          "all_correct": false,
+          "argv": [
+            "gzip",
+            "-9",
+            "-n",
+            "-c",
+            "input.bin"
+          ],
+          "blob": "/workspace/chats/a2fee7edda38fc9e50f9ffdf/.phaseae-policy/engine-cache_corruption/home/.cache/firebuild/blobs/v/vx/vx+dKAzB1^2ullFe5qhcW+",
+          "blob_bytes": 249857,
+          "blob_located": true,
+          "case": "cache_corruption",
+          "corrupted_offset": 124928,
+          "invocations": [
+            {
+              "decision": "hit",
+              "exit": 0,
+              "expected_stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d",
+              "hits": 1,
+              "index": 2,
+              "served_corrupted_bytes": true,
+              "stdout_sha256": "2f938eaf1117856224ff877ed829208e60726b606aa311292792a4a8a5b7fbbd"
+            }
+          ],
+          "note": "a corrupted-blob hit means cached bytes are exposed without verification",
+          "population": [
+            {
+              "correct": true,
+              "decision": "executed",
+              "index": 0,
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+            },
+            {
+              "correct": true,
+              "decision": "hit",
+              "index": 1,
+              "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+            }
+          ],
+          "served_corrupted_bytes": true
+        }
+      ],
+      "config": "/tmp/fb-build/etc/firebuild.conf",
+      "config_sha256": "ebd7dbaefb47d10da5a811fd68269501bf4c4ec2225eb4fdc67803305c6f8726",
+      "firebuild_version": "0.8.6.2",
+      "host": {
+        "kernel": "6.1.102",
+        "machine": "x86_64"
+      },
+      "tuned": true
+    }
+  }
+}

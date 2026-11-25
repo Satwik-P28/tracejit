@@ -50,56 +50,56 @@
       "scenario": "during_hashing",
       "trials": [
         {
-          "concurrent_writes": 233,
+          "concurrent_writes": 229,
           "correct_for_old_input": false,
           "decision": "Executed",
           "hit": false,
           "trial": 0
         },
         {
-          "concurrent_writes": 231,
+          "concurrent_writes": 237,
           "correct_for_old_input": false,
           "decision": "Executed",
           "hit": false,
           "trial": 1
         },
         {
-          "concurrent_writes": 232,
+          "concurrent_writes": 228,
           "correct_for_old_input": false,
           "decision": "Executed",
           "hit": false,
           "trial": 2
         },
         {
-          "concurrent_writes": 237,
+          "concurrent_writes": 236,
           "correct_for_old_input": false,
           "decision": "Executed",
           "hit": false,
           "trial": 3
         },
         {
-          "concurrent_writes": 243,
+          "concurrent_writes": 234,
           "correct_for_old_input": false,
           "decision": "Executed",
           "hit": false,
           "trial": 4
         },
         {
-          "concurrent_writes": 234,
+          "concurrent_writes": 237,
           "correct_for_old_input": false,
           "decision": "Executed",
           "hit": false,
           "trial": 5
         },
         {
-          "concurrent_writes": 233,
+          "concurrent_writes": 225,
           "correct_for_old_input": false,
           "decision": "Executed",
           "hit": false,
           "trial": 6
         },
         {
-          "concurrent_writes": 241,
+          "concurrent_writes": 224,
           "correct_for_old_input": false,
           "decision": "Executed",
           "hit": false,
