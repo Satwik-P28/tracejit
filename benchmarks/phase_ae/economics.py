@@ -111,7 +111,9 @@ def analyze(payload: dict, reference_size: int) -> dict:
                 continue
             cold = table.get((workload, arm, "cold", reference_size))
             native_cold = table.get((workload, "native", "cold", reference_size))
-            if cold and native_cold:
+            if cold and native_cold and any(
+                record["decision"] == "hit" for record in cold[0]["invocations"]
+            ):
                 cold_inv = cold[0]["invocations"]
                 cold_cost = cold_inv[0]["wall_ns"]
                 hit_cost = int(statistics.median(r["wall_ns"] for r in cold_inv[1:])) if len(cold_inv) > 1 else cold_cost

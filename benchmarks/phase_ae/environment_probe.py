@@ -105,20 +105,26 @@ def main(argv: list[str]) -> int:
         )
         report = completed.stderr.decode(errors="replace")
         decision = runner.parse_plain_decision(completed.stderr)
+        classified = next((line.split()[-1] for line in report.splitlines()
+                           if line.startswith("classified")), None)
         runs.append({
             "exit": completed.returncode,
             "kind": (decision or {}).get("kind"),
             "cache_decision": (decision or {}).get("cache_decision"),
-            "enforced": "enforced       yes" in report,
+            "classification": classified,
+            "enforced": classified == "PROVEN",
             "policy_lines": [line for line in report.splitlines()
                              if line.startswith(("enforce", "policy", "sandbox", "problem", "guards"))],
             "output_ok": (ws / "corpus.txt.gz").is_file(),
         })
+    proven = bool((doctor or {}).get("proven"))
     probe["enforcement"] = {
         "runs": runs,
         "second_run_reused": bool(runs[1]["kind"] == "Reused"),
+        # Enforcement is claimed only when the engine classified the run PROVEN; a host
+        # without seccomp+Landlock must report GUARDED, never a silent promotion.
         "second_run_enforced": bool(runs[1]["enforced"]),
-        "label_consistent": (not runs[1]["enforced"]) or bool((doctor or {}).get("proven")),
+        "label_consistent": bool(runs[1]["enforced"]) == proven,
     }
 
     text = json.dumps(probe, indent=2, sort_keys=True)

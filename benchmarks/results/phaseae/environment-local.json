@@ -21,6 +21,7 @@
     "runs": [
       {
         "cache_decision": "Ineligible",
+        "classification": "GUARDED",
         "enforced": false,
         "exit": 0,
         "kind": "Executed",
@@ -29,6 +30,7 @@
       },
       {
         "cache_decision": "Ineligible",
+        "classification": "GUARDED",
         "enforced": false,
         "exit": 0,
         "kind": "Executed",
