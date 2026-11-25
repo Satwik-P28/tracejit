@@ -1,0 +1,65 @@
+name: Phase AE environment
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      TRACEJIT_REQUIRE_PROVEN: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build
+        run: cargo build --release -p tracejit-cli
+      - name: Record the environment fingerprint as a public annotation
+        run: |
+          set -eu
+          python3 benchmarks/phase_ae/environment_probe.py \
+            --tracejit target/release/tracejit \
+            --output /tmp/environment.json >/dev/null
+          python3 - <<'PY'
+          import json, platform, subprocess, textwrap
+          probe = json.load(open("/tmp/environment.json"))
+          host = probe["host"]
+          doctor = probe.get("doctor") or {}
+          filesystems = ", ".join(f'{entry["path"]}={entry["type"]}' for entry in probe["filesystems"])
+          glibc = (host.get("glibc") or "").splitlines()[0]
+          summary = textwrap.dedent(f"""
+            kernel={host['uname']['release']} arch={host['uname']['machine']} cpus={host['cpu_count']}
+            os={next(line for line in host['os_release'].splitlines() if line.startswith('PRETTY_NAME'))}
+            glibc={glibc}
+            lsms={host['lsms']} landlock_selftest={host['landlock_selftest_dir']} container={host['container']}
+            filesystems={filesystems}
+            doctor: supported={doctor.get('supported')} ptrace={doctor.get('ptrace')} seccomp={doctor.get('seccomp')} landlock={doctor.get('landlock')} proven={doctor.get('proven')} landlock_abi={doctor.get('landlock_abi')}
+            enforcement: reused={probe['enforcement']['second_run_reused']} enforced={probe['enforcement']['second_run_enforced']} label_consistent={probe['enforcement']['label_consistent']}
+          """).strip()
+          for line in summary.splitlines():
+              print(f"::notice title=phase-ae-environment::{line.strip()}")
+          print(f"::notice title=phase-ae-doctor-json::{(json.dumps(doctor, sort_keys=True))[:3500]}")
+          print(f"::notice title=phase-ae-enforcement::{json.dumps(probe['enforcement'], sort_keys=True)[:3500]}")
+          print(f"::notice title=phase-ae-enforcement-ok::{str(probe['enforcement']['label_consistent']).lower()}")
+          PY
+      - name: Capacity check for the receipt
+        run: |
+          set -eu
+          grep -q '"proven": true' /tmp/environment.json && echo "PROVEN-capable runner" || echo "runner is not PROVEN-capable (recorded in annotations)"
+      - name: Accounting regressions
+        run: python3 benchmarks/phase_ae/test_accounting.py
+      - name: Benchmark harness self-tests
+        run: python3 benchmarks/realworld_v2/test_harness.py
+      - name: Reuse smoke on the runner filesystem
+        run: |
+          set -eu
+          ws=$(mktemp -d)
+          cd "$ws"
+          head -c 1048576 /dev/zero | tr '\0' 'a' > corpus.txt
+          TRACEJIT_CACHE_DIR="$ws/cache" "$GITHUB_WORKSPACE"/target/release/tracejit run --contract allocator-entropy-v1 -- gzip -9 -n -c corpus.txt > first.gz
+          rm -f corpus.txt.gz
+          TRACEJIT_CACHE_DIR="$ws/cache" "$GITHUB_WORKSPACE"/target/release/tracejit run --contract allocator-entropy-v1 -- gzip -9 -n -c corpus.txt > second.gz 2> report.txt
+          cmp first.gz second.gz
+          grep -q "cache          HIT" report.txt || grep -q "cache          MISS" report.txt
+          echo "::notice title=phase-ae-reuse-smoke::gzip-stdout reused=$(grep -c 'cache          HIT' report.txt) identical_bytes=yes"
