@@ -135,10 +135,24 @@ All commands were run in this workspace on the qualified tree.
 
 ## 6. CI
 
-The previous head `b81242d` has four successful workflows (CI push `45573894337`, CI PR
-`45573903654`, benchmark v2 `45573903647`, environment `45573903708`). Those runs cover the tree
-*this phase started from*, not the Phase AF changes. Their `full` and `competitive` jobs are
-skipped by workflow design, so they are not a competitive-benchmark qualification.
+The tree this phase started from, `b81242d`, has four successful workflows (CI push `45573894337`,
+CI PR `45573903654`, benchmark v2 `45573903647`, environment `45573903708`).
+
+The Phase AF head `7cdb0a6` was pushed to both `research/phase-af` and the PR branch
+`research/phase-ad` (PR #45, still draft, `mergeable: true`):
+
+| workflow | result on `7cdb0a6` |
+| --- | --- |
+| CI | **success** |
+| Phase AE environment | **success** (guarded reuse plus the `PROVEN` classification on the runner) |
+| Real-world benchmark v2 | **failure**, at `fetch_inputs.py --vendor`: the runner could not download the pinned `zlib-1.3.1.tar.gz` from `zlib.net` |
+| benchmark `competitive` / `full` jobs | skipped by workflow design, so they are not a competitive qualification |
+
+The benchmark failure is an input-fetch failure, not a code regression: the same command run in
+this workspace fetches the archive and verifies the pinned SHA-256 (`9a93b2b7…`), and no file the
+Phase AF commits touch is on that code path. It needs a workflow re-run, which requires repository
+write permission that this environment does not have. Treat the real-world benchmark as **not
+qualified on this head** until it is re-run.
 
 ## 7. Publication decision
 
