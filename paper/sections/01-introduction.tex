@@ -1,0 +1,61 @@
+\section{Introduction}
+
+Build systems avoid work because they are told what the work depends on. \texttt{make} compares
+timestamps against a declared graph; Bazel and Vesta describe actions as content-addressed
+functions of declared inputs~\cite{bazel,vesta}; \texttt{ccache} and \texttt{sccache} recognise a
+compiler invocation and key on the source, the flags and the toolchain~\cite{ccache,sccache}; Nix
+makes the derivation itself the unit of caching~\cite{nixos}. In each case the dependency set is
+part of the interface. The system that does the caching and the system that knows the inputs are
+the same system, or they agree on a description of them.
+
+An arbitrary command has no such interface. A shell pipeline, a one-off compression step, a
+scripted transformation --- none of them declare what they read. A cache for such commands must
+either (a) discover the dependency set by observing an execution, or (b) assume determinism and
+hope. Option (b) is cheap and is what several widely used tools effectively do, with the well-known
+consequence that a program reading the clock or the environment can replay a stale answer. Option
+(a) is what trace-based caching and process memoisation attempt; Rattle and related
+record/replay systems demonstrated both the appeal and the difficulty~\cite{rr}.
+
+This paper is about option (a) taken to its conservative extreme, and about what that costs. We
+built \tracejit{} around a single rule: no cached byte is exposed unless every recorded dependency
+has just been re-checked, and anything the tracer cannot re-check causes the command to run again.
+We then measured the consequences, including the ones that make the system look bad.
+
+\paragraph{The research question.}
+\emph{If an automatic command cache refuses whenever it cannot prove a dependency is unchanged,
+what does it cost in eligibility, latency and applicability, and which correctness properties does
+that refusal actually buy?}
+
+The question is deliberately two-sided. A paper that reported only the wins would be unable to say
+whether the conservatism was worth anything; a paper that reported only the refusals would not show
+a system at all. Our evaluation therefore keeps both, and the negative results are part of the
+contribution rather than an appendix.
+
+\paragraph{Contributions.}
+\begin{enumerate}
+  \item \textbf{A contract discipline for automatic reuse.} We separate the observable being
+  reproduced (standard streams, exit status, declared outputs) from the evidence used to justify
+  reuse (guards over recorded kernel observations), and we make the second a precondition of the
+  first in the type system and in the runtime. Refusal, deoptimisation and re-execution are normal
+  outcomes with their own reporting, not errors.
+  \item \textbf{A measured account of the price of conservatism.} On a frozen census of 59
+  workloads and three contracts, native eligibility is $4.1\%$ and audited-contract eligibility
+  $24.5$--$38.8\%$; 28 of 162 attempted rows reused with zero incorrect observations. We report
+  the refusals by cause, and we report the workloads that got slower.
+  \item \textbf{A same-host competitive boundary.} Against \firebuild{} 0.8.2 and 0.8.6.2 we
+  measure where each engine reuses, where only one does, and what each costs per session. The
+  ordering flips with workload class, so we publish the boundary rather than a ranking.
+  \item \textbf{Enforcement, qualified on a capable host.} We exercise the full lifecycle ---
+  discovery, policy installation, \proven{} classification, reuse under enforcement, mutation,
+  re-execution --- and report precisely which command class can complete it and which cannot.
+  \item \textbf{The residual counterexample, kept.} A mutation between guard validation and output
+  restoration produces a stale hit. We reproduce it, we explain why every economical userspace
+  mitigation fails, and we state the operating assumption the prerelease requires.
+\end{enumerate}
+
+\paragraph{What we do not claim.}
+We do not claim to have invented command caching, content-addressed storage, tracing, sandboxing,
+or record/replay. We do not claim universal acceleration: several measured workloads are slower
+with the cache than without it, and one compiler cache is more than an order of magnitude faster
+than we are on its home ground. We do not claim formal correctness, and we do not describe our
+enforcement label as a proof. Section~\ref{sec:negative} is where most of this is quantified.

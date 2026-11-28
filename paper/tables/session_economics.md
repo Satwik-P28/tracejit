@@ -1,0 +1,12 @@
+**Table: Measured 25-invocation session economics, cold cache. The percentage is the change in cumulative execution time against native; negative values are losses.**
+
+| Workload | Native total (ms) | TraceJIT total (ms) | Ratio | Cumulative change | HITs |
+| --- | --- | --- | --- | --- | --- |
+| bzip2 -9 -k (1 MiB incompressible, file output) | 2846.7 | 545.3 | 5.22× | +80.8 % | 24 |
+| gzip -9 -n -k (1 MiB, file output) | 882.7 | 425.0 | 2.08× | +51.9 % | 120 |
+| gzip-mutating | 1953.9 | 1079.4 | 1.81× | +44.8 % | 16 |
+| gzip -9 -n -c (1.2 MiB text, stdout) | 1856.3 | 276.9 | 6.70× | +85.1 % | 120 |
+| sed (200k lines) | 1824.1 | 885.8 | 2.06× | +51.4 % | 120 |
+| sha256sum (1 MiB) | 94.5 | 377.2 | 0.25× | -299.3 % | 120 |
+
+*Source: benchmarks/results/phaseae/economics.json, mode=cold, size=25*

@@ -1,0 +1,83 @@
+\section{Negative results}
+\label{sec:negative}
+
+A conservative cache is defined by what it refuses, so the refusals are results.
+
+\paragraph{Compiler caches dominate us.}
+On the same zlib compilation, \texttt{ccache} 4.10.2 produced a cached object in 4.54\,ms while
+\tracejit{} took 65.18\,ms, and on a 27-invocation rebuild session \texttt{ccache} finished in
+5.371\,s against \tracejit's 9.239\,s, with the native build at 14.774\,s. Whole-command caching
+cannot beat a compiler-specific cache on compilation: the compiler cache keys on a semantic
+description of the action, while we pay to validate a recorded file set on every hit. We do not
+claim otherwise anywhere.
+
+\paragraph{\firebuild{} is faster where it applies.}
+Default \firebuild{} 0.8.6.2 beats us on \texttt{gzip} file output and, when configured to cache
+\texttt{sed}, on \texttt{sed}. Our remaining advantage on the artifact class is applicability ---
+\firebuild{} declines timestamp-setting producers --- not replay speed. Both engines validate
+recorded inputs; an earlier claim that \firebuild{} reuses without validation was withdrawn when
+the same-size-rewrite probe showed it detects those rewrites too.
+
+\paragraph{Native compatibility is very low.}
+$4.1\%$ eligibility natively is not a tuning artefact; it is what happens when clocks, entropy and
+process identity are treated as first-class dependencies. Python, most shells, \texttt{cp},
+\texttt{tar} and most compilers read something we cannot re-check. A system that admitted them
+would be faster and would sometimes be wrong, which is the trade-off this paper measures rather
+than resolves.
+
+\paragraph{Descriptor modelling did not pay.}
+Promoting \texttt{F\_GETFD} on inherited descriptors to a modelled no-op is sound ---
+\texttt{FD\_CLOEXEC} is descriptor-local and cleared by \texttt{exec} --- but it changed 0 of 48
+census cells, because \texttt{tar} and \texttt{xz} remain ineligible for unrelated reasons. It was
+reverted and the refusal is pinned by a regression test. Modelling their status-flag changes was
+rejected as unsound: those flags are shared and externally mutable.
+
+\paragraph{Metadata shortcuts did not pay either.}
+Relaxing metadata guards to admit a metadata-only change produced observable divergence and was
+rejected. Restoring fresh timestamps instead of recorded ones was measured and rejected for the
+same reason.
+
+\paragraph{Unprofitable workloads are common.}
+Any command cheaper than the hit path loses. The cheapest measured warm hit on the primary host is
+11.4\,ms and the small-command floor is 8--17\,ms across phases, so \texttt{readelf},
+\texttt{sed} on small inputs, \texttt{/bin/true} and short pipelines are all losses. A 25-invocation
+session of a cheap filter is slower with the cache than without it. \texttt{sha256sum} loses below
+about 10\,MiB and repays itself only at large sizes, because the hit re-hashes the input.
+
+\paragraph{Runtime entropy is a wall.}
+Reuse under the audited contract depends on the libc build. On Ubuntu 25.10 with glibc 2.42 the
+same commands were refused under every policy, including the contract, and produced no reuse. We
+refuse to guess that a second libc build is equivalent; the correct description is that
+\texttt{allocator-entropy-v1} is a 24.04 entitlement.
+
+\paragraph{The race survives.}
+Section~\ref{sec:toctou}. This is the most important negative result in the paper.
+
+\section{Limitations}
+
+\paragraph{One performance host; additional CI environments.}
+All timing comes from one machine. Two CI runners executed correctness, smoke and environment
+workflows, including a Landlock-capable kernel, and they are evidence of portability, not of
+performance. Nothing in this paper is a claim about a workload distribution.
+
+\paragraph{No independent external reproduction.}
+The reproduction package is prepared and executable, and CI-only reproduction is not a substitute
+for a third party running it. This gap is not closable by the authors.
+
+\paragraph{Narrow workload classes.}
+The measured wins are concentrated in repeated generation of stable-input artifacts --- compression
+and archive producers under a controlled contract --- and in read-only commands for the enforced
+tier. Everything else is either refused, unprofitable, or both.
+
+\paragraph{The enforced tier is narrower than the niche.}
+Enforcement completes for read-only commands. It cannot promote the artifact producers that
+motivate the system, for the structural reason in Section~\ref{sec:correctness}. The \proven{}
+label therefore currently covers a smaller set of workloads than the caching advantage does.
+
+\paragraph{Metadata and build-system interaction.}
+Timestamp-preserving restoration can leave a stale archive member; a user must touch restored
+outputs, force the dependent step, or cache the whole build. This is documented rather than fixed.
+
+\paragraph{Trust.}
+The cache directory is trusted, the command is trusted, and no binary attestation is produced. A
+forged record with valid object hashes would pass integrity verification.

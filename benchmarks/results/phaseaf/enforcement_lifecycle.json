@@ -1,0 +1,209 @@
+{
+  "arms": {
+    "producer": {
+      "native_output_sha256": "e08d829b76cd2756be1256f8a50d09d1a6e73c9f70587aa1ffcefb12bd985f51",
+      "steps": [
+        {
+          "cache_decision": "Ineligible",
+          "classification": "GUARDED",
+          "enforce": false,
+          "exit": 0,
+          "kind": "Executed",
+          "labelled_proven": false,
+          "policy_lines": [],
+          "refusals": [],
+          "stderr_empty": true,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "step": "1_discovery_execution"
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "GUARDED",
+          "enforce": false,
+          "exit": 0,
+          "kind": "Reused",
+          "labelled_proven": false,
+          "output_matches_native": true,
+          "policy_lines": [],
+          "refusals": [],
+          "stderr_empty": true,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "step": "2_guarded_reuse_without_enforcement"
+        },
+        {
+          "cache_decision": "Deoptimized",
+          "classification": "UNKNOWN",
+          "enforce": true,
+          "exit": 0,
+          "kind": "Executed",
+          "labelled_proven": false,
+          "policy_lines": [],
+          "refusals": [
+            "failed filesystem effect is not guardable: /workspace/chats/c49313e6a768948ef974b343/.phaseaf-lifecycle/ws/corpus.txt.gz (errno 17)",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "stderr_empty": true,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "step": "3_enforced_execution"
+        },
+        {
+          "cache_decision": "Deoptimized",
+          "classification": "UNKNOWN",
+          "enforce": true,
+          "exit": 0,
+          "kind": "Executed",
+          "labelled_proven": false,
+          "policy_lines": [],
+          "refusals": [
+            "failed filesystem effect is not guardable: /workspace/chats/c49313e6a768948ef974b343/.phaseaf-lifecycle/ws/corpus.txt.gz (errno 17)",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ],
+          "stderr_empty": true,
+          "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "step": "4_enforced_reuse"
+        }
+      ],
+      "workload": [
+        "gzip",
+        "-9",
+        "-n",
+        "-k",
+        "-f",
+        "corpus.txt"
+      ]
+    },
+    "read_only": {
+      "native_stdout_sha256": "f9cbbdc6f33f66001deacffac69f8bd2e04d37608f1c30f2e67800f7c6d6a21f",
+      "steps": [
+        {
+          "cache_decision": "Ineligible",
+          "classification": "GUARDED",
+          "enforce": false,
+          "exit": 0,
+          "kind": "Executed",
+          "labelled_proven": false,
+          "policy_lines": [],
+          "refusals": [],
+          "stderr_empty": true,
+          "stdout_sha256": "f9cbbdc6f33f66001deacffac69f8bd2e04d37608f1c30f2e67800f7c6d6a21f",
+          "step": "1_discovery_execution"
+        },
+        {
+          "cache_bytes": 188630,
+          "record_entries": 1,
+          "step": "2_candidate_recorded"
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "PROVEN",
+          "enforce": true,
+          "exit": 0,
+          "kind": "Executed",
+          "labelled_proven": true,
+          "policy_lines": [],
+          "refusals": [],
+          "stderr_empty": true,
+          "stdout_sha256": "f9cbbdc6f33f66001deacffac69f8bd2e04d37608f1c30f2e67800f7c6d6a21f",
+          "step": "3_enforced_execution"
+        },
+        {
+          "classification": "PROVEN",
+          "labelled_proven": true,
+          "step": "4_classification"
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "PROVEN",
+          "enforce": true,
+          "exit": 0,
+          "kind": "Reused",
+          "labelled_proven": true,
+          "policy_lines": [],
+          "refusals": [],
+          "stderr_empty": true,
+          "stdout_sha256": "f9cbbdc6f33f66001deacffac69f8bd2e04d37608f1c30f2e67800f7c6d6a21f",
+          "step": "5_enforced_reuse"
+        },
+        {
+          "cache_decision": "Deoptimized",
+          "classification": "GUARDED",
+          "enforce": true,
+          "exit": 0,
+          "kind": "Executed",
+          "labelled_proven": false,
+          "matches_new_input": true,
+          "policy_lines": [],
+          "refusals": [],
+          "stale_output_served": false,
+          "stderr_empty": true,
+          "stdout_sha256": "6862c29b4d0d1a107c493f6068138e1b63c851355056c2ce2c8b587d65745572",
+          "step": "6_input_mutation"
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "PROVEN",
+          "enforce": true,
+          "exit": 0,
+          "kind": "Executed",
+          "labelled_proven": true,
+          "matches_new_input": true,
+          "policy_lines": [],
+          "refusals": [],
+          "stderr_empty": true,
+          "stdout_sha256": "6862c29b4d0d1a107c493f6068138e1b63c851355056c2ce2c8b587d65745572",
+          "step": "7_reexecution_after_mutation"
+        }
+      ],
+      "workload": [
+        "sha256sum",
+        "corpus.txt"
+      ]
+    }
+  },
+  "assertions": {
+    "all_commands_succeeded": true,
+    "no_label_exceeds_capability": true,
+    "producer_enforcement_never_labelled_proven_without_policy": true,
+    "producer_enforcement_never_reuses_unproven_record": true,
+    "producer_guarded_reuse_is_correct": true,
+    "read_only_discovery_is_guarded": true,
+    "read_only_enforced_execution_is_proven_when_capable": true,
+    "read_only_enforced_reuse_when_capable": true,
+    "read_only_mutation_never_serves_stale_bytes": true,
+    "read_only_mutation_serves_new_bytes": true,
+    "read_only_reuse_keeps_proven_label_when_capable": true
+  },
+  "assertions_passed": true,
+  "binary": {
+    "path": "/workspace/chats/c49313e6a768948ef974b343/target/release/tracejit",
+    "sha256": "d860f6943f4614a280740ca164b901491c4333e22bc7efc421419595db7f2799",
+    "version": "tracejit 0.2.0-beta.1"
+  },
+  "capable": true,
+  "contract": "allocator-entropy-v1",
+  "doctor": {
+    "arch": "x86_64",
+    "cache_creatable": true,
+    "cache_path": "/workspace/chats/c49313e6a768948ef974b343/.phaseaf-lifecycle/cache",
+    "cache_writable": false,
+    "landlock_abi": 8,
+    "os": "linux",
+    "problems": [],
+    "proven": true,
+    "ptrace": true,
+    "runtime_contract": "allocator-entropy-v1 audited (8cebda42d140fc2b09639f8b13a5d5f2e617ef09)",
+    "seccomp": true,
+    "supported": true
+  },
+  "generated_unix_ms": 1795853979405,
+  "host": {
+    "cpus": 4,
+    "kernel": "7.0.0-38-generic",
+    "landlock_abi_syscall": 8,
+    "lsm_file": null,
+    "machine": "x86_64",
+    "os_release": "PRETTY_NAME=\"Ubuntu 24.04.5 LTS\"",
+    "seccomp_action_available": true
+  },
+  "schema": "tracejit.phaseaf.enforcement-lifecycle/v2"
+}

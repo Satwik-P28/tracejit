@@ -1,0 +1,12 @@
+**Table: Same-host session cost, 25 invocations, cold cache (the first trace is charged to the arm). Milliseconds; lower is better.**
+
+| Workload | Native | TraceJIT | Firebuild 0.8.2 | Firebuild 0.8.6.2 | Firebuild 0.8.6.2 tuned | TraceJIT steady | HITs (TraceJIT) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| bzip2 -9 -k (1 MiB incompressible, file output) | 2846.7 | 545.3 | 2976.9 | 3119.4 | 3131.5 | 444.7 | 24 |
+| gzip -9 -n -k (1 MiB, file output) | 882.7 | 425.0 | 1154.6 | 254.7 | 243.4 | 373.8 | 120 |
+| gzip-mutating | 1953.9 | 1079.4 | 949.6 | 959.1 | 885.3 | 1029.2 | 16 |
+| gzip -9 -n -c (1.2 MiB text, stdout) | 1856.3 | 276.9 | 299.9 | 268.0 | 260.7 | 167.9 | 120 |
+| sed (200k lines) | 1824.1 | 885.8 | 2071.2 | 2113.9 | 561.4 | 606.6 | 120 |
+| sha256sum (1 MiB) | 94.5 | 377.2 | 282.1 | 247.9 | 217.8 | 363.9 | 120 |
+
+*Source: benchmarks/results/phaseae/economics.json (cold, size=25); every row verified against a native oracle in phaseae/matrix.json (144 rows all_correct)*
