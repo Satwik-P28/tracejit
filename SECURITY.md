@@ -2,6 +2,13 @@
 
 TraceJIT can replay a previous command's stdout, stderr, exit status, and output files. A wrong reuse is a correctness bug and, if the command's output is trusted, a security bug.
 
+A wrong reuse can also come from the window between guard validation and restore: if another
+process rewrites an input after the guards were checked, TraceJIT can serve stale output. That is a
+known, reproducible limitation rather than an unknown bug; see
+[`docs/TOCTOU_CORRECTNESS_BOUNDARY.md`](docs/TOCTOU_CORRECTNESS_BOUNDARY.md) and
+[`docs/FINAL_CORRECTNESS_CONTRACT.md`](docs/FINAL_CORRECTNESS_CONTRACT.md). Report it only if the
+reproduction differs from the documented behavior.
+
 ## Report a suspected unsafe reuse
 
 If the report includes secrets, credentials, or a working exploit against someone else's cache, use a private GitHub security advisory on [Satwik-P28/tracejit](https://github.com/Satwik-P28/tracejit). Do not open a public issue for that.

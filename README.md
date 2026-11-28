@@ -1,156 +1,173 @@
 # TraceJIT
 
-Reuse an unmodified Linux x86_64 command only when the dependencies TraceJIT observed still pass synchronous guards. If an effect is unknown, or the command reads the clock, randomness, or the network, TraceJIT runs it again. Correctness beats performance; uncertainty fails closed.
+TraceJIT reuses an unmodified Linux x86_64 command only when the dependencies it observed on an
+earlier run still pass synchronous guards. If an effect is unknown, or the command reads the clock,
+entropy, or the network, TraceJIT runs it again. Correctness beats performance; uncertainty fails
+closed.
 
-**Status:** `v0.2.0-beta.1` is the published beta. Current `main` is **unreleased** and contains behaviour the beta does not have (a second audited contract, `compiler-runtime-v1`, and the 8.12 allocator admission). It is a research-oriented prototype for Linux x86_64: not a general guarantee of execution equivalence, not peer reviewed, and with no production adoption. Read [known limitations](docs/LIMITATIONS.md) before trusting a hit.
+It is a **research prototype** (`v0.3.0-alpha.1`, unpublished draft). It is not peer reviewed, has
+no production adoption, and is not a general guarantee of execution equivalence. Read the
+[correctness contract](docs/FINAL_CORRECTNESS_CONTRACT.md) before trusting a hit.
 
-## Install
+---
 
-Linux x86_64 only. The archive contains the binary, licenses, safety and security documentation, provenance manifest, and SBOM.
+## 1. What it is, in one paragraph
+
+Declared build systems know their inputs, so they can cache work. An arbitrary command does not,
+and replaying its output without knowing what it read is how stale results happen. TraceJIT runs
+the command once under `ptrace`, records what it actually observed, turns those observations into
+guards, and reuses the recorded stdout, stderr, exit status and output files only when every guard
+still passes. What it cannot re-check it refuses.
+
+## 2. Supported Linux environments
+
+| requirement | needed for |
+| --- | --- |
+| Linux x86_64 (GNU libc), `ptrace` permitted | everything |
+| an audited glibc build for `allocator-entropy-v1` | controlled-execution reuse (glibc `2.39-0ubuntu8.12` is audited) |
+| seccomp-BPF and Landlock ABI ≥ 3 | the `PROVEN` label (`--enforce`) |
+
+No macOS, Windows, AArch64 or musl build exists, and none is advertised. `tracejit doctor` reports
+what the current host can do and refuses the rest instead of degrading silently. A host without
+Landlock still supports `GUARDED` reuse; `--enforce` then never reuses and labels nothing `PROVEN`.
+
+## 3. Install
+
+There is no published `0.3.0-alpha.1` artifact yet. Build from source:
 
 ```bash
-version=$(curl -fsSL https://raw.githubusercontent.com/Satwik-P28/tracejit/main/VERSION)
-base="https://github.com/Satwik-P28/tracejit/releases/download/v${version}"
-name="tracejit-v${version}-x86_64-unknown-linux-gnu.tar.gz"
-curl -fsSLO "${base}/${name}" && curl -fsSLO "${base}/SHA256SUMS"
-sha256sum -c --ignore-missing SHA256SUMS
-tar -xzf "$name" && install -m 755 "tracejit-v${version}-x86_64-unknown-linux-gnu/tracejit" ~/.local/bin/tracejit
-tracejit doctor   # requires supported yes and ptrace yes
+git clone https://github.com/Satwik-P28/tracejit
+cd tracejit
+cargo build --workspace --release
+install -m 755 target/release/tracejit ~/.local/bin/tracejit
+tracejit doctor
 ```
 
-Full instructions, source builds, and artifact verification: [docs/INSTALL.md](docs/INSTALL.md).
+`doctor` must report `supported yes` and `ptrace yes`. `proven yes` is optional and depends on the
+kernel. The previous published release (`v0.2.0-beta.1`) can be installed from its GitHub release
+archive using the instructions in [docs/INSTALL.md](docs/INSTALL.md); it does not contain the
+contracts described here.
 
-## Why this is hard
+## 4. A genuine compression demonstration
 
-Declared build graphs (Make, Ninja, Bazel) and compiler caches (ccache, sccache) reuse work when inputs are listed or toolchain-specific. An already-built command does not come with that list. Replaying stdout and output files without checking what the process actually depended on is a stale-hit hazard. ptrace sees modeled kernel crossings, not arbitrary userspace influence; clocks, entropy, process identity, and unmodeled syscalls force refusal rather than a guessed hit.
+```bash
+mkdir demo && cd demo
+python3 -c "open('corpus.txt','wb').write(b''.join(b'line %06d\n' % i for i in range(200000)))"
+export TRACEJIT_CACHE_DIR="$PWD/cache"
 
-## What it supports now
+# 1. discovery run: traces, classifies GUARDED, stores the record
+tracejit run --contract allocator-entropy-v1 -- gzip -9 -n -k -f corpus.txt
 
-- Linux x86_64 whole-command memoization via ptrace, BLAKE3 CAS, and SQLite.
-- Reuse only for `GUARDED` and `PROVEN` records after every guard passes.
-- Optional `--enforce` (seccomp + Landlock ABI 3+) for `PROVEN`.
-- Bounded alternate candidates per identity (default 8), A/B/A reuse, stream verify before output mutation.
-- CLI: `run`, `analyze`, `explain`, `doctor`, `certify` / `verify-certificate`, `admission-eval`, cache stats/clear.
-- Strict hashing by default; `--guard-mode fast` is an explicit opt-in.
+# 2. remove the artifact, then reuse
+rm corpus.txt.gz
+tracejit run --contract allocator-entropy-v1 -- gzip -9 -n -k -f corpus.txt
+#   ... cache HIT, classified GUARDED, output restored byte-for-byte
 
-Not supported: macOS/Windows/non-x86_64 reuse, partial in-process reuse, remote caches, peer-reviewed or production-adoption claims.
+# 3. change the input: the guard fails and the command runs again
+printf 'changed\n' >> corpus.txt
+tracejit run --contract allocator-entropy-v1 -- gzip -9 -n -k -f corpus.txt
+#   ... cache DEOPT, new bytes
+```
 
-## Central contribution
+`scripts/demo.sh` runs the same sequence with a synthetic transform and requires the `DEOPT` step.
 
-Fail-closed **effect-aware whole-process memoization**: observe → classify → compile guards → reuse only when eligibility and guards hold, with testable refusals and an explicit Obs contract ([docs/research/EXECUTION_EQUIVALENCE.md](docs/research/EXECUTION_EQUIVALENCE.md)). Related systems already cache processes or builds; TraceJIT’s assessed contribution is this combination of classification, guards, certificates, refinement workflow, and measured negatives—not a claim of novelty for caching itself.
+## 5. Measured wins and losses
 
-## Guarantees that actually hold
+Every row is one host, cold cache, 25 invocations, verified per invocation against a native
+oracle. "TraceJIT" means `--contract allocator-entropy-v1`, the only policy under which these
+workloads reuse. Figures are regenerated from committed evidence by
+`benchmarks/phase_af/build_tables.py`; do not merge numbers across phases.
+
+| Workload | Native | TraceJIT | Firebuild 0.8.6.2 | Verdict |
+| --- | ---: | ---: | ---: | --- |
+| `bzip2 -9 -k`, 1 MiB file | 2846.7 ms | **545.3 ms** | 3119.4 ms (no reuse) | TraceJIT only reuse; 5.22× vs native, 80.8 % less cumulative time |
+| `gzip -9 -n -k`, 1 MiB file | 882.7 ms | 425.0 ms | **254.7 ms** | Firebuild faster |
+| `gzip -9 -n -c`, 1.2 MiB text | 1856.3 ms | **276.9 ms** | 268.0 ms | roughly equal |
+| `sed`, 200k lines | 1824.1 ms | 885.8 ms | 2113.9 ms (**561.4 ms** tuned) | Firebuild faster when configured to cache `sed` |
+| `sha256sum`, 1 MiB | **94.5 ms** | 377.2 ms | 247.9 ms | both lose; hash-only work is unprofitable |
+
+Plainly: **4 workloads in the wider corpus show positive cumulative savings and 9 are slower than
+native; `readelf`, small `sed` and other cheap commands are losses. `ccache` 4.10.2 is far faster
+than TraceJIT on compilation (4.54 ms vs 65.18 ms for one cached object), and Firebuild is faster
+wherever it is willing to cache.** Native eligibility is 2 of 49 attempted workloads (4.1 %);
+under `allocator-entropy-v1` it is 12 of 49 (24.5 %). Full census and methodology:
+[docs/FINAL_RESEARCH_REPORT.md](docs/FINAL_RESEARCH_REPORT.md),
+[benchmarks/results/](benchmarks/results/).
+
+For reference, `bzip2` is only cacheable by TraceJIT here because both Firebuild versions refuse a
+command that sets its output's timestamps. That is an applicability difference, not a claim that
+TraceJIT replays faster than Firebuild in general.
+
+## 6. The safety contract
 
 | Holds | Does not hold |
 | --- | --- |
-| No reuse for `UNKNOWN` / `NONDETERMINISTIC` / `EMPIRICALLY_STABLE` | Full execution equivalence or formal proof |
-| Guards + stream verify before exposing cached bytes | Freeze of other processes (validate→restore TOCTOU remains) |
-| `PROVEN` means seccomp and Landlock were installed | `PROVEN` as machine-checked Obs proof |
-| Certificates never grant `FullEquivalenceProof` | Crash-atomic multi-output restore under hard kill |
+| No reuse for `UNKNOWN`, `NONDETERMINISTIC` or `EMPIRICALLY_STABLE` | Execution equivalence, formal proof, or "the program did the same thing" |
+| Every guard passes, once, immediately before any cached byte is exposed | That other processes cannot change an input (see §8) |
+| Cached objects are re-hashed before exposure; corruption causes re-execution | Atomic restore of multiple outputs under `SIGKILL` |
+| `PROVEN` means seccomp and Landlock were installed for that execution | `PROVEN` as a proof of equivalence, or as confinement against a hostile command |
+| Certificates never assert `FullEquivalenceProof` | Any security boundary around the cached command |
 
-Feature status table: [docs/research/CLAIMS_LEDGER.md](docs/research/CLAIMS_LEDGER.md). Safety narrative: [SAFETY.md](SAFETY.md).
+The authority is [docs/FINAL_CORRECTNESS_CONTRACT.md](docs/FINAL_CORRECTNESS_CONTRACT.md).
 
-## Measured wins and losses
+## 7. Runtime-contract limitations
 
-All figures cite committed harness outputs with exact tips. Do not merge numbers across commits into one “speedup.” Three release states exist in this repository and their numbers are **not** interchangeable: the published beta (`v0.2.0-beta.1`, `7a594b9`), historical `main` before that tag (`4ffde9a`), and current unreleased `main`.
+Native reuse is rare because ordinary programs read entropy or the clock through libc. The
+controlled contracts exist to make a narrow class of programs reproducible, and they are
+deliberately explicit and opt-in:
 
-**Current `main`, real-world corpus (Phase AA)** — 59 workloads, 177 (tier × contract) rows, randomized paired samples with bootstrap intervals, host fingerprint in `benchmarks/results/phaseaa/environment.json`, protocol in [docs/REAL_WORLD_BENCHMARK_PROTOCOL.md](docs/REAL_WORLD_BENCHMARK_PROTOCOL.md):
+- `allocator-entropy-v1` audits **one** glibc build (`2.39-0ubuntu8.12`). On any other build the
+  contract is refused. It supplies the allocator's entropy reproducibly, which weakens the
+  unpredictability of the allocator marker by construction — that is the price of the tier.
+- `compiler-runtime-v1` additionally supplies the clock a compiler driver reads.
+- Controlled results are reproducible **within that contract**. They are never equivalent to native
+  execution and are never mixed with native records.
 
-| Tier / contract | Attempted | Reused | Rate |
-| --- | ---: | ---: | ---: |
-| A, native execution | 49 | 1 | 2.0 % |
-| A, `allocator-entropy-v1` | 49 | 10 | 20.4 % |
-| A, `compiler-runtime-v1` | 49 | 17 | 34.7 % |
-| C, any contract (adapted workloads) | 5 | 0 | 0 % |
+## 8. The validation-to-restore race — read this
 
-Measured rows only (13 workloads, warm-page-cache, direct vs warm HIT median):
+Guards are validated once, immediately before outputs are restored. **A process that modifies an
+input after that validation and before the restore causes stale output to be served.** This is
+reproduced, not theoretical: injecting the mutation in that window yields a hit with the previous
+input's bytes.
 
-| Workload | Direct | Warm HIT | Ratio (95 % CI) | Break-even | Session at 25× |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| `c-numeric-integration` | 344.9 ms | **11.4 ms** | 30.6× (24.1–39.5) | 1 | 13.1× |
-| `gcc-cc-heavy-tu` (zlib `deflate.c -O2`) | 610.1 ms | **86.4 ms** | 7.4× (5.3–9.3) | 1 | 5.3× |
-| `zlib-compile-deflate` | 611.5 ms | **83.1 ms** | 6.9× (5.3–8.8) | 1 | 5.4× |
-| `zlib-compile-adler32` | 99.8 ms | 78.4 ms | 1.32× (1.17–1.44) | 12 | 1.12× |
-| `gcc-noopt-compile` | 73.3 ms | 71.0 ms | 1.02× (0.87–1.17) | 128 | 0.89× |
-| `sed-substitute-file` | 14.0 ms | 79.9 ms | 0.17× | — | 0.17× |
-| `readelf-header` | 2.5 ms | 16.1 ms | 0.15× | — | 0.15× |
+Landlock confines the traced process, not unrelated writers. A read-only bind mount does not freeze
+the inode against a process that already holds a writable description. Snapshotting inputs would
+redefine the observable state, and a cooperative lock is not a guarantee.
 
-Aggregate, stated plainly: **4 workloads with positive cumulative savings, 8 slower than native, 0 incorrect HITs.** The cheapest warm hit measured on this host was 11.4 ms and a small command's floor is 13–17 ms, so every command cheaper than that loses. `make`, CPython, Node and `perl` workloads are refused and stay in the tables as negative results.
+**Operating assumption of this prerelease: no external process modifies the inputs during the
+reuse window.** It is an assumption, not an enforced guarantee. TraceJIT must not be described as
+race-free, atomic, or equivalent to fresh execution under concurrent mutation.
 
-**Historical pre-beta `main`** (measured `4ffde9a`, product `crates/` ≡ `ed3bd39`/`7b9e7ca`; `benchmarks/results/final_stab_pr3/mandate_s4/`, n=30, bootstrap 95% CI). These are **not** beta or current-`main` numbers; the `c-transform` row is a synthetic 250 M-round busy loop, not a real workload:
+## 9. When not to use it
 
-| Scenario | DIRECT | Warm HIT | Note |
-| --- | ---: | ---: | --- |
-| Synthetic CPU-bound `c-transform` | 32.524 ms | 5.303 ms (~6.1×) | Synthetic; no safe warm-HIT opt landed |
-| `/bin/true` / short floor | **0.351 ms** | 4.475 ms | Warm **loss** — DIRECT wins |
-| Short-ETL session cumulative | **35 ms** | 177 ms | HITs can still lose the session |
+- Shared or concurrent workspaces where another process may rewrite inputs.
+- Compilation. Use `ccache` or `sccache`.
+- Builds that already declare their dependencies. Use your build system.
+- Cheap commands, short pipelines, one-shots, and hash-only work below ~10 MiB: the hit costs more
+  than the command.
+- Anything where a stale result is unacceptable and you cannot freeze the inputs.
+- Non-Linux, non-x86_64, or unaudited libc, where it will simply refuse.
 
-**Beta release candidate `v0.2.0-beta.1`** (measured `cdb307b`, n=20, bootstrap 95% CI, `benchmarks/releases/v0.2.0-beta.1/`):
+## 10. Paper and reproduction
 
-| Scenario | DIRECT | Cold trace | Warm HIT | Note |
-| --- | ---: | ---: | ---: | --- |
-| CPU-heavy `c-transform` | 333.1 ms | 374.6 ms | **8.8 ms** | About 37× on this host |
-| `/bin/true` | **0.83 ms** | — | 6.41 ms | Warm loss |
-| `gzip -9` over 4 MiB | **117.2 ms** | 428.1 ms | 289.3 ms | Warm loss: replaying compressed stdout |
-| 10-run ETL session | **89.0 ms** | — | 125.3 ms | Session loss despite correct hits |
-| 64 MiB output file | **142.8 ms** | 588.9 ms | 193.3 ms | Restore and fsync dominate |
-| 8 concurrent `/bin/true` | — | 72.4 ms | 22.1 ms | All processes correct |
+- Paper: [paper/main.tex](paper/main.tex) (tables generated, not transcribed).
+- Reproduction package: [docs/REPRODUCTION_PACKAGE.md](docs/REPRODUCTION_PACKAGE.md).
+- Research report: [docs/FINAL_RESEARCH_REPORT.md](docs/FINAL_RESEARCH_REPORT.md).
+- Reviewer audit and venue assessment: [docs/PAPER_REVIEW_AUDIT.md](docs/PAPER_REVIEW_AUDIT.md).
+- Release qualification evidence: [docs/RELEASE_QUALIFICATION_V03.md](docs/RELEASE_QUALIFICATION_V03.md).
+- Claims ledger: [docs/PAPER_CLAIMS_LEDGER.md](docs/PAPER_CLAIMS_LEDGER.md).
 
-**Beta census:** 1/32 eligibility under unmodified defaults (`mandate_s4/census/`; the beta census reproduces 1/32 in `benchmarks/releases/v0.2.0-beta.1/census/`). That single number is a beta-era figure and mixed contract rows into the same sentence; the Phase AA table above replaces it with one cell per (tier, contract).
+## CLI
 
-**Withdrawn opt:** destination-match restore skip — synthetic back-to-back looked faster; with output consumption skip rate is **0/40**. Not a product claim ([final_stab_pr3/compare.md](benchmarks/results/final_stab_pr3/compare.md)).
-
-**Competitive (tip `364331b`, `benchmarks/results/phase_k8/`):** Make/Ninja win identical-rerun wall time; TraceJIT stays content-correct on mtime-preserved edit / corrupt output where Make/Ninja returned WRONG. Missing tools are skipped, not scored as losses.
-
-Release report: [docs/final/RELEASE_REPORT.md](docs/final/RELEASE_REPORT.md). Older adversarial packaging: [docs/final/FINAL_ANSWER.md](docs/final/FINAL_ANSWER.md).
-
-Phase AA evidence: [docs/PHASE_AA_REPORT.md](docs/PHASE_AA_REPORT.md) · [benchmark coverage matrix](docs/BENCHMARK_COVERAGE_MATRIX.md) · [competitive evaluation](docs/COMPETITIVE_EVALUATION.md) · [release readiness](docs/RELEASE_READINESS_V03.md) · [hypothesis ledger](docs/PHASE_AA_LEDGER.md).
-
-## Demo
-
-Linux x86_64:
-
-```bash
-cargo build --workspace --release
-./scripts/demo.sh
-./target/release/tracejit doctor
 ```
-
-`demo.sh` compiles the synthetic transform, traces, reuses, explains, mutates the input, and requires `DEOPT`. It runs with `TRACEJIT` set to an installed binary as well:
-
-```bash
-TRACEJIT=~/.local/bin/tracejit ./scripts/demo.sh
+tracejit doctor                 capability report for this host
+tracejit run -- <command>       trace, then reuse when every guard passes
+tracejit run --enforce -- ...   install seccomp + Landlock; PROVEN when installed
+tracejit run --contract <name>  opt in to a controlled execution contract
+tracejit analyze / explain      inspect what was observed and why it was or was not reused
+tracejit certify / verify-certificate
+tracejit admission-eval, cache stats|clear
 ```
-
-For the short-command harness and the release benchmark package:
-
-```bash
-./scripts/benchmark.sh
-python3 benchmarks/releases/run_release.py --runs 20 --warmups 3
-./benchmarks/realworld_v2/run.sh        # Phase AA real-world corpus, all tiers
-AA_MODE=smoke ./benchmarks/realworld_v2/run.sh
-```
-
-Release evidence lives in `benchmarks/releases/v<version>/`; the methodology is in [docs/BENCHMARK_REPRODUCTION.md](docs/BENCHMARK_REPRODUCTION.md).
-
-## Technical report and application notes
-
-- Final adversarial package index: [docs/final/FINAL_ANSWER.md](docs/final/FINAL_ANSWER.md) · [EXECUTIVE_SUMMARY.md](docs/final/EXECUTIVE_SUMMARY.md) · [ARTIFACT_EVALUATION.md](docs/final/ARTIFACT_EVALUATION.md)
-- Design/evidence report: [docs/research/TRACEJIT_TECHNICAL_REPORT.md](docs/research/TRACEJIT_TECHNICAL_REPORT.md)
-- Claims ledger: [docs/research/CLAIMS_LEDGER.md](docs/research/CLAIMS_LEDGER.md)
-- Prior-art matrix: [docs/final/PRIOR_ART_IMPLEMENTATION_MATRIX.md](docs/final/PRIOR_ART_IMPLEMENTATION_MATRIX.md)
-- FOCUS / application materials: [docs/focus/APPLICATION_MATERIALS.md](docs/focus/APPLICATION_MATERIALS.md)
-
-## 30-second path
-
-```text
-tracejit doctor
-tracejit run -- <command> [args...]
-tracejit run -- <command> [args...]
-tracejit explain
-```
-
-The first `run` traces. The second reuses only when the class is `GUARDED` or `PROVEN` and every guard passes.
 
 ## How it works
 
@@ -160,13 +177,13 @@ flowchart TD
   lookup --> hit{Prior record and every guard passes?}
   hit -->|yes| reuse[Restore outputs and replay stdout, stderr, exit status]
   hit -->|no| trace[ptrace the process tree]
-  trace --> effects[Classify Read, Write, Control, and Unknown effects]
+  trace --> effects[Classify read, write, control, unknown]
   effects --> det{Determinism class}
   det -->|UNKNOWN or NONDETERMINISTIC| closed[Fail closed: do not reuse]
-  det -->|observed effects are guardable| guarded[GUARDED]
-  guarded --> sandbox{--enforce and seccomp plus Landlock ABI 3+ installed?}
-  sandbox -->|yes| proven[Promote to PROVEN]
-  sandbox -->|no| stay[Stay GUARDED]
+  det -->|guardable| guarded[GUARDED]
+  guarded --> sandbox{--enforce and seccomp plus Landlock installed?}
+  sandbox -->|yes| proven[PROVEN]
+  sandbox -->|no| stay[GUARDED]
   proven --> store[Compile guards and store the result]
   stay --> store
   store --> next[Next run validates guards before exposing any cached byte]
@@ -175,22 +192,20 @@ flowchart TD
   deopt --> trace
 ```
 
-## Supported platforms
+Crates: `effects → guards → cache → trace → sandbox → core → cli`. Details:
+[ARCHITECTURE.md](ARCHITECTURE.md).
 
-Linux x86_64 (GNU) with `ptrace` permitted. `doctor` refuses other operating systems, architectures, and missing kernel features instead of degrading silently. There is no macOS, Windows, AArch64, or musl build; none is advertised.
-
-## Architecture and tests
-
-Crates: `effects → guards → cache → trace → sandbox → core → cli`. Details: [ARCHITECTURE.md](ARCHITECTURE.md).
+## Build and test
 
 ```bash
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo test --workspace
 cargo test -p tracejit-cli --test linux_integration -- --nocapture
+TRACEJIT_REQUIRE_PROVEN=1 cargo test -p tracejit-sandbox -- --nocapture   # enforcement on a capable host
+python3 benchmarks/phase_af/build_tables.py --check                       # tables vs evidence
+python3 benchmarks/phase_af/test_tables.py
 ```
-
-Adversarial fixture narrative: [docs/ADVERSARIAL.md](docs/ADVERSARIAL.md). Comparisons: [docs/COMPARISONS.md](docs/COMPARISONS.md).
 
 ## License
 

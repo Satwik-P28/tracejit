@@ -1,3 +1,8 @@
+<!-- Historical record. Superseded by docs/FINAL_CORRECTNESS_CONTRACT.md and
+     docs/PHASE_AF_REPORT.md. Statements below about the absence of a Landlock-capable
+     environment are host-specific and were true of the hosts named here; a later host in this
+     project reports Landlock ABI 8 and the enforcement lifecycle was qualified there. -->
+
 # Phase AE report — competitive evidence audit, cross-environment validation, correctness qualification
 
 Phase AE closed the Phase AD evidence loop. It corrected the measurement and reporting defects

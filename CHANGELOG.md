@@ -1,5 +1,43 @@
 # Changelog
 
+## 0.3.0-alpha.1 (research prerelease, prepared, not published)
+
+First research prerelease after `v0.2.0-beta.1`. It is labelled alpha because the
+correctness contract now states an operating assumption it cannot enforce: no
+external process may mutate an input during the reuse window
+(`docs/FINAL_CORRECTNESS_CONTRACT.md` §11). It is a research artefact, not a
+stable tool.
+
+- **Enforcement is qualified on a capable host.** The complete lifecycle
+  (discovery, candidate, policy installation, `PROVEN`, enforced reuse, mutation,
+  re-execution) is measured and asserted end to end for read-only commands on a
+  kernel with Landlock ABI 8. `benchmarks/phase_af/enforcement_lifecycle.py`,
+  `benchmarks/results/phaseaf/enforcement_lifecycle.json`.
+- **`PROVEN` is now visible on a hit.** The plain-mode report prints the record's
+  class on the reuse path; previously a `PROVEN` record could be reused without
+  the report saying the policy had been installed. The label means "policy
+  installed", never equivalence, and the explanation is unchanged.
+- **New negative regression.** `a_producer_that_replaces_an_existing_output_is_not_promoted`
+  pins the fail-closed refusal that stops a timestamp-setting producer from being
+  promoted to `PROVEN`.
+- **Four new policy tests** in `tracejit-sandbox`: read/write separation, an
+  undeclared neighbour of a declared path, a policy that cannot be installed, and
+  a policy the mechanism cannot express.
+- **Corrected headline arithmetic.** The `bzip2` applicability result is `5.22x`
+  and `80.8%` less cumulative execution time against native, recomputed from the
+  raw session rows; the earlier `5.6x` was arithmetic drift. Tables are generated
+  from evidence by `benchmarks/phase_af/build_tables.py`, and
+  `benchmarks/phase_af/test_tables.py` fails when a table disagrees with it.
+- **Break-even is defined four ways** (equal cost, strictly positive saving,
+  measured session, model estimate) and documents must say which one they use.
+- **The verified-replay figure is a cost model, not a lower bound.** The estimate
+  is a serial sum of measured components; overlapping implementations can beat it.
+- **Documentation:** `docs/FINAL_CORRECTNESS_CONTRACT.md`, `docs/FINAL_RESEARCH_REPORT.md`,
+  `docs/PAPER_REVIEW_AUDIT.md`, `docs/RELEASE_QUALIFICATION_V03.md`,
+  `docs/REPRODUCTION_PACKAGE.md`, `paper/`. Phase AD/AE reports are marked
+  superseded where they disagree with the contract.
+- No product behaviour changed outside the report line and the new tests.
+
 ## Unreleased (`development/v0.3`, Phase U)
 
 Compatibility modelling and verification work on top of the published

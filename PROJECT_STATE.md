@@ -21,14 +21,36 @@ Infer observable dependencies of an unmodified Linux process and reuse computati
 `effects -> guards -> cache -> trace -> sandbox -> core -> cli`
 Linux x86_64. ptrace. BLAKE3 CAS. SQLite. Whole-command reuse. Strict hashing. Synchronous guards.
 
-## Current main
+## Current state (end of Phase AF)
 
-- `origin/main` tip: `68ba406`, the merge of PR #44 (`research/phase-ab`); Phase AC and AD are
-  therefore on main's ancestry through the merge.
-- Published beta: tag `v0.2.0-beta.1` at `7a594b9`. v0.3 is qualified as a **research
-  prerelease** only (see `docs/RELEASE_READINESS_V03.md`, Phase AE review), not as a beta.
-- PR #45 (`research/phase-ad`) is open and **draft**. Its head and CI could not be read back
-  from the Cloud sandbox (`gh` unauthenticated, GitHub API rate-limited).
+- `origin/main` tip: `68ba406`, the merge of PR #44 (`research/phase-ab`).
+- Phase AF work is on `research/phase-af`, branched from `b81242d`.
+- PR #45 is open. Its head was verified as `b81242d` with four successful workflows (push CI
+  `45573894337`, PR CI `45573903654`, benchmark v2 `45573903647`, environment `45573903708`).
+- Version under qualification: **`0.3.0-alpha.1`**, a research prerelease. The published beta
+  `v0.2.0-beta.1` (`7a594b9`) is untouched and is not replaced.
+- Enforcement was qualified on a Landlock ABI 8 host in Phase AF, including enforced reuse; the
+  earlier "no Landlock anywhere" statements were true only of the hosts they named.
+- The authoritative contract is `docs/FINAL_CORRECTNESS_CONTRACT.md`; the phase summary is
+  `docs/PHASE_AF_REPORT.md`; release evidence is `docs/RELEASE_QUALIFICATION_V03.md`.
+
+## Phase AF (from `b81242d`)
+
+- Enforcement lifecycle qualified end to end on a capable host: GUARDED → `PROVEN` → Reused
+  `PROVEN` → mutation → deopt → `PROVEN`. Producer-style commands still cannot reach `PROVEN`.
+- Four sandbox policy tests plus two integration regressions added; `PROVEN` redefined in public
+  docs as "the policy was installed and the execution observed under it", not as an equivalence
+  proof.
+- Publication tables are generated from raw evidence (`benchmarks/phase_af/build_tables.py`,
+  8 tables, 10 integrity tests); no benchmark number in the paper is transcribed by hand.
+- Claims corrected: 5.22× / 80.84% for the bzip2 session against native, Firebuild 3119.4 ms as an
+  applicability baseline only, four explicit break-even definitions, and the 95 ms replay figure
+  restated as a serial cost model rather than a lower bound.
+- `scripts/phase_k4_restore_fault.sh` repaired: its fault hooks are environment variables, and the
+  environment is part of the cache key, so the old version never reached the restore path; the
+  cache also lived inside the observed directory. The soft-fail scenario now proves it reached
+  `restore_outputs`; the hard-kill scenario reports `SKIP` here.
+- `0.3.0-alpha.1` packaged, installed from the archive, and qualified; nothing published.
 
 ## Phase AC (correctness recovery, output semantics, non-compiler workloads)
 

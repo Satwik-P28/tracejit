@@ -1,3 +1,8 @@
+<!-- Historical record. Superseded by docs/FINAL_CORRECTNESS_CONTRACT.md and
+     docs/PHASE_AF_REPORT.md. Statements below about the absence of a Landlock-capable
+     environment are host-specific and were true of the hosts named here; a later host in this
+     project reports Landlock ABI 8 and the enforcement lifecycle was qualified there. -->
+
 # Phase AD report — competitive validation, descriptor semantics, economic admission
 
 Branch `research/phase-ad`, based on the verified Phase AC head `3f054ed` because PR #44 is
