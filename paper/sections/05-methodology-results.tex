@@ -1,0 +1,128 @@
+\section{Evaluation methodology}
+
+\paragraph{Frozen workloads.}
+The compatibility census uses 59 workloads, each run under three execution policies, giving 177
+declared cells. Workloads are frozen before measurement and split into development, validation and
+held-out sets; the split is recorded per row. A tier-A workload runs unmodified; a tier-C workload
+is an explicitly declared adaptation. Tier-A and tier-C cells are never summed, and no
+native-policy figure is ever averaged with a controlled-contract figure.
+
+\paragraph{Independent oracle.}
+Every invocation is compared against a native execution of the same command from the same
+pre-state, on standard output, standard error, exit status and a digest of the workspace tree.
+Metadata is compared separately, because a content-only comparison cannot tell two fixtures
+written a second apart from two genuinely identical ones. A sample counts as a hit only when the
+product reports a reuse \emph{and} the cache-decision field agrees \emph{and} the observation
+matches. A hit that disagrees with the oracle fails the run rather than being averaged in.
+
+\paragraph{Paired, randomised sampling.}
+Timing uses paired samples: for each repetition both arms run once from the same pre-state in
+random order, and the confidence interval is computed on the per-pair ratio by percentile
+bootstrap. Cold tracing needs an empty cache and therefore cannot be paired; those rows are
+labelled unpaired and reported with independent intervals.
+
+\paragraph{Session modes.}
+Two modes are reported separately and never mixed. \emph{Cold} starts from a new cache, so the
+first trace, the hits, the refusals and the deoptimisations are all charged to the arm --- this is
+what a new user pays. \emph{Steady} populates the cache outside the timed window and reports only
+the measured one. Every row states its mode.
+
+\paragraph{Per-invocation accounting.}
+The harness records each invocation's own decision, so a session's saving is the sum of decisions
+that were individually verified, not an inference from the total.
+
+\paragraph{Competitor configurations.}
+\firebuild{} 0.8.2 (Ubuntu packages, user-space extraction) and 0.8.6.2 (source build, pinned
+dependencies) are run with their default configuration, with a strict configuration
+(\texttt{ignore-time-queries} removed), and --- for \texttt{sed}, which \firebuild{} skips by
+default --- with its skip list cleared. The version and configuration are named with every number.
+Statistics are collected with \texttt{-s}, which places \firebuild's own reporting inside the timed
+interval; we disclose that instead of subtracting it, because removing it would remove the evidence
+that the invocation reused. \texttt{ccache} 4.10.2 is measured on compilation separately.
+
+\paragraph{Runtime versions and hosts.}
+The primary timing host is one Ubuntu 24.04 machine (kernel 6.1.102, glibc 2.39-0ubuntu8.12,
+ext4, 8 vCPUs). A second userspace (Ubuntu 25.10, glibc 2.42) on the same kernel was exercised for
+correctness and refusal, not timing. Two GitHub Actions runners executed the project's own
+correctness, smoke and environment workflows on kernels 6.1 and 7.0.0-1017-azure; the latter has
+Landlock ABI~8. CI-hosted execution is a second kernel and userland, not independent third-party
+reproduction, and no such reproduction exists.
+
+\paragraph{Instrumentation.}
+Timing runs the product's plain reporting mode. The JSON mode serialises the entire cached standard
+output as a byte array and was measured at up to 60\,ms on a 70\,ms hit; it is used once per row,
+outside the timer, to calibrate the decision channel. The plain report is written as one buffered
+block after the run, and each sample's output is verified against a reference digest, so the
+instrumentation cannot improve a number by skipping verification.
+
+\section{Results}
+\label{sec:results}
+
+\input{tables/compatibility}
+
+\paragraph{Eligibility.}
+Table~\ref{tab:compatibility} is the frozen census. Native execution reaches $4.1\%$ eligibility
+and $2.0\%$ reuse, because ordinary programs read entropy or the clock through libc. The audited
+\texttt{allocator-entropy-v1} contract lifts eligibility to $24.5\%$ and reuse to $20.4\%$ by
+supplying the allocator's entropy reproducibly for one audited glibc build. The
+\texttt{compiler-runtime-v1} contract additionally supplies the clock the compiler driver reads,
+reaching $38.8\%$ eligibility and $34.7\%$ reuse. Tier-C adapted workloads reach no reuse under any
+policy. Across the census 28 of 162 attempted rows reused, and no row produced an incorrect
+observation.
+
+\input{tables/competitive}
+
+\paragraph{Session cost.}
+Table~\ref{tab:competitive} is a same-host, cold-cache comparison at 25 invocations. The clearest
+result is an applicability result, not a speed one: on \texttt{bzip2 -9 -k} both \firebuild{}
+versions decline to cache at all (they refuse to cache a command that sets its output's
+timestamps), so the only comparison available is against native execution, where \tracejit{}
+reduces a 2846.7\,ms session to 545.3\,ms --- $5.22\times$, $80.8\%$ less cumulative time. On
+\texttt{gzip} with file output, \firebuild{} 0.8.6.2 reuses and is much faster than we are. On
+\texttt{gzip} to standard output the two engines are close. On \texttt{sed}, \firebuild{} is slower
+by default and faster when configured to cache it. On \texttt{sha256sum} neither engine is
+profitable, because a hit re-hashes exactly what the command would have hashed.
+
+\input{tables/session_economics}
+
+\paragraph{Break-even.}
+Table~\ref{tab:break_even} separates four quantities that were previously conflated. The first
+invocation at which cumulative cost \emph{equals} native is not the first at which it is
+\emph{cheaper}: at equality the saving is zero. Model break-even, computed from one cold trace plus
+steady-state hits, differs from measured break-even at sampled session lengths, and the gap is
+large exactly where the hit cost is close to the native cost --- for a 1\,MiB incompressible
+\texttt{gzip} the model gives three invocations while the measured session first shows a saving at
+ten. We report the measured quantity in the paper and the model quantity only as a model.
+
+\input{tables/artifact_scale}
+
+\paragraph{Artifact scale.}
+Table~\ref{tab:artifact_scale} varies artifact size on a pinned release archive. Warm hits stay in
+the single-digit to low-tens of milliseconds while native cost grows with the artifact, so the
+ratio improves with size; the cost that grows is verified replay itself. A verified replay of a
+100\,MiB artifact was measured at 79.8\,ms when the produced output is 19.9\,MB of compressed text
+and 257.8\,ms when the output is 100\,MiB of incompressible data. A decomposition of the hit path
+attributes roughly 39\,ms to guard validation (input hashing), 19--86\,ms to replaying the cached
+stream, and up to 57\,ms to writing it. These components are measured serially, but they are not a
+lower bound: a different implementation can overlap reading, hashing, copying and writing, and the
+input size is not the output size. We therefore state the measured cost and the measured component
+shares, and we make no claim about how fast verified replay \emph{must} be.
+
+\input{tables/capability}
+
+\paragraph{Enforcement capability.}
+Table~\ref{tab:capability} is the capability matrix. On a host with Landlock ABI~8 and seccomp, a
+read-only command completes the full lifecycle and the reused record is \proven{}; a host with no
+Landlock never labels anything \proven{} and never reuses under \texttt{--enforce}, which is the
+documented fallback rather than a failure. Output producers cannot be promoted for the reason given
+in Section~\ref{sec:correctness}: the policy needs the declared output to exist, and the command
+recreates it with \texttt{O\_EXCL} over that existing file, producing an unmodelled failed write.
+
+\input{tables/correctness}
+
+\paragraph{Adversarial correctness.}
+Table~\ref{tab:correctness} keeps the counterexamples. The post-validation mutation is the
+important one: it is a real stale hit, it is reproducible, and it is excluded from the guarantee by
+statement rather than by omission. The corrupted-object row is the contrast case: corrupting a
+cached object costs a re-execution and produces the correct observation, because the object is
+re-hashed before exposure.

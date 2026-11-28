@@ -1,0 +1,79 @@
+{
+  "ubuntu-25.10": {
+    "enforce": [
+      "enforce_run1 exit=1 decision: ",
+      "enforce_run2 exit=1 decision: "
+    ],
+    "enforce_any_proven": false,
+    "enforce_any_reuse": false,
+    "exit": 0,
+    "glibc": "ldd (Ubuntu GLIBC 2.42-0ubuntu3) 2.42",
+    "guarded_reuse": [
+      "run1 exit=1",
+      "run2 exit=1",
+      "stdout_identical=yes",
+      "run1 decision: ",
+      "run2 decision: "
+    ],
+    "guarded_second_run_reused": false,
+    "guarded_stdout_identical": true,
+    "host_glibc": "ldd (Ubuntu GLIBC 2.39-0ubuntu8.12) 2.39",
+    "host_kernel": "6.1.102",
+    "kernel": "6.1.102",
+    "label": "ubuntu-25.10",
+    "lsms": "unavailable",
+    "note": "same kernel as the host; a different userspace, not third-party reproduction",
+    "os_release": [
+      "PRETTY_NAME=\"Ubuntu 25.10\"",
+      "NAME=\"Ubuntu\"",
+      "VERSION_ID=\"25.10\"",
+      "VERSION=\"25.10 (Questing Quokka)\""
+    ],
+    "root": "/workspace/chats/a2fee7edda38fc9e50f9ffdf/.phaseae-rootfs/root",
+    "stderr_tail": "mount: /workspace/chats/a2fee7edda38fc9e50f9ffdf/.phaseae-rootfs/root/proc: wrong fs type, bad option, bad superblock on /proc, missing codepage or helper program, or other error.\n       dmesg(1) may have more information after failed mount system call.\nmount: /workspace/chats/a2fee7edda38fc9e50f9ffdf/.phaseae-rootfs/root/sys: wrong fs type, bad option, bad superblock on /sys, missing codepage or helper program, or other error.\n       dmesg(1) may have more information after failed mount system call.\nmount: /workspace/chats/a2fee7edda38fc9e50f9ffdf/.phaseae-rootfs/root/dev: wrong fs type, bad option, bad superblock on /dev, missing codepage or helper program, or other error.\n       dmesg(1) may have more information after failed mount system call.\ndd: failed to open '/dev/zero': No such file or directory\n",
+    "tracejit_sha256": "b6c3bab9913d3cb4fb0c2662709fa7325d66f176d42d3167df7271a806201ed7",
+    "workspace_filesystem": "ext2/ext3"
+  },
+  "ubuntu-25.10-glibc2.42": {
+    "enforce": [
+      "enforce_run1 exit=0 decision: cache          MISS classified     UNKNOWN ",
+      "enforce_run2 exit=0 decision: cache          MISS classified     UNKNOWN "
+    ],
+    "enforce_any_proven": false,
+    "enforce_any_reuse": false,
+    "exit": 0,
+    "glibc": "ldd (Ubuntu GLIBC 2.42-0ubuntu3) 2.42",
+    "guarded_reuse": [
+      "run1 exit=0",
+      "run2 exit=0",
+      "stdout_identical=yes",
+      "run1 decision: cache          MISS classified     NONDETERMINISTIC ",
+      "run2 decision: cache          MISS classified     NONDETERMINISTIC "
+    ],
+    "guarded_second_run_reused": false,
+    "guarded_stdout_identical": true,
+    "host_glibc": "ldd (Ubuntu GLIBC 2.39-0ubuntu8.12) 2.39",
+    "host_kernel": "6.1.102",
+    "kernel": "6.1.102",
+    "label": "ubuntu-25.10-glibc2.42",
+    "lsms": "unavailable",
+    "native_policy": [
+      "native_run1 exit=0 decision: cache          MISS classified     NONDETERMINISTIC ",
+      "native_run2 exit=0 decision: cache          MISS classified     NONDETERMINISTIC ",
+      "native_stdout_identical=yes",
+      "contract_equals_native=yes"
+    ],
+    "native_policy_any_reuse": false,
+    "note": "same kernel as the host; a different userspace, not third-party reproduction",
+    "os_release": [
+      "PRETTY_NAME=\"Ubuntu 25.10\"",
+      "NAME=\"Ubuntu\"",
+      "VERSION_ID=\"25.10\"",
+      "VERSION=\"25.10 (Questing Quokka)\""
+    ],
+    "root": "/workspace/chats/a2fee7edda38fc9e50f9ffdf/.phaseae-rootfs/root",
+    "stderr_tail": "",
+    "tracejit_sha256": "b6c3bab9913d3cb4fb0c2662709fa7325d66f176d42d3167df7271a806201ed7",
+    "workspace_filesystem": "ext2/ext3"
+  }
+}

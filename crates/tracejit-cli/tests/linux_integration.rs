@@ -2048,6 +2048,33 @@ fn enforced_execution_is_proven_reused_and_invalidated() {
     assert_eq!(reused["cache_decision"], "Reused", "{reused}");
     assert_eq!(fs::read(&output).unwrap(), b"input one\n");
 
+    // The plain-mode report is what a user reads. A reuse used to print no class at all, so an
+    // enforced record could be reused without the report saying the policy was installed. The
+    // class printed here is the record's; it is not a claim of observational equivalence.
+    fs::remove_file(&output).unwrap();
+    let plain = invoke(
+        &cache,
+        &[
+            "run",
+            "--enforce",
+            "--",
+            binary.to_str().unwrap(),
+            "plain_file_read",
+            temporary.path().to_str().unwrap(),
+        ],
+        None,
+    );
+    assert!(plain.status.success());
+    let report = String::from_utf8_lossy(&plain.stderr);
+    assert!(
+        report.contains("cache          HIT"),
+        "the plain-mode run did not reuse: {report}"
+    );
+    assert!(
+        report.contains("classified     PROVEN"),
+        "a PROVEN record was reused without saying so: {report}"
+    );
+
     fs::write(&input, b"input two\n").unwrap();
     let changed = invoke(&cache, &args, None);
     assert!(changed.status.success());
@@ -2055,6 +2082,76 @@ fn enforced_execution_is_proven_reused_and_invalidated() {
     assert_ne!(changed["kind"], "Reused", "{changed}");
     assert_eq!(fs::read(&output).unwrap(), b"input two\n");
     eprintln!("RESULT proven-reuse PASS");
+}
+
+/// A command that must *replace* an existing output cannot be promoted, and says so honestly.
+///
+/// `policy_from_record` refuses to assemble a policy while a recorded output is absent, and a
+/// command that recreates an existing output with `O_EXCL` (gzip, bzip2 and most archivers)
+/// produces a refused `EEXIST` write the classifier does not model. The two requirements are
+/// contradictory for this workload class, so `--enforce` re-executes and stays unclassified
+/// rather than installing a policy it cannot honour. This test pins that fail-closed outcome so a
+/// later change cannot silently label an unenforced producer `PROVEN`.
+#[test]
+fn a_producer_that_replaces_an_existing_output_is_not_promoted() {
+    if !tracejit_sandbox::capabilities().can_prove() {
+        eprintln!("RESULT producer-enforcement SKIP: seccomp or Landlock ABI 3+ is unavailable");
+        return;
+    }
+    if Command::new("gzip").arg("--version").output().is_err() {
+        eprintln!("RESULT producer-enforcement SKIP: gzip is not installed");
+        return;
+    }
+    let temporary = tempfile::tempdir().unwrap();
+    let root = temporary.path().to_str().unwrap().to_string();
+    let corpus = temporary.path().join("corpus.txt");
+    fs::write(&corpus, vec![b'a'; 200_000]).unwrap();
+    let corpus_text = corpus.to_str().unwrap();
+    let cache = temporary.path().join("cache");
+    // Absolute input path: `invoke` does not change the child's working directory, so a relative
+    // name would be resolved against the test runner's cwd instead of the temporary workspace.
+    let guarded = [
+        "run",
+        "--enforce",
+        "--json",
+        "--contract",
+        "allocator-entropy-v1",
+        "--",
+        "gzip",
+        "-9",
+        "-n",
+        "-k",
+        "-f",
+        corpus_text,
+    ];
+    let discovery = invoke(&cache, &guarded, None);
+    assert!(
+        discovery.status.success(),
+        "{}",
+        String::from_utf8_lossy(&discovery.stderr)
+    );
+    let discovery: Value = serde_json::from_slice(&discovery.stdout).unwrap();
+    assert_ne!(discovery["classification"], "Proven", "{discovery}");
+
+    // Regenerate over the existing artifact: the enforced re-execution is refused, not promoted.
+    let enforced = invoke(&cache, &guarded, None);
+    assert!(
+        enforced.status.success(),
+        "the enforced command must still run"
+    );
+    let enforced: Value = serde_json::from_slice(&enforced.stdout).unwrap();
+    assert_eq!(enforced["kind"], "Executed", "{enforced}");
+    assert_ne!(
+        enforced["classification"], "Proven",
+        "a producer whose policy could not be installed was labelled PROVEN: {enforced}"
+    );
+    assert_eq!(
+        fs::read_dir(temporary.path()).unwrap().count(),
+        3,
+        "{}",
+        root
+    );
+    eprintln!("RESULT producer-enforcement PASS");
 }
 
 #[test]

@@ -1,0 +1,48 @@
+{
+  "after_corruption": {
+    "cache_decision": "Ineligible",
+    "correct": true,
+    "decision": "Executed",
+    "exit": 0,
+    "reason": null,
+    "reported_hit": false,
+    "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+  },
+  "all_correct": true,
+  "argv": [
+    "gzip",
+    "-9",
+    "-n",
+    "-c",
+    "input.bin"
+  ],
+  "contract": "allocator-entropy-v1",
+  "corrupted_offset": 124928,
+  "expected_stdout_bytes": 249857,
+  "expected_stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d",
+  "input_bytes": 1159197,
+  "object_located": true,
+  "object_name_is_64_hex": true,
+  "object_path": "/workspace/chats/a2fee7edda38fc9e50f9ffdf/.phaseae-integrity/cache/objects/061a98ac6786f9ca100a1eae69e7ae15dc53ccc4e1375932913d0c1334d75612",
+  "population": [
+    {
+      "cache_decision": "Ineligible",
+      "correct": true,
+      "decision": "Executed",
+      "exit": 0,
+      "index": 0,
+      "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+    },
+    {
+      "cache_decision": "Reused",
+      "correct": true,
+      "decision": "Reused",
+      "exit": 0,
+      "index": 1,
+      "stdout_sha256": "5f2b06362df646108e59aee82536321b2f52dd135634c1637e583341cb90017d"
+    }
+  ],
+  "served_corrupted_bytes": false,
+  "tracejit": "/workspace/chats/a2fee7edda38fc9e50f9ffdf/target/release/tracejit",
+  "tracejit_sha256": "b6c3bab9913d3cb4fb0c2662709fa7325d66f176d42d3167df7271a806201ed7"
+}

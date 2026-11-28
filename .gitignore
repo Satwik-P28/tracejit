@@ -20,3 +20,14 @@ benchmarks/results/phase-sample.json
 .ruff_cache/
 
 proptest-regressions/
+
+# Phase AE benchmark scratch (never committed)
+.phaseae-scratch/
+.phaseae-rootfs/
+.phaseae-fresh/
+.phaseae-policy/
+.phaseae-integrity/
+.phaseae-matrix/
+.phaseae-replay/
+.phaseae-toctou/
+.phaseae-probe/

@@ -54,10 +54,17 @@ printf '%s\n' "$doctor" | grep -q 'supported      yes' || fail "doctor unsupport
 printf '%s\n' "$doctor" | grep -q 'ptrace         yes' || fail "doctor ptrace"
 echo "RESULT help PASS"
 echo "RESULT doctor PASS"
-if printf '%s\n' "$doctor" | grep -q 'landlock       yes'; then
-  echo "RESULT proven-capability PASS"
+# The capability question is answered by the binary's own syscall probe, not by grepping the
+# human-readable report: `doctor` prints `landlock       abi 8`, and a check for the literal
+# "yes" skipped this qualification on a host that can install the policy. `--json` carries the
+# decision the product actually makes.
+doctor_json=$("$tracejit" doctor --json)
+if printf '%s\n' "$doctor_json" | grep -q '"proven": true'; then
+  abi=$(printf '%s\n' "$doctor_json" | sed -n 's/.*"landlock_abi": \([0-9][0-9]*\).*/\1/p')
+  echo "RESULT proven-capability PASS (landlock abi ${abi:-unknown})"
 else
-  echo "RESULT proven-capability SKIP: Landlock is not enabled on this kernel"
+  echo "RESULT proven-capability SKIP: seccomp and Landlock ABI 3+ unavailable on this kernel"
+  echo "RESULT proven-capability SKIP: documented fallback is GUARDED reuse with no PROVEN label"
 fi
 
 echo "=== cache initialization ==="

@@ -1,0 +1,86 @@
+{
+  "schema": "tracejit.phaseaf.optimisations/v1",
+  "note": "Curated from the phase reports named in each row. Qualitative statuses only: no performance number is published from this file, and each accepted item cites the regression that protects it.",
+  "items": [
+    {
+      "candidate": "Drop the redundant first guard pass before loading cached streams",
+      "status": "accepted",
+      "evidence": "docs/PHASE_X_REPORT.md; one pass remains, immediately before restore; guard-pass regression suite in tracejit-core"
+    },
+    {
+      "candidate": "Skip the durable restore intent for records with no workspace outputs",
+      "status": "accepted",
+      "evidence": "docs/PHASE_AB_REPORT.md; paired A/B on cut, gzip -6, sed with CIs excluding zero"
+    },
+    {
+      "candidate": "Drop the pre-delete/pre-rename input snapshot when the same execution recreates the path",
+      "status": "accepted",
+      "evidence": "docs/PHASE_W_REPORT.md; regression superseded_delete_does_not_pin_the_next_run_to_the_old_bytes"
+    },
+    {
+      "candidate": "Report the record's determinism class on the reuse path",
+      "status": "accepted",
+      "evidence": "docs/PHASE_AF_REPORT.md; linux_integration::enforced_execution_is_proven_reused_and_invalidated"
+    },
+    {
+      "candidate": "Promote F_GETFD on inherited descriptors to a modelled no-op",
+      "status": "rejected",
+      "evidence": "docs/PHASE_AD_REPORT.md §14: sound but inert, 0 of 48 census cells changed; unit test pins the refusal"
+    },
+    {
+      "candidate": "Model F_GETFL/F_SETFL on inherited or internal pipes",
+      "status": "rejected",
+      "evidence": "docs/PHASE_AD_REPORT.md §14: shared, externally mutable status flags"
+    },
+    {
+      "candidate": "Model tar's realtime clock read",
+      "status": "rejected",
+      "evidence": "docs/PHASE_AD_REPORT.md §14: no clock contract exists; --mtime does not remove the read"
+    },
+    {
+      "candidate": "Relax metadata guards with a metadata-preserving clone",
+      "status": "rejected",
+      "evidence": "docs/PHASE_AC_REPORT.md: unjustifiable field precision, reproduced divergence"
+    },
+    {
+      "candidate": "Snapshot inputs to close the validation-to-restore race",
+      "status": "rejected",
+      "evidence": "docs/TOCTOU_CORRECTNESS_BOUNDARY.md: redefines observable state and doubles hit cost"
+    },
+    {
+      "candidate": "Cooperative flock mode for reuse",
+      "status": "rejected",
+      "evidence": "docs/TOCTOU_CORRECTNESS_BOUNDARY.md: not a guarantee against an uncooperative writer"
+    },
+    {
+      "candidate": "Change default admission from auto to always",
+      "status": "rejected",
+      "evidence": "docs/PHASE_AD_REPORT.md §7: 3.4-4.2% on one session, unproven, costs one-shot tracing"
+    },
+    {
+      "candidate": "Fused hash-and-write, streaming cached bytes, mmap replay",
+      "status": "rejected",
+      "evidence": "docs/PHASE_AE_REPORT.md §13: each exposes unverified bytes or adds a failure mode"
+    },
+    {
+      "candidate": "Cache guard results between runs (metadata-only revalidation)",
+      "status": "rejected",
+      "evidence": "docs/PHASE_AE_REPORT.md §13: reintroduces the same-timestamp defect"
+    },
+    {
+      "candidate": "Parallel guard validation across 8 threads",
+      "status": "rejected",
+      "evidence": "docs/PHASE_W_REPORT.md: sequential guard walk dominates; 111.7 to 110.6 ms median, reverted"
+    },
+    {
+      "candidate": "Grant the parent directory of a declared output REMOVE_FILE/MAKE_REG so gzip can be enforced",
+      "status": "rejected",
+      "evidence": "docs/PHASE_AF_REPORT.md §5: does not help (the refusal is an unmodelled EEXIST write) and widens the policy"
+    },
+    {
+      "candidate": "Grant parent-directory replacement rights to make producers enforceable",
+      "status": "rejected",
+      "evidence": "docs/PHASE_AF_REPORT.md §5: the blocking effect is the command's own failed O_EXCL, not the directory grant"
+    }
+  ]
+}

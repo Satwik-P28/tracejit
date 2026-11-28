@@ -1,0 +1,46 @@
+name: Phase AE environment
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      TRACEJIT_REQUIRE_PROVEN: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build
+        run: cargo build --release -p tracejit-cli
+      - name: Probe the environment
+        run: |
+          python3 benchmarks/phase_ae/environment_probe.py \
+            --tracejit target/release/tracejit \
+            --output /tmp/environment.json > /dev/null
+      - name: Publish the fingerprint as public annotations
+        run: python3 benchmarks/phase_ae/ci_annotations.py /tmp/environment.json
+      - name: Capacity note
+        run: |
+          grep -q '"proven": true' /tmp/environment.json \
+            && echo "PROVEN-capable runner" \
+            || echo "runner is not PROVEN-capable (recorded in annotations)"
+      - name: Accounting regressions
+        run: python3 benchmarks/phase_ae/test_accounting.py
+      - name: Benchmark harness self-tests
+        run: python3 benchmarks/realworld_v2/test_harness.py
+      - name: Reuse smoke on the runner filesystem
+        run: |
+          set -eu
+          ws=$(mktemp -d)
+          cd "$ws"
+          head -c 1048576 /dev/zero | tr '\0' 'a' > corpus.txt
+          TRACEJIT_CACHE_DIR="$ws/cache" "$GITHUB_WORKSPACE"/target/release/tracejit \
+            run --contract allocator-entropy-v1 -- gzip -9 -n -c corpus.txt > first.gz 2> first.txt
+          TRACEJIT_CACHE_DIR="$ws/cache" "$GITHUB_WORKSPACE"/target/release/tracejit \
+            run --contract allocator-entropy-v1 -- gzip -9 -n -c corpus.txt > second.gz 2> second.txt
+          cmp first.gz second.gz
+          decision=$(grep -o "cache          [A-Z]*" second.txt | head -1)
+          echo "::notice title=phase-ae-reuse-smoke::second=$decision identical_bytes=yes"

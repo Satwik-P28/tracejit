@@ -1,0 +1,89 @@
+\section{Correctness}
+\label{sec:correctness}
+
+We separate what is tested, what is model-checked, and what is unresolved. Conflating the three is
+how a systems paper overstates itself.
+
+\subsection{Tested invariants}
+
+\begin{enumerate}
+  \item \textbf{No reuse without a passing guard pass.} Enforced by the typestate gate; the
+  negative direction is exercised by deoptimisation tests across file content, metadata, symlink
+  target, environment and input restoration.
+  \item \textbf{No reuse of a corrupt object.} A corrupted CAS object produces a miss and a correct
+  observation, measured directly.
+  \item \textbf{No reuse for an ineligible class.} Clock, entropy, network, unmodelled syscall and
+  writable shared mapping cases are fixtures in the integration suite and never hit.
+  \item \textbf{No reuse from an empty cache}, and none after a cache relocation.
+  \item \textbf{Enforcement is all-or-nothing.} A policy that cannot be installed produces an
+  error, never an unenforced child labelled \proven{}; read and write rights are separate; an
+  undeclared neighbour of a declared path is unreachable.
+  \item \textbf{Restoration is verified before exposure.} Staged objects are hash-checked before
+  any destination is mutated.
+\end{enumerate}
+
+Across every measurement cited in this paper the number of incorrect observations inside the
+declared contract is zero.
+
+\subsection{Model-checked properties}
+
+The reuse state machine and the crash-recovery path are specified in TLA$^+\ \cite{lamport}$ and
+checked with a bounded model checker over the hit, deopt, corrupt-object and restore-intent
+transitions. The checked properties are the ordering ones: a hit is never emitted before the guard
+pass, and a restore intent is never cleared before its outputs are durable. The model is a
+specification of the design, not a verification of the Rust implementation, and we do not claim
+otherwise.
+
+\subsection{The residual counterexample}
+\label{sec:toctou}
+
+Guards are validated once, immediately before the workspace is mutated, and restoration happens
+afterwards. A writer that changes an input \emph{inside that window} is not observed. We inject a
+mutation at each point in the window and record the decision:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Injection point & Decision & Observation \\
+\midrule
+before validation & deoptimised & correct for the new input \\
+before loading cached streams & deoptimised & correct for the new input \\
+mutate then revert & deoptimised & the mtime guard still detects it \\
+\textbf{after validation, before apply} & \textbf{\texttt{Reused}} & \textbf{stale bytes} \\
+concurrent writer during hashing (8/8) & deoptimised & correct for the new input \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+This is a real counterexample, not a theoretical one: the run reports a hit and serves the previous
+input's output. No economical userspace mechanism closes it. Descriptor pinning does not observe an
+in-place rewrite through the same inode; a read-only bind mount does not freeze the inode against a
+writer that already holds a writable description; snapshotting inputs redefines the observable
+state and roughly doubles the hit cost; a cooperative lock is not a guarantee against an
+uncooperative writer. Landlock confines the traced process --- it says nothing about unrelated
+processes --- so enforcement does not narrow this window either.
+
+We therefore state an \emph{operating assumption}: no external process mutates the inputs during
+the reuse window. It is an assumption, not a guarantee, and the prerelease says so in its
+installation instructions and in its safety document. TraceJIT must not be described as race-free,
+atomic, or equivalent to fresh execution under concurrent mutation.
+
+\subsection{Timestamp restoration}
+
+A restored regular file carries its recorded metadata, including mtime. That is observable: a
+program that prints its output's mtime sees the recorded value, and a build system that compares
+mtimes can find a restored object older than an archive built from it, then skip re-archiving and
+keep a stale member. We reproduced this on Lua 5.4.6 and zlib 1.3.1. Fresh timestamps were
+measured and rejected: because standard output is replayed, a fresh mtime would make a replayed
+observation describe a workspace that no longer exists.
+
+\subsection{Enforcement lifecycle}
+
+On a Landlock ABI~8 host, a read-only command completes the whole lifecycle: discovery
+(\guarded{}), enforced execution (\proven{}), enforced reuse (\proven{}), mutation
+(deoptimise, new bytes), re-execution (\proven{}). An output producer does not: the policy requires
+its declared output to exist, and the command then recreates that output with
+\texttt{O\_CREAT|O\_EXCL}, whose \texttt{EEXIST} is an unmodelled failed write. The run fails
+closed. We tested whether a parent-directory replacement grant would unblock it; it does not, and
+the grant was reverted rather than shipped. This is a limitation of the enforced tier, disclosed,
+not a safety violation.

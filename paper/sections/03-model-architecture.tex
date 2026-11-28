@@ -1,0 +1,61 @@
+\section{Architecture}
+
+The implementation is a Rust workspace with seven crates whose dependency order is
+\texttt{effects} $\rightarrow$ \texttt{guards} $\rightarrow$ \texttt{cache} $\rightarrow$
+\texttt{trace} $\rightarrow$ \texttt{sandbox} $\rightarrow$ \texttt{core} $\rightarrow$
+\texttt{cli}. The order is a correctness device: nothing that can decide to reuse is reachable from
+anything that only records.
+
+\paragraph{Tracing.}
+A command is launched under \texttt{ptrace} and every modelled syscall is decoded into an effect
+with its arguments, result and errno. Children and threads are followed. The trace is bounded by
+the process tree, not by wall-clock time.
+
+\paragraph{Effect classification.}
+The classifier folds the effect list into a determinism class. The important property is that
+classification is a function of the \emph{observed} effects only: a syscall the tracer does not
+model cannot be silently dropped, because an unmodelled syscall is itself an effect that forces
+refusal. This is what makes the refusal list auditable, and it is also what makes some real
+programs permanently ineligible (Section~\ref{sec:negative}).
+
+\paragraph{Guard construction.}
+Each read becomes a guard that re-opens the recorded pathname, re-reads it and compares a BLAKE3
+digest~\cite{blake3}; each metadata observation becomes a guard over the recorded fields; each
+access check becomes a guard over the recorded answer, including a negative answer. Guards replay
+the pathname the process used: there is no lexical \texttt{..} collapse and no extra symlink
+resolution, because either would change which file the process would see on the next run.
+
+\paragraph{Identity and candidate lookup.}
+The lookup key is the execution identity of Section~\ref{sec:model}. A bounded number of alternate
+candidates is retained per identity. A candidate whose contract or class does not match is skipped
+without a trace penalty.
+
+\paragraph{Cache and CAS.}
+Objects are content-addressed with BLAKE3~\cite{blake3} and stored on disk with SQLite for the
+record index. Before any cached byte is exposed, the object is re-hashed; a mismatch is a
+\emph{corruption} result that discards the candidate and retraces. Corruption therefore costs a
+re-execution, never a wrong answer.
+
+\paragraph{Validated replay.}
+On a hit the sequence is: load stream objects and verify them, run the single guard pass, stage and
+verify output objects, restore outputs, reproduce any inherited stream offsets, then expose the
+streams. The type system enforces the order: the cached bytes are held in an unforgeable value
+that only a passing guard pass can convert into an exposable one. This is a structural guarantee,
+not a convention.
+
+\paragraph{Transactional restoration.}
+Outputs are staged and verified before any destination is touched. A single output is renamed into
+place. Multiple outputs carry a durable restore intent so that a soft failure rolls back and a hard
+kill causes the next attempt to refuse a hit rather than expose a partially restored set.
+
+\paragraph{Deoptimisation.}
+A failing guard, a corrupt object, or a failed output precondition discards the candidate and
+re-executes, storing the new execution. Deoptimisation is a first-class outcome with its own
+report line, because a cache that cannot say ``I was wrong'' cannot be audited.
+
+\paragraph{Enforcement.}
+With \texttt{--enforce}, a re-executed record receives a Landlock ruleset built from its recorded
+dependencies and a seccomp filter that denies network syscalls and a small set of privileged ones.
+The child verifies the filter in itself (\texttt{PR\_GET\_SECCOMP}, \texttt{PR\_GET\_NO\_NEW\_PRIVS})
+before the command runs. Only then is the record labelled \proven{}. The label records
+installation, not equivalence.

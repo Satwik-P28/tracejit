@@ -440,6 +440,9 @@ mod tests {
         UndeclaredFile,
         Network,
         ForbiddenSyscall,
+        WriteDeclared,
+        WriteWritable,
+        NeighbourFile,
     }
 
     #[cfg(target_os = "linux")]
@@ -484,6 +487,24 @@ mod tests {
                     };
                     result == -1
                         && std::io::Error::last_os_error().raw_os_error() == Some(libc::EPERM)
+                }
+                // A path granted only read access must not become writable, and a path granted
+                // write access must accept the write. Read and write are separate rights; a
+                // policy that admitted both would make the readable half meaningless.
+                Probe::WriteDeclared => std::fs::OpenOptions::new()
+                    .write(true)
+                    .open(declared)
+                    .is_err_and(|error| error.raw_os_error() == Some(libc::EACCES)),
+                Probe::WriteWritable => std::fs::OpenOptions::new()
+                    .append(true)
+                    .open(declared)
+                    .is_ok(),
+                // A file the policy never mentioned, in the *same* directory as a declared one,
+                // is an unexpected dependency and must stay unreachable.
+                Probe::NeighbourFile => {
+                    let neighbour = declared.with_file_name("neighbour.txt");
+                    std::fs::File::open(&neighbour)
+                        .is_err_and(|error| error.raw_os_error() == Some(libc::EACCES))
                 }
             };
             // SAFETY: this is the fork child and no Rust destructors should run here.
@@ -626,6 +647,139 @@ mod tests {
             code, 0,
             "a forbidden syscall stayed reachable, or ordinary filesystem work broke"
         );
+    }
+
+    /// Read and write are separate Landlock rights on the same path.
+    ///
+    /// A policy that made every declared path writable would pass the coarse "declared path is
+    /// accessible" probe for the wrong reason. This asserts the negative direction too: a path
+    /// granted only `READ_ACCESS` rejects a write with `EACCES`, and a path granted write access
+    /// accepts one.
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn read_and_write_access_are_separate() {
+        let capability = capabilities();
+        if !capability.can_prove() {
+            eprintln!(
+                "RESULT sandbox-access SKIP: {}",
+                capability
+                    .reason
+                    .unwrap_or_else(|| "required kernel features unavailable".into())
+            );
+            return;
+        }
+        let temporary = tempfile::tempdir().unwrap();
+        let declared = temporary.path().join("declared.txt");
+        std::fs::write(&declared, b"declared").unwrap();
+
+        let read_only = SandboxPolicy {
+            readable_paths: vec![declared.clone()],
+            writable_paths: Vec::new(),
+            allow_network: false,
+        };
+        let read_status = sandbox_probe(&read_only, &declared, Probe::WriteDeclared);
+        assert_ne!(read_status, 125, "policy installation failed");
+        assert_eq!(
+            read_status, 0,
+            "a readable-only path accepted a write under Landlock"
+        );
+
+        let writable = SandboxPolicy {
+            readable_paths: Vec::new(),
+            writable_paths: vec![declared.clone()],
+            allow_network: false,
+        };
+        let write_status = sandbox_probe(&writable, &declared, Probe::WriteWritable);
+        assert_ne!(write_status, 125, "policy installation failed");
+        assert_eq!(
+            write_status, 0,
+            "a writable path refused an append under Landlock"
+        );
+    }
+
+    /// A file the policy never mentioned is an unexpected dependency, even beside a declared one.
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn unexpected_dependency_in_a_declared_directory_is_denied() {
+        let capability = capabilities();
+        if !capability.can_prove() {
+            eprintln!(
+                "RESULT sandbox-unexpected SKIP: {}",
+                capability
+                    .reason
+                    .unwrap_or_else(|| "required kernel features unavailable".into())
+            );
+            return;
+        }
+        let temporary = tempfile::tempdir().unwrap();
+        let declared = temporary.path().join("declared.txt");
+        let neighbour = temporary.path().join("neighbour.txt");
+        std::fs::write(&declared, b"declared").unwrap();
+        std::fs::write(&neighbour, b"unexpected").unwrap();
+        let policy = SandboxPolicy {
+            readable_paths: vec![declared.clone()],
+            writable_paths: Vec::new(),
+            allow_network: false,
+        };
+        let status = sandbox_probe(&policy, &declared, Probe::NeighbourFile);
+        assert_ne!(status, 125, "policy installation failed");
+        assert_eq!(
+            status, 0,
+            "an undeclared neighbour of a declared path stayed readable"
+        );
+    }
+
+    /// A policy that cannot be installed is an error, never a silently unenforced child.
+    ///
+    /// `apply` returning `Ok` here would mean the caller promotes a record to `PROVEN` on a
+    /// process that received no policy at all, which is the one failure mode the label exists to
+    /// exclude.
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn policy_installation_failure_is_reported() {
+        let capability = capabilities();
+        if !capability.can_prove() {
+            eprintln!(
+                "RESULT sandbox-install-failure SKIP: {}",
+                capability
+                    .reason
+                    .unwrap_or_else(|| "required kernel features unavailable".into())
+            );
+            return;
+        }
+        let missing = std::path::PathBuf::from("/nonexistent/phase-af/declared-input");
+        let policy = SandboxPolicy {
+            readable_paths: vec![missing.clone()],
+            writable_paths: Vec::new(),
+            allow_network: false,
+        };
+        match apply(&policy) {
+            Err(SandboxError::Setup(message)) => {
+                assert!(
+                    message.contains("Landlock path") || message.contains("open"),
+                    "unexpected setup failure text: {message}"
+                );
+            }
+            other => panic!("a policy naming an absent path was not rejected: {other:?}"),
+        }
+    }
+
+    /// A policy the current mechanism cannot express is refused rather than partially installed.
+    #[test]
+    fn capability_mismatch_refuses_an_inexpressible_policy() {
+        if !capabilities().can_prove() {
+            eprintln!("RESULT sandbox-mismatch SKIP: enforcement is unavailable on this host");
+            return;
+        }
+        let policy = SandboxPolicy {
+            readable_paths: Vec::new(),
+            writable_paths: Vec::new(),
+            allow_network: true,
+        };
+        match apply(&policy) {
+            Err(SandboxError::Unsupported(_)) => {}
+            other => panic!("a network-permitting policy was not refused: {other:?}"),
+        }
     }
 
     /// Enforcement without Landlock must fail closed instead of installing a partial policy.

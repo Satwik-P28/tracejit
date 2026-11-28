@@ -1,0 +1,119 @@
+{
+  "argv": [
+    "gzip",
+    "-9",
+    "-n",
+    "-k",
+    "-f",
+    "input.bin"
+  ],
+  "cases": [
+    {
+      "cache_decision": "Deoptimized",
+      "correct_for_new_input": true,
+      "correct_for_old_input": false,
+      "decision": "Executed",
+      "detected": true,
+      "exit": 0,
+      "scenario": "before_validation"
+    },
+    {
+      "cache_decision": "Deoptimized",
+      "correct_for_new_input": true,
+      "correct_for_old_input": false,
+      "decision": "Executed",
+      "detected": true,
+      "exit": 0,
+      "scenario": "before_load"
+    },
+    {
+      "cache_decision": "Deoptimized",
+      "correct_for_old_input": true,
+      "decision": "Executed",
+      "hit": false,
+      "note": "the hook restores the content but not the inode's mtime, so the metadata guard still deoptimises: a transient rewrite is detected, not invisible",
+      "scenario": "reverted_mutation"
+    },
+    {
+      "cache_decision": "Reused",
+      "correct_for_new_input": false,
+      "correct_for_old_input": true,
+      "decision": "Reused",
+      "elapsed_s": 30.01,
+      "exit": 0,
+      "scenario": "after_validation_before_apply",
+      "undetected_stale_bytes": true
+    },
+    {
+      "detected": 8,
+      "input_bytes": 67108864,
+      "scenario": "during_hashing",
+      "trials": [
+        {
+          "concurrent_writes": 229,
+          "correct_for_old_input": false,
+          "decision": "Executed",
+          "hit": false,
+          "trial": 0
+        },
+        {
+          "concurrent_writes": 237,
+          "correct_for_old_input": false,
+          "decision": "Executed",
+          "hit": false,
+          "trial": 1
+        },
+        {
+          "concurrent_writes": 228,
+          "correct_for_old_input": false,
+          "decision": "Executed",
+          "hit": false,
+          "trial": 2
+        },
+        {
+          "concurrent_writes": 236,
+          "correct_for_old_input": false,
+          "decision": "Executed",
+          "hit": false,
+          "trial": 3
+        },
+        {
+          "concurrent_writes": 234,
+          "correct_for_old_input": false,
+          "decision": "Executed",
+          "hit": false,
+          "trial": 4
+        },
+        {
+          "concurrent_writes": 237,
+          "correct_for_old_input": false,
+          "decision": "Executed",
+          "hit": false,
+          "trial": 5
+        },
+        {
+          "concurrent_writes": 225,
+          "correct_for_old_input": false,
+          "decision": "Executed",
+          "hit": false,
+          "trial": 6
+        },
+        {
+          "concurrent_writes": 224,
+          "correct_for_old_input": false,
+          "decision": "Executed",
+          "hit": false,
+          "trial": 7
+        }
+      ],
+      "undetected_stale": 0
+    }
+  ],
+  "contract": "allocator-entropy-v1",
+  "hooks": {
+    "after_validation": "TRACEJIT_TEST_RESTORE_PAUSE_PATH + external writer",
+    "before_load": "TRACEJIT_TEST_PRE_LOAD_MUTATE_PATH",
+    "before_validation": "TRACEJIT_TEST_PRE_RESTORE_MUTATE_PATH",
+    "during_hashing": "concurrent writer, no hook"
+  }
+}

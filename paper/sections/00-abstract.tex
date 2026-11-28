@@ -1,0 +1,38 @@
+Caching the work of a \emph{declared} build action is routine: the action states its inputs, so a
+build system or a compiler cache can key on them. Caching an arbitrary, already-written command is
+harder, because the command does not state its inputs, and replaying its output without knowing
+them is a stale-result hazard. This paper studies the other side of that trade-off: what a
+deliberately conservative automatic command cache costs, and what it buys.
+
+We describe \tracejit{}, a whole-command cache for unmodified Linux~x86\_64 processes. It traces
+one execution with \texttt{ptrace}, classifies every kernel observation, compiles the observations
+into synchronous guards, and reuses the recorded standard streams, exit status and output files
+only when every guard still passes. Anything it cannot re-check --- the clock, entropy, process
+identity, the network, an unmodelled syscall --- is refused rather than assumed. Two execution
+tiers are kept strictly apart: \emph{native} execution, and an explicit, opt-in \emph{controlled}
+contract that supplies a small set of runtime values reproducibly.
+
+On a frozen 59-workload census, native reuse eligibility is $2/49$ ($4.1\%$); under the audited
+\texttt{allocator-entropy-v1} contract it is $12/49$ ($24.5\%$), and under
+\texttt{compiler-runtime-v1} $19/49$ ($38.8\%$). Across all cells, 28 of 162 attempted rows reused
+and none produced an incorrect observation. On a same-host comparison against \firebuild{}
+0.8.2 and 0.8.6.2, \tracejit{} is dramatically better on one workload class and worse on others:
+a 25-invocation \texttt{bzip2} session costs 545\,ms against 2847\,ms natively ($5.22\times$,
+$80.8\%$ less cumulative time) while both \firebuild{} versions decline to reuse it at all;
+\firebuild{} is faster on file-output \texttt{gzip}, on a tuned \texttt{sed}, and on hash-only work
+below 10\,MiB, and \texttt{ccache} is far faster than either on compilation.
+
+These are negative results as much as positive ones, and we report them as such. Reuse requires an
+audited libc build, so most ordinary programs are ineligible on an unaudited one. Verified replay
+of a 100\,MiB artifact costs tens to hundreds of milliseconds, dominated by hashing and output
+materialisation, so cheap commands lose. Enforced execution --- seccomp plus Landlock, a state we
+call \proven{} --- completes a full create/reuse/invalidate lifecycle for read-only commands on a
+capable host, but cannot currently promote the artifact producers that are the product's stated
+niche. Most importantly, a writer that mutates an input \emph{after} guard validation can still
+cause stale output to be served; we reproduce that counterexample and state it as an operating
+assumption rather than a guarantee.
+
+The contribution is not a new caching primitive. It is a measured account of conservative
+automatic reuse: a contract discipline in which refusal is the default, the price of that
+discipline in eligibility, latency and applicability, and the exact set of correctness boundaries
+that remain open.

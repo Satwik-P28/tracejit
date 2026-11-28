@@ -1,0 +1,28 @@
+\begin{table}[t]
+\centering
+\small
+\caption{Candidates accepted into the product and candidates rejected with the measurement that rejected them.}
+\label{tab:optimisations}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Candidate} & \textbf{Status} & \textbf{Evidence} \\
+\midrule
+Drop the redundant first guard pass before loading cached streams & accepted & docs/PHASE\_X\_REPORT.md; one pass remains, immediately before restore; guard-pass regression suite in tracejit-core \\
+Skip the durable restore intent for records with no workspace outputs & accepted & docs/PHASE\_AB\_REPORT.md; paired A/B on cut, gzip -6, sed with CIs excluding zero \\
+Drop the pre-delete/pre-rename input snapshot when the same execution recreates the path & accepted & docs/PHASE\_W\_REPORT.md; regression superseded\_delete\_does\_not\_pin\_the\_next\_run\_to\_the\_old\_bytes \\
+Report the record's determinism class on the reuse path & accepted & docs/PHASE\_AF\_REPORT.md; linux\_integration::enforced\_execution\_is\_proven\_reused\_and\_invalidated \\
+Promote F\_GETFD on inherited descriptors to a modelled no-op & rejected & docs/PHASE\_AD\_REPORT.md §14: sound but inert, 0 of 48 census cells changed; unit test pins the refusal \\
+Model F\_GETFL/F\_SETFL on inherited or internal pipes & rejected & docs/PHASE\_AD\_REPORT.md §14: shared, externally mutable status flags \\
+Model tar's realtime clock read & rejected & docs/PHASE\_AD\_REPORT.md §14: no clock contract exists; --mtime does not remove the read \\
+Relax metadata guards with a metadata-preserving clone & rejected & docs/PHASE\_AC\_REPORT.md: unjustifiable field precision, reproduced divergence \\
+Snapshot inputs to close the validation-to-restore race & rejected & docs/TOCTOU\_CORRECTNESS\_BOUNDARY.md: redefines observable state and doubles hit cost \\
+Cooperative flock mode for reuse & rejected & docs/TOCTOU\_CORRECTNESS\_BOUNDARY.md: not a guarantee against an uncooperative writer \\
+Change default admission from auto to always & rejected & docs/PHASE\_AD\_REPORT.md §7: 3.4-4.2\% on one session, unproven, costs one-shot tracing \\
+Fused hash-and-write, streaming cached bytes, mmap replay & rejected & docs/PHASE\_AE\_REPORT.md §13: each exposes unverified bytes or adds a failure mode \\
+Cache guard results between runs (metadata-only revalidation) & rejected & docs/PHASE\_AE\_REPORT.md §13: reintroduces the same-timestamp defect \\
+Parallel guard validation across 8 threads & rejected & docs/PHASE\_W\_REPORT.md: sequential guard walk dominates; 111.7 to 110.6 ms median, reverted \\
+Grant the parent directory of a declared output REMOVE\_FILE/MAKE\_REG so gzip can be enforced & rejected & docs/PHASE\_AF\_REPORT.md §5: does not help (the refusal is an unmodelled EEXIST write) and widens the policy \\
+Grant parent-directory replacement rights to make producers enforceable & rejected & docs/PHASE\_AF\_REPORT.md §5: the blocking effect is the command's own failed O\_EXCL, not the directory grant \\
+\bottomrule
+\end{tabular}
+\end{table}

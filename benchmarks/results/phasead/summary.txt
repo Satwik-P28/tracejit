@@ -1,0 +1,33 @@
+Phase AD measurements (host: Linux 6.1.102, glibc 2.39, ext4, x86_64, gcc 13.3.0)
+
+firebuild_compare.json
+  Firebuild 0.8.2 (Ubuntu noble debs) vs TraceJIT, 4 workloads x 5 arms.
+  File outputs (bzip2 -9, gzip -9): TraceJIT 519/499 ms vs native 5822/1559 ms over 25 runs;
+  Firebuild never reuses (timestamp-preserving output).
+  Stdout filters: 100 runs gzip 256 KiB text 486 ms (TraceJIT) vs 622 ms (Firebuild default).
+  sed: Firebuild default skips (8451 ms), tuned Firebuild 1982 ms, TraceJIT 2548 ms.
+  All 20 rows oracle-correct.
+
+artifact_scale.json
+  linux-6.6.50.tar.xz sha256 c065e36daf28210060c91a37ef3e92ac5814784e634577e04e406297ead2e86e
+  1/10/100 MiB compressible and incompressible prefixes.
+  TraceJIT hit: 6.0/18.2/85.3 ms (text stdout), 7.7/42.1/362.2 ms (incompressible).
+  Firebuild hit: 9.7/47.1/288.2 ms and 21.4/173.8/1945.6 ms.
+  Integer break-even 2 for compression, never for sha256sum <=10 MiB, 9 at 100 MiB.
+  All 30 rows oracle-correct.
+
+admission_sessions.json
+  24-step mixed session x 2 repeats.
+  direct 1638.8/1564.1 ms, never 1663.3/1745.1, always 1229.3/1240.2,
+  auto 1284.7/1292.3, auto-v1 1279.7/1322.9, oracle 653.5/631.0.
+
+descriptor_probe.json
+  strace fcntl tables for tar/xz/gzip + TraceJIT refusal reasons.
+  tar: F_GETFD on inherited 0/1/2, then F_GETFL/F_SETFD on its own fd.
+  xz: same F_GETFD set plus F_GETFL/F_SETFL on its own pipes and inherited stdout.
+  Promotion of inherited F_GETFD: 0/48 frozen-census eligibility cells changed; reverted.
+
+Clock differential (same host):
+  firebuild date +%s          -> Hits: 1/1, replayed previous second
+  firebuild python time_ns    -> Hits: 1/1, replayed previous value
+  tracejit  date +%s          -> MISS on every invocation (clock read refused)

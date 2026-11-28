@@ -1,0 +1,2033 @@
+{
+  "oracle": [
+    {
+      "arm": "oracle",
+      "hits": 14,
+      "total_ns": 653491710
+    },
+    {
+      "arm": "oracle",
+      "hits": 14,
+      "total_ns": 631018433
+    }
+  ],
+  "runs": [
+    {
+      "arm": "direct",
+      "cache_bytes": 0,
+      "hits": 0,
+      "records": [
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 247061513
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 234122629
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 244443761
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 241416580
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 225577501
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 3624794
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 3124334
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 3124584
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 2872141
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 3037581
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 2940239
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 2401387
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 2004432
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 2129337
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 1931756
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "sed-200k",
+          "ns": 72523832
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "sed-200k",
+          "ns": 80350771
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "sed-200k",
+          "ns": 71100740
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 5452894
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 5617203
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 5976397
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "clock-ineligible",
+          "ns": 17211114
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "clock-ineligible",
+          "ns": 16760398
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-oneshot",
+          "ns": 128694017
+        }
+      ],
+      "total_ns": 1638786314
+    },
+    {
+      "arm": "never",
+      "cache_bytes": 24594,
+      "hits": 0,
+      "records": [
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 231438241
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 225783757
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 229983901
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 225348650
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 220836351
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 8874768
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 9032764
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 8189000
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 7577181
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 8787504
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 7890399
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 8362745
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 7300553
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 7345477
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 6766600
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sed-200k",
+          "ns": 80937323
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sed-200k",
+          "ns": 77025781
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sed-200k",
+          "ns": 77282823
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 11615911
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 10254427
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 12782931
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "clock-ineligible",
+          "ns": 22142841
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "clock-ineligible",
+          "ns": 22936179
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-oneshot",
+          "ns": 120548138
+        }
+      ],
+      "total_ns": 1663267904
+    },
+    {
+      "arm": "always",
+      "cache_bytes": 11145299,
+      "hits": 14,
+      "records": [
+        {
+          "decision": "Ineligible",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 302793748
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "bzip2-9-2MiB",
+          "ns": 22446030
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "bzip2-9-2MiB",
+          "ns": 18547993
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "bzip2-9-2MiB",
+          "ns": 18578571
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "bzip2-9-2MiB",
+          "ns": 19386367
+        },
+        {
+          "decision": "Ineligible",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 16471537
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "gzip-text-stdout",
+          "ns": 7837520
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "gzip-text-stdout",
+          "ns": 4179566
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "gzip-text-stdout",
+          "ns": 5899263
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "gzip-text-stdout",
+          "ns": 5138675
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "gzip-text-stdout",
+          "ns": 5045099
+        },
+        {
+          "decision": "Ineligible",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 30378037
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "sha256sum-small",
+          "ns": 17720751
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "sha256sum-small",
+          "ns": 10223228
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "sha256sum-small",
+          "ns": 10941837
+        },
+        {
+          "decision": "Ineligible",
+          "exit": 0,
+          "hit": false,
+          "label": "sed-200k",
+          "ns": 217438965
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "sed-200k",
+          "ns": 26259287
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "sed-200k",
+          "ns": 21785509
+        },
+        {
+          "decision": "Deoptimized",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 20907973
+        },
+        {
+          "decision": "Deoptimized",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 22986905
+        },
+        {
+          "decision": "Deoptimized",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 24388335
+        },
+        {
+          "decision": "Ineligible",
+          "exit": 0,
+          "hit": false,
+          "label": "clock-ineligible",
+          "ns": 102633394
+        },
+        {
+          "decision": "Ineligible",
+          "exit": 0,
+          "hit": false,
+          "label": "clock-ineligible",
+          "ns": 102509653
+        },
+        {
+          "decision": "Ineligible",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-oneshot",
+          "ns": 178966655
+        }
+      ],
+      "total_ns": 1229302958
+    },
+    {
+      "arm": "auto",
+      "cache_bytes": 8004081,
+      "hits": 4,
+      "records": [
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 229510832
+        },
+        {
+          "decision": "Ineligible",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 310453424
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "bzip2-9-2MiB",
+          "ns": 27477392
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "bzip2-9-2MiB",
+          "ns": 21243883
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "bzip2-9-2MiB",
+          "ns": 22638642
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 8319945
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 7806883
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 8492809
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 8212964
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 8010074
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 7744326
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 7346139
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 7130634
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 7393897
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 7560631
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sed-200k",
+          "ns": 80752084
+        },
+        {
+          "decision": "Ineligible",
+          "exit": 0,
+          "hit": false,
+          "label": "sed-200k",
+          "ns": 201046938
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "sed-200k",
+          "ns": 25064264
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 10814748
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 10623410
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 10734758
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "clock-ineligible",
+          "ns": 25828968
+        },
+        {
+          "decision": "Ineligible",
+          "exit": 0,
+          "hit": false,
+          "label": "clock-ineligible",
+          "ns": 95648385
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-oneshot",
+          "ns": 118947504
+        }
+      ],
+      "total_ns": 1284741241
+    },
+    {
+      "arm": "auto-v1",
+      "cache_bytes": 8014026,
+      "hits": 4,
+      "records": [
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 223721616
+        },
+        {
+          "decision": "Ineligible",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 293961351
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "bzip2-9-2MiB",
+          "ns": 23478787
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "bzip2-9-2MiB",
+          "ns": 21322130
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "bzip2-9-2MiB",
+          "ns": 18606742
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 8224287
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 8973092
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 7922019
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 7776235
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 7937057
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 8769951
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 7481191
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 8802852
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 8205060
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 8197738
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sed-200k",
+          "ns": 78421871
+        },
+        {
+          "decision": "Ineligible",
+          "exit": 0,
+          "hit": false,
+          "label": "sed-200k",
+          "ns": 215391712
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "sed-200k",
+          "ns": 26943250
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 13891193
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 11218446
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 12407808
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "clock-ineligible",
+          "ns": 21854429
+        },
+        {
+          "decision": "Ineligible",
+          "exit": 0,
+          "hit": false,
+          "label": "clock-ineligible",
+          "ns": 99961920
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-oneshot",
+          "ns": 123108965
+        }
+      ],
+      "total_ns": 1279744393
+    },
+    {
+      "arm": "direct",
+      "cache_bytes": 0,
+      "hits": 0,
+      "records": [
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 247081531
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 221778570
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 234715180
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 222470619
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 219479234
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 2616652
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 3303260
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 2930982
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 2940198
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 2923176
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 2898440
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 2257447
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 1636191
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 2192124
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 2202444
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "sed-200k",
+          "ns": 70589471
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "sed-200k",
+          "ns": 73033167
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "sed-200k",
+          "ns": 70229455
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 5919100
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 5971498
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 5689229
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "clock-ineligible",
+          "ns": 16290306
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "clock-ineligible",
+          "ns": 16171924
+        },
+        {
+          "decision": "Executed",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-oneshot",
+          "ns": 114356267
+        }
+      ],
+      "total_ns": 1564097069
+    },
+    {
+      "arm": "never",
+      "cache_bytes": 24594,
+      "hits": 0,
+      "records": [
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 234705092
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 230384662
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 236219654
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 236299305
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 225343642
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 9060275
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 8260224
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 8517838
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 8457193
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 12348797
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 8240357
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 7446546
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 6781137
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 8595773
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 7098273
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sed-200k",
+          "ns": 95677268
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sed-200k",
+          "ns": 93076537
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sed-200k",
+          "ns": 78856056
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 12516763
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 11939399
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 11622334
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "clock-ineligible",
+          "ns": 22701007
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "clock-ineligible",
+          "ns": 23555753
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-oneshot",
+          "ns": 131033990
+        }
+      ],
+      "total_ns": 1745082434
+    },
+    {
+      "arm": "always",
+      "cache_bytes": 11145269,
+      "hits": 14,
+      "records": [
+        {
+          "decision": "Ineligible",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 320137592
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "bzip2-9-2MiB",
+          "ns": 22144504
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "bzip2-9-2MiB",
+          "ns": 19939795
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "bzip2-9-2MiB",
+          "ns": 17239348
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "bzip2-9-2MiB",
+          "ns": 21248402
+        },
+        {
+          "decision": "Ineligible",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 17263091
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "gzip-text-stdout",
+          "ns": 9315244
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "gzip-text-stdout",
+          "ns": 5471130
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "gzip-text-stdout",
+          "ns": 6051258
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "gzip-text-stdout",
+          "ns": 6324240
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "gzip-text-stdout",
+          "ns": 5308233
+        },
+        {
+          "decision": "Ineligible",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 31194419
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "sha256sum-small",
+          "ns": 20436808
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "sha256sum-small",
+          "ns": 14984374
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "sha256sum-small",
+          "ns": 19840659
+        },
+        {
+          "decision": "Ineligible",
+          "exit": 0,
+          "hit": false,
+          "label": "sed-200k",
+          "ns": 216349780
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "sed-200k",
+          "ns": 24519291
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "sed-200k",
+          "ns": 17956853
+        },
+        {
+          "decision": "Deoptimized",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 19625686
+        },
+        {
+          "decision": "Deoptimized",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 18723072
+        },
+        {
+          "decision": "Deoptimized",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 19530658
+        },
+        {
+          "decision": "Ineligible",
+          "exit": 0,
+          "hit": false,
+          "label": "clock-ineligible",
+          "ns": 103933575
+        },
+        {
+          "decision": "Ineligible",
+          "exit": 0,
+          "hit": false,
+          "label": "clock-ineligible",
+          "ns": 101962716
+        },
+        {
+          "decision": "Ineligible",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-oneshot",
+          "ns": 165421742
+        }
+      ],
+      "total_ns": 1240176337
+    },
+    {
+      "arm": "auto",
+      "cache_bytes": 8004079,
+      "hits": 4,
+      "records": [
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 234229960
+        },
+        {
+          "decision": "Ineligible",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 292581722
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "bzip2-9-2MiB",
+          "ns": 21297453
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "bzip2-9-2MiB",
+          "ns": 22143040
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "bzip2-9-2MiB",
+          "ns": 17268060
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 8469587
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 8312171
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 8877913
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 9048203
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 11725508
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 11145640
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 10336891
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 9911282
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 8424794
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 10224200
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sed-200k",
+          "ns": 97724982
+        },
+        {
+          "decision": "Ineligible",
+          "exit": 0,
+          "hit": false,
+          "label": "sed-200k",
+          "ns": 197749309
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "sed-200k",
+          "ns": 23114845
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 10213610
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 9216949
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 10351029
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "clock-ineligible",
+          "ns": 24048657
+        },
+        {
+          "decision": "Ineligible",
+          "exit": 0,
+          "hit": false,
+          "label": "clock-ineligible",
+          "ns": 93667124
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-oneshot",
+          "ns": 126119326
+        }
+      ],
+      "total_ns": 1292258821
+    },
+    {
+      "arm": "auto-v1",
+      "cache_bytes": 8014028,
+      "hits": 4,
+      "records": [
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 235837947
+        },
+        {
+          "decision": "Ineligible",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-9-2MiB",
+          "ns": 306686074
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "bzip2-9-2MiB",
+          "ns": 27068146
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "bzip2-9-2MiB",
+          "ns": 26182632
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "bzip2-9-2MiB",
+          "ns": 24613968
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 8206674
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 9614355
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 10024275
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 11237903
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 10819456
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-text-stdout",
+          "ns": 9956848
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 9727949
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 6647678
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 8434741
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sha256sum-small",
+          "ns": 8131682
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "sed-200k",
+          "ns": 89867634
+        },
+        {
+          "decision": "Ineligible",
+          "exit": 0,
+          "hit": false,
+          "label": "sed-200k",
+          "ns": 197370950
+        },
+        {
+          "decision": "Reused",
+          "exit": 0,
+          "hit": true,
+          "label": "sed-200k",
+          "ns": 28068523
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 10884129
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 10830288
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "gzip-changing-input",
+          "ns": 11396971
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "clock-ineligible",
+          "ns": 23362410
+        },
+        {
+          "decision": "Ineligible",
+          "exit": 0,
+          "hit": false,
+          "label": "clock-ineligible",
+          "ns": 100532019
+        },
+        {
+          "decision": "Skipped",
+          "exit": 0,
+          "hit": false,
+          "label": "bzip2-oneshot",
+          "ns": 122845711
+        }
+      ],
+      "total_ns": 1322863944
+    }
+  ],
+  "session": [
+    {
+      "argv": [
+        "bzip2",
+        "-9",
+        "-k",
+        "-f",
+        "blob.bin"
+      ],
+      "label": "bzip2-9-2MiB"
+    },
+    {
+      "argv": [
+        "bzip2",
+        "-9",
+        "-k",
+        "-f",
+        "blob.bin"
+      ],
+      "label": "bzip2-9-2MiB"
+    },
+    {
+      "argv": [
+        "bzip2",
+        "-9",
+        "-k",
+        "-f",
+        "blob.bin"
+      ],
+      "label": "bzip2-9-2MiB"
+    },
+    {
+      "argv": [
+        "bzip2",
+        "-9",
+        "-k",
+        "-f",
+        "blob.bin"
+      ],
+      "label": "bzip2-9-2MiB"
+    },
+    {
+      "argv": [
+        "bzip2",
+        "-9",
+        "-k",
+        "-f",
+        "blob.bin"
+      ],
+      "label": "bzip2-9-2MiB"
+    },
+    {
+      "argv": [
+        "gzip",
+        "-9",
+        "-n",
+        "-c",
+        "text.txt"
+      ],
+      "label": "gzip-text-stdout"
+    },
+    {
+      "argv": [
+        "gzip",
+        "-9",
+        "-n",
+        "-c",
+        "text.txt"
+      ],
+      "label": "gzip-text-stdout"
+    },
+    {
+      "argv": [
+        "gzip",
+        "-9",
+        "-n",
+        "-c",
+        "text.txt"
+      ],
+      "label": "gzip-text-stdout"
+    },
+    {
+      "argv": [
+        "gzip",
+        "-9",
+        "-n",
+        "-c",
+        "text.txt"
+      ],
+      "label": "gzip-text-stdout"
+    },
+    {
+      "argv": [
+        "gzip",
+        "-9",
+        "-n",
+        "-c",
+        "text.txt"
+      ],
+      "label": "gzip-text-stdout"
+    },
+    {
+      "argv": [
+        "gzip",
+        "-9",
+        "-n",
+        "-c",
+        "text.txt"
+      ],
+      "label": "gzip-text-stdout"
+    },
+    {
+      "argv": [
+        "sha256sum",
+        "small.bin"
+      ],
+      "label": "sha256sum-small"
+    },
+    {
+      "argv": [
+        "sha256sum",
+        "small.bin"
+      ],
+      "label": "sha256sum-small"
+    },
+    {
+      "argv": [
+        "sha256sum",
+        "small.bin"
+      ],
+      "label": "sha256sum-small"
+    },
+    {
+      "argv": [
+        "sha256sum",
+        "small.bin"
+      ],
+      "label": "sha256sum-small"
+    },
+    {
+      "argv": [
+        "sed",
+        "s/key=/k=/g",
+        "lines.txt"
+      ],
+      "label": "sed-200k"
+    },
+    {
+      "argv": [
+        "sed",
+        "s/key=/k=/g",
+        "lines.txt"
+      ],
+      "label": "sed-200k"
+    },
+    {
+      "argv": [
+        "sed",
+        "s/key=/k=/g",
+        "lines.txt"
+      ],
+      "label": "sed-200k"
+    },
+    {
+      "argv": [
+        "gzip",
+        "-9",
+        "-n",
+        "-c",
+        "text.txt"
+      ],
+      "label": "gzip-changing-input"
+    },
+    {
+      "argv": [
+        "gzip",
+        "-9",
+        "-n",
+        "-c",
+        "text.txt"
+      ],
+      "label": "gzip-changing-input"
+    },
+    {
+      "argv": [
+        "gzip",
+        "-9",
+        "-n",
+        "-c",
+        "text.txt"
+      ],
+      "label": "gzip-changing-input"
+    },
+    {
+      "argv": [
+        "python3",
+        "-c",
+        "import time; print(time.time_ns())"
+      ],
+      "label": "clock-ineligible"
+    },
+    {
+      "argv": [
+        "python3",
+        "-c",
+        "import time; print(time.time_ns())"
+      ],
+      "label": "clock-ineligible"
+    },
+    {
+      "argv": [
+        "bzip2",
+        "-9",
+        "-k",
+        "-f",
+        "blob2.bin"
+      ],
+      "label": "bzip2-oneshot"
+    }
+  ],
+  "summary": {
+    "always": {
+      "median_total_ns": 1240176337,
+      "totals_ns": [
+        1229302958,
+        1240176337
+      ]
+    },
+    "auto": {
+      "median_total_ns": 1292258821,
+      "totals_ns": [
+        1284741241,
+        1292258821
+      ]
+    },
+    "auto-v1": {
+      "median_total_ns": 1322863944,
+      "totals_ns": [
+        1279744393,
+        1322863944
+      ]
+    },
+    "direct": {
+      "median_total_ns": 1638786314,
+      "totals_ns": [
+        1564097069,
+        1638786314
+      ]
+    },
+    "never": {
+      "median_total_ns": 1745082434,
+      "totals_ns": [
+        1663267904,
+        1745082434
+      ]
+    }
+  }
+}

@@ -3,6 +3,17 @@
 TraceJIT is conservative. It does not claim that arbitrary programs are safe to
 memoize.
 
+## What `PROVEN` means
+
+`PROVEN` means the required enforcement policy (seccomp plus a Landlock ruleset) was installed and
+the execution was observed under it. It is **not** a proof of observational equivalence between
+cached and fresh execution, and it does not make a reuse race-free. A record classified `PROVEN`
+still depends on the guard contract, on the input-mutation assumption, and on the runtime contract.
+
+The single authoritative statement of these rules is
+[`docs/FINAL_CORRECTNESS_CONTRACT.md`](docs/FINAL_CORRECTNESS_CONTRACT.md). This file summarizes it;
+if the two ever disagree, the contract wins.
+
 ## Observable and hidden dependencies
 
 ptrace observes kernel crossings, not arbitrary userspace memory reads. V1

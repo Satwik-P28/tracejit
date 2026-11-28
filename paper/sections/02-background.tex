@@ -1,0 +1,81 @@
+\section{Background}
+
+\paragraph{Build-system action caching.}
+Declared-action caches are mature. Bazel, Vesta and Nix all treat an action as a function of
+stated inputs and cache by content~\cite{bazel,vesta,nixos}; the hard engineering is hermeticity,
+not dependency discovery. Their guarantee is conditional on the declaration being complete, and
+their failure mode when it is not is a stale artefact.
+
+\paragraph{Compiler caches.}
+\texttt{ccache} and \texttt{sccache} recognise a compiler command line and key on preprocessed
+source plus toolchain identity~\cite{ccache,sccache}. They are extremely effective because the
+compiler's dependency set is enumerable from its own arguments and headers, and because the
+compiler is deterministic given its inputs.
+
+\paragraph{Interposition-based command caching.}
+\firebuild{} intercepts library calls with \texttt{LD\_PRELOAD}, records the files a process
+touched, and replays cached outputs when the recorded inputs still match~\cite{firebuild}. It also
+validates recorded inputs against the filesystem at reuse time, including a content hash; our
+measurements confirm that same-size rewrites with restored timestamps are detected by both systems.
+The interesting differences are elsewhere: what each system does with observations it cannot
+reproduce (clocks, entropy), what it does with a corrupted cache object, and which commands it is
+willing to cache at all. We compare against two \firebuild{} versions in
+Section~\ref{sec:results}.
+
+\paragraph{Trace-based record and replay.}
+Deterministic record/replay systems such as \texttt{rr} log a process's non-deterministic inputs so
+the execution can be replayed exactly~\cite{rr}. That is a stronger goal than ours: replay
+reproduces the execution, whereas we reproduce only its observation and only when the inputs are
+unchanged. The shared machinery is the trace; the guarantees are different, and we do not claim
+replay's properties.
+
+\paragraph{Sandboxing as a supporting mechanism.}
+Landlock provides unprivileged path-based access control and seccomp-BPF provides syscall
+filtering~\cite{landlock,seccomp}. We use both, but only to narrow a re-executed process's effect
+surface and to justify a label; neither is a correctness proof, and Landlock explicitly does not
+constrain other processes, which is central to the residual race in Section~\ref{sec:correctness}.
+
+\section{Execution model}
+\label{sec:model}
+
+\paragraph{Observable.}
+For a command $c$ executed from pre-state $S$, the \emph{observation} is
+\[
+  \mathrm{Obs}(c, S) = \langle \mathit{stdout},\ \mathit{stderr},\ \mathit{exit},\ O \rangle
+\]
+where $O$ is the set of declared output files with their content and recorded metadata. TraceJIT's
+claim is about $\mathrm{Obs}$ and nothing else: it does not reproduce timing, resource usage, the
+process tree, or side effects outside $O$.
+
+\paragraph{Execution identity.}
+A record is a candidate for $c$ only if the executable content hash, \texttt{argv}, working
+directory, the entire inherited environment, the runtime identity (kernel, libc build, allocator
+properties) and the execution contract all match. The environment is hashed because
+\texttt{getenv} is not a syscall and can select any branch; a cache keyed on arguments alone would
+miss it.
+
+\paragraph{Effect classes.}
+Every recorded kernel crossing is classified as a \emph{read}, a \emph{metadata observation}, an
+\emph{access check}, a \emph{directory observation}, a \emph{write}, a \emph{control} event, or
+\emph{unknown}. Reads and metadata observations become guards; writes become captured outputs;
+control events constrain ordering; unknown observations, clocks, entropy, process identity and the
+network make the record ineligible for reuse.
+
+\paragraph{Determinism classes.}
+A record is \guarded{} when every observation is guardable, \proven{} when in addition seccomp and
+Landlock ABI~$\geq 3$ were installed for that execution, and \textsc{Unknown},
+\textsc{Nondeterministic} or \textsc{EmpiricallyStable} otherwise. Only \guarded{} and \proven{}
+may be reused.
+
+\paragraph{Two tiers.}
+\emph{Native} execution traces the command as the user's environment runs it. \emph{Controlled}
+execution is opt-in and supplies a named set of runtime values reproducibly; the contract is part
+of the record's identity, so a controlled record is never served to a native invocation and the
+two tiers' results are never averaged. This is why the paper reports eligibility per contract and
+never as a single rate.
+
+\paragraph{Assumptions.}
+The cache directory is trusted; the cached command is not adversarial; the kernel's
+\texttt{ptrace}, seccomp and Landlock behave as documented; and --- the one that matters most ---
+no external process mutates an input during the reuse window. Section~\ref{sec:correctness}
+explains why the last one cannot currently be enforced and what happens when it is violated.

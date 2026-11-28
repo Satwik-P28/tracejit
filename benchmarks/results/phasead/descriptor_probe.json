@@ -1,0 +1,423 @@
+{
+  "rows": [
+    {
+      "argv": [
+        "tar",
+        "-cf",
+        "out.tar",
+        "src"
+      ],
+      "case": "tar-create",
+      "fcntl": [
+        {
+          "command": "F_GETFD",
+          "fd": 0,
+          "origin": "inherited-stdio",
+          "returned": "0",
+          "target": "/dev/null"
+        },
+        {
+          "command": "F_GETFD",
+          "fd": 1,
+          "origin": "inherited-stdio",
+          "returned": "0",
+          "target": "pipe:[202591]"
+        },
+        {
+          "command": "F_GETFD",
+          "fd": 2,
+          "origin": "inherited-stdio",
+          "returned": "0",
+          "target": "pipe:[202592]"
+        },
+        {
+          "command": "F_GETFL",
+          "fd": 4,
+          "origin": "process",
+          "returned": "0x28800 (flags O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_NOFOLLOW)",
+          "target": "/workspace/chats/24375cea864939ae012511ac/.phasead-descriptors/tar-create/ws/src"
+        },
+        {
+          "command": "F_SETFD",
+          "fd": 4,
+          "origin": "process",
+          "returned": "0",
+          "target": "/workspace/chats/24375cea864939ae012511ac/.phasead-descriptors/tar-create/ws/src"
+        }
+      ],
+      "tracejit": [
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Nondeterministic",
+          "effects": {
+            "controls": 1,
+            "reads": 103,
+            "unknown": 0,
+            "writes": 6
+          },
+          "eligible_for_reuse": false,
+          "reasons": [
+            "process read system clock: realtime",
+            "process wrote network: failed socket control (errno 2)",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ]
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Nondeterministic",
+          "effects": {
+            "controls": 1,
+            "reads": 103,
+            "unknown": 0,
+            "writes": 6
+          },
+          "eligible_for_reuse": false,
+          "reasons": [
+            "process read system clock: realtime",
+            "process wrote network: failed socket control (errno 2)",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "tar",
+        "-cf",
+        "-",
+        "src"
+      ],
+      "case": "tar-stdout",
+      "fcntl": [
+        {
+          "command": "F_GETFD",
+          "fd": 0,
+          "origin": "inherited-stdio",
+          "returned": "0",
+          "target": "/dev/null"
+        },
+        {
+          "command": "F_GETFD",
+          "fd": 1,
+          "origin": "inherited-stdio",
+          "returned": "0",
+          "target": "pipe:[202600]"
+        },
+        {
+          "command": "F_GETFD",
+          "fd": 2,
+          "origin": "inherited-stdio",
+          "returned": "0",
+          "target": "pipe:[202601]"
+        },
+        {
+          "command": "F_GETFL",
+          "fd": 3,
+          "origin": "process",
+          "returned": "0x28800 (flags O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_NOFOLLOW)",
+          "target": "/workspace/chats/24375cea864939ae012511ac/.phasead-descriptors/tar-stdout/ws/src"
+        },
+        {
+          "command": "F_SETFD",
+          "fd": 3,
+          "origin": "process",
+          "returned": "0",
+          "target": "/workspace/chats/24375cea864939ae012511ac/.phasead-descriptors/tar-stdout/ws/src"
+        }
+      ],
+      "tracejit": [
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Nondeterministic",
+          "effects": {
+            "controls": 1,
+            "reads": 102,
+            "unknown": 0,
+            "writes": 4
+          },
+          "eligible_for_reuse": false,
+          "reasons": [
+            "process read system clock: realtime",
+            "process wrote network: failed socket control (errno 2)",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ]
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Nondeterministic",
+          "effects": {
+            "controls": 1,
+            "reads": 102,
+            "unknown": 0,
+            "writes": 4
+          },
+          "eligible_for_reuse": false,
+          "reasons": [
+            "process read system clock: realtime",
+            "process wrote network: failed socket control (errno 2)",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "xz",
+        "-9",
+        "-c",
+        "blob.bin"
+      ],
+      "case": "xz-stdout",
+      "fcntl": [
+        {
+          "command": "F_GETFD",
+          "fd": 0,
+          "origin": "inherited-stdio",
+          "returned": "0",
+          "target": "/dev/null"
+        },
+        {
+          "command": "F_GETFD",
+          "fd": 1,
+          "origin": "inherited-stdio",
+          "returned": "0",
+          "target": "pipe:[202609]"
+        },
+        {
+          "command": "F_GETFD",
+          "fd": 2,
+          "origin": "inherited-stdio",
+          "returned": "0",
+          "target": "pipe:[202610]"
+        },
+        {
+          "command": "F_GETFL",
+          "fd": 3,
+          "origin": "process",
+          "returned": "0 (flags O_RDONLY)",
+          "target": "pipe:[205275]"
+        },
+        {
+          "command": "F_SETFL",
+          "fd": 3,
+          "origin": "process",
+          "returned": "0",
+          "target": "pipe:[205275]"
+        },
+        {
+          "command": "F_GETFL",
+          "fd": 4,
+          "origin": "unclassified",
+          "returned": "0x1 (flags O_WRONLY)",
+          "target": "pipe:[205275]"
+        },
+        {
+          "command": "F_SETFL",
+          "fd": 4,
+          "origin": "unclassified",
+          "returned": "0",
+          "target": "pipe:[205275]"
+        },
+        {
+          "command": "F_GETFL",
+          "fd": 1,
+          "origin": "inherited-stdio",
+          "returned": "0x1 (flags O_WRONLY)",
+          "target": "pipe:[202609]"
+        },
+        {
+          "command": "F_SETFL",
+          "fd": 1,
+          "origin": "inherited-stdio",
+          "returned": "0",
+          "target": "pipe:[202609]"
+        },
+        {
+          "command": "F_SETFL",
+          "fd": 1,
+          "origin": "inherited-stdio",
+          "returned": "0",
+          "target": "pipe:[202609]"
+        }
+      ],
+      "tracejit": [
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "effects": {
+            "controls": 1,
+            "reads": 73,
+            "unknown": 5,
+            "writes": 0
+          },
+          "eligible_for_reuse": false,
+          "reasons": [
+            "unmodeled successful syscall 72: status-flag change on fd 3 whose open file description is shared or unclassified",
+            "unmodeled successful syscall 72: status-flag change on fd 4 whose open file description is shared or unclassified",
+            "unmodeled successful syscall 72: fcntl query 3 on inherited or unclassified fd 1, whose flags are not guarded",
+            "unmodeled successful syscall 72: status-flag change on fd 1 whose open file description is shared or unclassified",
+            "unmodeled successful syscall 72: status-flag change on fd 1 whose open file description is shared or unclassified",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ]
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "effects": {
+            "controls": 1,
+            "reads": 73,
+            "unknown": 5,
+            "writes": 0
+          },
+          "eligible_for_reuse": false,
+          "reasons": [
+            "unmodeled successful syscall 72: status-flag change on fd 3 whose open file description is shared or unclassified",
+            "unmodeled successful syscall 72: status-flag change on fd 4 whose open file description is shared or unclassified",
+            "unmodeled successful syscall 72: fcntl query 3 on inherited or unclassified fd 1, whose flags are not guarded",
+            "unmodeled successful syscall 72: status-flag change on fd 1 whose open file description is shared or unclassified",
+            "unmodeled successful syscall 72: status-flag change on fd 1 whose open file description is shared or unclassified",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "xz",
+        "-9",
+        "-k",
+        "-f",
+        "blob.bin"
+      ],
+      "case": "xz-file",
+      "fcntl": [
+        {
+          "command": "F_GETFD",
+          "fd": 0,
+          "origin": "inherited-stdio",
+          "returned": "0",
+          "target": "/dev/null"
+        },
+        {
+          "command": "F_GETFD",
+          "fd": 1,
+          "origin": "inherited-stdio",
+          "returned": "0",
+          "target": "pipe:[202618]"
+        },
+        {
+          "command": "F_GETFD",
+          "fd": 2,
+          "origin": "inherited-stdio",
+          "returned": "0",
+          "target": "pipe:[202619]"
+        },
+        {
+          "command": "F_GETFL",
+          "fd": 3,
+          "origin": "process",
+          "returned": "0 (flags O_RDONLY)",
+          "target": "pipe:[206371]"
+        },
+        {
+          "command": "F_SETFL",
+          "fd": 3,
+          "origin": "process",
+          "returned": "0",
+          "target": "pipe:[206371]"
+        },
+        {
+          "command": "F_GETFL",
+          "fd": 4,
+          "origin": "unclassified",
+          "returned": "0x1 (flags O_WRONLY)",
+          "target": "pipe:[206371]"
+        },
+        {
+          "command": "F_SETFL",
+          "fd": 4,
+          "origin": "unclassified",
+          "returned": "0",
+          "target": "pipe:[206371]"
+        }
+      ],
+      "tracejit": [
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "effects": {
+            "controls": 1,
+            "reads": 76,
+            "unknown": 2,
+            "writes": 6
+          },
+          "eligible_for_reuse": false,
+          "reasons": [
+            "unmodeled successful syscall 72: status-flag change on fd 3 whose open file description is shared or unclassified",
+            "unmodeled successful syscall 72: status-flag change on fd 4 whose open file description is shared or unclassified",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ]
+        },
+        {
+          "cache_decision": "Ineligible",
+          "classification": "Unknown",
+          "effects": {
+            "controls": 1,
+            "reads": 76,
+            "unknown": 2,
+            "writes": 6
+          },
+          "eligible_for_reuse": false,
+          "reasons": [
+            "unmodeled successful syscall 72: status-flag change on fd 3 whose open file description is shared or unclassified",
+            "unmodeled successful syscall 72: status-flag change on fd 4 whose open file description is shared or unclassified",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ]
+        }
+      ]
+    },
+    {
+      "argv": [
+        "gzip",
+        "-9",
+        "-n",
+        "-c",
+        "text.txt"
+      ],
+      "case": "gzip-stdout",
+      "fcntl": [],
+      "tracejit": [
+        {
+          "cache_decision": "Executed",
+          "classification": "Guarded",
+          "effects": {
+            "controls": 1,
+            "reads": 23,
+            "unknown": 0,
+            "writes": 0
+          },
+          "eligible_for_reuse": true,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ]
+        },
+        {
+          "cache_decision": "Reused",
+          "classification": "Guarded",
+          "effects": {
+            "controls": 1,
+            "reads": 23,
+            "unknown": 0,
+            "writes": 0
+          },
+          "eligible_for_reuse": true,
+          "reasons": [
+            "all observed dependencies are guardable or captured outputs",
+            "executed under the tracejit.allocator-entropy.v1 contract; reuse is reproducible within that contract, not equivalent to native execution"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,821 @@
+{
+  "bounds": {
+    "read_write_memcpy_fsync": {
+      "fsync_4k_median_ns": 692189,
+      "input_bytes": 104857600,
+      "memcpy_gib_s": 4.395,
+      "memcpy_ns": 23856725,
+      "note": "page cache warm for read and memcpy; write includes fdatasync via conv=fsync",
+      "sequential_read_gib_s": 6.253,
+      "sequential_read_ns": 16767943,
+      "sequential_write_fsync_ns": 302693431,
+      "sequential_write_gib_s": 0.346
+    }
+  },
+  "cases": [
+    {
+      "argv": [
+        "gzip",
+        "-9",
+        "-n",
+        "-c",
+        "input.bin"
+      ],
+      "arms": {
+        "firebuild": {
+          "hits": [
+            {
+              "stdout_bytes": 19653873,
+              "wall_ns": 76758610
+            },
+            {
+              "stdout_bytes": 19653873,
+              "wall_ns": 79966360
+            },
+            {
+              "stdout_bytes": 19653873,
+              "wall_ns": 62949691
+            },
+            {
+              "stdout_bytes": 19653873,
+              "wall_ns": 62549680
+            },
+            {
+              "stdout_bytes": 19653873,
+              "wall_ns": 78553849
+            }
+          ],
+          "median_hit_ns": 76758610,
+          "peak_rss_kib": null
+        },
+        "tracejit": {
+          "cold": {
+            "decision": "Executed",
+            "exit": 0,
+            "phases": {
+              "cache_prepare_ns": 0,
+              "cas_restore_ns": 0,
+              "cli_parse_ns": 0,
+              "decision_persist_ns": 0,
+              "guard_recheck_ns": 0,
+              "guard_validation_ns": 0,
+              "identity_prepare_ns": 0,
+              "lookup_key_ns": 0,
+              "present_ns": 0,
+              "process_startup_ns": 0,
+              "record_decode_ns": 0,
+              "sqlite_open_ns": 0,
+              "sqlite_query_ns": 0,
+              "sqlite_schema_ns": 0,
+              "stdio_replay_ns": 0
+            },
+            "wall_ns": 5910389335
+          },
+          "hits": [
+            {
+              "decision": "Reused",
+              "exit": 0,
+              "phases": {
+                "cache_prepare_ns": 24266,
+                "cas_restore_ns": 581,
+                "cli_parse_ns": 125646,
+                "decision_persist_ns": 0,
+                "guard_recheck_ns": 0,
+                "guard_validation_ns": 38530479,
+                "identity_prepare_ns": 249849,
+                "lookup_key_ns": 5541,
+                "present_ns": 12782892,
+                "process_startup_ns": 4796065,
+                "record_decode_ns": 234170,
+                "sqlite_open_ns": 158768,
+                "sqlite_query_ns": 269455,
+                "sqlite_schema_ns": 261722,
+                "stdio_replay_ns": 19047992
+              },
+              "wall_ns": 77939306
+            },
+            {
+              "decision": "Reused",
+              "exit": 0,
+              "phases": {
+                "cache_prepare_ns": 25097,
+                "cas_restore_ns": 451,
+                "cli_parse_ns": 153779,
+                "decision_persist_ns": 0,
+                "guard_recheck_ns": 0,
+                "guard_validation_ns": 39767780,
+                "identity_prepare_ns": 298680,
+                "lookup_key_ns": 9097,
+                "present_ns": 12828317,
+                "process_startup_ns": 3544488,
+                "record_decode_ns": 340850,
+                "sqlite_open_ns": 200286,
+                "sqlite_query_ns": 449082,
+                "sqlite_schema_ns": 474130,
+                "stdio_replay_ns": 20052717
+              },
+              "wall_ns": 81201389
+            },
+            {
+              "decision": "Reused",
+              "exit": 0,
+              "phases": {
+                "cache_prepare_ns": 19717,
+                "cas_restore_ns": 521,
+                "cli_parse_ns": 119103,
+                "decision_persist_ns": 0,
+                "guard_recheck_ns": 0,
+                "guard_validation_ns": 38618495,
+                "identity_prepare_ns": 242195,
+                "lookup_key_ns": 5431,
+                "present_ns": 12816145,
+                "process_startup_ns": 4191085,
+                "record_decode_ns": 219723,
+                "sqlite_open_ns": 163607,
+                "sqlite_query_ns": 274135,
+                "sqlite_schema_ns": 307787,
+                "stdio_replay_ns": 15762283
+              },
+              "wall_ns": 74949944
+            },
+            {
+              "decision": "Reused",
+              "exit": 0,
+              "phases": {
+                "cache_prepare_ns": 26190,
+                "cas_restore_ns": 581,
+                "cli_parse_ns": 163867,
+                "decision_persist_ns": 0,
+                "guard_recheck_ns": 0,
+                "guard_validation_ns": 40404527,
+                "identity_prepare_ns": 328496,
+                "lookup_key_ns": 6493,
+                "present_ns": 13990279,
+                "process_startup_ns": 10038304,
+                "record_decode_ns": 274705,
+                "sqlite_open_ns": 226696,
+                "sqlite_query_ns": 350739,
+                "sqlite_schema_ns": 376387,
+                "stdio_replay_ns": 19672102
+              },
+              "wall_ns": 82805599
+            },
+            {
+              "decision": "Reused",
+              "exit": 0,
+              "phases": {
+                "cache_prepare_ns": 26359,
+                "cas_restore_ns": 451,
+                "cli_parse_ns": 152756,
+                "decision_persist_ns": 0,
+                "guard_recheck_ns": 0,
+                "guard_validation_ns": 39367639,
+                "identity_prepare_ns": 343614,
+                "lookup_key_ns": 7664,
+                "present_ns": 12925440,
+                "process_startup_ns": 2957026,
+                "record_decode_ns": 311535,
+                "sqlite_open_ns": 207300,
+                "sqlite_query_ns": 352131,
+                "sqlite_schema_ns": 364784,
+                "stdio_replay_ns": 19182403
+              },
+              "wall_ns": 79779880
+            }
+          ],
+          "median": {
+            "cache_prepare_ns": 25097,
+            "cas_restore_ns": 521,
+            "cli_parse_ns": 152756,
+            "decision_persist_ns": 0,
+            "guard_recheck_ns": 0,
+            "guard_validation_ns": 39367639,
+            "identity_prepare_ns": 298680,
+            "lookup_key_ns": 6493,
+            "present_ns": 12828317,
+            "process_startup_ns": 4191085,
+            "record_decode_ns": 274705,
+            "sqlite_open_ns": 200286,
+            "sqlite_query_ns": 350739,
+            "sqlite_schema_ns": 364784,
+            "stdio_replay_ns": 19182403
+          },
+          "median_hit_ns": 79779880,
+          "peak_rss_kib": 26972,
+          "peak_rss_wall_ns": 5904188617
+        }
+      },
+      "input": {
+        "bytes": 104857600,
+        "path": "/tmp/artifacts/text-100MiB.bin",
+        "sha256": "11e409641fc37bc71a23ba021dbe7c4b91205b2a28b271449e03eea672fb5e99"
+      },
+      "name": "gzip-stdout",
+      "outputs": []
+    },
+    {
+      "argv": [
+        "gzip",
+        "-9",
+        "-n",
+        "-c",
+        "input.bin"
+      ],
+      "arms": {
+        "firebuild": {
+          "hits": [
+            {
+              "stdout_bytes": 104874239,
+              "wall_ns": 230319931
+            },
+            {
+              "stdout_bytes": 104874239,
+              "wall_ns": 225944870
+            },
+            {
+              "stdout_bytes": 104874239,
+              "wall_ns": 221723777
+            },
+            {
+              "stdout_bytes": 104874239,
+              "wall_ns": 222561359
+            },
+            {
+              "stdout_bytes": 104874239,
+              "wall_ns": 232879766
+            }
+          ],
+          "median_hit_ns": 225944870,
+          "peak_rss_kib": null
+        },
+        "tracejit": {
+          "cold": {
+            "decision": "Executed",
+            "exit": 0,
+            "phases": {
+              "cache_prepare_ns": 0,
+              "cas_restore_ns": 0,
+              "cli_parse_ns": 0,
+              "decision_persist_ns": 0,
+              "guard_recheck_ns": 0,
+              "guard_validation_ns": 0,
+              "identity_prepare_ns": 0,
+              "lookup_key_ns": 0,
+              "present_ns": 0,
+              "process_startup_ns": 0,
+              "record_decode_ns": 0,
+              "sqlite_open_ns": 0,
+              "sqlite_query_ns": 0,
+              "sqlite_schema_ns": 0,
+              "stdio_replay_ns": 0
+            },
+            "wall_ns": 3828905575
+          },
+          "hits": [
+            {
+              "decision": "Reused",
+              "exit": 0,
+              "phases": {
+                "cache_prepare_ns": 33453,
+                "cas_restore_ns": 521,
+                "cli_parse_ns": 182552,
+                "decision_persist_ns": 0,
+                "guard_recheck_ns": 0,
+                "guard_validation_ns": 38342425,
+                "identity_prepare_ns": 304663,
+                "lookup_key_ns": 6722,
+                "present_ns": 55480723,
+                "process_startup_ns": 2056699,
+                "record_decode_ns": 261029,
+                "sqlite_open_ns": 208531,
+                "sqlite_query_ns": 347182,
+                "sqlite_schema_ns": 349205,
+                "stdio_replay_ns": 94615104
+              },
+              "wall_ns": 260968577
+            },
+            {
+              "decision": "Reused",
+              "exit": 0,
+              "phases": {
+                "cache_prepare_ns": 28483,
+                "cas_restore_ns": 511,
+                "cli_parse_ns": 130025,
+                "decision_persist_ns": 0,
+                "guard_recheck_ns": 0,
+                "guard_validation_ns": 43066151,
+                "identity_prepare_ns": 304711,
+                "lookup_key_ns": 5971,
+                "present_ns": 57494253,
+                "process_startup_ns": 2420529,
+                "record_decode_ns": 252373,
+                "sqlite_open_ns": 178125,
+                "sqlite_query_ns": 327906,
+                "sqlite_schema_ns": 317074,
+                "stdio_replay_ns": 85087101
+              },
+              "wall_ns": 257831579
+            },
+            {
+              "decision": "Reused",
+              "exit": 0,
+              "phases": {
+                "cache_prepare_ns": 24055,
+                "cas_restore_ns": 602,
+                "cli_parse_ns": 203602,
+                "decision_persist_ns": 0,
+                "guard_recheck_ns": 0,
+                "guard_validation_ns": 38815714,
+                "identity_prepare_ns": 306907,
+                "lookup_key_ns": 5931,
+                "present_ns": 55516840,
+                "process_startup_ns": 10081848,
+                "record_decode_ns": 212960,
+                "sqlite_open_ns": 176431,
+                "sqlite_query_ns": 293721,
+                "sqlite_schema_ns": 361879,
+                "stdio_replay_ns": 86077981
+              },
+              "wall_ns": 253375094
+            },
+            {
+              "decision": "Reused",
+              "exit": 0,
+              "phases": {
+                "cache_prepare_ns": 23985,
+                "cas_restore_ns": 622,
+                "cli_parse_ns": 145152,
+                "decision_persist_ns": 0,
+                "guard_recheck_ns": 0,
+                "guard_validation_ns": 38236036,
+                "identity_prepare_ns": 341590,
+                "lookup_key_ns": 6673,
+                "present_ns": 57560166,
+                "process_startup_ns": 2834202,
+                "record_decode_ns": 222948,
+                "sqlite_open_ns": 185118,
+                "sqlite_query_ns": 354134,
+                "sqlite_schema_ns": 342363,
+                "stdio_replay_ns": 85598763
+              },
+              "wall_ns": 253853662
+            },
+            {
+              "decision": "Reused",
+              "exit": 0,
+              "phases": {
+                "cache_prepare_ns": 24566,
+                "cas_restore_ns": 651,
+                "cli_parse_ns": 140103,
+                "decision_persist_ns": 0,
+                "guard_recheck_ns": 0,
+                "guard_validation_ns": 44754269,
+                "identity_prepare_ns": 303340,
+                "lookup_key_ns": 5991,
+                "present_ns": 58720813,
+                "process_startup_ns": 6377670,
+                "record_decode_ns": 218660,
+                "sqlite_open_ns": 193192,
+                "sqlite_query_ns": 296968,
+                "sqlite_schema_ns": 319760,
+                "stdio_replay_ns": 98944420
+              },
+              "wall_ns": 277470951
+            }
+          ],
+          "median": {
+            "cache_prepare_ns": 24566,
+            "cas_restore_ns": 602,
+            "cli_parse_ns": 145152,
+            "decision_persist_ns": 0,
+            "guard_recheck_ns": 0,
+            "guard_validation_ns": 38815714,
+            "identity_prepare_ns": 304711,
+            "lookup_key_ns": 5991,
+            "present_ns": 57494253,
+            "process_startup_ns": 2834202,
+            "record_decode_ns": 222948,
+            "sqlite_open_ns": 185118,
+            "sqlite_query_ns": 327906,
+            "sqlite_schema_ns": 342363,
+            "stdio_replay_ns": 86077981
+          },
+          "median_hit_ns": 257831579,
+          "peak_rss_kib": 110080,
+          "peak_rss_wall_ns": 3333236385
+        }
+      },
+      "input": {
+        "bytes": 104857600,
+        "path": "/tmp/artifacts/xz-100MiB.bin",
+        "sha256": "bdf44b3e96b39532d52e8b475d07d9835d3013c41328084f83d476fcb926304a"
+      },
+      "name": "gzip-stdout-incompressible",
+      "outputs": []
+    },
+    {
+      "argv": [
+        "gzip",
+        "-9",
+        "-n",
+        "-k",
+        "-f",
+        "input.bin"
+      ],
+      "arms": {
+        "firebuild": {
+          "hits": [
+            {
+              "stdout_bytes": 0,
+              "wall_ns": 14009575
+            },
+            {
+              "stdout_bytes": 0,
+              "wall_ns": 14178071
+            },
+            {
+              "stdout_bytes": 0,
+              "wall_ns": 13097202
+            },
+            {
+              "stdout_bytes": 0,
+              "wall_ns": 13280105
+            },
+            {
+              "stdout_bytes": 0,
+              "wall_ns": 12873282
+            }
+          ],
+          "median_hit_ns": 13280105,
+          "peak_rss_kib": null
+        },
+        "tracejit": {
+          "cold": {
+            "decision": "Executed",
+            "exit": 0,
+            "phases": {
+              "cache_prepare_ns": 0,
+              "cas_restore_ns": 0,
+              "cli_parse_ns": 0,
+              "decision_persist_ns": 0,
+              "guard_recheck_ns": 0,
+              "guard_validation_ns": 0,
+              "identity_prepare_ns": 0,
+              "lookup_key_ns": 0,
+              "present_ns": 0,
+              "process_startup_ns": 0,
+              "record_decode_ns": 0,
+              "sqlite_open_ns": 0,
+              "sqlite_query_ns": 0,
+              "sqlite_schema_ns": 0,
+              "stdio_replay_ns": 0
+            },
+            "wall_ns": 641126301
+          },
+          "hits": [
+            {
+              "decision": "Reused",
+              "exit": 0,
+              "phases": {
+                "cache_prepare_ns": 33433,
+                "cas_restore_ns": 13530115,
+                "cli_parse_ns": 153748,
+                "decision_persist_ns": 0,
+                "guard_recheck_ns": 0,
+                "guard_validation_ns": 8147362,
+                "identity_prepare_ns": 383380,
+                "lookup_key_ns": 7073,
+                "present_ns": 19116,
+                "process_startup_ns": 6288992,
+                "record_decode_ns": 318748,
+                "sqlite_open_ns": 231745,
+                "sqlite_query_ns": 449615,
+                "sqlite_schema_ns": 348834,
+                "stdio_replay_ns": 31670
+              },
+              "wall_ns": 26407155
+            },
+            {
+              "decision": "Reused",
+              "exit": 0,
+              "phases": {
+                "cache_prepare_ns": 25789,
+                "cas_restore_ns": 9228401,
+                "cli_parse_ns": 130745,
+                "decision_persist_ns": 0,
+                "guard_recheck_ns": 0,
+                "guard_validation_ns": 6922283,
+                "identity_prepare_ns": 252625,
+                "lookup_key_ns": 5470,
+                "present_ns": 24646,
+                "process_startup_ns": 3327250,
+                "record_decode_ns": 228449,
+                "sqlite_open_ns": 162545,
+                "sqlite_query_ns": 268524,
+                "sqlite_schema_ns": 302418,
+                "stdio_replay_ns": 24967
+              },
+              "wall_ns": 20006401
+            },
+            {
+              "decision": "Reused",
+              "exit": 0,
+              "phases": {
+                "cache_prepare_ns": 27501,
+                "cas_restore_ns": 10764264,
+                "cli_parse_ns": 176983,
+                "decision_persist_ns": 0,
+                "guard_recheck_ns": 0,
+                "guard_validation_ns": 8413912,
+                "identity_prepare_ns": 370866,
+                "lookup_key_ns": 7544,
+                "present_ns": 22212,
+                "process_startup_ns": 4658758,
+                "record_decode_ns": 445297,
+                "sqlite_open_ns": 214482,
+                "sqlite_query_ns": 522040,
+                "sqlite_schema_ns": 403358,
+                "stdio_replay_ns": 55183
+              },
+              "wall_ns": 24383346
+            },
+            {
+              "decision": "Reused",
+              "exit": 0,
+              "phases": {
+                "cache_prepare_ns": 24145,
+                "cas_restore_ns": 10043080,
+                "cli_parse_ns": 162336,
+                "decision_persist_ns": 0,
+                "guard_recheck_ns": 0,
+                "guard_validation_ns": 8020444,
+                "identity_prepare_ns": 373410,
+                "lookup_key_ns": 6492,
+                "present_ns": 20017,
+                "process_startup_ns": 9646657,
+                "record_decode_ns": 280607,
+                "sqlite_open_ns": 197089,
+                "sqlite_query_ns": 357811,
+                "sqlite_schema_ns": 338867,
+                "stdio_replay_ns": 30237
+              },
+              "wall_ns": 22458342
+            },
+            {
+              "decision": "Reused",
+              "exit": 0,
+              "phases": {
+                "cache_prepare_ns": 24065,
+                "cas_restore_ns": 9619074,
+                "cli_parse_ns": 147667,
+                "decision_persist_ns": 0,
+                "guard_recheck_ns": 0,
+                "guard_validation_ns": 7010679,
+                "identity_prepare_ns": 288692,
+                "lookup_key_ns": 5821,
+                "present_ns": 23073,
+                "process_startup_ns": 3266380,
+                "record_decode_ns": 271850,
+                "sqlite_open_ns": 202761,
+                "sqlite_query_ns": 323388,
+                "sqlite_schema_ns": 373230,
+                "stdio_replay_ns": 27602
+              },
+              "wall_ns": 21162189
+            }
+          ],
+          "median": {
+            "cache_prepare_ns": 25789,
+            "cas_restore_ns": 10043080,
+            "cli_parse_ns": 153748,
+            "decision_persist_ns": 0,
+            "guard_recheck_ns": 0,
+            "guard_validation_ns": 8020444,
+            "identity_prepare_ns": 370866,
+            "lookup_key_ns": 6492,
+            "present_ns": 22212,
+            "process_startup_ns": 4658758,
+            "record_decode_ns": 280607,
+            "sqlite_open_ns": 202761,
+            "sqlite_query_ns": 357811,
+            "sqlite_schema_ns": 348834,
+            "stdio_replay_ns": 30237
+          },
+          "median_hit_ns": 22458342,
+          "peak_rss_kib": 11800,
+          "peak_rss_wall_ns": 627507729
+        }
+      },
+      "input": {
+        "bytes": 10485760,
+        "path": "/tmp/artifacts/text-10MiB.bin",
+        "sha256": "43648fa651a2d9163c4436b61708d18e82277f57a2829de494977e86ece4e82f"
+      },
+      "name": "gzip-file",
+      "outputs": [
+        "input.bin.gz"
+      ]
+    },
+    {
+      "argv": [
+        "sha256sum",
+        "input.bin"
+      ],
+      "arms": {
+        "firebuild": {
+          "hits": [
+            {
+              "stdout_bytes": 76,
+              "wall_ns": 38551998
+            },
+            {
+              "stdout_bytes": 76,
+              "wall_ns": 33152053
+            },
+            {
+              "stdout_bytes": 76,
+              "wall_ns": 28833828
+            },
+            {
+              "stdout_bytes": 76,
+              "wall_ns": 30566761
+            },
+            {
+              "stdout_bytes": 76,
+              "wall_ns": 45404309
+            }
+          ],
+          "median_hit_ns": 33152053,
+          "peak_rss_kib": null
+        },
+        "tracejit": {
+          "cold": {
+            "decision": "Executed",
+            "exit": 0,
+            "phases": {
+              "cache_prepare_ns": 0,
+              "cas_restore_ns": 0,
+              "cli_parse_ns": 0,
+              "decision_persist_ns": 0,
+              "guard_recheck_ns": 0,
+              "guard_validation_ns": 0,
+              "identity_prepare_ns": 0,
+              "lookup_key_ns": 0,
+              "present_ns": 0,
+              "process_startup_ns": 0,
+              "record_decode_ns": 0,
+              "sqlite_open_ns": 0,
+              "sqlite_query_ns": 0,
+              "sqlite_schema_ns": 0,
+              "stdio_replay_ns": 0
+            },
+            "wall_ns": 379498597
+          },
+          "hits": [
+            {
+              "decision": "Reused",
+              "exit": 0,
+              "phases": {
+                "cache_prepare_ns": 27021,
+                "cas_restore_ns": 741,
+                "cli_parse_ns": 169788,
+                "decision_persist_ns": 0,
+                "guard_recheck_ns": 0,
+                "guard_validation_ns": 46152083,
+                "identity_prepare_ns": 338616,
+                "lookup_key_ns": 6833,
+                "present_ns": 30387,
+                "process_startup_ns": 5422683,
+                "record_decode_ns": 588725,
+                "sqlite_open_ns": 221557,
+                "sqlite_query_ns": 569329,
+                "sqlite_schema_ns": 368291,
+                "stdio_replay_ns": 34946
+              },
+              "wall_ns": 51465336
+            },
+            {
+              "decision": "Reused",
+              "exit": 0,
+              "phases": {
+                "cache_prepare_ns": 24857,
+                "cas_restore_ns": 290,
+                "cli_parse_ns": 180008,
+                "decision_persist_ns": 0,
+                "guard_recheck_ns": 0,
+                "guard_validation_ns": 48016983,
+                "identity_prepare_ns": 288141,
+                "lookup_key_ns": 6462,
+                "present_ns": 25237,
+                "process_startup_ns": 7169317,
+                "record_decode_ns": 573837,
+                "sqlite_open_ns": 201057,
+                "sqlite_query_ns": 577803,
+                "sqlite_schema_ns": 387839,
+                "stdio_replay_ns": 35437
+              },
+              "wall_ns": 53172270
+            },
+            {
+              "decision": "Reused",
+              "exit": 0,
+              "phases": {
+                "cache_prepare_ns": 27522,
+                "cas_restore_ns": 621,
+                "cli_parse_ns": 170870,
+                "decision_persist_ns": 0,
+                "guard_recheck_ns": 0,
+                "guard_validation_ns": 46445193,
+                "identity_prepare_ns": 306896,
+                "lookup_key_ns": 7945,
+                "present_ns": 26519,
+                "process_startup_ns": 10506677,
+                "record_decode_ns": 978616,
+                "sqlite_open_ns": 215775,
+                "sqlite_query_ns": 612380,
+                "sqlite_schema_ns": 386716,
+                "stdio_replay_ns": 43261
+              },
+              "wall_ns": 52193843
+            },
+            {
+              "decision": "Reused",
+              "exit": 0,
+              "phases": {
+                "cache_prepare_ns": 20338,
+                "cas_restore_ns": 441,
+                "cli_parse_ns": 132458,
+                "decision_persist_ns": 0,
+                "guard_recheck_ns": 0,
+                "guard_validation_ns": 41642540,
+                "identity_prepare_ns": 253555,
+                "lookup_key_ns": 5490,
+                "present_ns": 25437,
+                "process_startup_ns": 2715719,
+                "record_decode_ns": 469971,
+                "sqlite_open_ns": 180520,
+                "sqlite_query_ns": 504337,
+                "sqlite_schema_ns": 298831,
+                "stdio_replay_ns": 28253
+              },
+              "wall_ns": 46090739
+            },
+            {
+              "decision": "Reused",
+              "exit": 0,
+              "phases": {
+                "cache_prepare_ns": 33313,
+                "cas_restore_ns": 631,
+                "cli_parse_ns": 174087,
+                "decision_persist_ns": 0,
+                "guard_recheck_ns": 0,
+                "guard_validation_ns": 46645731,
+                "identity_prepare_ns": 297128,
+                "lookup_key_ns": 6813,
+                "present_ns": 37400,
+                "process_startup_ns": 9367991,
+                "record_decode_ns": 587764,
+                "sqlite_open_ns": 232897,
+                "sqlite_query_ns": 566603,
+                "sqlite_schema_ns": 366449,
+                "stdio_replay_ns": 36198
+              },
+              "wall_ns": 51972798
+            }
+          ],
+          "median": {
+            "cache_prepare_ns": 27021,
+            "cas_restore_ns": 621,
+            "cli_parse_ns": 170870,
+            "decision_persist_ns": 0,
+            "guard_recheck_ns": 0,
+            "guard_validation_ns": 46445193,
+            "identity_prepare_ns": 297128,
+            "lookup_key_ns": 6813,
+            "present_ns": 26519,
+            "process_startup_ns": 7169317,
+            "record_decode_ns": 587764,
+            "sqlite_open_ns": 215775,
+            "sqlite_query_ns": 569329,
+            "sqlite_schema_ns": 368291,
+            "stdio_replay_ns": 35437
+          },
+          "median_hit_ns": 51972798,
+          "peak_rss_kib": 11424,
+          "peak_rss_wall_ns": 282593805
+        }
+      },
+      "input": {
+        "bytes": 104857600,
+        "path": "/tmp/artifacts/text-100MiB.bin",
+        "sha256": "11e409641fc37bc71a23ba021dbe7c4b91205b2a28b271449e03eea672fb5e99"
+      },
+      "name": "sha256sum",
+      "outputs": []
+    }
+  ],
+  "environment": {
+    "kernel": "6.1.102",
+    "machine": "x86_64"
+  }
+}

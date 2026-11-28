@@ -623,6 +623,10 @@ fn present_report(report: &RunReport, json_output: bool, verbose: bool) -> Resul
                         guards.passed, guards.checked
                     );
                 }
+                // A hit used to print no class at all, so a user who reused a `PROVEN` record
+                // could not see that it was one. The class is the record's, not the run's; it
+                // says the policy was installed when the record was created, nothing more.
+                let _ = writeln!(text, "classified     {}", report.classification);
                 let _ = writeln!(text, "cache          HIT");
                 let _ = writeln!(
                     text,

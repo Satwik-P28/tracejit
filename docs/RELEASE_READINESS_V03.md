@@ -1,3 +1,8 @@
+<!-- Historical record. Superseded by docs/FINAL_CORRECTNESS_CONTRACT.md and
+     docs/PHASE_AF_REPORT.md. Statements below about the absence of a Landlock-capable
+     environment are host-specific and were true of the hosts named here; a later host in this
+     project reports Landlock ABI 8 and the enforcement lifecycle was qualified there. -->
+
 # v0.3 release readiness
 
 Assessed at the end of Phase AA on `research/phase-aa` (commit `9abb10bb…`), and
@@ -193,3 +198,92 @@ transforms, compiler steps under a declared contract), with a documented
 mtime-driven build-system limitation and no general-compiler advantage over
 ccache. Paper readiness: option **B**, a narrow paper on fail-closed whole-command
 reuse, pending a measured comparison against Firebuild.
+
+## Phase AD update (competitive validation, descriptors, admission)
+
+New evidence, same verdict: **not qualified for v0.3**.
+
+* **Competitive position measured.** Firebuild 0.8.2 (same host, pinned debs) cannot cache
+  commands that preserve timestamps on their outputs — it re-executes `gzip -k`, `bzip2 -k` and
+  `objcopy` every time — and it reuses clock-dependent commands by default (`date +%s` is
+  replayed from cache). TraceJIT caches the former at 3–20× direct cost and refuses the latter.
+  On cheap stdout filters with Firebuild's default config, TraceJIT is competitive (486 ms vs
+  622 ms over 100 invocations) and loses when Firebuild is tuned to cache `sed` (1982 vs 2548 ms).
+  See `docs/FIREBUILD_COMPARISON.md`.
+* **Scale measured on authentic artifacts.** Linux 6.6.50 release archive, 1/10/100 MiB: hit
+  costs 6.0/18.2/85.3 ms against native 46/565/5468 ms for compressible text; incompressible
+  100 MiB is 362 ms against 2852 ms. Hash-only commands reverse below ~10 MiB. Integer
+  break-even is 2 invocations for every compression workload, "never" for `sha256sum` at
+  ≤10 MiB and 9 at 100 MiB. See `docs/ARTIFACT_BENCHMARKS.md`.
+* **Admission audited, not changed.** A 24-step mixed session: `always` 1229/1240 ms, default
+  `auto` 1285/1292 ms, `never` 1663/1745 ms, direct 1564/1639 ms, retrospective oracle
+  653/631 ms. The default is 3–4 % behind `always` and protects one-shot work; no production
+  change without a policy whose benefit is a lower bound. See `docs/ECONOMIC_ADMISSION.md`.
+* **Descriptor compatibility did not improve.** The `F_GETFD`-on-inherited promotion is sound
+  but changed 0/48 census cells; it was reverted. `tar` remains blocked by a realtime clock read
+  and a socket control, `xz` by pipe status-flag toggles. See
+  `docs/INHERITED_DESCRIPTOR_SEMANTICS.md`.
+* **TOCTOU unchanged.** Second validation pass retained, window documented, no userspace-only
+  close found, no cooperative lock added. `PROVEN` is untested because this host's LSMs are
+  `capability,selinux` (no Landlock). See `docs/TOCTOU_MITIGATION_STUDY.md`.
+
+Acceptance criteria for a v0.3 prerelease remain: (1) zero incorrect HITs across the frozen
+corpus, adversarial suites, model checking and fault injection; (2) a second host and kernel
+reproducing the gates; (3) a Landlock-capable environment for `PROVEN`; (4) the TOCTOU window
+either closed by isolation or explicitly accepted in the release notes; (5) documented limits
+for mutation-heavy, one-shot and sub-10 ms workloads; (6) `cargo audit` clean in CI.
+
+## Phase AE review (competitive evidence audit, cross-environment, correctness boundary)
+
+This section **supersedes the competitive and TOCTOU bullets of the Phase AD update above**.
+Phase AE re-measured both, added Firebuild 0.8.6.2, and corrected claims the evidence does not
+support. Nothing in the product changed.
+
+**Withdrawn claims.**
+
+* "Firebuild performs unvalidated reuse / the fingerprint is the lookup key" — **false**.
+  Firebuild validates every recorded input at reuse time (`pio_matches_fs` →
+  `HashCache::file_info_matches`, content hash included). The claim is removed from all
+  documents.
+* "TraceJIT wins the artifact-producing niche outright" — **false** with Firebuild 0.8.6.2,
+  which caches `gzip -9 -n -k`. It is 1.67× faster than TraceJIT at that workload.
+* "Every compression workload breaks even at the second invocation" — **false** for the 1 MiB
+  incompressible gzip row, which needs 3 by the integer model and 10 by the measured cold
+  session.
+* "The warm path validates inputs twice / a second pass catches a mutation after validation" —
+  **false**. One surviving pass; a mutation after it produces stale output (measured).
+
+**Retained, measured position.**
+
+* TraceJIT-only reuse: `bzip2 -9 -k` (Firebuild 0.8.2 and 0.8.6.2 both refuse:
+  `Changing file timestamps is not supported`). n=25 cold session: native 2846.7 ms,
+  TraceJIT 545.3 ms, Firebuild 3119.4 ms.
+* TraceJIT's validated replay of large stdout is competitive: 6.56 ms vs 7.47 ms per invocation
+  at 1.2 MiB; 79.8 ms for a 100 MiB text artifact in the phase profile.
+* Contract differences: default Firebuild replays clock-dependent output (TraceJIT refuses);
+  Firebuild's strict configuration refuses to cache those commands. Firebuild replays a
+  corrupted cached blob; TraceJIT refuses the object and re-executes.
+* Verified replay is within ~1.5× (compressible) and ~2.7× (incompressible) of a floor that
+  already includes full input and output verification; no optimisation is promoted.
+
+**Environment matrix.** Two userspaces on one kernel: Ubuntu 24.04/glibc 2.39 (guarded reuse
+works) and Ubuntu 25.10/glibc 2.42 (correct execution, no reuse — the `allocator-entropy-v1`
+contract is unavailable for an unaudited libc). No Landlock anywhere, so `--enforce` never
+reuses and never labels a run `PROVEN`. A GitHub Actions workflow is prepared but its results
+could not be read back and would not constitute independent reproduction.
+
+**Gates run locally on the pushed tree**: fmt, clippy `-D warnings`, `cargo test --workspace`
+(283 passed, 1 ignored), accounting regressions (17), state-machine model check, both restore
+fault scenarios, benchmark harness self-tests, version consistency, fresh-checkout build + reuse
+smoke, and `cargo audit --deny warnings` (0 vulnerabilities in 110 dependencies). Release
+packaging and clean-install gates were not run here.
+
+**Verdict: qualified as a research prerelease (0.3.0-alpha class), not as a stable beta.**
+Blockers that require engineering or capability: (1) a Landlock-capable host to exercise
+`PROVEN` end to end; (2) the residual validation-to-restore race, which must be disclosed as an
+operating assumption; (3) documented unavailability of reuse on unaudited glibc; (4) a second
+kernel and an independent operator; (5) the packaging/clean-install gate. The misleading
+guarantees and invalid benchmark claims that would have blocked even a prerelease are corrected
+by `docs/PHASE_AE_REPORT.md`, `docs/COMPETITIVE_EVIDENCE_AUDIT.md`,
+`docs/FIREBUILD_CROSS_VERSION_RESULTS.md`, `docs/TOCTOU_CORRECTNESS_BOUNDARY.md`,
+`docs/VALIDATED_REPLAY_PERFORMANCE.md` and `docs/PAPER_CLAIMS_LEDGER.md`.

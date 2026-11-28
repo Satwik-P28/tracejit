@@ -1,0 +1,872 @@
+{
+  "artifact": {
+    "archive": {
+      "bytes": 140341000,
+      "path": "/tmp/artifacts/linux-6.6.50.tar.xz",
+      "sha256": "c065e36daf28210060c91a37ef3e92ac5814784e634577e04e406297ead2e86e",
+      "url": "https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.6.50.tar.xz"
+    },
+    "inputs": {
+      "100MiB": {
+        "text": {
+          "bytes": 104857600,
+          "path": "/tmp/artifacts/text-100MiB.bin",
+          "sha256": "11e409641fc37bc71a23ba021dbe7c4b91205b2a28b271449e03eea672fb5e99"
+        },
+        "xz": {
+          "bytes": 104857600,
+          "path": "/tmp/artifacts/xz-100MiB.bin",
+          "sha256": "bdf44b3e96b39532d52e8b475d07d9835d3013c41328084f83d476fcb926304a"
+        }
+      },
+      "10MiB": {
+        "text": {
+          "bytes": 10485760,
+          "path": "/tmp/artifacts/text-10MiB.bin",
+          "sha256": "43648fa651a2d9163c4436b61708d18e82277f57a2829de494977e86ece4e82f"
+        },
+        "xz": {
+          "bytes": 10485760,
+          "path": "/tmp/artifacts/xz-10MiB.bin",
+          "sha256": "b313f79fb97aabb74d9c28a65e753702830b5aa9ba84db355476e844067231e6"
+        }
+      },
+      "1MiB": {
+        "text": {
+          "bytes": 1048576,
+          "path": "/tmp/artifacts/text-1MiB.bin",
+          "sha256": "3735bb78d739ce24aaa412157a66ce1ed51866d55cbca1455163ba69ab8a4151"
+        },
+        "xz": {
+          "bytes": 1048576,
+          "path": "/tmp/artifacts/xz-1MiB.bin",
+          "sha256": "8a44ddff28b35e1c4db70405c9ed1dbc40a3555007ee6b0c04eb4fb3bf7f6515"
+        }
+      }
+    }
+  },
+  "break_even": [
+    {
+      "arm": "tracejit-ae",
+      "artifact": "1MiB",
+      "break_even": {
+        "fractional": 1.5212788023385317,
+        "integer_invocations": 2,
+        "reason": null
+      },
+      "cold_ns": 56267345,
+      "direct_ns": 38064541,
+      "hit_ns": 3145024,
+      "reused": true,
+      "workload": "gzip-stdout"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "1MiB",
+      "break_even": {
+        "fractional": 1.9622078602260122,
+        "integer_invocations": 2,
+        "reason": null
+      },
+      "cold_ns": 48247004,
+      "direct_ns": 26955866,
+      "hit_ns": 4828487,
+      "reused": true,
+      "workload": "gzip-stdout-incompressible"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "1MiB",
+      "break_even": {
+        "fractional": null,
+        "integer_invocations": null,
+        "reason": "a HIT is not cheaper than direct execution"
+      },
+      "cold_ns": 33511785,
+      "direct_ns": 1436532,
+      "hit_ns": 11299465,
+      "reused": true,
+      "workload": "sha256sum"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "1MiB",
+      "break_even": {
+        "fractional": 1.3619688560612815,
+        "integer_invocations": 2,
+        "reason": null
+      },
+      "cold_ns": 86283075,
+      "direct_ns": 64484706,
+      "hit_ns": 4263036,
+      "reused": true,
+      "workload": "bzip2-stdout"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "1MiB",
+      "break_even": {
+        "fractional": 1.6174724644303624,
+        "integer_invocations": 2,
+        "reason": null
+      },
+      "cold_ns": 63290845,
+      "direct_ns": 42264756,
+      "hit_ns": 8212891,
+      "reused": true,
+      "workload": "gzip-file"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "10MiB",
+      "break_even": {
+        "fractional": 1.2436023033953731,
+        "integer_invocations": 2,
+        "reason": null
+      },
+      "cold_ns": 601857864,
+      "direct_ns": 486193219,
+      "hit_ns": 11383895,
+      "reused": true,
+      "workload": "gzip-stdout"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "10MiB",
+      "break_even": {
+        "fractional": 1.1548397850250791,
+        "integer_invocations": 2,
+        "reason": null
+      },
+      "cold_ns": 304197706,
+      "direct_ns": 266097835,
+      "hit_ns": 20037877,
+      "reused": true,
+      "workload": "gzip-stdout-incompressible"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "10MiB",
+      "break_even": {
+        "fractional": null,
+        "integer_invocations": null,
+        "reason": "a HIT is not cheaper than direct execution"
+      },
+      "cold_ns": 45381921,
+      "direct_ns": 8176651,
+      "hit_ns": 11025095,
+      "reused": true,
+      "workload": "sha256sum"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "10MiB",
+      "break_even": {
+        "fractional": 1.3260180373104873,
+        "integer_invocations": 2,
+        "reason": null
+      },
+      "cold_ns": 733082688,
+      "direct_ns": 555778272,
+      "hit_ns": 11929786,
+      "reused": true,
+      "workload": "bzip2-stdout"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "10MiB",
+      "break_even": {
+        "fractional": 1.268742499901279,
+        "integer_invocations": 2,
+        "reason": null
+      },
+      "cold_ns": 602577235,
+      "direct_ns": 478381539,
+      "hit_ns": 16245122,
+      "reused": true,
+      "workload": "gzip-file"
+    }
+  ],
+  "rows": [
+    {
+      "arm": "native",
+      "artifact": "1MiB",
+      "cache_bytes": 0,
+      "cold_ns": 38342621,
+      "input_bytes": 1048576,
+      "input_sha256": "3735bb78d739ce24aaa412157a66ce1ed51866d55cbca1455163ba69ab8a4151",
+      "observation_matches_native": true,
+      "peak_rss_kib": 15476,
+      "peak_wall_ns": 38015450,
+      "reuse_evidence": "direct",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 119689260
+        },
+        {
+          "invocations": 10,
+          "total_ns": 391570023
+        },
+        {
+          "invocations": 25,
+          "total_ns": 946629194
+        }
+      ],
+      "warm_ns": 38064541,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        38064541,
+        37672790,
+        38176601
+      ],
+      "workload": "gzip-stdout"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "1MiB",
+      "cache_bytes": 342290,
+      "cold_ns": 56267345,
+      "input_bytes": 1048576,
+      "input_sha256": "3735bb78d739ce24aaa412157a66ce1ed51866d55cbca1455163ba69ab8a4151",
+      "observation_matches_native": true,
+      "peak_rss_kib": 15368,
+      "peak_wall_ns": 49168156,
+      "reuse_evidence": "Reused/Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 9755123
+        },
+        {
+          "invocations": 10,
+          "total_ns": 30050190
+        },
+        {
+          "invocations": 25,
+          "total_ns": 77975054
+        }
+      ],
+      "warm_ns": 3145024,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        7375440,
+        3138784,
+        3145024
+      ],
+      "workload": "gzip-stdout"
+    },
+    {
+      "arm": "native",
+      "artifact": "1MiB",
+      "cache_bytes": 0,
+      "cold_ns": 27153896,
+      "input_bytes": 1048576,
+      "input_sha256": "8a44ddff28b35e1c4db70405c9ed1dbc40a3555007ee6b0c04eb4fb3bf7f6515",
+      "observation_matches_native": true,
+      "peak_rss_kib": 15444,
+      "peak_wall_ns": 26394105,
+      "reuse_evidence": "direct",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 81289319
+        },
+        {
+          "invocations": 10,
+          "total_ns": 277581600
+        },
+        {
+          "invocations": 25,
+          "total_ns": 716009576
+        }
+      ],
+      "warm_ns": 26955866,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        26794596,
+        42400287,
+        26955866
+      ],
+      "workload": "gzip-stdout-incompressible"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "1MiB",
+      "cache_bytes": 1173591,
+      "cold_ns": 48247004,
+      "input_bytes": 1048576,
+      "input_sha256": "8a44ddff28b35e1c4db70405c9ed1dbc40a3555007ee6b0c04eb4fb3bf7f6515",
+      "observation_matches_native": true,
+      "peak_rss_kib": 15368,
+      "peak_wall_ns": 42437107,
+      "reuse_evidence": "Reused/Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 12139276
+        },
+        {
+          "invocations": 10,
+          "total_ns": 39819013
+        },
+        {
+          "invocations": 25,
+          "total_ns": 104134649
+        }
+      ],
+      "warm_ns": 4828487,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        9057442,
+        4828487,
+        4364576
+      ],
+      "workload": "gzip-stdout-incompressible"
+    },
+    {
+      "arm": "native",
+      "artifact": "1MiB",
+      "cache_bytes": 0,
+      "cold_ns": 1598632,
+      "input_bytes": 1048576,
+      "input_sha256": "3735bb78d739ce24aaa412157a66ce1ed51866d55cbca1455163ba69ab8a4151",
+      "observation_matches_native": true,
+      "peak_rss_kib": 15468,
+      "peak_wall_ns": 1852992,
+      "reuse_evidence": "direct",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 7839121
+        },
+        {
+          "invocations": 10,
+          "total_ns": 15120040
+        },
+        {
+          "invocations": 25,
+          "total_ns": 35542587
+        }
+      ],
+      "warm_ns": 1436532,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        1436532,
+        1601022,
+        1376612
+      ],
+      "workload": "sha256sum"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "1MiB",
+      "cache_bytes": 350355,
+      "cold_ns": 33511785,
+      "input_bytes": 1048576,
+      "input_sha256": "3735bb78d739ce24aaa412157a66ce1ed51866d55cbca1455163ba69ab8a4151",
+      "observation_matches_native": true,
+      "peak_rss_kib": 15168,
+      "peak_wall_ns": 18336475,
+      "reuse_evidence": "Reused/Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 22513370
+        },
+        {
+          "invocations": 10,
+          "total_ns": 89425000
+        },
+        {
+          "invocations": 25,
+          "total_ns": 198238295
+        }
+      ],
+      "warm_ns": 11299465,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        12539507,
+        11299465,
+        8029851
+      ],
+      "workload": "sha256sum"
+    },
+    {
+      "arm": "native",
+      "artifact": "1MiB",
+      "cache_bytes": 0,
+      "cold_ns": 82441820,
+      "input_bytes": 1048576,
+      "input_sha256": "3735bb78d739ce24aaa412157a66ce1ed51866d55cbca1455163ba69ab8a4151",
+      "observation_matches_native": true,
+      "peak_rss_kib": 15484,
+      "peak_wall_ns": 65514317,
+      "reuse_evidence": "direct",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 204356673
+        },
+        {
+          "invocations": 10,
+          "total_ns": 650744409
+        },
+        {
+          "invocations": 25,
+          "total_ns": 1639258048
+        }
+      ],
+      "warm_ns": 64484706,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        64386976,
+        90640771,
+        64484706
+      ],
+      "workload": "bzip2-stdout"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "1MiB",
+      "cache_bytes": 327314,
+      "cold_ns": 86283075,
+      "input_bytes": 1048576,
+      "input_sha256": "3735bb78d739ce24aaa412157a66ce1ed51866d55cbca1455163ba69ab8a4151",
+      "observation_matches_native": true,
+      "peak_rss_kib": 15480,
+      "peak_wall_ns": 76076961,
+      "reuse_evidence": "Reused/Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 12729027
+        },
+        {
+          "invocations": 10,
+          "total_ns": 42794548
+        },
+        {
+          "invocations": 25,
+          "total_ns": 102269056
+        }
+      ],
+      "warm_ns": 4263036,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        9021732,
+        4105835,
+        4263036
+      ],
+      "workload": "bzip2-stdout"
+    },
+    {
+      "arm": "native",
+      "artifact": "1MiB",
+      "cache_bytes": 0,
+      "cold_ns": 34718256,
+      "input_bytes": 1048576,
+      "input_sha256": "3735bb78d739ce24aaa412157a66ce1ed51866d55cbca1455163ba69ab8a4151",
+      "observation_matches_native": true,
+      "peak_rss_kib": 15484,
+      "peak_wall_ns": 50218957,
+      "reuse_evidence": "direct",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 110639507
+        },
+        {
+          "invocations": 10,
+          "total_ns": 450674841
+        },
+        {
+          "invocations": 25,
+          "total_ns": 901719174
+        }
+      ],
+      "warm_ns": 42264756,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        63329595,
+        35198607,
+        42264756
+      ],
+      "workload": "gzip-file"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "1MiB",
+      "cache_bytes": 355170,
+      "cold_ns": 63290845,
+      "input_bytes": 1048576,
+      "input_sha256": "3735bb78d739ce24aaa412157a66ce1ed51866d55cbca1455163ba69ab8a4151",
+      "observation_matches_native": true,
+      "peak_rss_kib": 15484,
+      "peak_wall_ns": 58081467,
+      "reuse_evidence": "Reused/Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 24294863
+        },
+        {
+          "invocations": 10,
+          "total_ns": 85215654
+        },
+        {
+          "invocations": 25,
+          "total_ns": 211847353
+        }
+      ],
+      "warm_ns": 8212891,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        12358186,
+        8086871,
+        8212891
+      ],
+      "workload": "gzip-file"
+    },
+    {
+      "arm": "native",
+      "artifact": "10MiB",
+      "cache_bytes": 0,
+      "cold_ns": 448777310,
+      "input_bytes": 10485760,
+      "input_sha256": "43648fa651a2d9163c4436b61708d18e82277f57a2829de494977e86ece4e82f",
+      "observation_matches_native": true,
+      "peak_rss_kib": 15492,
+      "peak_wall_ns": 456627010,
+      "reuse_evidence": "direct",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 1481018948
+        },
+        {
+          "invocations": 10,
+          "total_ns": 4560111868
+        },
+        {
+          "invocations": 25,
+          "total_ns": 11498751853
+        }
+      ],
+      "warm_ns": 486193219,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        478033788,
+        488754933,
+        486193219
+      ],
+      "workload": "gzip-stdout"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "10MiB",
+      "cache_bytes": 2663445,
+      "cold_ns": 601857864,
+      "input_bytes": 10485760,
+      "input_sha256": "43648fa651a2d9163c4436b61708d18e82277f57a2829de494977e86ece4e82f",
+      "observation_matches_native": true,
+      "peak_rss_kib": 15264,
+      "peak_wall_ns": 599146820,
+      "reuse_evidence": "Reused/Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 42739247
+        },
+        {
+          "invocations": 10,
+          "total_ns": 111394789
+        },
+        {
+          "invocations": 25,
+          "total_ns": 282377817
+        }
+      ],
+      "warm_ns": 11383895,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        14535780,
+        8570741,
+        11383895
+      ],
+      "workload": "gzip-stdout"
+    },
+    {
+      "arm": "native",
+      "artifact": "10MiB",
+      "cache_bytes": 0,
+      "cold_ns": 267733067,
+      "input_bytes": 10485760,
+      "input_sha256": "b313f79fb97aabb74d9c28a65e753702830b5aa9ba84db355476e844067231e6",
+      "observation_matches_native": true,
+      "peak_rss_kib": 15464,
+      "peak_wall_ns": 265120444,
+      "reuse_evidence": "direct",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 834499814
+        },
+        {
+          "invocations": 10,
+          "total_ns": 2740953799
+        },
+        {
+          "invocations": 25,
+          "total_ns": 6283157939
+        }
+      ],
+      "warm_ns": 266097835,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        266097835,
+        243289465,
+        302568414
+      ],
+      "workload": "gzip-stdout-incompressible"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "10MiB",
+      "cache_bytes": 10612382,
+      "cold_ns": 304197706,
+      "input_bytes": 10485760,
+      "input_sha256": "b313f79fb97aabb74d9c28a65e753702830b5aa9ba84db355476e844067231e6",
+      "observation_matches_native": true,
+      "peak_rss_kib": 17732,
+      "peak_wall_ns": 296965117,
+      "reuse_evidence": "Reused/Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 59641329
+        },
+        {
+          "invocations": 10,
+          "total_ns": 233203702
+        },
+        {
+          "invocations": 25,
+          "total_ns": 527470194
+        }
+      ],
+      "warm_ns": 20037877,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        23750081,
+        17244623,
+        20037877
+      ],
+      "workload": "gzip-stdout-incompressible"
+    },
+    {
+      "arm": "native",
+      "artifact": "10MiB",
+      "cache_bytes": 0,
+      "cold_ns": 12862058,
+      "input_bytes": 10485760,
+      "input_sha256": "43648fa651a2d9163c4436b61708d18e82277f57a2829de494977e86ece4e82f",
+      "observation_matches_native": true,
+      "peak_rss_kib": 15480,
+      "peak_wall_ns": 8098581,
+      "reuse_evidence": "direct",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 37841871
+        },
+        {
+          "invocations": 10,
+          "total_ns": 85323384
+        },
+        {
+          "invocations": 25,
+          "total_ns": 201404498
+        }
+      ],
+      "warm_ns": 8176651,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        7966790,
+        8223601,
+        8176651
+      ],
+      "workload": "sha256sum"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "10MiB",
+      "cache_bytes": 350585,
+      "cold_ns": 45381921,
+      "input_bytes": 10485760,
+      "input_sha256": "43648fa651a2d9163c4436b61708d18e82277f57a2829de494977e86ece4e82f",
+      "observation_matches_native": true,
+      "peak_rss_kib": 15372,
+      "peak_wall_ns": 32214193,
+      "reuse_evidence": "Reused/Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 30975651
+        },
+        {
+          "invocations": 10,
+          "total_ns": 97732661
+        },
+        {
+          "invocations": 25,
+          "total_ns": 274941697
+        }
+      ],
+      "warm_ns": 11025095,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        16954513,
+        11025095,
+        9346062
+      ],
+      "workload": "sha256sum"
+    },
+    {
+      "arm": "native",
+      "artifact": "10MiB",
+      "cache_bytes": 0,
+      "cold_ns": 682229721,
+      "input_bytes": 10485760,
+      "input_sha256": "43648fa651a2d9163c4436b61708d18e82277f57a2829de494977e86ece4e82f",
+      "observation_matches_native": true,
+      "peak_rss_kib": 15512,
+      "peak_wall_ns": 564763644,
+      "reuse_evidence": "direct",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 1873224861
+        },
+        {
+          "invocations": 10,
+          "total_ns": 6043818469
+        },
+        {
+          "invocations": 25,
+          "total_ns": 15044499937
+        }
+      ],
+      "warm_ns": 555778272,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        555778272,
+        545976009,
+        666714670
+      ],
+      "workload": "bzip2-stdout"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "10MiB",
+      "cache_bytes": 2256668,
+      "cold_ns": 733082688,
+      "input_bytes": 10485760,
+      "input_sha256": "43648fa651a2d9163c4436b61708d18e82277f57a2829de494977e86ece4e82f",
+      "observation_matches_native": true,
+      "peak_rss_kib": 15304,
+      "peak_wall_ns": 739042207,
+      "reuse_evidence": "Reused/Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 29058699
+        },
+        {
+          "invocations": 10,
+          "total_ns": 94974626
+        },
+        {
+          "invocations": 25,
+          "total_ns": 236022495
+        }
+      ],
+      "warm_ns": 11929786,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        15853021,
+        11929786,
+        10844414
+      ],
+      "workload": "bzip2-stdout"
+    },
+    {
+      "arm": "native",
+      "artifact": "10MiB",
+      "cache_bytes": 0,
+      "cold_ns": 470687689,
+      "input_bytes": 10485760,
+      "input_sha256": "43648fa651a2d9163c4436b61708d18e82277f57a2829de494977e86ece4e82f",
+      "observation_matches_native": true,
+      "peak_rss_kib": 15452,
+      "peak_wall_ns": 500685509,
+      "reuse_evidence": "direct",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 1333103749
+        },
+        {
+          "invocations": 10,
+          "total_ns": 4547436141
+        },
+        {
+          "invocations": 25,
+          "total_ns": 11886462441
+        }
+      ],
+      "warm_ns": 478381539,
+      "warm_reused": false,
+      "warm_samples_ns": [
+        469275037,
+        508267939,
+        478381539
+      ],
+      "workload": "gzip-file"
+    },
+    {
+      "arm": "tracejit-ae",
+      "artifact": "10MiB",
+      "cache_bytes": 2683618,
+      "cold_ns": 602577235,
+      "input_bytes": 10485760,
+      "input_sha256": "43648fa651a2d9163c4436b61708d18e82277f57a2829de494977e86ece4e82f",
+      "observation_matches_native": true,
+      "peak_rss_kib": 15364,
+      "peak_wall_ns": 564038893,
+      "reuse_evidence": "Reused/Reused",
+      "sessions": [
+        {
+          "invocations": 3,
+          "total_ns": 42893698
+        },
+        {
+          "invocations": 10,
+          "total_ns": 144481163
+        },
+        {
+          "invocations": 25,
+          "total_ns": 356174025
+        }
+      ],
+      "warm_ns": 16245122,
+      "warm_reused": true,
+      "warm_samples_ns": [
+        19496116,
+        16245122,
+        14944010
+      ],
+      "workload": "gzip-file"
+    }
+  ]
+}

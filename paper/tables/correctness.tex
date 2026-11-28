@@ -1,0 +1,20 @@
+\begin{table}[t]
+\centering
+\small
+\caption{Adversarial and negative results, including the counterexamples that are kept rather than removed.}
+\label{tab:correctness}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Class} & \textbf{Case} & \textbf{Observed decision} & \textbf{Observation} & \textbf{Verdict} \\
+\midrule
+Validation-to-restore race & before\_validation & Executed & detected before exposure & expected \\
+Validation-to-restore race & before\_load & Executed & detected before exposure & expected \\
+Validation-to-restore race & reverted\_mutation & Executed & detected before exposure & see report \\
+Validation-to-restore race & after\_validation\_before\_apply & Reused & stale bytes served & documented counterexample \\
+Validation-to-restore race & during\_hashing & Executed & 8/8 concurrent-writer trials deoptimised & holds under concurrent writes \\
+Cached-object corruption & one CAS object corrupted, then reuse attempted & Executed & re-executed, no hit & correct \\
+Output timestamp & restored object older than the archive built from it & 2/4 projects reproduced a stale member & make treats the archive as up to date & known limitation \\
+Metadata-only observation & mtime/atime/counterexample matrix & 9 cases, 0 incorrect hits & every case matches a native observation & known limitation \\
+\bottomrule
+\end{tabular}
+\end{table}
